@@ -1235,14 +1235,18 @@ Private Function fnGetName(aryStore() As tpLinkName, _
 End Function
 
 
-Private Function fnTerminalCity(ByVal nTerminal As Integer) As String
+Private Function fnTerminalCity(ByVal nTerminal As Integer, sIntExtFlag As String) As String
     
     Dim strSQL As String
     
-    strSQL = "SELECT fmt_city msname FROM fm_terminal" _
-           & " WHERE fmt_code = " & CStr(nTerminal)
-
-    fnTerminalCity = fnGetName(aryTerminal, nTerminalCount, strSQL, nTerminal)
+    If sIntExtFlag = "I" Then
+        fnTerminalCity = fnProfitCenterCity(nTerminal)
+    Else
+        strSQL = "SELECT fmt_city msname FROM fm_terminal" _
+               & " WHERE fmt_code = " & CStr(nTerminal)
+    
+        fnTerminalCity = fnGetName(aryTerminal, nTerminalCount, strSQL, nTerminal)
+    End If
 End Function
 
 Private Sub subVendorInfo(sName As String, _
