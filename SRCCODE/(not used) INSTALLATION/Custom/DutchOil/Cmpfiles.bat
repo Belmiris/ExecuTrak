@@ -1,6 +1,4 @@
 @echo off
-rem Note: NEED TO copy the files to APPFILES\BIN directory from \PROGRAM\RELEASE\EPB
-rem       Move the HELP FILE to APPFILES directory
 
 if "%1" == "" goto parm_missing
 
@@ -12,24 +10,14 @@ del ..\disk\*.z
 
 echo .
 echo call DISKBILD.BAT
-call buildlog.bat epb %1
+call buildlog.bat DutchOil3 %1
 
 echo .
 echo Compress Application files
 
 echo .
-echo Compress all files in appfiles directory to factbin.z
-icomp G:\program\release\exectrak\epb\*.* ..\disk\factbin.z -i
-icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z bin
-
-echo .
-echo Compress all files in Crystal directory to custctl.z
-icomp G:\program\release\exectrak\crystal\*.* ..\disk\crystal.z
-
-echo .
-echo Compress all files in project32\Ole directory to factole.z
-icomp G:\program\release\exectrak\ole\tbkit.dll ..\disk\factole.z
-icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
+echo Compress all files in Release Source directory to factbin.z
+icomp G:\PROGRAM\RELEASE\Custom\DutchOil\*.* ..\disk\factbin.z -i
 
 echo .
 echo Compress all files in project32\Custctl directory to custctl.z
@@ -39,6 +27,10 @@ echo .
 echo Compress all files in project32\Dll directory to factdll.z
 icomp G:\program\release\exectrak\dll\*.* ..\disk\factdll.z
 
+echo .
+echo Compress all files in project32\Ole directory to factole.z
+icomp G:\program\release\exectrak\ole\tbkit.dll ..\disk\factole.z
+icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
 
 echo .
 echo Compress all files in project32\Rtm directory to rtm.z
@@ -54,14 +46,15 @@ icomp G:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 
 echo .
 echo Run the PACKCALC and edit the SPLITZ.BAT/SETUP.LST
-echo Z File sequence (FACTBIN.Z, SHARED.Z, FACTDLL.Z, FACTOLE.Z, CUSTCTL.Z
-echo                   , FACTDB.Z, CRYSTAL.Z, RTM.Z)
+echo .
+echo Z File sequence (FACTBIN.Z, FACTOLE.Z, CUSTCTL.Z,
+echo                  FACTDLL.Z, RTM.Z, SHARED.Z, FACTDB.Z)
 
 echo .
 echo Then run the SPLITZ.BAT to split the Z file.
 
 echo .
-call splitz
+rem call splitz
 
 goto finished
 
