@@ -84,348 +84,235 @@ Public Const SC_TASKLIST = &HF130
 Public Const SC_SCREENSAVE = &HF140
 Public Const SC_HOTKEY = &HF150
 
-#If Win32 Then
-    Type RECT
-        Left As Long
-        Top As Long
-        Right As Long
-        Bottom As Long
-    End Type
-    Type POINTAPI
-        x As Long
-        y As Long
-    End Type
-    Type WINDOWPLACEMENT
-        Length As Long
-        flags As Long
-        showCmd As Long
-        ptMinPosition As POINTAPI
-        ptMaxPosition As POINTAPI
-        rcNormalPosition As RECT
-    End Type
-    Declare Function GetDC Lib "user32" ( _
-        ByVal hwnd As Long) As Long
-        
-    Declare Function ReleaseDC Lib "user32" ( _
-        ByVal hwnd As Long, _
-        ByVal hDC As Long) As Long
-        
-    Declare Function ExtractIcon Lib "shell32.dll" Alias "ExtractIconA" ( _
-        ByVal hInst As Long, _
-        ByVal lpszExeFileName As String, _
-        ByVal nIconIndex As Long) As Long
-        
-    Declare Function DrawIcon Lib "user32" ( _
-        ByVal hDC As Long, _
-        ByVal x As Long, _
-        ByVal y As Long, _
-        ByVal hIcon As Long) As Long
-        
-    Declare Function GetCursorPos Lib "user32" ( _
-        lpPoint As POINTAPI) As Long
-        
-    Declare Function GetKeyState Lib "user32" ( _
-        ByVal nVirtKey As Long) As Integer
-        
-    Declare Function GetWindowRect Lib "user32" ( _
-        ByVal hwnd As Long, _
-        lpRect As RECT) As Long
-        
-    Declare Function lstrcpy Lib "kernel32" Alias "lstrcpyA" ( _
-        ByVal lpString1 As String, _
-        ByVal lpString2 As String) As Long
-        
-    Declare Function GetPrivateProfileString Lib "kernel32" Alias "GetPrivateProfileStringA" ( _
-        ByVal lpApplicationName As String, _
-        ByVal lpKeyName As Any, _
-        ByVal lpDefault As String, _
-        ByVal lpReturnedString As String, _
-        ByVal nSize As Long, _
-        ByVal lpFileName As String) As Long
-        
-    Declare Function WritePrivateProfileString Lib "kernel32" Alias "WritePrivateProfileStringA" ( _
-        ByVal lpApplicationName As String, _
-        ByVal lpKeyName As Any, _
-        ByVal lpString As Any, _
-        ByVal lpFileName As String) As Long
-        
-    Declare Function GetWindowsDirectory Lib "kernel32" Alias "GetWindowsDirectoryA" ( _
-        ByVal lpBuffer As String, _
-        ByVal nSize As Long) As Long
-        
-    Declare Function GetWindowPlacement Lib "user32" ( _
-        ByVal hwnd As Long, _
-        lpwndpl As WINDOWPLACEMENT) As Long
-        
-    Declare Function GetDesktopWindow Lib "user32" () As Long
+Type RECT
+    Left As Long
+    Top As Long
+    Right As Long
+    Bottom As Long
+End Type
+Type POINTAPI
+    x As Long
+    y As Long
+End Type
+Type WINDOWPLACEMENT
+    Length As Long
+    flags As Long
+    showCmd As Long
+    ptMinPosition As POINTAPI
+    ptMaxPosition As POINTAPI
+    rcNormalPosition As RECT
+End Type
+Declare Function GetDC Lib "user32" ( _
+    ByVal hwnd As Long) As Long
     
-    Declare Function GetSystemDirectory Lib "kernel32" Alias "GetSystemDirectoryA" ( _
-        ByVal lpBuffer As String, _
-        ByVal nSize As Long) As Long
-        
-    Declare Function SetWindowPos Lib "user32" ( _
-        ByVal hwnd As Long, _
-        ByVal hWndInsertAfter As Long, _
-        ByVal x As Long, _
-        ByVal y As Long, _
-        ByVal cx As Long, _
-        ByVal cy As Long, _
-        ByVal wFlags As Long) As Long
-        
-    Declare Function ShowWindow Lib "user32" ( _
-        ByVal hwnd As Long, _
-        ByVal nCmdShow As Long) As Long
-        
-    Declare Function SetFocus Lib "user32" ( _
-        ByVal hwnd As Long) As Long
-        
-    Declare Function GetMenu Lib "user32" ( _
-        ByVal hwnd As Long) As Long
-        
-    Declare Function GetSubMenu Lib "user32" ( _
-        ByVal hMenu As Long, _
-        ByVal nPos As Long) As Long
-        
-    Declare Function GetSystemMenu Lib "user32" ( _
-        ByVal hwnd As Long, _
-        ByVal bRevert As Long) As Long
-        
-    Declare Function TrackPopupMenu Lib "user32" ( _
-        ByVal hMenu As Long, _
-        ByVal wFlags As Long, _
-        ByVal x As Long, _
-        ByVal y As Long, _
-        ByVal nReserved As Long, _
-        ByVal hwnd As Long, _
-        lprc As RECT) As Long
-        
-    Declare Function InsertMenu Lib "user32" Alias "InsertMenuA" ( _
-        ByVal hMenu As Long, _
-        ByVal nPosition As Long, _
-        ByVal wFlags As Long, _
-        ByVal wIDNewItem As Long, _
-        ByVal lpNewItem As String) As Long
-        
-    Declare Function EnableWindow Lib "user32" ( _
-        ByVal hwnd As Long, _
-        ByVal fEnable As Long) As Long
-        
-    Declare Function ModifyMenu Lib "user32" Alias "ModifyMenuA" ( _
-        ByVal hMenu As Long, _
-        ByVal nPosition As Long, _
-        ByVal wFlags As Long, _
-        ByVal wIDNewItem As Long, _
-        ByVal lpString As String) As Long
-        
-    Declare Function WinHelp Lib "user32" Alias "WinHelpA" ( _
-        ByVal hwnd As Long, _
-        ByVal lpHelpFile As String, _
-        ByVal wCommand As Long, _
-        ByVal dwData As Long) As Long
-        
-    Declare Function GetParent Lib "user32" ( _
-        ByVal hwnd As Long) As Long
-        
-    Declare Function GetLastActivePopup Lib "user32" ( _
-        ByVal hwndOwnder As Long) As Long
+Declare Function ReleaseDC Lib "user32" ( _
+    ByVal hwnd As Long, _
+    ByVal hDC As Long) As Long
+    
+Declare Function ExtractIcon Lib "shell32.dll" Alias "ExtractIconA" ( _
+    ByVal hInst As Long, _
+    ByVal lpszExeFileName As String, _
+    ByVal nIconIndex As Long) As Long
+    
+Declare Function DrawIcon Lib "user32" ( _
+    ByVal hDC As Long, _
+    ByVal x As Long, _
+    ByVal y As Long, _
+    ByVal hIcon As Long) As Long
+    
+Declare Function GetCursorPos Lib "user32" ( _
+    lpPoint As POINTAPI) As Long
+    
+Declare Function GetKeyState Lib "user32" ( _
+    ByVal nVirtKey As Long) As Integer
+    
+Declare Function GetWindowRect Lib "user32" ( _
+    ByVal hwnd As Long, _
+    lpRect As RECT) As Long
+    
+Declare Function lstrcpy Lib "kernel32" Alias "lstrcpyA" ( _
+    ByVal lpString1 As String, _
+    ByVal lpString2 As String) As Long
+    
+Declare Function GetPrivateProfileString Lib "kernel32" Alias "GetPrivateProfileStringA" ( _
+    ByVal lpApplicationName As String, _
+    ByVal lpKeyName As Any, _
+    ByVal lpDefault As String, _
+    ByVal lpReturnedString As String, _
+    ByVal nSize As Long, _
+    ByVal lpFileName As String) As Long
+    
+Declare Function WritePrivateProfileString Lib "kernel32" Alias "WritePrivateProfileStringA" ( _
+    ByVal lpApplicationName As String, _
+    ByVal lpKeyName As Any, _
+    ByVal lpString As Any, _
+    ByVal lpFileName As String) As Long
+    
+Declare Function GetWindowsDirectory Lib "kernel32" Alias "GetWindowsDirectoryA" ( _
+    ByVal lpBuffer As String, _
+    ByVal nSize As Long) As Long
+    
+Declare Function GetWindowPlacement Lib "user32" ( _
+    ByVal hwnd As Long, _
+    lpwndpl As WINDOWPLACEMENT) As Long
+    
+Declare Function GetDesktopWindow Lib "user32" () As Long
 
-    'rajneesh & david 10/30/00
-    Public Const MF_BYPOSITION = &H400&
-    Public Const MF_REMOVE = &H1000&
+Declare Function GetSystemDirectory Lib "kernel32" Alias "GetSystemDirectoryA" ( _
+    ByVal lpBuffer As String, _
+    ByVal nSize As Long) As Long
     
-    Public Declare Function GetMenuItemCount Lib "user32" _
-        (ByVal hMenu As Long) As Long
+Declare Function SetWindowPos Lib "user32" ( _
+    ByVal hwnd As Long, _
+    ByVal hWndInsertAfter As Long, _
+    ByVal x As Long, _
+    ByVal y As Long, _
+    ByVal cx As Long, _
+    ByVal cy As Long, _
+    ByVal wFlags As Long) As Long
+    
+Declare Function ShowWindow Lib "user32" ( _
+    ByVal hwnd As Long, _
+    ByVal nCmdShow As Long) As Long
+    
+Declare Function SetFocus Lib "user32" ( _
+    ByVal hwnd As Long) As Long
+    
+Declare Function GetMenu Lib "user32" ( _
+    ByVal hwnd As Long) As Long
+    
+Declare Function GetSubMenu Lib "user32" ( _
+    ByVal hMenu As Long, _
+    ByVal nPos As Long) As Long
+    
+Declare Function GetSystemMenu Lib "user32" ( _
+    ByVal hwnd As Long, _
+    ByVal bRevert As Long) As Long
+    
+Declare Function TrackPopupMenu Lib "user32" ( _
+    ByVal hMenu As Long, _
+    ByVal wFlags As Long, _
+    ByVal x As Long, _
+    ByVal y As Long, _
+    ByVal nReserved As Long, _
+    ByVal hwnd As Long, _
+    lprc As RECT) As Long
+    
+Declare Function InsertMenu Lib "user32" Alias "InsertMenuA" ( _
+    ByVal hMenu As Long, _
+    ByVal nPosition As Long, _
+    ByVal wFlags As Long, _
+    ByVal wIDNewItem As Long, _
+    ByVal lpNewItem As String) As Long
+    
+Declare Function EnableWindow Lib "user32" ( _
+    ByVal hwnd As Long, _
+    ByVal fEnable As Long) As Long
+    
+Declare Function ModifyMenu Lib "user32" Alias "ModifyMenuA" ( _
+    ByVal hMenu As Long, _
+    ByVal nPosition As Long, _
+    ByVal wFlags As Long, _
+    ByVal wIDNewItem As Long, _
+    ByVal lpString As String) As Long
+    
+Declare Function WinHelp Lib "user32" Alias "WinHelpA" ( _
+    ByVal hwnd As Long, _
+    ByVal lpHelpFile As String, _
+    ByVal wCommand As Long, _
+    ByVal dwData As Long) As Long
+    
+Declare Function GetParent Lib "user32" ( _
+    ByVal hwnd As Long) As Long
+    
+Declare Function GetLastActivePopup Lib "user32" ( _
+    ByVal hwndOwnder As Long) As Long
 
-    Public Declare Function DrawMenuBar Lib "user32" _
-        (ByVal hMenu As Long) As Long
+'rajneesh & david 10/30/00
+Public Const MF_BYPOSITION = &H400&
+Public Const MF_REMOVE = &H1000&
 
-    Public Declare Function RemoveMenu Lib "user32" _
-        (ByVal hMenu As Long, ByVal nPosition As Long, _
-        ByVal wFlags As Long) As Long
+Public Declare Function GetMenuItemCount Lib "user32" _
+    (ByVal hMenu As Long) As Long
+
+Public Declare Function DrawMenuBar Lib "user32" _
+    (ByVal hMenu As Long) As Long
+
+Public Declare Function RemoveMenu Lib "user32" _
+    (ByVal hMenu As Long, ByVal nPosition As Long, _
+    ByVal wFlags As Long) As Long
 
 
-    Public Declare Function CopyFile Lib "kernel32.dll" Alias "CopyFileA" _
-        (ByVal lpExistingFileName As String, ByVal lpNewFileName As String, _
-        ByVal bFailIfExists As Long) As Long
+Public Declare Function CopyFile Lib "kernel32.dll" Alias "CopyFileA" _
+    (ByVal lpExistingFileName As String, ByVal lpNewFileName As String, _
+    ByVal bFailIfExists As Long) As Long
 
-    'david 11/15/00
-    Public Declare Function SendMessageByNum Lib "user32" Alias _
-    "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal _
-    wParam As Long, ByVal lParam As Long) As Long
-    
-    Public Const LB_SETHORIZONTALEXTENT = &H194
+'david 11/15/00
+Public Declare Function SendMessageByNum Lib "user32" Alias _
+"SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal _
+wParam As Long, ByVal lParam As Long) As Long
 
-    
-#Else
-    Type POINTAPI 'Point structure
-        x As Integer
-        y As Integer
-    End Type
-    Type RECT 'used for tooltip and context menus
-        Left As Integer
-        Top As Integer
-        Right As Integer
-        Bottom As Integer
-    End Type
+Public Const LB_SETHORIZONTALEXTENT = &H194
 
-    Type WINDOWPLACEMENT 'Used for Context menus
-        Length As Integer
-        flags As Integer
-        showCmd As Integer
-        PtMinPos As POINTAPI
-        ptMaxPos As POINTAPI
-        rcNormalPos As RECT
-    End Type
-    
-    '=================
-    'Windows API Calls
-    '=================
-    Declare Function GetDC Lib "USER" ( _
-        ByVal hwnd As Integer _
-        ) As Integer
-    
-    Declare Sub ReleaseDC Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        ByVal hDC As Integer)
-    
-    Declare Function ExtractIcon Lib "shell" ( _
-        ByVal hInstance As Integer, _
-        ByVal lpszAppName As String, _
-        ByVal Icon As Integer) _
-        As Integer
-    
-    Declare Function DrawIcon Lib "USER" ( _
-        ByVal hDC As Integer, _
-        ByVal x As Integer, _
-        ByVal y As Integer, _
-        ByVal hIcon As Integer) _
-        As Integer
-    
-    Declare Sub GetCursorPos Lib "USER" ( _
-        lpPoint As POINTAPI)
-    
-    Declare Function GetKeyState Lib "USER" ( _
-        ByVal Vkey As Integer _
-        ) As Integer
-    
-    Declare Sub GetWindowRect Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        lpRect As RECT)
-    
-    Declare Function lstrcpy Lib "kernel" ( _
-        ByVal lpString1 As Any, _
-        ByVal lpString2 As Any _
-        ) As Long
-    
-    Declare Function GetPrivateProfileString Lib "kernel" ( _
-        ByVal lpApplicationName As String, _
-        ByVal lpKeyName As Any, _
-        ByVal lpDefault As String, _
-        ByVal lpReturnedString As String, _
-        ByVal nSize As Integer, _
-        ByVal lpFileName As String _
-        ) As Integer
-    
-    Declare Function WritePrivateProfileString Lib "kernel" ( _
-        ByVal lpApplicationName As String, _
-        ByVal lpKeyName As Any, _
-        ByVal lpString As Any, _
-        ByVal lplFileName As String _
-        ) As Integer
-    
-    Declare Function GetWindowsDirectory Lib "kernel" ( _
-        ByVal lpBuffer As String, _
-        ByVal nSize As Integer _
-        ) As Integer
-    
-    Declare Function SetWindowsPlacement Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        lpwndpl As WINDOWPLACEMENT _
-        ) As Integer
-    
-    Declare Function GetDesktopWindow Lib "USER" Alias "GetDeskTopWindow" () As Integer
-    
-    Declare Sub SetWindowPos Lib "USER" ( _
-        ByVal h1 As Integer, _
-        ByVal h2 As Integer, _
-        ByVal x As Integer, _
-        ByVal y As Integer, _
-        ByVal cx As Integer, _
-        ByVal cy As Integer, _
-        ByVal f As Integer)
-    
-    
-    Declare Function GetSystemDirectory Lib "kernel" ( _
-        ByVal lpBuffer As String, _
-        ByVal nSize As Integer _
-        ) As Integer
-    
-    Declare Function ShowWindow Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        ByVal nCmdShow As Integer _
-        ) As Integer
-    
-    Declare Function SetFocusAPI Lib "USER" Alias "SetFocus" ( _
-        ByVal hwnd As Integer _
-        ) As Integer
-    
-    Declare Function GetMenu Lib "USER" ( _
-        ByVal hwnd As Integer _
-        ) As Integer
-    
-    Declare Function GetSubMenu Lib "USER" ( _
-        ByVal hMenu As Integer, _
-        ByVal nPos As Integer _
-        ) As Integer
-    
-    Declare Function GetSystemMenu Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        ByVal bRevert As Integer _
-        ) As Integer
-    
-    Declare Function TrackPopupMenu Lib "USER" ( _
-        ByVal hMenu As Integer, _
-        ByVal wFlags As Integer, _
-        ByVal x As Integer, _
-        ByVal y As Integer, _
-        ByVal nReserved As Integer, _
-        ByVal hwnd As Integer, _
-        lpReserved As Any _
-        ) As Integer
-    
-    Declare Function InsertMenu Lib "USER" ( _
-        ByVal hMenu As Integer, _
-        ByVal nPosition As Integer, _
-        ByVal wFlags As Integer, _
-        ByVal wIDNewItem As Integer, _
-        ByVal lpNewItem As Any _
-        ) As Integer
-    
-    Declare Function EnableWindow Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        ByVal aBOOL As Integer _
-        ) As Integer
-    
-    Declare Function ModifyMenu Lib "USER" ( _
-        ByVal hMenu As Integer, _
-        ByVal nPosition As Integer, _
-        ByVal wFlags As Integer, _
-        ByVal wIDNewItem As Integer, _
-        ByVal lpString As Any _
-        ) As Integer
-    
-    Declare Function WinHelp Lib "USER" ( _
-        ByVal hwnd As Integer, _
-        ByVal lpHelpFile As String, _
-        ByVal wCommand As Integer, _
-        ByVal dwData As Any _
-        ) As Integer
-    
-    Declare Function GetParent Lib "USER" ( _
-        ByVal hwnd As Integer _
-        ) As Integer
-    
-    Declare Function GetLastActivePopup Lib "USER" (ByVal hwndOwnder As Integer) As Integer
-    Declare Function AnyPopup Lib "USER" () As Integer
-#End If
-    
+'david 04/01/2002
+'''''''''''''' change screen resolution API
+Public Const EWX_LOGOFF = 0
+Public Const EWX_SHUTDOWN = 1
+Public Const EWX_REBOOT = 2
+Public Const EWX_FORCE = 4
+Public Const CCDEVICENAME = 32
+Public Const CCFORMNAME = 32
+Public Const DM_BITSPERPEL = &H40000
+Public Const DM_PELSWIDTH = &H80000
+Public Const DM_PELSHEIGHT = &H100000
+Public Const CDS_UPDATEREGISTRY = &H1
+Public Const CDS_TEST = &H4
+Public Const DISP_CHANGE_SUCCESSFUL = 0
+Public Const DISP_CHANGE_RESTART = 1
+
+'Public Const HWND_BROADCAST = &HFFFF&
+Public Const WM_DISPLAYCHANGE = &H7E&
+Public Const SPI_SETNONCLIENTMETRICS = 42
+
+Public Const SM_CXSCREEN = 0
+Public Const SM_CYSCREEN = 1
+
+Type typDevMODE
+    dmDeviceName       As String * CCDEVICENAME
+    dmSpecVersion      As Integer
+    dmDriverVersion    As Integer
+    dmSize             As Integer
+    dmDriverExtra      As Integer
+    dmFields           As Long
+    dmOrientation      As Integer
+    dmPaperSize        As Integer
+    dmPaperLength      As Integer
+    dmPaperWidth       As Integer
+    dmScale            As Integer
+    dmCopies           As Integer
+    dmDefaultSource    As Integer
+    dmPrintQuality     As Integer
+    dmColor            As Integer
+    dmDuplex           As Integer
+    dmYResolution      As Integer
+    dmTTOption         As Integer
+    dmCollate          As Integer
+    dmFormName         As String * CCFORMNAME
+    dmUnusedPadding    As Integer
+    dmBitsPerPel       As Integer
+    dmPelsWidth        As Long
+    dmPelsHeight       As Long
+    dmDisplayFlags     As Long
+    dmDisplayFrequency As Long
+End Type
+
+Declare Function EnumDisplaySettings Lib "user32" Alias "EnumDisplaySettingsA" _
+    (ByVal lpszDeviceName As Long, ByVal iModeNum As Long, lptypDevMode As Any) As Boolean
+Declare Function ChangeDisplaySettings Lib "user32" Alias "ChangeDisplaySettingsA" _
+    (lptypDevMode As Any, ByVal dwFlags As Long) As Long
+Declare Function ExitWindowsEx Lib "user32" _
+    (ByVal uFlags As Long, ByVal dwReserved As Long) As Long
+Declare Function SendMessage Lib "user32" Alias "SendMessageA" _
+    (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+Declare Function GetSystemMetrics Lib "user32.dll" (ByVal nIndex As Long) As Long
+

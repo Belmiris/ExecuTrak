@@ -458,7 +458,6 @@ Public Const VENDOR_CATEGORY_UP = 14900
 Public Const CSTORE_TIER_MAINT_UP = 14950
 '''''''''''''''''
 
-
 '''
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
@@ -503,6 +502,11 @@ Private SYS_PARM_14000 As String
 Private SYS_PARM_6005 As String
 
 Public Const CUST_ON_HOLD_STATS = " ('BH','OH') " 'WJ 04/18/2001
+
+'david 04/01/2002
+Public Const t_lBigFormWidth As Long = 11835
+Public Const t_lBigFormHeight As Long = 8760
+'
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
@@ -2531,4 +2535,95 @@ errTrap:
     tfnNeed_inv_xref = False
 
 End Function
+
+'nMinWidth x nMinHeight
+'640 x 480
+'800 x 600
+'1024 x 768
+Public Function fnScreenResolution(Optional nMinWidth As Integer = 0, _
+                                   Optional nMinHeight As Integer = 0, _
+                                   Optional bSetScreenResolution As Boolean = False, _
+                                   Optional bAskToChange As Boolean = True) As Boolean
+
+    Static nScreenWidth As Integer
+    Static nScreenHeight As Integer
+    
+    Static bChangeResolutionTo800x600 As Boolean
+    
+    If Not bSetScreenResolution Then  'restore screen resolution
+        If bChangeResolutionTo800x600 Then
+            If nScreenWidth > 0 And nScreenHeight > 0 Then
+                fnScreenResolution = fnSetScreenResolution(nScreenWidth, nScreenHeight)
+            End If
+        End If
+    End If
+    
+    nScreenWidth = GetSystemMetrics(SM_CXSCREEN)
+    nScreenHeight = GetSystemMetrics(SM_CYSCREEN)
+
+    'error ???
+    If nScreenWidth = 0 Or nScreenHeight = 0 Then
+        fnScreenResolution = True
+        Exit Function
+    End If
+    
+    If nScreenWidth >= nMinWidth And nScreenHeight >= nMinHeight Then
+        fnScreenResolution = True
+        Exit Function
+    End If
+    
+    If bAskToChange Then
+        bChangeResolutionTo800x600 = MsgBox("This program is designed to run on the windows with screen resolution" _
+            + " of 800x600 or higher." + vbCrLf + vbCrLf + "Your screen resolution is " + CStr(nScreenWidth) + "x" _
+            + CStr(nScreenHeight) + "." + vbCrLf + vbCrLf + "Do you want the program change the screen resolution" _
+            + " to 800x600?", vbQuestion + vbYesNo + vbDefaultButton2)
+    End If
+    
+    If Not bChangeResolutionTo800x600 Then
+        Exit Function
+    End If
+    
+    'change screen resolution to 800x600
+    fnScreenResolution = fnSetScreenResolution(800, 600)
+End Function
+
+Public Function fnSetScreenResolution(nScreenWidth As Integer, nScreenHeight As Integer) As Boolean
+    'Code:
+    Dim typDevM As typDevMODE
+    Dim lngResult As Long
+    Dim intAns    As Integer
+    
+    ' Retrieve info about the current graphics mode
+    ' on the current display device.
+    lngResult = EnumDisplaySettings(0, 0, typDevM)
+    
+    ' Set the new resolution. Don't change the color
+    ' depth so a restart is not necessary.
+    With typDevM
+        .dmFields = DM_PELSWIDTH Or DM_PELSHEIGHT
+        .dmPelsWidth = CLng(nScreenWidth)  'ScreenWidth (640,800,1024, etc)
+        .dmPelsHeight = CLng(nScreenHeight) 'ScreenHeight (480,600,768, etc)
+    End With
+    
+    ' Change the display settings to the specified graphics mode.
+    lngResult = ChangeDisplaySettings(typDevM, CDS_TEST)
+    
+    Select Case lngResult
+    Case DISP_CHANGE_RESTART
+        MsgBox "You need to restart your computer to apply these changes.", vbInformation + vbSystemModal, "Screen Resolution"
+        
+        'intAns = MsgBox("You must restart your computer to apply these changes." & _
+            vbCrLf & vbCrLf & "Do you want to restart now?", _
+            vbYesNo + vbSystemModal, "Screen Resolution")
+        'If intAns = vbYes Then Call ExitWindowsEx(EWX_REBOOT, 0)
+    Case DISP_CHANGE_SUCCESSFUL
+        Call ChangeDisplaySettings(typDevM, CDS_UPDATEREGISTRY)
+        Call SendMessage(HWND_BROADCAST, WM_DISPLAYCHANGE, SPI_SETNONCLIENTMETRICS, ByVal 0&)
+        'MsgBox "Screen resolution changed.", vbInformation + vbSystemModal, "Resolution Changed"
+        fnSetScreenResolution = True
+    Case Else
+        MsgBox "Mode not supported", vbSystemModal, "Error"
+    End Select
+End Function
+
 
