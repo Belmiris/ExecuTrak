@@ -268,7 +268,7 @@ Public Sub Click()
                             
                             sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
                             
-                            If Not m_tgTable.EditActive Then
+                            If Not m_tgTable.EditActive And Not m_tgTable.Columns(m_nClickCol).Locked Then
                                 subMarkCellSelected sColRow
                             End If
                         
@@ -1028,7 +1028,10 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
                 Dim sColRow As String
                 sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
                 
-                subMarkCellSelected sColRow, True  'IIf(CStr(LastRow) <> CStr(m_tgTable.Row), True, False)
+                If Not m_tgTable.Columns(m_nClickCol).Locked Then
+                    subMarkCellSelected sColRow, True  'IIf(CStr(LastRow) <> CStr(m_tgTable.Row), True, False)
+                End If
+                
                 m_bTableClicked = False
                 subSetLastClickedCell
             End If

@@ -78,7 +78,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -146,7 +145,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -182,7 +180,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":00F2
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -218,7 +215,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":02F4
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -331,7 +327,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -368,7 +363,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -406,7 +400,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -443,7 +436,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -480,7 +472,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -514,7 +505,6 @@ Begin VB.Form clsCRITERIA
          Strikethrough   =   0   'False
       EndProperty
       BevelOuter      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -551,7 +541,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -588,7 +577,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -626,7 +614,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -658,7 +645,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "System"
             Size            =   9.75
@@ -737,6 +723,7 @@ Private nCol_NdxTgCombo As Integer
 Private nCol_RegExp As Integer
 Private nCol_ComboSQL As Integer
 Private nCol_CriteriaField As Integer
+Private nCol_Enabled As Integer
 Private nCol_AllowEditSortCol As Integer
 Private nCol_XtraColName As Integer
 Private nCol_XtraRegExp As Integer
@@ -844,6 +831,7 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
     aryData(nCol_RegExp, 0) = sRegExp
     aryData(nCol_ComboSQL, 0) = sDropdownSQL
     aryData(nCol_CriteriaField, 0) = fnCStr(sCriteriaField)
+    aryData(nCol_Enabled, 0) = "Y"
     aryData(nCol_AllowEditSortCol, 0) = bAllowEditSortCol
     aryData(nCol_sPreReqFields, 0) = sPreRequisiteFields
     
@@ -1143,6 +1131,50 @@ End Property
 
 Property Get SQL_PHONE_TYPE() As String
     SQL_PHONE_TYPE = TYPE_PHONE
+End Property
+
+Property Let ColEnabled(ByVal sColName As String, ByVal bStatus As Boolean)
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                .CellValue(nCol_Enabled, i) = IIf(bStatus, "Y", "N")
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
+End Property
+
+Property Get ColEnabled(ByVal sColName As String) As Boolean
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                ColEnabled = .CellValue(nCol_Enabled, i) = "Y"
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
 End Property
 
 'Public Static Function
@@ -1533,6 +1565,7 @@ Private Sub subSetupGrid()
         nCol_NdxTgCombo = .AddHiddenField("NdxTgCombo")
         nCol_ComboSQL = .AddHiddenField("ComboSQL")
         nCol_CriteriaField = .AddHiddenField("CriteriaField")
+        nCol_Enabled = .AddHiddenField("Enabled")
         nCol_AllowEditSortCol = .AddHiddenField("AllowEditSortCol")
         nCol_XtraColName = .AddHiddenField("XtraColName")
         nCol_XtraRegExp = .AddHiddenField("XtraRegExp")
@@ -1646,13 +1679,22 @@ Private Sub tblCriteria_AfterColEdit(ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    Dim lRow As Long
+    
+    lRow = tgmCriteria.GetCurrentRowNumber
+    
     If ColIndex = nCol_Sort Then
-        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, lRow) Then
+            CANCEL = True
+            Exit Sub
+        End If
+        
+        If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
             CANCEL = True
             Exit Sub
         End If
     End If
-    
+
     cmdOkBtn.Enabled = False
     tgmCriteria.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
@@ -1672,12 +1714,21 @@ Private Sub tblCriteria_FirstRowChange()
 End Sub
 
 Private Sub tblCriteria_GotFocus()
+    Dim lRow As Long
+    
     tgmCriteria.GotFocus
+    
+    lRow = tgmCriteria.GetCurrentRowNumber
+    
+    If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
+        m_frmParent.tfnSetStatusBarMessage "Selection Criteria is not applied"
+        Exit Sub
+    End If
     
     If tblCriteria.Col <> nCol_Sort Then
         m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
     ElseIf tblCriteria.Col = nCol_Sort Then
-        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, lRow) Then
             m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
             Exit Sub
         End If
@@ -1698,6 +1749,8 @@ Private Sub tblCriteria_KeyDown(KeyCode As Integer, Shift As Integer)
         ElseIf KeyCode = vbKeySpace Then
             'popup the the filter form
             subShowFilterPopup
+        Else
+            nClickCol = -1
         End If
     End If
     
@@ -1723,20 +1776,28 @@ Debug.Print "x="; x; ", nClickCol = "; nClickCol
 End Sub
 
 Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    Dim lRow As Long
+    
     tgmCriteria.RowColChange LastRow, LastCol
     
-    If tblCriteria.Col <> nCol_Sort Then
-        m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
-    ElseIf tblCriteria.Col = nCol_Sort Then
-        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+    lRow = tgmCriteria.GetCurrentRowNumber
+    
+    If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
+        m_frmParent.tfnSetStatusBarMessage "Selection Criteria is not applied"
+    Else
+        If tblCriteria.Col <> nCol_Sort Then
             m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+        ElseIf tblCriteria.Col = nCol_Sort Then
+            If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+                m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+            End If
         End If
-    End If
-
-    If tgmCriteria.RowCount > 0 Then
-        If nClickCol = nCol_Filter Or nClickCol = nCol_ColumnName Then
-            'popup the the filter form
-            subShowFilterPopup
+    
+        If tgmCriteria.RowCount > 0 Then
+            If nClickCol = nCol_Filter Or nClickCol = nCol_ColumnName Then
+                'popup the the filter form
+                subShowFilterPopup
+            End If
         End If
     End If
 End Sub
@@ -2112,6 +2173,12 @@ Private Sub txtValue_GotFocus()
     End If
 End Sub
 
+Private Sub txtValue_KeyDown(KeyCode As Integer, Shift As Integer)
+    If KeyCode = vbKeyDelete Or KeyCode = vbKeyBack Then
+        txtDesc.Text = ""
+    End If
+End Sub
+
 Private Sub txtValue_KeyPress(KeyAscii As Integer)
     #If ProtoType Then
         Exit Sub
@@ -2144,6 +2211,7 @@ Private Sub txtValue_KeyPress(KeyAscii As Integer)
         KeyAscii = 0
     Else
         cValidate.Keypress txtValue, KeyAscii
+        txtDesc.Text = ""
     End If
 End Sub
 
@@ -2688,12 +2756,12 @@ Private Function fnValidValue(txtBox As Textbox) As Boolean
         cValidate.SetErrorMessage txtBox, "Invalid " & tgmCriteria.CellValue(nCol_ColumnName, m_nCurrRow)
         Exit Function
     End If
+
 '''
 '''    If fnCStr(txtOp) = "" Then
 '''        cValidate.SetErrorMessage txtOp, "Enter Operator"
 '''        Exit Function
 '''    End If
-    
     fnValidValue = True
 End Function
 
