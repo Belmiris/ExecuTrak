@@ -1678,7 +1678,7 @@ Public Function tfnRun(szExeName As String, Optional vWindowStyle) As Boolean
         szCmd = szCmd & " " & t_szHandShake
         
         hTempInstance = shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
-        If hTempInstance > SHELL_OK Then 'if hInstance greater than 32 application is running
+        If hTempInstance > SHELL_OK Or hTempInstance < 0 Then 'if hInstance greater than 32 application is running
             tfnRun = True 'application running
             Exit Function
         Else
