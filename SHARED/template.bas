@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -1217,7 +1217,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1939,6 +1939,47 @@ Public Function tfnSQLString(ByVal vTemp As Variant, _
     End If
 End Function
 
+'##############################################################################
+' Function/Subroutine:  tfnJetSQLFixup
+' Author:               Junsong Qiu
+' Date:                 2004/06/04
+' Project Number:       N/A
+' Program Version:      N/A
+' ARGS:                 strSQL String type used to parse
+' Returns:              string, the string good to for SQL query
+' Description:          This apply to Microsoft Access Database only
+'                       If the SQL string contains character '|'
+'                       and you are querying a Jet database, it can cause either
+'                       the "Syntax Error" given above or the following error:
+'                       Run-time error 3061 Too few parameters. Expected n.
+'                       The pipe symbol causes problems because Jet uses pipe symbols
+'                       to delimit field or parameter names embedded in a literal string.
+'                       The solution is to replace the pipe symbol with a concatenated expression
+'                       For example 'A2|45' will become 'A2' & chr(124) & '45'
+'                       Microsoft Knowledge Base Article - 178070
+'##############################################################################
+
+Public Function tfnJetSQLFixup(strSQL As String) As String
+    Dim sTemp As String
+    Dim sSearchStr As String
+    Dim sReplacement As String
+    Dim Pointer As Integer
+    
+    sTemp = strSQL
+    sSearchStr = "|"
+    sReplacement = "' & chr(124) & '"
+     
+    Pointer = InStr(1, sTemp, sSearchStr, vbBinaryCompare)
+    
+    Do While Pointer > 0
+        sTemp = Left(sTemp, Pointer - 1) & sReplacement & Mid(sTemp, Pointer + Len(sSearchStr))
+        Pointer = InStr(Pointer + Len(sReplacement), sTemp, sSearchStr, vbBinaryCompare)
+    Loop
+    
+    tfnJetSQLFixup = sTemp
+
+End Function
+
 Public Function tfnSQLCheckPercent(ByRef szParameter As String) As String
 '
 ' adds extra % to string if string uses LIKE statement in the SQL
@@ -2340,7 +2381,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
