@@ -263,6 +263,7 @@ Public Function LaunchEDIPROC() As String
     
     If Not m_frmParent Is Nothing Then
         If UCase(m_RunMode) = "BACK" Then
+            m_frmParent.Show
             m_frmParent.Enabled = False
         End If
     End If
