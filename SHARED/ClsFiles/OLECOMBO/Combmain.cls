@@ -3203,28 +3203,25 @@ End Function
 Public Sub Click(objControl As Object)
     'Event call for all the controls
     If objControl.TabIndex = tgDropDown.TabIndex Then
-'david 01/30/2002
-'        If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
-'            If m_bSortOnColumnClick Then
-'                bTableClicked = True
-'            End If
-'            RowColChange
-'        Else
-'            'Otherwise, set the flag
-'            If m_bSortOnColumnClick Then
-'                bTableClicked = True
-'            End If
-'        End If
-    
+
+        'david 01/30/2002
         Dim nRowTop As Integer
-        
+
         If tgDropDown.Row >= 0 Then
             nRowTop = tgDropDown.RowTop(0)
-            
-            If nClickPointY >= nRowTop Then
-                bTableClicked = True
-            Else
+
+            If nClickPointY < nRowTop Then
                 If m_bSortOnColumnClick Then
+                    bTableClicked = True
+                Else
+                    bTableClicked = False
+                End If
+            Else
+                If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+                    bTableClicked = True
+                    RowColChange
+                Else
+                    'Otherwise, set the flag
                     bTableClicked = True
                 End If
             End If
@@ -3234,7 +3231,7 @@ Public Sub Click(objControl As Object)
                 bTableClicked = True
             End If
         End If
-''''''''''''''''''''''''
+        '''''''''''''''
     Else
         Dim lDropDown As Integer
         Dim nctrlType As Integer
