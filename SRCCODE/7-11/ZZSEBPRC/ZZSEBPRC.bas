@@ -83,6 +83,7 @@ Public arySalesType() As Variant
 
 Public sSalesTypeCode As String
 Public Const sBiWeek As String = "B"
+Public Const sTwoWeek As String = "P"
 Public Const sOneMth As String = "M"
 Public Const sGas As String = "G"
 Public Const sRatio As String = "R"
@@ -181,7 +182,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     Dim sArrMsg() As String
     Dim i As Integer
     
-    Dim X As Long
+    Dim x As Long
     
     On Error GoTo errTrap
     
@@ -189,10 +190,10 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
         frmZZSEBPRC!lstProcess.Clear
         
         'hide the scrollbar
-        X = frmZZSEBPRC.TextWidth("  ")
+        x = frmZZSEBPRC.TextWidth("  ")
         frmZZSEBPRC!lstProcess.Tag = "0"
-        If frmZZSEBPRC.ScaleMode = vbTwips Then X = X / Screen.TwipsPerPixelX
-        SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, X, 0
+        If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+        SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
         
         DoEvents
         
@@ -222,11 +223,11 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
         frmZZSEBPRC.lstProcess.AddItem sArrMsg(i)
         
         If sArrMsg(i) <> "" Then
-            X = frmZZSEBPRC.TextWidth(sMsg & "  ")
-            If X > Val(frmZZSEBPRC!lstProcess.Tag) Then
-                frmZZSEBPRC!lstProcess.Tag = X
-                If frmZZSEBPRC.ScaleMode = vbTwips Then X = X / Screen.TwipsPerPixelX
-                SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, X, 0
+            x = frmZZSEBPRC.TextWidth(sMsg & "  ")
+            If x > Val(frmZZSEBPRC!lstProcess.Tag) Then
+                frmZZSEBPRC!lstProcess.Tag = x
+                If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+                SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
             End If
         End If
             
@@ -1080,7 +1081,7 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     
     'Adj. condition and formula
     If sAFmla <> "" Then
-        If sCond = "" Then
+        If sACond = "" Then
             bConditionOK = True
         Else
             bConditionOK = objCond.CheckCondition(sACond, sErrMsg)
@@ -1403,7 +1404,7 @@ Private Function fn3MonthsAverage(sVariable As String, _
         Else
             Select Case sVariable
             Case "3_mo_shortage_avg"
-                dTmpAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+                dTmpAmt = tfnRound(rsTemp!var_value, 2)
                 subLogErrMsg "Shortage Ratio as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
             Case "3_month_sales_avg"
                 dTmpAmt = tfnRound(rsTemp!var_value, 2)
@@ -1416,10 +1417,11 @@ Private Function fn3MonthsAverage(sVariable As String, _
     Next i
     
     If nMonthCount > 0 Then
-        fn3MonthsAverage = tfnRound(dAmount / nMonthCount, DEFAULT_DECIMALS)
+        fn3MonthsAverage = tfnRound(dAmount / nMonthCount, 2)
     Else
         fn3MonthsAverage = 0#
     End If
+    
 End Function
 
 Private Function fnInvRecordMonths(sVinV As String, _
@@ -1507,7 +1509,7 @@ Private Function fnInvRecordMonths(sVinV As String, _
         
         If nEmpLevelCount < 0 Or fnFindInList(nEmpLevel, aryEmpLevelList, nEmpLevelCount) Then
             If Not IsValidDate(sDateTerminated) Then
-                sDateTerminated = frmZZSEBPRC!txtEndDate
+                sDateTerminated = frmZZSEBPRC!txtStartDate
             End If
             dDiff = Int(fnDateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
         End If
@@ -1525,7 +1527,7 @@ Private Function fnInvRecordMonths(sVinV As String, _
                 Exit Function
             End If
             
-            sDateEnd = frmZZSEBPRC!txtEndDate
+            sDateEnd = frmZZSEBPRC!txtStartDate
             dDiff = Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
         End If
     Else
@@ -1564,7 +1566,7 @@ Private Function fnInvRecordMonths(sVinV As String, _
         If sDateStart <> "" Then
             If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
                (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
-                sDateEnd = frmZZSEBPRC!txtEndDate
+                sDateEnd = frmZZSEBPRC!txtStartDate
                 dDiff = dDiff + Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
             End If
         End If
@@ -1754,7 +1756,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
         
         If nEmpLevelCount < 0 Or fnFindInList(nEmpLevel, aryEmpLevelList, nEmpLevelCount) Then
             If Not IsValidDate(sDateTerminated) Then
-                sDateTerminated = frmZZSEBPRC!txtEndDate
+                sDateTerminated = frmZZSEBPRC!txtStartDate
             End If
             dDiff = fnDateDiff("m", CDate(sDateHired), CDate(sDateTerminated))
         End If
@@ -1776,7 +1778,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
                 Exit Function
             End If
             
-            sDateEnd = frmZZSEBPRC!txtEndDate
+            sDateEnd = frmZZSEBPRC!txtStartDate
             dDiff = fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
         End If
     Else
@@ -1815,7 +1817,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
         If sDateStart <> "" Then
             If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
                (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
-                sDateEnd = frmZZSEBPRC!txtEndDate
+                sDateEnd = frmZZSEBPRC!txtStartDate
                 dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
             End If
         End If
@@ -1907,7 +1909,7 @@ Private Function fnMonthsEmployed(sVinV As String, _
         End If
             
         If Not IsValidDate(sDateTerminated) Then
-            sDateTerminated = frmZZSEBPRC!txtEndDate
+            sDateTerminated = frmZZSEBPRC!txtStartDate
         End If
         
         If bReturnDays Then
@@ -1952,9 +1954,9 @@ Private Function fnMonthsEmployed(sVinV As String, _
         
         'from date hired until now (ending date)
         If bReturnDays Then
-            dDiff = dDiff + fnDateDiff("d", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate))
+            dDiff = dDiff + fnDateDiff("d", CDate(sDateHired), CDate(frmZZSEBPRC!txtStartDate))
         Else
-            dDiff = dDiff + fnDateDiff("m", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate))
+            dDiff = dDiff + fnDateDiff("m", CDate(sDateHired), CDate(frmZZSEBPRC!txtStartDate))
         End If
     End If
     
@@ -2430,7 +2432,7 @@ Public Function fnBuildList(tgmEditor As clsTGSpreadSheet, _
         Exit Function
     End If
     
-    If tgmEditor.RowCount = 1 And Not bIncludeCurrentRow Then
+    If tgmEditor.RowCount = 1 And Not bIncludeCurrentRow And tgmEditor.GetCurrentRowNumber = 0 Then
         Exit Function
     End If
     
@@ -2582,7 +2584,7 @@ Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String
     Select Case sFreq
     Case sOneMth, sGas, sRatio
         sEndDate = DateAdd("d", -1, DateAdd("m", 1, CDate(sStartDate)))
-    Case sBiWeek
+    Case sBiWeek, sTwoWeek
         sEndDate = DateAdd("d", 13, CDate(sStartDate))
     Case "D"
         sEndDate = DateAdd("d", -1, DateAdd("d", 1, CDate(sStartDate)))
@@ -2592,6 +2594,8 @@ Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String
         sEndDate = DateAdd("d", -1, DateAdd("q", 1, CDate(sStartDate)))
     Case "Y", "A"
         sEndDate = DateAdd("d", -1, DateAdd("yyyy", 1, CDate(sStartDate)))
+    Case Else 'all others default to biweek
+        sEndDate = DateAdd("d", 13, CDate(sStartDate))
     End Select
     
     fnGetProposedEndDate = tfnFormatDate(sEndDate)
