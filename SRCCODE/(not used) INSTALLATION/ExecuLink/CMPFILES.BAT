@@ -10,7 +10,7 @@ del ..\disk\*.z
 
 echo .
 echo call DISKBILD.BAT
-call buildlog.bat RPPCA3 %1
+call buildlog.bat RPPCA %1
 
 echo .
 choice /c:yn /t:y,7 Do you want to CONTINUE the DISK BUILD PROCESS
