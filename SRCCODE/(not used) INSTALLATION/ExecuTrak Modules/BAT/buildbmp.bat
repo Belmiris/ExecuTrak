@@ -39,6 +39,7 @@ if "%1" == "tg" goto set_tg_mod
 if "%1" == "tx" goto set_tx_mod
 if "%1" == "ws" goto set_ws_mod
 if "%1" == "sp" goto set_sp_mod
+if "%1" == "mp" goto set_mp_mod
 
 goto main
 
@@ -129,6 +130,10 @@ goto main
 
 :set_sp_mod
 set mod_name="Factor Service Pack"
+goto main
+
+:set_mp_mod
+set mod_name="Murphy System"
 goto main
 
 :main
