@@ -526,7 +526,7 @@ Public Function tfnRegExpControlKeyPress(ByRef cntl As Control, ByRef KeyAscii A
         Exit Function
     End If
     
-    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlKeyPress = True
@@ -583,7 +583,7 @@ Public Function tfnRegExpControlChange(ByRef cntl As Control, ByRef szPattern As
         Exit Function
     End If
     
-    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
         If cntl.Text = "" Then
             tfnRegExpControlChange = True
             Exit Function
@@ -642,7 +642,7 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
         Exit Function
     End If
     
-    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlDateKeyPress = -1
@@ -851,7 +851,7 @@ Public Function tfnDateTimeString(ByVal sDateTime As String, _
     If bUsedInWhereClause Then
         tfnDateTimeString = "extend(" + sUsedDateTime + "," + sQualifier + ")"
     Else
-        tfnDateTimeString = "{ts " + sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS + "}"
+        tfnDateTimeString = "{ts '" + sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS + "'}"
     End If
     
 End Function
