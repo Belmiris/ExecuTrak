@@ -709,7 +709,7 @@ begin
                         StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
 
             		//get cpylocal.exe program directory
-            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+            		StrSub(szProgDir, szTemp, 0, StrLength(szTemp));
         	endif;
 	endif;
 
