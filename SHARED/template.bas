@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -49,6 +49,7 @@ Global Const szHelpElecCommerce As String = "EC.HLP"
 Global Const szHelpCMSystem As String = "CMS.HLP"
 Global Const szHelpPO As String = "PO.HLP" ' Wenstrong, For Purchase Order
 Global Const szHelpProfitTrak As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
+Global Const szHelpAPPALACHIAN As String = "APPALACHIAN.HLP"
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
@@ -1004,7 +1005,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
