@@ -593,7 +593,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -816,15 +816,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .Value
+            sVal = .value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).Value = .Value Then
-                    sVal = .ValueItems(i).Value
+                If .ValueItems(i).value = .value Then
+                    sVal = .ValueItems(i).value
                     Exit For
                 End If
             Next
@@ -1186,10 +1186,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).Value
+    vTemp = tgTable.Columns(nCol).value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).Value = vTemp Then
+            If .Item(i).value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1273,9 +1273,9 @@ End Property
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 '''''''''''''''''
-Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
-    subSaveHighlightedRowID Button, Shift, X, Y
+    subSaveHighlightedRowID Button, Shift, X, y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -3362,6 +3362,11 @@ Public Sub DeleteRow(Optional vBookmark As Variant, Optional ByVal vRebind As Va
                 nCellChanged(0, 0) = STATUS_NOCHANGE
             End If
         End If
+            
+        If Not m_tgsSelector Is Nothing Then
+            m_tgsSelector.ClearSelectedCells
+        End If
+        
         If IsMissing(vRebind) Then
             Rebind
         Else
@@ -4439,12 +4444,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4896,7 +4901,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4974,7 +4979,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -5033,7 +5038,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     m_bColIsSorted = False
     
@@ -5110,7 +5115,7 @@ Debug.Print sSortCols
         End If
     End If
     
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -5125,7 +5130,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     nSortCount = -1
     
@@ -5262,7 +5267,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, no sort
 End Function
 
@@ -5374,7 +5379,7 @@ Private Sub subSelectRow(ByVal lRow As Long)
     End With
 End Sub
 
-Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, y As Single)
     Dim j As Long
     Dim k As Long
     Dim lSelected() As Long
@@ -5387,11 +5392,11 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Si
     End If
     
     'is not header click
-    If Y >= tgTable.RowTop(0) Then
+    If y >= tgTable.RowTop(0) Then
         Exit Sub
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5412,7 +5417,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
