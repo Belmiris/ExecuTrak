@@ -1319,6 +1319,12 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     
     Case "inv_record_months"
         fnGetVarValue = fnInvRecordMonths(sVinV, sErrMsg, lEmpNo)
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
         Exit Function
         
     Case "months_as_manager"
