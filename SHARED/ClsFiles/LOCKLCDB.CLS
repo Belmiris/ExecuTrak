@@ -261,7 +261,7 @@ errTrap:
     MsgBox "Failed to unlock Local Database." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
 End Sub
 
-Public Function CheckLockLocalTable() As Boolean
+Public Function CheckLockLocalTable(Optional bShowMsgBox As Boolean = True) As Boolean
     Const SUB_NAME As String = "CheckLockLocalTable"
     
     Dim strSQL As String
@@ -270,12 +270,16 @@ Public Function CheckLockLocalTable() As Boolean
     On Error GoTo errTrap
     
     If m_frmFormMain Is Nothing Then
-        MsgBox "Main Form not set.", vbExclamation
+        If bShowMsgBox Then
+            MsgBox "Main Form not set.", vbExclamation
+        End If
         Exit Function
     End If
     
     If m_sFormID = "" Then
-        MsgBox "Main Program ID is required.", vbExclamation
+        If bShowMsgBox Then
+            MsgBox "Main Program ID is required.", vbExclamation
+        End If
         Exit Function
     End If
     
@@ -293,8 +297,9 @@ Public Function CheckLockLocalTable() As Boolean
     End If
     
     If rsTemp.RecordCount = 0 Then
-        MsgBox "Local Database Lock is lost!", vbCritical
-        
+        If bShowMsgBox Then
+            MsgBox "Local Database Lock is lost!", vbCritical
+        End If
         m_lLockedSerial = 0
         Exit Function
     End If
@@ -303,9 +308,10 @@ Public Function CheckLockLocalTable() As Boolean
         '***************************************
         ' LOCK IS GONE!!! STEALED BY SOMEBODY!!!
         '***************************************
-        MsgBox "Local Database Lock is lost! " + vbCrLf + vbCrLf + "Local Database is now in use by " + _
-            fnCStr(rsTemp!srl_user_id) + "[" + fnCStr(rsTemp!srl_table) + "].", vbCritical
-        
+        If bShowMsgBox Then
+            MsgBox "Local Database Lock is lost! " + vbCrLf + vbCrLf + "Local Database is now in use by " + _
+                fnCStr(rsTemp!srl_user_id) + "[" + fnCStr(rsTemp!srl_table) + "].", vbCritical
+        End If
         m_lLockedSerial = 0
         Exit Function
     Else
@@ -319,7 +325,9 @@ Public Function CheckLockLocalTable() As Boolean
     
 errTrap:
     'SOMETHING WRONG???!!!
-    MsgBox "Failed to check the lock." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
+    If bShowMsgBox Then
+        MsgBox "Failed to check the lock." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
+    End If
 End Function
 
 Public Function SetLockData(sExtraData As String) As Boolean
