@@ -437,7 +437,7 @@ Option Explicit
         ByVal nSize As Long, _
         ByVal lpFileName As String) As Long
 
-    Private Declare Function RegisterDll Lib "REGDLL.DLL" _
+    Private Declare Function fnRegisterDll Lib "REGDLL.DLL" _
         Alias "RegisterDLL" (ByVal sPathName As String) As Long
 
 Private Function fnAllBoxFilled() As Boolean
@@ -537,17 +537,17 @@ Public Function RegisterDll(sPathName As String, bCheck As Boolean) As Boolean
         If lRegSize = lFileSize Then
             sRegDateTime = Trim(QueryValue(HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate))
             If sRegDateTime = sFileDateTime Then
-                fnRegisterDll = True
+                RegisterDll = True
                 Exit Function
             End If
         End If
     End If
-    If RegisterDll(sPathName) = 0 Then
-        fnRegisterDll = True
+    If fnRegisterDll(sPathName) = 0 Then
+        RegisterDll = True
         RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeySize, REG_SZ, lFileSize
         RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate, REG_SZ, sFileDateTime
     Else
-        fnRegisterDll = False
+        RegisterDll = False
     End If
     Exit Function
 errRegDll:
