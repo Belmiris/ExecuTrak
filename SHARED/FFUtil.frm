@@ -71,7 +71,7 @@ Begin VB.Form LogForm
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -84,7 +84,7 @@ Begin VB.Form LogForm
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -156,7 +156,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -192,7 +192,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -993,7 +993,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1029,7 +1029,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1196,7 +1196,7 @@ Begin VB.Form LogForm
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            =   9.61
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -1833,7 +1833,12 @@ End Sub
 Public Sub TBButtonCallBack(ByVal nID As Integer)
     Select Case nID
         Case PRINT_UP
-            subPrintReport 0
+            If mnuPrint.Visible Then
+                subPrintReport 0
+            Else
+                Screen.MousePointer = vbDefault
+                subShowPopup
+            End If
         Case COPY_UP
         Case EDI_SETUP_UP
             subShowSetup True
@@ -2620,6 +2625,7 @@ Private Sub tfnResetScreen()
     On Error Resume Next
     
     subShowSetup False
+    ShowProgressbar False
     DoEvents
     lstOutput.SetFocus
     
@@ -2648,6 +2654,54 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
             fnInvalidData = Not fnValidPath(txtBox)
     End Select
 End Function
+
+Private Sub subShowPopup()
+
+    Const nSubMenu = 0
+    
+    ' This is where to put menu
+    Dim nWhereX, nWhereY As Single
+    
+    'Top Level Menu
+    Dim hMenu As Integer
+    
+    'Sub Menu to popup
+    Dim hSubMenu As Integer
+    
+    'Window rectangle to show popup in
+    Dim rctMainWindow As RECT
+    
+    'Pos of Current Mouse Pointer
+    Dim pntPosition As POINTAPI
+    
+    'A TEmp variable to hold the return value from TrackPopup
+    Dim nTemp As Integer
+    
+    'Get the Mouse pointer position
+    Call GetCursorPos(pntPosition)
+    
+    'Set up the variables to hold the screen size
+    'Screen .ScaleMode = TWIPS
+    rctMainWindow.Top = 0
+    rctMainWindow.Left = 0
+    rctMainWindow.Right = Screen.Width \ Screen.TwipsPerPixelX
+    rctMainWindow.Bottom = Screen.Height \ Screen.TwipsPerPixelY
+    
+    ' Don't Put the menu right under the mousepointer
+    nWhereX = pntPosition.x + 3
+    nWhereY = pntPosition.y + 5
+    
+    'Get the top level menu
+    hMenu = GetMenu(hwnd)
+    
+    'Get the submenu that they want
+    hSubMenu = GetSubMenu(hMenu, nSubMenu)
+    
+    hSubMenu = GetSubMenu(hSubMenu, 1)
+    'Popup the menu
+    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hwnd, rctMainWindow)
+
+End Sub
 
 Private Sub subSetOptFocus(ParamArray optControls())
     'Set the focus to a set of option buttons, such that the focus
