@@ -150,8 +150,10 @@ Public Sub PrintDefaultRptHeader()
     sReportLine = "Run Time: " + sRuntime + Space(nSpc) + ReportSubHeader
     SendTextToPrinter sReportLine
     
+    SendTextToPrinter String(PageLength, "-")
     SendTextToPrinter Space(PageLength)
     SendTextToPrinter ColumnHeader
+    SendTextToPrinter String(PageLength, "-")
 End Sub
 
 Public Function InitPrinter(Optional vNextPage As Variant) As Boolean
