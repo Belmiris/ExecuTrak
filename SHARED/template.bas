@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -503,7 +503,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -526,7 +526,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnIS_RM = False
     ''tfnErrHandler "tfnIS_RM", strSQl
 
@@ -639,7 +639,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -726,7 +726,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -776,12 +776,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -814,7 +814,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -824,7 +824,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -908,12 +908,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Integer
+        Dim i As Integer
         
         sTable = LCase(Trim(vTable))
-        For I = 0 To nHandleCount
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -928,7 +928,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next I
+        Next i
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -1120,7 +1120,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1172,7 +1172,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1180,8 +1180,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1228,14 +1228,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1245,19 +1245,24 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
 '# (Must read factor.mdb from c:\factor\<datasourcename>\factor.mdb
 '#####################################################################
-Dim sWinSysDir As String
-'MsgBox "opening"
-    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName))
+    Dim sWinSysDir As String
+
+    #If DEVELOP Then
+        sWinSysDir = LOCAL_FACTOR_PATH
+    #Else
+        sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+    #End If
+    
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
-            
     
+        'david 11/15/2001
         If t_engFactor Is Nothing Then
             Set t_engFactor = New DBEngine 'create a new dDBEngine
             t_engFactor.IniPath = sWinSysDir 'put the path in engine ini variable
@@ -1266,12 +1271,18 @@ Dim sWinSysDir As String
         If t_wsWorkSpace Is Nothing Then
             Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
         End If
-        If Not fnCopyFactorMDB Then
+        
+        If Not fnCopyFactorMDB() Then
+            sErrMsg = "Could not create new local database"
             
-                MsgBox Err.Description, vbOKOnly + vbCritical, "Could not create new local database"
+            If bShowMsgBox Then
+                MsgBox sErrMsg + ".", vbExclamation
+            End If
+            
+            Exit Function
         End If
-  '  MsgBox sWinSysDir
-        Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(sWinSysDir & "\factor.mdb")
+  
+        Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(sWinSysDir & "factor.mdb")
         On Error GoTo 0
         Exit Function
     
@@ -1355,7 +1366,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2172,10 +2183,12 @@ Public Function tfnGetPassword() As String
     #End If
     
 End Function
+
 Public Function tfnGetDataSourceName() As String
     'return the current DataSource Name as was logged into factmenu
     'Robert Atwood 10-29-01
     tfnGetDataSourceName = "ssfactor"
+    
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
         If t_dbMainDatabase Is Nothing Then Exit Function
             
@@ -2184,7 +2197,13 @@ Public Function tfnGetDataSourceName() As String
             If Not t_oleObject Is Nothing Then
                 tfnGetDataSourceName = t_oleObject.FactorPath
             Else
-                tfnGetDataSourceName = ""
+                'david 11/15/2001
+                If Not t_dbMainDatabase Is Nothing Then
+                    tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
+                Else
+                    tfnGetDataSourceName = ""
+                End If
+                ''''''''''''''''''''
             End If
     #End If
     
@@ -2229,85 +2248,143 @@ Public Sub subDisableSystemClose(frmMain As Form)
     End If
 End Sub
 
-Public Function fnCopyFactorMDB() As Boolean '(dbLocalDataBase As Database, _
-                                'Optional bShowError As Boolean = True, _
-                                'Optional sErrMsg As String = "") As Boolean
+Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
+                                Optional sErrMsg As String = "") As Boolean
 '##############################################################################
 '# Modified to use c:\factor\<datasourcename>\factor.mdb 10-30-01 Robert Atwood
 '##############################################################################
 
+    Dim sFactorDir As String
     Dim sWinSysDir As String
-
-    'was:
-    'sWinSysDir = UCase(Trim(tfnGetSystemDir))
-    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName))
-
-    'delete the bad directory
+    Dim bCopy As Boolean
+    
+    Dim lFactorMajor As Long
+    Dim lFactorMinor As Long
+    Dim lFactorRev As Long
+    Dim lWinSysMajor As Long
+    Dim lWinSysMinor As Long
+    Dim lWinSysRev As Long
+    
+    sFactorDir = LOCAL_FACTOR_PATH
+    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+    
     On Error Resume Next
-    '
-    If Dir(sWinSysDir + "\FACTOR.MDB", vbNormal) = "" Then
-'        sErrMsg = "FACTOR.MDB does not exist in " + tfnSQLString(sWinSysDir) + "."
-'        If bShowError Then
-'            MsgBox sErrMsg, vbExclamation
-'        End If
-'        Exit Function
-'    End If
-
-        'create C:\FACTOR\CRYSTAL if not exists.
-        If Dir("C:\FACTOR", vbDirectory) = "" Then
-            MkDir "C:\FACTOR"
-        End If
     
-        If Dir("C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)), vbDirectory) = "" Then
-            MkDir "C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName))
-        End If
-    
-    '    If Dir("C:\FACTOR\CRYSTAL\FACTOR.MDB", vbNormal) <> "" Then
-    '        On Error GoTo errFileInUsed
-    '        Kill "C:\FACTOR\CRYSTAL\FACTOR.MDB"
-    '    End If
-    
-    '    'david 01/24/2001
-    '    'close the database and re-open it!
-    '    On Error GoTo errCloseDatabase
-    '    dbLocalDataBase.Close
-    '
-    '    Set dbLocalDataBase = tfnOpenLocalDatabase(bShowError, sErrMsg)
-    '
-    '    If dbLocalDataBase Is Nothing Then
-    '        Exit Function
-    '    End If
-    
-        Dim lRet As Long
-        Dim sErrMsg As String
-        
-        lRet = CopyFile("C:\FACTOR\FACTOR.MDB", "C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)) & "\FACTOR.MDB", 1)
-    
-        If lRet = 0 Then
-            sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName))
-             MsgBox sErrMsg, vbExclamation
-        End If
-    
-        fnCopyFactorMDB = True
-    
-        Exit Function
-    
-errFileInUsed:
-        sErrMsg = "'C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)) & "' is in use by another program."
+    If Dir(sFactorDir + "FACTOR.MDB", vbNormal) = "" Then
+        sErrMsg = "FACTOR.MDB does not exist in '" + sFactorDir + "'."
+        If bShowError Then
             MsgBox sErrMsg, vbExclamation
-    
+        End If
         Exit Function
-    Else
-        fnCopyFactorMDB = True
     End If
     
-'
-'errCloseDatabase:
-'    sErrMsg = "Failed to close local database."
-'    If bShowError Then
-'        MsgBox sErrMsg, vbExclamation
-'    End If
+    If Dir(sWinSysDir + "FACTOR.MDB", vbNormal) = "" Then
+        If Dir(sWinSysDir, vbDirectory) = "" Then
+            MkDir sWinSysDir
+        End If
+        
+        bCopy = True
+    Else
+        'check the database version to see we need to copy
+        subGetLocalDBVersion lFactorMajor, lFactorMinor, lFactorRev, sFactorDir + "FACTOR.MDB"
+        subGetLocalDBVersion lWinSysMajor, lWinSysMinor, lWinSysRev, sWinSysDir + "FACTOR.MDB"
+        
+        If lFactorMajor > lWinSysMajor Then
+            bCopy = True
+        Else
+            If lFactorMinor > lWinSysMinor Then
+                bCopy = True
+            Else
+                If lFactorRev > lWinSysRev Then
+                    bCopy = True
+                End If
+            End If
+        End If
+    End If
+    
+    If bCopy Then
+        Dim lRet As Long
+        Dim sSRCFile As String
+        Dim sDestFile As String
+        
+        sSRCFile = sFactorDir + "FACTOR.MDB"
+        sDestFile = sWinSysDir + "FACTOR.MDB"
+        
+        lRet = CopyFile(sSRCFile, sDestFile, 0)
+    
+        If lRet = 0 Then
+            sErrMsg = "Failed to copy FACTOR.MDB to '" + sWinSysDir + "'"
+             MsgBox sErrMsg, vbExclamation
+        End If
+    End If
+    
+    fnCopyFactorMDB = True
+    Exit Function
+    
+errFileInUsed:
+    sErrMsg = "'" + sFactorDir + "FACTOR.MDB" + "' is in use by another program."
+    
+    If bShowError Then
+        MsgBox sErrMsg, vbExclamation
+    End If
 End Function
+
+Private Sub subGetLocalDBVersion(lMajor As Long, _
+                                 lMinor As Long, _
+                                 lRevision As Long, _
+                                 sDBPath As String)
+
+    Dim engLocal As New DBEngine
+    Dim dbLocal As DataBase
+    Dim wsLocal As Workspace
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    On Error GoTo errOpenDB
+    Set wsLocal = engLocal.Workspaces(0)
+    Set dbLocal = wsLocal.OpenDatabase(sDBPath, , True)
+    strSQL = "SELECT nMajor, nMinor, nRevision FROM SysVersion"
+    Set rsTemp = dbLocal.OpenRecordset(strSQL)
+    
+    If rsTemp.RecordCount > 0 Then
+        If Not IsNull(rsTemp!nMajor) Then
+            lMajor = Trim(rsTemp!nMajor)
+        End If
+        If Not IsNull(rsTemp!nMinor) Then
+            lMinor = Trim(rsTemp!nMinor)
+        End If
+        If Not IsNull(rsTemp!nRevision) Then
+            lRevision = Trim(rsTemp!nRevision)
+        End If
+    End If
+    
+    dbLocal.Close
+    Set dbLocal = Nothing
+    Set wsLocal = Nothing
+    Set engLocal = Nothing
+    
+    Exit Sub
+
+errExitHere:
+    lMajor = -1
+    lMinor = -1
+    lRevision = -1
+    
+    Exit Sub
+
+errOpenDB:
+    If Err.Number = 3051 Then
+        On Error GoTo errSetAttr
+        SetAttr sDBPath, vbNormal
+        Resume
+    Else
+        Resume errExitHere
+    End If
+
+errSetAttr:
+    Resume errExitHere
+End Sub
+
 
 ''''''''''''''''''''Sam Zheng on 08/24/2001 ''''''''''''''''''''''''''''''
 ' for inv cross reference:
@@ -2363,7 +2440,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2385,7 +2462,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnNeed_inv_xref = False
 
 End Function
