@@ -147,6 +147,11 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                 "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED.", False
         End If
         
+        If Not objDebugLog Is Nothing Then
+            objDebugLog.LogMsg "Local Database is currently in use by user " + _
+                "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
+        End If
+        
         strSQL = "UPDATE sys_row_lock SET srl_table = " + tfnSQLString(lHWnd)
         strSQL = strSQL + ", srl_prog_id = " + tfnSQLString(m_sFormID)
         strSQL = strSQL + ", srl_user_id = " + tfnSQLString(sUser)
