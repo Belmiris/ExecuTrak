@@ -13,10 +13,10 @@
 // constants
 #define RUN_IQVISION_SETUP      1
 
-#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuVisionV301" 
-#define UNINSTALL_NAME          "ExecuVision Version 3.01"
+#define DEINSTALL_KEY           "ExecuVisionV302" 
+#define UNINSTALL_NAME          "ExecuVision Version 3.02"
 
 #define PROGRAM_SIZE            6
 
@@ -149,8 +149,10 @@ FindPreviousInstallation:
                 szBaseDirectory = szTemp;
                 ParsePath(szTemp, szBaseDirectory, DISK);
                 szBaseDirectory = szTemp ^ APP_BASE_PATH;
+                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
         else
                 szBaseDirectory = TARGETDISK ^ APP_BASE_PATH;
+                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
         endif;
 
         NumToStr(szNumber, PROGRAM_SIZE * 1024);
@@ -323,7 +325,7 @@ ConfirmCopy:
         ListAddString(listInfo, "        " + szIQDir, AFTER);
         ListAddString(listInfo, "", AFTER);
         ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
-        ListAddString(listInfo, "        Program\\Factor\\" + PROGRAM_GROUP, AFTER);
+        ListAddString(listInfo, "        Programs\\Factor\\" + PROGRAM_GROUP, AFTER);
 
         szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
                 "If you want to review or change any settings, click Back.  If you are " +

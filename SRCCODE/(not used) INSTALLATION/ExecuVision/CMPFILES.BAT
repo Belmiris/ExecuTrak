@@ -18,7 +18,7 @@ echo Compress Application files
 echo .
 echo Compress all files in appfiles directory to factbin.z
 icomp G:\program\release\execvisn\bin\*.* ..\disk\factbin.z bin
-icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z bin
+icomp G:\program\release\exectrak\common\*.* ..\disk\factbin.z bin
 icomp G:\program\release\execvisn\ini\*.* ..\disk\factbin.z ini
 icomp G:\program\release\execvisn\ole\*.* ..\disk\factbin.z ole
 icomp G:\program\release\execvisn\qrt_file\*.* ..\disk\factbin.z qrt_file
@@ -48,8 +48,7 @@ icomp G:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 
 echo .
 echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Ole directory to factole.z
-icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\tbkit.dll ..\disk\factole.z
-icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\olecombo.dll ..\disk\factole.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\*.* ..\disk\factole.z
 
 echo .
 echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Rtm directory to rtm.z

@@ -14,10 +14,10 @@
 // constants
 #define RUN_IQVISION_SETUP      1
 
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuVision300" 
-#define UNINSTALL_NAME          "ExecuVision 3.00"
+#define DEINSTALL_KEY           "ExecuVision302" 
+#define UNINSTALL_NAME          "ExecuVision 3.02"
 
 #define PROGRAM_SIZE            3
 
@@ -129,8 +129,11 @@ SayWelcome:
                 szBaseDirectory = szTemp;
                 ParsePath(szTemp, szBaseDirectory, DISK);
                 szBaseDirectory = szTemp ^ APP_BASE_PATH;
+                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
+                
         else
                 szBaseDirectory = TARGETDISK ^ APP_BASE_PATH;
+                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
         endif;
 
         NumToStr(szNumber, PROGRAM_SIZE * 1024);
@@ -202,8 +205,46 @@ Check16BitExecVisn:
                 endif;
         endif;
 
+        szINIDirectory = APP_INI_PATH;
 
-       // szINIDirectory = APP_INI_PATH;
+
+GetAppINIPath:
+        szDestMsg = "Setup will store the " + PRODUCT_NAME + " INI files in the Destination Directory.\n\n";
+        szDestMsg = szDestMsg + "To store to this directory, click Next.\n\n";
+        szDestMsg = szDestMsg + "To store to a different directory, click Browse and select another\n";
+        szDestMsg = szDestMsg + "directory.\n\n";
+    
+        Enable(BACKBUTTON);
+
+        if (AskDestPath("Choose " + PRODUCT_NAME + " INI files Location", szDestMsg, szINIDirectory, 0) = BACK) then
+            goto GetTargetPath;
+        endif;
+
+        if (CheckExistsDir(szINIDirectory) != EXISTS) then
+                goto GetAppINIPath;
+        endif;
+
+        // make sure INI directory is \factor\execvisn
+        szTemp = szINIDirectory ^ "";
+        StrToLower(szTemp, szTemp);
+
+        ParsePath(szFolder, szINIDirectory, DISK);
+        StrToLower(szFolder, szFolder);
+
+        nTemp = StrFind(szTemp, szFolder ^ "factor\\execvisn");
+
+        StrToUpper(szFolder, szFolder);
+
+        if (nTemp < 0) then   //incorrect directory
+                szMsg = PRODUCT_NAME + " INI Directory '" +
+                    szINIDirectory ^ "" + "' is not valid.\n\n";
+                szMsg = szMsg + PRODUCT_NAME + " INI directory will be set to '" +
+                    szFolder ^ APP_BASE_PATH + "'.";
+
+                MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+        endif;
+
+        szINIDirectory = szFolder ^ APP_BASE_PATH;
 
 
 
@@ -215,9 +256,9 @@ ConfirmCopy:
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
         ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
-    //    ListAddString(listInfo, PRODUCT_NAME + " INI directory:", AFTER);
-    //    ListAddString(listInfo, "        " + szINIDirectory, AFTER);
-    //    ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, PRODUCT_NAME + " INI directory:", AFTER);
+        ListAddString(listInfo, "        " + szINIDirectory, AFTER);
+        ListAddString(listInfo, "", AFTER);
 
         if (bExists16Bit) then
                 ListAddString(listInfo, "Overwrite 16-Bit ExecuVision Program:", AFTER);
@@ -226,7 +267,7 @@ ConfirmCopy:
         endif;
 
         ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
-        ListAddString(listInfo, "        Program\\Factor\\" + PROGRAM_GROUP, AFTER);
+        ListAddString(listInfo, "        Programs\\Factor\\" + PRODUCT_NAME, AFTER);
 
         szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
                 "If you want to review or change any settings, click Back.  If you are " +
@@ -344,7 +385,7 @@ StartCopy:
         LaunchAppAndWait(szBaseDirectory ^ "bin" ^ "cpylocal.exe", szForceInstall +
                 szDBFrom + " " + szDBTo, WAIT);
 
-        SetStatusWindow(96, "Copying Local Database...");
+        SetStatusWindow(94, "Copying Local Database...");
 
         TARGETDIR = WINSYSDIR;
         szDBTo = "\"" + TARGETDIR + "\"";
@@ -356,8 +397,7 @@ StartCopy:
 
         LaunchAppAndWait(szBaseDirectory ^ "bin" ^ "cpylocal.exe", szForceInstall +
                 szDBFrom + " " + szDBTo, WAIT);
-
-        SetStatusWindow(97, "Copying Local Database...");
+        SetStatusWindow(95, "Copying Local Database...");
 
         // delete the local database from windows directory
         TARGETDIR = SRCDIR;
@@ -370,13 +410,132 @@ StartCopy:
 
         StatusUpdate(OFF, 0);
 	  
+CopyINIDirectory:
+        SetStatusWindow(96, "Creating ExecuVision INI directory...");
 
+        VarSave(SRCTARGETDIR);
+
+        if (szINIDirectory != szBaseDirectory) then
+                // make INI directories in szINIDirectory
+        
+                bCopyINI = FALSE;
+                bAlreadyAsk = FALSE;
+        
+                nTemp = 1;
+        
+                while (nTemp <= 2)
+                        switch (nTemp)
+                                case 1:
+                                	szTemp = "FUELD";
+                                  //  szTemp = "FINANCE";
+                                case 2:
+                                	szTemp = "RETAILD";
+                                //    szTemp = "FUEL";
+                                //case 3:
+                                //    szTemp = "FUELD";
+                                //    SetStatusWindow(97, "Creating ExecuVision INI directory...");
+                                //case 4:
+                                    szTemp = "RETAIL";
+                                //case 5:
+                                    szTemp = "RETAILD";
+                                //case 6:
+                                //    szTemp = "SALES";
+                                    SetStatusWindow(97, "Creating ExecuVision INI directory...");
+                        endswitch;
+        
+                        // copy INI files to the new INI path
+                        SRCDIR = szBaseDirectory ^ szTemp;
+                        TARGETDIR = szINIDirectory ^ szTemp;
+        
+                        if (!bAlreadyAsk) then
+                                // if keyfile does not exists then proceed to copy
+                                if (fnFindFile(TARGETDIR, szTemp + ".INI")) then
+                                        if ((!bExists16Bit) && (!bCopyINI)) then
+                                                if (AskYesNo("Do you want to OVERWRITE all INI files " +
+                                                   "in the INI directories?", NO) = YES) then
+                                                        bCopyINI = TRUE;
+                                                endif;
+                                        endif;
+                                else
+                                        bCopyINI = TRUE;
+                                endif;
+        
+                                bAlreadyAsk = TRUE;
+                        endif;
+        
+                        if (bExists16Bit || szForceInstall = "1 " || bCopyINI) then
+                                LOGMSG="START OF COPY INI Directory FROM '" + SRCDIR +
+                                    "' TO '" + TARGETDIR + "'.";
+                                LOGWRITE(LOGMSG);
+        
+                                nReturn = XCopyFile("*.*", "*.*", COMP_NORMAL);
+        
+                                LOGMSG="END OF COPY INI Directory FROM '" + SRCDIR +
+                                    "' TO '" + TARGETDIR + "'.";
+                                LOGWRITE(LOGMSG);
+                        else
+                                nReturn = 1;
+                        endif;
+        
+                        if (nReturn >= 0) then
+                                // DELETE szBaseDirectory\INIs directory if
+                                // it is same as szINIDirectory
+                                LOGMSG="START OF DELETE INI Directory '" + SRCDIR + "'.";
+                                LOGWRITE(LOGMSG);
+                                if (DeleteDir(SRCDIR, ALLCONTENTS) < 0) then
+                                        MessageBox("Failed to Delete directory '" + SRCDIR + "'.", SEVERE);
+                                endif;
+                                LOGMSG="END OF DELETE INI Directory '" + SRCDIR + "'.";
+                                LOGWRITE(LOGMSG);
+                        endif;
+        
+                        if (nReturn < 0) then
+                                switch (nReturn)
+                                        case COPY_ERR_CREATEDIR:
+                                                MessageBox("Failed to Create target directory", SEVERE);
+                                                goto ZFailure;
+                                        case COPY_ERR_MEMORY:
+                                                MessageBox("Out of memory", SEVERE);
+                                                goto ZFailure;
+                                        case COPY_ERR_NODISKSPACE:
+                                                MessageBox("Not enough disk space", SEVERE);
+                                                goto ZFailure;
+                                        case COPY_ERR_OPENINPUT:
+                                                MessageBox("Error in open input file", SEVERE);
+                                                goto ZFailure;
+                                        case COPY_ERR_OPENOUTPUT:
+                                                MessageBox("Error in open output file", SEVERE);
+                                                goto ZFailure;
+                                        case COPY_ERR_TARGETREADONLY:
+                                                MessageBox("Target directory is read only", SEVERE);
+                                                goto ZFailure;
+                                        default:
+                                                MessageBox("General file copy failure", SEVERE);
+                                                goto ZFailure;
+                                endswitch;
+                        endif;
+        
+                        // delete the temporary source directory
+                        //DeleteDir(SRCDIR, ALLCONTENTS);
+        
+                        nTemp = nTemp + 1;
+                endwhile;
+
+        else
+                LOGMSG="INI Directory '" + szINIDirectory +
+                    "' same as Program Directory '" + szBaseDirectory + "'.";
+                LOGWRITE(LOGMSG);
+        endif;
 
 
 CreateProgramFolder:
         LOGMSG="START OF CREATE PROGRAM FOLDER";
         LOGWRITE(LOGMSG);
 
+	//delete old execuvision folder
+	szFolder = COMPANY_NAME ^ PROGRAM_GROUP;
+        DeleteProgramFolder(szFolder);
+        
         // create folder shortcuts
         szFolder = COMPANY_NAME ^ PRODUCT_NAME;
         szAppDir = szBaseDirectory ^ "BIN";
@@ -393,7 +552,7 @@ CreateProgramFolder:
         AddFolderIcon(szFolder, "ExecuVision Data Warehouse Update Log",
                                   szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(94, "Creating program folder and icons...");
+        SetStatusWindow(98, "Creating program folder and icons...");
 
         szSCExe = szAppDir ^ "runsql2.exe";
         AddFolderIcon(szFolder, "Run SQL",
@@ -402,8 +561,6 @@ CreateProgramFolder:
         szSCExe = szAppDir ^ "iqfact.hlp";
         AddFolderIcon(szFolder, "ExecuVision Help",
                                   szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-
-        SetStatusWindow(95, "Creating program folder and icons...");
 
         //szSCExe = "\"" + szAppDir ^ "iqfact.exe\" networknode:factor:/factor/company, username, password, I";
         //AddFolderIcon(szFolder, "ExecuVision Data Warehouse Build",
@@ -416,8 +573,6 @@ CreateProgramFolder:
         AddFolderIcon(szFolder, "ExecuVision Reference File Maintenance",
                                   szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(96, "Creating program folder and icons...");
-
         szSCExe = szAppDir ^ "iqfestrm.exe";
         AddFolderIcon(szFolder, "ExecuVision Data Warehouse Process Maintenance",
                                   szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
@@ -425,8 +580,6 @@ CreateProgramFolder:
         szSCExe = szAppDir ^ "iqffcpmt.exe";
         AddFolderIcon(szFolder, "ExecuVision Company File Maintenance",
                                   szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-
-        SetStatusWindow(97, "Creating program folder and icons...");
         
         szSCExe = szAppDir ^ "iqferept.exe";
         AddFolderIcon(szFolder, "ExecuVision OLAP Analysis",
@@ -439,7 +592,7 @@ CreateProgramFolder:
         LOGMSG="END OF CREATE PROGRAM FOLDER";
         LOGWRITE(LOGMSG);
 
-        SetStatusWindow(98, "Creating program folder and icons...");
+        SetStatusWindow(99, "Creating program folder and icons...");
 
 
         // add registry information
