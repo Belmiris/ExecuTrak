@@ -44,7 +44,7 @@ Private Sub Class_Terminate()
     Set m_frmFormMain = Nothing
 End Sub
 
-Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData As String) As Boolean
+Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData As String, Optional nEventLvl As Integer = 0) As Boolean
     Const SUB_NAME As String = "LockLocalTable"
     
     Dim strSQL As String
@@ -126,10 +126,15 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                             Exit Do
                     End If
             Else
-                If Not objDebugLog Is Nothing Then
-                    objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                #If DEBUG_LOG Then
+                    If Not objDebugLog Is Nothing Then
+                        objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                            fnCStr(rsTemp!srl_table) + "] - ABORTED."
+                    End If
+                #Else
+                    tfnLog_Event nEventLvl, "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
                         fnCStr(rsTemp!srl_table) + "] - ABORTED."
-                End If
+                #End If
                 
                 m_lLockedSerial = 0
                 sExtraData = ""
@@ -145,10 +150,15 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                 "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED.", False
         End If
         
-        If Not objDebugLog Is Nothing Then
-            objDebugLog.LogMsg "Local Database is currently in use by user " + _
+        #If DEBUG_LOG Then
+            If Not objDebugLog Is Nothing Then
+                objDebugLog.LogMsg "Local Database is currently in use by user " + _
+                    "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
+            End If
+        #Else
+            tfnLog_Event nEventLvl, "Local Database is currently in use by user " + _
                 "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
-        End If
+        #End If
         
         strSQL = "UPDATE sys_row_lock SET srl_table = " + tfnSQLString(lHWnd)
         strSQL = strSQL + ", srl_prog_id = " + tfnSQLString(m_sFormID)
