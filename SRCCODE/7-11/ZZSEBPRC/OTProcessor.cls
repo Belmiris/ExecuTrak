@@ -622,7 +622,7 @@ Private Function fnParseOneEmployee(lEmpNo As Long) As Boolean
     'david 03/11/2003  #403275
     'validate ot paycode for the employee
     Dim bError As Boolean
-    sMsg = fnValidOtPaycode(lEmpNo, sHourPayCodeList, bError)
+    sMsg = fnValidOtPaycode(lEmpNo, bError)
     
     fnParseOneEmployee = Not bError
     
@@ -1613,14 +1613,14 @@ End Sub
 Private Sub subWriteLog(sMsg As String)
     Static bAlreadyShow As Boolean
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     lstOTLog.AddItem sMsg
     lstOTLog.Refresh
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     If Not bAlreadyShow Then
         bAlreadyShow = True
         tfnErrHandler "subWriteLog", False
@@ -1774,13 +1774,16 @@ End Function
 'validate ot paycode for the employee
 'return error message
 'bError will be set to True if critical error (database access error) occurred
-Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bError As Boolean) As String
+Private Function fnValidOtPaycode(lEmpNo As Long, bError As Boolean) As String
     Static bAreadyShowError As Boolean
     
     Dim strSQL As String
-    Dim aryPayCodes() As String
+    Dim rsTemp As Recordset
+    
+    Dim sPayCode As String
     Dim i As Integer
     Dim j As Integer
+    Dim n As Integer
     Dim sOverPayCode As String
     Dim lCount As Long
     Dim sInvalidOtPayCode As String
@@ -1814,21 +1817,69 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
         End If
     End If
     
-    On Error GoTo 0
-    On Error GoTo errTrap
+    If nYear(4) > 0 Then
+        If nYear(2) = 0 Then
+            nYear(2) = nYear(4)
+            nYear(4) = 0
+        ElseIf nYear(3) = 0 Then
+            nYear(3) = nYear(4)
+            nYear(4) = 0
+        End If
+    End If
     
-    'constant
-    'sHourPayCodeList = "('7HRP', '7HRA', '7HRD', '7HRI', '7HRO')"
-    aryPayCodes = Split(Mid(sHourPayCodeList, 2, Len(sHourPayCodeList) - 2), ",")
+    If nYear(3) > 0 Then
+        If nYear(2) = 0 Then
+            nYear(2) = nYear(3)
+            nYear(3) = 0
+        End If
+    End If
+    
+    On Error GoTo 0
+    On Error GoTo ErrTrap
+    
     bError = False
     
-    For i = 0 To UBound(aryPayCodes)
-        If aryPayCodes(i) <> "" Then
-            sOverPayCode = fnGetOverTimePayCode(Mid(aryPayCodes(i), 2, Len(aryPayCodes(i)) - 2))
+    If nYear(4) > 0 Then
+        n = 4
+    ElseIf nYear(3) > 0 Then
+        n = 3
+    ElseIf nYear(2) > 0 Then
+        n = 2
+    Else
+        n = 1
+    End If
+    
+    For j = 1 To n
+        If nYear(j) > 0 Then
+            'get the employee hourly paycode
+            strSQL = "SELECT  pcode FROM " & frmZZSEBPRC.objHours.sTempPrPay
+            strSQL = strSQL & " WHERE pcode IN " & sHourPayCodeList
+            strSQL = strSQL & " AND pempno = " & lEmpNo
+            strSQL = strSQL & " AND pYear = " & nYear(j)
             
-            If sOverPayCode <> "" Then
-                For j = 1 To 4
-                    If nYear(j) > 0 Then
+            If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidOtPaycode") < 0 Then
+                sErrMsg = "Failed to access database when getting hourly paycode."
+                subWriteLogWithBox sErrMsg
+                fnValidOtPaycode = sErrMsg
+                bError = True
+                Exit Function
+            End If
+            
+            If rsTemp.RecordCount = 0 Then
+                sErrMsg = "Hourly paycode not found for Employee #" & lEmpNo & "."
+                subWriteLogWithBox sErrMsg
+                fnValidOtPaycode = sErrMsg
+                bError = True
+                Exit Function
+            End If
+        
+            While Not rsTemp.EOF
+                sPayCode = fnGetField(rsTemp!PCode)
+                
+                If sPayCode <> "" Then
+                    sOverPayCode = fnGetOverTimePayCode(sPayCode)
+                    
+                    If sOverPayCode <> "" Then
                         strSQL = "SELECT  * FROM " & frmZZSEBPRC.objHours.sTempPrPay
                         strSQL = strSQL & " WHERE pcode = " & tfnSQLString(sOverPayCode)
                         strSQL = strSQL & " AND pempno = " & lEmpNo
@@ -1850,10 +1901,12 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
                             sInvalidOtPayCode = sInvalidOtPayCode + sOverPayCode
                         End If
                     End If
-                Next j
-            End If
+                End If
+                
+                rsTemp.MoveNext
+            Wend
         End If
-    Next i
+    Next j
 
     If sInvalidOtPayCode <> "" Then
         sErrMsg = "Pay Code (" & sInvalidOtPayCode & ") not set for employee #" & lEmpNo
@@ -1863,7 +1916,7 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
     
     Exit Function
     
-errTrap:
+ErrTrap:
     If Not bAreadyShowError Then
         bAreadyShowError = True
         sErrMsg = Err.Number & " - " & Err.Description
