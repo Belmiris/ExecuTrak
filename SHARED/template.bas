@@ -577,7 +577,7 @@ Public Function tfnLockRow(sProgramID As String, _
                     bShowMsg = vShowMsg
                 End If
                 If bShowMsg Then
-                    MsgBox "The record you have selected is locked by " & rsTemp.Fields(1) & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
+                    MsgBox "The record you have selected is locked by " & Trim(rsTemp.Fields(1)) & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
                 End If
             End If
         End If
