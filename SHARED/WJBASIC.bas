@@ -266,13 +266,13 @@ SQLError:
       On Error GoTo 0
 End Function
 Public Sub SelectIt(Box As Textbox)
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     Box.SelStart = 0
     Box.SelLength = Len(RTrim(Box.Text))
     Exit Sub
     
-ErrTrap:
+errTrap:
     On Error GoTo 0
 End Sub
 Public Sub subSetFirstFocus(ParamArray arryControls())
@@ -398,7 +398,7 @@ Public Function fnCreateTempAR_CUSTOMER(szNumber As String, szName As String) As
     t_dbMainDatabase.ExecuteSQL strSQL
     
     On Error GoTo errInsertRecords
-    strSQL = "INSERT INTO " & TEMP_ar_customer & " SELECT an_customer, TRIM(an_name)||', '||TRIM(an_first_name) FROM ar_altname, ar_customer WHERE (an_customer = cust_customer) AND (TRIM (an_name) <> '' AND TRIM(an_first_name) <>'')"
+    strSQL = "INSERT INTO " & TEMP_ar_customer & " SELECT an_customer, TRIM(an_name) || ', ' || TRIM(an_first_name) FROM ar_altname, ar_customer WHERE (an_customer = cust_customer) AND (TRIM (an_name) <> '' AND TRIM(an_first_name) <>'')"
     t_dbMainDatabase.ExecuteSQL strSQL
     strSQL = "INSERT INTO " & TEMP_ar_customer & " SELECT an_customer, an_name FROM ar_altname, ar_customer WHERE (an_customer = cust_customer) AND (an_first_name IS NULL OR TRIM(an_first_name) ='')"
     t_dbMainDatabase.ExecuteSQL strSQL
@@ -441,7 +441,7 @@ LetUsGo:
     
     On Error GoTo errInsertRecords
     ' 3 cases
-    szSQL = " SELECT an_customer, TRIM(an_name)||', '||TRIM(an_first_name) FROM " _
+    szSQL = " SELECT an_customer, TRIM(an_name) || ', ' || TRIM(an_first_name) FROM " _
            & "ar_altname WHERE (TRIM (an_name) <> '' AND TRIM(an_first_name) <>'')"
     szSQL = "INSERT INTO " & TEMP_ar_altname & szSQL
     t_dbMainDatabase.ExecuteSQL szSQL
@@ -488,7 +488,7 @@ LetUsGo:
     
     On Error GoTo errInsertRecords
     ' 3 cases
-    szSQL = " SELECT pn_alt, TRIM(pn_name)||', '||TRIM(pn_first_name) FROM " _
+    szSQL = " SELECT pn_alt, TRIM(pn_name) || ', ' || TRIM(pn_first_name) FROM " _
            & "p_altname WHERE (TRIM (pn_name) <> '' AND TRIM(pn_first_name) <>'')"
     szSQL = "INSERT INTO " & TEMP_p_altname & szSQL
     t_dbMainDatabase.ExecuteSQL szSQL
