@@ -538,17 +538,17 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.X = myRect.Left
-    myPoint.Y = myRect.Top
+    myPoint.x = myRect.Left
+    myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -1871,11 +1871,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(Y As Single)
+Public Sub MouseUp(y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = Y
+    nClickPointY = y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
@@ -2292,7 +2292,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
     Err.Clear
 
@@ -2417,10 +2417,14 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
     Else
         For i = 1 To Len(S)
             sChar = Mid(S, i, 1)
-            If sChar = " " Then
+            Select Case sChar
+            Case " "
                 sRet = sRet + " "
                 bStartInserted = False
-            Else
+            Case "\", "?", "*"
+                sRet = sRet + "\" + sChar
+                bStartInserted = False
+            Case Else
                 If IsAphabet(sChar) Then
                     sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
                 ElseIf sChar = "_" Then
@@ -2433,7 +2437,7 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
                 End If
                 
                 bStartInserted = False
-            End If
+            End Select
         Next i
             
         sRet = sRet + "*"
