@@ -25,7 +25,18 @@ Attribute VB_Name = "FFTemplate"
 '5  String Parsing:
 '   subParseString sParms(), Source, Delimiter
 
+
+'Modification to this module:
+'1. Sub:        subGetInfo to supply the correct info(Module ID and Caption)
+'2. Function    fnAllowStandalone   Return true if allow standalone mode
+'                                   Otherwise return false
+'3. Sub         subProcessFile      Put codes and function calls here for processing
+
 Option Explicit
+
+Public Function fnAllowStandalone() As Boolean
+    fnAllowStandalone = False
+End Function
 
 Public Sub subGetInfo(aryInfo() As String)
 
@@ -51,5 +62,4 @@ Public Sub subProcessFile(sFile As String)
     End If
     
 End Sub
-
 

@@ -17,6 +17,7 @@ Class=clsErrorHandler; ..\..\..\Shared\ClsFiles\clserror.cls
 Module=modWinApi; ..\..\..\Shared\Winapi.bas
 Module=modPrint; ..\..\..\Shared\PrnUtil.bas
 Module=FFTemplate; FFTemplt.bas
+Form=..\..\..\Shared\Frmsplsh.frm
 Startup="Sub Main"
 HelpFile="Factor.Hlp"
 Title="FlatFileTeplate"
