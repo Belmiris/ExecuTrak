@@ -474,6 +474,7 @@ Private Function fnBuildParm() As String
         sParm = sParm + "IFileName=" + m_IFileName + ","
     End If
     If m_OFilePath <> "" Then
+        fnCheckAndCreateDirectory m_OFilePath, False
         sParm = sParm + "OFilePath=" + m_OFilePath + ","
     End If
     If m_OFileType <> "" Then
@@ -588,6 +589,64 @@ Private Function fnCreateLogID() As String
     sDateTime = Format(Date, "mmdd") + Format(Time, "mmss")
     
     fnCreateLogID = sID_Prefix1_4 + sID_Prefix2_3 + sDateTime
+End Function
+
+Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
+    Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
+    
+    fnCheckAndCreateDirectory = ""
+    
+    On Error Resume Next
+    sTmpDir = Dir(sDir, vbDirectory)
+    
+    If sTmpDir <> "" Then
+        Exit Function
+    End If
+    
+    If bPromptForCreate Then
+        If MsgBox("Directory '" + sDir + "' does not exist.  Do you want to create it?", vbQuestion + vbYesNo) = vbNo Then
+            fnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
+            Exit Function
+        End If
+    End If
+    
+    If Right(sDir, 1) <> "\" Then sDir = sDir + "\"
+    
+    nPosi = InStr(sDir, ":\")
+    If nPosi > 0 Then
+        sDrive = Left(sDir, nPosi)
+        sDir = Mid(sDir, nPosi + 2)
+    End If
+    
+    sParentDir = sDrive
+    
+    On Error Resume Next
+    nPosi = InStr(sDir, "\")
+    
+    While nPosi > 0
+        sParentDir = sParentDir + "\" + Left(sDir, nPosi - 1)
+        
+        On Error Resume Next
+        sTmpDir = Dir(sParentDir, vbDirectory)
+        
+        If sTmpDir = "" Then  'directory does not exist, create it
+            On Error GoTo ErrTrap
+            MkDir sParentDir
+        End If
+        
+        sTmpDir = Mid(sDir, nPosi + 1)
+        
+        sDir = sTmpDir
+        
+        nPosi = 0
+        nPosi = InStr(sDir, "\")
+    Wend
+    
+    Exit Function
+
+ErrTrap:
+    tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
+    fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
 
 
