@@ -97,6 +97,8 @@ goto ask_make_disk
 
 
 :ask_copy_setupz
+call copysetf
+
 echo .
 echo SETUP.Z file has updated.
 choice /c:yn /t:y,5 Do you want to copy SETUP.Z to Disk#1.
