@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -651,7 +651,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -674,7 +674,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -705,7 +705,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -723,7 +723,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-ErrTrap:
+errTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -1123,16 +1123,18 @@ End Sub
 Public Function tfnExecuteProgram(oleObject As Object, szProgram As String) As Boolean
 
     If oleObject.IsExeValid(szProgram) = True Then 'if user has the privledges to run application
-        
         If oleObject.RunExe(szProgram) = False Then 'attempt to run the application failed
             MsgBox szRUNEXE_ERROR & szProgram, vbCritical, szRUNEXE_TITLE 'display message to the user
             tfnExecuteProgram = False 'return error code
         Else
             tfnExecuteProgram = True 'else return application launched ok
         End If
-    
     Else
-        MsgBox oleObject.ErrorMessage, vbCritical, szRUNEXE_TITLE 'display oleObject error message
+        If Trim(oleObject.ErrorMessage) = "" Then
+            MsgBox "This program is not configured on the main menu.", vbCritical, szProgram  'display oleObject error message
+        Else
+            MsgBox oleObject.ErrorMessage, vbCritical, szRUNEXE_TITLE 'display oleObject error message
+        End If
         tfnExecuteProgram = False 'return error code
     End If
 
@@ -1285,7 +1287,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2449,7 +2451,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2554,7 +2556,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2576,7 +2578,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3332,7 +3334,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3434,7 +3436,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3442,7 +3444,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3482,7 +3484,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
@@ -3504,7 +3506,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     tfn_Write_SYS_INI = True
     Exit Function
 
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
