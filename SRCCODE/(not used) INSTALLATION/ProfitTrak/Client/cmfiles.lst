@@ -1,8 +1,9 @@
-DIR=G:\PROGRAM\RELEASE\ProfitTrak MASK=*.*
+DIR=G:\PROGRAM\RELEASE\ProfitTrak MASK=*.hlp
+DIR=G:\PROGRAM\RELEASE\ProfitTrak\bin MASK=*.*
+DIR=G:\PROGRAM\RELEASE\ProfitTrak\ini MASK=*.*
+DIR=G:\PROGRAM\RELEASE\ProfitTrak\ole MASK=*.*
+DIR=G:\PROGRAM\RELEASE\ProfitTrak\qrt_file MASK=*.*
+DIR=G:\PROGRAM\RELEASE\ProfitTrak\models MASK=*.*
 DIR=G:\program\release\exectrak\local_db MASK=*.*
 DIR=G:\program\release\exectrak\common MASK=cpylocal.exe
-DIR=G:\program\release\exectrak\custctl MASK=*.*
-DIR=G:\program\release\exectrak\dll MASK=*.*
-DIR=G:\program\release\exectrak\ole MASK=*.*
-DIR=G:\program\release\exectrak\rtm MASK=*.*
-DIR=G:\program\release\exectrak\shared MASK=*.*
+

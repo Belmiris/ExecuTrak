@@ -2,19 +2,7 @@
 ..\disk\ptclient.z
 2;
 3;
-..\disk\ptini.z
-..\disk\ptmodels.z
-..\disk\ptiqbin.z
 4;
-..\DISK\FACTOLE.Z
-..\DISK\CUSTCTL.Z
-5;
-6;
-..\DISK\FACTDLL.Z
-..\DISK\RTM.z
-7;
-8;
-9;
-..\DISK\SHARED.Z
+..\disk\ptmodels.z
 
 

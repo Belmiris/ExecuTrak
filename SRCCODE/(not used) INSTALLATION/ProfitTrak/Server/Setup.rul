@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "PT300"
-#define UNINSTALL_NAME          "ProfitTrak System Version 3.00"
+#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "PT301"
+#define UNINSTALL_NAME          "ProfitTrak System Version 3.01"
 
 
 #define SIZE_REQ_SERVER         9
@@ -195,126 +195,126 @@ SayWelcome:
         Enable(BACKBUTTON);
 
         // check the registry - if old installation exists.
-        if (RegDBGetKeyValueEx(KEY_VERSION, KEY_EXECUVISION, nReturn, szTemp, nTemp) = 0) then
-                szBaseDirectory = szTemp;
-                ParsePath(szTemp, szBaseDirectory, DISK);
-                szBaseDirectory = szTemp ^ APP_BASE_PATH;
-                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
-        else
-                szBaseDirectory = TARGETDISK ^ APP_BASE_PATH;
-                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
-        endif;
+//        if (RegDBGetKeyValueEx(KEY_VERSION, KEY_EXECUVISION, nReturn, szTemp, nTemp) = 0) then
+//                szBaseDirectory = szTemp;
+//                ParsePath(szTemp, szBaseDirectory, DISK);
+//                szBaseDirectory = szTemp ^ APP_BASE_PATH;
+//                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
+//        else
+//                szBaseDirectory = TARGETDISK ^ APP_BASE_PATH;
+//                //szBaseDirectory = "J:" ^ APP_BASE_PATH;
+//        endif;
 
         NumToStr(szNumber, PROGRAM_SIZE * 1024);
 
 
 
-GetIQVisionInfo:
+//GetIQVisionInfo:
 
-	Disable(BACKBUTTON);
+//	Disable(BACKBUTTON);
 	
-	szIQDir = IQ_DEFAULT_DIR;
+//	szIQDir = IQ_DEFAULT_DIR;
 
-        	if (!fnFindFile(szIQDir, KEY_IQ)) then
-		szDestMsg = "Have you installed the IQ/VISION software?";
-		szTemp = "Choose No to continue with the IQ/VISION " +
-		     "installation after the " + WELCOME_TITLE + " has completed.\n\n" +
-		     "Choose Yes to skip the IQ/VISION installation.";
-		szComponents = "IQVISION";
-		
-		bTemp1 = FALSE;
-		bTemp2 = TRUE;
-		ComponentAddItem(szComponents, "N&o", 1024,bTemp1);
-		ComponentAddItem(szComponents, "&Yes", 2048,bTemp2);
-		
-		SdAskOptions("IQ/VISION Installation Option", szDestMsg, szTemp, szId, szComponents, EXCLUSIVE);
+//        	if (!fnFindFile(szIQDir, KEY_IQ)) then
+//		szDestMsg = "Have you installed the IQ/VISION software?";
+//		szTemp = "Choose No to continue with the IQ/VISION " +
+//		     "installation after the " + WELCOME_TITLE + " has completed.\n\n" +
+//		     "Choose Yes to skip the IQ/VISION installation.";
+//		szComponents = "IQVISION";
+//		
+//		bTemp1 = FALSE;
+//		bTemp2 = TRUE;
+//		ComponentAddItem(szComponents, "N&o", 1024,bTemp1);
+//		ComponentAddItem(szComponents, "&Yes", 2048,bTemp2);
+//		
+//		SdAskOptions("IQ/VISION Installation Option", szDestMsg, szTemp, szId, szComponents, EXCLUSIVE);
 
-                	if (ComponentIsItemSelected(szComponents, "N&o")) then
-		                MessageBox("Please install IQ/VISION software before " +
-		                        "installing the " + PRODUCT_NAME + ".", INFORMATION);
-			abort;
-		endif;
-        	endif;
+//                	if (ComponentIsItemSelected(szComponents, "N&o")) then
+//		                MessageBox("Please install IQ/VISION software before " +
+//		                        "installing the " + PRODUCT_NAME + ".", INFORMATION);
+//			abort;
+//		endif;
+//        	endif;
 
 
-GetIQVisionPath:
+//GetIQVisionPath:
 
-        Enable(BACKBUTTON);
+//        Enable(BACKBUTTON);
         	
-	if (!fnFindFile(szIQDir, KEY_IQ)) then
-		if (GetIQVISIONPath() = BACK) then
-		        goto GetIQVisionInfo;
-		endif;
+//	if (!fnFindFile(szIQDir, KEY_IQ)) then
+//		if (GetIQVISIONPath() = BACK) then
+//		        goto GetIQVisionInfo;
+//		endif;
 
-	                if (CheckIQKey() = NOTEXISTS) then
-	                        goto GetIQVisionPath;
-	                endif;
-	endif;
+//	                if (CheckIQKey() = NOTEXISTS) then
+//	                        goto GetIQVisionPath;
+//	                endif;
+//	endif;
 
-	StrToUpper(szIQDir, szIQDir);
+//	StrToUpper(szIQDir, szIQDir);
 
 
-GetTargetPath1:
-	Disable(BACKBUTTON);
+//GetTargetPath1:
+//	Disable(BACKBUTTON);
 
-        szDestMsg = "Setup will install some " + KEY_EXECUVISION + " in the Destination Directory.\n\n";
-        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
-        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
-        szDestMsg = szDestMsg + "directory.\n\n";
-        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to\n";
-        szDestMsg = szDestMsg + "exit Setup.\n\n";
-        szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
+//        szDestMsg = "Setup will install some " + KEY_EXECUVISION + " in the Destination Directory.\n\n";
+//        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+//        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
+//        szDestMsg = szDestMsg + "directory.\n\n";
+//        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to\n";
+//        szDestMsg = szDestMsg + "exit Setup.\n\n";
+//        szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
 
-        if (AskDestPath("Choose " + PRODUCT_NAME + " Programs Location", szDestMsg, szBaseDirectory, 0) = BACK) then
-            goto SayWelcome;
-        endif;
+//        if (AskDestPath("Choose " + PRODUCT_NAME + " Programs Location", szDestMsg, szBaseDirectory, 0) = BACK) then
+//            goto SayWelcome;
+//        endif;
 
         // make sure destination directory is \factor\execvisn
-        szTemp = szBaseDirectory ^ "";
-        StrToLower(szTemp, szTemp);
+//        szTemp = szBaseDirectory ^ "";
+//        StrToLower(szTemp, szTemp);
 
-        ParsePath(szFolder, szBaseDirectory, DISK);
-        StrToLower(szFolder, szFolder);
+//        ParsePath(szFolder, szBaseDirectory, DISK);
+//        StrToLower(szFolder, szFolder);
 
-        nTemp = StrFind(szTemp, szFolder ^ "factor\\execvisn");
+//        nTemp = StrFind(szTemp, szFolder ^ "factor\\execvisn");
 
-        StrToUpper(szFolder, szFolder);
+//        StrToUpper(szFolder, szFolder);
 
-        if (nTemp < 0) then   //incorrect directory
-                szMsg = PRODUCT_NAME + " Program Directory '" +
-                    szBaseDirectory ^ "" + "' is not valid.\n\n";
-                szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
-                    szFolder ^ APP_BASE_PATH + "' directory.";
+//        if (nTemp < 0) then   //incorrect directory
+//                szMsg = PRODUCT_NAME + " Program Directory '" +
+//                    szBaseDirectory ^ "" + "' is not valid.\n\n";
+//                szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
+//                    szFolder ^ APP_BASE_PATH + "' directory.";
 
-                MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
-        endif;
+//                MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+//        endif;
 
-        szBaseDirectory = szFolder ^ APP_BASE_PATH;
+//        szBaseDirectory = szFolder ^ APP_BASE_PATH;
 
         // check available disk space
-        if (CheckDiskSpace(PROGRAM_SIZE * 1024 * 1024) = FALSE) then
-                goto GetTargetPath1;
-        endif;
+//        if (CheckDiskSpace(PROGRAM_SIZE * 1024 * 1024) = FALSE) then
+//                goto GetTargetPath1;
+//        endif;
 
 
-Check16BitExecVisn:
-        bExists16Bit = IsExists16BitVersion(szBaseDirectory ^ "Bin");
+//Check16BitExecVisn:
+//        bExists16Bit = IsExists16BitVersion(szBaseDirectory ^ "Bin");
 
-        if (bExists16Bit) then
-                if (AskYesNo( "32-Bit ExecuVision Installation will overwrite " +
-                   "the 16-Bit ExecuVision program. Are you sure you want to " +
-                   "continue?", NO) = NO) then
-                        szMsg = PRODUCT_NAME + " Installation terminates.";
-                        MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
-                        abort;
-                endif;
-        endif;
+//        if (bExists16Bit) then
+//                if (AskYesNo( "32-Bit ExecuVision Installation will overwrite " +
+//                   "the 16-Bit ExecuVision program. Are you sure you want to " +
+//                   "continue?", NO) = NO) then
+//                        szMsg = PRODUCT_NAME + " Installation terminates.";
+//                        MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+//                        abort;
+//                endif;
+//        endif;
 
         szINIDirectory = APP_INI_PATH;
 
 
 GetAppINIPath:
-        szDestMsg = "Setup will store some  " + KEY_EXECUVISION + " INI files in the Destination Directory.\n\n";
+        szDestMsg = "Setup will store some ProfitTrak INI files in the Destination Directory.\n\n";
         szDestMsg = szDestMsg + "To store to this directory, click Next.\n\n";
         szDestMsg = szDestMsg + "To store to a different directory, click Browse and select another\n";
         szDestMsg = szDestMsg + "directory.\n\n";
@@ -322,7 +322,7 @@ GetAppINIPath:
         Enable(BACKBUTTON);
 
         if (AskDestPath("Choose " + PRODUCT_NAME + " INI files Location", szDestMsg, szINIDirectory, 0) = BACK) then
-            goto GetTargetPath1;
+            goto SayWelcome;
         endif;
 
         if (CheckExistsDir(szINIDirectory) != EXISTS) then
@@ -349,10 +349,6 @@ GetAppINIPath:
                 MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
         endif;
 
-        szINIDirectory = szFolder ^ APP_BASE_PATH;
-
-
-        
         szINIDirectory = szFolder ^ APP_BASE_PATH;
         
 	
@@ -405,9 +401,9 @@ GetTargetPath2:
         endif;
 
 	// check available disk space
-	if (CheckDiskSpace(SIZE_REQ_SERVER * 1024 * 1024) = FALSE) then
-		goto GetTargetPath2;
-	endif;
+//	if (CheckDiskSpace(SIZE_REQ_SERVER * 1024 * 1024) = FALSE) then
+//		goto GetTargetPath2;
+//	endif;
 
         ParsePath(szDisk, szEXECTRAKDirectory, DISK);
         szEXECTRAKDirectory = szDisk ^ APP_EXECTRAK_PATH;
@@ -440,11 +436,11 @@ FactMenuNotFound:
         
 SetupRegAndUninstall:
         // Prepare InstallShield to record deinstallation information.
-        DeinstallStart( szBaseDirectory, svUninstLogFile, DEINSTALL_KEY, 0 );
+        DeinstallStart(szEXECTRAKDirectory, svUninstLogFile, DEINSTALL_KEY, 0 );
         RegDBSetItem( REGDB_UNINSTALL_NAME, UNINSTALL_NAME );
 
         // Set the App Paths key for the main program.
-        szAppDir = szBaseDirectory ^ "BIN";
+        szAppDir = szEXECTRAKDirectory ^ "BIN";
         RegDBSetItem( REGDB_APPPATH, szAppDir );
         szProgram = szAppDir + "\\ptecklst.exe";
         RegDBSetItem( REGDB_APPPATH_DEFAULT, szProgram );
@@ -455,17 +451,17 @@ ConfirmCopy:
 
         //Construct the Info List
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
-        ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
+        ListAddString(listInfo, "        " + szEXECTRAKDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
         ListAddString(listInfo, PRODUCT_NAME + " INI directory:", AFTER);
         ListAddString(listInfo, "        " + szINIDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
 
-        if (bExists16Bit) then
-                ListAddString(listInfo, "Overwrite 16-Bit ExecuVision Program:", AFTER);
-                ListAddString(listInfo, "        Yes", AFTER);
-                ListAddString(listInfo, "", AFTER);
-        endif;
+//        if (bExists16Bit) then
+//                ListAddString(listInfo, "Overwrite 16-Bit ExecuVision Program:", AFTER);
+//                ListAddString(listInfo, "        Yes", AFTER);
+//                ListAddString(listInfo, "", AFTER);
+//        endif;
 
         ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
         ListAddString(listInfo, "        Programs\\Factor\\" + PRODUCT_NAME, AFTER);
@@ -478,22 +474,30 @@ ConfirmCopy:
            goto GetTargetPath2;
         endif;
         ListDestroy( listInfo );
-
-
-        // Set the App Paths key for the main program.
-        szAppDir = szBaseDirectory ^ "BIN";
-        RegDBSetItem( REGDB_APPPATH, szAppDir );
-        szProgram = szAppDir + "\\iqfactmt.exe";
-        RegDBSetItem( REGDB_APPPATH_DEFAULT, szProgram );
         
-
+CheckProfit:	
+	// if keyfile does not exists then proceed to copy
+	TARGETDIR = szINIDirectory ^ "PROFIT";
+        if (fnFindFile(TARGETDIR, "PROFIT.INI")) then
+                
+                if (AskYesNo("Do you want to OVERWRITE all INI files " +
+                   "in the INI directories?", NO) = YES) then
+                        bCopyINI = TRUE;
+                else
+                	bCopyINI = FALSE;
+                endif;
+                
+        else
+                bCopyINI = TRUE;
+        endif;
+                                
 StartCopy:
 
-	CopySetup();
+	//CopySetup();
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " server files...");
         Enable(STATUS);
-	Enable(SELFREGISTERBATCH);
+//	Enable(SELFREGISTERBATCH);
 	FileSetBeginDefine("All Files");  // begin of define fileset +++++++++++++++++
         StatusUpdate(ON, 90);
 
@@ -513,45 +517,14 @@ StartCopy:
 
         	LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
 	LOGWRITE(LOGMSG);
-	
+
+	if bCopyINI then	
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
-	TARGETDIR = szBaseDirectory;
-	
-	if (CMDLINE = "-A" || CMDLINE = "-a") then
-				
-                LOGMSG="START FORCED COPY OF ptini FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                // These go into the window directory
-                if (CompressGet("ptini.z", "*.*", COMP_NORMAL| INCLUDE_SUBDIR) < 0) then
-                        MessageBox("PTINI.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-                LOGMSG="END FORCED COPY OF ptini FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);	
-	else     
-// ************************* Normal install
-
-                LOGMSG="START Normal COPY OF ptini FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                // These go into the window directory
-                if (CompressGet("ptini.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      		COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
-                        MessageBox("PTINI.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-                LOGMSG="END Normal COPY OF ptini FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-	endif;
-	
-
-// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
-
-	
-	if (CMDLINE = "-A" || CMDLINE = "-a") then
-				
+//	TARGETDIR = szBaseDirectory;
+		TARGETDIR = szINIDirectory;
+//			if (CMDLINE = "-A" || CMDLINE = "-a") then
+					
                 LOGMSG="START FORCED COPY OF ptmodels FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
@@ -562,193 +535,23 @@ StartCopy:
                 endif;
                 LOGMSG="END FORCED COPY OF ptmodels FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
-	else     
-// ************************* Normal install
-
-                LOGMSG="START Normal COPY OF ptmodels FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                // These go into the FACTOR\Execvisn directory
-                if (CompressGet("ptmodels.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      		COMP_UPDATE_SAME  | INCLUDE_SUBDIR) < 0) then
-                        MessageBox("ptmodels.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-                LOGMSG="END Normal COPY OF ptmodels FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
+//		else     
+	// ************************* Normal install
+	
+//	                LOGMSG="START Normal COPY OF ptmodels FILES IN " + TARGETDIR;
+//	                LOGWRITE(LOGMSG);
+	
+//	                // These go into the FACTOR\Execvisn directory
+//	                if (CompressGet("ptmodels.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+//		      		COMP_UPDATE_SAME  | INCLUDE_SUBDIR) < 0) then
+//	                        MessageBox("ptmodels.Z could not be decompressed", SEVERE);
+//	                        goto ZFailure;
+//	                endif;
+//	                LOGMSG="END Normal COPY OF ptmodels FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
+	
 	endif;
-
-// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
-	if (CMDLINE = "-A" || CMDLINE = "-a") then
-				
-                LOGMSG="START FORCED COPY OF ptiqbin.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                // These go into the window directory
-                if (CompressGet("ptiqbin.z", "*.*", COMP_NORMAL| INCLUDE_SUBDIR) < 0) then
-                        MessageBox("PTINI.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-                LOGMSG="END FORCED COPY OF ptiqbin.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);	
-	else     
-// ************************* Normal install
-
-                LOGMSG="START Normal COPY OF ptini FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                // These go into the window directory
-                if (CompressGet("ptiqbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
-                        MessageBox("ptiqbin.z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-                LOGMSG="END Normal COPY OF ptini FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-	endif;
-
-
-// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
-
-	if (CMDLINE = "-A" || CMDLINE = "-a") then
-
-                
-                TARGETDIR = szBaseDirectory ^ "OLE";
-
-                LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-                TARGETDIR = WINSYSDIR;
-
-                LOGMSG="START FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("custctl.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-        
-                LOGMSG="START FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-        
-                if (CompressGet("factdll.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-        
-                LOGMSG="END FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                LOGMSG="START FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("rtm.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("RTM.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-                // decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
-                TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
-
-                LOGMSG="START FORCED COPY OF shared.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("shared.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("SHARED.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END FORCED COPY OF shared.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-	else
-
-// ************************* Normal install
-                 
-                TARGETDIR = szBaseDirectory ^ "OLE";
-        
-                LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-        
-                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                TARGETDIR = WINSYSDIR;
-
-                LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-        
-                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-        
-                LOGMSG="END NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-                LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("RTM.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-                // decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
-                TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
-
-                LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-                        MessageBox("SHARED.Z could not be decompressed", SEVERE);
-                        goto ZFailure;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
-		LOGWRITE(LOGMSG);
-
-	endif;
-
-
 
 	FileSetEndDefine("All Files");
 	
@@ -828,9 +631,7 @@ StartCopy:
 		LOGWRITE(LOGMSG); 
 		
 	endif;
-	
-    
-        
+	        
         
 DecompressError:
 	if (nReturn < 0) then 
@@ -869,12 +670,7 @@ DecompressSuccessful:
 
 	SetStatusWindow(92, "Registering DLLs and Ocxes...");
 	
-	Do(SELFREGISTRATIONPROCESS);
-	
-	
-	LaunchAppAndWait(szBaseDirectory ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
-	LaunchAppAndWait(szBaseDirectory ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
-	LaunchAppAndWait(szBaseDirectory ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
+//	Do(SELFREGISTRATIONPROCESS);
 	
 	
 	StatusUpdate(OFF, 0);
@@ -913,163 +709,163 @@ DecompressSuccessful:
         DeleteFile(KEY_DEFAULT + "bin.z");
 	DeleteFile("localdb.z");
 	
-CopyINIDirectory:
-        SetStatusWindow(94, "Creating ExecuVision INI directory...");
+//CopyINIDirectory:
+//        SetStatusWindow(94, "Creating ExecuVision INI directory...");
 
-        VarSave(SRCTARGETDIR);
+//        VarSave(SRCTARGETDIR);
 
-        if (szINIDirectory != szBaseDirectory) then
-                // make INI directories in szINIDirectory
+//        if (szINIDirectory != szBaseDirectory) then
+//                // make INI directories in szINIDirectory
         
-                bCopyINI = FALSE;
-                bAlreadyAsk = FALSE;
+//                bCopyINI = FALSE;
+//                bAlreadyAsk = FALSE;
         
-                nTemp = 1;
+//                nTemp = 1;
         
-                while (nTemp <= 1)
-                        switch (nTemp)
-                                case 1:
-                                    szTemp = "PROFIT";
-                                    SetStatusWindow(96, "Creating ExecuVision INI directory...");
-                        endswitch;
+//                while (nTemp <= 1)
+//                        switch (nTemp)
+//                                case 1:
+//                                    szTemp = "PROFIT";
+//                                    SetStatusWindow(96, "Creating ExecuVision INI directory...");
+//                        endswitch;
+//        
+//                        // copy INI files to the new INI path
+//                        SRCDIR = szBaseDirectory ^ szTemp;
+//                        TARGETDIR = szINIDirectory ^ szTemp;
         
-                        // copy INI files to the new INI path
-                        SRCDIR = szBaseDirectory ^ szTemp;
-                        TARGETDIR = szINIDirectory ^ szTemp;
+//                        if (!bAlreadyAsk) then
+//                                // if keyfile does not exists then proceed to copy
+//                                if (fnFindFile(TARGETDIR, szTemp + ".INI")) then
+//                                        if ((!bExists16Bit) && (!bCopyINI)) then
+//                                                if (AskYesNo("Do you want to OVERWRITE all INI files " +
+//                                                   "in the INI directories?", NO) = YES) then
+//                                                        bCopyINI = TRUE;
+//                                                endif;
+//                                        endif;
+//                                else
+//                                        bCopyINI = TRUE;
+//                                endif;
         
-                        if (!bAlreadyAsk) then
-                                // if keyfile does not exists then proceed to copy
-                                if (fnFindFile(TARGETDIR, szTemp + ".INI")) then
-                                        if ((!bExists16Bit) && (!bCopyINI)) then
-                                                if (AskYesNo("Do you want to OVERWRITE all INI files " +
-                                                   "in the INI directories?", NO) = YES) then
-                                                        bCopyINI = TRUE;
-                                                endif;
-                                        endif;
-                                else
-                                        bCopyINI = TRUE;
-                                endif;
+//                                bAlreadyAsk = TRUE;
+//                        endif;
         
-                                bAlreadyAsk = TRUE;
-                        endif;
+//                        if (bExists16Bit || szForceInstall = "1 " || bCopyINI) then
+//                                LOGMSG="START OF COPY INI Directory FROM '" + SRCDIR +
+//                                    "' TO '" + TARGETDIR + "'.";
+//                                LOGWRITE(LOGMSG);
         
-                        if (bExists16Bit || szForceInstall = "1 " || bCopyINI) then
-                                LOGMSG="START OF COPY INI Directory FROM '" + SRCDIR +
-                                    "' TO '" + TARGETDIR + "'.";
-                                LOGWRITE(LOGMSG);
+//                                nReturn = XCopyFile("*.*", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
         
-                                nReturn = XCopyFile("*.*", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
+//                                LOGMSG="END OF COPY INI Directory FROM '" + SRCDIR +
+//                                    "' TO '" + TARGETDIR + "'.";
+//                                LOGWRITE(LOGMSG);
+//                        else
+//                                nReturn = 1;
+//                        endif;
         
-                                LOGMSG="END OF COPY INI Directory FROM '" + SRCDIR +
-                                    "' TO '" + TARGETDIR + "'.";
-                                LOGWRITE(LOGMSG);
-                        else
-                                nReturn = 1;
-                        endif;
+//                        if (nReturn >= 0) then
+//                                // DELETE szBaseDirectory\INIs directory if
+//                                // it is same as szINIDirectory
+//                                LOGMSG="START OF DELETE INI Directory '" + SRCDIR + "'.";
+//                                LOGWRITE(LOGMSG);
+//                                if (DeleteDir(SRCDIR, ALLCONTENTS) < 0) then
+//                                        MessageBox("Failed to Delete directory '" + SRCDIR + "'.", SEVERE);
+//                                endif;
+//                                LOGMSG="END OF DELETE INI Directory '" + SRCDIR + "'.";
+//                                LOGWRITE(LOGMSG);
+//                        endif;
         
-                        if (nReturn >= 0) then
-                                // DELETE szBaseDirectory\INIs directory if
-                                // it is same as szINIDirectory
-                                LOGMSG="START OF DELETE INI Directory '" + SRCDIR + "'.";
-                                LOGWRITE(LOGMSG);
-                                if (DeleteDir(SRCDIR, ALLCONTENTS) < 0) then
-                                        MessageBox("Failed to Delete directory '" + SRCDIR + "'.", SEVERE);
-                                endif;
-                                LOGMSG="END OF DELETE INI Directory '" + SRCDIR + "'.";
-                                LOGWRITE(LOGMSG);
-                        endif;
+//                        if (nReturn < 0) then
+//                                switch (nReturn)
+//                                        case COPY_ERR_CREATEDIR:
+//                                                MessageBox("Failed to Create target directory", SEVERE);
+//                                                goto ZFailure;
+//                                        case COPY_ERR_MEMORY:
+//                                                MessageBox("Out of memory", SEVERE);
+//                                                goto ZFailure;
+//                                        case COPY_ERR_NODISKSPACE:
+//                                                MessageBox("Not enough disk space", SEVERE);
+//                                                goto ZFailure;
+//                                        case COPY_ERR_OPENINPUT:
+//                                                MessageBox("Error in open input file", SEVERE);
+//                                                goto ZFailure;
+//                                        case COPY_ERR_OPENOUTPUT:
+//                                                MessageBox("Error in open output file", SEVERE);
+//                                                goto ZFailure;
+//                                        case COPY_ERR_TARGETREADONLY:
+//                                                MessageBox("Target directory is read only", SEVERE);
+//                                                goto ZFailure;
+//                                        default:
+//                                                MessageBox("General file copy failure", SEVERE);
+//                                                goto ZFailure;
+//                                endswitch;
+//                        endif;
         
-                        if (nReturn < 0) then
-                                switch (nReturn)
-                                        case COPY_ERR_CREATEDIR:
-                                                MessageBox("Failed to Create target directory", SEVERE);
-                                                goto ZFailure;
-                                        case COPY_ERR_MEMORY:
-                                                MessageBox("Out of memory", SEVERE);
-                                                goto ZFailure;
-                                        case COPY_ERR_NODISKSPACE:
-                                                MessageBox("Not enough disk space", SEVERE);
-                                                goto ZFailure;
-                                        case COPY_ERR_OPENINPUT:
-                                                MessageBox("Error in open input file", SEVERE);
-                                                goto ZFailure;
-                                        case COPY_ERR_OPENOUTPUT:
-                                                MessageBox("Error in open output file", SEVERE);
-                                                goto ZFailure;
-                                        case COPY_ERR_TARGETREADONLY:
-                                                MessageBox("Target directory is read only", SEVERE);
-                                                goto ZFailure;
-                                        default:
-                                                MessageBox("General file copy failure", SEVERE);
-                                                goto ZFailure;
-                                endswitch;
-                        endif;
+//                        // delete the temporary source directory
+//                        //DeleteDir(SRCDIR, ALLCONTENTS);
         
-                        // delete the temporary source directory
-                        //DeleteDir(SRCDIR, ALLCONTENTS);
-        
-                        nTemp = nTemp + 1;
-                endwhile;
+//                        nTemp = nTemp + 1;
+//                endwhile;
 
-        else
-                LOGMSG="INI Directory '" + szINIDirectory +
-                    "' same as Program Directory '" + szBaseDirectory + "'.";
-                LOGWRITE(LOGMSG);
-        endif;
+//        else
+//                LOGMSG="INI Directory '" + szINIDirectory +
+//                    "' same as Program Directory '" + szBaseDirectory + "'.";
+//                LOGWRITE(LOGMSG);
+//        endif;
 
-UpdateIQFactINI:
-        SetStatusWindow(97, "Updating IQFACT.INI...");
+//UpdateIQFactINI:
+//        SetStatusWindow(97, "Updating IQFACT.INI...");
 
-        LOGMSG="START OF UPDATE IQFACT.INI";
-        LOGWRITE(LOGMSG);
+//        LOGMSG="START OF UPDATE IQFACT.INI";
+//        LOGWRITE(LOGMSG);
 
-        UpdateIQFACTINI();
+//        UpdateIQFACTINI();
 
-        LOGMSG="END OF UPDATE IQFACT.INI";
-        LOGWRITE(LOGMSG);
+//        LOGMSG="END OF UPDATE IQFACT.INI";
+//        LOGWRITE(LOGMSG);
 
 
-CopyIQFactINI:
-        SRCDIR = szBaseDirectory ^ "INI";
-        TARGETDIR = WINDIR;
+//CopyIQFactINI:
+//        SRCDIR = szBaseDirectory ^ "INI";
+//        TARGETDIR = WINDIR;
 
-	if (CMDLINE = "-A" || CMDLINE = "-a") then
+//	if (CMDLINE = "-A" || CMDLINE = "-a") then
 
-                LOGMSG="START FORCED COPY OF IQFACT.INI FROM '" + SRCDIR +
-                    "' TO '" + TARGETDIR + "'.";
-                LOGWRITE(LOGMSG);
+//                LOGMSG="START FORCED COPY OF IQFACT.INI FROM '" + SRCDIR +
+//                    "' TO '" + TARGETDIR + "'.";
+//                LOGWRITE(LOGMSG);
 
-                nReturn = XCopyFile("IQFACT.INI", "IQFACT.INI",
-                        COMP_NORMAL);
+//                nReturn = XCopyFile("IQFACT.INI", "IQFACT.INI",
+//                        COMP_NORMAL);
 
-                LOGMSG="END FORCED COPY OF IQFACT.INI FROM '" + SRCDIR +
-                    "' TO '" + TARGETDIR + "'.";
-                LOGWRITE(LOGMSG);
-        else
+//                LOGMSG="END FORCED COPY OF IQFACT.INI FROM '" + SRCDIR +
+//                    "' TO '" + TARGETDIR + "'.";
+//                LOGWRITE(LOGMSG);
+//        else
 
-                LOGMSG="START NORMAL COPY OF IQFACT.INI FROM '" + SRCDIR +
-                    "' TO '" + TARGETDIR + "'.";
-                LOGWRITE(LOGMSG);
+//                LOGMSG="START NORMAL COPY OF IQFACT.INI FROM '" + SRCDIR +
+//                    "' TO '" + TARGETDIR + "'.";
+//                LOGWRITE(LOGMSG);
 
-                nReturn = XCopyFile("IQFACT.INI", "IQFACT.INI",
-                        COMP_UPDATE_DATE | COMP_UPDATE_SAME);
+//                nReturn = XCopyFile("IQFACT.INI", "IQFACT.INI",
+//                        COMP_UPDATE_DATE | COMP_UPDATE_SAME);
 
-                LOGMSG="END NORMAL COPY OF IQFACT.INI FROM '" + SRCDIR +
-                    "' TO '" + TARGETDIR + "'.";
-                LOGWRITE(LOGMSG);
-        endif;
+//                LOGMSG="END NORMAL COPY OF IQFACT.INI FROM '" + SRCDIR +
+//                    "' TO '" + TARGETDIR + "'.";
+//                LOGWRITE(LOGMSG);
+//        endif;
 
-        VarRestore(SRCTARGETDIR);
+//        VarRestore(SRCTARGETDIR);
         
         CreateProgramFolder:
         LOGMSG="START OF CREATE PROGRAM FOLDER";
         LOGWRITE(LOGMSG);
 
-	SRCDIR = szEXECTRAKDirectory;
-        TARGETDIR = szBaseDirectory;
-        XCopyFile("iqfact.hlp", "iqfact.hlp", COMP_NORMAL);
-        TARGETDIR= szEXECTRAKDirectory;
-        DeleteFile("iqfact.hlp");
+//	SRCDIR = szEXECTRAKDirectory;
+//        TARGETDIR = szBaseDirectory;
+//        XCopyFile("iqfact.hlp", "iqfact.hlp", COMP_NORMAL);
+//        TARGETDIR= szEXECTRAKDirectory;
+//        DeleteFile("iqfact.hlp");
         
         // create folder shortcuts
         szFolder = COMPANY_NAME ^ PROGRAM_GROUP;
@@ -1083,57 +879,57 @@ CopyIQFactINI:
         //AddFolderIcon(szFolder, "Uninstall " + PRODUCT_NAME, szProgram,
         //                          WINDIR, "", 0, "", REPLACE);
 
-        szSCExe = WINDIR ^ "notepad.exe " + TARGETDISK ^ "Factor" ^ "iqf_log.txt";
-        AddFolderIcon(szFolder, "ExecuVision Data Warehouse Update Log",
-                                  szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
+        //szSCExe = WINDIR ^ "notepad.exe " + TARGETDISK ^ "Factor" ^ "iqf_log.txt";
+        //AddFolderIcon(szFolder, "ExecuVision Data Warehouse Update Log",
+        //                          szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(94, "Creating program folder and icons...");
+        //SetStatusWindow(94, "Creating program folder and icons...");
 
        // szSCExe = szAppDir ^ "runsql2.exe";
         //AddFolderIcon(szFolder, "Run SQL",
         //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        szSCExe = szBaseDirectory ^ "iqfact.hlp";
-        AddFolderIcon(szFolder, "ExecuVision Help",
-                                  szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szBaseDirectory ^ "iqfact.hlp";
+        //AddFolderIcon(szFolder, "ExecuVision Help",
+        //                          szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(95, "Creating program folder and icons...");
+        //SetStatusWindow(95, "Creating program folder and icons...");
 
         //szSCExe = "\"" + szAppDir ^ "iqfact.exe\" networknode:factor:/factor/company, username, password, I";
         //AddFolderIcon(szFolder, "ExecuVision Data Warehouse Build",
         //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
         //
         //instead of add folder item, now delete the folder item
-        DeleteFolderIcon(szFolder, "ExecuVision Data Warehouse Build");
+        //DeleteFolderIcon(szFolder, "ExecuVision Data Warehouse Build");
 
-        szSCExe = szAppDir ^ "iqfactmt.exe";
-        AddFolderIcon(szFolder, "ExecuVision Reference File Maintenance",
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szAppDir ^ "iqfactmt.exe";
+        //AddFolderIcon(szFolder, "ExecuVision Reference File Maintenance",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(96, "Creating program folder and icons...");
+        //SetStatusWindow(96, "Creating program folder and icons...");
 
-        szSCExe = szAppDir ^ "iqfestrm.exe";
-        AddFolderIcon(szFolder, "ExecuVision Data Warehouse Process Maintenance",
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szAppDir ^ "iqfestrm.exe";
+        //AddFolderIcon(szFolder, "ExecuVision Data Warehouse Process Maintenance",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        szSCExe = szAppDir ^ "iqffcpmt.exe";
-        AddFolderIcon(szFolder, "ExecuVision Company File Maintenance",
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szAppDir ^ "iqffcpmt.exe";
+        //AddFolderIcon(szFolder, "ExecuVision Company File Maintenance",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(97, "Creating program folder and icons...");
+        //SetStatusWindow(97, "Creating program folder and icons...");
         
-        szSCExe = szAppDir ^ "iqferept.exe";
-        AddFolderIcon(szFolder, "ExecuVision OLAP Analysis",
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szAppDir ^ "iqferept.exe";
+        //AddFolderIcon(szFolder, "ExecuVision OLAP Analysis",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        szSCExe = szAppDir ^ "iqefact.exe";
-        AddFolderIcon(szFolder, "Run Data Model Builder",
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //szSCExe = szAppDir ^ "iqefact.exe";
+        //AddFolderIcon(szFolder, "Run Data Model Builder",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
         LOGMSG="END OF CREATE PROGRAM FOLDER";
         LOGWRITE(LOGMSG);
 
-        SetStatusWindow(98, "Creating program folder and icons...");
+        //SetStatusWindow(98, "Creating program folder and icons...");
 
 
 	SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " installation...");
@@ -1151,27 +947,27 @@ CopyIQFactINI:
 
 	RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
 	
-UpdateIQVision:
+//UpdateIQVision:
         // update new version of IQ/VISION - IQVA.EXE file
-        if (szIQDir != "") then
+//        if (szIQDir != "") then
                 // copy iqva.exe to \iq\iqvision
-                SRCDIR = szBaseDirectory ^ "BIN";
-                TARGETDIR = szIQDir;
+//                SRCDIR = szBaseDirectory ^ "BIN";
+//                TARGETDIR = szIQDir;
 
-                SetStatusWindow(99, "Update IQ/VISION program...");
+//                SetStatusWindow(99, "Update IQ/VISION program...");
 
-                if (XCopyFile("IQVA.EXE", "IQVA.EXE", COMP_UPDATE_SAME) < 0) then
-                        MessageBox("Update IQ/VISION program file failed.\n\n" + PRODUCT_NAME + " may not work properly.",
-                            WARNING);
-                else
-                        TARGETDIR = SRCDIR;
-                        DeleteFile("IQVA.EXE");
+//                if (XCopyFile("IQVA.EXE", "IQVA.EXE", COMP_UPDATE_SAME) < 0) then
+//                        MessageBox("Update IQ/VISION program file failed.\n\n" + PRODUCT_NAME + " may not work properly.",
+//                            WARNING);
+//                else
+//                        TARGETDIR = SRCDIR;
+//                        DeleteFile("IQVA.EXE");
  
-                endif;
-        else
-                MessageBox("IQ/VISION program file not found.\n\n" + PRODUCT_NAME + " may not work properly.",
-                        WARNING);
-        endif;
+//                endif;
+//        else
+//                MessageBox("IQ/VISION program file not found.\n\n" + PRODUCT_NAME + " may not work properly.",
+//                        WARNING);
+//        endif;
 	
 
 	SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " installation...");
@@ -1185,29 +981,40 @@ UpdateIQVision:
 	LOGWRITE(LOGMSG);
 
 	
-	if (BATCH_INSTALL) then
+//	if (BATCH_INSTALL) then
         
-		CopyLocalDB("First");    
-		LOGMSG="MUST REBOOT BEFORE RUNNING";
-		LOGWRITE(LOGMSG);
+//		CopyLocalDB("First");    
+//		LOGMSG="MUST REBOOT BEFORE RUNNING";
+//		LOGWRITE(LOGMSG);
 		
-		Disable(BACKBUTTON);
-		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-			"your computer.");
+//		Disable(BACKBUTTON);
+//		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+//			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+//			"your computer.");
 		
-	else
+//	else
 
-		CopyLocalDB("");
-		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-			"your computer.");
+//		CopyLocalDB("");
+//		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+//			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+//			"your computer.");
 //		SdFinish(WELCOME_TITLE + " Complete",
 //			WELCOME_TITLE + " has finished copying files to your computer.",
 //			"Click Finish to complete " + WELCOME_TITLE,
 //			"", "", bTemp1, bTemp2);
-	endif;   
-	
+//	endif;   
+	if (bRunStandAlone) then
+                SdFinish(WELCOME_TITLE + " Complete",
+                         WELCOME_TITLE + " has finished copying files to your computer.",
+                         "Click Finish to complete " + WELCOME_TITLE,
+                         "", "", bTemp1, bTemp2);
+        else
+                SdFinish(WELCOME_TITLE + " Complete",
+                    WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
+                    "You may now run the " + PRODUCT_NAME + " Client Installation " +
+                    "program on any PC requiring access to the " + PRODUCT_NAME + ".",
+                    "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
+        endif;
 
 	exit;
 

@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.06"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "MP306"
-#define UNINSTALL_NAME          "Murphy System Version 3.06"
+#define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "MP307"
+#define UNINSTALL_NAME          "Murphy System Version 3.07"
 
 
 #define SIZE_REQ_SERVER         9

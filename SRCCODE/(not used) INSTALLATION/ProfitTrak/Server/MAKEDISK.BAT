@@ -2,11 +2,11 @@
 echo .
 echo Making Distribution Disk
 
-
-if exist ..\disk\disk9\SHARED.Z goto disk9
-if exist ..\disk\disk8\SHARED.Z goto disk8
-if exist ..\disk\disk7\SHARED.Z goto disk7
-if exist ..\disk\disk6\SHARED.Z goto disk6
+if exist ..\disk\disk6\??client.6 goto disk6
+if exist ..\disk\disk5\??client.5 goto disk5
+if exist ..\disk\disk4\??client.4 goto disk4
+if exist ..\disk\disk3\??client.3 goto disk3
+if exist ..\disk\disk2\??client.2 goto disk2
 
 echo Total Distribution Diskette Required = 1
 goto start
@@ -31,17 +31,6 @@ goto start
 echo Total Distribution Diskette Required = 6
 goto start
 
-:disk7
-echo Total Distribution Diskette Required = 7
-goto start
-
-:disk8
-echo Total Distribution Diskette Required = 8
-goto start
-
-:disk9
-echo Total Distribution Diskette Required = 9
-goto start
 
 :start
 echo .
@@ -51,6 +40,7 @@ pause
 echo Delete all Files in A drive
 del a:\*.*
 xcopy ..\disk\disk1\*.* a:
+if not exist ..\disk\disk2\??client.2 goto makedisk_done
 
 echo insert disk#2
 pause
@@ -58,6 +48,7 @@ pause
 echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk2\*.* a:
+if not exist ..\disk\disk3\??client.3 goto makedisk_done
 
 echo insert disk#3
 pause
@@ -66,6 +57,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk3\*.* a:
 
+if not exist ..\disk\disk4\??client.4 goto makedisk_done
 
 echo insert disk#4
 pause
@@ -74,7 +66,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk4\*.* a:
 
-if exist ..\disk\disk4\SHARED.Z goto makedisk_done
+if not exist ..\disk\disk5\??client.5 goto makedisk_done
 
 echo insert disk#5
 pause
@@ -83,7 +75,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk5\*.* a:
 
-if exist ..\disk\disk5\SHARED.Z goto makedisk_done
+if not exist ..\disk\disk6\??client.6 goto makedisk_done
 
 echo insert disk#6
 pause
@@ -92,34 +84,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk6\*.* a:
 
-if exist ..\disk\disk6\SHARED.Z goto makedisk_done
-
-echo insert disk#7
-pause
-
-echo Delete all Files in A drive
-del a:\*.* 
-xcopy ..\disk\disk7\*.* a:
-
-if exist ..\disk\disk7\SHARED.Z goto makedisk_done
-
-echo insert disk#8
-pause
-
-echo Delete all Files in A drive
-del a:\*.* 
-xcopy ..\disk\disk8\*.* a:
-
-if exist ..\disk\disk8\SHARED.Z goto makedisk_done
-
-echo insert disk#9
-pause
-
-echo Delete all Files in A drive
-del a:\*.* 
-xcopy ..\disk\disk9\*.* a:
-
-if exist ..\disk\disk9\SHARED.Z goto makedisk_done
+if exist ..\disk\disk7\??client.7 goto need_more_disk
 
 :makedisk_done
 echo .
