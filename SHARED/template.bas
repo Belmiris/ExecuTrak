@@ -62,6 +62,7 @@ Global Const szHelpDrakeOil As String = "ZZEDPCLU.HLP" 'Card Lock Processing
 Global Const szHelpSalesMark As String = "SaleMark.HLP" 'Sales and Marketing
 Global Const szHelpDrakeOilFile As String = "ZZFDPEDT.HLP"  'Card Lock File Maintenance     'Vijaya 12/06/01...
 Global Const szHelpZZFMURMT As String = "ZZFMURMT.HLP"  'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
+Global Const szHelpZZFPCAFM As String = "ZZFPCAFM.HLP"  'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
@@ -460,6 +461,11 @@ Public Const WSERCVER_UP = 14700
 'david 10/19/2001
 Public Const RPT_SECURITY_UP = 14750
 '''''''''''''''''
+
+'david 01/23/2001
+Public Const MASS_BESTBUY = 14800
+'''''''''''''''''
+
 Public Type CursorMode
 
     nFrameCount As Integer
@@ -504,18 +510,18 @@ Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
 End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
-        If Not rsTemp.EOF Then
-            If Not IsNull(rsTemp!parm_field) Then
-                SYS_PARM_14000 = UCase(Trim$(rsTemp!parm_field))
+        Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If Not rstemp.EOF Then
+            If Not IsNull(rstemp!parm_field) Then
+                SYS_PARM_14000 = UCase(Trim$(rstemp!parm_field))
             End If
         End If
-        rsTemp.Close
+        rstemp.Close
     End If
     
     If SYS_PARM_14000 = "Y" Then
@@ -608,7 +614,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
                                 Optional vUser As Variant) As String
         
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     Dim sAccess As String
     Dim sUser As String
     Dim sZone As String
@@ -620,12 +626,12 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
     If sSys_Parm_8 = szEMPTY Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 8 "
         
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
-        If Not rsTemp Is Nothing Then
-            If rsTemp.RecordCount > 0 Then
-                If Not IsNull(rsTemp!parm_field) Then
-                    sSys_Parm_8 = UCase(Trim(rsTemp!parm_field))
+        If Not rstemp Is Nothing Then
+            If rstemp.RecordCount > 0 Then
+                If Not IsNull(rstemp!parm_field) Then
+                    sSys_Parm_8 = UCase(Trim(rstemp!parm_field))
                 End If
             End If
         End If
@@ -643,13 +649,13 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
                
         strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
         sZone = szEMPTY
-        If Not rsTemp Is Nothing Then
-            If rsTemp.RecordCount > 0 Then
-                If Not IsNull(rsTemp!an_access_zone) Then
-                    sZone = Trim(rsTemp!an_access_zone)
+        If Not rstemp Is Nothing Then
+            If rstemp.RecordCount > 0 Then
+                If Not IsNull(rstemp!an_access_zone) Then
+                    sZone = Trim(rstemp!an_access_zone)
                 End If
             End If
         End If
@@ -661,12 +667,12 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
              strSQL = strSQL & " AND ara_userid = " & tfnSQLString(sUser)
                 
              sAccess = szEMPTY
-             Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+             Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
             
-             If Not rsTemp Is Nothing Then
-                 If rsTemp.RecordCount > 0 Then
-                     If Not IsNull(rsTemp!ara_privilege) Then
-                         sAccess = UCase(Trim(rsTemp!ara_privilege))
+             If Not rstemp Is Nothing Then
+                 If rstemp.RecordCount > 0 Then
+                     If Not IsNull(rstemp!ara_privilege) Then
+                         sAccess = UCase(Trim(rstemp!ara_privilege))
                      End If
                  End If
              End If
@@ -723,7 +729,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim nPos1 As Integer
     Dim nPos2 As Integer
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     Dim sCriteria As String
     Dim sUserID As String
     Dim sTemp As String
@@ -747,8 +753,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         On Error GoTo errTableName
         strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        rsTemp.Close
+        Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        rstemp.Close
         sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
@@ -787,11 +793,11 @@ Public Function tfnLockRow(sProgramID As String, _
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rsTemp.RecordCount > 0 Then
-        t_lLockHandle = rsTemp.Fields(0)
+    Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rstemp.RecordCount > 0 Then
+        t_lLockHandle = rstemp.Fields(0)
         If t_lLockHandle = 0 Then
-            If Trim(rsTemp.Fields(1)) = "" Then
+            If Trim(rstemp.Fields(1)) = "" Then
                 #If DEVELOP Then
                     MsgBox "Make sure you logged on a database with locking procedures setup", vbOKOnly
                 #End If
@@ -805,7 +811,7 @@ Public Function tfnLockRow(sProgramID As String, _
                 
                 'david 01/12/2001
                 'return the user id that locks the record(s)
-                sLockedUser = Trim(rsTemp.Fields(1))
+                sLockedUser = Trim(rstemp.Fields(1))
                 
                 If bShowMsg Then
                     MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
@@ -813,8 +819,8 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
     End If
-    rsTemp.Close
-    Set rsTemp = Nothing
+    rstemp.Close
+    Set rstemp = Nothing
     If t_lLockHandle > 0 Then
         If I >= nHandleCount Then
             If nHandleCount = 0 Then
@@ -887,27 +893,27 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     End If
 
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     
     tfnUnlockRow = False
     On Error GoTo errUnlock
     If IsMissing(vTable) Then
         While nHandleCount > 0
             strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
-            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-            If rsTemp.RecordCount > 0 Then
-                If rsTemp.Fields(0) > 0 Then
+            Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            If rstemp.RecordCount > 0 Then
+                If rstemp.Fields(0) > 0 Then
                     nHandleCount = nHandleCount - 1
                 Else
-                    rsTemp.Close
+                    rstemp.Close
                     Exit Function
                 End If
             Else
-                rsTemp.Close
+                rstemp.Close
                 Exit Function
             End If
         Wend
-        rsTemp.Close
+        rstemp.Close
     Else
         Dim sTable As String
         Dim I As Integer
@@ -916,23 +922,23 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         For I = 0 To nHandleCount
             If sTable = arryLockHandles(I).m_sTable Then
                 strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
-                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-                If rsTemp.RecordCount > 0 Then
-                    If rsTemp.Fields(0) > 0 Then
+                Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+                If rstemp.RecordCount > 0 Then
+                    If rstemp.Fields(0) > 0 Then
                         nHandleCount = nHandleCount - 1
                     Else
-                        rsTemp.Close
+                        rstemp.Close
                         Exit Function
                     End If
                 Else
-                    rsTemp.Close
+                    rstemp.Close
                     Exit Function
                 End If
                 Exit For
             End If
         Next I
     End If
-    Set rsTemp = Nothing
+    Set rstemp = Nothing
     tfnUnlockRow = True
     Exit Function
 
@@ -949,7 +955,7 @@ End Function
 'update program version
 Public Sub tfnUpdateVersion()
 #If FACTOR_MENU < 0 Then
-    Dim sProgramName As String, sMajorVersion As String, sSql As String, rsTemp As Recordset
+    Dim sProgramName As String, sMajorVersion As String, sSql As String, rstemp As Recordset
     Dim sMinorVersion As String, sRevision As String, sUserName As String
     #If DEVELOP Then
         Dim nSpot As Integer
@@ -1006,18 +1012,18 @@ Public Sub tfnUpdateVersion()
     #If DEVELOP Then
         nSpot = 5
     #End If
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
+    Set rstemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
     On Error GoTo 0
     
-    If rsTemp.RecordCount = 0 Then
+    If rstemp.RecordCount = 0 Then
         #If DEVELOP Then
             nSpot = 6
         #End If
         GoTo ErrorExecuteSQL
     Else
-        If rsTemp.Fields(0) = 0 Then
+        If rstemp.Fields(0) = 0 Then
             #If Not NO_ERROR_HANDLER Then
-                tfnErrHandler "tfnUpdateVersion", sSql, rsTemp.Fields(1)
+                tfnErrHandler "tfnUpdateVersion", sSql, rstemp.Fields(1)
             #End If
             MsgBox "Version Update Failed! " & vbCrLf & vbCrLf & "pro_version Error.", vbExclamation
         End If
@@ -1439,30 +1445,30 @@ Public Function tfnBuildMultiLines(sParam() As String, _
     tfnBuildMultiLines = UBound(sParam) + 1
 End Function
 
-Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Variant) As String
+Public Function tfnGetMultiLines(rstemp As Recordset, Optional fieldNum As Variant) As String
     Dim sTemp As String
     
-    If rsTemp.RecordCount > 0 Then
+    If rstemp.RecordCount > 0 Then
         If IsMissing(fieldNum) Then
             fieldNum = 0
         End If
         'first line
-        If Not IsNull(rsTemp.Fields(fieldNum)) Then
-            sTemp = RTrim$(rsTemp.Fields(fieldNum))
+        If Not IsNull(rstemp.Fields(fieldNum)) Then
+            sTemp = RTrim$(rstemp.Fields(fieldNum))
         Else
             sTemp = ""
         End If
         
-        rsTemp.MoveNext
+        rstemp.MoveNext
         
         'the rest
-        While Not rsTemp.EOF
-            If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(fieldNum))
+        While Not rstemp.EOF
+            If Not IsNull(rstemp.Fields(fieldNum)) Then
+                sTemp = sTemp + vbCrLf + RTrim$(rstemp.Fields(fieldNum))
             Else
                 sTemp = sTemp + vbCrLf + ""
             End If
-            rsTemp.MoveNext
+            rstemp.MoveNext
         Wend
         
     End If
@@ -2340,23 +2346,23 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
     Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     
     On Error GoTo errOpenDB
     Set wsLocal = engLocal.Workspaces(0)
     Set dbLocal = wsLocal.OpenDatabase(sDBPath, , True)
     strSQL = "SELECT nMajor, nMinor, nRevision FROM SysVersion"
-    Set rsTemp = dbLocal.OpenRecordset(strSQL)
+    Set rstemp = dbLocal.OpenRecordset(strSQL)
     
-    If rsTemp.RecordCount > 0 Then
-        If Not IsNull(rsTemp!nMajor) Then
-            lMajor = Trim(rsTemp!nMajor)
+    If rstemp.RecordCount > 0 Then
+        If Not IsNull(rstemp!nMajor) Then
+            lMajor = Trim(rstemp!nMajor)
         End If
-        If Not IsNull(rsTemp!nMinor) Then
-            lMinor = Trim(rsTemp!nMinor)
+        If Not IsNull(rstemp!nMinor) Then
+            lMinor = Trim(rstemp!nMinor)
         End If
-        If Not IsNull(rsTemp!nRevision) Then
-            lRevision = Trim(rsTemp!nRevision)
+        If Not IsNull(rstemp!nRevision) Then
+            lRevision = Trim(rstemp!nRevision)
         End If
     End If
     
@@ -2421,7 +2427,7 @@ End Sub
 
 Public Function fnInv_xref_check(ByVal sCode As String) As String
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     
     fnInv_xref_check = Trim(sCode)
     If Not tfnNeed_inv_xref Then
@@ -2430,30 +2436,30 @@ Public Function fnInv_xref_check(ByVal sCode As String) As String
     
     strSQL = "select ivx_new_nbr from inv_xref where ivx_old_nbr= " _
            & tfnSQLString(sCode)
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
-    If Not rsTemp.EOF Then
-        If Not IsNull(rsTemp!ivx_new_nbr) Then
-            fnInv_xref_check = Trim$(rsTemp!ivx_new_nbr)
+    Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+    If Not rstemp.EOF Then
+        If Not IsNull(rstemp!ivx_new_nbr) Then
+            fnInv_xref_check = Trim$(rstemp!ivx_new_nbr)
         End If
     End If
-    rsTemp.Close
+    rstemp.Close
 End Function
 
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 6005"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
-        If Not rsTemp.EOF Then
-            If Not IsNull(rsTemp!parm_field) And UCase(Trim$("" & rsTemp!parm_field)) = "Y" Then
+        Set rstemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If Not rstemp.EOF Then
+            If Not IsNull(rstemp!parm_field) And UCase(Trim$("" & rstemp!parm_field)) = "Y" Then
                 SYS_PARM_6005 = "Y"
             End If
         End If
-        rsTemp.Close
+        rstemp.Close
     End If
     
     If SYS_PARM_6005 = "Y" Then
