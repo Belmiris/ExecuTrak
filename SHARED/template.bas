@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -1282,7 +1282,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1876,12 +1876,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2446,7 +2446,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2976,7 +2976,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3193,7 +3193,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3752,7 +3752,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     nPos = InStr(1, LCase(sSql), " where ")
     If nPos > 0 Then
         strSQL = Mid(sSql, 1, nPos - 1)
-        strSQL1 = Mid(sSql, nPos)
+        strSQL1 = Mid(sSql, nPos + 7)
     Else
         strSQL = sSql
         strSQL1 = ""
@@ -3802,19 +3802,11 @@ Public Function tfnFix_tx_table(sSql As String, _
         Next i
     End If
     
-    If Trim(strSQL1 & "") <> "" Then
-        strSQL = strSQL & strSQL1
-    End If
-    
     'If we have don't have detail we don't need to link tx_detail table
-    If InStr(1, LCase(strSQL), "txd_") > 0 Then
+    If InStr(1, LCase(strSQL), "txd_") > 0 Or InStr(1, LCase(strSQL1), "txd_") > 0 Then
         strSQL = Replace(strSQL, soldTable, sNewTableHeader & "," & sNewTableDet)
         'Some time strSQL1 is empty means we don't have where
-        If Trim(strSQL1 & "") = "" Then
-            strSQL = strSQL & " WHERE"
-        Else
-            strSQL = strSQL & " AND"
-        End If
+        strSQL = strSQL & " WHERE"
         strSQL = strSQL & " txd_trn = txh_trn"
         'we need to make sure server system date
         If bUseDate Then
@@ -3828,7 +3820,13 @@ Public Function tfnFix_tx_table(sSql As String, _
             End If
             strSQL = strSQL & " BETWEEN txd_beg_date AND txd_end_date"
         End If
+        If Trim(strSQL1 & "") <> "" Then
+            strSQL = strSQL & " AND " & strSQL1
+        End If
     Else
+        If Trim(strSQL1 & "") <> "" Then
+            strSQL = strSQL & " WHERE " & strSQL1
+        End If
         strSQL = Replace(strSQL, soldTable, sNewTableHeader)
     End If
     tfnFix_tx_table = strSQL
