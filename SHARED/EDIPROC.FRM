@@ -142,7 +142,7 @@ Public Function LaunchEDIPROC() As String
     Const sEDIPROC_EXE As String = "EDIPROC.EXE"
     Const sEDIPROC_INI As String = "EDIPROC.INI"
     Const sEDIPROC_MDB As String = "EDIXLATE.MDB"
-    Const sSECTION_EDIXLATOR As String = "EDI TRANSLATOR"
+    Const sSECTION_EDIXLATOR As String = "EDI XLATOR"
     Const sKEY_PROGRAM As String = "Program"
     Const sLocalBin As String = "C:\FACTOR\EXECTRAK\BIN"
     Const sRemoteBin As String = "J:\FACTOR\EXECTRAK\BIN"
@@ -559,16 +559,16 @@ Private Sub Wait(dfSeconds As Single)
 End Sub
 
 Private Function fnGetPath(sPathFile As String) As String
-    Dim i As Integer
+    Dim I As Integer
     
-    For i = Len(sPathFile) To 1 Step -1
-        If Mid(sPathFile, i, 1) = "\" Then
+    For I = Len(sPathFile) To 1 Step -1
+        If Mid(sPathFile, I, 1) = "\" Then
             Exit For
         End If
-    Next i
+    Next I
     
-    If i > 0 Then
-        fnGetPath = Left(sPathFile, i - 1)
+    If I > 0 Then
+        fnGetPath = Left(sPathFile, I - 1)
     End If
 End Function
 
