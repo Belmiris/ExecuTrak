@@ -1996,6 +1996,9 @@ Private Function fnValidEmpNo(sText As String, nCol As Integer, lRow As Long) As
         strSQL = strSQL & " AND bh_prft_ctr <> " & tfnRound(txtEHPrftCtr)
         strSQL = strSQL & " AND bh_empno = " & tfnRound(sText)
         strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
+        'david 12/31/2002  #393054-2
+        strSQL = strSQL & " AND bh_prft_ctr NOT IN (" + sPrftCtrList + ")"
+        '''''''''''''''''
         
         If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") <= 0 Then
             tgcEditor.ErrorMessage(nCol) = "Database Access Error"
