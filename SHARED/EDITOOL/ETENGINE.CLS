@@ -1866,7 +1866,7 @@ Property Let TaxPaidOriginState(sCode As String)
     m_sTaxPaidOriginState = Trim(sCode)
 End Property
 
-Public Sub FileHeaderID()
+Public Sub FileHeaderID(sOutgoingOurGsID As String)
     Dim ciTemp As New ETFMTaxRecord
     Dim sTemp As String
     
@@ -1883,7 +1883,7 @@ Public Sub FileHeaderID()
     m_nLineLength = Len(sTemp)
     
     'Get FileHeaderID
-    sTemp = fnBuildFileHeaderID()
+    sTemp = fnBuildFileHeaderID(sOutgoingOurGsID)
     
     On Error Resume Next
     Kill m_sFileName
@@ -1899,14 +1899,14 @@ errOpenFile:
     m_sLastVBError = fnGetVBError
 End Sub
 
-Private Function fnBuildFileHeaderID() As String
+Private Function fnBuildFileHeaderID(sOutgoingOurGsID As String) As String
     Const sFG As String = "TF"
     Const sDOC_ID As String = "813"
     
     'david 02/10/2003  #373807
-    'add the database name column so that the edi translator
+    'add the outgoing our gs id column so that the edi translator
     'can handle multi company outgoing edi translation
     fnBuildFileHeaderID = fnFixLength(sFG & sDOC_ID & fnFixLength(m_sTheirID, 15) _
-        & m_sMode & fnFixLength(tfnGetDbName(), 16), m_nLineLength)
+        & m_sMode & fnFixLength(sOutgoingOurGsID, 15), m_nLineLength)
     ''''''''''''''''''''''''''
 End Function
