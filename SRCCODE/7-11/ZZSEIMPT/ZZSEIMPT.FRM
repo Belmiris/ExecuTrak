@@ -6,7 +6,7 @@ Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "SQAOTE32.OCX"
 Begin VB.Form frmZZSEIMPT 
    BackColor       =   &H00C0C0C0&
-   Caption         =   "Import Invoice"
+   Caption         =   "Import Invoices"
    ClientHeight    =   6060
    ClientLeft      =   1056
    ClientTop       =   1956
@@ -1007,7 +1007,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1042,7 +1042,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1077,7 +1077,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1114,7 +1114,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1150,7 +1150,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1220,7 +1220,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1233,7 +1233,7 @@ Begin VB.Form frmZZSEIMPT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
