@@ -1,5 +1,10 @@
 Attribute VB_Name = "modPOEMail"
 Option Explicit
+'Programmer : Rajneesh Aggarwal(20 April 00)
+'Created for Purchase Order Module only.
+'
+
+
 
 Public Function fnCheckApprovalAuthority(sProgramID As String, _
                                           vPurchaseNumber As Variant, _
@@ -94,10 +99,10 @@ Public Function fnCheckApprovalAuthority(sProgramID As String, _
             sMsg = sMsg & "' to approve this Purchase" & sProgram & "."
         End If
         'Send an E-Mail Message to user's supervisor...
-        If Not fnSendEmail(sEMailAdd, sSubject, sEMailMsg) Then
-            'Do Nothing
+        If fnSendEmail(sProgramID, sEMailAdd, sSubject, sEMailMsg) Then
+            Screen.MousePointer = vbHourglass
+            tfnWaitSeconds 4
         End If
-        tfnWaitSeconds 4
         MsgBox sMsg, vbInformation
         Exit Function
     End If
@@ -106,10 +111,8 @@ Public Function fnCheckApprovalAuthority(sProgramID As String, _
             
 End Function
 
-Private Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String, _
-                            sE_MailMessage As String) As Boolean
-    Dim sUserID As String
-    Dim sPassword As String
+Private Function fnSendEmail(sProgramID As String, sE_MailAddress As String, _
+                             sE_MailSubject As String, sE_MailMessage As String) As Boolean
     Const sDQ = """"
     Dim sParm As String
     
@@ -120,13 +123,13 @@ Private Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String,
     End If
     
     'This function will return the UserID and Password if the sys_parm is found
-    If Not fnCheckSysParam(sUserID, sPassword) Then
+    If Not fnCheckSysParam() Then
         Exit Function
     End If
     
     sParm = "sendmail " & sDQ & "HIDE" & sDQ & " "
-    sParm = sParm & sDQ & Trim(sUserID) & sDQ & " "
-    sParm = sParm & sDQ & Trim(sPassword) & sDQ & " "
+    sParm = sParm & sDQ & Trim(sProgramID) & sDQ & " "
+    sParm = sParm & sDQ & Trim(sProgramID) & sDQ & " "
     sParm = sParm & sDQ & Trim(sE_MailAddress) & sDQ & " "
     sParm = sParm & sDQ & Trim(sE_MailSubject) & sDQ & " "
     sParm = sParm & sDQ & Trim(sE_MailMessage) & sDQ
@@ -137,7 +140,7 @@ Private Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String,
     
 End Function
     
-Private Function fnCheckSysParam(sUserID As String, sPassword As String) As Boolean
+Private Function fnCheckSysParam() As Boolean
     Const SUB_NAME As String = "fnCheckSysParam"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -151,12 +154,12 @@ Private Function fnCheckSysParam(sUserID As String, sPassword As String) As Bool
     End If
     
     'System parameter found
-    sUserID = fnCstr(rsTemp!parm_field)
-    sPassword = fnCstr(rsTemp!parm_desc)
-    
-    If sUserID <> "" Then
+    If fnCstr(rsTemp.parm_field) = "Y" Then
         fnCheckSysParam = True
     End If
+    
+'    sUserID = fnCstr(rsTemp!parm_field)
+'    sPassword = fnCstr(rsTemp!parm_desc)
 
 End Function
 
