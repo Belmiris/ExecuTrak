@@ -44,7 +44,7 @@ goto main
 
 
 :set_ap_mod
-set mod_name="Account Payable"
+set mod_name="Accounts Payable"
 goto main
 
 :set_cm_mod
@@ -53,7 +53,7 @@ goto main
 
 
 :set_ar_mod
-set mod_name="Account Receivable"
+set mod_name="Accounts Receivable"
 goto main
 
 
@@ -142,7 +142,7 @@ echo BUILD SETUP.BMP
 echo Please wait for program to create the SETUP.BMP
 echo DO NOT PRESS ANY KEY BEFORE THE PROGRAM IS DONE!!!
 
-i:\program\factmenu\bin\setupbmp.exe PATH=%path1% MODULE=%mod_name% VERSION=%2 TM=%tm% PATH2=%path2%
+g:\program\factmenu\bin\setupbmp.exe PATH=%path1% MODULE=%mod_name% VERSION=%2 TM=%tm%
 pause
 
 goto done
