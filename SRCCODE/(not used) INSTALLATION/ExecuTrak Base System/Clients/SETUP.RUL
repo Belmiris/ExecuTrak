@@ -572,24 +572,6 @@ StartCopy:
 			LOGWRITE(LOGMSG);
 		endif;
 
-	endif;  //(bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY))
-	
-	//set Source directory to Target directory
-	TARGETDIR = WINDIR ^ "TEMP";
-	
-	//extract the local database into clients directory
-	LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
-	LOGWRITE(LOGMSG);
-	
-	if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
-	        MessageBox("FACTDB.Z could not be decompressed. " + szErrorMessage, SEVERE);
-	        goto ZFAILURE;
-	endif;
-	
-	LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
-	LOGWRITE(LOGMSG);
-
-	if nvClientOption = BASE_ONLY || nvClientOption = BASE_AND_MOD then
 		TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
 		
 		if (szForceInstall = "1 ") then
@@ -622,7 +604,24 @@ StartCopy:
 			LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 		endif;
+	endif;  //(bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY))
+	
+	//set Source directory to Target directory
+	TARGETDIR = WINDIR ^ "TEMP";
+	
+	//extract the local database into clients directory
+	LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+	
+	if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
+	        MessageBox("FACTDB.Z could not be decompressed. " + szErrorMessage, SEVERE);
+	        goto ZFAILURE;
+	endif;
+	
+	LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
 
+	if nvClientOption = BASE_ONLY || nvClientOption = BASE_AND_MOD then
 		// copy Crystal Report files to windows\system
 		TARGETDIR = WINSYSDIR;
 		
@@ -931,7 +930,10 @@ CreateFolder:
 		endif;
 			TARGETDIR = WINSYSDIR;
 		
-			XCopyFile("REGCLEAN.EXE", "REGCLEAN.EXE", COMP_NORMAL);
+			XCopyFile("REGCLEAN.EXE", "REGCLEAN.EXE", COMP_UPDATE_VERSION | 
+				COMP_UPDATE_DATE | COMP_UPDATE_SAME);
+			XCopyFile("REGSVR32.EXE", "REGSVR32.EXE", COMP_UPDATE_VERSION | 
+				COMP_UPDATE_DATE | COMP_UPDATE_SAME);
 		
 	endif;
 
@@ -1370,23 +1372,27 @@ begin
         SdShowMsg("", FALSE);
 
         if nvCopyLocalDone = 2 then
-                // delete the local database from WINDOWS\TEMP directory
-                TARGETDIR = WINDIR ^ "TEMP";
-                DeleteFile("FACTOR.MDB");
-                DeleteFile("FACTOR.LDB");
-
-                //get exectrak path
-                StrToUpper(szProgDir, szProgDir);
-                nvPosi = StrFind(szProgDir, "\\BIN");
-                        
-                if nvPosi >= 0 then
-                    StrSub(szTemp, szProgDir, 0, nvPosi);
-
-                    LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
-                    LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
-                    LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
-                endif;
-
+		// delete the local database from WINDOWS\TEMP directory
+		TARGETDIR = WINDIR ^ "TEMP";
+		DeleteFile("FACTOR.MDB");
+		DeleteFile("FACTOR.LDB");
+		
+		//get exectrak path
+		StrToUpper(szProgDir, szProgDir);
+		nvPosi = StrFind(szProgDir, "\\BIN");
+		        
+		if nvPosi >= 0 then
+			StrSub(szTemp, szProgDir, 0, nvPosi);
+			
+			LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
+			LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
+			LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
+			//register DLL OLE Seerver David 11/18/99
+			LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szTemp ^ "OLE" ^ "TBKIT.DLL", WAIT);
+			LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szTemp ^ "OLE" ^ "CUSTLKUP.DLL", WAIT);
+			LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szTemp ^ "OLE" ^ "OLECOMBO.DLL", WAIT);
+		endif;
+	
                 if szDeleteClient = "1" then
                     if szClientDir != "" then
                         SRCDIR = WINDIR;

@@ -36,11 +36,11 @@ echo Compress all files in g:\program\release\exectrak\dll directory to factdll.
 icomp g:\program\release\exectrak\dll\*.* ..\disk\factdll.z
 
 echo .
-echo Compress all files in project32\Rtm directory to rtm.z
+echo Compress all files in Rtm directory to rtm.z
 icomp g:\program\release\exectrak\rtm\*.* ..\disk\rtm.z
 
 echo .
-echo Compress all files in project32\Shared directory to shared.z
+echo Compress all files in Shared directory to shared.z
 icomp g:\program\release\exectrak\shared\*.* ..\disk\shared.z
 
 echo .
