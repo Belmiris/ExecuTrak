@@ -199,12 +199,12 @@ Public Sub AddColumn(ByVal nCol As Integer, _
 End Sub
 
 Public Sub Click(objCtrl As Object)
-    Dim Y As Integer
+    Dim y As Integer
     Dim nRow As Integer
     
     If objCtrl Is picTextFrame Then
-        Y = objCtrl.Top + objCtrl.Height / 2
-        nRow = fnCurrentRow(Y)
+        y = objCtrl.Top + objCtrl.Height / 2
+        nRow = fnCurrentRow(y)
 '        m_fLastTimeShow = Timer + m_fEditDelay
         m_bClicked = True
         'On Error Resume Next
@@ -212,8 +212,8 @@ Public Sub Click(objCtrl As Object)
         If nRow >= 0 Then
             tgTable.Row = nRow
         End If
-        Y = objCtrl.Left + Screen.TwipsPerPixelX * 2
-        nRow = fnCurrentColumn(Y)
+        y = objCtrl.Left + Screen.TwipsPerPixelX * 2
+        nRow = fnCurrentColumn(y)
         If nRow >= 0 Then
             tgTable.Col = nRow
         End If
@@ -338,22 +338,22 @@ Public Sub ShowColumnExt()
     End If
     
     Dim lpPoint As POINTAPI
-    Dim X As Single
-    Dim Y As Single
+    Dim x As Single
+    Dim y As Single
     Dim nRow As Integer
     Dim lFirstRow As Long
     
     GetCursorPos lpPoint
     ScreenToClient tgTable.hwnd, lpPoint
-    X = lpPoint.X * Screen.TwipsPerPixelX
-    Y = lpPoint.Y * Screen.TwipsPerPixelY
+    x = lpPoint.x * Screen.TwipsPerPixelX
+    y = lpPoint.y * Screen.TwipsPerPixelY
     With tgTable
-        If Y < 0 Or Y > .Height Then
+        If y < 0 Or y > .Height Then
             m_fLastTimeShow = Timer + SHOW_DELAY_INITIAL
             picTextFrame.Visible = False
             Exit Sub
         End If
-        If X < 0 Or X > .Width Then
+        If x < 0 Or x > .Width Then
             m_fLastTimeShow = Timer + SHOW_DELAY_INITIAL
             picTextFrame.Visible = False
             Exit Sub
@@ -367,7 +367,7 @@ Public Sub ShowColumnExt()
         picTextFrame.Visible = False
         Exit Sub
     End If
-    nRow = fnCurrentRow(Y)
+    nRow = fnCurrentRow(y)
     If nRow < 0 Then
         picTextFrame.Visible = False
         Exit Sub
@@ -389,7 +389,7 @@ Public Sub ShowColumnExt()
 
     Dim nCol As Integer
 '    Dim bFlag As Boolean
-    nCol = fnCurrentColumn(X)
+    nCol = fnCurrentColumn(x)
     If nCol >= tgTable.LeftCol Then
         nCol = fnColumn(nCol)
     Else
@@ -398,8 +398,8 @@ Public Sub ShowColumnExt()
     
     If nCol >= 0 Then
         fnShowText nCol, nRow
-        m_lOriginalRow = Y
-        m_lOriginalCol = X
+        m_lOriginalRow = y
+        m_lOriginalCol = x
     Else
         picTextFrame.Visible = False
     End If
@@ -455,17 +455,17 @@ Private Function fnColumn(ByVal nCol As Integer) As Integer
     Next
 End Function
 
-Private Function fnCurrentRow(ByVal Y As Single) As Integer
+Private Function fnCurrentRow(ByVal y As Single) As Integer
 
-    fnCurrentRow = tgTable.RowContaining(Y)
+    fnCurrentRow = tgTable.RowContaining(y)
 Exit Function
 
     Dim i As Integer
     
     fnCurrentRow = -1
     For i = 0 To tgTable.VisibleRows - 1
-        If Y > tgTable.RowTop(i) Then
-            If Y < tgTable.RowTop(i) + tgTable.RowHeight Then
+        If y > tgTable.RowTop(i) Then
+            If y < tgTable.RowTop(i) + tgTable.RowHeight Then
                 fnCurrentRow = i
                 Exit For
             End If
@@ -630,16 +630,16 @@ Property Let message(ByVal nCol As Integer, sMsg As String)
 
 End Property
 
-Public Sub MouseMove(ByVal X As Single, ByVal Y As Single)
+Public Sub MouseMove(ByVal x As Single, ByVal y As Single)
     Dim nCol As Integer
     Dim bFlag As Boolean
     
     If m_nMode = MODE_TIMER Then
-        If Abs(m_lOriginalRow - Y) >= 60 Then
+        If Abs(m_lOriginalRow - y) >= 60 Then
             picTextFrame.Visible = False
             Exit Sub
         End If
-        If Abs(m_lOriginalCol - X) >= 60 Then
+        If Abs(m_lOriginalCol - x) >= 60 Then
             picTextFrame.Visible = False
         End If
     ElseIf m_nMode = MODE_MOUSE Then
@@ -649,11 +649,11 @@ Public Sub MouseMove(ByVal X As Single, ByVal Y As Single)
         End If
         
         With tgTable
-            If X > .Columns(nLastColumn).Left Then
-                If X < .Columns(nLastColumn).Left + .Columns(nLastColumn).Width Then
+            If x > .Columns(nLastColumn).Left Then
+                If x < .Columns(nLastColumn).Left + .Columns(nLastColumn).Width Then
                     If nLastRow >= 0 Then
-                        If Y > .RowTop(nLastRow) Then
-                            If Y < .RowTop(nLastRow) + .RowHeight Then
+                        If y > .RowTop(nLastRow) Then
+                            If y < .RowTop(nLastRow) + .RowHeight Then
                                 bFlag = False
                             End If
                         End If
@@ -664,7 +664,7 @@ Public Sub MouseMove(ByVal X As Single, ByVal Y As Single)
         If bFlag Then
             picTextFrame.Visible = False
         End If
-        fnShowPrompt fnCurrentColumn(X), fnCurrentRow(Y)
+        fnShowPrompt fnCurrentColumn(x), fnCurrentRow(y)
     End If
 End Sub
 
@@ -707,7 +707,7 @@ Public Sub MouseUp()
 End Sub
 
 
-Public Sub MouseDown(ByVal Button As Integer, ByVal X As Single, ByVal Y As Single)
+Public Sub MouseDown(ByVal Button As Integer, ByVal x As Single, ByVal y As Single)
     If m_nMode <> MODE_MOUSE Then
         Exit Sub
     End If
@@ -722,17 +722,17 @@ Public Sub MouseDown(ByVal Button As Integer, ByVal X As Single, ByVal Y As Sing
     Dim nCol As Integer
     Dim bFlag As Boolean
 
-    nLastColumn = fnCurrentColumn(X)
+    nLastColumn = fnCurrentColumn(x)
     
     nCol = fnColumn(nLastColumn)
     bFlag = True
     If nCol >= 0 Then
         With tgTable.Columns(nLastColumn)
-            If X >= .Left Then
-                If X <= .Left + .Width Then
+            If x >= .Left Then
+                If x <= .Left + .Width Then
                     m_lOriginalRow = tgTable.Row
                     m_lOriginalCol = tgTable.Col
-                    fnShowText nCol, Y
+                    fnShowText nCol, y
                     m_bMouseDown = True
                     bFlag = False
                 End If
@@ -778,39 +778,50 @@ Property Set PictureBox(oPic As Object)
     If Not tgTable Is Nothing Then
         Set picTextFrame.Font = tgTable.Font
     
-        Set ctrl = tgTable.Container
-        bContainerFound = False
-        
-        Do While Not ctrl Is Nothing
-            If ctrl Is picTextFrame.Container Then
+        If Not TypeOf tgTable.Container Is Form Then
+            Set ctrl = tgTable.Container
+            
+            Do While Not ctrl Is Nothing
+                If ctrl Is picTextFrame.Container Then
+                    bContainerFound = True
+                    Exit Do
+                End If
+                
+                m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
+                m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
+                
+                    
+                If TypeOf ctrl.Container Is Form Then
+                    Exit Do
+                End If
+                
+                Set ctrl = ctrl.Container
+            Loop
+        Else
+            'the true grid is set on the form
+            If tgTable.Container Is picTextFrame.Container Then
                 bContainerFound = True
-                Exit Do
             End If
-            
-            m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
-            m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
-            
-            Set ctrl = ctrl.Container
-        Loop
+        End If
         
         If Not bContainerFound Then
-            MsgBox "Tooltip is not set on proper container.", vbCritical
-            m_sngToolTipTopOffset = 0
-            m_sngToolTipLeftOffset = 0
+            MsgBox "The container [" + picTextFrame.Container.Name + "] of ToolTip [" _
+                + picTextFrame.Name + "]" + " is not compatible" + " with the container [" _
+                + tgTable.Container.Name + "] of TrueGrid [" + tgTable.Name + "].", vbCritical
         End If
     End If
 End Property
 
-Private Function fnCurrentColumn(ByVal X As Single) As Integer
+Private Function fnCurrentColumn(ByVal x As Single) As Integer
     
-    fnCurrentColumn = tgTable.ColContaining(X)
+    fnCurrentColumn = tgTable.ColContaining(x)
 'Exit Function
     Dim i As Integer
     
     fnCurrentColumn = -1
     For i = 0 To tgTable.Columns.Count - 1
-        If X > tgTable.Columns(i).Left Then
-            If X < tgTable.Columns(i).Left + tgTable.Columns(i).Width Then
+        If x > tgTable.Columns(i).Left Then
+            If x < tgTable.Columns(i).Left + tgTable.Columns(i).Width Then
                 fnCurrentColumn = i
                 Exit For
             End If
@@ -840,25 +851,40 @@ Property Set Table(tgTemp As Object)
     If Not picTextFrame Is Nothing Then
         Set picTextFrame.Font = tgTable.Font
         
-        Set ctrl = tgTable.Container
         bContainerFound = False
+        m_sngToolTipTopOffset = 0
+        m_sngToolTipLeftOffset = 0
         
-        Do While Not ctrl Is Nothing
-            If ctrl Is picTextFrame.Container Then
+        If Not TypeOf tgTable.Container Is Form Then
+            Set ctrl = tgTable.Container
+            
+            Do While Not ctrl Is Nothing
+                If ctrl Is picTextFrame.Container Then
+                    bContainerFound = True
+                    Exit Do
+                End If
+                
+                m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
+                m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
+                
+                    
+                If TypeOf ctrl.Container Is Form Then
+                    Exit Do
+                End If
+                
+                Set ctrl = ctrl.Container
+            Loop
+        Else
+            'the true grid is set on the form
+            If tgTable.Container Is picTextFrame.Container Then
                 bContainerFound = True
-                Exit Do
             End If
-            
-            m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
-            m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
-            
-            Set ctrl = ctrl.Container
-        Loop
+        End If
         
         If Not bContainerFound Then
-            MsgBox "Tooltip is not set on proper container.", vbCritical
-            m_sngToolTipTopOffset = 0
-            m_sngToolTipLeftOffset = 0
+            MsgBox "The container [" + picTextFrame.Container.Name + "] of ToolTip [" _
+                + picTextFrame.Name + "]" + " is not compatible" + " with the container [" _
+                + tgTable.Container.Name + "] of TrueGrid [" + tgTable.Name + "].", vbCritical
         End If
     End If
 End Property
@@ -908,7 +934,7 @@ Private Sub subGetMultiLineInfo(ByVal sMsg As String, ByVal sCrLf As String, ByR
     nMaxTextWidth = 1000
     sNewMsg = ""
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     aryString = Split(sMsg, sCrLf)
     
     nLines = UBound(aryString) + 1
@@ -961,6 +987,6 @@ Private Sub subGetMultiLineInfo(ByVal sMsg As String, ByVal sCrLf As String, ByR
     End If
     
     Exit Sub
-ErrTrap:
+errTrap:
     'do nothing
 End Sub
