@@ -1807,7 +1807,7 @@ Private Sub subSetupCombos()
         .AddCombo
         .AddComboBox txtBonusCode, cmdBonusCode, "bc_bonus_code", .SQL_STRING_TYPE(4)
         .AddComboBox txtBonusCodeDesc, cmdBonusCodeDesc, "bc_code_desc", .SQL_STRING_TYPE(40)
-        .AddExtraColumn "bc_type"
+        .AddExtraColumn "bc_type", 970
         'david 02/12/2001
         'ole combo not working???
         .SetColumnCaptions "Bonus Code", "Bonus Code Description", "Type"
