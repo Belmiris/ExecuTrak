@@ -55,12 +55,18 @@ Public Sub fuel_gl()
         subShowStatusMsg "Collecting Blend Info"
     #End If
     ''''''''''''''''''''
-        
+    
+    found_error = False
+    
     For j = 0 To UBound(aryComp)
         ivh_product = aryComp(j).sProduct
         ivh_product = Left$(ivh_product, InStr(ivh_product, ",") - 1)
         bld_smmry ivh_product, aryComp(j).dfCompDollars, aryComp(j).dfCompUnits, _
             aryComp(j).dfCompUnits, aryComp(j).dfCompUnits
+        If found_error Then
+            fueltax_errors error_found
+            Exit Sub
+        End If
     Next j
     
     For j = 0 To UBound(aryComp)

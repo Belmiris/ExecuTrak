@@ -5,6 +5,8 @@ Public pr_gl_master_glm_account As Long  'used to store invalid gl account
 Public pr_gl_master_glm_prft_ctr As Long  ' and profit center for error message
 Public sErr_Use_grp As String
 Public sErr_tClass As String
+Public sErr_ProductCode As String
+Public sErr_ProductClass As String
 
 Global stat_flag As Integer
 Global buckt As Long
@@ -1245,7 +1247,9 @@ Public Function tax_batch(e_num As Integer) As String
         Case 28
              fe_msg = "Interstate Dest. City Use Group Not Found."
         Case 29
-             fe_msg = "Tax Use Group: " & sErr_Use_grp & IIf(Trim(sErr_tClass) <> "", " and/or Product Class: " & sErr_tClass, "") & " Not Found in tx_use_g Table."
+             fe_msg = "Tax Use Group: " & sErr_Use_grp _
+                & IIf(Trim(sErr_tClass) <> "", " and/or Product Class: " _
+                & sErr_tClass, "") & " Not Found in tx_use_g Table."
         Case 1051
              fe_msg = "System Parm 1051(Expected Liabilities) is missing."
         Case 1052
@@ -1262,6 +1266,14 @@ Public Function tax_batch(e_num As Integer) As String
              fe_msg = "System Parm 1020(Taxes In Inventory) is missing."
         Case 5001
              fe_msg = "System Parm 5001(Accounts Payable Control) is missing."
+        Case 51  'added by david 04/19/2002
+             fe_msg = "Product Class " + tfnSQLString(sErr_ProductClass) + " Not found in inv_classes"
+             
+             If sErr_ProductCode <> "" Then
+                fe_msg = fe_msg + " for product " + tfnSQLString(sErr_ProductCode)
+             End If
+             
+             fe_msg = fe_msg + "."
         Case Else
              fe_msg = "Error Detected in G/L & Tax Routines."
     End Select
@@ -1705,6 +1717,13 @@ Public Sub bld_smmry(prod As String, d_amt As Double, bunits As Double, gunits A
 
     If (it_is_a_fuel(prod, t_dbMainDatabase)) Then
         Set lr_classes = finv_classes(lr_header!ivh_prodtcl, "T", t_dbMainDatabase)
+        'david 04/19/2002
+        If lr_classes Is Nothing Then
+            sErr_ProductCode = Trim(prod)
+            sErr_ProductClass = fnCStr(lr_header!ivh_prodtcl)
+            found_error = True: error_found = 51
+            Exit Sub
+        End If
         If (IsNull(lr_classes!icl_fuel_group) Or lr_classes!icl_fuel_group = " ") Then
             Exit Sub
         End If
