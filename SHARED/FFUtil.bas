@@ -56,10 +56,13 @@ Option Explicit
     Public Const RP_MASK_WTLOG = 4
     Public Const RP_MASK_BKFILE = 8
     Public Const RP_MASK_RMFILE = 16
+    Public Const RP_MASK_FILEWRITE = 32
     Public Const PV_AUTO = "AUTO"
     Public Const PV_BACK = "BACK"
     Public Const PV_TRUE = "TRUE"
     Public Const PV_FALSE = "FALSE"
+    Public Const FILE_MODE_READ = 1
+    Public Const FILE_MODE_WRITE = 2
     
     Public dbLocal As Database
     
@@ -84,7 +87,8 @@ Option Explicit
     Public bBatchMode As Boolean
     Private lFileSize As Long
     Private lFileCursor As Long
-    Private m_nInputFile As Integer
+    Private m_nFileHandle As Integer
+    Private m_sOutputFName As String
     
     Private Const INI_BUFFRER_SIZE = 512
     Private Declare Function GetPrivateProfileString Lib "kernel32" Alias "GetPrivateProfileStringA" _
@@ -135,7 +139,7 @@ errCreateDir:
 End Function
 
 Public Function fnEOF() As Boolean
-    fnEOF = EOF(m_nInputFile)
+    fnEOF = EOF(m_nFileHandle)
 End Function
 
 Public Function fnFileType(sName As String) As String
@@ -217,6 +221,10 @@ Public Function fnNeedBackupFile() As Boolean
     fnNeedBackupFile = fnTestFlag(m_nRunParm, RP_MASK_BKFILE)
 End Function
 
+Public Function fnOutputFName() As String
+    fnOutputFName = m_sOutputFName
+End Function
+
 Public Function fnReadINI(szSection As String, szKey As String, szINIFile As String) As String
 
     Dim nLength As Integer 'length of the value returned for api call
@@ -236,47 +244,6 @@ Public Function fnReadINI(szSection As String, szKey As String, szINIFile As Str
     fnReadINI = szINI 'return the value
 
 End Function
-
-
-Public Function fnBackupFile(sPath As String, _
-                             sFile As String, _
-                             sFullName As String) As Boolean
-
-    Dim sTemp As String
-    Dim nErr As Integer
-    Dim sDataPath As String
-    If fnTestFlag(m_nRunParm, RP_MASK_BKFILE) Then
-        On Error GoTo errCopy
-        subAddSlash sPath
-        sDataPath = sPath & udtBackupInfo.m_sPath
-        sTemp = Dir(sDataPath, vbDirectory)
-        If sTemp = "" Then
-            MkDir sDataPath
-        End If
-        subAddSlash sDataPath
-        If udtBackupInfo.m_sFile = "" Then
-            sFullName = fnFileNameForToday("", sDataPath, udtBackupInfo.m_sType)
-        Else
-            sFullName = sDataPath & fnMakeFName(udtBackupInfo.m_sFile, udtBackupInfo.m_sType)
-        End If
-        FileCopy sPath & sFile, sFullName
-    Else
-        sFullName = sPath & sFile
-    End If
-    fnBackupFile = True
-    Exit Function
-errCopy:
-    sTemp = Err.Description
-    nErr = Err.Number
-    fnBackupFile = False
-'    subShowMessage "Cannot backup data file because of the following error:" & vbCrLf _
-'            & "VB Error # " & nErr & vbCrLf & sTemp
-    subWriteLog "Cannot backup data file. VB Error #: " & nErr & "Description: " & sTemp
-    subWriteLog "Input file name " & sFile
-    subWriteLog "Output file name " & sFullName
-    
-End Function
-
 Public Function fnIsFile(ByVal szFilename As String) As Boolean
     
     On Error GoTo errNotFile
@@ -424,6 +391,8 @@ Private Sub subAutoRun()
     Dim sOutput As String
     Dim i As Integer
     Dim aryFiles() As String
+    Dim sPath  As String
+    Dim sFile As String
     
     On Error GoTo errAutoRun
     
@@ -433,38 +402,58 @@ Private Sub subAutoRun()
     subAppendType sNewFile, udtInputInfo.m_sType
     subAddSlash sTemp
     sTemp = sTemp & sNewFile
-    If fnIsFile(sTemp) Then
-        'Single file is going to be processed
+    If fnTestFlag(m_nRunParm, RP_MASK_FILEWRITE) Then
         bBatchMode = False
         fnProcessFile sTemp
+        subCloseFile
+        subEnablePrint True
+        LogForm.subEnableCancel True
     Else
-        'Multiple files
-        LogForm.lstFile.Path = udtInputInfo.m_sPath
-        If InStr(udtInputInfo.m_sType, ".") > 0 Then
-            If InStr(udtInputInfo.m_sType, "*") > 0 Then
-                sTemp = udtInputInfo.m_sType
+        If fnIsFile(sTemp) Then
+            'Single file is going to be processed
+            bBatchMode = False
+            fnProcessFile sTemp
+            subCloseFile
+            subBackupFile sTemp
+            subRemoveFile sTemp
+            subEnablePrint True
+            LogForm.subEnableCancel True
+        Else
+            'Multiple files
+            LogForm.lstFile.Path = udtInputInfo.m_sPath
+            If InStr(udtInputInfo.m_sType, ".") > 0 Then
+                If InStr(udtInputInfo.m_sType, "*") > 0 Then
+                    sTemp = udtInputInfo.m_sType
+                Else
+                    sTemp = "*" & udtInputInfo.m_sType
+                End If
             Else
-                sTemp = "*" & udtInputInfo.m_sType
+                sTemp = "*." & udtInputInfo.m_sType
             End If
-        Else
-            sTemp = "*." & udtInputInfo.m_sType
-        End If
-        LogForm.lstFile.Pattern = sTemp
-        If LogForm.lstFile.ListCount > 0 Then
-            LogForm.ShowProgress 0
-            LogForm.ShowProgressbar True
-            lFileCursor = 0
-            subSetFileSize
-            ReDim aryFiles(LogForm.lstFile.ListCount - 1)
-            For i = 0 To LogForm.lstFile.ListCount - 1
-                aryFiles(i) = LogForm.lstFile.List(i)
-                'Single file is going to be processed
-                fnProcessFile aryFiles(i)
-                subCloseFile
-            Next i
-        Else
-            subWriteLog "No files (" & sTemp & ") found in the input directory (" & udtInputInfo.m_sPath & ")"
-            subWriteLog "Auto processing stopped."
+            LogForm.lstFile.Pattern = sTemp
+            If LogForm.lstFile.ListCount > 0 Then
+                LogForm.ShowProgress 0
+                LogForm.ShowProgressbar True
+                lFileCursor = 0
+                subSetFileSize
+                ReDim aryFiles(LogForm.lstFile.ListCount - 1)
+                sPath = udtInputInfo.m_sPath
+                subAddSlash sPath
+                For i = 0 To LogForm.lstFile.ListCount - 1
+                    aryFiles(i) = LogForm.lstFile.List(i)
+                    sFile = sPath & aryFiles(i)
+                    'Single file is going to be processed
+                    fnProcessFile sFile
+                    subCloseFile
+                    subBackupFile sFile
+                    subRemoveFile sFile
+                    subEnablePrint True
+                    LogForm.subEnableCancel True
+                Next i
+            Else
+                subWriteLog "No files (" & sTemp & ") found in the input directory (" & udtInputInfo.m_sPath & ")"
+                subWriteLog "Auto processing stopped."
+            End If
         End If
     End If
     Exit Sub
@@ -476,12 +465,66 @@ errAutoRun:
     subSetButtonStatus
 End Sub
 
-
 Public Function fnConfirmed(sMsg As String) As Integer
     
-        fnConfirmed = MsgBox(sMsg, vbQuestion + vbYesNo)
+    fnConfirmed = MsgBox(sMsg, vbQuestion + vbYesNo)
     
 End Function
+
+
+Public Sub subBackupFile(sFile As String)
+
+    Dim sTemp As String
+    Dim nErr As Integer
+    Dim sDataPath As String
+    Dim sFullName As String
+    
+    If fnTestFlag(m_nRunParm, RP_MASK_BKFILE) Then
+        On Error GoTo errCopy
+        sDataPath = udtBackupInfo.m_sPath
+        sTemp = Dir(sDataPath, vbDirectory)
+        If sTemp = "" Then
+            MkDir sDataPath
+        End If
+        subAddSlash sDataPath
+        If udtBackupInfo.m_sFile = "" Then
+            sFullName = fnFileNameForToday("", sDataPath, udtBackupInfo.m_sType)
+        Else
+            sFullName = sDataPath & fnMakeFName(udtBackupInfo.m_sFile, udtBackupInfo.m_sType)
+        End If
+        FileCopy sFile, sFullName
+    End If
+    Exit Sub
+errCopy:
+    sTemp = Err.Description
+    nErr = Err.Number
+'    subShowMessage "Cannot backup data file because of the following error:" & vbCrLf _
+'            & "VB Error # " & nErr & vbCrLf & sTemp
+    subWriteLog "Cannot backup data file. VB Error #: " & nErr & "Description: " & sTemp
+    subWriteLog "Input file name " & sFile
+    subWriteLog "Output file name " & sFullName
+
+End Sub
+
+Public Sub subPutLine(sLine As String)
+    
+    On Error GoTo errWriteLine
+    Open m_sOutputFName For Append As #m_nFileHandle
+    Print #m_nFileHandle, sLine
+    subCloseFile
+    lFileCursor = lFileCursor + Len(sLine) + 2
+    Exit Sub
+    
+errWriteLine:
+    subWriteLog "Unable to write to output file: " & m_sOutputFName
+    subWriteLog "Error " & Err.Number & ", " & Err.Description
+End Sub
+
+Public Sub subRemoveFile(sFile As String)
+    If fnTestFlag(m_nRunParm, RP_MASK_RMFILE) Then
+        Kill sFile
+    End If
+End Sub
 
 
 Public Sub subCenterForm(frmCurrent As Form, Optional vParentForm As Variant)
@@ -508,7 +551,7 @@ End Sub
 
 
 Public Sub subCloseFile()
-    Close #m_nInputFile
+    Close #m_nFileHandle
 End Sub
 
 Public Sub subParseFile(sPath As String, _
@@ -574,6 +617,7 @@ Public Sub subPrepareLog()
         m_nLogFile = FreeFile
         On Error GoTo errCreateLog
         Open m_sLFFullName For Output As #m_nLogFile
+        Close #m_nLogFile
         m_bWriteLogFile = True
     Else
         m_bWriteLogFile = False
@@ -618,21 +662,37 @@ Public Function fnPrepareFile(sFName As String) As Boolean
     
     fnPrepareFile = False
     On Error GoTo errOpenFile
-    m_nInputFile = FreeFile
-    If bBatchMode Then
-        Open sFName For Input As #m_nInputFile
-    Else
-        lFileSize = FileLen(sFName)
-        lFileCursor = 0
-        If lFileSize = 0 Then
-            subWriteLog "File name and path: " & sFName
-        Else
-            Open sFName For Input As #m_nInputFile
+    m_nFileHandle = FreeFile
+
+    If fnTestFlag(m_nRunParm, RP_MASK_FILEWRITE) Then
+        If fnIsFile(sFName) Then
+            If vbNo = fnConfirmed("File: " & sFName & " already exists." & vbCrLf & "Do you want to over write it?") Then
+                Exit Function
+            End If
         End If
+        Open sFName For Output As #m_nFileHandle
+        subCloseFile
+        lFileCursor = 0
+        fnPrepareFile = True
         LogForm.ShowProgress 0
         LogForm.ShowProgressbar True
+        m_sOutputFName = sFName
+    Else
+        If bBatchMode Then
+            Open sFName For Input As #m_nFileHandle
+        Else
+            lFileSize = FileLen(sFName)
+            lFileCursor = 0
+            If lFileSize = 0 Then
+                subWriteLog "File name and path: " & sFName
+            Else
+                Open sFName For Input As #m_nFileHandle
+            End If
+            LogForm.ShowProgress 0
+            LogForm.ShowProgressbar True
+        End If
+        fnPrepareFile = True
     End If
-    fnPrepareFile = True
     Exit Function
 errOpenFile:
     subWriteLog "Error " & Err.Number & ", " & Err.Description
@@ -641,7 +701,7 @@ End Function
 
 Public Function fnGetLine() As String
     
-    Line Input #m_nInputFile, fnGetLine
+    Line Input #m_nFileHandle, fnGetLine
     lFileCursor = lFileCursor + Len(fnGetLine) + 2
     LogForm.ShowProgress fnProgress
     
@@ -685,10 +745,11 @@ Public Sub Main()
     subInitialize
     
     subParseCmdLine Command
-    
     subAddSlash m_sWorkPath
     subProcessPath udtLogInfo.m_sPath
     subProcessPath udtBackupInfo.m_sPath
+    subProcessPath udtInputInfo.m_sPath
+    
     LogForm.subSetFileInfo
     
     If fnTestFlag(m_nRunParm, RP_MASK_BACK) Then
@@ -754,6 +815,7 @@ Private Sub subInitialize()
     udtLogInfo.m_sType = LOG_NAME_EXTN
     udtBackupInfo.m_sType = DATA_BACKUP_EXTN
     subReadINIParms
+    subSetFileMode FILE_MODE_READ
     
     If fnAllowStandalone Then
         subCheckRunMethod Command
@@ -804,8 +866,6 @@ Private Sub subParseCmdLine(sCmdL As String)
     If Trim(sCmdL) <> "" Then
         subParseString aryParms, sCmdL, ","
         subSetTheValues aryParms
-
-        subProcessPath udtInputInfo.m_sPath
     End If
 
 End Sub
@@ -845,7 +905,9 @@ End Sub
 
 Public Sub subProcessPath(sPath As String)
 
-    If sPath <> "" Then
+    If sPath = "" Then
+        sPath = m_sWorkPath
+    Else
         If Not fnIsWholePath(sPath) Then
             subAddSlash m_sWorkPath
             sPath = m_sWorkPath & sPath
@@ -883,7 +945,8 @@ Private Sub subReadINIParms()
         m_sWorkPath = App.Path
     End If
     subAddSlash m_sWorkPath
-    subProcessPath udtBackupInfo.m_sPath
+'    subProcessPath udtBackupInfo.m_sPath
+'    subProcessPath udtInputInfo.m_sPath
 
 End Sub
 
@@ -903,17 +966,22 @@ Public Function fnWriteINI(szSection As String, szKey As String, szValue As Stri
 
 End Function
 
-Public Sub subRemoveFile(sFile As String)
-    If fnTestFlag(m_nRunParm, RP_MASK_RMFILE) Then
-        Kill sFile
+Public Sub subSetFileMode(ByVal nFlag As Integer)
+    If nFlag = FILE_MODE_WRITE Then
+        subSetFlag m_nRunParm, RP_MASK_FILEWRITE, True
+    Else
+        subSetFlag m_nRunParm, RP_MASK_FILEWRITE, False
     End If
 End Sub
 
 Private Sub subSetFileSize()
-    
+    Dim sPath As String
     Dim i As Integer
+    
+    sPath = udtInputInfo.m_sPath
+    subAddSlash sPath
     For i = 0 To LogForm.lstFile.ListCount - 1
-        lFileSize = lFileSize + FileLen(LogForm.lstFile.List(i))
+        lFileSize = lFileSize + FileLen(sPath & LogForm.lstFile.List(i))
     Next i
     bBatchMode = True
 
@@ -1109,21 +1177,24 @@ Public Sub subWriteInOut()
     fnWriteINI m_sINIParmSetion, CLP_ID_IPATH, fnGetSubPath(m_sWorkPath, udtInputInfo.m_sPath), m_sIniFile
     fnWriteINI m_sINIParmSetion, CLP_ID_INAME, udtInputInfo.m_sFile, m_sIniFile
     fnWriteINI m_sINIParmSetion, CLP_ID_ITYPE, udtInputInfo.m_sType, m_sIniFile
-    If fnTestFlag(m_nRunParm, RP_MASK_BKFILE) Then
-        sTemp = PV_TRUE
-    Else
-        sTemp = PV_FALSE
+    
+    If Not fnTestFlag(m_nRunParm, RP_MASK_FILEWRITE) Then
+        If fnTestFlag(m_nRunParm, RP_MASK_BKFILE) Then
+            sTemp = PV_TRUE
+        Else
+            sTemp = PV_FALSE
+        End If
+        fnWriteINI m_sINIParmSetion, CLP_ID_BKFILE, sTemp, m_sIniFile
+        If fnTestFlag(m_nRunParm, RP_MASK_RMFILE) Then
+            sTemp = PV_TRUE
+        Else
+            sTemp = PV_FALSE
+        End If
+        fnWriteINI m_sINIParmSetion, CLP_ID_RMFILE, sTemp, m_sIniFile
+        fnWriteINI m_sINIParmSetion, CLP_ID_BKPATH, fnGetSubPath(m_sWorkPath, udtBackupInfo.m_sPath), m_sIniFile
+        fnWriteINI m_sINIParmSetion, CLP_ID_BKNAME, udtBackupInfo.m_sFile, m_sIniFile
+        fnWriteINI m_sINIParmSetion, CLP_ID_BKTYPE, udtBackupInfo.m_sType, m_sIniFile
     End If
-    fnWriteINI m_sINIParmSetion, CLP_ID_BKFILE, sTemp, m_sIniFile
-    If fnTestFlag(m_nRunParm, RP_MASK_RMFILE) Then
-        sTemp = PV_TRUE
-    Else
-        sTemp = PV_FALSE
-    End If
-    fnWriteINI m_sINIParmSetion, CLP_ID_RMFILE, sTemp, m_sIniFile
-    fnWriteINI m_sINIParmSetion, CLP_ID_BKPATH, fnGetSubPath(m_sWorkPath, udtBackupInfo.m_sPath), m_sIniFile
-    fnWriteINI m_sINIParmSetion, CLP_ID_BKNAME, udtBackupInfo.m_sFile, m_sIniFile
-    fnWriteINI m_sINIParmSetion, CLP_ID_BKTYPE, udtBackupInfo.m_sType, m_sIniFile
 End Sub
 
 
@@ -1131,7 +1202,9 @@ Public Sub subWriteLog(sLog As String)
     LogForm.ShowLog sLog
     If m_bWriteLogFile Then
         On Error GoTo errWriteLog
+        Open m_sLFFullName For Append As #m_nLogFile
         Print #m_nLogFile, sLog
+        Close #m_nLogFile
     End If
     Exit Sub
 errWriteLog:
