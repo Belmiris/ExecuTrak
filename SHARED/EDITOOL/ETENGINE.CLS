@@ -913,32 +913,48 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     ciTemp.Quantity = tfnRound(!ilt_units)
                     ciTemp.Movement = tfnRound(!ih_nbr)
                     
-                    'david 09/15/00
-                    'colTemp.Add ciTemp
-                    If m_sTaxPaidOriginState = "" Then
-                        colTemp.Add ciTemp
+                    'david 07/19/2004  #??????
+                    Dim bOkToAdd As Boolean
+                    bOkToAdd = False
+                    
+                    If nTypeCode = "7" Then
+                        If ciTemp.OriginState <> ciTemp.DestState Then
+                            bOkToAdd = True
+                        End If
                     Else
-                        If nTypeCode = "1" Then
-                            'david 09/18/00
-                            'If Not IsMissing(vExtractFrom) Then
+                        If m_sTaxPaidOriginState = "" Then
+                            'david 07/19/2004  #??????
+                            'colTemp.Add ciTemp
+                            bOkToAdd = True
+                        Else
+                            If nTypeCode = "1" Then
                                 If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                                     If ciTemp.DestState = "AR" Then
-                                        colTemp.Add ciTemp
+                                        'david 07/19/2004  #??????
+                                        'colTemp.Add ciTemp
+                                        bOkToAdd = True
                                     End If
                                 End If
-                            'Else
-                            '    colTemp.Add ciTemp
-                            'End If
-                        ElseIf nTypeCode = "3" Then
-                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
-                                If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                    colTemp.Add ciTemp
+                            ElseIf nTypeCode = "3" Then
+                                If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
+                                    If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
+                                        'david 07/19/2004  #??????
+                                        'colTemp.Add ciTemp
+                                        bOkToAdd = True
+                                    End If
                                 End If
+                            Else
+                                'david 07/19/2004  #??????
+                                'colTemp.Add ciTemp
+                                bOkToAdd = True
                             End If
-                        Else
-                            colTemp.Add ciTemp
                         End If
                     End If
+                    
+                    If bOkToAdd Then
+                        colTemp.Add ciTemp
+                    End If
+                    ''''''''''''''''''''''''''
                     
                     .MoveNext
                 
@@ -1041,30 +1057,48 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 ciTemp.Quantity = tfnRound(!namount)
                 ciTemp.Movement = tfnRound(!fmm_movement)
                 
-                If m_sTaxPaidOriginState = "" Then
-                    colTemp.Add ciTemp
+                'david 07/19/2004  #??????
+                Dim bOkToAdd As Boolean
+                bOkToAdd = False
+                
+                If nTypeCode = "7" Then
+                    If ciTemp.OriginState <> ciTemp.DestState Then
+                        bOkToAdd = True
+                    End If
                 Else
-                    If nTypeCode = "1" Then
-                        'david 09/18/00
-                        'If Not IsMissing(vExtractFrom) Then
+                    If m_sTaxPaidOriginState = "" Then
+                        'david 07/19/2004  #??????
+                        'colTemp.Add ciTemp
+                        bOkToAdd = True
+                    Else
+                        If nTypeCode = "1" Then
                             If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                                 If ciTemp.DestState = "AR" Then
-                                    colTemp.Add ciTemp
+                                    'david 07/19/2004  #??????
+                                    'colTemp.Add ciTemp
+                                    bOkToAdd = True
                                 End If
                             End If
-                        'Else
-                        '    colTemp.Add ciTemp
-                        'End If
-                    ElseIf nTypeCode = "3" Then
-                        If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
-                            If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                colTemp.Add ciTemp
+                        ElseIf nTypeCode = "3" Then
+                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
+                                If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
+                                    'david 07/19/2004  #??????
+                                    'colTemp.Add ciTemp
+                                    bOkToAdd = True
+                                End If
                             End If
+                        Else
+                            'david 07/19/2004  #??????
+                            'colTemp.Add ciTemp
+                            bOkToAdd = True
                         End If
-                    Else
-                        colTemp.Add ciTemp
                     End If
                 End If
+                
+                If bOkToAdd Then
+                    colTemp.Add ciTemp
+                End If
+                ''''''''''''''''''''''''''
                 
                 .MoveNext
             
