@@ -20,7 +20,7 @@ icomp ..\appfiles\*.* ..\disk\factbin.z -i
 
 echo .
 echo Compress Local Database
-icomp I:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
+icomp g:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 
 rem echo .
 rem echo Run the PACKCALC and edit the SPLITZ.BAT/SETUP.LST

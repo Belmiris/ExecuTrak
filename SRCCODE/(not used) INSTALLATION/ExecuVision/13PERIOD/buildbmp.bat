@@ -15,7 +15,7 @@ echo BUILD SETUP.BMP
 echo Please wait for program to create the SETUP.BMP
 echo DO NOT PRESS ANY KEY BEFORE THE PROGRAM IS DONE!!!
 
-i:\program\factmenu\bin\setupbmp.exe PATH="\PROJECT6\EXECVISN\13PERIOD\SETUP" MODULE="ExecuVision 13 Period" VERSION=%1 TM=FALSE
+g:\program\factmenu\bin\setupbmp.exe PATH="\PROJECT6\EXECVISN\13PERIOD\SETUP" MODULE="ExecuVision 13 Period" VERSION=%1 TM=FALSE
 pause
 
 goto done

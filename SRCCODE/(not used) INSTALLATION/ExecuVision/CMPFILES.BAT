@@ -32,11 +32,11 @@ icomp G:\program\release\execvisn\models\retaild\*.* ..\disk\factbin.z retaild
 icomp G:\program\release\execvisn\models\sales\*.* ..\disk\factbin.z sales
 
 echo .
-echo Compress all files in I:\PROGRAM\RELEASE\EXECTRAK\Custctl directory to custctl.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Custctl directory to custctl.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\custctl\*.* ..\disk\custctl.z
 
 echo .
-echo Compress all files in I:\PROGRAM\RELEASE\EXECTRAK\Dll directory to factdll.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Dll directory to factdll.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\dll\*.* ..\disk\factdll.z
 echo .
 echo Compress all files in \PROJECT32\EXECVISN\Dll directory to factdll.z
@@ -47,16 +47,16 @@ echo Compress Local Database
 icomp G:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 
 echo .
-echo Compress all files in I:\PROGRAM\RELEASE\EXECTRAK\Ole directory to factole.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Ole directory to factole.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\tbkit.dll ..\disk\factole.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\olecombo.dll ..\disk\factole.z
 
 echo .
-echo Compress all files in I:\PROGRAM\RELEASE\EXECTRAK\Rtm directory to rtm.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Rtm directory to rtm.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\rtm\*.* ..\disk\rtm.z
 
 echo .
-echo Compress all files in I:\PROGRAM\RELEASE\EXECTRAK\Shared directory to shared.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Shared directory to shared.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\shared\*.* ..\disk\shared.z
 
 
