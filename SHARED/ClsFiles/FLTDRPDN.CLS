@@ -348,7 +348,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
     Dim i As Integer
     Dim nExtra As Integer
     Dim nTWidth As Integer
-    Dim objCol As Column
+    Dim objCol As DBTRUEGRID.Column     'Vijaya added DBTRUEGRID. on 12/07/04
     Dim nRight As Integer
     Dim nTemp As Integer
     Dim bFlag As Boolean
@@ -1767,7 +1767,7 @@ Private Sub fnMoveButton()
     End If
     
     If tgMain.Row >= 0 Then
-        Dim objCol As Column
+        Dim objCol As DBTRUEGRID.Column
         Dim colTemp As Collection
         Set colTemp = colDropDowns.Item(lDropDown)
         Set objCol = tgMain.Columns(colTemp.Item(lCol).ColumnIndex)
