@@ -3135,7 +3135,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -3187,7 +3187,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -3196,8 +3196,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -3335,10 +3335,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -3898,10 +3898,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -3963,10 +3963,10 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOK.Enabled = True
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -4256,6 +4256,11 @@ Private Sub cmdProcess_Click()
     Dim i As Integer
     Dim bError As Boolean: bError = False
     
+    'david 03/19/2003  #404567
+    'for the minimum "mgr gas comm" where bonus paycode = '7MGS'
+    Dim dMinManagerGasComm As Double
+    ''''''''''''''''''''''''''
+
     #If PROTOTYPE Then
         Exit Sub
     #End If
@@ -4308,6 +4313,13 @@ Private Sub cmdProcess_Click()
     
     subLogErrMsg " "
     
+    'david 03/19/2003  #404567
+    'get the minimum "mgr gas comm" for bonus paycode = '7MGS'
+    If chkHourly.value = vbChecked Then
+        dMinManagerGasComm = fnGetMinManagerGasComm("7MGS")
+    End If
+    ''''''''''''''''''''''''''
+    
     ReDim vArrBonus(colAHdnBAmtLvls, 0)
     eTabMain.TabEnabled(TabSales) = False
     bProcessing = True
@@ -4327,7 +4339,21 @@ Private Sub cmdProcess_Click()
     
     'added  by junsong 10/16/2002 call #379824-3
     If chkHourly.value = vbChecked Then
-        strSQL = strSQL & " AND bm_empno IN (SELECT prm_empno FROM pr_master WHERE prm_pay_type = 'H')"
+        'david 03/19/2003  #404567
+        'bonus paycode = '7MGS'
+        'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
+        'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
+        'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
+        'in last/first full pay period, he will NOT be paid this commission anymore
+        'strSQL = strSQL & " AND bm_empno IN (SELECT prm_empno FROM pr_master WHERE prm_pay_type = 'H')"
+        strSQL = strSQL & " AND (bm_empno IN (SELECT prm_empno FROM pr_master WHERE prm_pay_type = 'H')"
+        
+        If tfnRound(dMinManagerGasComm, 2) > 0 Then
+            strSQL = strSQL & " OR bm_bonus_code = '7MGS'"
+        End If
+        
+        strSQL = strSQL & ")"
+        ''''''''''''''''''''''''''
     End If
     
     If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
@@ -4389,14 +4415,42 @@ Private Sub cmdProcess_Click()
            sCode <> fnGetField(rsTemp!bc_bonus_code) Then
             
             If nSize >= 0 Then
-                vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
-            
+                'david 03/19/2003  #404567
+                'bonus paycode = '7MGS'
+                'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
+                'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
+                'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
+                'in last/first full pay period, he will NOT be paid this commission anymore
+                If chkHourly.value = vbChecked And fnCstr(rsTemp!bc_bonus_code) = "7MGS" _
+                   And tfnRound(dMinManagerGasComm, 2) > 0 Then
+                    If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
+                        dTotalBonus = 0#
+                        subLogErrMsg "Manager Gas Commission is not equal to minimum, set to 0"
+                        
+                        'we don't want to show zero bonus amount for '7MGS'
+                        'remove it from the array
+                        'vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                        nSize = nSize - 1
+                        
+                        If nSize > 0 Then
+                            ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
+                        Else
+                            ReDim Preserve vArrBonus(colAHdnBAmtLvls, 0)
+                        End If
+                    Else
+                        vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                    End If
+                Else  'old code
+                    vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                End If
+                
                 If bShowDetail Then
                     subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
                         + " calculation result: "
                     subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
                         & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
                 End If
+                ''''''''''''''''''''''''''
             End If
             
             nSize = nSize + 1
@@ -4431,7 +4485,42 @@ Private Sub cmdProcess_Click()
         
         'last record...
         If i = nCount Then
-            vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+            'david 03/19/2003  #404567
+            'bonus paycode = '7MGS'
+            'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
+            'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
+            'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
+            'in last/first full pay period, he will NOT be paid this commission anymore
+            If chkHourly.value = vbChecked And fnCstr(rsTemp!bc_bonus_code) = "7MGS" _
+               And tfnRound(dMinManagerGasComm, 2) > 0 Then
+                If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
+                    dTotalBonus = 0#
+                    subLogErrMsg "Manager Gas Commission is not equal to minimum, set to 0"
+                    
+                    'we don't want to show zero bonus amount for '7MGS'
+                    'remove it from the array
+                    'vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                    nSize = nSize - 1
+                    
+                    If nSize > 0 Then
+                        ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
+                    Else
+                        ReDim Preserve vArrBonus(colAHdnBAmtLvls, 0)
+                    End If
+                Else
+                    vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                End If
+            Else  'old code
+                vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+            End If
+        
+            If bShowDetail Then
+                subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                    + " calculation result: "
+                subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                    & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+            End If
+            ''''''''''''''''''''''''''
         
             If bShowDetail Then
                 subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
@@ -4445,15 +4534,20 @@ Private Sub cmdProcess_Click()
         rsTemp.MoveNext
     Next i
     
-    tgmApprove.FillWithArray vArrBonus
-    
-    nDataStatus = DATA_CHANGED
-    
-    cmdPrint(TabApprove).Enabled = True
-    eTabMain.TabEnabled(TabDetails) = True
-    eTabMain.TabEnabled(TabApprove) = True
-    eTabMain.CurrTab = TabApprove
-    subSetFocus tblApprove
+    If nSize < 0 Then
+        subLogErrMsg "No record found to approve."
+        bError = True
+    Else
+        tgmApprove.FillWithArray vArrBonus
+        
+        nDataStatus = DATA_CHANGED
+        
+        cmdPrint(TabApprove).Enabled = True
+        eTabMain.TabEnabled(TabDetails) = True
+        eTabMain.TabEnabled(TabApprove) = True
+        eTabMain.CurrTab = TabApprove
+        subSetFocus tblApprove
+    End If
     
 TERMINATE_PROCESS:
     
@@ -7858,5 +7952,30 @@ Private Function fnCheckFrequency(sStartDate As String, _
         
     End If
     
+End Function
+
+'david 03/19/2003  #404567
+'get the minimum "mgr gas comm" for bonus paycode = '7MGS'
+Private Function fnGetMinManagerGasComm(sBonusCode As String) As Double
+    Const SUB_NAME As String = "fnGetMinManagerGasComm"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    fnGetMinManagerGasComm = -1
+    
+    strSQL = "SELECT bf_dollar FROM bonus_formula WHERE bf_bonus_code = " & tfnSQLString(sBonusCode)
+    strSQL = strSQL & " AND bf_level = 1"
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME, False) < 0 Then
+        'MsgBox "Failed to access database to get formula details.", vbExclamation
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        'MsgBox "Formula does not exist.", vbExclamation
+        Exit Function
+    End If
+
+    fnGetMinManagerGasComm = tfnRound(rsTemp!bf_dollar, 2)
 End Function
 
