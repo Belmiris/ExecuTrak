@@ -3654,3 +3654,15 @@ Public Function uround(val As Double, uom As String, db As DataBase) As Double
     uround = roundf(val, round)
 End Function    ''uround
 
+Private Function roundf(amt As Double, rnd As Integer) As Double
+    Dim i As Integer
+    Dim rstg As String
+
+    'rndf = 0.5
+    rstg = "############0."     '"-------------."
+    For i = 1 To rnd
+        rstg = RTrim(rstg) & "#"
+    Next
+    roundf = Format(amt, rstg)
+End Function    ''roundf
+
