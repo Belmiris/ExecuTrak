@@ -301,7 +301,7 @@ End Function
 Private Function fnStr2BoolTrue(sTemp As String) As Boolean
     fnStr2BoolTrue = False
     If IsNumeric(sTemp) Then
-        If Val(sTemp) <> 0 Then
+        If val(sTemp) <> 0 Then
             fnStr2BoolTrue = True
         End If
     ElseIf UCase(sTemp) = PV_TRUE Then
@@ -1154,7 +1154,6 @@ Public Sub subShowMainForm()
 End Sub
 
 Public Sub subWriteInOut()
-
     Dim sTemp As String
     
     fnWriteINI m_sINIParmSetion, CLP_ID_WPATH, m_sWorkPath, m_sIniFile
@@ -1197,10 +1196,10 @@ Public Sub subWriteInOut()
     End If
 End Sub
 
-
 Public Sub subWriteLog(sLog As String)
     LogForm.ShowLog sLog
     If m_bWriteLogFile Then
+        m_nLogFile = FreeFile
         On Error GoTo errWriteLog
         Open m_sLFFullName For Append As #m_nLogFile
         Print #m_nLogFile, sLog
