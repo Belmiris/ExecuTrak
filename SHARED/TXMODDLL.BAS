@@ -3,9 +3,9 @@ Option Explicit
 #Const DEBUGGING = False
 #Const HARD_CODED_TX_LD_FEE = False
 
-    Private Const ERROR_LOADING1 = 1201
-    Private Const ERROR_LOADING2 = 1202
-    Private Const MOD_DLL_NAME = "TxMod32.dll"
+Private Const ERROR_LOADING1 = 1201
+Private Const ERROR_LOADING2 = 1202
+Private Const MOD_DLL_NAME = "TxMod32.dll"
 
 #If DEBUGGING Then
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
@@ -32,6 +32,12 @@ Option Explicit
         (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
+
+    'david 08/29/2003  #393678-4
+    Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
+    ''''''''''''''''''''''''''''
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, _
@@ -57,7 +63,14 @@ Option Explicit
         (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
+    
+    'david 08/29/2003  #393678-4
+    Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
+    ''''''''''''''''''''''''''''
 #End If
+
 ' Error codes
 Public Const TXMOD_OK = &H0                 ' All's well
 Public Const TXMOD_NOMEM = &H7FFF           ' Out of memory
@@ -103,23 +116,6 @@ Public Const TXMOD_GL_INTDEL = 2            ' Internal delivery
 Public Const TXMOD_GL_EXTDEL = 3            ' External delivery
 Public Const TXMOD_GL_ISTATE = 4            ' Inter/Intra state
 
-'Public Type CApplicableTaxes
-'    m_sCode As String * 5
-'    m_cLevel As Byte
-'    m_sWhere As String * 4
-'    m_nOrder As Integer
-'    m_lGlAcct As Long
-'    m_fRate As Single
-'    m_cCharge As Byte
-'    m_cBasis As Byte
-'    m_lLimit As Long
-'    m_sDate As String * 10
-'    m_lTrn As Long
-'    m_sDescr As String * 30
-'    m_cFuelFlag As Byte
-'    m_dAmount As Double
-'End Type
-
 Public Type CApplicableTaxes
     m_nOrder As Long
     m_lGlAcct As Long
@@ -158,55 +154,56 @@ Public Type CGLTaxEffectItem
     m_tLineType As Integer
 End Type
 
-    Private Const TAXMOD_LOADED = 1
-    Private Const TAXMOD_LOADING_FAILED = 2
-    Private Const TAXMOD_TRIES = 1000
-    
-    Private Const TAX_BASIS_G = "G"
-    Private Const TAX_BASIS_N = "N"
-    Private Const TAX_BASIS_A = "A"
-    Private Const TAX_BASIS_B = "B"
-    Private Const TAX_BASIS_F = "F"
-    Private Const TAX_BASIS_D = "$"
+Private Const TAXMOD_LOADED = 1
+Private Const TAXMOD_LOADING_FAILED = 2
+Private Const TAXMOD_TRIES = 1000
 
-    Private Const ARRAY_SIZE_INC = 5
-    Private Type tpTaxSums
-        m_lTrn As Long
-        m_lLimit As Double
-        m_cLimitType As Byte
-        m_lGallons As Long
-        m_cBasis As Byte
-        m_fAmount As Double
-        m_fRate As Double
-    End Type
-    Private arryTaxSums() As tpTaxSums
-    Private nTaxItems As Integer
-    Private nArraySize As Integer
-    Private nTaxModLoaded As Integer
-    
-    Public Taxes() As CApplicableTaxes
+Private Const TAX_BASIS_G = "G"
+Private Const TAX_BASIS_N = "N"
+Private Const TAX_BASIS_A = "A"
+Private Const TAX_BASIS_B = "B"
+Private Const TAX_BASIS_F = "F"
+Private Const TAX_BASIS_D = "$"
 
-    'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
-    Private sSysParm1055 As String
-    Private Type tpTaxGroup
-        m_sProdCode As String
-        m_sGroup As String
-    End Type
-    Private aryTaxGroup() As tpTaxGroup
-    Private nTaxGroupCount As Integer
-    Private Type tpTaxInfo
-        m_lInvoice As Long
-        m_nLine As Integer
-        m_InputParms As CMovementLineItem
-        m_Taxes() As CApplicableTaxes
-        m_nRecord As Integer
-    End Type
-    Private aryTaxInfo() As tpTaxInfo
-    Private nInfoCount As Integer
-    Private fLadingTypeATax As Double
-    Private lInternalFuel As Long
-    Private m_Disable_A_Taxes As Boolean
-    
+Private Const ARRAY_SIZE_INC = 5
+Private Type tpTaxSums
+    m_lTrn As Long
+    m_lLimit As Double
+    m_cLimitType As Byte
+    m_lGallons As Long
+    m_cBasis As Byte
+    m_fAmount As Double
+    m_fRate As Double
+End Type
+Private arryTaxSums() As tpTaxSums
+Private nTaxItems As Integer
+Private nArraySize As Integer
+Private nTaxModLoaded As Integer
+
+Public Taxes() As CApplicableTaxes
+
+'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
+Private sSysParm1055 As String
+Private Type tpTaxGroup
+    m_sProdCode As String
+    m_sGroup As String
+End Type
+Private aryTaxGroup() As tpTaxGroup
+Private nTaxGroupCount As Integer
+Private Type tpTaxInfo
+    m_lInvoice As Long
+    m_nLine As Integer
+    m_InputParms As CMovementLineItem
+    m_Taxes() As CApplicableTaxes
+    m_nRecord As Integer
+End Type
+Private aryTaxInfo() As tpTaxInfo
+Private nInfoCount As Integer
+Private fLadingTypeATax As Double
+Private lInternalFuel As Long
+Private m_Disable_A_Taxes As Boolean
+'
+
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
     
     Dim i As Long
@@ -246,6 +243,9 @@ Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Lon
         Next
     End If
 End Sub
+
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnCalculateTaxes(sProduct As String, _
                                   sTaxUseGroup As String, _
                                   dGross As Double, _
@@ -253,7 +253,11 @@ Public Function fnCalculateTaxes(sProduct As String, _
                                   ByRef dTaxAmount As Double, _
                                   Optional bShowMsgBox As Boolean = True, _
                                   Optional sErrMsg As String = "", _
-                                  Optional bApplyLimit As Boolean = True) As Boolean
+                                  Optional bApplyLimit As Boolean = True, _
+                                  Optional hld_vessel As Integer = -1, _
+                                  Optional hld_gals As Double = 0#, _
+                                  Optional hld_miles As Double = 0#, _
+                                  Optional hld_tot_gals As Double = 0#) As Boolean
 
     'Calculate taxes by calling the tax mods
     Dim myStruct As CMovementLineItem
@@ -282,6 +286,9 @@ Public Function fnCalculateTaxes(sProduct As String, _
     
     'Determine the number of items in the record
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -906,6 +913,8 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
 End Sub
 
 '// Calculates and returns the taxes
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnGetTaxAmount(szProduct As String, _
                                ByVal lNet As Long, _
                                ByVal lGross As Long, _
@@ -917,7 +926,11 @@ Public Function fnGetTaxAmount(szProduct As String, _
                                ByVal bLading As Boolean, _
                                Optional bShowMsgBox As Boolean = True, _
                                Optional sErrMsg As String = "", _
-                               Optional bApplyLimit As Boolean = True) As Double
+                               Optional bApplyLimit As Boolean = True, _
+                               Optional hld_vessel As Integer = -1, _
+                               Optional hld_gals As Double = 0#, _
+                               Optional hld_miles As Double = 0#, _
+                               Optional hld_tot_gals As Double = 0#) As Double
 
     Dim fDollarBase As Double
     Dim fQuantity As Double
@@ -970,6 +983,9 @@ Public Function fnGetTaxAmount(szProduct As String, _
     
     'Determine the number of items in the record
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1017,6 +1033,8 @@ Public Function fnGetTaxAmount(szProduct As String, _
 End Function
 
 '// Calculates and returns the taxes
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnGetTaxAmount1(szProduct As String, _
                                ByVal lNet As Double, _
                                ByVal lGross As Double, _
@@ -1028,7 +1046,11 @@ Public Function fnGetTaxAmount1(szProduct As String, _
                                ByVal bLading As Boolean, _
                                Optional bShowMsgBox As Boolean = True, _
                                Optional sErrMsg As String = "", _
-                               Optional bApplyLimit As Boolean = True) As Double
+                               Optional bApplyLimit As Boolean = True, _
+                               Optional hld_vessel As Integer = -1, _
+                               Optional hld_gals As Double = 0#, _
+                               Optional hld_miles As Double = 0#, _
+                               Optional hld_tot_gals As Double = 0#) As Double
 
     Dim fQuantity As Double
     'Calculate taxes by calling the tax mods
@@ -1075,6 +1097,9 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     
     'Determine the number of items in the record
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1121,6 +1146,8 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     
 End Function
 
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Sub subAddTaxItem(szProduct As String, _
                           ByVal lNet As Long, _
                           ByVal lGross As Long, _
@@ -1129,7 +1156,12 @@ Public Sub subAddTaxItem(szProduct As String, _
                           szTaxUseGroup As String, _
                           szBillingFlag As String, _
                           ByVal bExternal As Boolean, _
-                          ByVal bLading As Boolean)
+                          ByVal bLading As Boolean, _
+                          Optional hld_vessel As Integer = -1, _
+                          Optional hld_gals As Double = 0#, _
+                          Optional hld_miles As Double = 0#, _
+                          Optional hld_tot_gals As Double = 0#)
+                          
     'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
     
     Dim fDollarBase As Double
@@ -1156,10 +1188,17 @@ Public Sub subAddTaxItem(szProduct As String, _
             lInternalFuel = lInternalFuel + lGross
         End If
     End If
-    fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, fFreight, CDbl(lGross), CDbl(lNet), szBillingFlag, nLineType
+    
+    'david 08/29/2003  #393678-4
+    fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, _
+        fFreight, CDbl(lGross), CDbl(lNet), szBillingFlag, nLineType, , , _
+        hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
 End Sub
 
 'Add By junsong 06/04/2002 to fix deciaml gallon
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Sub subAddTaxItem1(szProduct As String, _
                           ByVal fNet As Double, _
                           ByVal fGross As Double, _
@@ -1168,7 +1207,12 @@ Public Sub subAddTaxItem1(szProduct As String, _
                           szTaxUseGroup As String, _
                           szBillingFlag As String, _
                           ByVal bExternal As Boolean, _
-                          ByVal bLading As Boolean)
+                          ByVal bLading As Boolean, _
+                          Optional hld_vessel As Integer = -1, _
+                          Optional hld_gals As Double = 0#, _
+                          Optional hld_miles As Double = 0#, _
+                          Optional hld_tot_gals As Double = 0#)
+                          
     'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
     
     Dim fDollarBase As Double
@@ -1195,7 +1239,13 @@ Public Sub subAddTaxItem1(szProduct As String, _
             lInternalFuel = lInternalFuel + round(fGross)
         End If
     End If
-    fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, fFreight, fGross, fNet, szBillingFlag, nLineType
+    
+    'david 08/29/2003  #393678-4
+    fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, _
+        fFreight, fGross, fNet, szBillingFlag, nLineType, , , _
+        hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
+
 End Sub
 
 Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
@@ -1332,6 +1382,9 @@ errLoadTaxMods:
     nTaxModLoaded = TAXMOD_LOADING_FAILED
 
 End Function
+
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnTaxInformation(sProduct As String, _
                                  sTaxUseGroup As String, _
                                  fDollarBase As Double, _
@@ -1343,7 +1396,12 @@ Public Function fnTaxInformation(sProduct As String, _
                                  ByRef nRecords As Long, _
                                  Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "", _
-                                 Optional bApplyLimit As Boolean = True) As Boolean
+                                 Optional bApplyLimit As Boolean = True, _
+                                 Optional hld_vessel As Integer = -1, _
+                                 Optional hld_gals As Double = 0#, _
+                                 Optional hld_miles As Double = 0#, _
+                                 Optional hld_tot_gals As Double = 0#) As Boolean
+    
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1367,6 +1425,9 @@ Public Function fnTaxInformation(sProduct As String, _
         .m_tLineType = TXMOD_EXTDEL
     End With
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1404,6 +1465,8 @@ Public Function fnTaxInformation(sProduct As String, _
     fnTaxInformation = True
 End Function
 
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnTaxInformation1(sProduct As String, _
                                  sTaxUseGroup As String, _
                                  fDollarBase As Double, _
@@ -1417,7 +1480,12 @@ Public Function fnTaxInformation1(sProduct As String, _
                                  ByRef nRecords As Long, _
                                  Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "", _
-                                 Optional bApplyLimit As Boolean = True) As Boolean
+                                 Optional bApplyLimit As Boolean = True, _
+                                 Optional hld_vessel As Integer = -1, _
+                                 Optional hld_gals As Double = 0#, _
+                                 Optional hld_miles As Double = 0#, _
+                                 Optional hld_tot_gals As Double = 0#) As Boolean
+    
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1453,6 +1521,9 @@ Public Function fnTaxInformation1(sProduct As String, _
         End If
     End With
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1490,7 +1561,8 @@ Public Function fnTaxInformation1(sProduct As String, _
     fnTaxInformation1 = True
 End Function
 
-
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
                                  ByVal nLine As Integer, _
                                  sProduct As String, _
@@ -1502,7 +1574,12 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
                                  sBillFlag As String, _
                                  Optional vLineType As Variant, _
                                  Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Boolean
+                                 Optional sErrMsg As String = "", _
+                                 Optional hld_vessel As Integer = -1, _
+                                 Optional hld_gals As Double = 0#, _
+                                 Optional hld_miles As Double = 0#, _
+                                 Optional hld_tot_gals As Double = 0#) As Boolean
+    
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
     'Get the tax information array
     Dim Taxes() As CApplicableTaxes
@@ -1539,8 +1616,12 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         End If
     End With
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1593,6 +1674,8 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     fnAddTaxInfoItem = True
 End Function
 
+'david 08/29/2003  #393678-4
+'add two more optional parameters
 Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
                                     ByVal nLine As Integer, _
                                     Optional sProduct As Variant, _
@@ -1603,7 +1686,12 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
                                     Optional fNet As Variant, _
                                     Optional sBillFlag As Variant, _
                                     Optional bShowMsgBox As Boolean = True, _
-                                    Optional sErrMsg As String = "") As Boolean
+                                    Optional sErrMsg As String = "", _
+                                    Optional hld_vessel As Integer = -1, _
+                                    Optional hld_gals As Double = 0#, _
+                                    Optional hld_miles As Double = 0#, _
+                                    Optional hld_tot_gals As Double = 0#) As Boolean
+    
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
     'Get the tax information array
     Dim Taxes() As CApplicableTaxes
@@ -1654,6 +1742,9 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     myStruct = aryTaxInfo(nIdx).m_InputParms
     
     nTries = TAXMOD_TRIES
+    'david 08/29/2003  #393678-4
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals, bShowMsgBox, sErrMsg
+    ''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1693,7 +1784,6 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     
     fnChangeTaxInfoItem = True
 End Function
-
 
 'when Deaccumulating tax limit and basis are optional
 Public Sub subAccumulateTax(ByVal lTrn As Long, _
@@ -1819,3 +1909,100 @@ Public Sub subAccumulateInvoiceTax(ByVal lTrn As Long, _
         .m_fAmount = .m_fAmount - tfnRound(fAmount, 2)
     End With
 End Sub
+
+'##############################################################################
+'   subSet_gl_sd_gals:
+'   Author: David Chai
+'   Date: 08/29/2003
+'   Project Number: 393678
+'   Description:
+'   To activate the SD imputed tax on freight feature
+'   INPUT: carrier vessel number, gallons that are subjected to the SD imputed tax on freight
+'   OUTPUT: None.
+'##############################################################################
+Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
+                              ByVal hld_gals As Double, _
+                              ByVal hld_miles As Double, _
+                              ByVal hld_tot_gals As Double, _
+                              Optional bShowMsgBox As Boolean = True, _
+                              Optional sErrMsg As String = "")
+    
+    Static bAlreadyShowMsg As Boolean
+    Static bAlreadyShowErr As Boolean
+    
+    Dim nRet As Long
+    Dim nTries As Integer
+    Dim i As Integer
+
+    If hld_vessel = -1 Then
+        Exit Sub
+    End If
+    
+    Dim sTxMod32 As String
+    
+    On Error GoTo errTrap
+    
+    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+    
+    If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
+        'new dll
+        Do
+            hld_miles = round(hld_miles)
+            hld_tot_gals = round(hld_tot_gals, 1)
+            nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
+            If i = TXMOD_TASKBLOCKED Then
+                DoEvents
+            End If
+            nTries = nTries - 1
+        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+        
+        If nRet <> TXMOD_OK Then
+            subTaxModErrors nRet, bShowMsgBox, sErrMsg
+            Exit Sub
+        End If
+    Else
+        'old dll
+        If Not bAlreadyShowMsg Then
+            bAlreadyShowMsg = True
+            MsgBox "In order to use the Tax on Freight feature, the latest version of TXMOD32.DLL is required.", vbExclamation
+        End If
+    End If
+    
+    Exit Sub
+    
+errTrap:
+    If Not bAlreadyShowErr Then
+        bAlreadyShowErr = True
+        
+        If bShowMsgBox Then
+            MsgBox "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL." _
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+        Else
+            sErrMsg = "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL"
+        End If
+    End If
+End Sub
+'
+'Function : tfnGetSystemDir - gets the windows system directory
+'Variables: optional variable to add a slash to the end of the path
+'Return   : the path to the windows system directory
+'
+Private Function fnGetSystemDir(Optional vAddSlash As Variant) As String
+    Const MAX_STRING_LENGTH As Integer = 255
+    
+    Dim nLength As Integer     'length returned from API call
+    Dim szSystemDir As String  'temp string to hold system directory
+    
+    szSystemDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
+    nLength = GetSystemDirectory(szSystemDir, MAX_STRING_LENGTH) 'call the API function to get the system directory
+    szSystemDir = Left(szSystemDir, nLength) 'trim off the excess spaces
+    
+    If Not IsMissing(vAddSlash) Then
+        If Right(szSystemDir, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
+            szSystemDir = szSystemDir + szSLASH
+        End If
+    End If
+    
+    fnGetSystemDir = szSystemDir 'return system directory back to the caller
+End Function
+
