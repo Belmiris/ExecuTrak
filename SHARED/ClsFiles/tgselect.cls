@@ -369,8 +369,12 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
             'david 03/26/2004
             'when allow add new
             'fix to allow the highlighting to go to the last new row
+            'when the last row is valid
+            'If lRow < m_tgcEditor.RowCount - 1 Then
             If lRow <= m_tgcEditor.RowCount - 1 Then
-                lRow = lRow + 1
+                If m_tgcEditor.GotoNextRow(False) Then
+                    lRow = lRow + 1
+                End If
             'Else
             '    lRow = m_tgcEditor.RowCount - 1
             End If
@@ -421,7 +425,14 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                 Exit Function
             End If
             
-            lRow = lRow + 1
+            'david 03/26/2004
+            'when allow add new
+            'fix to allow the highlighting to go to the last new row
+            'when the last row is valid
+            If m_tgcEditor.GotoNextRow(False) Then
+                lRow = lRow + 1
+            End If
+            '''''''''''''''''
         '''''''''''''''''
         Else
             fnMarkCurrent = -1
@@ -451,6 +462,7 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
     'when allow add new
     'fix to allow the highlighting to go to the last new row
     '''''''''''''''''
+    'If lRow < m_tgcEditor.RowCount Then
     If lRow <= m_tgcEditor.RowCount Then
         vCurrent = m_tgcEditor.MakeBookmark(lRow)
         

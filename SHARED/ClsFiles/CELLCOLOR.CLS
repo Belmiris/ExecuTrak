@@ -604,9 +604,19 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                         End If
                     End If
                 End If
+                
+                bColorIsSet = True
             End If
         Next
     End If
+    
+'    If Not bColorIsSet Then
+'        If Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or _
+'           Condition = dbgSelectedRow Or Condition = dbgSelectedRow + dbgUpdatedCell Then 'selected row(s)
+'            CellStyle.ForeColor = &H8000000E
+'            CellStyle.BackColor = &H8000000D
+'        End If
+'    End If
     
     Exit Sub
 
