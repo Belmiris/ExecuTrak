@@ -30,6 +30,7 @@ Begin VB.Form frmSplash
       Height          =   2844
       Left            =   0
       TabIndex        =   8
+      TabStop         =   0   'False
       Top             =   0
       Width           =   7548
       _Version        =   65536
@@ -62,6 +63,7 @@ Begin VB.Form frmSplash
          ScaleHeight     =   2556
          ScaleWidth      =   5676
          TabIndex        =   9
+         TabStop         =   0   'False
          Top             =   120
          Width           =   5724
          Begin VB.ComboBox cmbDataSet 
