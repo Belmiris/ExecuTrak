@@ -50,6 +50,6 @@ goto done
 
 
 :done
-cd \projec~1
+cd \project6
 echo .
 echo done

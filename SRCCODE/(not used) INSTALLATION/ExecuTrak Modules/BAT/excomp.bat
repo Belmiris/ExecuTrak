@@ -22,7 +22,7 @@ goto done
 
 :compile_all
 for %%i in (ap ar fd fm fo gf gl oe pr rp rs sm tg tx ws) do call comp_one %%i
-cd \projec~1
+cd \project6
 echo .
 echo done
 goto done
@@ -30,7 +30,7 @@ goto done
 
 :one_module
 call comp_one %1
-cd \projec~1
+cd \project6
 echo .
 echo done
 goto done

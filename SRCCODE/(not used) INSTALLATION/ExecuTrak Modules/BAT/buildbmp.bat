@@ -40,6 +40,8 @@ if "%1" == "tx" goto set_tx_mod
 if "%1" == "ws" goto set_ws_mod
 if "%1" == "sp" goto set_sp_mod
 if "%1" == "mp" goto set_mp_mod
+if "%1" == "ro" goto set_ro_mod
+
 
 goto main
 
@@ -134,6 +136,10 @@ goto main
 
 :set_mp_mod
 set mod_name="Murphy System"
+goto main
+
+:set_ro_mod
+set mod_name="Roach Oil System"
 goto main
 
 :main
