@@ -203,7 +203,7 @@ errSendMailError:
     
     If sMsg = "" Then
         If Err.Number > 0 Then
-            sMsg = "Error(s) has occurred while sending an e-mail." _
+            sMsg = "Error(s) has occurred while sending an E-mail." _
                 + " Err Code: " & Err.Number & " Err Desc: " & Err.Description + "."
         End If
     End If
