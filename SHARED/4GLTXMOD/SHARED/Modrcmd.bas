@@ -298,52 +298,53 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     
     'david 08/30/2002  #369533
     'Added for input pay period or other message which will show on the 4th line of pay stub
-    Dim sMsg As String
-    Dim sTmp As String
-    Dim i As Integer
-    Dim bDone As Boolean
-    
-    '##Provide a message box for user input the pay period or other message
-    bDone = False
-    
-    Do While Not bDone
-        sMsg = InputBox("Optional - You may enter the pay period or any other message, up to 40 characters," _
-            + " that will be printed on the Check Stub: ", "Message for Check Stub", sMsg)
-        sMsg = Trim(sMsg)
+    If sCDFlag <> "U" Then
+        Dim sMsg As String
+        Dim sTmp As String
+        Dim i As Integer
+        Dim bDone As Boolean
         
-        bDone = True
+        '##Provide a message box for user input the pay period or other message
+        bDone = False
         
-        If Len(sMsg) > 40 Then
-            MsgBox "The length of the message cannot be over 40 characters.", vbExclamation
-            bDone = False
-        ElseIf Len(sMsg) > 0 Then
-            For i = 1 To Len(sMsg)
-                sTmp = Mid(sMsg, i, 1)
-                
-                If sTmp = Chr(10) Or sTmp = Chr(13) Or sTmp = Chr(34) Or sTmp = Chr(39) Then
-                    If MsgBox("Single quote ('), double quote ("") or 'Line Feed' are not allowed in the message," _
-                       + " and will be replaced with SPACE. Are you sure you want to continue?" + vbCrLf + vbCrLf _
-                       + "Choose No to re-enter the message.", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
-                        'go back to enter message again
-                        bDone = False
+        Do While Not bDone
+            sMsg = InputBox("Optional - You may enter the pay period or any other message, up to 40 characters," _
+                + " that will be printed on the Check Stub: ", "Message for Check Stub", sMsg)
+            sMsg = Trim(sMsg)
+            
+            bDone = True
+            
+            If Len(sMsg) > 40 Then
+                MsgBox "The length of the message cannot be over 40 characters.", vbExclamation
+                bDone = False
+            ElseIf Len(sMsg) > 0 Then
+                For i = 1 To Len(sMsg)
+                    sTmp = Mid(sMsg, i, 1)
+                    
+                    If sTmp = Chr(10) Or sTmp = Chr(13) Or sTmp = Chr(34) Or sTmp = Chr(39) Then
+                        If MsgBox("Single quote ('), double quote ("") or 'Line Feed' are not allowed in the message," _
+                           + " and will be replaced with SPACE. Are you sure you want to continue?" + vbCrLf + vbCrLf _
+                           + "Choose No to re-enter the message.", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+                            'go back to enter message again
+                            bDone = False
+                        End If
+                    
+                        Exit For
                     End If
-                
-                    Exit For
-                End If
-            Next
-        End If
-    Loop
-    
-    '##replace quote marks and carriage return with space in the message
-    sTmp = Chr(13)  'vbCr
-    sMsg = Replace(sMsg, sTmp, " ")
-    sTmp = Chr(10)  'vbLf
-    sMsg = Replace(sMsg, sTmp, " ")
-    sTmp = Chr(34)  'double quote
-    sMsg = Replace(sMsg, sTmp, " ")
-    sTmp = Chr(39)  'single quote
-    sMsg = Replace(sMsg, sTmp, " ")
-    
+                Next
+            End If
+        Loop
+        
+        '##replace quote marks and carriage return with space in the message
+        sTmp = Chr(13)  'vbCr
+        sMsg = Replace(sMsg, sTmp, " ")
+        sTmp = Chr(10)  'vbLf
+        sMsg = Replace(sMsg, sTmp, " ")
+        sTmp = Chr(34)  'double quote
+        sMsg = Replace(sMsg, sTmp, " ")
+        sTmp = Chr(39)  'single quote
+        sMsg = Replace(sMsg, sTmp, " ")
+    End If
     'david 08/30/2002  #369533
     '##if sMsg is not empty, add it to the last arguments when passing to prvprint.4ge
     If sMsg <> "" Then
