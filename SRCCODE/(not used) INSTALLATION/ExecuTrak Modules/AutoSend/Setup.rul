@@ -25,7 +25,7 @@
 #define MODULE_NAME             "AutoSend Electronic Data Transmission"
 #define PRODUCT_KEY             "zzemmasu.exe"
 #define PRODUCT_SUBDIR		"ExecTrak"
-#define CUSTOMER_DIR            "AutoSend"
+#define CUSTOMER_DIR            "Dutch Oil Electronic Data Transmission"
 
 #define KEY_DEFAULT             ""
 #define HELP_FILE               "edts.hlp"
@@ -537,17 +537,17 @@ StartCopy:
 
         SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
 
-        // delete old shortcut and program directory
-	//LOGMSG="DELETE OLD FOLDER SHORTCUTS";
-	//LOGWRITE(LOGMSG);
+       //delete old shortcut and program directory
+	LOGMSG="DELETE OLD FOLDER SHORTCUTS";
+	LOGWRITE(LOGMSG);
 
-        //szFolder = CUSTOMER_DIR;
-        //DeleteProgramFolder(szFolder);
-        //szFolder = TARGETDISK ^ CUSTOMER_DIR;
-        //DeleteDir(szFolder, ALLCONTENTS);
+        szFolder = COMPANY_NAME ^ CUSTOMER_DIR;
+        DeleteProgramFolder(szFolder);
+       // szFolder = TARGETDISK ^ CUSTOMER_DIR;
+       // DeleteDir(szFolder, ALLCONTENTS);
 
-	//LOGMSG="OLD FOLDER SHORTCUTS DELETED";
-	//LOGWRITE(LOGMSG);
+	LOGMSG="OLD FOLDER SHORTCUTS DELETED";
+	LOGWRITE(LOGMSG);
 
         SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
 
