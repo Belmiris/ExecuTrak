@@ -494,10 +494,10 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
             nLeft = tgTable.Left
             Select Case arryColumns(nCol).m_nPosition
                 Case POS_TOP
-                    nTop = nTop + tgTable.RowTop - picTextFrame.Height
+                    nTop = nTop + tgTable.RowTop(nRow) - picTextFrame.Height
                     nLeft = nLeft + tgTable.Columns(nColT).Left
                 Case POS_BOTTOM
-                    nTop = nTop + tgTable.RowTop + tgTable.RowHeight
+                    nTop = nTop + tgTable.RowTop(nRow) + picTextFrame.Height
                     nLeft = nLeft + tgTable.Columns(nColT).Left
                 Case POS_LEFT
                     nTop = nTop + tgTable.RowTop(nRow)
