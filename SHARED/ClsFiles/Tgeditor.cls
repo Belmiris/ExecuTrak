@@ -480,19 +480,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     
     DataEdited = False
     If bLocked Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
@@ -3788,7 +3788,13 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
                     nKeyProcessing = KEY_P_CHANGE_ROW
                     If nEditColumns(0) < tgTable.Columns.Count Then
                         tgTable.col = nEditColumns(0)
-                        DoEvents
+                        'comments the doevents to block the event rowcolChange, let it fire later
+                        'otherwise if you have method like GotoNextcolumn or change the column of
+                        'the grid, if will not go to the new row even you press enter key or arrow key
+                        'in the last column of the grid, but do so may cause the message showing incorrectly
+                        'or validation problem, I'm not sure, if meet the problem, be careful!!
+                        'junsong 05/25/01
+                        'DoEvents
                     End If
                     If tgTable.col = nEditColumns(0) Then
                         On Error Resume Next
