@@ -1155,6 +1155,45 @@ Public Sub subAddTaxItem(szProduct As String, _
     fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, fFreight, CDbl(lGross), CDbl(lNet), szBillingFlag, nLineType
 End Sub
 
+'Add By junsong 06/04/2002 to fix deciaml gallon
+Public Sub subAddTaxItem1(szProduct As String, _
+                          ByVal fNet As Double, _
+                          ByVal fGross As Double, _
+                          ByVal fCurrentCost As Double, _
+                          ByVal fFreight As Double, _
+                          szTaxUseGroup As String, _
+                          szBillingFlag As String, _
+                          ByVal bExternal As Boolean, _
+                          ByVal bLading As Boolean)
+    'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
+    
+    Dim fDollarBase As Double
+    Dim fQuantity As Double
+    Dim nLineType As Integer
+
+    If (szBillingFlag = "N") Then
+        fDollarBase = fCurrentCost * fNet
+    Else
+        fDollarBase = fCurrentCost * fGross
+    End If
+    If bLading Then
+        If bExternal Then
+            nLineType = TXMOD_EXTBOL   ' External bill of lading
+        Else
+            nLineType = TXMOD_INTBOL  ' Internal bill of lading
+            lInternalFuel = lInternalFuel + round(fGross)
+        End If
+    Else
+        If bExternal Then
+            nLineType = TXMOD_EXTDEL   ' External delivery
+        Else
+            nLineType = TXMOD_INTDEL   ' Internal delivery
+            lInternalFuel = lInternalFuel + round(fGross)
+        End If
+    End If
+    fnAddTaxInfoItem -1, nInfoCount, szProduct, szTaxUseGroup, fDollarBase, fFreight, fGross, fNet, szBillingFlag, nLineType
+End Sub
+
 Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
                           ByVal nCount As Integer)
 
