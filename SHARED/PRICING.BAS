@@ -51,7 +51,8 @@ Private bBook_origin As Boolean
 Private bBook_dest As Boolean
 Private bBook_city As Boolean
 Private bBook_term As Boolean
-'
+
+Private m_OverWriteFlag_YN As String 'Add per magic 312713-48
 
 Public Function product_price( _
                                 DEST_FLAG As String, _
@@ -146,6 +147,8 @@ Private Function sp_price(ByVal sProductLink As String, _
         Debug.Print "function sp_price called"
     #End If
     
+    m_OverWriteFlag_YN = "N"
+    
     dfPrice = 0#   'set DEFAULT value (floating zero)
     sErrMsg = ""
     
@@ -207,6 +210,8 @@ Private Function sp_price(ByVal sProductLink As String, _
     ' the product link from the header rec, retrieve the inv_master record:
     If pr_inv_master Is Nothing Then
         Set pr_inv_master = finv_master(pr_inv_header!ivh_link, CInt(lProfitCenter), t_dbMainDatabase)
+    Else
+        m_OverWriteFlag_YN = "Y"
     End If
     '--------- end magic 312713-48 ------------------------------
     
@@ -843,6 +848,13 @@ Private Function fnFirstCharU(sParm As String) As String
     fnFirstCharU = UCase(Left(LTrim(sParm), 1)) 'return uppercase of leftmost char of a string
 End Function    'fnFirstCharU
 
+Public Function fnGetOverWriteFlag() As String
+    If m_OverWriteFlag_YN = "Y" Then
+        fnGetOverWriteFlag = "Y"
+    Else
+        fnGetOverWriteFlag = "N"
+    End If
+End Function
 #If cMAIN Then
 Sub Main()          'include for testing
 
