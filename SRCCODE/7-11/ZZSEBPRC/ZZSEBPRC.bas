@@ -82,20 +82,19 @@ Public arySalesDesc() As Variant
 Public arySalesType() As Variant
 
 Public sSalesTypeCode As String
-Public sOldSalesType As String
-Public Const nWeek As Integer = 0
-Public Const sWeek As String = "W"
-Public Const nOneMth As Integer = 1
+Public Const sBiWeek As String = "B"
 Public Const sOneMth As String = "M"
-Public Const nGas As Integer = 2
 Public Const sGas As String = "G"
-Public Const nThreeMth As Integer = 3
-Public Const sThreeMth As String = "Q"
 Public Const sRatio As String = "R"
 
 Public vArrBonus() As Variant
 Public objMath As clsEquation
 Public objCond As clsCondition
+
+Public bShowDetail As Boolean
+
+Public sPayCode_RegHrs As String
+Public sPayCode_OtHrs As String
 '
 
 Public Sub Main()
@@ -182,16 +181,18 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     Dim sArrMsg() As String
     Dim i As Integer
     
-    Dim x As Long
+    Dim X As Long
+    
+    On Error GoTo errTrap
     
     If bClear Then
         frmZZSEBPRC!lstProcess.Clear
         
         'hide the scrollbar
-        x = frmZZSEBPRC.TextWidth("  ")
+        X = frmZZSEBPRC.TextWidth("  ")
         frmZZSEBPRC!lstProcess.Tag = "0"
-        If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-        SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+        If frmZZSEBPRC.ScaleMode = vbTwips Then X = X / Screen.TwipsPerPixelX
+        SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, X, 0
         
         DoEvents
         
@@ -221,11 +222,11 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
         frmZZSEBPRC.lstProcess.AddItem sArrMsg(i)
         
         If sArrMsg(i) <> "" Then
-            x = frmZZSEBPRC.TextWidth(sMsg & "  ")
-            If x > Val(frmZZSEBPRC!lstProcess.Tag) Then
-                frmZZSEBPRC!lstProcess.Tag = x
-                If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-                SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+            X = frmZZSEBPRC.TextWidth(sMsg & "  ")
+            If X > Val(frmZZSEBPRC!lstProcess.Tag) Then
+                frmZZSEBPRC!lstProcess.Tag = X
+                If frmZZSEBPRC.ScaleMode = vbTwips Then X = X / Screen.TwipsPerPixelX
+                SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, X, 0
             End If
         End If
             
@@ -234,6 +235,10 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     DoEvents
     
+    Exit Sub
+    
+errTrap:
+    'error
 End Sub
 
 Private Sub subDeleteErrLog()
@@ -294,10 +299,10 @@ Public Function fnCreateSalesTable() As Boolean
     Dim i As Integer
     
     'predefined variables
-    arySalesDesc = Array("Week Sales", "Three Month Sales", "One Month Sales", "Gas Sales", _
+    arySalesDesc = Array("Bi-weekly Sales", "One Month Sales", "Gas Sales", _
         "Inv. Shortage Ratio")
     
-    arySalesType = Array(sWeek, sThreeMth, sOneMth, sGas, sRatio)
+    arySalesType = Array(sBiWeek, sOneMth, sGas, sRatio)
     
     On Error GoTo Continue
     strSQL = "DROP TABLE tmp_sales_type"
@@ -726,7 +731,7 @@ Public Function fnCheckBonusHold() As Integer
         strSQL = strSQL & " AND bm_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
     End If
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
-    strSQL = strSQL & " GROUP BY bm_empno, bm_eligible_pc"
+    'strSQL = strSQL & " GROUP BY bm_empno, bm_eligible_pc"
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database", vbExclamation
@@ -872,7 +877,6 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
                                   sBType As String) As Double
     
     Const SUB_NAME As String = "fnCalculateBonus"
-    Const sInvShortageRatio As String = "inv_shortage_ratio"
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sErrMsg As String
@@ -880,7 +884,6 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     Dim V1 As Double, V2 As Double, V3 As Double
     Dim bConditionOK As Boolean
     Dim dBonusAmt As Double
-    Dim bInvShortageRatioOK As Boolean
     
     fnCalculateBonus = 0#
     
@@ -938,15 +941,22 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         Exit Function
     End If
     
-    'Get real values...
-    bInvShortageRatioOK = True
+    If bShowDetail Then
+        subLogErrMsg " "
+    End If
     
+    'Get real values...
     If sV1 <> "" Then
         V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
-            If sV1 = sInvShortageRatio Then
-                bInvShortageRatioOK = False
+        Else
+            If bShowDetail Then
+                If sV1 = "check_amount" Then
+                    subLogErrMsg "**v1 (" + sV1 + ") = the result of the formula"
+                Else
+                    subLogErrMsg "**v1 (" + sV1 + ") = " & V1
+                End If
             End If
         End If
     End If
@@ -955,8 +965,13 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
-            If sV2 = sInvShortageRatio Then
-                bInvShortageRatioOK = False
+        Else
+            If bShowDetail Then
+                If sV2 = "check_amount" Then
+                    subLogErrMsg "**v2 (" + sV2 + ") = the result of the formula"
+                Else
+                    subLogErrMsg "**v2 (" + sV2 + ") = " & V2
+                End If
             End If
         End If
     End If
@@ -965,13 +980,25 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
-            If sV3 = sInvShortageRatio Then
-                bInvShortageRatioOK = False
+        Else
+            If bShowDetail Then
+                If sV3 = "check_amount" Then
+                    subLogErrMsg "**v3 (" + sV3 + ") = the result of the formula"
+                Else
+                    subLogErrMsg "**v3 (" + sV3 + ") = " & V3
+                End If
             End If
         End If
     End If
     
     'set the variables value for condition
+    If bShowDetail Then
+        subLogErrMsg "**pct=" & PCT & ", dol=" & DOL & ", amt1=" & AMT1 _
+            & ", amt2=" & AMT2 & ", mxt=" & MXT
+    
+        subLogErrMsg " "
+    End If
+    
     objCond.Var("pct") = PCT
     objCond.Var("dol") = DOL
     objCond.Var("amt1") = AMT1
@@ -1008,22 +1035,36 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sCond & ")"
             Exit Function
+        Else
+            If bShowDetail Then
+                subLogErrMsg "Condition = " & sCond
+                subLogErrMsg "Result = " & IIf(bConditionOK, "True", "False")
+            End If
         End If
     End If
     
     dBonusAmt = 0#
     
     If bConditionOK Then
-        If bInvShortageRatioOK Then
-            dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
-            If sErrMsg <> "" Then
-                subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
-                Exit Function
+        dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
+            Exit Function
+        Else
+            If bShowDetail Then
+                subLogErrMsg "Formula = " & sFmla
+                subLogErrMsg "Result = " & dBonusAmt
             End If
         End If
     End If
     
     'reset the v1, v2, or v3 if they are "check_amount"
+    If bShowDetail Then
+        If sV1 = "check_amount" Or sV2 = "check_amount" Or sV3 = "check_amount" Then
+            subLogErrMsg "check_amount = " & dBonusAmt
+        End If
+    End If
+    
     If sV1 = "check_amount" Then
         V1 = dBonusAmt
         objMath.Var("v1") = V1
@@ -1046,6 +1087,11 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
             If sErrMsg <> "" Then
                 subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sACond & ")"
                 Exit Function
+            Else
+                If bShowDetail Then
+                    subLogErrMsg "Adj. Condition = " & sACond
+                    subLogErrMsg "Result = " & IIf(bConditionOK, "True", "False")
+                End If
             End If
         End If
     
@@ -1054,6 +1100,11 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
             If sErrMsg <> "" Then
                 subLogErrMsg sErrMsg & ", Invalid Formula (" & sAFmla & ")"
                 Exit Function
+            Else
+                If bShowDetail Then
+                    subLogErrMsg "Formula = " & sAFmla
+                    subLogErrMsg "Result = " & dBonusAmt
+                End If
             End If
         End If
     End If
@@ -1071,26 +1122,9 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim i As Long
-    Dim sarrVariable()
     Dim sVinV As String
     
     sVinV = sVariable + " in " + sV
-    
-    'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
-    sarrVariable = Array("inside_sales", _
-                         "gallons_sold", _
-                         "day_off_slip_day", _
-                         "total_pay", _
-                         "months_in_grade", _
-                         "months_as_manager", _
-                         "years_as_manager", _
-                         "months_employed", _
-                         "shortage_amount", _
-                         "check_amount", _
-                         "pay_hours", _
-                         "inv_shortage_ratio", _
-                         "not used")
     
     fnGetVarValue = 0#
     sErrMsg = ""
@@ -1103,23 +1137,17 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     End If
     
     Select Case sVariable
-        Case sarrVariable(0)  'inside sales
-            strSQL = "SELECT bs_sales_amount AS var_value "
-            strSQL = strSQL & " FROM bonus_sales"
-            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
-            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(frmZZSEBPRC.txtFrequency)
-        
-        Case sarrVariable(1)  'gallons sold
-            strSQL = "SELECT bs_sales_amount AS var_value "
-            strSQL = strSQL & " FROM bonus_sales"
-            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
-            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
-        
-        Case sarrVariable(2)  'day off slip days
+        Case "3_mo_shortage_avg"
+            fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
+                tfnFormatDate(frmZZSEBPRC.txtStartDate))
+            Exit Function
+            
+        Case "3_month_sales_avg"
+            fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
+                tfnFormatDate(frmZZSEBPRC.txtStartDate))
+            Exit Function
+            
+        Case "day_off_slip_day"
             strSQL = "SELECT COUNT (bd_prft_ctr) AS var_value "
             strSQL = strSQL & " FROM bonus_day_off_slip, rs_shiftlink"
             strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
@@ -1130,64 +1158,117 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND bd_slip_date = rssl_date"
             strSQL = strSQL & " AND bd_shift = rssl_shift"
         
-        Case sarrVariable(3)  'total pay
-            strSQL = "SELECT SUM (prci_total) AS var_value"
-            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
-            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
-            strSQL = strSQL & " AND prc_lnk = prci_lnk"
-            strSQL = strSQL & " AND prc_check_paid <> 'V'"
-            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-            strSQL = strSQL & " AND prpa_pay_type = 'P'"
-            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            
-        Case sarrVariable(4)  'months in grade
-            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo)
+        Case "days_employed"
+            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo, True)
             Exit Function
         
-        Case sarrVariable(5)  'months as manager
-            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M")
-            Exit Function
-        
-        Case sarrVariable(6)  'years as manager
-            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M", True)
-            Exit Function
-        
-        Case sarrVariable(7)  'months employed
-            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo)
-            Exit Function
-            
-        Case sarrVariable(8)  'shortage amount
-            fnGetVarValue = fnShortageAmount(sVinV, sErrMsg, nPrftCtr)
-            Exit Function
-            
-        Case sarrVariable(9)  'check_amount
-            'the value will be obtained from the formula evaluation
-            Exit Function
-            
-        Case sarrVariable(10)  'pay hours
-            strSQL = "SELECT SUM (prci_input_amt) AS var_value"
-            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
-            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
-            strSQL = strSQL & " AND prc_lnk = prci_lnk"
-            strSQL = strSQL & " AND prc_check_paid <> 'V'"
-            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-            strSQL = strSQL & " AND prpa_pay_type = 'P'"
-            strSQL = strSQL & " AND prpa_calc_method = 'H'"
-            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            
-        Case sarrVariable(11)  'inventory shortage ratio
+        Case "gallons_sold"
             strSQL = "SELECT bs_sales_amount AS var_value "
             strSQL = strSQL & " FROM bonus_sales"
             strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
             strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
             strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sRatio)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
+        
+        Case "inside_sales"
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+        
+        Case "inv_record_months"
+            fnGetVarValue = fnInvRecordMonths(sVinV, sErrMsg, lEmpNo)
+            Exit Function
             
-        Case sarrVariable(12)  'not used
+        Case "months_as_manager"
+            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M")
             Exit Function
         
+        Case "months_employed"
+            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo)
+            Exit Function
+            
+        Case "ot_hours"
+            If sPayCode_OtHrs = "" Then
+                sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
+                Exit Function
+            End If
+            
+            strSQL = "SELECT SUM (prh_hours) AS var_value "
+            strSQL = strSQL & " FROM pr_hours"
+            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+            
+        Case "regular_hours"
+            If sPayCode_RegHrs = "" Then
+                sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
+                Exit Function
+            End If
+            
+            strSQL = "SELECT SUM (prh_hours) AS var_value "
+            strSQL = strSQL & " FROM pr_hours"
+            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+            
+        Case "two_week_sales"
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sBiWeek)
+            
+        Case "yrs_at_lvl_jan_1"
+            fnGetVarValue = fnYearAtLevelJan1(sVinV, sErrMsg, lEmpNo)
+            Exit Function
+            
+        Case "check_amount"
+            'the value will be obtained from the formula evaluation
+            'return 0
+            Exit Function
+        Case "not used"
+            'return 0
+            Exit Function
+            
+'        Case "total pay"  'NOT USED
+'            strSQL = "SELECT SUM (prci_total) AS var_value"
+'            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
+'            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
+'            strSQL = strSQL & " AND prc_lnk = prci_lnk"
+'            strSQL = strSQL & " AND prc_check_paid <> 'V'"
+'            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
+'            strSQL = strSQL & " AND prpa_pay_type = 'P'"
+'            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+'
+'        Case "months in grade"  'NOT USED
+'            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo)
+'            Exit Function
+'
+'        Case "years as manager"  'NOT USED
+'            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M", True)
+'            Exit Function
+'
+'        Case "pay hours"  'NOT USED
+'            strSQL = "SELECT SUM (prci_input_amt) AS var_value"
+'            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
+'            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
+'            strSQL = strSQL & " AND prc_lnk = prci_lnk"
+'            strSQL = strSQL & " AND prc_check_paid <> 'V'"
+'            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
+'            strSQL = strSQL & " AND prpa_pay_type = 'P'"
+'            strSQL = strSQL & " AND prpa_calc_method = 'H'"
+'            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+'
+'        Case "shortage_amount"  'NOT USED
+'            fnGetVarValue = fnShortageAmount(sVinV, sErrMsg, nPrftCtr)
+'            Exit Function
+            
         Case Else
             sErrMsg = "Variable " + sVinV + " is not valid"
             Exit Function
@@ -1207,6 +1288,382 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     If rsTemp.RecordCount > 0 Then
         fnGetVarValue = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
     End If
+End Function
+
+Private Function fn3MonthsAverage(sVariable As String, _
+                                  sVinV As String, _
+                                  sErrMsg As String, _
+                                  lEmpNo As Long, _
+                                  sDateStart As String) As Double
+
+    Const SUB_NAME As String = "fn3MonthsAverage"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sTemp As String
+    Dim sDateHired  As String
+    Dim sDatePrev As String
+    Dim nPrftCtr As Integer
+    Dim nPrevPrftCtr As Integer
+    Dim i As Long
+    Dim nMonthCount As Integer
+    Dim dTmpAmt As Double
+    Dim dAmount As Double
+    
+    'get hired date
+    strSQL = "SELECT prm_date_hired, prm_prft_ctr1"
+    strSQL = strSQL & " FROM pr_master"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee record not found for " & sVinV
+        Exit Function
+    End If
+    
+    sDateHired = fnGetField(rsTemp!prm_date_hired)
+    nPrftCtr = tfnRound(rsTemp!prm_prft_ctr1)
+            
+    subLogErrMsg "Current Profit Center " & nPrftCtr & "."
+    
+    dAmount = 0#
+    nMonthCount = 0
+    
+    For i = 1 To 3 '3 months
+        Select Case i
+        Case 1
+            sTemp = "Previous Month"
+        Case 2
+        sTemp = "2 Months ago"
+        Case 3
+        sTemp = "3 Months ago"
+        End Select
+        
+        'get the profit center of the employee worked for
+        sDatePrev = DateAdd("m", -i, CDate(sDateStart))
+        
+        strSQL = "SELECT prhs_effective_dt, prhs_prft_ctr1"
+        strSQL = strSQL & " FROM pr_history"
+        strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+        strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(sDatePrev, True)
+        strSQL = strSQL & " ORDER BY prhs_effective_dt DESC"
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            sErrMsg = "Failed to access the database to get " & sVinV
+            Exit Function
+        End If
+        If rsTemp.RecordCount = 0 Then
+            subLogErrMsg "History not found for " + tfnDateString(sDatePrev, True) + ", use Date Hired."
+            
+            If IsValidDate(sDateHired) Then
+                If CDate(sDateHired) <= CDate(sDatePrev) Then
+                    nPrevPrftCtr = nPrftCtr
+                Else
+                    sErrMsg = "Date Hired is later than " + tfnDateString(sDatePrev, True) + " to get " & sVinV
+                    Exit Function
+                End If
+            Else
+                sErrMsg = "Date Hired is not valid"
+                Exit Function
+            End If
+        Else
+            subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+            nPrevPrftCtr = tfnRound(rsTemp!prhs_prft_ctr1)
+        End If
+        
+        If nPrftCtr <> nPrevPrftCtr Then
+            subLogErrMsg sTemp + " Profit Center " & nPrevPrftCtr & "."
+        End If
+        
+        Select Case sVariable
+        Case "3_mo_shortage_avg"
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrevPrftCtr
+            strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(sDatePrev, True)
+            strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(sDatePrev, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sRatio)
+        Case "3_month_sales_avg"
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrevPrftCtr
+            strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(sDatePrev, True)
+            strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(sDatePrev, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+        End Select
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            sErrMsg = "Failed to access the database to get " & sVinV
+            Exit Function
+        End If
+        
+        If rsTemp.RecordCount = 0 Then
+            subLogErrMsg "No record found as of " + tfnDateString(sDatePrev) + " for " & sVinV & "."
+        Else
+            Select Case sVariable
+            Case "3_mo_shortage_avg"
+                dTmpAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+                subLogErrMsg "Shortage Ratio as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
+            Case "3_month_sales_avg"
+                dTmpAmt = tfnRound(rsTemp!var_value, 2)
+                subLogErrMsg "Inside Sales as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
+            End Select
+            
+            dAmount = dAmount + dTmpAmt
+            nMonthCount = nMonthCount + 1
+        End If
+    Next i
+    
+    If nMonthCount > 0 Then
+        fn3MonthsAverage = tfnRound(dAmount / nMonthCount, DEFAULT_DECIMALS)
+    Else
+        fn3MonthsAverage = 0#
+    End If
+End Function
+
+Private Function fnInvRecordMonths(sVinV As String, _
+                                 sErrMsg As String, _
+                                 lEmpNo As Long) As Double
+                                 
+    Const SUB_NAME As String = "fnInvRecordMonths"
+    Const sGradeList As String = "('M', 'A', 'N')"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim nEmpLevel As Integer
+    Dim aryEmpLevelList()
+    Dim sDateHired As String
+    Dim sDateTerminated As String
+    Dim sDateStart As String
+    Dim sDateEnd As String
+    Dim dDiff As Double
+    Dim i As Long
+    Dim nEmpLevelCount As Integer
+    
+    fnInvRecordMonths = 0#
+    
+    'get the employee level list for the Grade
+    nEmpLevelCount = -1
+    ReDim aryEmpLevelList(0)
+    
+    strSQL = "SELECT bg_emp_level"
+    strSQL = strSQL & " FROM bonus_grades"
+    strSQL = strSQL & " WHERE bg_grade IN " + sGradeList
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Grade record not found for " & sVinV
+        Exit Function
+    End If
+    
+    For i = 1 To rsTemp.RecordCount
+        If Not IsNull(rsTemp!bg_emp_level) Then
+            nEmpLevelCount = nEmpLevelCount + 1
+            ReDim Preserve aryEmpLevelList(nEmpLevelCount)
+            aryEmpLevelList(nEmpLevelCount) = tfnRound(rsTemp!bg_emp_level)
+        End If
+        rsTemp.MoveNext
+    Next i
+    
+    strSQL = "SELECT prm_emp_level, prm_date_hired, prm_date_termed"
+    strSQL = strSQL & " FROM pr_master"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee record not found for " & sVinV
+        Exit Function
+    End If
+    If IsNull(rsTemp!prm_emp_level) Then
+        sErrMsg = "Employee level is NULL for " & sVinV
+        Exit Function
+    End If
+    
+    nEmpLevel = tfnRound(rsTemp!prm_emp_level)
+    sDateHired = fnGetField(rsTemp!prm_date_hired)
+    sDateTerminated = fnGetField(rsTemp!prm_date_termed)
+    
+    strSQL = "SELECT prhs_effective_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
+    strSQL = strSQL & " FROM pr_history"
+    strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+    strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(frmZZSEBPRC!txtStartDate, True)
+    strSQL = strSQL & " ORDER BY prhs_effective_dt"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee history record not found for " & sVinV
+        'use date hired and/or date terminated for calculation
+        If Not IsValidDate(sDateHired) Then
+            sErrMsg = "Date Hired is not valid for " & sVinV
+            Exit Function
+        End If
+        
+        If nEmpLevelCount < 0 Or fnFindInList(nEmpLevel, aryEmpLevelList, nEmpLevelCount) Then
+            If Not IsValidDate(sDateTerminated) Then
+                sDateTerminated = frmZZSEBPRC!txtEndDate
+            End If
+            dDiff = Int(fnDateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+        End If
+            
+        fnInvRecordMonths = dDiff
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 1 Then
+        If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+           (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+            sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+            If Not IsValidDate(sDateStart) Then
+                sErrMsg = "Effective Date is not valid for " & sVinV
+                Exit Function
+            End If
+            
+            sDateEnd = frmZZSEBPRC!txtEndDate
+            dDiff = Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+        End If
+    Else
+        dDiff = 0
+        i = 1
+        Do
+            If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+               (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+                sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+                If IsValidDate(sDateStart) Then
+                    If i <= rsTemp.RecordCount - 1 Then
+                        rsTemp.MoveNext
+                        sDateEnd = fnGetField(rsTemp!prhs_effective_dt)
+                        If Not IsValidDate(sDateEnd) Then
+                            sErrMsg = "Effective Date is not valid for " & sVinV
+                            Exit Function
+                        End If
+                        
+                        dDiff = dDiff + Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                    Else
+                        sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+                        Exit Do
+                    End If
+                Else
+                    sDateStart = ""
+                    sErrMsg = "Effective Date is not valid for " & sVinV
+                    Exit Function
+                End If
+            Else
+                sDateStart = ""
+                rsTemp.MoveNext
+            End If
+        Loop Until rsTemp.EOF
+        
+        'last record - from last effective date until now
+        If sDateStart <> "" Then
+            If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+               (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+                sDateEnd = frmZZSEBPRC!txtEndDate
+                dDiff = dDiff + Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+            End If
+        End If
+    End If
+    
+    fnInvRecordMonths = dDiff
+End Function
+
+Private Function fnYearAtLevelJan1(sVinV As String, _
+                                 sErrMsg As String, _
+                                 lEmpNo As Long) As Double
+                                 
+    Const SUB_NAME As String = "fnYearAtLevelJan1"
+    Const sGradeManager As String = "('M')"
+    Const sGradeAsstManager As String = "('A', 'N')"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sGrade As String
+    Dim sDateHired As String
+    Dim sDateStart As String
+    Dim dDiff As Double
+    
+    fnYearAtLevelJan1 = 0#
+    
+    'get employee's position based on the current employee level
+    strSQL = "SELECT prm_emp_level, prm_date_hired"
+    strSQL = strSQL & " FROM pr_master"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    strSQL = strSQL & " AND prm_emp_level IN ("
+    strSQL = strSQL & "SELECT bg_emp_level"
+    strSQL = strSQL & " FROM bonus_grades"
+    strSQL = strSQL & " WHERE bg_grade IN " + sGradeManager + ")"
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        strSQL = "SELECT prm_emp_level, prm_date_hired"
+        strSQL = strSQL & " FROM pr_master"
+        strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+        strSQL = strSQL & " AND prm_emp_level IN ("
+        strSQL = strSQL & "SELECT bg_emp_level"
+        strSQL = strSQL & " FROM bonus_grades"
+        strSQL = strSQL & " WHERE bg_grade IN " + sGradeAsstManager + ")"
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            sErrMsg = "Failed to access the database to get " & sVinV
+            Exit Function
+        End If
+    
+        If rsTemp.RecordCount = 0 Then
+            sErrMsg = "Employee is not Manager, Assistant Manager, or Night Manager"
+            Exit Function
+        End If
+    End If
+    
+    sDateHired = fnGetField(rsTemp!prm_date_hired)
+    
+    sDateStart = frmZZSEBPRC!txtStartDate
+    
+    strSQL = "SELECT prhs_effective_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
+    strSQL = strSQL & " FROM pr_history"
+    strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+    strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(sDateStart, True)
+    strSQL = strSQL & " ORDER BY prhs_effective_dt"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        subLogErrMsg "History not found for " + tfnDateString(sDateStart, True) + ", use Date Hired."
+        
+        If IsValidDate(sDateHired) Then
+            If CDate(sDateHired) <= CDate(sDateStart) Then
+                dDiff = Int(fnDateDiff("yyyy", CDate(sDateHired), CDate(sDateStart), _
+                    vbFirstJan1))
+            Else
+                sErrMsg = "Date Hired is later than " + tfnDateString(sDateStart, True) + " to get " & sVinV
+                Exit Function
+            End If
+        Else
+            sErrMsg = "Date Hired is not valid"
+            Exit Function
+        End If
+    Else
+        subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+        If IsValidDate(rsTemp!prhs_effective_dt) Then
+            dDiff = Int(fnDateDiff("yyyy", CDate(rsTemp!prhs_effective_dt), CDate(sDateStart), _
+                vbFirstJan1))
+        Else
+            sErrMsg = "Effective Hired is not valid"
+            Exit Function
+        End If
+    End If
+    
+    fnYearAtLevelJan1 = dDiff
 End Function
 
 Private Function fnMonthsInGrade(sVinV As String, _
@@ -1278,10 +1735,11 @@ Private Function fnMonthsInGrade(sVinV As String, _
     sDateHired = fnGetField(rsTemp!prm_date_hired)
     sDateTerminated = fnGetField(rsTemp!prm_date_termed)
     
-    strSQL = "SELECT prhs_effect_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
+    strSQL = "SELECT prhs_effective_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
     strSQL = strSQL & " FROM pr_history"
     strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
-    strSQL = strSQL & " ORDER BY prhs_effect_dt"
+    strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(frmZZSEBPRC!txtStartDate, True)
+    strSQL = strSQL & " ORDER BY prhs_effective_dt"
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         sErrMsg = "Failed to access the database to get " & sVinV
         Exit Function
@@ -1298,7 +1756,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
             If Not IsValidDate(sDateTerminated) Then
                 sDateTerminated = frmZZSEBPRC!txtEndDate
             End If
-            dDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+            dDiff = fnDateDiff("m", CDate(sDateHired), CDate(sDateTerminated))
         End If
         
         If bConvertToYear Then
@@ -1319,7 +1777,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
             End If
             
             sDateEnd = frmZZSEBPRC!txtEndDate
-            dDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+            dDiff = fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
         End If
     Else
         dDiff = 0
@@ -1337,7 +1795,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
                             Exit Function
                         End If
                         
-                        dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                        dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
                     Else
                         sDateStart = fnGetField(rsTemp!prhs_effective_dt)
                         Exit Do
@@ -1358,7 +1816,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
             If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
                (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
                 sDateEnd = frmZZSEBPRC!txtEndDate
-                dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
             End If
         End If
     End If
@@ -1399,7 +1857,8 @@ End Function
 
 Private Function fnMonthsEmployed(sVinV As String, _
                                   sErrMsg As String, _
-                                  lEmpNo As Long) As Double
+                                  lEmpNo As Long, _
+                                  Optional bReturnDays = False) As Double
     
     Const SUB_NAME As String = "fnMonthsEmployed"
     
@@ -1429,10 +1888,10 @@ Private Function fnMonthsEmployed(sVinV As String, _
     sDateHired = fnGetField(rsTemp!prm_date_hired)
     sDateTerminated = fnGetField(rsTemp!prm_date_termed)
     
-    strSQL = "prhs_date_hired, prhs_date_termed"
+    strSQL = "SELECT prhs_date_hired, prhs_date_termed"
     strSQL = strSQL & " FROM pr_history"
     strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
-    strSQL = strSQL & " AND prhs_date_hired <> " + tfnDateString(sDateHired)
+    strSQL = strSQL & " AND prhs_date_hired <> " + tfnDateString(sDateHired, True)
     strSQL = strSQL & " AND prhs_date_termed IS NOT NULL"
     strSQL = strSQL & " ORDER BY prhs_date_hired"
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
@@ -1451,7 +1910,11 @@ Private Function fnMonthsEmployed(sVinV As String, _
             sDateTerminated = frmZZSEBPRC!txtEndDate
         End If
         
-        dDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+        If bReturnDays Then
+            dDiff = fnDateDiff("d", CDate(sDateHired), CDate(sDateTerminated))
+        Else
+            dDiff = fnDateDiff("m", CDate(sDateHired), CDate(sDateTerminated))
+        End If
         
         fnMonthsEmployed = dDiff
         Exit Function
@@ -1462,7 +1925,11 @@ Private Function fnMonthsEmployed(sVinV As String, _
         sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
         If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
             If CDate(sDateStart) < CDate(sDateHired) Then
-                dDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                If bReturnDays Then
+                    dDiff = fnDateDiff("d", CDate(sDateStart), CDate(sDateEnd))
+                Else
+                    dDiff = fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
+                End If
             End If
         End If
     Else
@@ -1473,14 +1940,22 @@ Private Function fnMonthsEmployed(sVinV As String, _
             sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
             If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
                 If CDate(sDateStart) < CDate(sDateHired) Then
-                    dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                    If bReturnDays Then
+                        dDiff = dDiff + fnDateDiff("d", CDate(sDateStart), CDate(sDateEnd))
+                    Else
+                        dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
+                    End If
                 End If
             End If
             rsTemp.MoveNext
         Loop Until rsTemp.EOF
         
         'from date hired until now (ending date)
-        dDiff = dDiff + Abs(DateDiff("m", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate)))
+        If bReturnDays Then
+            dDiff = dDiff + fnDateDiff("d", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate))
+        Else
+            dDiff = dDiff + fnDateDiff("m", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate))
+        End If
     End If
     
     fnMonthsEmployed = dDiff
@@ -2105,13 +2580,15 @@ Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String
     End If
     
     Select Case sFreq
-    Case "D"
-        sEndDate = DateAdd("d", -1, DateAdd("d", 1, CDate(sStartDate)))
-    Case sWeek
-        sEndDate = DateAdd("d", -1, DateAdd("ww", 1, CDate(sStartDate)))
     Case sOneMth, sGas, sRatio
         sEndDate = DateAdd("d", -1, DateAdd("m", 1, CDate(sStartDate)))
-    Case sThreeMth
+    Case sBiWeek
+        sEndDate = DateAdd("d", 13, CDate(sStartDate))
+    Case "D"
+        sEndDate = DateAdd("d", -1, DateAdd("d", 1, CDate(sStartDate)))
+    Case "W"
+        sEndDate = DateAdd("d", -1, DateAdd("ww", 1, CDate(sStartDate)))
+    Case "Q"
         sEndDate = DateAdd("d", -1, DateAdd("q", 1, CDate(sStartDate)))
     Case "Y", "A"
         sEndDate = DateAdd("d", -1, DateAdd("yyyy", 1, CDate(sStartDate)))
@@ -2133,3 +2610,79 @@ Public Function fnHasApprove(Optional vApproveCount) As Boolean
         End If
     Next i
 End Function
+
+Public Function fnDateDiff(sInterval As String, _
+                            sDate1 As String, _
+                            sDate2 As String, _
+                            Optional FirstDayOfYear As Integer = 0) As Double
+
+    Dim sDateStart As String
+    Dim sDateEnd As String
+    Dim lYears As Long
+    Dim lDaysInYears As Long
+    Dim lMonths As Long
+    Dim lDaysInMonths As Long
+    Dim lDiff As Long
+    
+    On Error GoTo errTrap
+    
+    sInterval = LCase(sInterval)
+    
+    Select Case sInterval
+    Case "d", "y", "w", "ww"
+        sDateStart = sDate1
+        sDateEnd = sDate2
+        fnDateDiff = tfnRound(Abs(DateDiff(sInterval, CDate(sDate1), CDate(sDate2))))
+    Case "m"
+        lMonths = Abs(DateDiff("m", CDate(sDate1), CDate(sDate2)))
+        
+        If lMonths = 0 Then
+            lMonths = 1
+        End If
+        
+        sDateStart = sDate1
+        sDateEnd = DateAdd("m", lMonths, sDateStart)
+        lDaysInMonths = Abs(DateDiff("d", CDate(sDateStart), CDate(sDateEnd)))
+        
+        lDiff = Abs(DateDiff("d", CDate(sDate1), CDate(sDate2)))
+        
+        fnDateDiff = tfnRound(lDiff / lDaysInMonths, DEFAULT_DECIMALS) * lMonths
+    Case "yyyy"
+        lYears = Abs(DateDiff("yyyy", CDate(sDate1), CDate(sDate2)))
+        
+        If lYears = 0 Then
+            lYears = 1
+        End If
+        
+        If FirstDayOfYear = vbFirstJan1 Then
+            sDateStart = "01/01/" + Right(sDate1, 2)
+            sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+        Else
+            sDateStart = sDate1
+            sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+        End If
+        
+        lDaysInYears = Abs(DateDiff("y", CDate(sDateStart), CDate(sDateEnd)))
+        
+        lDiff = Abs(DateDiff("y", CDate(sDate1), CDate(sDate2)))
+        
+        If FirstDayOfYear = vbFirstJan1 Then
+            If Left(sDate1, 5) <> "01/01" Then
+                fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears - 1
+                If fnDateDiff < 0 Then
+                    fnDateDiff = 0
+                End If
+            Else
+                fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
+            End If
+        Else
+            fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
+        End If
+    End Select
+    
+    Exit Function
+    
+errTrap:
+    tfnErrHandler "fnDateDiff"
+End Function
+

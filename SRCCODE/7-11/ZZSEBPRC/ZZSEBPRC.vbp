@@ -28,8 +28,8 @@ Class=clsEquation; ..\..\..\SHARED\ClsFiles\Equation.cls
 Class=clsFloatingDropDown; ..\..\..\SHARED\ClsFiles\Fltdrpdn.cls
 Class=clsColumns; ..\..\..\SHARED\ClsFiles\COLUMN.CLS
 Class=clsCondition; ..\..\..\SHARED\ClsFiles\Condition.cls
-Class=clsPRFHOURS; PRFHOURS.CLS
 Class=clsColumnExtension; ..\..\..\SHARED\ClsFiles\textext.cls
+Class=clsPRFHOURS; PRFHOURS.CLS
 IconForm="frmZZSEBPRC"
 Startup="Sub Main"
 HelpFile="FACTOR.HLP"
@@ -52,7 +52,7 @@ VersionFileDescription="ZZSEBPRC.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : WRT_RPT_TO_FILE = -1 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : WRT_RPT_TO_FILE = -1 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

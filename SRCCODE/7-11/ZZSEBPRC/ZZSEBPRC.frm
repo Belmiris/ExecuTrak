@@ -1870,7 +1870,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1907,7 +1907,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1944,7 +1944,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1981,7 +1981,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2018,7 +2018,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2055,7 +2055,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2424,7 +2424,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2437,7 +2437,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2546,6 +2546,12 @@ Begin VB.Form frmZZSEBPRC
          Caption         =   "&Copy From"
          Enabled         =   0   'False
          HelpContextID   =   10
+      End
+      Begin VB.Menu sep02 
+         Caption         =   "-"
+      End
+      Begin VB.Menu mnuDetailLog 
+         Caption         =   "Show &Detail Log"
       End
       Begin VB.Menu mnuOptionsSep20 
          Caption         =   "-"
@@ -3065,6 +3071,16 @@ End Sub
 '============
 'Menu  Events
 '============
+Private Sub mnuDetailLog_Click()
+    If mnuDetailLog.CHECKED Then
+        mnuDetailLog.CHECKED = False
+    Else
+        mnuDetailLog.CHECKED = True
+    End If
+
+    bShowDetail = mnuDetailLog.CHECKED
+End Sub
+
 Private Sub mnuExit_Click()
     subExit
 End Sub
@@ -3223,6 +3239,7 @@ Private Sub tfnResetScreen(Index As Integer)
                     Exit Sub
                 End If
             End If
+            
             nDataStatus = DATA_INIT
             txtStartDate = ""
             txtEndDate = ""
@@ -3232,7 +3249,9 @@ Private Sub tfnResetScreen(Index As Integer)
             txtEmpProcess = ""
             txtEmpNameProcess = ""
             bLoadingBonusDetail = False
-            
+
+            bShowDetail = mnuDetailLog.CHECKED
+
             cValidate.ResetFlags
             
             eTabMain.TabEnabled(TabSales) = True
@@ -3385,7 +3404,7 @@ Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     tgsApprove.MouseUp Button, Shift, Y
 End Sub
 
@@ -3531,7 +3550,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3601,6 +3620,8 @@ Private Sub cmdProcess_Click()
     Dim i As Integer
     Dim bError As Boolean: bError = False
     
+    Dim sSysParm30854 As String
+    
     #If PROTOTYPE Then
         Exit Sub
     #End If
@@ -3610,6 +3631,13 @@ Private Sub cmdProcess_Click()
     End If
     
     subLogErrMsg "", True
+    
+    subLogErrMsg "Commission Processing" + IIf(bShowDetail, " Detail", "") + " Log"
+    
+    If bShowDetail Then
+        subLogErrMsg "Log will be saved in " + sLogFilePath
+    End If
+    subLogErrMsg " "
     
     subLogErrMsg "Started processing commission formulas..."
     subLogErrMsg " "
@@ -3625,6 +3653,44 @@ Private Sub cmdProcess_Click()
         subLogErrMsg "Processing terminated on user's request."
         Exit Sub
     End If
+    
+    'get sysparm#30854
+    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 30854"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        subLogErrMsg "Failed to access the database."
+        subLogErrMsg "Processing terminates."
+        Exit Sub
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        If IsNull(rsTemp!parm_field) Then
+            If bShowDetail Then
+                subLogErrMsg "SysParm#30854 is NULL"
+            End If
+        Else
+            sSysParm30854 = UCase(rsTemp!parm_field)
+            
+            If bShowDetail Then
+                subLogErrMsg "SysParm#30854 = " + tfnSQLString(sSysParm30854)
+            End If
+            
+            If Len(sSysParm30854) >= 4 Then
+                sPayCode_RegHrs = Left(sSysParm30854, 4)
+            End If
+            If Len(sSysParm30854) >= 9 Then
+                sPayCode_OtHrs = Trim(Mid(sSysParm30854, 6, 4))
+            End If
+        
+            If bShowDetail Then
+                subLogErrMsg "Pay Code for Regular Hour = " + tfnSQLString(sPayCode_RegHrs)
+                subLogErrMsg "Pay Code for Overtime Hour = " + tfnSQLString(sPayCode_OtHrs)
+            End If
+        End If
+    Else
+        subLogErrMsg "SysParm#30854 not found"
+    End If
+    
+    subLogErrMsg " "
     
     ReDim vArrBonus(colAHdnBAmtLvls, 0)
     eTabMain.TabEnabled(TabSales) = False
@@ -3696,6 +3762,13 @@ Private Sub cmdProcess_Click()
             
             If nSize >= 0 Then
                 vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+            
+                If bShowDetail Then
+                    subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                        + " calculation result: "
+                    subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                        & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+                End If
             End If
             
             nSize = nSize + 1
@@ -3731,7 +3804,15 @@ Private Sub cmdProcess_Click()
         'last record...
         If i = nCount Then
             vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+        
+            If bShowDetail Then
+                subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                    + " calculation result: "
+                subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                    & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+            End If
         End If
+        
         rsTemp.MoveNext
     Next i
     
@@ -4387,7 +4468,7 @@ Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     tgcDropdown.TableMouseUp Y
 End Sub
 
@@ -5114,10 +5195,6 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         
         subSetFocus txtSalesType
         
-        If sOldSalesType <> "" Then
-            txtSalesType = sOldSalesType
-        End If
-        
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
         mnuCancel.Enabled = True
@@ -5241,10 +5318,6 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         
         subSetFocus txtSalesType
         
-        If sOldSalesType <> "" Then
-            txtSalesType = sOldSalesType
-        End If
-        
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
         mnuCancel.Enabled = True
@@ -5317,6 +5390,8 @@ Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
             tfnResetScreen Index
         Case nTabHours
             objHours.cmdUpdateInsertBtn_Click
+            eTabMain.TabEnabled(TabProcess) = True
+            eTabSub.TabEnabled(TabSales) = True
     End Select
 End Sub
 
@@ -5415,9 +5490,9 @@ Private Sub tblDropDown_LostFocus(Index As Integer)
     End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Index = nTabHours Then
-        objHours.tblFloating_MouseUp Button, Shift, x, Y
+        objHours.tblFloating_MouseUp Button, Shift, X, Y
     Else
         tgfDropdown(Index).MouseUp Y
     End If
@@ -5563,7 +5638,6 @@ Private Function fnValidSalesType(Box As Textbox) As Boolean
     For i = 0 To UBound(arySalesDesc)
         If arySalesDesc(i) = Box.Text Then
             sSalesTypeCode = arySalesType(i)
-            sOldSalesType = Box
             fnValidSalesType = True
             Exit Function
         End If
@@ -6036,7 +6110,7 @@ Private Sub tblSales_LostFocus()
     tgfDropdown(TabSales).LostFocus tblSales
 End Sub
 
-Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
     tgsSales.MouseUp Button, Shift, Y
 End Sub
 
@@ -6206,7 +6280,7 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
     End If
     
     Select Case sSalesType
-        Case sWeek, sOneMth, sThreeMth
+        Case sBiWeek, sOneMth
             strSQL = "SELECT rssl_prft_ctr AS prft_ctr, prft_name,"
             strSQL = strSQL & " SUM(rsc_retail) as amount"
             strSQL = strSQL & " FROM rs_shiftlink, sys_prft_ctr, rs_scat, rs_cat"
@@ -6748,8 +6822,8 @@ Private Sub tblTimeCard_LostFocus()
     objHours.tblTimeCard_LostFocus
 End Sub
 
-Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
-    objHours.tblTimeCard_MouseDown Button, Shift, x, Y
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
 End Sub
 
 Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
