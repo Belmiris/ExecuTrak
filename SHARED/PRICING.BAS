@@ -157,9 +157,59 @@ Private Function sp_price(ByVal sProductLink As String, _
         Exit Function       'cannot procede with invalid product
     End If
     
+    '--------- start magic 312713-48 ----------------------------
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    Static sParm_7041 As String
+    
+    Set pr_inv_master = Nothing
+    If sParm_7041 = szEMPTY Then
+        strSQL = "SELECT * FROM sys_parm WHERE parm_nbr= 7041"
+        Set rsTemp = fnMainmodsOpenRecordset(strSQL, SUB_NAME, t_dbMainDatabase)
+        If Not rsTemp Is Nothing Then
+            If rsTemp.RecordCount > 0 Then
+                If Not IsNull(rsTemp!parm_field) Then
+                     sParm_7041 = UCase(Trim(rsTemp!parm_field))
+                End If
+            End If
+        End If
+        
+        If sParm_7041 <> "Y" Then
+            sParm_7041 = "N"
+        End If
+        
+    End If
+    If sParm_7041 = "Y" Then
+        If Not IsMissing(sInvoiceDate) Then
+            If IsDate(sInvoiceDate) Then
+                strSQL = "SELECT invt_prft_ctr , invt_prodlnk, invt_gl_sales, invt_gl_cost,"
+                strSQL = strSQL & "invt_secndloc, invt_rop, invt_goal, invt_formula, invt_sales_mtdd, "
+                strSQL = strSQL & "invt_sales_mtdq, invt_sales_ytdd, invt_sales_ytdq, invt_cost_mtdd, invt_n_min, "
+                strSQL = strSQL & "invt_n_max, invt_n_min_cost, invt_n_max_cost, invt_gl_invt, invt_cust_sernbr, "
+                strSQL = strSQL & "invt_trk_cust_qoh, fodp_price AS invt_price, fodp_cost AS invt_cost,fodp_date"
+                strSQL = strSQL & " FROM inv_master,fo_date_pricing WHERE invt_prft_ctr=fodp_prft_ctr AND invt_prodlnk=fodp_prodlnk"
+                strSQL = strSQL & " AND invt_prodlnk=" & pr_inv_header!ivh_link & " AND invt_prft_ctr=" & CInt(lProfitCenter)
+                strSQL = strSQL & " AND fodp_date < " & tfnDateString(sInvoiceDate, True) & " ORDER BY fodp_date DESC"
+            
+                Set pr_inv_master = fnMainmodsOpenRecordset(strSQL, SUB_NAME, t_dbMainDatabase)
+                
+                If Not pr_inv_master Is Nothing Then
+                    If pr_inv_master.RecordCount = 0 Then
+                        Set pr_inv_master = Nothing
+                    End If
+                End If
+            End If
+        End If
+    End If
+    
     ' for the parm lProfitCenter (profit center #) AND
     ' the product link from the header rec, retrieve the inv_master record:
-    Set pr_inv_master = finv_master(pr_inv_header!ivh_link, CInt(lProfitCenter), t_dbMainDatabase)
+    If pr_inv_master Is Nothing Then
+        Set pr_inv_master = finv_master(pr_inv_header!ivh_link, CInt(lProfitCenter), t_dbMainDatabase)
+    End If
+    '--------- end magic 312713-48 ------------------------------
+    
     If pr_inv_master Is Nothing Then
         sp_price = dfPrice   '2, dfPrice=0
         sErrMsg = "Failed to validate product " + tfnSQLString(sProductLink) + ", " & lProfitCenter & " in inv_master table"
@@ -583,7 +633,7 @@ CALC_CUST_PRICING_DISC:
     Dim nPriceFactor As Integer
     Dim pr_fo_product As Recordset
     
-    Dim i As Long
+    Dim I As Long
     
     Dim nYYYY1 As Integer
     Dim nYYYY2 As Integer
@@ -658,7 +708,7 @@ CALC_CUST_PRICING_DISC:
         nYYYY2 = nYYYY1 + 1
         
         'locate the right period
-        For i = 1 To pr_fo_product.RecordCount
+        For I = 1 To pr_fo_product.RecordCount
             If Not (IsNull(pr_fo_product!fop_start_date) Or IsNull(pr_fo_product!fop_end_date)) Then
                 If Len(pr_fo_product!fop_start_date) = 5 And Len(pr_fo_product!fop_end_date) = 5 Then
                     sMMDDYYYY1 = pr_fo_product!fop_start_date + "/" + Format(nYYYY1, "0000")
@@ -675,7 +725,7 @@ CALC_CUST_PRICING_DISC:
                     End If
                 End If
             End If
-        Next i
+        Next I
         
         If Not pr_fo_product.EOF Then
             dfCeilingPrice = tfnRound(pr_fo_product!fop_ceiling_price, DEFAULT_DECIMALS)
