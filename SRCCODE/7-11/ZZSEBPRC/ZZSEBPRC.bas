@@ -184,7 +184,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Dim x As Long
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If bClear Then
         frmZZSEBPRC!lstProcess.Clear
@@ -238,7 +238,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     'error
 End Sub
 
@@ -2479,7 +2479,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     Dim aryValues As Variant
     Dim objEvaluate As clsEquation
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sFormula = LCase(Trim(sFormula))
     
@@ -2510,7 +2510,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckFormula"
     fnCheckFormula = "Failed to validate Formula"
 
@@ -2524,7 +2524,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     Dim aryValues As Variant
     Dim objCondition As clsCondition
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sCond = LCase(Trim(sCond))
     
@@ -2555,7 +2555,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckCondition"
     fnCheckCondition = "Failed to validate Condition"
 
@@ -3135,7 +3135,7 @@ Public Function fnDateDiff(sInterval As String, _
     Dim lDaysInMonths As Long
     Dim lDiff As Long
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sInterval = LCase(sInterval)
     
@@ -3161,44 +3161,59 @@ Public Function fnDateDiff(sInterval As String, _
         Case "yyyy"
             lYears = Abs(DateDiff("yyyy", CDate(sDate1), CDate(sDate2)))
             
-            If lYears = 0 Then
-                lYears = 1
-            End If
-            
-            If FirstDayOfYear = vbFirstJan1 Then
-                sDateStart = "01/01/" + Right(sDate1, 2)
-                sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+            'change by junsong 05/16/02, don't make so complicated and it doesn't work!
+            'see employee # promotion date  pay period              years(correct)  years(original logic)
+            '   7110009     01/02/1997      02/07/01-02/20/2001     3               3
+            '   7110010     12/31/1995      02/07/01-02/20/2001     5               4
+             
+            If Left(sDate1, 5) <> "01/01" Then
+                fnDateDiff = lYears - 1
             Else
-                sDateStart = sDate1
-                sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+                fnDateDiff = lYears
             End If
             
-            lDaysInYears = Abs(DateDiff("y", CDate(sDateStart), CDate(sDateEnd)))
-            
-            lDiff = Abs(DateDiff("y", CDate(sDate1), CDate(sDate2)))
-            
-            If FirstDayOfYear = vbFirstJan1 Then
-                
-                If Left(sDate1, 5) <> "01/01" Then
-                    fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears - 1
-                    
-                    If fnDateDiff < 0 Then
-                        fnDateDiff = 0
-                    End If
-                
-                Else
-                    fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
-                End If
-            
-            Else
-                fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
+            If lYears < 0 Then
+                lYears = 0
             End If
+            
+'            If lYears = 0 Then
+'                lYears = 1
+'            End If
+'
+'            If FirstDayOfYear = vbFirstJan1 Then
+'                sDateStart = "01/01/" + Right(sDate1, 2)
+'                sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+'            Else
+'                sDateStart = sDate1
+'                sDateEnd = DateAdd("yyyy", lYears, sDateStart)
+'            End If
+'
+'            lDaysInYears = Abs(DateDiff("y", CDate(sDateStart), CDate(sDateEnd)))
+'
+'            lDiff = Abs(DateDiff("y", CDate(sDate1), CDate(sDate2)))
+'
+'            If FirstDayOfYear = vbFirstJan1 Then
+'
+'                If Left(sDate1, 5) <> "01/01" Then
+'                    fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears - 1
+'
+'                    If fnDateDiff < 0 Then
+'                        fnDateDiff = 0
+'                    End If
+'
+'                Else
+'                    fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
+'                End If
+'
+'            Else
+'                fnDateDiff = tfnRound(lDiff / lDaysInYears, DEFAULT_DECIMALS) * lYears
+'            End If
     
     End Select
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnDateDiff"
 End Function
 
