@@ -37,7 +37,7 @@ VersionFileDescription="FFTEMPLT.EXE"
 VersionLegalCopyright="Copyright © 1997-1999 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0"
+CondComp="FACTOR_MENU = 1 : DEVELOP = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

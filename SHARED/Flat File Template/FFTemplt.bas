@@ -22,15 +22,18 @@ Attribute VB_Name = "FFTemplate"
 '   4a. Execute a SQL:   fnExecuteSQL strSQL, caller, DB     return true if successful
 '   4b. Open a record:   fnOpenRecord strSQL, caller, Msg, DB    return the recordset
 
-'5  String Parsing:
-'   subParseString sParms(), Source, Delimiter
-
+'5  Others:
+'   5a  subParseString sParms(), Source, Delimiter
+'   5b  subEnablePrint bFlag
+'   5c  subEnableSubPrint Index, bFlag
 
 'Modification to this module:
 '1. Sub:        subGetInfo to supply the correct info(Module ID and Caption)
 '2. Function    fnAllowStandalone   Return true if allow standalone mode
 '                                   Otherwise return false
 '3. Sub         subProcessFile      Put codes and function calls here for processing
+'4. Sub         subGetPrintMenu     give infomation about menu items
+'5. Sub         subPrintReport      Print reoprt
 
 Option Explicit
 
@@ -46,6 +49,29 @@ Public Sub subGetInfo(aryInfo() As String)
     aryInfo(1) = "Murphy Bank File Import"
     
 End Sub
+
+Public Sub subGetPrintMenu(aryMenu() As String)
+    
+    'For multiple printing menu
+    'ReDim aryMenu(2)
+    'aryMenu(0) = "Print Report&1"
+    'aryMenu(1) = "Print Report&2"
+    'aryMenu(2) = "Print Report&3"
+    
+    'For single printing menu
+    'ReDim aryMenu(0)
+    'aryMenu(0) = "&Print"
+    
+    ReDim aryMenu(0)
+    aryMenu(0) = "&Print"
+    
+End Sub
+
+
+Public Sub subPrintReport(ByVal nIndex As Integer)
+    Debug.Print "Printing report"; nIndex
+End Sub
+
 
 Public Sub subProcessFile(sFile As String)
 
