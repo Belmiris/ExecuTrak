@@ -244,7 +244,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = val(vTemp)
+            fnParmIndex = Val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -282,6 +282,11 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     Dim nCode As Integer
     Dim sCmd As String
     
+    'Added for input pay period or other message which will show on the 4th line of pay stub per #369533 --Weiping 07/25/02
+    Dim sMsg As String
+    Dim i As Integer
+    Dim sTmp1 As String
+    
     #If DEVELOP Then
         sHost = "ether5"
         sUserID = "ssfactor"
@@ -294,8 +299,26 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
         sDBPath = fnDBPath
     #End If
     
+    '##Provide a message box for user input the pay period or other message per #369533 --Weiping 07/25/02
+    sMsg = InputBox("Please enter pay period or any other message you want to appear on Pay Stub Line #4: ")
+    
+    '##Make sure replace quote marks and carriage return with space in the message user entered per #369533 --Weiping 07/25/02
+    sMsg = Trim(sMsg)
+    
+    For i = 1 To Len(sMsg)
+       sTmp1 = Mid(sMsg, i, 1)
+       If sTmp1 = Chr(10) Or sTmp1 = Chr(13) _
+            Or sTmp1 = Chr(34) Or sTmp1 = Chr(39) Then
+            sMsg = Replace(sMsg, sTmp1, " ")
+       End If
+    Next
+
+    '##Valid the length of the message which is no more than 40 characters per #369533 --Weiping 07/25/02
+    sMsg = Left(Trim(sMsg), 40)
+    
+    '##Add sMsg as the last arguments to past to prvprint.4ge per #369533 --Weiping 07/25/02
     sCmd = "prvprint.4ge " & sPrinter & " " & sUserID & " " & sCDFlag & " " & CStr(lStart) & " " _
-         & sCheckDate & " " & sEffcDate & " " & sPrintGroup & " " & CStr(nSortBy)
+         & sCheckDate & " " & sEffcDate & " " & sPrintGroup & " " & CStr(nSortBy) & " " & "'" & sMsg & "'"
     
     fnPRPrintCheck = fnExecute4GE(sCmd)
 
@@ -455,7 +478,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = val(vDefault)
+        nWhatToUse = Val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
