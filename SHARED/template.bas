@@ -47,7 +47,8 @@ Global Const szHelpTax As String = "TAX.HLP"
 Global Const szHelpEdiTaxFiling As String = "ET.HLP"
 Global Const szHelpElecCommerce As String = "EC.HLP"
 Global Const szHelpCMSystem As String = "CMS.HLP"
-Global Const szHelpProfitTrak As String = "ProfitTrak.HLP"
+Global Const szHelpPO As String = "PO.HLP" ' Wenstrong, For Purchase Order
+Global Const szHelpProfitTrak As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
