@@ -55,6 +55,11 @@ Private Const ASC_CTRL_V = &H16
 Private Const ASC_CTRL_X = &H18
 Private Const vbKeyCtrlY = &H19
 
+'david 04/29/2002
+Private Const ASC_CTRL_A = 1
+Private Const ASC_CTRL_I = 9
+'''''''''''''''''
+
 Private Const STATUS_NOCHANGE = 0
 Private Const STATUS_CHANGED = 1
 Private Const STATUS_WARNING = 2
@@ -218,7 +223,12 @@ Private Const ERROR_TEXT_COLOR As Long = &HFF&
 Private Const CORRECT_TEXT_COLOR As Long = &H8000&
 Private Const STANDARD_TEXT_COLOR As Long = &H0&
 Private Const szEMPTY As String = ""
-
+'
+'david 04/26/2002
+Private m_bColIsSorted As Boolean
+Private aryHighlightedID() As Byte
+Private lCountHighlightedID As Long
+'''''''''''''''''
 '
 
 Public Sub AddEditColumn(ByVal nIndex As Integer, _
@@ -481,19 +491,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     
     DataEdited = False
     If bLocked Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     Else
         If val(tgTable.Row) < 0 Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
@@ -1218,8 +1228,16 @@ Property Let MaxRows(lTemp As Long)
     lMaxRows = lTemp
 End Property
 
+'david 04/27/2002
+'THIS CALL IS REQUIRED FOR THE IMPLEMENTATION OF:
+'WHEN CLICKED ON THE COLUMN HEADER TO SORT THE GRID
+'TO SET/RESTORE HE HIGHLIGHTED ROW PROPERLY
+
+'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
+'''''''''''''''''
 Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
+    subSaveHighlightedRowID Button, Shift, x, y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -2247,7 +2265,8 @@ Public Sub SetCurrentRowData(vData() As Variant)
 End Sub
 
 Public Sub SetRowHighLighted(bHighLighted As Boolean, _
-                             Optional bForceHighLighted As Boolean = False)
+                             Optional bForceHighLighted As Boolean = False, _
+                             Optional bSelectedRow As Boolean = False)
     
     If bHighLighted Then
         If m_nRowHighLighted = STYLE_HIGHLIGHT And (Not bForceHighLighted) Then
@@ -2259,14 +2278,16 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
         End If
     End If
     
-    Dim m_styRow As Object            ' row style
-    Dim m_styCurrentCell As Object    ' current cell style
+    Dim m_styRow As Style            ' row style
+    Dim m_styCurrentCell As Style    ' current cell style
+    Dim m_styHighLightedRow As Style
 
     tgTable.ClearCellStyle dbgAllCells
     
     ' set some properties for the table
     Set m_styRow = tgTable.Styles.Item(szROW_STYLE)
     Set m_styCurrentCell = tgTable.Styles.Item(szCURRENT_CELL_STYLE)
+    Set m_styHighLightedRow = tgTable.Styles.Item(szROW_STYLE)
     
     If bHighLighted Then
         ' create highlight row style
@@ -2294,7 +2315,21 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
         End If
             
         If nColumnCount > 0 Then
-            tgTable.MarqueeStyle = dbgHighlightRowRaiseCell
+            If bSelectedRow Then
+                If tgTable.SelBookmarks.Count > 0 Then
+                    With m_styHighLightedRow
+                        .BackColor = tgTable.SelectedBackColor
+                        .ForeColor = &HFFFFFF
+                    End With
+                    
+                    tgTable.AddCellStyle dbgSelectedRow, m_styHighLightedRow
+                    tgTable.MarqueeStyle = dbgNoMarquee
+                Else
+                    tgTable.MarqueeStyle = dbgHighlightRowRaiseCell
+                End If
+            Else
+                tgTable.MarqueeStyle = dbgHighlightRowRaiseCell
+            End If
         Else
             tgTable.MarqueeStyle = dbgHighlightRow
         End If
@@ -2304,6 +2339,7 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
             .BackColor = &HFFFFFF
             .ForeColor = &H0
         End With
+        
         m_nRowHighLighted = STYLE_PLAIN
         tgTable.MarqueeStyle = dbgNoMarquee
     End If
@@ -3286,6 +3322,16 @@ Public Sub DeleteRow(Optional vBookmark As Variant, Optional ByVal vRebind As Va
         End If
     End If
 End Sub
+
+'david 05/26/2002
+'NOTE:
+'(FillWithArray vData, True, False) IS NOT WORKING
+'if a cell validation in the main form uses the value from other cells,
+'the validation will fail because those values are not available.
+
+'THIS MEANS THE CELL(S) VALIDATION IN THIS FUNCTION IS NOT 100% GURANTEE WORKING
+'THE REVALIDATION OF THE GRID SHOULD BE PERFORMED IN THE CALLING FUNCTION
+'AFTER THE GRID HAS BEEN FILLED WITH THE DATA
 Public Sub FillWithArray(arryData() As Variant, _
                          Optional vClear As Variant, _
                          Optional vValid As Variant)
@@ -3940,7 +3986,8 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
     End If
 
     ' check for cut/copy/paste keys
-    If KeyAscii = ASC_CTRL_C Or KeyAscii = ASC_CTRL_V Or KeyAscii = ASC_CTRL_X Then
+    If KeyAscii = ASC_CTRL_C Or KeyAscii = ASC_CTRL_V Or KeyAscii = ASC_CTRL_X _
+       Or KeyAscii = ASC_CTRL_A Or KeyAscii = ASC_CTRL_I Then
         Keypress = True
         Exit Function
     ElseIf KeyAscii = vbKeyCtrlY Then
@@ -4424,6 +4471,7 @@ Private Function fnGetUserData(Bookmk As Variant, Colm As Integer) As Variant
         End If
     End If
 End Function
+
 Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean) As Long
 
     If IsNull(Bookmk) Then
@@ -4453,9 +4501,11 @@ Public Function MakeBookmark(ByVal Index As Long) As Variant
     'Generate a bookmark
     MakeBookmark = Str$(Index)
 End Function
+
 Public Sub AddData(ByVal RowBuf As RowBuffer, NewRowBookmark As Variant)
 
 End Sub
+
 Private Sub Class_Initialize()
     nMaxChanged = -1
     nMaxRow = 0
@@ -4475,7 +4525,6 @@ Private Sub Class_Initialize()
 
     m_bSortOnCol = False
     m_bSortWhenGridNotvalid = False
-
 End Sub
 
 Private Sub Class_Terminate()
@@ -4624,16 +4673,47 @@ errTrap:
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
 
-Public Sub HeadClick(ColIndex As Integer, Optional bReValidate As Boolean = False)
+'david 05/26/2002
+'NOTE:
+'(FillWithArray vData, True, False) IS NOT WORKING in SortCol function
+'if a cell validation in the main form uses the value from other cells,
+'the validation will fail because those values are not available.
+'THE REVALIDATION OF THE GRID SHOULD BE PERFORMED IN THE CALLING FUNCTION
+'AFTER THE COLUMNS HAS BEEN SORT
+
+'remove optional argument... SORRY FOR THE INCONVENIENCE (-:
+'return True if the sorting operation is actually done.
+
+'Public Sub HeadClick(ColIndex As Integer, Optional bReValidate As Boolean = False)
+Public Function HeadClick(ColIndex As Integer) As Boolean
     If Not m_bSortOnCol Then
-        Exit Sub
+        Exit Function
     End If
     
-    SortCol ColIndex, bReValidate
-End Sub
+    'david 05/26/2002
+    'NOTE:
+    '(FillWithArray vData, True, False) IS NOT WORKING in SortCol function
+    'if a cell validation in the main form uses the value from other cells,
+    'the validation will fail because those values are not available.
+    'THE REVALIDATION OF THE GRID NEEDS TO BE DONE AFTER THE COLUMNS HAS BEEN SORT
+    
+    'SortCol ColIndex, bReValidate
+    HeadClick = SortCol(ColIndex)
+End Function
 
-Public Sub SortCol(nSortCol As Integer, _
-                      Optional bReValidate As Boolean = False)
+'david 05/26/2002
+'NOTE:
+'(FillWithArray vData, True, False) IS NOT WORKING
+'if a cell validation in the main form uses the value from other cells,
+'the validation will fail because those values are not available.
+'THE REVALIDATION OF THE GRID SHOULD BE PERFORMED IN THE CALLING FUNCTION
+'AFTER THE COLUMNS HAS BEEN SORT
+
+'remove optional argument
+'return True if the sorting operation is actually done.
+
+'Public Sub SortCol(nSortCol As Integer, Optional bReValidate As Boolean = False)
+Public Function SortCol(nSortCol As Integer) As Boolean
     Dim vData()
     Dim lDummyRow As Long
     Dim nIndex As Integer
@@ -4649,24 +4729,10 @@ Public Sub SortCol(nSortCol As Integer, _
     
     On Error GoTo errTrap
     
-    If Not m_bSortWhenGridNotvalid Then
-        If Not ValidData Then
-            Exit Sub
-        End If
-    End If
+    m_bColIsSorted = False
     
-    'check the exists of sort column
-    nIndex = -1
-    
-    For j = 0 To m_SortColCount - 1
-        If m_arySortKeysCount(nCOL_IN_GRID, j) = nSortCol Then
-            nIndex = j
-            Exit For
-        End If
-    Next j
-    
-    If nIndex < 0 Then
-        Exit Sub
+    If Not IsColForSorting(nSortCol, nIndex) Then
+        Exit Function
     End If
     
     For j = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
@@ -4698,27 +4764,40 @@ Public Sub SortCol(nSortCol As Integer, _
             bCompareExp = fnCompareSortKeysNeedToSwap(nIndex, vData(), j, k)
             
             If bCompareExp Then
+                m_bColIsSorted = True
+                
                 For i = 0 To nCol
                     vTemp = vData(i, j)
                     vData(i, j) = vData(i, k)
                     vData(i, k) = vTemp
                 Next
+                
+                'swap highlighted row id
+                If lCountHighlightedID > 0 Then
+                    vTemp = aryHighlightedID(j)
+                    aryHighlightedID(j) = aryHighlightedID(k)
+                    aryHighlightedID(k) = vTemp
+                End If
             End If
         Next k
     Next j
     
-    'david 05/10/2001
-    'NOTE:
-    '(FillWithArray vData, True, False) IS NOT WORKING
-    'if a cell validation in the main form uses the value from other cells,
-    'the validation will fail because those values are not available.
-    'THE REVALIDATION OF THE GRID NEEDS TO BE DONE AFTER THE COLUMNS HAS BEEN SORT
-    FillWithArray vData, True  ', Not bReValidate
+    If m_bColIsSorted Then
+        'david 05/10/2001
+        'NOTE:
+        '(FillWithArray vData, True, False) IS NOT WORKING
+        'if a cell validation in the main form uses the value from other cells,
+        'the validation will fail because those values are not available.
+        'THE REVALIDATION OF THE GRID NEEDS TO BE DONE AFTER THE COLUMNS HAS BEEN SORT
+        FillWithArray vData, True  ', Not bReValidate
+        
+        SortCol = True
+    End If
     
 errTrap:
     
     Screen.MousePointer = vbDefault
-End Sub
+End Function
 
 Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Long) As Boolean
     Dim n As Integer
@@ -4885,3 +4964,154 @@ Public Function GetErrorMessage(lRow As Long, nCol As Integer) As String
     GetErrorMessage = sErrMessage(nECol)
 End Function
 
+Private Function IsColForSorting(nSortCol As Integer, Optional Index As Integer) As Boolean
+    Dim j As Long
+    Dim k As Long
+    
+    Index = -1
+    
+    If Not m_bSortOnCol Then
+        Exit Function
+    End If
+    
+    If nSortCol < 0 Then
+        Exit Function
+    End If
+    
+    If RowCount <= 1 Then
+        Exit Function
+    End If
+    
+    If Not m_bSortWhenGridNotvalid Then
+        If Not ValidData Then
+            Exit Function
+        End If
+    End If
+    
+    'check the exists of sort column
+    For j = 0 To m_SortColCount - 1
+        If m_arySortKeysCount(nCOL_IN_GRID, j) = nSortCol Then
+            Index = j
+            IsColForSorting = True
+            Exit Function
+        End If
+    Next j
+End Function
+
+'david 04/27/2002
+'THIS CALL IS REQUIRED FOR THE IMPLEMENTATION OF:
+'WHEN CLICKED ON THE COLUMN HEADER TO SORT THE GRID
+'TO SET/RESTORE HE HIGHLIGHTED ROW PROPERLY
+
+'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
+Public Sub SelChange(CANCEL As Integer)
+    If lCountHighlightedID = 0 Then
+        CANCEL = True
+    Else
+        CANCEL = False
+        tgTable.SelStartCol = -1
+        tgTable.SelEndCol = -1
+        subReHighlightRows
+    End If
+End Sub
+
+Private Sub subGetSelected(lTemp() As Long, nCount As Long)
+    'Return the array of selected row numbers
+    'and the count of the selected rows
+    Dim i As Long
+    
+    With tgTable.SelBookmarks
+        nCount = .Count
+        
+        If nCount > 0 Then
+            ReDim lTemp(nCount - 1)
+            For i = 0 To nCount - 1
+                lTemp(i) = val(.Item(i))
+            Next i
+        End If
+    End With
+End Sub
+
+Private Sub subClearSelBookmarks()
+    'selected column
+    tgTable.SelStartCol = -1
+    tgTable.SelEndCol = -1
+    
+    'selected row
+    With tgTable.SelBookmarks
+        While .Count > 0
+            .Remove 0
+        Wend
+    End With
+End Sub
+
+Private Sub subSelectRow(ByVal lRow As Long)
+    With tgTable.SelBookmarks
+        .Add MakeBookmark(lRow)
+        SetRowHighLighted True, True, True
+    End With
+End Sub
+
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Single, y As Single)
+    Dim j As Long
+    Dim k As Long
+    Dim lSelected() As Long
+    
+    lCountHighlightedID = 0
+    m_bColIsSorted = False
+    
+    If Not m_bSortOnCol Then
+        Exit Sub
+    End If
+    
+    'is not header click
+    If y >= tgTable.RowTop(0) Then
+        Exit Sub
+    End If
+    
+    On Error GoTo errTrap
+    
+    'store the highlighted row id
+    subGetSelected lSelected, lCountHighlightedID
+    
+    ReDim aryHighlightedID(RowCount - 1)
+    
+    If lCountHighlightedID > 0 Then
+        For j = 0 To RowCount - 1
+            For k = 0 To lCountHighlightedID - 1
+                If j = lSelected(k) Then
+                    aryHighlightedID(j) = 1
+Debug.Print "j="; j
+                Else
+                    aryHighlightedID(j) = 0
+                End If
+            Next k
+        Next j
+    End If
+    
+    subClearSelBookmarks
+    SetRowHighLighted True, True
+errTrap:
+    
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub subReHighlightRows()
+    Dim j As Long
+    
+    If lCountHighlightedID = 0 Then
+        With tgTable.SelBookmarks
+            While .Count > 0
+                .Remove 0
+            Wend
+        End With
+    Else
+        subClearSelBookmarks
+        
+        For j = 0 To RowCount - 1
+            If aryHighlightedID(j) = 1 Then
+                subSelectRow j
+            End If
+        Next j
+    End If
+End Sub

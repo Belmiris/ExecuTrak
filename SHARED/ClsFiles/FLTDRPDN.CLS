@@ -538,17 +538,17 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.x = myRect.Left
-    myPoint.y = myRect.Top
+    myPoint.X = myRect.Left
+    myPoint.Y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -1158,18 +1158,15 @@ Public Sub GetColumns(nTemp() As Integer, nCount As Integer, ByVal nColumn As In
 End Sub
 
 Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
-'    If KeyAscii = vbKeyDown Or KeyAscii = vbKeyUp Or KeyAscii = vbKeyPageDown Or KeyAscii = vbKeyPageUp Then
-'        bNavigating = True
-'        cmdSearch.Visible = False
-'        Exit Sub
-'    End If
     Dim sKey As String
     
     If bKeyPressed Then
         KeyAscii = 0
         Exit Sub
     End If
+    
     bKeyPressed = True
+    
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         If frmParent.ActiveControl Is tgMain Then
             On Error Resume Next
@@ -1811,11 +1808,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(y As Single)
+Public Sub MouseUp(Y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = y
+    nClickPointY = Y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain

@@ -339,12 +339,13 @@ Private Function fnRowSelected(vBkMark As Variant) As Integer
 End Function
 
 Public Sub GetSelected(lTemp() As Long, nCount As Long)
-    'Return the row numbers of selected rows
-
+    'Return the array of selected row numbers
+    'and the count of the selected rows
     Dim i As Long
     
     With m_tgTable.SelBookmarks
         nCount = .Count
+        
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
@@ -352,11 +353,11 @@ Public Sub GetSelected(lTemp() As Long, nCount As Long)
             Next i
         End If
     End With
-
 End Sub
 
 Public Sub GotFocus()
     m_bTableGotFocus = True
+    
     If Not m_tgcEditor Is Nothing Then
         If m_tgcEditor.RowCount > 0 Then
             SetRowHighLighted m_bRowHighLighted
@@ -500,12 +501,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-
 Public Sub SelChange(CANCEL As Integer)
     CANCEL = True
-'    If Not m_tgcSelector Is Nothing Then
-'        m_tgcSelector.Clear
-'    End If
 End Sub
 
 Public Sub SelectAll()
@@ -580,6 +577,8 @@ Public Sub InvertSelect()
     If lCountSelected > 0 Then
         Clear
         lMidPoint = (lCountSelected \ 2) - 1
+    Else
+        lMidPoint = m_tgcEditor.GetCurrentRowNumber
     End If
     
     With m_tgTable.SelBookmarks
@@ -601,6 +600,10 @@ Public Sub InvertSelect()
                             bAdd = False
                         End If
                     Next j
+                End If
+            Else  'consider the current highlighted row as selected row
+                If lMidPoint = i Then
+                    bAdd = False
                 End If
             End If
             
@@ -776,6 +779,7 @@ Private Sub SetRowHighLighted(bHighLighted As Boolean)
             .BackColor = &HFFFFFF
             .ForeColor = &H0
         End With
+        
         m_tgTable.MarqueeStyle = dbgNoMarquee
     End If
 
