@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -115,7 +115,7 @@ Begin VB.Form frmZZSEBPRC
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Caption         =   "Pay En&try|Process Chec&ks|&View/Approve Checks|View &Details"
+         Caption         =   "Pay En&try|Proce&ss Checks|&View/Approve Checks|View &Details"
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
             Height          =   4728
             Left            =   14580
@@ -584,7 +584,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   530
                      Left            =   1404
-                     TabIndex        =   32
+                     TabIndex        =   31
                      Tag             =   "pn_alt"
                      Top             =   252
                      Width           =   552
@@ -606,7 +606,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   529
                      Left            =   48
-                     TabIndex        =   31
+                     TabIndex        =   32
                      Tag             =   "pn_alt"
                      Top             =   900
                      Width           =   1224
@@ -1085,7 +1085,7 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
                Position        =   3
                TabsPerPage     =   2
-               Caption         =   "Store &Sales|Employee &Hours"
+               Caption         =   "Store Sa&les|Employee &Hours"
                Begin FACTFRMLib.FactorFrame efraBaseHours 
                   Height          =   4428
                   Left            =   14460
@@ -1870,7 +1870,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1907,7 +1907,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1944,7 +1944,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1981,7 +1981,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2018,7 +2018,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2055,7 +2055,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2424,7 +2424,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2437,7 +2437,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2640,6 +2640,9 @@ Private Sub cmdApprove_Click()
         subSetApproveAll
     End If
     
+    cmdOK.Enabled = True
+    cmdCancel(TabApprove).Enabled = True
+    
     tgmApprove.Rebind
 End Sub
 
@@ -2677,7 +2680,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2686,8 +2689,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2786,7 +2789,14 @@ Private Sub eTabMain_Click()
             #End If
             subSetFocus efraBaseIIView
                 
-            cmdOk.Enabled = tgmApprove.RowCount > 0
+            If fnHasApprove() Then
+                cmdOK.Enabled = True
+                cmdCancel(TabApprove).Enabled = True
+            Else
+                cmdOK.Enabled = False
+                cmdCancel(TabApprove).Enabled = False
+            End If
+            
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = (tgmDetail.RowCount > 0) 'True
             
@@ -3296,11 +3306,20 @@ Private Sub tfnResetScreen(Index As Integer)
                             tblApprove.col = 2
                             tblApprove.col = 0
                         End If
+                        If fnHasApprove() Then
+                            cmdOK.Enabled = True
+                            cmdCancel(Index).Enabled = True
+                        Else
+                            cmdOK.Enabled = False
+                            cmdCancel(Index).Enabled = False
+                        End If
                         
-                        cmdOk.Enabled = tgmApprove.RowCount > 0
                     End If
+                    
                 End If
+                
             End If
+            
             
             bLoadingBonusDetail = False
         Case TabDetails
@@ -3344,6 +3363,19 @@ End Sub
 
 Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     tgmApprove.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    
+    If ColIndex = colAApprove Then
+        
+        If fnHasApprove() Then
+            cmdOK.Enabled = True
+            cmdCancel(TabApprove).Enabled = True
+        Else
+            cmdOK.Enabled = False
+            cmdCancel(TabApprove).Enabled = False
+        End If
+        
+    End If
+    
 End Sub
 
 Private Sub tblApprove_Change()
@@ -3404,8 +3436,8 @@ Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsApprove.MouseUp Button, Shift, Y
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsApprove.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3550,7 +3582,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3819,8 +3851,6 @@ Private Sub cmdProcess_Click()
     tgmApprove.FillWithArray vArrBonus
     
     nDataStatus = DATA_CHANGED
-    
-    cmdOk.Enabled = tgmApprove.RowCount > 0
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -4253,7 +4283,7 @@ Private Function fnValidFrequency(txtBox As Textbox) As Boolean
     End If
     
     If cValidate.ValidInput(txtStartDate) And cValidate.ValidInput(txtEndDate) Then
-        sErrMsg = fnCheckFrequency(txtStartDate, txtEndDate, txtFrequency)
+        sErrMsg = fnCheckFrequency(txtStartDate, txtEndDate, txtFrequency, False)
         
         If sErrMsg <> "" Then
             cValidate.SetErrorMessage txtFrequency, sErrMsg
@@ -4470,8 +4500,8 @@ Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcDropdown.TableMouseUp Y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcDropdown.TableMouseUp y
 End Sub
 
 Private Sub subSetupCombos()
@@ -4684,19 +4714,33 @@ Private Sub txtStartDate_GotFocus()
 End Sub
 
 Private Sub txtStartDate_KeyPress(KeyAscii As Integer)
+    
     If KeyAscii = vbKeyReturn Then
-        subSetFocus txtEndDate
+        subSetFocus txtFrequency
         KeyAscii = 0
     Else
         tfnRegExpControlDateKeyPress txtStartDate, KeyAscii
         cValidate.Keypress txtStartDate, KeyAscii
     End If
+    
 End Sub
 
 Private Sub txtStartDate_LostFocus()
     cValidate.LostFocus txtStartDate
     subFillStartEndDateFreq
     cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+    
+    ' add following statements to overcome the problem
+    ' when txtfrequency got focus, but validate start date is not done
+    ' and the default value is not set, after default text set, we need
+    ' highlight it. junsong 03/13/01
+    
+    On Error Resume Next
+    
+    If ActiveControl Is txtFrequency Then
+        txtFrequency_GotFocus
+    End If
+    
 End Sub
 
 Private Sub txtEndDate_Change()
@@ -4707,14 +4751,11 @@ End Sub
 Private Sub txtEndDate_GotFocus()
     cValidate.GotFocus txtEndDate
     SelectIt txtEndDate
-    If cValidate.ValidInput(txtEndDate) Then
-        cValidate.GotFocus txtEndDate
-    End If
 End Sub
 
 Private Sub txtEndDate_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then
-        subSetFocus txtFrequency
+        subSetFocus txtPrftCtr
         KeyAscii = 0
     Else
         tfnRegExpControlDateKeyPress txtEndDate, KeyAscii
@@ -4736,9 +4777,10 @@ End Sub
 Private Sub txtFrequency_GotFocus()
     tgcDropdown.GotFocus txtFrequency
     cValidate.GotFocus txtFrequency
+    SelectIt txtFrequency
     
     If tgcDropdown.SingleRecordSelected Then
-        subSetFocus txtPrftCtr
+        subSetFocus txtEndDate
     End If
     
 End Sub
@@ -4759,13 +4801,17 @@ Private Sub txtFrequency_KeyPress(KeyAscii As Integer)
     Screen.MousePointer = vbDefault
     
     If Not bKeyCode Then
+        
         If KeyAscii = vbKeyReturn Then
+            
             If tgcDropdown.SingleRecordSelected Then
-                  subSetFocus txtPrftCtr
+                  subSetFocus txtEndDate
             End If
+            
             KeyAscii = 0
             Screen.MousePointer = vbDefault
        End If
+       
     Else
         cValidate.Keypress txtFrequency, KeyAscii
     End If
@@ -5490,11 +5536,11 @@ Private Sub tblDropDown_LostFocus(Index As Integer)
     End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
     If Index = nTabHours Then
-        objHours.tblFloating_MouseUp Button, Shift, X, Y
+        objHours.tblFloating_MouseUp Button, Shift, x, y
     Else
-        tgfDropdown(Index).MouseUp Y
+        tgfDropdown(Index).MouseUp y
     End If
 End Sub
 
@@ -5540,9 +5586,10 @@ Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
     End If
         
     If Index = TabSales Then
-        If t_nFormMode = ADD_MODE Then
-            subSetStdBtn TabSales, tgmSales
-        End If
+        'comment by junsong 03/13/01
+'        If t_nFormMode = ADD_MODE Then
+'            subSetStdBtn TabSales, tgmSales
+'        End If
         
         tblSales.Enabled = True
         DoEvents
@@ -5578,6 +5625,7 @@ End Sub
 Private Sub subEnableRefreshBtn(bOnOff As Boolean, Index As Integer)
     cmdRefresh(Index).Enabled = bOnOff
 End Sub
+
 
 Private Sub subEnableUpdateBtn(bOnOff As Boolean, Index As Integer)
     cmdUpdateInsertBtn(Index).Enabled = bOnOff
@@ -6135,8 +6183,8 @@ Private Sub tblSales_LostFocus()
     tgfDropdown(TabSales).LostFocus tblSales
 End Sub
 
-Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsSales.MouseUp Button, Shift, Y
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsSales.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -6280,7 +6328,7 @@ Private Function fnLoadSales() As String
         Exit Function
     End If
     
-    tgmSales.FillWithRecordset rsTemp, , False
+    tgmSales.FillWithRecordset rsTemp, , True
     
     For i = 0 To tgmSales.RowCount - 1
         'fill the from/to date in the grid
@@ -6336,7 +6384,7 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
             strSQL = strSQL & " GROUP BY rsd_prft_ctr, prft_name"
             strSQL = strSQL & " ORDER BY rsd_prft_ctr"
         Case sRatio
-            strSQL = "SELECT prft_ctr, prft_name,  0.00 as amount"
+            strSQL = "SELECT prft_ctr, prft_name " ',  0.00 as amount"
             strSQL = strSQL & " FROM sys_prft_ctr"
             strSQL = strSQL & " WHERE prft_type IN ('R', 'B')"
             strSQL = strSQL & " ORDER BY prft_ctr"
@@ -6858,8 +6906,8 @@ Private Sub tblTimeCard_LostFocus()
     objHours.tblTimeCard_LostFocus
 End Sub
 
-Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, x, y
 End Sub
 
 Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -6971,7 +7019,7 @@ End Sub
 
 Private Function fnCheckFrequency(sStartDate As String, _
                                   sEndDate As String, _
-                                  sFrequency As String) As String
+                                  sFrequency As String, Optional bShowMsg As Boolean = True) As String
     Dim sDate As String
     
     If sFrequency = sGas Then
@@ -6981,14 +7029,19 @@ Private Function fnCheckFrequency(sStartDate As String, _
     sDate = fnGetProposedEndDate(sStartDate, sFrequency)
     
     If CDate(sEndDate) <> CDate(sDate) Then
-        If MsgBox("For Frequency " + tfnSQLString(sFrequency) + ", the Ending Date " _
-           + tfnDateString(sEndDate, True) + " is different from the system proposed Ending Date " _
-           + tfnDateString(sDate, True) + ". Are you sure you want to override the system " _
-           + "Ending Date?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
-            txtEndDate = sDate
-            'fnCheckFrequency = "Ending Date entered is not same as system proposed Ending Date"
+        
+        If bShowMsg Then
+            
+            If MsgBox("For Frequency " + tfnSQLString(sFrequency) + ", the Ending Date " _
+               + tfnDateString(sEndDate, True) + " is different from the system proposed Ending Date " _
+               + tfnDateString(sDate, True) + ". Are you sure you want to override the system " _
+               + "Ending Date?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+                txtEndDate = sDate
+                'fnCheckFrequency = "Ending Date entered is not same as system proposed Ending Date"
+            End If
+            
         Else
-            'txtEndDate = sDate
+            txtEndDate = sDate
         End If
         
     End If

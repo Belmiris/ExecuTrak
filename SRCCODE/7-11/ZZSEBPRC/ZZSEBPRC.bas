@@ -1537,10 +1537,14 @@ Private Function fnInvRecordMonths(sVinV As String, _
             If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
                (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
                 sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+                
                 If IsValidDate(sDateStart) Then
+                    
                     If i <= rsTemp.RecordCount - 1 Then
                         rsTemp.MoveNext
+                        i = i + 1
                         sDateEnd = fnGetField(rsTemp!prhs_effective_dt)
+                        
                         If Not IsValidDate(sDateEnd) Then
                             sErrMsg = "Effective Date is not valid for " & sVinV
                             Exit Function
@@ -1551,15 +1555,19 @@ Private Function fnInvRecordMonths(sVinV As String, _
                         sDateStart = fnGetField(rsTemp!prhs_effective_dt)
                         Exit Do
                     End If
+                
                 Else
                     sDateStart = ""
                     sErrMsg = "Effective Date is not valid for " & sVinV
                     Exit Function
                 End If
+                
             Else
                 sDateStart = ""
                 rsTemp.MoveNext
+                i = i + 1
             End If
+            
         Loop Until rsTemp.EOF
         
         'last record - from last effective date until now
@@ -1879,10 +1887,12 @@ Private Function fnMonthsEmployed(sVinV As String, _
     strSQL = "SELECT prm_date_hired, prm_date_termed"
     strSQL = strSQL & " FROM pr_master"
     strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         sErrMsg = "Failed to access the database to get " & sVinV
         Exit Function
     End If
+    
     If rsTemp.RecordCount = 0 Then
         sErrMsg = "Employee record not found for " & sVinV
         Exit Function
@@ -1902,7 +1912,7 @@ Private Function fnMonthsEmployed(sVinV As String, _
         Exit Function
     End If
     If rsTemp.RecordCount = 0 Then
-        sErrMsg = "Employee history record not found for " & sVinV
+        'sErrMsg = "Employee is not rehired for " & sVinV
         'use date hired and/or date terminated for calculation
         If Not IsValidDate(sDateHired) Then
             sErrMsg = "Date Hired is not valid for " & sVinV
