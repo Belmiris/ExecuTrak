@@ -83,11 +83,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
     Private Const t_szOLETBKit As String = "TBKIT.clsToolbar"
-    #If DEVELOPMENT Then
-        Private Const TBKIT_DLL_PATH = "I:\PROGRAM\FACTMENU\OLE\TBKIT.DLL"
-    #Else
-        Private Const TBKIT_DLL_PATH = "OLE\TBKIT.DLL"
-    #End If
+    Private Const TBKIT_DLL_PATH = "OLE\TBKIT.DLL"
     
     Private Const CONTROL_TB = 0
     Private Const CONTROL_TB_FRAME = 1
@@ -250,7 +246,7 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
 errSetup:
     If Err.Number Then
         If bInitSet Then
-            If frmMainForm.RegisterDll(TBKIT_DLL_PATH, False) Then
+            If frmMainForm.RegisterDll(TbkitDllPath, False) Then
                 bInitSet = False
                 Resume
             End If
@@ -381,7 +377,7 @@ End Property
 Public Sub ShowSBMessage(sMsg As String)
     On Error Resume Next
     frmMainForm.ffraStatusbar.ForeColor = STANDARD_TEXT_COLOR
-    frmMainForm.ffraStatusbar.Font.bOld = False
+    frmMainForm.ffraStatusbar.Font.Bold = False
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
 End Sub
@@ -389,14 +385,14 @@ End Sub
 Public Sub ShowSBError(sMsg As String)
     On Error Resume Next
     frmMainForm.ffraStatusbar.ForeColor = ERROR_TEXT_COLOR
-    frmMainForm.ffraStatusbar.Font.bOld = True
+    frmMainForm.ffraStatusbar.Font.Bold = True
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
 End Sub
 
 Public Sub ShowSBRight(sMsg As String)
     On Error Resume Next
-    frmMainForm.ffraStatusbar.Font.bOld = False
+    frmMainForm.ffraStatusbar.Font.Bold = False
     frmMainForm.ffraStatusbar.ForeColor = &H8000&  'Green text
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
@@ -537,7 +533,11 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    TbkitDllPath = TBKIT_DLL_PATH
+    If Val(App.Minor) < 20 Then
+        TbkitDllPath = TBKIT_DLL_PATH
+    Else
+        TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
+    End If
 End Function
 
 Public Sub TBMouseMove()
@@ -562,4 +562,19 @@ Private Sub mnuContextItems_Click(Index As Integer)
     End If
 End Sub
 
+'david 10/12/00
+Private Function fnGetFactorPath() As String
+    Dim sTemp As String
+    Dim nPosi As Integer
+    
+    sTemp = UCase(App.Path)
+    
+    nPosi = InStrRev(sTemp, "\")
+    
+    If nPosi > 0 Then
+        fnGetFactorPath = Left(sTemp, nPosi - 1)
+    Else
+        fnGetFactorPath = ""
+    End If
+End Function
 
