@@ -18,6 +18,7 @@ echo Compress Application files
 echo .
 echo Compress all files in Release Source directory to factbin.z
 icomp G:\PROGRAM\RELEASE\Custom\DutchOil\*.* ..\disk\factbin.z -i
+icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z BIN
 
 echo .
 echo Compress all files in Custctl directory to custctl.z

@@ -471,12 +471,9 @@ StartCopy:
 
 	Do(SELFREGISTRATIONPROCESS);
 	
-	SetStatusWindow(95, "Registering DLLs and OCXs...");
-        
-        SetStatusWindow(96, "Registering Database Engine DLLs...");
+	SetStatusWindow(97, "Copying Local Database...");
 
-        TARGETDIR = WINDIR ^ "TEMP";
-        SRCDIR = TARGETDIR;
+        SRCDIR =  WINDIR ^ "TEMP";
 
         //copy factor.mdb and factor.ldb to WINDOWS\SYSTEM directory
         szDBFrom = "\"" + SRCDIR + "\"";
@@ -490,8 +487,18 @@ StartCopy:
 
         LaunchAppAndWait(szBaseDirectory ^ "Bin" ^ "cpylocal.exe", szForceInstall +
                 szDBFrom + " " + szDBTo, WAIT);
+        //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
+        szDBFrom = "\"" + SRCDIR + "\"";
+        TARGETDIR = szBaseDirectory ^ "Bin";
+        szDBTo = "\"" + TARGETDIR + "\"";
 
-        SetStatusWindow(97, "Copying Local Database...");
+        SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+        TARGETDIR + "'. Please wait...", TRUE);
+
+        LaunchAppAndWait(szBaseDirectory ^ "Bin" ^ "cpylocal.exe", szForceNormal +
+            szDBFrom + " " + szDBTo, WAIT);
+
+        
 
         // delete the local database from WINDOWS\TEMP directory
         TARGETDIR = SRCDIR;

@@ -17,6 +17,7 @@ call buildlog.bat DutchOil3 %1
 echo .
 echo Compress all files in Release Source directory to factbin.z
 icomp G:\PROGRAM\RELEASE\Custom\DutchOil\*.* ..\disk\factbin.z -i
+icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z BIN
 
 echo .
 echo Compress Local Database
