@@ -109,7 +109,9 @@ Property Set EditorClass(clsTemp As Object)
     
     If m_objCellColor Is Nothing Then
         For i = 0 To m_tgTable.Columns.Count - 1
-            m_tgTable.Columns(i).FetchStyle = False
+            If Not m_tgcEditor.IsEditableCol(i) Then
+                m_tgTable.Columns(i).FetchStyle = False
+            End If
         Next i
     Else
         For i = 0 To m_tgTable.Columns.Count - 1
@@ -280,7 +282,11 @@ Public Sub Click()
     Else
         If m_bTableGotFocus Then
             '02/09/2004
-            ClearSelectedCells True
+            'commented out at 02/26/2004
+            'because if we do rebind, one click cannot get into cell edit mode
+            'but it will cause the selectedcells in the same row (columns on the
+            'left of the mouse clicked column) not being cleared
+            ClearSelectedCells 'True
             '''''''''''
             
             If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then

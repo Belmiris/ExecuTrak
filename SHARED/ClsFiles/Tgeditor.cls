@@ -5471,6 +5471,19 @@ Public Function FirstEditableCol(Optional bReturnColZeroIfNone As Boolean = True
     End If
 End Function
 
+'david 02/26/2004  #401172-1
+Property Get IsEditableCol(nCol As Integer) As Boolean
+    Dim i As Integer
+    
+    For i = 0 To nColumnCount - 1
+        If nCol = nEditColumns(i) Then
+            IsEditableCol = True
+            Exit For
+        End If
+    Next i
+End Property
+''''''''''''''''''''''''''''
+
 'david 12/12/2002
 'Implement new function to show the progress bar
 'while populating the grid with recordset.
