@@ -582,6 +582,14 @@ CALC_CUST_PRICING_DISC:
     
     Dim nPriceFactor As Integer
     Dim pr_fo_product As Recordset
+    
+    Dim i As Long
+    
+    Dim nYYYY1 As Integer
+    Dim nYYYY2 As Integer
+    Dim sMMDDYYYY0 As String
+    Dim sMMDDYYYY1 As String
+    Dim sMMDDYYYY2 As String
     Dim dfCeilingPrice As Double
     
     If pr_ar_altname Is Nothing Then
@@ -634,7 +642,8 @@ CALC_CUST_PRICING_DISC:
         " WHERE fop_customer = " & lCustomer & _
         " AND fop_tank = " & lSite & _
         " AND fop_prodlnk = " & pr_inv_header!ivh_link & _
-        " AND " & tfnDateString(sInvoiceDate, True) & _
+        " ORDER BY fop_start_date"
+        '"AND " & tfnDateString(sInvoiceDate, True) & _
         " BETWEEN fop_start_date AND fop_end_date"
     Set pr_fo_product = fnMainmodsOpenRecordset(c_1l, SUB_NAME)
     
@@ -644,10 +653,36 @@ CALC_CUST_PRICING_DISC:
     End If
     
     If pr_fo_product.RecordCount > 0 Then
-        dfCeilingPrice = tfnRound(pr_fo_product!fop_ceiling_price, DEFAULT_DECIMALS)
+        sMMDDYYYY0 = tfnDateString(sInvoiceDate)
+        nYYYY1 = tfnRound(Right(sMMDDYYYY0, 4))
+        nYYYY2 = nYYYY1 + 1
         
-        If sp_price > dfCeilingPrice Then
-            sp_price = dfCeilingPrice
+        'locate the right period
+        For i = 1 To pr_fo_product.RecordCount
+            If Not (IsNull(pr_fo_product!fop_start_date) Or IsNull(pr_fo_product!fop_end_date)) Then
+                If Len(pr_fo_product!fop_start_date) = 5 And Len(pr_fo_product!fop_end_date) = 5 Then
+                    sMMDDYYYY1 = pr_fo_product!fop_start_date + "/" + Format(nYYYY1, "0000")
+                    
+                    If Left(pr_fo_product!fop_start_date, 2) > Left(pr_fo_product!fop_end_date, 2) Then
+                        sMMDDYYYY2 = pr_fo_product!fop_end_date + "/" + Format(nYYYY2, "0000")
+                    Else
+                        sMMDDYYYY2 = pr_fo_product!fop_end_date + "/" + Format(nYYYY1, "0000")
+                    End If
+                    
+                    'checking
+                    If CDate(sMMDDYYYY0) >= CDate(sMMDDYYYY1) And CDate(sMMDDYYYY0) <= CDate(sMMDDYYYY2) Then
+                        Exit For
+                    End If
+                End If
+            End If
+        Next i
+        
+        If Not pr_fo_product.EOF Then
+            dfCeilingPrice = tfnRound(pr_fo_product!fop_ceiling_price, DEFAULT_DECIMALS)
+            
+            If sp_price > dfCeilingPrice Then
+                sp_price = dfCeilingPrice
+            End If
         End If
     End If
 End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
