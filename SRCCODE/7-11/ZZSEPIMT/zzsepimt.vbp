@@ -37,7 +37,7 @@ Description="Template file for the Factor screens"
 CompatibleMode="0"
 MajorVer=3
 MinorVer=25
-RevisionVer=1
+RevisionVer=601
 AutoIncrementVer=0
 ServerSupportFiles=0
 VersionComments="TABTEMP"
@@ -46,7 +46,7 @@ VersionFileDescription="TABTEMP.EXE"
 VersionLegalCopyright="Copyright (c) 1999 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = -1 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
