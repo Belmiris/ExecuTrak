@@ -5401,3 +5401,160 @@ Public Function FirstEditableCol(Optional bReturnColZeroIfNone As Boolean = True
     End If
 End Function
 
+'david 12/12/2002
+'Implement new function to show the progress bar
+'while populating the grid with recordset.
+
+'NOTE: A PUBLIC Call back function called "ShowProgress(fPercent As Single,...)"
+'is required in the Form (frmParent) where the progress bar resides.
+
+'IN ORDER TO USE THIS NEW FEATURE,
+'THE CONDITIONAL COMPILATION FLAG 'TGEDITOR_EX' MUST BE INCLUDED AND SET TO -1
+'IN THE PROJECT
+
+#If TGEDITOR_EX Then
+    Public Sub FillWithRecordset_EX(rsTemp As Recordset, _
+                                 Optional bRefresh As Variant, _
+                                 Optional vValidate As Variant, _
+                                 Optional vClear As Variant, _
+                                 Optional bResetSortOrder As Boolean = True, _
+                                 Optional bShowProgress As Boolean = False, _
+                                 Optional ByVal sngTotalPercent As Single, _
+                                 Optional ByVal sngPercentToGo As Single)
+        
+        Dim lRow As Long
+        Dim nCol As Integer
+        Dim i As Integer
+        Dim sField As String
+        Dim bValidate As Boolean
+        Dim bClear As Boolean
+        Dim lStart As Long
+        ReDim nColPtr(nMaxCol - 1) As Integer
+    
+        Dim sngPercent As Single
+        
+        'david 08/21/00
+        If IsMissing(vClear) Then
+            bClear = True
+        Else
+            bClear = vClear
+        End If
+    
+        If rsTemp.RecordCount = 0 Then
+            If bClear Then
+                ClearData
+                nRowCount = 0
+            End If
+            Exit Sub
+        Else
+            rsTemp.MoveLast
+        End If
+        
+        If IsMissing(vValidate) Then
+            bValidate = False
+        Else
+            bValidate = vValidate
+        End If
+    
+        If bClear Then
+            nMaxRow = rsTemp.RecordCount - 1
+            lStart = 0
+            fnInitialParams
+        Else
+            lStart = nRowCount
+            nMaxRow = nRowCount + rsTemp.RecordCount - 1
+            ReDim Preserve GridArray(nMaxCol + 1, nMaxRow + 1)
+            
+            If nColumnCount > 0 Then
+                ReDim Preserve bValidCell(nColumnCount - 1, nMaxRow + 1)
+                ReDim Preserve nCellChanged(nColumnCount - 1, nMaxRow + 1)
+            End If
+        End If
+        
+        Screen.MousePointer = vbHourglass
+        
+        rsTemp.MoveFirst
+        
+        On Error GoTo errFill
+        For nCol = 0 To nMaxCol - 1
+            sField = LCase(Trim(tgTable.Columns(nCol).DataField))
+            nColPtr(nCol) = -1
+            
+            For i = 0 To rsTemp.Fields.Count - 1
+                If LCase(Trim(rsTemp.Fields(i).Name)) = sField Then
+                    nColPtr(nCol) = i
+                    Exit For
+                End If
+            Next i
+        Next nCol
+    
+        For lRow = lStart To nMaxRow
+            Screen.MousePointer = vbHourglass
+            
+            For nCol = 0 To nMaxCol - 1
+                If nColPtr(nCol) >= 0 Then
+                    If IsNull(rsTemp.Fields(nColPtr(nCol))) Then
+                        GridArray(nCol, lRow) = Null
+                    Else
+                        GridArray(nCol, lRow) = Trim(rsTemp.Fields(nColPtr(nCol)))
+                    End If
+                End If
+            Next nCol
+            
+            GridArray(nFlagColumn, lRow) = ROW_INITIAL
+            GridArray(nBookMarkColumn, lRow) = fnGetNewBookmark
+            nRowCount = nRowCount + 1
+            
+            For nCol = 0 To nColumnCount - 1
+                bValidCell(nCol, lRow) = True
+                
+                If bValidate Then
+                    nCellChanged(nCol, lRow) = STATUS_NOCHANGE 'STATUS_CHANGED
+                Else
+                    nCellChanged(nCol, lRow) = STATUS_VALIDATED
+                End If
+            Next nCol
+            
+            If bShowProgress Then
+                sngPercent = sngTotalPercent + ((lRow - lStart + 1) / nMaxRow) * sngPercentToGo
+                frmParent.ShowProgress sngPercent
+            End If
+            
+            rsTemp.MoveNext
+        Next lRow
+        
+        bClearData = True
+        bValidating = True
+        tgTable.Row = 0
+        
+        If IsMissing(bRefresh) Then
+            tgTable.Rebind
+        Else
+            If bRefresh Then
+                tgTable.Refresh
+            End If
+        End If
+    
+        DoEvents
+        bClearData = False
+        bValidating = False
+    
+        'david 08/10/2002
+        'restore the original sort order
+        If bResetSortOrder Then
+            subResetSortOrder
+        End If
+        '''''''''''''''''
+    
+        Screen.MousePointer = vbDefault
+    
+extFill:
+        On Error GoTo 0
+        Exit Sub
+errFill:
+        MsgBox Err.Description, nCRITICAL   ', App.Caption
+        Err.Clear
+        Resume extFill
+    End Sub
+#End If
+
