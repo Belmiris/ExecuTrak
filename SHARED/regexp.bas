@@ -81,6 +81,10 @@ Public Const szLongPattern As String = "^(#{0,9}|[0-1]#{0,9}|\2(\0#{0,8}|\1([0-3
 Public Const szDateTimeToMinutePattern = "^(((\0[1-9]|\1[0-2])(\0[1-9]|[1-2]#)|(\0\1|\0[3-9]|\1[0-2])\3\0|(\0(\1|\3|\5|\7|\8)|\1\0|\1\2)\3\1)|((\0?[1-9]|\1[0-2])[/\-](\0?[1-9]|[1-2]#)[/\-]|(\0?\1|\0?[3-9]|\1[0-2])[/\-]\3\0[/\-]|\0?(\1|\3|\5|\7|\8|\1\0|\1\2)[/\-]\3\1[/\-]))((\1\9##|\2[0-5]##)|##)(((\ )(([01][0-9])|(\2[0-3]))((:[0-5][0-9])|([0-5][0-9])))?)$"
 Public Const szDateTimeToSecondPattern = "^(((\0[1-9]|\1[0-2])(\0[1-9]|[1-2]#)|(\0\1|\0[3-9]|\1[0-2])\3\0|(\0(\1|\3|\5|\7|\8)|\1\0|\1\2)\3\1)|((\0?[1-9]|\1[0-2])[/\-](\0?[1-9]|[1-2]#)[/\-]|(\0?\1|\0?[3-9]|\1[0-2])[/\-]\3\0[/\-]|\0?(\1|\3|\5|\7|\8|\1\0|\1\2)[/\-]\3\1[/\-]))((\1\9##|\2[0-5]##)|##)(((\ )(([01][0-9])|(\2[0-3]))((:[0-5][0-9])|([0-5][0-9]))((:[0-5][0-9])|([0-5][0-9])))?)$"
 
+'valid format ( _ is space)
+'yyyy-mm-dd[[_hh:mm:ss][_hh][hh:mm][hhmm][_hhmmss][_hh:mmss][_hhmm:ss]]
+Public Const szLongDateTimeToSecondPattern As String = "^(((\1\9##)|(\2###))\-((\0[13578]\-((\0[1-9])|([1-2]#)|(\3[01])))|(\0[469]\-((\0[1-9])|([1-2]#)|(\3\0)))|(\1[02]\-((\0[1-9])|([1-2]#)|(\3[01])))|(\1\1\-((\0[1-9])|([1-2]#)|(\3\0)))|(\0\2\-((\0[1-9])|(\1#)|(\2[0-9]))))((((\ )((([01][0-9])|(\2[0-3]))((:[0-5][0-9])|([0-5][0-9]))?((:[0-5][0-9])|([0-5][0-9]))?)))?))$"
+
 Public Const FMT_DATE_SHORT = "MM/DD/YY"
 Public Const FMT_DATE_LONG = "MM/DD/YYYY"
 
@@ -429,21 +433,21 @@ End Function
 
 
 Private Function tfnYear(sText As String) As Integer
-    Dim I As Integer
+    Dim i As Integer
     Dim sChar As String * 1
     Dim sYear As String
     
-    I = Len(sText)
+    i = Len(sText)
     sYear = ""
     Do
-        sChar = Mid(sText, I, 1)
+        sChar = Mid(sText, i, 1)
         If sChar <> "/" And sChar <> "-" Then
             sYear = sChar & sYear
         Else
             Exit Do
         End If
-        I = I - 1
-    Loop Until I <= 1
+        i = i - 1
+    Loop Until i <= 1
     If Len(sYear) <= 4 Then
         tfnYear = Val(sYear)
     End If
@@ -526,7 +530,7 @@ Public Function tfnRegExpControlKeyPress(ByRef cntl As Control, ByRef KeyAscii A
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlKeyPress = True
@@ -583,7 +587,7 @@ Public Function tfnRegExpControlChange(ByRef cntl As Control, ByRef szPattern As
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         If cntl.Text = "" Then
             tfnRegExpControlChange = True
             Exit Function
@@ -642,7 +646,7 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlDateKeyPress = -1
