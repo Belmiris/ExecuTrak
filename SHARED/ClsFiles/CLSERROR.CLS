@@ -270,7 +270,7 @@ Public Property Set FormParent(frmForm As Object)
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
     
-    If Val(App.Minor) >= 20 Then
+    If val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")
         sMinor = Format(App.Minor, "00")
         sRevision = Format(App.Revision, "0000")
@@ -301,7 +301,7 @@ Public Sub ProgramInfo()
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
     
-    If Val(App.Minor) >= 20 Then
+    If val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")
         sMinor = Format(App.Minor, "00")
         sRevision = Format(App.Revision, "0000")
@@ -334,6 +334,44 @@ Public Property Let LogFilePath(sPath As String)
     sPath = Trim(sPath)
     m_sLogFilePath = sPath & IIf(Right(sPath, 1) = "\", "", "\") & "ErrorLog.txt"
 End Property
+
+'david 05/12/2003  #408907
+Public Property Get ODBC_ErrorCode() As String
+    Dim n As Integer
+    Dim sCodes As String
+    
+    sCodes = ""
+    
+    For n = 0 To m_engFactor.Errors.Count - 1
+        If m_engFactor.Errors(n).Number <> ODBC_CALL_FAIL Then
+            If sCodes <> "" Then
+                sCodes = sCodes + ", "
+            End If
+            
+            sCodes = sCodes & m_engFactor.Errors(n).Number
+        End If
+    Next
+
+    ODBC_ErrorCode = IIf(sCodes = "", "0", sCodes)
+End Property
+
+Public Property Get ODBC_ErrorDesc() As String
+    Dim n As Integer
+    Dim sDesc As String
+    
+    sDesc = ""
+    
+    For n = 0 To m_engFactor.Errors.Count - 1
+        If n = 0 Then
+            sDesc = m_engFactor.Errors(n)
+        Else
+            sDesc = sDesc & vbCrLf & m_engFactor.Errors(n)
+        End If
+    Next
+    
+    ODBC_ErrorDesc = sDesc
+End Property
+''''''''''''''''''''''''''
 
 Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
     Dim sMsg As String, sTmp As String, nPosi As Integer, sProcName(9) As String
