@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -559,7 +559,9 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
 errTrap:
     tfnIS_RM = False
-    ''tfnErrHandler "tfnIS_RM", strSQl
+    #If Not NO_ERROR_HANDLER Then
+    tfnErrHandler "tfnIS_RM", strSQL
+    #End If
 
 End Function
 
@@ -1191,7 +1193,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1457,7 +1459,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1465,7 +1467,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -1959,7 +1961,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2215,14 +2217,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2314,7 +2316,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3083,7 +3085,9 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
     Exit Sub
 
 ErrorAccessRecords:
+#If Not NO_ERROR_HANDLER Then
     tfnErrHandler SUB_NAME, strSQL, False
+#End If
 End Sub
 
 Public Function lock_row(ByVal in_table As String, _
@@ -3177,8 +3181,9 @@ errTrap:
 ErrorAccessRecords:
     lock_nbr = 0
     output_id = 0
-    
-    tfnErrHandler SUB_NAME, strSQL, False
+    #If Not NO_ERROR_HANDLER Then
+        tfnErrHandler SUB_NAME, strSQL, False
+    #End If
     status_message = "Failed to access remote database (see error log)."
 End Function
 
