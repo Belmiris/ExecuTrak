@@ -441,6 +441,7 @@ Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the defa
 
 'Robert Atwood 09-19-01 For TBKit Reportserver mod
 Public Const RPTSRV_UP = 14400
+Public Const RPTSRVSEC_UP = 14450
 
 Public Type CursorMode
 
