@@ -435,7 +435,6 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
     Dim dwIntError As Long
     Dim dwLength As Long
     Dim strBuffer As String
-    Dim nPos As Integer
     
     fnErrorOut = True
     sErrorMsg = ""
@@ -445,14 +444,6 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
         strBuffer = String(dwLength + 1, 0)
         InternetGetLastResponseInfo dwIntError, strBuffer, dwLength
         sErrorMsg = szCallFunction & " Err: " & dwIntError & " " & strBuffer
-        nPos = InStr(1, sErrorMsg, vbCrLf)
-        If nPos > 0 Then
-            sErrorMsg = Mid(sErrorMsg, 1, nPos - 1) & Trim(Mid(sErrorMsg, nPos + 1))
-            nPos = InStr(1, sErrorMsg, vbLf)
-            If nPos > 0 Then
-                sErrorMsg = Mid(sErrorMsg, 1, nPos - 1) & Mid(sErrorMsg, nPos + 1)
-            End If
-        End If
         subShowError bShowError, sErrorMsg, vbCritical
         Exit Function
     End If
