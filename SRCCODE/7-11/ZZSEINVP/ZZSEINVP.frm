@@ -285,7 +285,7 @@ Begin VB.Form frmzzseinvp
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -298,7 +298,7 @@ Begin VB.Form frmzzseinvp
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False

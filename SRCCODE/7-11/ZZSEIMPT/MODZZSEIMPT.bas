@@ -140,6 +140,7 @@ Public Function fnLockShiftReport(nProfitCenter As Integer, lShift As Long, dDat
             fnLockShiftReport = lShiftLink
         Else
             fnLockShiftReport = -3
+            fnUnlockProcess strLock
         End If
         
     Else
@@ -235,7 +236,7 @@ Private Function fnLockShiftLink(lShiftLink As Long, Optional bSale As Variant) 
     fnLockShiftLink = True
 End Function
 
-Public Function fnUnlockShiftReport(nProfitCenter As Integer, lShiftLink As Long) As Boolean
+Public Function fnUnlockShiftReport(nProfitCenter As Integer, lShiftLink As Long, Optional bAlreadyInsert As Boolean = False) As Boolean
     Dim strLock As String
     Dim strSQL As String
     
@@ -245,19 +246,24 @@ Public Function fnUnlockShiftReport(nProfitCenter As Integer, lShiftLink As Long
         Exit Function
     End If
     
-    If lShiftLink > 0 Then
+    If Not bAlreadyInsert Then
     
-        If sStatusChar = STATUS_INSERT Then
-            strSQL = "DELETE FROM rs_summary WHERE rss_shl = " & lShiftLink
-        ElseIf sStatusChar <> "" Then
-            strSQL = "UPDATE rs_summary SET rss_status = " & tfnSQLString(sStatusChar) & " WHERE rss_shl = " & lShiftLink
-        End If
+        If lShiftLink > 0 Then
         
-        If fnExecuteSQL(strSQL, nDB_REMOTE, "fnUnlockShiftReport") Then
-            fnUnlockShiftReport = True
+            If sStatusChar = STATUS_INSERT Then
+                strSQL = "DELETE FROM rs_summary WHERE rss_shl = " & lShiftLink
+            ElseIf sStatusChar <> "" Then
+                strSQL = "UPDATE rs_summary SET rss_status = " & tfnSQLString(sStatusChar) & " WHERE rss_shl = " & lShiftLink
+            End If
+        
+            If fnExecuteSQL(strSQL, nDB_REMOTE, "fnUnlockShiftReport") Then
+                fnUnlockShiftReport = True
+            End If
+        
         End If
         
     End If
+    
     
 End Function
 

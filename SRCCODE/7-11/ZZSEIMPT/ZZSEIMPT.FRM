@@ -1456,6 +1456,8 @@ Private g_bDetailDataChanged As Boolean
 Private g_bExceptionsClicked As Boolean
 Private g_vHoldDetailData() As Variant
 Private g_nHoldSelectedPrftCtr As Integer
+Private g_lHoldSelectedVendor As Long
+Private g_lHoldSelectedInvoice As Long
 Private g_dtHoldRptDate As Date
 Private g_lHoldShiftNum As Long
 Private g_lHoldShiftLink As Long
@@ -1738,8 +1740,8 @@ Private Sub subInitializeSpreadSheet()
     Dim sTotalAmountPattern  As String
     Dim i As Integer
     
-    vHeaderWidth = Array(0.12, 0.17, 0.12, 0.11, 0.16, 0.1, 0.14, 0.1)
-    vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total", "Processed")
+    vHeaderWidth = Array(0.12, 0.17, 0.12, 0.11, 0.16, 0.12, 0.14, 0.08)
+    vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total", "Posted")
     vHeaderFields = Array("rsphh_prft_ctr", "prft_name", "rsphh_rpt_date", "rsphh_vendor", "pn_name", "rsphh_invoice" _
                          , "rsphh_invoice_amt", "rsphh_status")
     vDetailWidth = Array(0.08, 0.12, 0.16, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08)
@@ -1958,7 +1960,7 @@ Private Sub cmdDetailDelete_Click()
         End If
         
         If fnDeleteData(lVendor, lInvoice, sProcessed) Then
-            subUnlockHeader
+            subUnlockHeader False
             etabMain.CurrTab = 0
             etabMain.TabEnabled(1) = False
             tgmHeader.DeleteRow
@@ -1987,7 +1989,7 @@ Private Sub cmdExceptions_Click()
         subEnableDetailOKBtn False
     Else
         subEnableDetailDeleteBtn True
-        subEnableDetailOKBtn cmdOK.Enabled
+        subEnableDetailOKBtn cmdOk.Enabled
     End If
     
     subCheckButtonStatus
@@ -2042,8 +2044,9 @@ Private Sub cmdHeaderDelete_Click()
             
         If fnDeleteData(lVendor, lInvoice, sProcessed) Then
             
-            If nPrftctr = g_nHoldSelectedPrftCtr And dtRptDate = g_dtHoldRptDate And lShiftNum = g_lHoldShiftNum Then
-                subUnlockHeader
+            'If nPrftctr = g_nHoldSelectedPrftCtr And dtRptDate = g_dtHoldRptDate And lShiftNum = g_lHoldShiftNum Then
+            If lVendor = g_lHoldSelectedVendor And lInvoice = g_lHoldSelectedInvoice Then
+                subUnlockHeader False
             End If
             
             etabMain.TabEnabled(1) = False
@@ -2071,6 +2074,8 @@ Private Sub cmdHeaderSelect_Click()
     Dim nPrftctr As Integer
     Dim dtRptDate As Date
     Dim lShiftNum As Long
+    Dim lVendor As Long
+    Dim lInvoice As Long
 
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     g_lSelectedHeaderRow = lCurHeaderRow
@@ -2078,13 +2083,17 @@ Private Sub cmdHeaderSelect_Click()
     nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
     lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
-
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    
     subShowHourGlass
     tfnSetStatusBarCorrect "Polulating Data, Please wait..."
     
-    If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
-        subUnlockHeader
+    'If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
+    If lVendor <> g_lHoldSelectedVendor Or lInvoice <> g_lHoldSelectedInvoice Then
+        subUnlockHeader False
     End If
+    
     
     subResetExceptions
     
@@ -2093,7 +2102,7 @@ Private Sub cmdHeaderSelect_Click()
         If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "N" Then
             'tgmDetail.Locked = False
             
-            If Not fnlockHeader(nPrftctr, dtRptDate, lShiftNum) Then
+            If Not fnlockHeader(lVendor, lInvoice, nPrftctr, dtRptDate, lShiftNum) Then
                 etabMain.TabEnabled(1) = False
                 etabMain.CurrTab = 0
                 tgmDetail.ClearData
@@ -2103,13 +2112,13 @@ Private Sub cmdHeaderSelect_Click()
             
         Else
             subEnableDetailOKBtn False
-            MsgBox "The data has already been processed, if you want to change something, go to Retail Sales Purchases Entry.", vbInformation
+            MsgBox "The data has already been posted, if you want to change something, go to Retail Sales Purchases Entry.", vbInformation
             'tgmDetail.Locked = True
         End If
         
         etabMain.TabEnabled(1) = True
         etabMain.CurrTab = 1
-        subSetTabDetailCaption nPrftctr, lCurHeaderRow
+        subSetTabDetailCaption lCurHeaderRow
         subEnableDetailCancelBtn False
         subEnableDetailDeleteBtn True
         subSetFocus tblDetail
@@ -2121,6 +2130,8 @@ EXITHERE:
     g_nHoldSelectedPrftCtr = nPrftctr
     g_dtHoldRptDate = dtRptDate
     g_lHoldShiftNum = lShiftNum
+    g_lHoldSelectedVendor = lVendor
+    g_lHoldSelectedInvoice = lInvoice
     subHideHourGlass
     
 End Sub
@@ -2161,7 +2172,7 @@ Private Sub cmdQuery_Click()
         subSetFocus tblHeader
     End If
     
-    subUnlockHeader
+    subUnlockHeader False
     
     subEnableCancel True
     subHideHourGlass
@@ -2480,7 +2491,7 @@ End Sub
 Private Sub cmdUpdateInsertBtn_Click()
     
     If fnProcessData() Then
-        subUnlockHeader
+        subUnlockHeader True
         cmdUpdateInsertBtn.Enabled = False
         etabMain.CurrTab = 0
         'etabMain.TabEnabled(1) = False
@@ -2913,7 +2924,7 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
 End Sub
 
 Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
-    cmdOK.Enabled = bOnOff
+    cmdOk.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
@@ -2969,7 +2980,7 @@ Private Sub cmdTBCancel_Click()
         End If
     End If
     
-    subUnlockHeader
+    subUnlockHeader False
     
     t_nFormMode = IDLE_MODE
     t_bDataChanged = False
@@ -2984,7 +2995,7 @@ Private Sub cmdTBExit_Click()
         End If
     End If
     
-    subUnlockHeader
+    subUnlockHeader False
     Unload Me
 End Sub
 
@@ -3796,8 +3807,8 @@ Private Function fnUpdateDetail() As Boolean
     
 End Function
 
-Private Sub subSetTabDetailCaption(nProfitCtr As Integer, lCurHeaderRow As Long)
-    lblPrftCtr.Caption = nProfitCtr
+Private Sub subSetTabDetailCaption(lCurHeaderRow As Long)
+    lblPrftCtr.Caption = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
     lblPrftCtrName.Caption = tgmHeader.CellValue(ColHeaderPrftDesc, lCurHeaderRow)
     lblReportDate.Caption = tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow)
     lblShift.Caption = tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow)
@@ -3807,29 +3818,32 @@ Private Sub subSetTabDetailCaption(nProfitCtr As Integer, lCurHeaderRow As Long)
     lblAmount.Caption = tfnRound(tgmHeader.CellValue(ColHeaderInvAmount, lCurHeaderRow), 2)
 End Sub
 
-Private Sub subUnlockHeader()
+Private Sub subUnlockHeader(bAlreadyInsert As Boolean)
     
     If g_nHoldSelectedPrftCtr > 0 Then
     
         If g_lHoldShiftLink > 0 Then
-            fnUnlockShiftReport g_nHoldSelectedPrftCtr, g_lHoldShiftLink
+            fnUnlockShiftReport g_nHoldSelectedPrftCtr, g_lHoldShiftLink, bAlreadyInsert
             g_lHoldShiftLink = 0
         End If
         
         g_nHoldSelectedPrftCtr = 0
         g_dtHoldRptDate = #12/31/1899#
         g_lHoldShiftNum = 0
+        g_lHoldSelectedInvoice = 0
+        g_lHoldSelectedVendor = 0
     End If
     
 End Sub
 
-Private Function fnlockHeader(nPrftctr As Integer, dtRptDate As Date, lShiftNum As Long)
+Private Function fnlockHeader(lVendor As Long, lInvoice As Long, nPrftctr As Integer, dtRptDate As Date, lShiftNum As Long)
     Dim sMsg As String
     Dim sUser As String
     
     fnlockHeader = True
     
-    If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
+    'If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
+    If lVendor <> g_lHoldSelectedVendor Or lInvoice <> g_lHoldSelectedInvoice Then
         g_lHoldShiftLink = fnLockShiftReport(nPrftctr, lShiftNum, dtRptDate, sUser)
     End If
     
@@ -3896,7 +3910,9 @@ Private Function fnProcessData() As Boolean
         GoTo EXITHERE
     End If
     
-    bOk = fnCleanShiftHoldData
+    'bOk = fnCleanShiftHoldData
+    'do here 04/05...........
+    bOk = True
     
     If bOk Then
         bOk = fnInsertVendorInvoice()
@@ -3911,7 +3927,7 @@ Private Function fnProcessData() As Boolean
     End If
     
     If Not bOk Then
-        bOk = fnCleanShiftHoldData
+        bOk = fnCleanShiftHoldData()
     Else
         bOk = fnUpdateInvHeader
     End If
@@ -3929,8 +3945,15 @@ Private Function fnCleanShiftHoldData() As Boolean
     Dim strSQL As String
     Const FUNC_NAME As String = "fnCleanShiftHoldData"
     
+    If MsgBox("There some something wrong during inserting, do you want to delete all " _
+        & " information for this shift link " & g_lHoldShiftLink & "?", vbQuestion + vbYesNo) = vbNo Then
+        fnCleanShiftHoldData = True
+        Exit Function
+    End If
+    
     strSQL = "DELETE FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
     strSQL = strSQL & " AND rssh_type IN ('V', 'G', 'C', 'Y') "
+    
     
     If fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
         fnCleanShiftHoldData = True
@@ -3949,6 +3972,7 @@ Private Function fnInsertVendorInvoice() As Boolean
     Dim lCurHeaderRow As Long
     Dim nPayType As Integer
     Dim dtInvDate As Date
+    Dim lMaxSeqNum As Long
     Const FUNC_NAME As String = "fnInsertVendorInvoice"
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
@@ -3981,12 +4005,14 @@ Private Function fnInsertVendorInvoice() As Boolean
             nPayType = 5
     End Select
     
+    lMaxSeqNum = fnGetMaxSeqNum("V")
+    
     strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
     strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
     strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'V', " & tfnSQLString(sTerm) & ","
     strSQL = strSQL & lVendor & "," & lInvoice & "," & dAmount & "," & nPayType & ","
     strSQL = strSQL & IIf((sPayType = "M" Or sPayType = "D"), lDraftNbr, "NULL") & ","
-    strSQL = strSQL & fnDateToSQLIntegerString(dtInvDate) & ", NULL, NULL, 1)"
+    strSQL = strSQL & fnDateToSQLIntegerString(dtInvDate) & ", NULL, NULL," & lMaxSeqNum + 1 & ")"
     
     If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
         Exit Function
@@ -4035,6 +4061,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
     Dim dExtRetail As Double
     Dim dQty As Double
     Dim lPriceBookLnk As Long
+    Dim lMaxSeq As Long
     Dim i As Long
     
     Const FUNC_NAME As String = "fnInsertPriceBookInvDetail"
@@ -4044,6 +4071,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
     nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     dtInvDate = tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow))
+    lMaxSeq = fnGetMaxSeqNum("Y")
     
     For i = 0 To tgmDetail.RowCount - 1
         sItemCode = tgmDetail.CellValue(ColDetailItemCode, i)
@@ -4053,6 +4081,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         dExtRetail = tfnRound(tgmDetail.CellValue(ColDetailExtRetail, i), 2)
         dQty = tfnRound(tgmDetail.CellValue(ColDetailQty, i), 3)
         lPriceBookLnk = fnGetPriceBookLink(sItemCode, lVendor, nPrftctr)
+        lMaxSeq = lMaxSeq + 1
         
         If lPriceBookLnk <= 0 Then
             MsgBox "No Price book link found", vbInformation
@@ -4063,7 +4092,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
         strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'Y', " & tfnSQLString(sItemCode) & ","
         strSQL = strSQL & lVendor & "," & lInvoice & "," & lPriceBookLnk & "," & dExtCost & ","
-        strSQL = strSQL & dExtRetail & "," & dCost & "," & dRetail & "," & dQty & "," & i + 1 & ")"
+        strSQL = strSQL & dExtRetail & "," & dCost & "," & dRetail & "," & dQty & "," & lMaxSeq & ")"
         
         If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
             Exit Function
@@ -4108,6 +4137,7 @@ End Function
 
 Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
     Dim strSQL As String
+    Dim rsTemp As Recordset
     Dim lVendor As Long
     Dim lCurHeaderRow As Long
     Dim sItemCode As String
@@ -4120,6 +4150,10 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
     Dim sCostAccount As String
     Dim dTotalCredit As Double
     Dim dTotalDebit As Double
+    Dim lMaxCatSeq As Long
+    Dim lCurCatSeq As Long
+    Dim lMaxGLSeq As Long
+    Dim bUpdate As Boolean
     Dim i As Long
     Const FUNC_NAME As String = "fnInsertCategoryAndGLInfo"
     
@@ -4141,33 +4175,80 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
     
     If sCat(0) <> "" Then
         
+        lMaxCatSeq = fnGetMaxSeqNum("C")
+        lMaxGLSeq = fnGetMaxSeqNum("G")
+
         For i = 0 To UBound(sCat)
-            strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
-            strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
-            strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
-            strSQL = strSQL & "NULL, NULL, NULL," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
-            strSQL = strSQL & "NULL, NULL, NULL, " & i + 1 & ")"
+            strSQL = "SELECT rssh_seq FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
+            strSQL = strSQL & " AND rssh_type = 'C' AND rssh_code = " & tfnSQLString(sCat(i))
             
-            If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+            If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
                 Exit Function
-            End If
+            ElseIf rsTemp.RecordCount = 0 Then
+                
+                strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
+                strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+                strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
+                strSQL = strSQL & "NULL, NULL, NULL," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
+                strSQL = strSQL & "NULL, NULL, NULL, " & lMaxCatSeq + 1 & ")"
             
-            sCostAccount = fnGetCostGLAccount(sCat(i))
+                If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+                    Exit Function
+                End If
             
-            If sCostAccount = "" Then
-                Exit Function
-            ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), i, False) Then
-                Exit Function
-            End If
+                sCostAccount = fnGetCostGLAccount(sCat(i))
+            
+                If sCostAccount = "" Then
+                    Exit Function
+                ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
+                    Exit Function
+                End If
                
-            dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                lMaxCatSeq = lMaxCatSeq + 1
+                lMaxGLSeq = lMaxGLSeq + 1
+                dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                
+            Else
+                lCurCatSeq = tfnRound(rsTemp!rssh_seq)
+                
+                If Not fnUpdateCatory(dCatTotalCost(i), dCatTotalRetail(i), lCurCatSeq) Then
+                    Exit Function
+                End If
+                
+                sCostAccount = fnGetCostGLAccount(sCat(i))
+            
+                If sCostAccount = "" Then
+                    Exit Function
+                ElseIf Not fnUpdateGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
+                    Exit Function
+                End If
+               
+                bUpdate = True
+                dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+             
+            End If
+            
         Next
         
         If dTotalDebit <> dTotalCredit Then
             'MsgBox " The account is not balance", vbInformation
             Exit Function
-        ElseIf Not fnInsertGlInfo(CStr(lGlAccount), dTotalCredit, UBound(sCat) + 1, True) Then
-            Exit Function
+        Else
+            If bUpdate Then
+                
+                If Not fnUpdateGlInfo(CStr(lGlAccount), dTotalCredit, lMaxGLSeq, True) Then
+                    Exit Function
+                End If
+                
+            Else
+            
+                If Not fnInsertGlInfo(CStr(lGlAccount), dTotalCredit, UBound(sCat) + 1, True) Then
+                    Exit Function
+                End If
+            
+            End If
+            
+            
         End If
             
         fnInsertCategoryAndGLInfo = True
@@ -4175,6 +4256,38 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
         fnInsertCategoryAndGLInfo = False
     End If
         
+End Function
+
+Private Function fnUpdateCatory(ByVal dCatTotalCost As Double, ByVal dCatTotalRetail As Double, ByVal lSeq As Long) As Boolean
+    Dim dOrgCost As Double
+    Dim dOrgRetail As Double
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Const FUNC_NAME As String = "fnUpdateCatory"
+    
+    strSQL = "SELECT rssh_4, rssh_5 FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
+    strSQL = strSQL & " AND rssh_type = 'C' and rssh_seq = " & lSeq
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) <= 0 Then
+        Exit Function
+    Else
+        dOrgCost = tfnRound(rsTemp!rssh_4, 2)
+        dOrgRetail = tfnRound(rsTemp!rssh_5, 2)
+    End If
+    
+    dCatTotalCost = dCatTotalCost + dOrgCost
+    dCatTotalRetail = dCatTotalRetail + dOrgRetail
+
+    strSQL = "UPDATE rs_shifthold set rssh_4 = " & tfnRound(dCatTotalCost, 2)
+    strSQL = strSQL & " ,rssh_5 = " & tfnRound(dCatTotalRetail, 2)
+    strSQL = strSQL & "  WHERE rssh_shl = " & g_lHoldShiftLink
+    strSQL = strSQL & " AND rssh_type = 'C' AND rssh_seq = " & lSeq
+    
+    If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+        Exit Function
+    End If
+
+    fnUpdateCatory = True
 End Function
 
 Private Function fnGetItemCategory(lVendor As Long, sItemCode As String) As String
@@ -4262,10 +4375,10 @@ Private Function fnInsertGlInfo(sCostAccount As String, dExtCost As Double, lSeq
     
         If bTotal Then
             strSQL = "UPDATE rs_shifthold SET(rssh_4, rssh_6) = (" & tfnRound(sCostAccount) & "," & tfnRound(dExtCost, 2)
-            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq
+            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq \ 2 + 1
         Else
             strSQL = "UPDATE rs_shifthold SET(rssh_4, rssh_5) = (" & tfnRound(sCostAccount) & "," & tfnRound(dExtCost, 2)
-            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq
+            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq \ 2 + 1
         End If
     
     End If
@@ -4276,23 +4389,90 @@ Private Function fnInsertGlInfo(sCostAccount As String, dExtCost As Double, lSeq
 
 End Function
 
+Private Function fnUpdateGlInfo(ByVal sCostAccount As String, ByVal dExtCost As Double, _
+                                ByVal lMaxSeq As Long, ByVal bTotal As Boolean) As Boolean
+    Dim strSQL As String
+    Dim strSQL2 As String
+    Dim rsTemp As Recordset
+    Dim lCurGLSeq As Long
+    Dim dOrgCredit1 As Double
+    Dim dorgDebit1 As Double
+    Dim dOrgCredit2 As Double
+    Dim dOrgDebit2 As Double
+    
+    strSQL = "SELECT rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_seq FROM rs_shifthold  "
+    strSQL = strSQL & " WHERE rssh_shl = " & g_lHoldShiftLink
+    strSQL = strSQL & " AND rssh_type = 'G' AND rssh_1 = " & tfnSQLString(sCostAccount)
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnUpdateGlInfo") > 0 Then
+        dorgDebit1 = tfnRound(rsTemp!rssh_2, 2)
+        dOrgCredit1 = tfnRound(rsTemp!rssh_3, 2)
+        lCurGLSeq = tfnRound(rsTemp!rssh_seq)
+        
+        If Not bTotal Then
+            dExtCost = dExtCost + dorgDebit1
+            strSQL2 = "UPDATE rs_shifthold set rssh_2 = " & tfnRound(dExtCost, 2)
+        Else
+            dExtCost = dExtCost + dOrgCredit1
+            strSQL2 = "UPDATE rs_shifthold set rssh_3 =  " & tfnRound(dExtCost, 2)
+        End If
+        
+    Else
+        
+        strSQL = "SELECT rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_seq FROM rs_shifthold  "
+        strSQL = strSQL & " WHERE rssh_shl = " & g_lHoldShiftLink
+        strSQL = strSQL & " AND rssh_type = 'G' AND rssh_4 = " & tfnSQLString(sCostAccount)
+    
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnUpdateGlInfo") > 0 Then
+            dOrgDebit2 = tfnRound(rsTemp!rssh_5, 2)
+            dOrgCredit2 = tfnRound(rsTemp!rssh_6, 2)
+            lCurGLSeq = tfnRound(rsTemp!rssh_seq)
+            
+            If Not bTotal Then
+                dExtCost = dExtCost + dOrgDebit2
+                strSQL2 = "UPDATE rs_shifthold set rssh_5 = " & tfnRound(dExtCost, 2)
+            Else
+                dExtCost = dExtCost + dOrgCredit2
+                strSQL2 = "UPDATE rs_shifthold set rssh_6 =  " & tfnRound(dExtCost, 2)
+            End If
+        
+        Else
+            
+            If fnInsertGlInfo(sCostAccount, dExtCost, lMaxSeq, True) Then
+               fnUpdateGlInfo = True
+            End If
+            
+            Exit Function
+    
+        End If
+
+    End If
+    
+            
+    strSQL2 = strSQL2 & " WHERE rssh_shl = " & g_lHoldShiftLink
+    strSQL2 = strSQL2 & " AND rssh_type = 'G' AND rssh_seq = " & lCurGLSeq
+    
+    If Not fnExecuteSQL(strSQL2, nDB_REMOTE, "fnUpdateGlInfo") Then
+        Exit Function
+    End If
+
+    fnUpdateGlInfo = True
+End Function
+
 Private Function fnUpdateInvHeader() As Boolean
     Dim strSQL As String
     Dim lCurHeaderRow As Long
-    Dim nPrftctr As Integer
-    Dim dtRptDate As Date
-    Dim lShiftNum As Long
-    
+    Dim lVendor As Long
+    Dim lInvoice As Long
+
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
-    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
-    dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
-    lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnFormatDate(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     
     strSQL = "UPDATE rs_p_hold_header SET rsphh_status = 'Y' WHERE "
-    strSQL = strSQL & " rsphh_prft_ctr = " & nPrftctr
-    strSQL = strSQL & " AND rsphh_rpt_date = " & tfnDateString(dtRptDate, True)
-    strSQL = strSQL & " AND rsphh_shift = " & lShiftNum
+    strSQL = strSQL & " rsphh_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphh_invoice = " & lInvoice
     
     If fnExecuteSQL(strSQL, nDB_REMOTE, "fnUpdateInvHeader") Then
         tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y"
@@ -4301,3 +4481,30 @@ Private Function fnUpdateInvHeader() As Boolean
     
 End Function
 
+Private Function fnGetMaxSeqNum(sType As String) As Long
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT rssh_seq, rssh_4 FROM rs_shifthold WHERE "
+    strSQL = strSQL & " rssh_shl = " & tfnRound(g_lHoldShiftLink)
+    strSQL = strSQL & " AND rssh_type = " & tfnSQLString(sType)
+    strSQL = strSQL & " ORDER BY rssh_seq DESC"
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetMaxSeqNum") <= 0 Then
+        fnGetMaxSeqNum = 0
+    Else
+        If sType = "G" Then
+            
+            If tfnRound(rsTemp!rssh_4) = 0 Then
+                fnGetMaxSeqNum = 2 * tfnRound(rsTemp!rssh_seq) - 1
+            Else
+                fnGetMaxSeqNum = 2 * tfnRound(rsTemp!rssh_seq)
+            End If
+            
+        Else
+            fnGetMaxSeqNum = tfnRound(rsTemp!rssh_seq)
+        End If
+        
+    End If
+    
+End Function

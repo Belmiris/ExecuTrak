@@ -182,6 +182,7 @@ ErrorHandler:
     End If
     
     subDisplayMsg Err.Description
+    subCloseLogFile
 End Function
 
 
@@ -603,6 +604,7 @@ Private Sub subOpenAndClearLogFile()
     Open sProcessLogFile For Output As #g_nProcessingFile
     
     g_nErrorLogFile = FreeFile()
+    
     Open sErrorLogFile For Output As #g_nErrorLogFile
     
 End Sub
@@ -810,13 +812,25 @@ End Function
 Private Function fnValidShiftNum(nPrftCtr As Integer, nShiftNum As Integer, dtReportDate As Date) As String
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim lShiftLink As Long
     
-    strSQL = "SELECT rssl_shift FROM rs_shiftlink, rs_shiftHold WHERE rssl_shl = rssh_shl AND rssl_shift = " & nShiftNum
+    strSQL = "SELECT rssl_shl FROM rs_shiftlink, rs_shiftHold WHERE rssl_shl = rssh_shl AND rssl_shift = " & nShiftNum
     strSQL = strSQL & " AND rssl_prft_ctr = " & nPrftCtr
     strSQL = strSQL & " AND rssl_date = " & tfnDateString(dtReportDate, True)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidShiftNum") > 0 Then
-        fnValidShiftNum = "The profit center,report date and shift No. is used already."
+        lShiftLink = tfnRound(rsTemp!rssl_shl)
+        
+        strSQL = "SELECT rss_status FROM rs_summary WHERE rss_shl = " & lShiftLink
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidShiftNum") > 0 Then
+            
+            If rsTemp!rss_status & "" <> "R" Then
+                fnValidShiftNum = "The profit center,report date and shift No. is used already."
+            End If
+            
+        End If
+        
     End If
     
 End Function
@@ -861,7 +875,7 @@ Private Function fnValidInvNum(lVendor As Long, lInvNum As Long) As String
         If UCase(rsTemp!rsphh_status & "") = "N" Then
             fnValidInvNum = ""
         ElseIf UCase(rsTemp!rsphh_status & "") = "Y" Then
-            fnValidInvNum = "The Invocie for this vendor has already been Processed."
+            fnValidInvNum = "The invoice for this vendor has already been posted."
         End If
             
     Else
@@ -932,6 +946,7 @@ Private Function fnValidDraftNum(sPayType As String, sDraftNum As String) As Str
         
         If Trim(sDraftNum) = "" Then
             fnValidDraftNum = "The draft number can't empty for pay type 'D'."
+            Exit Function
         End If
         
         'Check p_draft
@@ -1001,7 +1016,8 @@ Private Function fnValidUOM(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_
         ElseIf rsTemp.RecordCount = 0 Then
             fnValidUOM = udtInvDetail.sUOM & " is an invalid Unit of Measure."
         Else
-            udtInvDetail.dCost = IIf(IsNull(rsTemp!icm_cost), 0, rsTemp!icm_cost)
+            'accoring to tom's idea, all cost should came from file
+            'udtInvDetail.dCost = IIf(IsNull(rsTemp!icm_cost), 0, rsTemp!icm_cost)
             udtInvDetail.sRetail = IIf(IsNull(rsTemp!icm_retail), "0", rsTemp!icm_retail)
             fnValidUOM = ""
         End If
@@ -1025,21 +1041,23 @@ Private Function fnValidRetailPrice(sRetail As String, sItemCode As String, _
                     lVendor As Long, nPrftCtr As Integer, dtInvdate As Date) As String
     Dim dRetailPrice As Double
     
-    If Trim(sRetail) <> "" Then
-        
-        If Not IsNumeric(sRetail) Then
-            fnValidRetailPrice = "Invalid retail price."
-        End If
-        
+    'according to tom,the retail price all came from Price book 04/06/01
+    
+'    If Trim(sRetail) <> "" Then
+'
+'        If Not IsNumeric(sRetail) Then
+'            fnValidRetailPrice = "Invalid retail price."
+'        End If
+'
+'    Else
+    If fnGetRetailPrice(sItemCode, lVendor, nPrftCtr, dtInvdate, dRetailPrice) Then
+        sRetail = CStr(dRetailPrice)
+        fnValidRetailPrice = ""
     Else
-        If fnGetRetailPrice(sItemCode, lVendor, nPrftCtr, dtInvdate, dRetailPrice) Then
-            sRetail = CStr(dRetailPrice)
-            fnValidRetailPrice = ""
-        Else
-            fnValidRetailPrice = "No retail price for this item."
-        End If
-        
+        fnValidRetailPrice = "No retail price for this item."
     End If
+    
+'    End If
     
 End Function
 
