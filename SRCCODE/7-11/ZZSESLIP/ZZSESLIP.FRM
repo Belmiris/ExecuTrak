@@ -803,7 +803,6 @@ Private Const ColSlipDate As Integer = 2
 Private Const colShiftNum As Integer = 3
 Private Const nMaxCol As Integer = 3
 
-Private g_nDefaultPrftctr As Integer
 
 Private Sub cmdDeleteBtn_Click()
     Dim sBCode As String
@@ -1332,10 +1331,6 @@ Private Sub tblSlip_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As I
     
     If t_nFormMode = ADD_MODE Then
         lCurRow = tgmSlip.GetCurrentRowNumber
-'
-'        If tgmSlip.CellValue(ColPrftCtr, lCurRow) = "" Then
-'            tgmSlip.CellValue(ColPrftCtr, lCurRow) = g_nDefaultPrftctr
-'        End If
         
         If tgmSlip.CellValue(colShiftNum, lCurRow) = "" Then
             tgmSlip.CellValue(colShiftNum, lCurRow) = 1
@@ -1383,24 +1378,6 @@ Private Sub tblSlip_KeyDown(KeyCode As Integer, Shift As Integer)
 End Sub
 
 Private Sub tblSlip_KeyPress(KeyAscii As Integer)
-    Dim lCurRow As Long
-
-    If t_nFormMode = ADD_MODE Then
-        
-        If KeyAscii = vbKeyReturn Then
-            
-            If tblSlip.col = ColPrftCtr Or tblSlip.col = colPrftDesc Then
-                lCurRow = tgmSlip.GetCurrentRowNumber
-                 
-                If tgmSlip.CellValue(ColPrftCtr, lCurRow) = "" Then
-                    tgmSlip.CellValue(ColPrftCtr, lCurRow) = g_nDefaultPrftctr
-                End If
-                
-            End If
-            
-        End If
-    
-    End If
         
     If tgfDropdown.ValidSelection Then
         nDataStatus = DATA_CHANGED
@@ -1543,7 +1520,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1560,7 +1537,7 @@ End Sub
 Private Sub subInitializeSpreadSheet()
     Dim myWidth As Variant
     Dim myField As Variant
-    Dim I As Integer
+    Dim i As Integer
     
     myWidth = Array(0.2, 0.4, 0.2, 0.2)
     myField = Array("bd_prft_ctr", "prft_name", "bd_slip_date", "bd_shift")
@@ -1569,12 +1546,12 @@ Private Sub subInitializeSpreadSheet()
         tblSlip.Columns.Remove 0
     Wend
     
-    For I = 0 To UBound(myWidth)
-        tblSlip.Columns.Add I
+    For i = 0 To UBound(myWidth)
+        tblSlip.Columns.Add i
         
-        With tblSlip.Columns(I)
-            .Width = myWidth(I) * tblSlip.Width - 50
-            .DataField = myField(I)
+        With tblSlip.Columns(i)
+            .Width = myWidth(i) * tblSlip.Width - 50
+            .DataField = myField(i)
             .Visible = True
         End With
         
@@ -1614,7 +1591,7 @@ Private Sub tblDropDown_LostFocus()
     tgfDropdown.LostFocus tblDropDown
 End Sub
 
-Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, y As Single)
     tgfDropdown.MouseUp y
 End Sub
 
@@ -1709,7 +1686,7 @@ Private Sub txtEmployee_LostFocus()
     cvalidate.LostFocus txtEmployee, cmdEmployee, txtEmpName, cmdEmpName, tblComboDropdown
 End Sub
 
-Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
     'frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -1853,12 +1830,6 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
     
     fnValidEmployee = True
     
-    strSQL = "SELECT prm_prft_ctr1 FROM pr_master WHERE prm_empno = " & tfnRound(Box.Text)
-    
-    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
-        g_nDefaultPrftctr = tfnRound(rsTemp!prm_prft_ctr1)
-    End If
-    
 End Function
 
 Private Sub tblComboDropdown_Click()
@@ -1885,7 +1856,7 @@ Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, y As Single)
     tgcDropdown.TableMouseUp y
 End Sub
 
@@ -1912,11 +1883,21 @@ End Sub
 
 Private Function fnSwitchPhase() As Boolean
     Dim bYesNo As Boolean
+    Dim strSQL As String
     
     If Not tfnLockRow(efraToolBar.FMName, "bonus_day_off_slip", txtEmployee) Then
         Exit Function
     End If
+        
+    strSQL = "SELECT DISTINCT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
+    strSQL = strSQL & " WHERE prm_empno = " & tfnRound(txtEmployee)
+    strSQL = strSQL & " AND (prft_ctr = prm_prft_ctr1 "
+    strSQL = strSQL & " OR prft_ctr = prm_prft_ctr2 "
+    strSQL = strSQL & " OR prft_ctr = prm_prft_ctr3 "
+    strSQL = strSQL & " OR prft_ctr = prm_prft_ctr4 "
+    strSQL = strSQL & " OR prft_ctr = prm_prft_ctr5) "
     
+    tgfDropdown.DropDownSQL(1) = strSQL
     
     If t_nFormMode = ADD_MODE Then
         bYesNo = True
@@ -2050,7 +2031,7 @@ End Function
 Private Function fnValidEntireRowValue(szText As String, lCurRow As Long, nCurCol As Integer) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim I As Long
+    Dim i As Long
     
     If tgmSlip.ValidCell(ColPrftCtr, lCurRow) And tgmSlip.ValidCell(ColSlipDate, lCurRow) Then
         strSQL = "SELECT * FROM bonus_day_off_slip WHERE "
@@ -2067,18 +2048,18 @@ Private Function fnValidEntireRowValue(szText As String, lCurRow As Long, nCurCo
             Exit Function
         End If
         
-        For I = 0 To tgmSlip.RowCount - 1
+        For i = 0 To tgmSlip.RowCount - 1
             
-            If I <> lCurRow Then
+            If i <> lCurRow Then
                 
-                If CStr(tgmSlip.CellValue(ColPrftCtr, I)) = CStr(tgmSlip.CellValue(ColPrftCtr, lCurRow)) _
-                    And CStr(tgmSlip.CellValue(ColSlipDate, I)) = CStr(tgmSlip.CellValue(ColSlipDate, lCurRow)) _
-                    And CStr(tgmSlip.CellValue(colShiftNum, I)) = CStr(szText) Then
+                If CStr(tgmSlip.CellValue(ColPrftCtr, i)) = CStr(tgmSlip.CellValue(ColPrftCtr, lCurRow)) _
+                    And CStr(tgmSlip.CellValue(ColSlipDate, i)) = CStr(tgmSlip.CellValue(ColSlipDate, lCurRow)) _
+                    And CStr(tgmSlip.CellValue(colShiftNum, i)) = CStr(szText) Then
                     
                     tgmSlip.ErrorMessage(nCurCol) = "Duplicate data in the grid"
                     Exit Function
                 Else
-                    tgmSlip.Revalidate colShiftNum, I
+                    tgmSlip.Revalidate colShiftNum, i
                 End If
             
             End If
@@ -2112,7 +2093,7 @@ Private Sub subSetupDropDown()
         .AddColumn colPrftDesc, "prft_name"
         .ColumnCaption(colPrftDesc) = "Profit Center description"
         .ColumnType(colPrftDesc) = .COLUMN_TYPE_STRING
-        .DropDownSQL(1) = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
+        '.DropDownSQL(1) = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
     End With
     
 End Sub
@@ -2211,13 +2192,13 @@ End Sub
 Private Function fnInsertData() As Boolean
     Dim strSQL As String
     Dim vData() As Variant
-    Dim I As Long
+    Dim i As Long
     Dim nCount As Integer
     
     If t_nFormMode = ADD_MODE Then
         
-        For I = 0 To tgmSlip.RowCount - 1
-            tgmSlip.GetRow vData, nCount, I
+        For i = 0 To tgmSlip.RowCount - 1
+            tgmSlip.GetRow vData, nCount, i
             
             If fnGetShiftLink(CLng(vData(ColPrftCtr)), CLng(vData(colShiftNum)), CDate(vData(ColSlipDate))) = 0 Then
                 Exit Function

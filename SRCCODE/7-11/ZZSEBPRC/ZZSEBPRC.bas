@@ -1221,17 +1221,14 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
                 tfnFormatDate(frmZZSEBPRC.txtStartDate))
             Exit Function
-            
+
         Case "day_off_slip_day"
             strSQL = "SELECT COUNT (bd_prft_ctr) AS var_value "
-            strSQL = strSQL & " FROM bonus_day_off_slip, rs_shiftlink"
+            strSQL = strSQL & " FROM bonus_day_off_slip "
             strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
             strSQL = strSQL & " AND bd_prft_ctr = " & nPrftCtr
             strSQL = strSQL & " AND bd_slip_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
             strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " AND bd_prft_ctr = rssl_prft_ctr"
-            strSQL = strSQL & " AND bd_slip_date = rssl_date"
-            strSQL = strSQL & " AND bd_shift = rssl_shift"
         
         Case "days_employed"
             fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo, True)
@@ -1267,16 +1264,6 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
             strSQL = strSQL & " AND bh_empno = " & lEmpNo
             
-'            strSQL = "SELECT SUM (prh_hours) AS var_value "
-'            strSQL = strSQL & " FROM pr_hours"
-'            'changed by junsong 03/19/01
-''            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-''            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-'            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
-'            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
-'            strSQL = strSQL & " AND prh_empno = " & lEmpNo
-'            'end changed
-            
         Case "regular_hours"
             If sPayCode_RegHrs = "" Then
                 sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
@@ -1286,17 +1273,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
             strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
             strSQL = strSQL & " AND bh_empno = " & lEmpNo
-            
-'            strSQL = "SELECT SUM (prh_hours) AS var_value "
-'            strSQL = strSQL & " FROM pr_hours"
-'            'changed by junsong 03/19/01
-''            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-''            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-'            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
-'            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
-'            strSQL = strSQL & " AND prh_empno = " & lEmpNo
-'            'end changed
-            
+                        
         Case "two_week_sales"
             fnGetVarValue = fnTwoWeekSales(sVinV, sErrMsg, lEmpNo)
             Exit Function
@@ -1309,41 +1286,16 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             'the value will be obtained from the formula evaluation
             'return 0
             Exit Function
-
-'        Case "total pay"  'NOT USED
-'            strSQL = "SELECT SUM (prci_total) AS var_value"
-'            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
-'            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
-'            strSQL = strSQL & " AND prc_lnk = prci_lnk"
-'            strSQL = strSQL & " AND prc_check_paid <> 'V'"
-'            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-'            strSQL = strSQL & " AND prpa_pay_type = 'P'"
-'            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-'
-'        Case "months in grade"  'NOT USED
-'            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo)
-'            Exit Function
-'
-'        Case "years as manager"  'NOT USED
-'            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M", True)
-'            Exit Function
-'
-'        Case "pay hours"  'NOT USED
-'            strSQL = "SELECT SUM (prci_input_amt) AS var_value"
-'            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
-'            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
-'            strSQL = strSQL & " AND prc_lnk = prci_lnk"
-'            strSQL = strSQL & " AND prc_check_paid <> 'V'"
-'            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-'            strSQL = strSQL & " AND prpa_pay_type = 'P'"
-'            strSQL = strSQL & " AND prpa_calc_method = 'H'"
-'            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-'
-'        Case "shortage_amount"  'NOT USED
-'            fnGetVarValue = fnShortageAmount(sVinV, sErrMsg, nPrftCtr)
-'            Exit Function
+        Case "asst_mgr_3_m_sales"
+            fnGetVarValue = fnGetAsstMgr3MonthSales(sVinV, sErrMsg, lEmpNo)
+        Case "asst_mgr_gals_sold"
+            strSQL = "SELECT bs_sales_amount as var_value FROM bonus_sales, pr_master, bonus_grades"
+            strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+            strSQL = strSQL & " AND bs_prft_ctr = prm_prft_ctr1"
+            strSQL = strSQL & " AND prm_emp_level = bg_emp_level"
+            strSQL = strSQL & " AND bg_grade = 'A' "
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC!txtStartDate, True)
 
         Case "not used"
             'return 0
@@ -1569,32 +1521,40 @@ Private Function fnInsideSales(sVinV As String, _
     Dim rsTemp As Recordset
     Const FUNC_NAME As String = "fnInsideSales"
     
-    strSQL = "SELECT prhs_effective_dt, prhs_prft_ctr1 FROM pr_history, bonus_grades, bonus_sales"
-    strSQL = strSQL & " WHERE prhs_effective_dt <= bs_from_date "
-    strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+'    strSQL = "SELECT prhs_effective_dt, prhs_prft_ctr1 FROM pr_history, bonus_grades, bonus_sales"
+'    strSQL = strSQL & " WHERE prhs_effective_dt <= bs_from_date "
+'    strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+'    strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+'    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+'    strSQL = strSQL & " AND prhs_emp_level = bg_emp_level AND bg_grade = 'A' "
+'    strSQL = strSQL & " AND prhs_empno = " & lEmpNo
+'    strSQL = strSQL & " ORDER BY prhs_effective_dt DESC"
+'
+'    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 0 Then
+'        sErrMsg = "Failed to access the database to get " & sVinV
+'        Exit Function
+'    End If
+'
+'    If rsTemp.RecordCount = 0 Then
+'        subLogErrMsg "No History found for " & lEmpNo & " to get inside sales."
+'        fnInsideSales = 0
+'        Exit Function
+'    End If
+'
+'    strSQL = "SELECT bs_sales_amount FROM bonus_sales "
+'    strSQL = strSQL & " WHERE bs_prft_ctr = " & tfnRound(rsTemp!prhs_prft_ctr1)
+'    strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+'    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+'    strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+'
+    strSQL = "SELECT bs_sales_amount FROM bonus_sales, pr_master, bonus_grades"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    strSQL = strSQL & " AND prm_emp_level = bg_emp_level"
+    strSQL = strSQL & " AND bg_grade = 'A' "
     strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
     strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
-    strSQL = strSQL & " AND prhs_emp_level = bg_emp_level AND bg_grade = 'A' "
-    strSQL = strSQL & " AND prhs_empno = " & lEmpNo
-    strSQL = strSQL & " ORDER BY prhs_effective_dt DESC"
-    
-    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 0 Then
-        sErrMsg = "Failed to access the database to get " & sVinV
-        Exit Function
-    End If
-    
-    If rsTemp.RecordCount = 0 Then
-        subLogErrMsg "No History found for " & lEmpNo & " to get inside sales."
-        fnInsideSales = 0
-        Exit Function
-    End If
-            
-    strSQL = "SELECT bs_sales_amount FROM bonus_sales "
-    strSQL = strSQL & " WHERE bs_prft_ctr = " & tfnRound(rsTemp!prhs_prft_ctr1)
-    strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
-    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
     strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
-    
+
     If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 0 Then
         sErrMsg = "Failed to access the database to get " & sVinV
         Exit Function
@@ -1834,7 +1794,7 @@ Private Function fnInvRecordMonths(sVinV As String, _
             
             'sDateEnd = frmZZSEBPRC!txtStartDate
             sDateEnd = Year(CDate(frmZZSEBPRC!txtStartDate)) & "/" & Month(CDate(frmZZSEBPRC!txtStartDate)) & "/" & "01"
-            dDiff = Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+            dDiff = fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
         End If
     
     Else
@@ -1858,7 +1818,7 @@ Private Function fnInvRecordMonths(sVinV As String, _
                             Exit Function
                         End If
                         
-                        dDiff = dDiff + Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                        dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
                     Else
                         sDateStart = fnGetField(rsTemp!prhs_effective_dt)
                         Exit Do
@@ -1885,14 +1845,14 @@ Private Function fnInvRecordMonths(sVinV As String, _
                (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
                 'sDateEnd = frmZZSEBPRC!txtStartDate
                 sDateEnd = Year(CDate(frmZZSEBPRC!txtStartDate)) & "/" & Month(CDate(frmZZSEBPRC!txtStartDate)) & "/" & "01"
-                dDiff = dDiff + Int(fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                dDiff = dDiff + fnDateDiff("m", CDate(sDateStart), CDate(sDateEnd))
             End If
             
         End If
         
     End If
     
-    fnInvRecordMonths = dDiff
+    fnInvRecordMonths = Int(dDiff)
 End Function
 
 Private Function fnYearAtLevelJan1(sVinV As String, _
@@ -2205,6 +2165,70 @@ Private Function fnMonthsInGrade(sVinV As String, _
     
 End Function
 
+Private Function fnGetAsstMgr3MonthSales(sVinV As String, sErrMsg As String, _
+                                        lEmpNo As Long) As Double
+
+    Dim strSQL As String
+    Dim strSubSql As String
+    Dim rsTemp As Recordset
+    Dim dTotalSales As Double
+    Dim sStartDate As String
+    Const FUNC_NAME As String = "fnGetAsstMgr3MonthSales"
+    
+    sStartDate = frmZZSEBPRC!txtStartDate
+    
+    strSubSql = "SELECT bs_sales_amount FROM bonus_sales, pr_master, bonus_grades"
+    strSubSql = strSubSql & " WHERE prm_empno = " & lEmpNo
+    strSubSql = strSubSql & " AND bs_prft_ctr = prm_prft_ctr1"
+    strSubSql = strSubSql & " AND prm_emp_level = bg_emp_level"
+    strSubSql = strSubSql & " AND bg_grade = 'A' "
+    strSubSql = strSubSql & " AND bs_sales_type = " & tfnSQLString(sOneMth)
+    
+    'preious month
+    strSQL = strSubSql & " AND bs_from_date <= " & tfnDateString(sStartDate, True)
+    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(sStartDate, True)
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    ElseIf rsTemp.RecordCount = 0 Then
+        dTotalSales = dTotalSales + 0#
+    Else
+        dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+    End If
+    
+    '2 months ago
+    sStartDate = CStr(DateAdd("M", -1, CDate(sStartDate)))
+    strSQL = strSubSql & " AND bs_from_date <= " & tfnDateString(sStartDate, True)
+    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(sStartDate, True)
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    ElseIf rsTemp.RecordCount = 0 Then
+        dTotalSales = dTotalSales + 0#
+    Else
+        dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+    End If
+    
+
+    '3 months ago
+    sStartDate = CStr(DateAdd("M", -1, CDate(sStartDate)))
+    strSQL = strSubSql & " AND bs_from_date <= " & tfnDateString(sStartDate, True)
+    strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(sStartDate, True)
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    ElseIf rsTemp.RecordCount = 0 Then
+        dTotalSales = dTotalSales + 0#
+    Else
+        dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+    End If
+    
+    fnGetAsstMgr3MonthSales = tfnRound(dTotalSales, 2)
+    
+End Function
 Private Function fnFindInList(vItemToFind As Variant, _
                                 aryList() As Variant, _
                                 nListCount As Integer) As Boolean
@@ -3157,4 +3181,5 @@ Public Function fnDateDiff(sInterval As String, _
 errTrap:
     tfnErrHandler "fnDateDiff"
 End Function
+
 

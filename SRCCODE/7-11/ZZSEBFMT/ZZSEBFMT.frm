@@ -813,7 +813,7 @@ Begin VB.Form frmZZSEBFMT
          BevelOuter      =   5
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -2996,6 +2996,7 @@ Private Function fnCreateTempTableVar() As Boolean
                          "3_month_sales_avg", _
                          "asst_mgr_3_m_sales", _
                          "asst_mgr_gals_sold", _
+                         "day_off_slip_day", _
                          "days_employed", _
                          "gallons_sold", _
                          "inside_sales", _
@@ -3004,11 +3005,6 @@ Private Function fnCreateTempTableVar() As Boolean
                          "months_employed", _
                          "ot_hours", _
                          "regular_hours", _
-                         "slip_days_at_pc_1", _
-                         "slip_days_at_pc_2", _
-                         "slip_days_at_pc_3", _
-                         "slip_days_at_pc_4", _
-                         "slip_days_at_pc_5", _
                          "two_week_sales", _
                          "yrs_at_lvl_jan_1")
                          
