@@ -304,11 +304,17 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
     Dim lColor As Long
     Dim bBold As Boolean
     
+    'david 12/20/99
+    'comment out DoEvents
+    'fixed the validation issue in IQFFCPMT
+    'Ma cannot tell weather this will affect the validation of other program or not.
+    
     nCount = 0
     While nValidating >= 0 And nCount < 10
         nCount = nCount + 1
-        DoEvents
+        'DoEvents
     Wend
+    
     If nValidating >= 0 Then
         'It is validating
         If nValidating = nNum Then
