@@ -1,0 +1,568 @@
+//***************************************************************************
+//
+// MyEureka! software CD Installation
+//
+//***************************************************************************
+
+//includes
+#include "winapi.h"
+
+//constants
+#define PRODUCT_VERSION         "2.00"
+#define COMPANY_NAME		"FACTOR"
+#define PRODUCT_NAME            "MyEureka! Software"
+#define PRODUCT_KEY             "MyEureka"
+
+#define WELCOME_TITLE           "MyEureka! Software Installation"
+#define SETUP_FILE               ""
+
+//global variables
+
+
+declare
+
+#include "sddialog.h"
+
+        //setup variables
+        NUMBER nReturn;
+
+        STRING szReportComponents, szComponents1, szAppName, szExeName;
+        STRING szODBCComponents, szSelectedDataSource;
+        STRING szComponent1, szComponent2, szComponent3;
+        STRING szBackupIVODBCLICDir, szIQKDir, szDisk;
+        STRING szDestMsg, szMsg, szTemp;
+
+        BOOL bTemp1, bTemp2;
+
+        LIST listInfo;
+
+        // function prototypes
+        prototype fnFindFile(STRING, STRING);
+        prototype SelectDataSourceList();
+        prototype UpdateMyEurekaRegistry();
+
+
+program
+
+
+StartHere:
+
+	// set title for all dialog boxes
+   SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE + " Options");
+	SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_SEVERE, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_WARNING, WELCOME_TITLE);
+	SetDialogTitle(DLG_USER_CAPTION, WELCOME_TITLE);
+
+     //set installation header
+     if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+             SetTitle(WELCOME_TITLE, 24, WHITE );
+     else
+             SetTitle( "MyEureka!" + "™" + " Software CD Installation", 24, WHITE );
+     endif; 
+
+     RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+     //set installation information
+     InstallationInfo(COMPANY_NAME, PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_KEY);
+
+     szSelectedDataSource = "";
+
+
+SayWelcome:
+
+	Disable(BACKBUTTON);
+
+	Welcome(WELCOME_TITLE, 0);
+   
+   Enable(BACKBUTTON);
+
+
+AskOptions1:
+   
+        szReportComponents = "Components to Install";
+        szComponent1 = "MyEureka! Report Designer and Viewer";
+        szComponent2 = "MyEureka! Report Viewer Only";
+        ComponentAddItem(szReportComponents, szComponent1, 1024, TRUE);
+        ComponentAddItem(szReportComponents, szComponent2, 2000, FALSE);
+
+        szTemp = "";
+        if (SdAskOptions(WELCOME_TITLE ,szReportComponents + ":",
+                "Choose the options above for " + szReportComponents +
+                 ".\n\nOnce you have selected the option, click the Next " +
+                 "button to continue.", szTemp, szReportComponents, EXCLUSIVE) = BACK) then
+        
+           goto SayWelcome;
+        
+        endif;
+
+
+AskOptions2:
+
+        szComponents1 = "Knowledge Base";
+        szComponent3 = "Factor Objects Knowledge Base";
+        ComponentAddItem(szComponents1, szComponent3, 1000, TRUE);
+        
+        szTemp = "";
+        if (SdAskOptions(WELCOME_TITLE ,szComponents1 + ":",
+                "Choose the options above" +
+                 ".\n\nOnce you have selected the option, click the Next " +
+                 "button to continue.", szTemp, szComponents1, NONEXCLUSIVE) = BACK) then
+        
+           goto AskOptions1;
+        
+        endif;
+
+
+// get target path for local installation
+GetIqkPath:
+
+        szIQKDir = TARGETDISK ^ "IQ" ^ "IQOBJECT";
+
+        if (ComponentIsItemSelected(szComponents1, szComponent3)) then
+                szDestMsg = "Setup will install Factor Objects Knowledge Base in the Destination Directory.\n\n";
+                szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+                szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
+                szDestMsg = szDestMsg + "directory.\n\n";
+                szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to ";
+                szDestMsg = szDestMsg + "exit Setup.";
+    
+           if (AskDestPath("", szDestMsg, szIQKDir, 0) = BACK) then
+                   goto AskOptions2;
+           endif;
+        else
+            szIQKDir = "";
+        endif;
+
+
+GetDataSourceName:
+        if (SelectDataSourceList() = BACK) then
+               goto GetIqkPath;
+        endif;
+
+
+ConfirmInstall:
+
+        // Show SdStartCopy dialog to confirm installation.
+        listInfo = ListCreate( STRINGLIST );
+
+        //Construct the Info List
+        ListAddString(listInfo, PRODUCT_NAME + " Components to be intalled:", AFTER);
+
+        if (ComponentIsItemSelected(szReportComponents, szComponent1)) then
+             ListAddString(listInfo, "        " + szComponent1, AFTER);
+        else
+             ListAddString(listInfo, "        " + szComponent2, AFTER);
+        endif;
+
+        if (ComponentIsItemSelected(szComponents1, szComponent3)) then
+             ListAddString(listInfo, "        " + szComponent3, AFTER);
+             ListAddString(listInfo, "", AFTER);
+             ListAddString(listInfo, "Factor Objects Knowledge Base Directory:", AFTER);
+             ListAddString(listInfo, "        " + szIQKDir, AFTER);
+        endif;
+
+        ListAddString(listInfo, "", AFTER);
+
+        ListAddString(listInfo, "Selected ODBC Data Source:", AFTER);
+
+        if (szSelectedDataSource = "") then
+             ListAddString(listInfo, "        None", AFTER);
+        else
+             ListAddString(listInfo, "        " + szSelectedDataSource, AFTER);
+        endif;
+
+        szMsg = "Setup has enough information to start install " + PRODUCT_NAME + ". " +
+                "If you want to review or change any settings, click Back.  If you are " +
+                "satisfied with the settings, click Next to begin copying files.";
+        if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
+           ListDestroy( listInfo );
+               goto GetDataSourceName;
+        endif;
+
+        ListDestroy( listInfo );
+
+        //rename IVODBC.LIC to IVODBC.SAV
+        VarSave (SRCTARGETDIR);
+
+        SRCDIR = WINSYSDIR;
+
+        if (fnFindFile(SRCDIR, "IVODBC.LIC")) then 
+              TARGETDIR = WINSYSDIR;
+              szBackupIVODBCLICDir = TARGETDIR;
+      
+              if (RenameFile("IVODBC.LIC", "IVODBC.SAV") < 0) then
+                     if (szIQKDir != "") then
+                           GetDisk(szIQKDir, szDisk);
+                     else
+                           szDisk = TARGETDISK;
+                     endif;
+
+                     TARGETDIR = szDisk ^ "";
+                     szBackupIVODBCLICDir = TARGETDIR;
+
+                     if (CopyFile("IVODBC.LIC", "IVODBC.SAV") < 0) then
+                           MessageBox("Failed to backup IVODBC.LIC file.", WARNING);
+                           abort;
+                     endif;
+              endif;
+        endif;
+
+        VarRestore(SRCTARGETDIR);
+
+        //launching MyEureka Report installation
+        if (ComponentIsItemSelected(szReportComponents,szComponent1)) then
+            szAppName = szComponent1;
+            szExeName = SRCDIR ^ "Designer" ^ "Setup.exe";
+
+            Enable (HOURGLASS);
+
+            SdShowMsg ("Launching " + szAppName + " installation. Please wait ...", TRUE);
+
+            if (LaunchAppAndWait(szExeName, "", WAIT) < 0) then
+                  MessageBox("Failed to launch " + szAppName + ".", WARNING);
+                  abort;
+            endif;
+
+            Delay(10);
+
+            SdShowMsg ("", FALSE);
+
+            MessageBox("Installing " + szAppName + ". Click on OK button when finished.", INFORMATION);
+
+            Disable (HOURGLASS);
+        endif;
+
+        if (ComponentIsItemSelected(szReportComponents,szComponent2)) then
+            szAppName = "MyEureka! Report Viewer";
+            szExeName = SRCDIR ^ "Viewer" ^ "Setup.exe";
+
+            Enable (HOURGLASS);
+
+            SdShowMsg ("Launching " + szAppName + " installation. Please wait ...", TRUE);
+
+            if (LaunchAppAndWait(szExeName, "", WAIT) < 0) then
+                  MessageBox("Failed to launch " + szAppName + ".", WARNING);
+                  abort;
+            endif;
+
+            Delay(10);
+
+            SdShowMsg ("", FALSE);
+
+            MessageBox("Installing " + szAppName + ". Click on OK button when finished.", INFORMATION);
+
+            Disable (HOURGLASS);
+        endif;
+
+        if (ComponentIsItemSelected(szComponents1,szComponent3)) then
+            //copy factor.iqk.
+
+           TARGETDIR = szIQKDir;
+
+           if (XCopyFile("FACTOR.IQK", "FACTOR.IQK", COMP_UPDATE_DATE | COMP_UPDATE_VERSION) < 0) then
+                 MessageBeep(0);
+                 MessageBox("Setup failed to copy FACTOR.IQK knowledge Base file.", WARNING);
+                 abort;
+           endif;
+        endif;
+
+        //rename IVODBC.SAV back to IVODBC.LIC
+        VarSave (SRCTARGETDIR);
+
+        SRCDIR = szBackupIVODBCLICDir;
+
+        if (fnFindFile(SRCDIR, "IVODBC.SAV")) then 
+              TARGETDIR = WINSYSDIR;
+
+              if (fnFindFile(TARGETDIR, "IVODBC.LIC")) then
+                     DeleteFile("IVODBC.LIC");
+              endif;
+
+              if (RenameFile("IVODBC.SAV", "IVODBC.LIC") < 0) then
+                     MessageBox("Failed to rename IVODBC.LIC file.", WARNING);
+              endif;
+        endif;
+
+	SRCDIR = WINDISK ^ "WIN32APP\\INFORMIX\\SYSTEM\\IV3\\";
+	TARGETDIR = WINSYSDIR;
+   
+        if (CopyFile("IVODBC.LIC", "IVODBC.LIC") < 0) then
+                MessageBox("IVODBC.LIC file copy failed!", SEVERE);
+        endif;
+
+        VarRestore(SRCTARGETDIR);
+
+
+      //update Report Designer settings
+      UpdateMyEurekaRegistry();
+
+      SdFinish(WELCOME_TITLE + " Completed",
+              WELCOME_TITLE + " has finished installing files to your system.",
+              "Click Finish to end " + WELCOME_TITLE,
+              "", "", bTemp1, bTemp2);
+
+      exit;
+
+
+//------------------ End of Main Program ---------------------------
+
+
+function fnFindFile(szPath, szFile)
+
+        STRING svResult;
+
+begin
+
+        svResult = "";
+
+        FindFile(szPath, szFile, svResult);
+
+        if (svResult = "") then
+                return FALSE;
+        else
+                return TRUE;
+        endif;
+
+end;
+
+
+function SelectDataSourceList()
+
+   STRING  szSubKey, szKey, svKeyValue, szMsg;
+   STRING  szSearchString, svReturnString, svResult;
+   LIST    lstNameList, lstDataSources;
+   NUMBER  nReturn, nvType, nvSize, nReturnValue;
+   BOOL    bODBCfound;
+
+
+begin
+
+   lstNameList = ListCreate (STRINGLIST);
+   lstDataSources = ListCreate (STRINGLIST);
+
+   if ( (lstNameList = LIST_NULL) || (lstDataSources = LIST_NULL)) then
+            MessageBox ("Unable to create necessary Lists!", SEVERE);
+            return NEXT;
+   endif;
+
+   szSearchString = "INTERSOLV";
+   szSubKey = "SOFTWARE\\ODBC\\ODBC.INI\\ODBC Data Sources";
+
+   RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+
+   nReturn = RegDBQueryKey (szSubKey, REGDB_NAMES, lstNameList);
+
+   bODBCfound = FALSE;
+
+   if (nReturn >= 0) then
+      //Filter - show ONLY Informix data source
+      nReturn = ListSetIndex (lstNameList, LISTFIRST);
+   
+      while ( (nReturn != END_OF_LIST))
+         ListCurrentString (lstNameList, szKey);
+
+         if (szKey != "XTrackSecurity") then
+               if (RegDBGetKeyValueEx (szSubKey, szKey, nvType,
+                  svKeyValue, nvSize) >= 0) then
+                     if (svKeyValue != "" && nvSize > 8) then
+                           StrSub(svResult, svKeyValue, 0, 9);
+                           StrToUpper(svResult, svResult);
+      
+                           if (svResult = szSearchString) then
+                              if (ListAddString(lstDataSources, szKey, AFTER) < 0) then
+                                    MessageBox("ListAddString failed - '" + szKey + "'.", INFORMATION);
+                              else
+                                    bODBCfound = TRUE;
+                              endif;
+                           endif;
+      
+                     endif;
+               endif;
+         endif;
+
+         nReturn = ListSetIndex (lstNameList, LISTNEXT);
+       endwhile;
+   endif;
+
+   RegDBSetDefaultRoot (HKEY_LOCAL_MACHINE);
+
+   nReturn = RegDBQueryKey (szSubKey, REGDB_NAMES, lstNameList);
+
+   if (nReturn >= 0) then
+      //Filter - show ONLY Informix data source
+      nReturn = ListSetIndex (lstNameList, LISTFIRST);
+   
+      while ( (nReturn != END_OF_LIST))
+         ListCurrentString (lstNameList, szKey);
+
+         if (szKey != "XTrackSecurity") then
+               if (RegDBGetKeyValueEx (szSubKey, szKey, nvType,
+                  svKeyValue, nvSize) >= 0) then
+                     if (svKeyValue != "" && nvSize > 8) then
+                           StrSub(svResult, svKeyValue, 0, 9);
+                           StrToUpper(svResult, svResult);
+      
+                           if (svResult = szSearchString) then
+                              if (ListAddString(lstDataSources, szKey, AFTER) < 0) then
+                                    MessageBox("ListAddString failed - '" + szKey + "'.", INFORMATION);
+                              else
+                                    bODBCfound = TRUE;
+                              endif;
+                           endif;
+      
+                     endif;
+               endif;
+         endif;
+
+         nReturn = ListSetIndex (lstNameList, LISTNEXT);
+       endwhile;
+   endif;
+
+   if (bODBCfound) then
+      nReturn = ListSetIndex (lstDataSources, LISTFIRST);
+      szODBCComponents = "Data Sources";
+
+
+      while ( (nReturn != END_OF_LIST))
+         ListCurrentString (lstDataSources, szKey);
+
+
+         ComponentAddItem(szODBCComponents, szKey, 0, bODBCfound);
+         bODBCfound = FALSE;
+
+         nReturn = ListSetIndex (lstDataSources, LISTNEXT);
+       endwhile;
+
+       szMsg = "Choose an ODBC Data Source above and " +
+                 "click the Next button to continue.";
+
+       nReturnValue = SdAskOptionsList("Select ODBC Data Source", szMsg,
+            szODBCComponents, EXCLUSIVE);
+
+      if (nReturnValue = BACK) then
+         ListDestroy (lstNameList);
+         ListDestroy (lstDataSources);
+         return BACK;
+      endif;
+
+      nReturn = ListSetIndex (lstDataSources, LISTFIRST);
+   
+      while ( (nReturn != END_OF_LIST))
+         ListCurrentString (lstDataSources, szKey);
+
+         if (ComponentIsItemSelected(szODBCComponents, szKey)) then
+            szSelectedDataSource = szKey;
+
+            ListDestroy (lstNameList);
+            ListDestroy (lstDataSources);
+            return NEXT;
+         endif;  
+
+         nReturn = ListSetIndex (lstDataSources, LISTNEXT);
+       endwhile;
+   else
+      SprintfBox (SEVERE, WELCOME_TITLE,
+                  "INTERSOLV INFORMIX ODBC Data Sources is not setup on this Machine");
+   endif;
+
+   ListDestroy (lstNameList);
+   ListDestroy (lstDataSources);
+   return NEXT;
+
+end;
+
+
+function UpdateMyEurekaRegistry()
+
+   STRING  szSubKey, szKey, svKeyValue, szMsg;
+   NUMBER  nReturn;
+
+
+begin
+
+   RegDBSetDefaultRoot (HKEY_CURRENT_USER);
+
+   szSubKey = "SOFTWARE\\Information Advantage\\IQOBJECT.INI\\General";
+
+   if (szSelectedDataSource != "") then
+         szKey = "datasource";
+         svKeyValue = szSelectedDataSource;
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+      
+         szKey = "database";
+         svKeyValue = "";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+
+         szKey = "loginID";
+         svKeyValue = "";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+
+         szKey = "password";
+         svKeyValue = "";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+
+         szKey = "serverName";
+         svKeyValue = "";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+
+         szKey = "useDialogEachConnect";
+         svKeyValue = "0";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+   else
+         szKey = "useDialogEachConnect";
+         svKeyValue = "1";
+      
+         if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+            MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+               "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+         endif;
+   endif;
+
+   szKey = "rspFileName";
+   svKeyValue = szIQKDir ^ "FACTOR.IQK";
+
+   if (RegDBSetKeyValueEx (szSubKey, szKey, REGDB_STRING, svKeyValue, -1) < 0) then
+      MessageBox ("Failed to update registry. Key = " + szSubKey + "\n" +
+         "Subkey = " + szKey + "\nValue = " + svKeyValue, WARNING);
+   endif;
+
+
+   //update default connection (NOT IMPLEMENT YET)!!!
+   //[HKEY_USERS\.DEFAULT\Software\Information Advantage\IQOBJECT.INI]
+
+   //RegDBSetDefaultRoot (HKEY_USERS);
+
+   //szSubKey = ".DEFAULT\\SOFTWARE\\Information Advantage\\IQOBJECT.INI\\General";
+
+
+end;
+
+
+#include "sddialog.rul"
+
