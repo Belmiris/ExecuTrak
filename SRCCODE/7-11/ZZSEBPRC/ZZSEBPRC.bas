@@ -287,7 +287,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             sReportTitle = "Employee Bonus Approval Report"
             sHeadTitle = fnTranc("", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee", 9, vbLeftJustify) & Space(1)
-            sHeadTitle = sHeadTitle & fnTranc("Employee Name", 46, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("", 46, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Prft", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Pay", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Pay", 5, vbLeftJustify) & Space(2)
