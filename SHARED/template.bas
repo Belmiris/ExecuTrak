@@ -442,6 +442,12 @@ Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the defa
 'Robert Atwood 09-19-01 For TBKit Reportserver mod
 Public Const RPTSRV_UP = 14400
 Public Const RPTSRVSEC_UP = 14450
+'Robert Atwood 10-03-01 for WOENTRY toolbar
+Public Const ADDNOTES_UP = 14500
+Public Const VIEWWOHIST_UP = 14550
+Public Const VIEWCUSTINFO_UP = 14600
+Public Const POERCVER_UP = 14640
+Public Const WSERCVER_UP = 14700
 
 Public Type CursorMode
 
