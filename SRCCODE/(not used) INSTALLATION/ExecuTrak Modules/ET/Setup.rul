@@ -11,14 +11,14 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.10"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "EDI310"
-#define UNINSTALL_NAME          "EDI Tax Filing  Version 3.10"
+#define PRODUCT_VERSION         "3.09.05"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "EDI309.05"
+#define UNINSTALL_NAME          "EDI Tax Filing  Version 3.09.05"
 
 #define KEY_TLC                 "dediexc.exe"
 #define PRODUCT_NAME_TLC        "EDI Trading Partner"
 #define MODULE_NAME_TLC         "EDI Trading Partner"
-#define PRODUCT_VERSION_TLC     "3.10"
+#define PRODUCT_VERSION_TLC     "3.09.05"
 
 #define SIZE_REQ_LOCAL          5       // 5 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
@@ -68,6 +68,8 @@ declare
 
 	// function prototypes
 	prototype CheckDiskSpace(NUMBER);
+	prototype GetTLCPath();
+	prototype CheckTLCKey();
 	prototype CopySetup();
 	prototype CopyLocalDB(STRING);
 	prototype fnFindFile(STRING, STRING);
@@ -201,7 +203,32 @@ GetTargetPath:
 	szBaseDirectory = szFolder ^ APP_BASE_PATH;
 
 
-        szTLCDir = "C:\\HARB\\TLC";
+GetTLCInfo:
+	if (AskYesNo("Have you installed the TrustedLink Commerce software?",
+	    YES) = NO) then
+	        MessageBox("Please install TrustedLink Commerce software before " +
+	                "installing the " + PRODUCT_NAME + ".", INFORMATION);
+	        abort;
+	endif;
+	
+	// check the registry - if old trading partner setup exists.
+	if (RegDBGetKeyValueEx(KEY_VERSION_TLC, MODULE_NAME_TLC, nReturn, szTemp, nTemp) = 0) then
+	        szTLCDir = szTemp;
+	else
+	        szTLCDir = "C:\\HARB\\TLC";
+	endif;
+
+
+lblGetTLCPath1:
+	if (GetTLCPath() = BACK) then
+	        goto GetTargetPath;
+	else
+	        if (CheckTLCKey() = NOTEXISTS) then
+	                goto lblGetTLCPath1;
+	        endif;
+	endif;
+	
+	StrToUpper(szTLCDir, szTLCDir);
 
 
 Check_Disk_Space:
@@ -227,6 +254,9 @@ ConfirmCopy:
 	ListAddString(listInfo, "", AFTER);
 	ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
 	ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
+	ListAddString(listInfo, "", AFTER);
+	ListAddString(listInfo, "TrustedLink Commerce program direcotry:", AFTER);
+	ListAddString(listInfo, "        " + szTLCDir, AFTER);
 	ListAddString(listInfo, "", AFTER);
 	ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
 	ListAddString(listInfo, "        Program\\Factor" + "\\" + PRODUCT_NAME, AFTER);
@@ -513,19 +543,81 @@ StartCopy:
 
 	szAppDir = szBaseDirectory;
 	
-	SetStatusWindow(97, "Creating Default Directory...");
+	SetStatusWindow(97, "Updating INI File...");
 
-	// create default directory
-	szTemp = szTLCDir ^ "EXCHANGE" ^ "INA";
-	if (ExistsDir(szTemp) = NOTEXISTS) then
-		CreateDir(szTemp);
+UpdateTLCDefault:
+	// update the default trading partner document files
+	if (szTLCDir != "") then
+	        LOGMSG="START OF UPDATE TLC DEFAULT";
+	        LOGWRITE(LOGMSG);
+	
+	        szFolder = szTLCDir ^ "DEDI.INI";
+	        GetProfString(szFolder, "Directories", "Archive", szTemp);
+	
+	        szAppDir = szTemp;
+	        StrToUpper(szTemp, szTemp);
+	
+	        // set archive directory
+	        if (szTemp != szTLCDir ^ "ARCHIVE" ^ "") then
+	                ReplaceProfString(szFolder, "Directories",
+	                "Archive", szAppDir, szTLCDir ^ "ARCHIVE" ^ "");
+	        endif;
+	
+	        LOGMSG="END OF UPDATE TLC DEFAULT";
+	        LOGWRITE(LOGMSG);
+	
+	        StatusUpdate(OFF, 0);
 	endif;
-	szTemp = szTLCDir ^ "EXCHANGE" ^ "KS813O";
-	if (ExistsDir(szTemp) = NOTEXISTS) then
-		CreateDir(szTemp);
+
+	szFind = szTLCDir ^ "DEDISCH.EXE";
+	
+	if (GetProfString("WIN.INI", "windows", "run", szOldValue) = 0) then
+	        LOGMSG="START UPDATING WIN.INI [windows] run=";
+	        LOGWRITE(LOGMSG);
+	
+	        szNewValue = "";
+	
+	        //remove C:\HARB\TLC\DEDISCH.EXE From run keyword
+	        StrToUpper(szTemp, szOldValue);
+	
+	        nPosi = StrFind(szTemp, szFind);
+	
+	        if (nPosi >= 0) then
+	                if (StrLength(szOldValue) != StrLength(szFind)) then
+	                        if (nPosi > 0) then
+	                                StrSub(szSub, szTemp, 0, nPosi);
+	                                szNewValue = szSub;
+	                        endif;
+	
+	                        StrSub(szTemp, szTemp, nPosi + 23, StrLength(szTemp) - nPosi - 23);
+	                        StrSub(szSub, szTemp, 0, 1);
+	
+	                        if (szSub = ";") then
+	                                StrSub(szTemp, szTemp, 1, StrLength(szTemp) - 1);
+	                        endif;
+	
+	                        szNewValue = szNewValue + szTemp;
+	                endif;
+	
+	                ReplaceProfString("WIN.INI", "windows", "run", szOldValue, szNewValue);
+	        endif;
+	
+	        LOGMSG="END UPDATING WIN.INI [windows] run=";
+	        LOGWRITE(LOGMSG);
 	endif;
 	
-	SetStatusWindow(98, "Creating Default Directory...");
+	SetStatusWindow(98, "Updating INI File...");
+	
+	LOGMSG="START OF UPDATE DEDI.INI in " + szTLCDir;
+	LOGWRITE(LOGMSG);
+	
+	szFolder = szTLCDir ^ "DEDI.INI";
+	
+	ReplaceProfString(szFolder, "Preferences",
+	"WrkLstNotify", szTemp, "No");
+	
+	LOGMSG="END OF UPDATE DEDI.INI in " + szTLCDir;
+	LOGWRITE(LOGMSG);
 
 
 UpdateEDI813TFINI:
@@ -570,6 +662,11 @@ UpdateEDI813TFINI:
 	szSCIcon = "";
 	
 	SetStatusWindow(99, "Creating program folder and icons...");
+	
+	//szSCExe = UNINST;
+	//szSCExe = szSCExe + " -f\"" + svUninstLogFile + "\"";
+	//AddFolderIcon(szFolder, "Uninstall " + PRODUCT_NAME, szSCExe,
+	//                          WINDIR, "", 0, "", REPLACE);
 	
 	szSCExe = szAppDir ^ "BIN" ^ PRODUCT_KEY;
 	LongPathToQuote(szSCExe, TRUE);
@@ -692,6 +789,52 @@ begin
 	logline=logline + "\n";
 	WriteLine( nvFileOut, logline);
 	return;
+end;
+
+
+/*---------------------------------------------------------------------------*\
+ *
+ * Function:  GetTLCPath
+ *
+ *  Purpose:  This function will ask user for TLC program path.
+ *
+ *
+ *    Input: default TLC path
+ *
+ *  Returns: BACK or NEXT
+ *
+ * Comments: default TLC path will be changed upon return of the function.
+\*---------------------------------------------------------------------------*/
+
+function GetTLCPath()
+        STRING szMsg;
+begin
+
+        szMsg = "Setup will copy the Default Trading Partner document files to the Destination Directory.\n\n";
+        szMsg = szMsg + "To copy to this directory, click Next.\n\n";
+        szMsg = szMsg + "To copy to a different directory, click Browse and select another\n";
+        szMsg = szMsg + "directory.\n\n";
+
+        if (AskDestPath("Enter TrustedLink Commerce Program File Location", szMsg, szTLCDir, 0) = BACK) then
+                return BACK;
+        else
+                return NEXT;
+        endif;
+
+end;
+
+
+function CheckTLCKey()
+        STRING szTemp;
+begin
+
+        if (FindFile(szTLCDir, KEY_TLC, szTemp) = 0) then
+                return EXISTS;
+        else
+                MessageBox("Trusted Link Program directory:\n\n'" +
+                        szTLCDir + "' is not valid.", SEVERE);
+                return NOTEXISTS;
+        endif;
 end;
 
 
