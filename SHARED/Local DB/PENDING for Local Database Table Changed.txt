@@ -1,3 +1,26 @@
+version: 3.26.0011????
+Date: 06/12/2002
+#370621-3
+
+Description: 
+	Custom Contract Selection Interface (Papco and East River Energy).
+
+	add new table fm_contract_data
+	add new table fm_cntrt_data_bak
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+''''''''''''''''' DONE - 3.26.0010 - 06/06/2002 ''''''''''''''''''''''''
+version: 3.26.0010
+Date: 06/06/2002
+#370694-2
+
+Description: 
+	Fuel Movement - Heating System Interface.
+
+	Alter table "MDelivery, MDeliveryDetail, MInvoiceLine, MBalance".
+	Change column type of lGross, lNet and fQuantity from Long Integer to Single.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 ''''''''''''''''' DONE - 3.26.0007 - 04/22/2002 ''''''''''''''''''''''''
 version: 3.26.0007
 Date: 04/22/2002
@@ -5,8 +28,9 @@ Description:
 	Togl Custom.
 
 	alter table togljournal add iSeqNumber LONG;
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
+''''''''''''''''' DISCARDED!!! - 06/12/2002 ''''''''''''''''''''''''
 version: 3.26.????
 Date: 04/05/2002
 Description: 
@@ -14,7 +38,7 @@ Description:
 
 	add new table zzer_cntrt_data_bak
 	add new table zzer_contract_data
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 (ROLLBACK, ROLLBACK, ROLLBACK) - 04/22/2002, REMOVED FROM 3.26.0007
 ''''''''''''''''' DONE - 3.26.0007 - 04/15/2002 ''''''''''''''''''''''''
@@ -25,7 +49,7 @@ Description:
 
 	alter table fd_delivery add fdd_tank_num text(5);
 (ROLLBACK, ROLLBACK, ROLLBACK) - 04/22/2002, REMOVED FROM 3.26.0007
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0006 - 03/07/2002 ''''''''''''''''''''''''
 version: 3.26.0006
@@ -37,7 +61,7 @@ Description:
 	add new table zzpc_sih_inv_line (copy from sih_inv_line)
 		+ (idph_base_cost, zzpct_site, zzpct_seq, zzpct_date)
 	add new table zzpc_sih_inv_tax (copy from sih_inv_line)
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0005 - 02/01/2002 ''''''''''''''''''''''''
 version: 3.26.????
@@ -56,7 +80,7 @@ zzpcfm_invoice       Long,
 zzpcfm_amount        Double,
 zzpcfm_cost          Double
 zzpcfm_dv_prodlnk    Long);
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0004 - 01/17/2002 ''''''''''''''''''''''''
 version: 3.26.????
@@ -64,12 +88,12 @@ Date: 01/07/2002
 Description: 
 	Murphy Voucher Jacket Enhancement.
 	alter table vouch_jacket_rpt add vjr_payment Memo;
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0004 - 01/08/2002 ''''''''''''''''''''''''
 version: 3.26.0004
 	No Pending. See Local Database Table Changed.txt
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0003 - 12/05/2001 ''''''''''''''''''''''''
 version: 3.26.0003
@@ -77,8 +101,7 @@ Date: 12/05/2001
 Description: 
 	Fuel Movement Changing Invoice Terms Fixed.
 	alter table MDelivery ADD szTerms text(5);
-
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0002 - 11/12/2001 ''''''''''''''''''''''''
 version: 3.26.0002
@@ -86,15 +109,4 @@ Date: 11/12/2001
 Description: 
 	Murphy Voucher Jacket Fixed.
 	alter table vouch_jacket_rpt add vjr_less_disc text(20);
-
-
-''''''''''''''''' DONE - 3.25.0015  ''''''''''''''''''''''''
-version: 3.25.15???
-Date: 10/10/2001
-Description: 
-    For Profit Report Enhancement.
-    1. Add new tables: prft_rpt_gj, prft_rpt_ap, prft_rpt_ar, prft_rpt_fm, prft_rpt_pr, prft_rpt_rs,    
-    prft_rpt_ws, prft_rpt_det_total.
-    2. Modify table PrftRptHeader - set "allow zero length" property to True for all fields.
-''''''''''''''''' DONE - 3.25.15  ''''''''''''''''''''''''
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
