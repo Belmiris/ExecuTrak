@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -500,7 +500,11 @@ Public Const CUST_ON_HOLD_STATS = " ('BH','OH') " 'WJ 04/18/2001
 'david 04/01/2002
 Public Const t_lBigFormWidth As Long = 11835
 Public Const t_lBigFormHeight As Long = 8760
-'
+
+'#Section and key for default settings to display closed customers or not
+'#Weigong   08/06/2002
+Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
+Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
@@ -743,7 +747,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -797,12 +801,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -840,7 +844,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -851,8 +855,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -940,19 +944,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -965,10 +969,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -1185,7 +1189,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1237,7 +1241,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1245,8 +1249,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1310,7 +1314,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2414,7 +2418,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2642,7 +2646,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2650,13 +2654,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sText)
         Else
@@ -2667,5 +2671,27 @@ Public Function fnRemoveChr0(vText) As String
     fnRemoveChr0 = sTemp
 End Function
 '''''''''''''''
+
+'#function Name: tfnGetDoNotShowClosedCustSettings
+'#You pass in : none
+'#Return: vbchecked =1 or vbunchecked = 0
+'#The check box should read like "Do not show closed customers"
+'#Weigong   08/06/2002
+Public Function tfnGetDoNotShowClosedCustSettings() As Integer
+    Dim sValue As String
+    '#Read Factor.ini
+    sValue = tfnReadINI(sSEC_SHOW_CL_CUST, sKEY_SHOW_CL_CUST, tfnGetWindowsDir(True) & szFACTOR_INI)
+    tfnGetDoNotShowClosedCustSettings = IIf(sValue = "YES", vbChecked, vbUnchecked)
+End Function
+
+'#function Name: tfnSaveDoNotShowClosedCustSettings
+'#You pass in : the check box value you want to save
+'#Return: true if successful; no if not successful
+'#Weigong   08/06/2002
+Public Function tfnSaveDoNotShowClosedCustSettings(ByVal nChkBoxValue As Integer) As Boolean
+    '#Save to factor.ini
+    tfnSaveDoNotShowClosedCustSettings = tfnWriteINI(sSEC_SHOW_CL_CUST, sKEY_SHOW_CL_CUST, _
+          IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
+End Function
 
 
