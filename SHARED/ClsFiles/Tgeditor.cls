@@ -518,19 +518,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     
     DataEdited = False
     If bLocked Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
@@ -573,7 +573,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -791,15 +791,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .Value
+            sVal = .value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).Value = .Value Then
-                    sVal = .ValueItems(i).Value
+                If .ValueItems(i).value = .value Then
+                    sVal = .ValueItems(i).value
                     Exit For
                 End If
             Next
@@ -1177,10 +1177,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).Value
+    vTemp = tgTable.Columns(nCol).value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).Value = vTemp Then
+            If .Item(i).value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1273,6 +1273,15 @@ End Sub
 
 Public Property Get OldValue() As Variant
     OldValue = m_nOldValue
+End Property
+
+'david 10/20/2002
+'when program change the cellvalue, the BeforeColEdit did not fire.
+'and thus the 'm_nOldValue' does not set and is not correct!
+'this method SHOULD BE called if 'OldValue' get method is called
+'after the program changed the cellvalue.
+Public Property Let OldValue(sCellValueBeforeChanged As Variant)
+    m_nOldValue = sCellValueBeforeChanged
 End Property
 
 Public Property Get CellValueBeforeColEdit() As Variant
@@ -4327,12 +4336,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4799,7 +4808,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4877,7 +4886,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -4936,7 +4945,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     m_bColIsSorted = False
     
@@ -5013,7 +5022,7 @@ Debug.Print sSortCols
         End If
     End If
     
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -5028,7 +5037,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     nSortCount = -1
     
@@ -5165,7 +5174,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, no sort
 End Function
 
@@ -5223,11 +5232,11 @@ End Function
 'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(Cancel As Integer)
+Public Sub SelChange(CANCEL As Integer)
     If lCountHighlightedID = 0 Then
-        Cancel = True
+        CANCEL = True
     Else
-        Cancel = False
+        CANCEL = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -5288,7 +5297,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
         Exit Sub
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5309,7 +5318,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
