@@ -1,0 +1,9 @@
+DIR=g:\program\release\exectrak\et  MASK=*.*
+DIR=g:\program\release\exectrak\custctl MASK=*.*
+DIR=g:\program\release\exectrak\pdqcomm MASK=*.*
+DIR=g:\program\release\exectrak\dll MASK=*.*
+DIR=g:\program\release\exectrak\local_db MASK=*.*
+DIR=g:\program\release\exectrak\common MASK=*.*
+DIR=g:\program\release\exectrak\ole MASK=*.*
+DIR=g:\program\release\exectrak\rtm MASK=*.*
+DIR=g:\program\release\exectrak\shared MASK=*.*
