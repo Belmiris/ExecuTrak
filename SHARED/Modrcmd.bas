@@ -126,12 +126,15 @@ Public Function fnExecute4GE(sCmdLine As String, _
         #End If
     Else
 'MsgBox "t_dbMainDatabase.Connect=" + tfnSQLString(t_dbMainDatabase.Connect)
-        sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
+        'sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
+        sHost = tfnGetHostName
         sDBPath = fnDBPath
         
         'david 11/16/00
-        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
-        sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
+        'sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
+        'sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
+        sUserID = tfnGetUserName
+        sPassWD = tfnGetPassword
     End If
     
     'david 10/23/00
@@ -170,8 +173,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
             fnExecute4GE = True
         Else
             fnExecute4GE = False
-            'comment out by junsong, we don't need show message two times. 11/30/00
-            'tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, "Failed to execute 4ge program" & vbCrLf & sTemp & vbCrLf & "Command line string:" & sCmd
+            tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, sTemp
         End If
     Else
         sCmd = "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;cd " & sDBPath & ";" _
@@ -279,8 +281,13 @@ Private Function fnRunRCmd(sHost As String, _
     Dim nCode As Integer
     Dim nMsgLen As Integer
     Dim nOutput As Integer
+    Dim sConnect_Used As String
     
     On Error GoTo errRunShell
+    
+    If Not t_dbMainDatabase Is Nothing Then
+        sConnect_Used = t_dbMainDatabase.Connect
+    End If
     
     fnRunRCmd = ""
     nCode = ERR_LOGIN
@@ -297,11 +304,11 @@ Private Function fnRunRCmd(sHost As String, _
     
     If nCode < 0 Then
         nMsgLen = InStr(sErrMsg, Chr(0))
+              
         If nMsgLen > 0 Then
-            fnRunRCmd = Left(sErrMsg, nMsgLen)
-'            MsgBox "Failed here: " & fnRunRCmd
+            fnRunRCmd = tfnStripNULL(Left(sErrMsg, nMsgLen)) & vbCrLf & "Connection String: " & sConnect_Used
         Else
-            fnRunRCmd = "Cannot logon to the server to execute server program"
+            fnRunRCmd = "Cannot logon to the server to execute server program" & vbCrLf & "Connection String: " & sConnect_Used
         End If
     Else
         sErrMsg = ""
@@ -314,8 +321,9 @@ Private Function fnRunRCmd(sHost As String, _
         Loop Until nOutput <= 1
         RCmdClose nCode
         If sErrMsg <> "" Then
-            tfnErrHandler SUB_NAME, ERR_MSG_RETURNED, "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
+            'tfnErrHandler SUB_NAME, ERR_MSG_RETURNED, "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
             'add following statement by junsong 11/30/00 to return error message
+            sErrMsg = "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
             fnRunRCmd = sErrMsg
         End If
     End If
@@ -323,10 +331,10 @@ Private Function fnRunRCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
     End If
 End Function
 
@@ -489,10 +497,10 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
     End If
     
     
