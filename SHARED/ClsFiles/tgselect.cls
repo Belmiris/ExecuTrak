@@ -1324,7 +1324,7 @@ notfound:
 End Property
 
 Property Get SelectedCellCount() As Long
-    If m_colMultiSelectedCells.Count Is Nothing Then
+    If m_colMultiSelectedCells Is Nothing Then
         SelectedCellCount = 0
     Else
         SelectedCellCount = m_colMultiSelectedCells.Count
