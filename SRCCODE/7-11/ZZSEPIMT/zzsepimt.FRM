@@ -117,19 +117,18 @@ Begin VB.Form frmZZSEPIMT
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         CurrTab         =   1
          TabsPerPage     =   4
          Caption         =   "&Pay Increase maint.|Pay &Increase Report"
          Begin FACTFRMLib.FactorFrame efraTabBack1 
-            Height          =   4530
-            Left            =   -22500
+            Height          =   4500
+            Left            =   15
             TabIndex        =   11
             TabStop         =   0   'False
-            Top             =   0
-            Width           =   8895
+            Top             =   15
+            Width           =   8865
             _Version        =   65536
-            _ExtentX        =   15690
-            _ExtentY        =   7990
+            _ExtentX        =   15637
+            _ExtentY        =   7937
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -563,15 +562,15 @@ Begin VB.Form frmZZSEPIMT
             End
          End
          Begin FACTFRMLib.FactorFrame efraTabBack2 
-            Height          =   4500
-            Left            =   15
+            Height          =   4530
+            Left            =   18075
             TabIndex        =   16
             TabStop         =   0   'False
-            Top             =   15
-            Width           =   8865
+            Top             =   0
+            Width           =   8895
             _Version        =   65536
-            _ExtentX        =   15637
-            _ExtentY        =   7937
+            _ExtentX        =   15690
+            _ExtentY        =   7990
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
