@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBCMT 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Commission Code File Maintenance"
@@ -2873,8 +2873,8 @@ Private Sub tblBonus_KeyPress(Index As Integer, KeyAscii As Integer)
     If t_nFormMode = EDIT_MODE Then
         If KeyAscii = vbKeyReturn And tgmBonus(Index).RowCount - 1 = lRow Then
             If Index = nBonusCode Then
-                If tblBonus(Index).col = nColBCFreq Then
-                    'subSetStdBtn Index
+                If tblBonus(Index).col = nColBCOverride Then
+                    subSetStdBtn Index
                     If cmdUpdateInsertBtn(Index).Enabled Then
                         subSetFocus cmdUpdateInsertBtn(Index)
                     Else
@@ -2884,11 +2884,11 @@ Private Sub tblBonus_KeyPress(Index As Integer, KeyAscii As Integer)
             Else
                 If tblBonus(Index).col = nColBGLevel Then
                     subSetStdBtn Index
-                    'If cmdUpdateInsertBtn(Index).Enabled Then
-                    '    subSetFocus cmdUpdateInsertBtn(Index)
-                    'Else
-                    '    subSetFocus cmdExitCancelBtn(Index)
-                    'End If
+                    If cmdUpdateInsertBtn(Index).Enabled Then
+                        subSetFocus cmdUpdateInsertBtn(Index)
+                    Else
+                        subSetFocus cmdExitCancelBtn(Index)
+                    End If
                 End If
             End If
         End If
