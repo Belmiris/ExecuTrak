@@ -161,7 +161,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.61
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -856,7 +856,7 @@ Begin VB.Form frmZZSEPIMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.54
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -869,7 +869,7 @@ Begin VB.Form frmZZSEPIMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.54
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1289,7 +1289,7 @@ Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     tgcDropdown.TableMouseUp y
 End Sub
 
@@ -2135,7 +2135,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -2202,7 +2202,7 @@ Private Sub txtDesc_KeyPress(KeyAscii As Integer)
 '            tblSpreadsheet.Enabled = True
 '            subSetFocus tblSpreadsheet
 '        End If
-    End If
+'    End If
     If KeyAscii = vbKeyReturn Then
         KeyAscii = 0
     End If
@@ -2386,11 +2386,11 @@ Public Sub subEnableAllControls(bStatus As Boolean)
     efraTop.Enabled = bStatus
     tgmSpreadsheet.Locked = Not bStatus
 End Sub
-Private Function fnGetField(X As Variant) As String
-     If IsNull(X) Then
+Private Function fnGetField(x As Variant) As String
+     If IsNull(x) Then
         fnGetField = ""
      Else
-        fnGetField = Trim(X)
+        fnGetField = Trim(x)
      End If
 End Function
 Public Function fnValidCellValue(tgTable As Object, ByVal nCurrCol As Integer, ByVal lCurrRow As Long, szText As String) As Boolean
@@ -2440,13 +2440,13 @@ Private Function fnValidNumberForAdd(sText As String, ByVal lCurrRow As Long) As
             End If
         End If
      'check screen to find duplicated data
-        Dim i As Integer
-        For i = 0 To tgmSpreadsheet.RowCount - 1
-            If Trim(tgmSpreadsheet.CellValue(COL_DAYS, i)) = sCode And i <> lCurrRow Then
+        Dim I As Integer
+        For I = 0 To tgmSpreadsheet.RowCount - 1
+            If Trim(tgmSpreadsheet.CellValue(COL_DAYS, I)) = sCode And I <> lCurrRow Then
                 tgmSpreadsheet.ErrorMessage(COL_DAYS) = "Duplicated Days Employed encountered."
                 Exit Function
             End If
-        Next i
+        Next I
         'tgmSpreadsheet.BeforeColEdit COL_DAYS, 0, False
         tgmSpreadsheet.BeforeColEdit COL_RATE, 0, False
         fnValidNumberForAdd = True
@@ -2484,7 +2484,7 @@ Private Function fnUpdateInsert1() As Boolean
     Dim vData() As Variant
     Dim lRowCount As Long
     Dim nColCount As Integer
-    Dim i As Long
+    Dim I As Long
     
     Screen.MousePointer = vbHourglass
     'delete the data of same account number
@@ -2501,11 +2501,11 @@ Private Function fnUpdateInsert1() As Boolean
     End If
     
     'insert true grid sceen data into database
-    For i = 0 To lRowCount - 1
+    For I = 0 To lRowCount - 1
         If t_nFormMode = EDIT_MODE Then
-            tgmSpreadsheet.GetRow vData, nColCount, i
+            tgmSpreadsheet.GetRow vData, nColCount, I
         Else
-            tgmSpreadsheet.GetChangedRow vData, nColCount, i
+            tgmSpreadsheet.GetChangedRow vData, nColCount, I
         End If
         If fnGetField(vData(COL_DAYS)) <> "" Then
 
@@ -2528,7 +2528,7 @@ Private Function fnUpdateInsert2() As Boolean
     Dim vData() As Variant
     Dim lRowCount As Long
     Dim nColCount As Integer
-    Dim i As Long
+    Dim I As Long
     
     Screen.MousePointer = vbHourglass
 
@@ -2536,9 +2536,9 @@ Private Function fnUpdateInsert2() As Boolean
     
     lRowCount = tgmGrid.RowCount
     'insert true grid sceen data into database
-    For i = 0 To lRowCount - 1
+    For I = 0 To lRowCount - 1
         'tgmGrid.GetChangedRow vData, nColCount, i
-        tgmGrid.GetRow vData, nColCount, i
+        tgmGrid.GetRow vData, nColCount, I
         If fnGetField(vData(COL_EMPNO)) <> "" Then
 
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
@@ -2645,8 +2645,8 @@ Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As 
     Else
         Open sFileName For Output As #nFilePtr
     End If
-    Dim i As Integer
-    i = 0
+    Dim I As Integer
+    I = 0
     'Print #nFilePtr, "Program ID: ZZSEPILG"
     Print #nFilePtr, sProgName
     Print #nFilePtr, sRptTitle
@@ -2655,10 +2655,10 @@ Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As 
     Print #nFilePtr, String(CHAR_PER_LINE, "-")
     Print #nFilePtr, sLineHeader
     
-    Do While i <= INDEX_REPORT
+    Do While I <= INDEX_REPORT
         'print title and time
-        Print #nFilePtr, vData(i)
-        i = i + 1
+        Print #nFilePtr, vData(I)
+        I = I + 1
     Loop
     
     Close #nFilePtr
@@ -2771,7 +2771,7 @@ Public Sub subPrintRpt()
     Dim sExtraLine As String
     
     Dim lCount As Long
-    Dim i As Long
+    Dim I As Long
     Dim sLine As String
     
     sProgName = "Program ID: ZZSEPIMT"
@@ -2797,17 +2797,17 @@ Public Sub subPrintRpt()
     End If
     
     
-    For i = 0 To lCount - 1
+    For I = 0 To lCount - 1
         With tgmGrid
-           sLine = fnTranc(.CellValue(COL_EMPNO, i), 10, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NAME, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_LEVEL, i), 6, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DESC, i), 21, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_HIRE_DATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DAYS_WORKED, i), 12, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_OLD_RATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NEW_RATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DIFF, i), 15, LEFT_JUSTIFY)
+           sLine = fnTranc(.CellValue(COL_EMPNO, I), 10, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NAME, I), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_LEVEL, I), 6, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DESC, I), 21, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_HIRE_DATE, I), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DAYS_WORKED, I), 12, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_OLD_RATE, I), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NEW_RATE, I), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DIFF, I), 15, LEFT_JUSTIFY)
           'put in the array report
           subLineFeed sLine
        End With
