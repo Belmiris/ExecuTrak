@@ -302,6 +302,8 @@ Public Function fnCreateReport(Index As Integer) As Boolean
     Dim sFormula As String
     Dim i As Integer, j As Integer
     
+    Dim sReportID As String
+    
     Screen.MousePointer = vbHourglass
     frmZZSEBPRC.tfnSetStatusBarMessage "Printing report, please wait..."
     
@@ -309,6 +311,8 @@ Public Function fnCreateReport(Index As Integer) As Boolean
 
     Select Case Index
         Case TabApprove
+            sReportID = "ZZSEBPRA"
+            
             ReDim sArrReport(tgmApprove.RowCount - 1)
             For i = 0 To tgmApprove.RowCount - 1
                 sApprove = "N"
@@ -344,6 +348,8 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             sHeadTitle = sHeadTitle & fnTranc("Date", 10, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Amount", 10, vbRightJustify)
         Case TabDetails
+            sReportID = "ZZSEBPRD"
+            
             nArSize = (tgmDetail.RowCount * 2) - 1
             i = 0
             ReDim sArrReport(nArSize)
@@ -382,14 +388,26 @@ Public Function fnCreateReport(Index As Integer) As Boolean
     sHeadTitle = sHeadTitle & vbCrLf & String(104, "-")
     
     If Not fnSetupPrinter(vbPRORPortrait) Then
+        frmZZSEBPRC.tfnSetStatusBarError "Failed to print report"
         Exit Function
     End If
     
+    subSetReportID sReportID
     subSetTitle sHeadTitle
     
     If Not fnSendToPrinter(sArrReport(), sReportTitle) Then
+        frmZZSEBPRC.tfnSetStatusBarError "Failed to print report"
         Exit Function
     End If
+    
+    #If WRT_RPT_TO_FILE Then
+        If Not fnSendToFile(sArrReport(), sReportTitle, App.Path + "\" + sReportID + ".TXT") Then
+            frmZZSEBPRC.tfnSetStatusBarError "Failed to write report to file"
+            Exit Function
+        End If
+    #End If
+    
+    subSetReportID ""
     
     frmZZSEBPRC.tfnSetStatusBarMessage "Report was printed successfully"
     Screen.MousePointer = vbDefault
