@@ -11,6 +11,18 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+'This class is used to print report using visual basic
+'Usage:
+' Call the following:
+'1. InitPrinter
+'2: SendTextToPrinter(sout as string)
+'3: EndPrintDocument
+'4 if use the default style, we set propeties as following:
+'  a.CompanyName
+'  b.ColumnHeader
+'  c.ProgramID
+'  d.you can set ReportHeader or ReportSubHeader
+
 
 Option Explicit
 Private m_nBottomMargin As Integer
