@@ -1187,22 +1187,28 @@ Private Sub Class_Initialize()
 End Sub
 
 Private Sub Class_Terminate()
-    While m_colMultiSelCellColumns.Count > 0
-        m_colMultiSelCellColumns.Remove 1
-    Wend
+   If Not (m_colMultiSelCellColumns Is Nothing) Then
+      With m_colMultiSelCellColumns
+         While .Count > 0
+            .Remove 1
+         Wend
+      End With
+      Set m_colMultiSelCellColumns = Nothing
+   End If
     
-    While m_colMultiSelectedCells.Count > 0
-        m_colMultiSelectedCells.Remove 1
-    Wend
+   If Not (m_colMultiSelectedCells Is Nothing) Then
+      With m_colMultiSelectedCells
+         While .Count > 0
+            .Remove 1
+         Wend
+      End With
+      Set m_colMultiSelectedCells = Nothing
+   End If
     
-    Set m_colMultiSelCellColumns = Nothing
-    Set m_colMultiSelectedCells = Nothing
-    
-    Set m_tgTable = Nothing
-    Set m_tgcEditor = Nothing
-    Set m_tgcSelector = Nothing
+   Set m_tgTable = Nothing
+   Set m_tgcEditor = Nothing
+   Set m_tgcSelector = Nothing
 End Sub
-
 'david 02/09/2004  #401172-1
 Property Set CellColor(objCellColor As Object)
     If objCellColor Is Nothing Then
