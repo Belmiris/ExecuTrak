@@ -30,8 +30,8 @@ Public Const nTabHours As Integer = 4
 Public Const colSPrftCtr As Integer = 0
 Public Const colSPrftName As Integer = 1
 Public Const colSAmount As Integer = 2
-Public Const colSFromDate As Integer = 3
-Public Const colSToDate As Integer = 4
+'Public Const colSFromDate As Integer = 3
+'Public Const colSToDate As Integer = 4
 
 'Time Card Grid Column Names
 Public Const colHClockIn As Integer = 0
@@ -151,46 +151,42 @@ End Sub
 
 Public Function fnCreateSearchTable(szNumber As String, szName As String) As Boolean
     Dim sSql As String
-    Dim sSQL1 As String
-    Dim sSQL2 As String
-    Dim sSQLL  As String
     Dim sSqDrop As String
 
     'Drop temp table first
-    sSqDrop = " DROP TABLE sTmpCustTable"
+    sSqDrop = " DROP TABLE sTmpEmpTable"
     On Error GoTo ErrorDropTable
     t_dbMainDatabase.ExecuteSQL sSqDrop
     'Create a temp table
-    sSql = " CREATE TEMP  TABLE sTmpCustTable " & " ( " & szNumber & " INTEGER," & szName & " CHAR(60), prm_ssn CHAR(11)) "
+    sSql = "CREATE TEMP TABLE sTmpEmpTable ( " & szNumber & " INTEGER," & szName & " CHAR(60), prm_ssn CHAR(11)) "
     On Error GoTo errCreateTable
     t_dbMainDatabase.ExecuteSQL sSql
+    
     On Error GoTo errInsertRecords
-    sSQL1 = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
-    sSQL1 = sSQL1 & " || TRIM(prm_first_name) || ' '  || TRIM(prm_middle_name), prm_ssn"
-    sSQL1 = sSQL1 & " FROM pr_master WHERE  TRIM(prm_middle_name)<> ''"
-    'sSQL1 = sSQL1 & " AND prm_security_code <= " & tfnSQLString(Security_Code)
-    t_dbMainDatabase.ExecuteSQL sSQL1
-    sSQL2 = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
-    sSQL2 = sSQL2 & " || TRIM(prm_first_name), prm_ssn"
-    sSQL2 = sSQL2 & " FROM pr_master WHERE  TRIM(prm_middle_name) = '' OR prm_middle_name IS NULL"
-    'sSQL2 = sSQL2 & " AND prm_security_code <= " & tfnSQLString(Security_Code)
-    t_dbMainDatabase.ExecuteSQL sSQL2
+    sSql = "INSERT INTO sTmpEmpTable SELECT prm_empno, TRIM(prm_last_name) || ', '"
+    sSql = sSql & " || TRIM(prm_first_name) || ' '  || TRIM(prm_middle_name), prm_ssn"
+    sSql = sSql & " FROM pr_master WHERE  TRIM(prm_middle_name)<> ''"
+    'sSql = sSql & " AND prm_security_code <= " & tfnSQLString(Security_Code)
+    t_dbMainDatabase.ExecuteSQL sSql
+    
+    sSql = " INSERT INTO sTmpEmpTable SELECT prm_empno, TRIM(prm_last_name) || ', '"
+    sSql = sSql & " || TRIM(prm_first_name), prm_ssn"
+    sSql = sSql & " FROM pr_master WHERE  TRIM(prm_middle_name) = '' OR prm_middle_name IS NULL"
+    'sSql = sSql & " AND prm_security_code <= " & tfnSQLString(Security_Code)
+    t_dbMainDatabase.ExecuteSQL sSql
+    
     fnCreateSearchTable = True
     Exit Function
+
 ErrorDropTable:
     Resume Next
+
 errCreateTable:
-  '  MsgBox "Cannot create temporary table for searching.", vbOKOnly + vbCritical, App.Title
     tfnErrHandler "fnCreateSearchTable", sSql
-    Err.Clear
-    fnCreateSearchTable = False
     Exit Function
+
 errInsertRecords:
-  '  MsgBox "Cannot insert records into temmporary table.", vbOKOnly + vbCritical, App.Title
-  tfnErrHandler "fnCreateSearchTable", sSQL1 & "or " & sSQL2
-    Err.Clear
-    On Error Resume Next
-    fnCreateSearchTable = False
+    tfnErrHandler "fnCreateSearchTable", sSql
 End Function
 
 Public Function fnCreateReport(Index As Integer) As Boolean
@@ -591,105 +587,119 @@ Private Function fnGetBFormula(sBCode As String, nBLevel As Integer) As String
 
 End Function
 
-Public Function fnInsertUpdateSales(sPrftCtr As String, sFrmDt As String, _
-                                    sToDt As String, dSlsAmt As Double, _
-                                    sSType As String) As Boolean
-    Const SUB_NAME As String = "fnInsertUpdateSales"
+Public Function fnDeleteSalesRecord() As Boolean
+    Const SUB_NAME As String = "fnDeleteSalesRecord"
+    
     Dim strSQL As String
-    Dim sErrMsg As String
+    
+    fnDeleteSalesRecord = False
+    
+    strSQL = "DELETE FROM bonus_sales"
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
+    strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
+    
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+
+    strSQL = "DELETE FROM bonus_sales"
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
+    strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
+    
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+
+    strSQL = "DELETE FROM bonus_sales"
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " AND bs_from_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
+    
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+
+    strSQL = "DELETE FROM bonus_sales"
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " AND bs_to_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
+    
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+
+    fnDeleteSalesRecord = True
+End Function
+
+Public Function fnInsertUpdateSales() As Boolean
+    Const SUB_NAME As String = "fnInsertUpdateSales"
+    Dim i As Integer
+    Dim strSQL As String
+    
+    Dim nPrftCtr As Integer
+    Dim sFrmDt As String
+    Dim sToDt As String
+    Dim dSlsAmt As Double
+    Dim sSType As String
     
     fnInsertUpdateSales = False
     
-    If t_nFormMode = ADD_MODE Then
-        strSQL = "INSERT INTO bonus_sales (bs_prft_ctr, bs_from_date, bs_to_date,"
-        strSQL = strSQL & " bs_sales_amount, bs_sales_type) VALUES ("
-        strSQL = strSQL & tfnRound(sPrftCtr) & ","
-        strSQL = strSQL & tfnDateString(Trim(sFrmDt), True) & ","
-        strSQL = strSQL & tfnDateString(Trim(sToDt), True) & ","
-        strSQL = strSQL & tfnRound(dSlsAmt, 2) & ","
-        strSQL = strSQL & tfnSQLString(Trim(sSType)) & ")"
-        sErrMsg = "Failed to insert sales record"
-    Else
-        strSQL = "UPDATE bonus_sales SET bs_prft_ctr = " & tfnRound(sPrftCtr) & ","
-        strSQL = strSQL & " bs_from_date = " & tfnDateString(Trim(sFrmDt), True) & ","
-        strSQL = strSQL & " bs_to_date = " & tfnDateString(Trim(sToDt), True) & ","
-        strSQL = strSQL & " bs_sales_amount = " & tfnRound(dSlsAmt, 2)
-        strSQL = strSQL & " WHERE bs_sales_type = " & sSType
-        sErrMsg = "Failed to update sales record"
-    End If
+    sSType = tfnSQLString(frmZZSEBPRC.fnGetSalesType())
     
-    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
-        MsgBox sErrMsg, vbExclamation
-        Exit Function
-    End If
+    For i = 0 To tgmSales.RowCount - 1
+        If tgmSales.ValidCell(colSPrftCtr, i) And fnGetField(tgmSales.CellValue(colSPrftCtr, i)) <> "" Then
+            nPrftCtr = tfnRound(tgmSales.CellValue(colSPrftCtr, i))
+    '        sFrmDt = tfnDateString(tgmSales.CellValue(colSFromDate, i), True)
+    '        sToDt = tfnDateString(tgmSales.CellValue(colSToDate, i), True)
+            sFrmDt = tfnDateString(frmZZSEBPRC!txtFromDate, True)
+            sToDt = tfnDateString(frmZZSEBPRC!txtToDate, True)
+            dSlsAmt = tfnRound(tgmSales.CellValue(colSAmount, i), 2)
+            
+            If t_nFormMode = ADD_MODE Then
+                strSQL = "INSERT INTO bonus_sales (bs_prft_ctr, bs_from_date, bs_to_date,"
+                strSQL = strSQL & " bs_sales_amount, bs_sales_type) VALUES ("
+                strSQL = strSQL & nPrftCtr & ","
+                strSQL = strSQL & sFrmDt & ","
+                strSQL = strSQL & sToDt & ","
+                strSQL = strSQL & dSlsAmt & ","
+                strSQL = strSQL & sSType & ")"
+            Else
+                strSQL = "UPDATE bonus_sales SET"
+                'strSQL = strSQL & " bs_prft_ctr = " & nPrftCtr & ","
+                'strSQL = strSQL & " bs_from_date = " & sFrmDt & ","
+                'strSQL = strSQL & " bs_to_date = " & sToDt & ","
+                strSQL = strSQL & " bs_sales_amount = " & dSlsAmt
+                strSQL = strSQL & " WHERE bs_sales_type = " & sSType
+                strSQL = strSQL & " AND bs_prft_ctr = " & nPrftCtr
+                strSQL = strSQL & " AND bs_from_date = " & sFrmDt
+                strSQL = strSQL & " AND bs_to_date = " & sToDt
+            End If
+        
+            If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+                Exit Function
+            End If
+        End If
+    Next i
     
     fnInsertUpdateSales = True
 
 End Function
 
-Public Function fnDeleteSales(sSType As String, sToDt As String, sFrmDt As String) As Boolean
+Public Function fnDeleteSales(sSType As String, nPrftCtr As Integer, sToDt As String, sFrmDt As String) As Boolean
     Const SUB_NAME As String = "fnDeleteSales"
     Dim strSQL As String
     
     fnDeleteSales = False
     
     strSQL = "DELETE FROM bonus_sales WHERE bs_sales_type = " & tfnSQLString(Trim(sSType))
+    strSQL = strSQL & " AND bs_prft_ctr = " & nPrftCtr
     strSQL = strSQL & " AND bs_from_date = " & tfnDateString(Trim(sFrmDt), True)
     strSQL = strSQL & " AND bs_to_date = " & tfnDateString(Trim(sToDt), True)
     
     If fnExecuteSQL(strSQL, , SUB_NAME) Then
         fnDeleteSales = True
-    End If
-
-End Function
-
-Public Function fnInsertHours(lEmpNo As Long, sSSN As String, sDate As String, _
-                              sPrftCtr As String, sPayCode As String, sPayType As String, _
-                              dHrsDol As Double, sHstOvRide As String, lChkLnk As Long, _
-                              sSource As String) As Boolean
-    Const SUB_NAME As String = "fnInsertHours"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    
-    fnInsertHours = False
-    
-    strSQL = "INSERT INTO pr_hours (prh_empno, prh_ssn, prh_date, prh_prft_ctr, "
-    strSQL = strSQL & " prh_shl, prh_pay_code, prh_pay_type, prh_hours, prh_mgr_ovride, "
-    strSQL = strSQL & " prh_host_ovride, prh_host_added, prh_chk_lnk, prh_source) VALUES ("
-    strSQL = strSQL & tfnRound(lEmpNo) & ","
-    strSQL = strSQL & tfnSQLString(Trim(sSSN)) & ","
-    strSQL = strSQL & tfnDateString(sDate, True) & ","
-    strSQL = strSQL & tfnRound(sPrftCtr) & ", NULL,"
-    strSQL = strSQL & tfnSQLString(Trim(sPayCode)) & ","
-    strSQL = strSQL & tfnSQLString(Trim(sPayType)) & ","
-    strSQL = strSQL & tfnRound(dHrsDol, DEFAULT_DECIMALS) & ",'0',"
-    strSQL = strSQL & tfnSQLString(sHstOvRide) & ",'1',"
-    strSQL = strSQL & lChkLnk & ","
-    strSQL = strSQL & tfnSQLString(Trim(sSource)) & ")"
-    
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
-        fnInsertHours = True
-    End If
-
-End Function
-
-Public Function fnDeleteHours(lEmpNo As Long, sSSN As String, _
-                              Optional sPayCode As String = "") As Boolean
-    Const SUB_NAME As String = "fnDeleteHours"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    
-    fnDeleteHours = False
-    
-    strSQL = "DELETE FROM pr_hours WHERE 1=1"
-    strSQL = strSQL & " AND prh_empno = " & tfnRound(lEmpNo)
-    strSQL = strSQL & " AND prh_ssn = " & tfnSQLString(Trim(sSSN))
-    If sPayCode <> "" Then
-        strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(Trim(sPayCode))
-    End If
-    
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
-        fnDeleteHours = True
     End If
 
 End Function

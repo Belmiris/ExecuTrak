@@ -31,7 +31,7 @@ Begin VB.Form frmZZSEBPRC
       Height          =   396
       HelpContextID   =   15
       Left            =   7500
-      TabIndex        =   58
+      TabIndex        =   60
       Top             =   5268
       Width           =   1308
       _Version        =   65536
@@ -66,7 +66,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraBackground 
       Height          =   5184
       Left            =   0
-      TabIndex        =   60
+      TabIndex        =   62
       TabStop         =   0   'False
       Top             =   492
       Width           =   8880
@@ -98,7 +98,7 @@ Begin VB.Form frmZZSEBPRC
       Begin FACTTABLib.FactorTab eTabMain 
          Height          =   5016
          Left            =   48
-         TabIndex        =   62
+         TabIndex        =   64
          TabStop         =   0   'False
          Top             =   12
          Width           =   8796
@@ -119,7 +119,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
             Height          =   4716
             Left            =   14580
-            TabIndex        =   67
+            TabIndex        =   69
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -151,7 +151,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIDetail 
                Height          =   4152
                Left            =   60
-               TabIndex        =   68
+               TabIndex        =   70
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -184,7 +184,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   575
                   Left            =   60
-                  TabIndex        =   51
+                  TabIndex        =   53
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1872
@@ -196,7 +196,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   577
                   Left            =   2364
-                  TabIndex        =   53
+                  TabIndex        =   55
                   Tag             =   "pn_name"
                   Top             =   276
                   Width           =   5868
@@ -206,7 +206,7 @@ Begin VB.Form frmZZSEBPRC
                   HelpContextID   =   579
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":0000
-                  TabIndex        =   55
+                  TabIndex        =   57
                   Top             =   696
                   Width           =   8556
                End
@@ -214,7 +214,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   576
                   Left            =   1944
-                  TabIndex        =   52
+                  TabIndex        =   54
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -250,7 +250,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   578
                   Left            =   8244
-                  TabIndex        =   54
+                  TabIndex        =   56
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -286,7 +286,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Number"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   70
+                  TabIndex        =   72
                   Top             =   36
                   Width           =   1836
                End
@@ -294,7 +294,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   2364
-                  TabIndex        =   69
+                  TabIndex        =   71
                   Top             =   36
                   Width           =   1968
                End
@@ -304,7 +304,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   3
                Left            =   5988
-               TabIndex        =   56
+               TabIndex        =   58
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -341,7 +341,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   3
                Left            =   7428
-               TabIndex        =   57
+               TabIndex        =   59
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -350,7 +350,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -377,7 +377,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseProcess 
             Height          =   4716
             Left            =   14460
-            TabIndex        =   64
+            TabIndex        =   66
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -409,7 +409,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIProcess 
                Height          =   4152
                Left            =   60
-               TabIndex        =   72
+               TabIndex        =   74
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -443,7 +443,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   532
                   Left            =   60
-                  TabIndex        =   37
+                  TabIndex        =   39
                   Tag             =   "pn_alt"
                   Top             =   924
                   Width           =   1104
@@ -455,7 +455,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   534
                   Left            =   1596
-                  TabIndex        =   39
+                  TabIndex        =   41
                   Tag             =   "pn_name"
                   Top             =   924
                   Width           =   6624
@@ -469,7 +469,7 @@ Begin VB.Form frmZZSEBPRC
                   ItemData        =   "ZZSEBPRC.frx":1502
                   Left            =   72
                   List            =   "ZZSEBPRC.frx":1504
-                  TabIndex        =   41
+                  TabIndex        =   43
                   Top             =   1344
                   Width           =   8532
                End
@@ -491,7 +491,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   525
                   Left            =   60
-                  TabIndex        =   30
+                  TabIndex        =   28
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1104
@@ -502,7 +502,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   529
                   Left            =   6204
-                  TabIndex        =   34
+                  TabIndex        =   36
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1212
@@ -513,7 +513,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   530
                   Left            =   7488
-                  TabIndex        =   35
+                  TabIndex        =   37
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   732
@@ -521,7 +521,7 @@ Begin VB.Form frmZZSEBPRC
                Begin MSComctlLib.ProgressBar pbBarMain 
                   Height          =   348
                   Left            =   72
-                  TabIndex        =   73
+                  TabIndex        =   75
                   Top             =   3756
                   Width           =   8532
                   _ExtentX        =   15050
@@ -533,7 +533,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   526
                   Left            =   1176
-                  TabIndex        =   31
+                  TabIndex        =   30
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -569,7 +569,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   528
                   Left            =   5784
-                  TabIndex        =   33
+                  TabIndex        =   34
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -605,7 +605,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   531
                   Left            =   8232
-                  TabIndex        =   36
+                  TabIndex        =   38
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -641,7 +641,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   533
                   Left            =   1176
-                  TabIndex        =   38
+                  TabIndex        =   40
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -677,7 +677,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   535
                   Left            =   8232
-                  TabIndex        =   40
+                  TabIndex        =   42
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -713,7 +713,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Nbr"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   98
+                  TabIndex        =   96
                   Top             =   684
                   Width           =   1296
                End
@@ -721,7 +721,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   1596
-                  TabIndex        =   97
+                  TabIndex        =   95
                   Top             =   684
                   Width           =   1956
                End
@@ -729,7 +729,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center Name"
                   Height          =   252
                   Left            =   1596
-                  TabIndex        =   77
+                  TabIndex        =   79
                   Top             =   36
                   Width           =   1956
                End
@@ -737,7 +737,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   76
+                  TabIndex        =   78
                   Top             =   36
                   Width           =   1296
                End
@@ -745,7 +745,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Date"
                   Height          =   252
                   Left            =   6204
-                  TabIndex        =   75
+                  TabIndex        =   77
                   Top             =   36
                   Width           =   1032
                End
@@ -753,7 +753,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Frequency"
                   Height          =   252
                   Left            =   7488
-                  TabIndex        =   74
+                  TabIndex        =   76
                   Top             =   36
                   Width           =   1032
                End
@@ -762,7 +762,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   537
                Left            =   5988
-               TabIndex        =   42
+               TabIndex        =   44
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -799,7 +799,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   1
                Left            =   7428
-               TabIndex        =   44
+               TabIndex        =   46
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -808,7 +808,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -836,7 +836,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   1
                Left            =   48
-               TabIndex        =   43
+               TabIndex        =   45
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -872,7 +872,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBasePayEntry 
             Height          =   4692
             Left            =   12
-            TabIndex        =   63
+            TabIndex        =   65
             TabStop         =   0   'False
             Top             =   12
             Width           =   8772
@@ -904,7 +904,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTTABLib.FactorTab eTabSub 
                Height          =   4716
                Left            =   0
-               TabIndex        =   78
+               TabIndex        =   80
                TabStop         =   0   'False
                Top             =   0
                Width           =   8784
@@ -927,7 +927,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseHours 
                   Height          =   4428
                   Left            =   14460
-                  TabIndex        =   80
+                  TabIndex        =   82
                   TabStop         =   0   'False
                   Top             =   0
                   Width           =   8784
@@ -959,8 +959,7 @@ Begin VB.Form frmZZSEBPRC
                   Begin FACTFRMLib.FactorFrame efraBaseIIHours 
                      Height          =   4152
                      Left            =   48
-                     TabIndex        =   81
-                     TabStop         =   0   'False
+                     TabIndex        =   27
                      Top             =   48
                      Width           =   8376
                      _Version        =   65536
@@ -986,40 +985,59 @@ Begin VB.Form frmZZSEBPRC
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
-                     Begin VB.PictureBox cmdDropdown 
+                     Begin VB.TextBox txtTotal 
+                        Alignment       =   1  'Right Justify
+                        Enabled         =   0   'False
+                        Height          =   324
+                        Left            =   7032
+                        MultiLine       =   -1  'True
+                        TabIndex        =   98
+                        Top             =   3780
+                        Width           =   1272
+                     End
+                     Begin VB.TextBox txtTotalDollars 
+                        Alignment       =   1  'Right Justify
+                        Enabled         =   0   'False
+                        Height          =   324
+                        Left            =   4632
+                        MultiLine       =   -1  'True
+                        TabIndex        =   97
+                        Top             =   3780
+                        Width           =   1332
+                     End
+                     Begin VB.PictureBox cmdFloatingBtn 
                         Appearance      =   0  'Flat
                         BackColor       =   &H00C0C0C0&
                         ForeColor       =   &H80000008&
                         Height          =   240
                         HelpContextID   =   22
-                        Index           =   4
                         Left            =   96
                         ScaleHeight     =   216
                         ScaleWidth      =   228
-                        TabIndex        =   94
+                        TabIndex        =   92
                         Top             =   720
                         Visible         =   0   'False
                         Width           =   255
                      End
-                     Begin VB.TextBox txtHEmpName 
+                     Begin VB.TextBox txtEmployeeName 
                         BackColor       =   &H00FFFFFF&
                         DataSource      =   "datVendor"
                         ForeColor       =   &H00000000&
                         Height          =   360
                         HelpContextID   =   515
                         Left            =   2028
-                        TabIndex        =   24
+                        TabIndex        =   21
                         Tag             =   "pn_name"
                         Top             =   276
                         Width           =   3576
                      End
-                     Begin VB.TextBox txtHEmployee 
+                     Begin VB.TextBox txtEmployeeNumber 
                         BackColor       =   &H00FFFFFF&
                         ForeColor       =   &H00000000&
                         Height          =   360
                         HelpContextID   =   513
                         Left            =   72
-                        TabIndex        =   22
+                        TabIndex        =   17
                         Tag             =   "pn_alt"
                         Top             =   276
                         Width           =   1524
@@ -1028,15 +1046,15 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   517
                         Left            =   6036
-                        TabIndex        =   26
+                        TabIndex        =   23
                         Top             =   276
                         Width           =   1896
                      End
-                     Begin FACTFRMLib.FactorFrame cmdHEmployee 
+                     Begin FACTFRMLib.FactorFrame cmdEmployeeNumber 
                         Height          =   360
                         HelpContextID   =   514
                         Left            =   1608
-                        TabIndex        =   23
+                        TabIndex        =   19
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1068,11 +1086,11 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                      End
-                     Begin FACTFRMLib.FactorFrame cmdHEmpName 
+                     Begin FACTFRMLib.FactorFrame cmdEmployeeName 
                         Height          =   360
                         HelpContextID   =   516
                         Left            =   5616
-                        TabIndex        =   25
+                        TabIndex        =   22
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1108,7 +1126,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   518
                         Left            =   7944
-                        TabIndex        =   27
+                        TabIndex        =   24
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1140,43 +1158,23 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                      End
-                     Begin DBTrueGrid.TDBGrid tblHours 
+                     Begin DBTrueGrid.TDBGrid tblTimeCard 
                         Height          =   3036
                         HelpContextID   =   519
                         Left            =   72
                         OleObjectBlob   =   "ZZSEBPRC.frx":1D96
-                        TabIndex        =   28
+                        TabIndex        =   25
                         Top             =   696
                         Width           =   5892
                      End
-                     Begin DBTrueGrid.TDBGrid tblPrftCtr 
+                     Begin DBTrueGrid.TDBGrid tblProfitCenter 
                         Height          =   3036
                         HelpContextID   =   520
                         Left            =   6036
-                        OleObjectBlob   =   "ZZSEBPRC.frx":29D2
-                        TabIndex        =   29
+                        OleObjectBlob   =   "ZZSEBPRC.frx":29D5
+                        TabIndex        =   26
                         Top             =   696
                         Width           =   2268
-                     End
-                     Begin VB.Label lblPCTotal 
-                        Alignment       =   1  'Right Justify
-                        BackColor       =   &H00FFFFFF&
-                        BorderStyle     =   1  'Fixed Single
-                        Height          =   324
-                        Left            =   7032
-                        TabIndex        =   93
-                        Top             =   3780
-                        Width           =   1272
-                     End
-                     Begin VB.Label lblTotalHrs 
-                        Alignment       =   1  'Right Justify
-                        BackColor       =   &H00FFFFFF&
-                        BorderStyle     =   1  'Fixed Single
-                        Height          =   324
-                        Left            =   4632
-                        TabIndex        =   92
-                        Top             =   3780
-                        Width           =   1332
                      End
                      Begin VB.Label lblTotalHr 
                         Alignment       =   1  'Right Justify
@@ -1226,7 +1224,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   10
                      Index           =   4
                      Left            =   36
-                     TabIndex        =   16
+                     TabIndex        =   13
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1263,7 +1261,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   11
                      Index           =   4
                      Left            =   1452
-                     TabIndex        =   17
+                     TabIndex        =   15
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1300,7 +1298,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   4
                      Left            =   7128
-                     TabIndex        =   21
+                     TabIndex        =   31
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1337,7 +1335,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   4
                      Left            =   5712
-                     TabIndex        =   18
+                     TabIndex        =   29
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1374,7 +1372,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   4
                      Left            =   2868
-                     TabIndex        =   20
+                     TabIndex        =   35
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1411,7 +1409,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   4
                      Left            =   4296
-                     TabIndex        =   19
+                     TabIndex        =   33
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1447,7 +1445,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseSales 
                   Height          =   4692
                   Left            =   12
-                  TabIndex        =   79
+                  TabIndex        =   81
                   TabStop         =   0   'False
                   Top             =   12
                   Width           =   8472
@@ -1479,8 +1477,7 @@ Begin VB.Form frmZZSEBPRC
                   Begin FACTFRMLib.FactorFrame efraBaseIISales 
                      Height          =   4152
                      Left            =   48
-                     TabIndex        =   82
-                     TabStop         =   0   'False
+                     TabIndex        =   12
                      Top             =   48
                      Width           =   8376
                      _Version        =   65536
@@ -1557,8 +1554,9 @@ Begin VB.Form frmZZSEBPRC
                            HelpContextID   =   500
                            Index           =   0
                            Left            =   84
-                           TabIndex        =   7
+                           TabIndex        =   3
                            Top             =   36
+                           Value           =   -1  'True
                            Width           =   2016
                         End
                         Begin VB.OptionButton optType 
@@ -1567,7 +1565,7 @@ Begin VB.Form frmZZSEBPRC
                            HelpContextID   =   501
                            Index           =   1
                            Left            =   84
-                           TabIndex        =   9
+                           TabIndex        =   5
                            Top             =   324
                            Width           =   2016
                         End
@@ -1577,7 +1575,7 @@ Begin VB.Form frmZZSEBPRC
                            HelpContextID   =   503
                            Index           =   2
                            Left            =   2244
-                           TabIndex        =   10
+                           TabIndex        =   6
                            Top             =   324
                            Width           =   2076
                         End
@@ -1587,7 +1585,7 @@ Begin VB.Form frmZZSEBPRC
                            HelpContextID   =   502
                            Index           =   3
                            Left            =   2244
-                           TabIndex        =   8
+                           TabIndex        =   4
                            Top             =   36
                            Width           =   2076
                         End
@@ -1598,7 +1596,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   504
                         Left            =   4524
-                        TabIndex        =   11
+                        TabIndex        =   7
                         Tag             =   "pn_alt"
                         Top             =   348
                         Width           =   1488
@@ -1610,7 +1608,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   506
                         Left            =   6444
-                        TabIndex        =   13
+                        TabIndex        =   9
                         Tag             =   "pn_name"
                         Top             =   348
                         Width           =   1488
@@ -1619,8 +1617,8 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   3324
                         HelpContextID   =   508
                         Left            =   72
-                        OleObjectBlob   =   "ZZSEBPRC.frx":3610
-                        TabIndex        =   15
+                        OleObjectBlob   =   "ZZSEBPRC.frx":3618
+                        TabIndex        =   11
                         Top             =   768
                         Width           =   8244
                      End
@@ -1628,7 +1626,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   505
                         Left            =   6024
-                        TabIndex        =   12
+                        TabIndex        =   8
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   348
@@ -1647,7 +1645,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":48EC
+                        Picture         =   "ZZSEBPRC.frx":48F4
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1664,7 +1662,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   507
                         Left            =   7944
-                        TabIndex        =   14
+                        TabIndex        =   10
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   348
@@ -1683,7 +1681,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":49FE
+                        Picture         =   "ZZSEBPRC.frx":4A06
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1718,7 +1716,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   0
                      Left            =   5712
-                     TabIndex        =   3
+                     TabIndex        =   14
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1755,7 +1753,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   0
                      Left            =   7128
-                     TabIndex        =   6
+                     TabIndex        =   16
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1764,7 +1762,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   10.2
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1866,7 +1864,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   0
                      Left            =   2868
-                     TabIndex        =   5
+                     TabIndex        =   20
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1903,7 +1901,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   0
                      Left            =   4296
-                     TabIndex        =   4
+                     TabIndex        =   18
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1941,7 +1939,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseView 
             Height          =   4716
             Left            =   14520
-            TabIndex        =   66
+            TabIndex        =   68
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -1973,7 +1971,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIView 
                Height          =   4152
                Left            =   60
-               TabIndex        =   71
+               TabIndex        =   73
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -2004,8 +2002,8 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   4044
                   HelpContextID   =   550
                   Left            =   60
-                  OleObjectBlob   =   "ZZSEBPRC.frx":4B10
-                  TabIndex        =   45
+                  OleObjectBlob   =   "ZZSEBPRC.frx":4B18
+                  TabIndex        =   47
                   Top             =   60
                   Width           =   8556
                End
@@ -2014,7 +2012,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   16
                Left            =   5988
-               TabIndex        =   48
+               TabIndex        =   50
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2051,7 +2049,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   2
                Left            =   7428
-               TabIndex        =   50
+               TabIndex        =   52
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2060,7 +2058,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2087,7 +2085,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   551
                Left            =   48
-               TabIndex        =   46
+               TabIndex        =   48
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2123,7 +2121,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   552
                Left            =   1476
-               TabIndex        =   47
+               TabIndex        =   49
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2160,7 +2158,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   2
                Left            =   2904
-               TabIndex        =   49
+               TabIndex        =   51
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2195,11 +2193,11 @@ Begin VB.Form frmZZSEBPRC
          End
       End
       Begin DBTrueGrid.TDBGrid tblComboDropdown 
-         Bindings        =   "ZZSEBPRC.frx":5DEE
+         Bindings        =   "ZZSEBPRC.frx":5DF6
          Height          =   2484
          Left            =   108
-         OleObjectBlob   =   "ZZSEBPRC.frx":5E0D
-         TabIndex        =   65
+         OleObjectBlob   =   "ZZSEBPRC.frx":5E15
+         TabIndex        =   67
          TabStop         =   0   'False
          Top             =   12
          Width           =   3756
@@ -2225,7 +2223,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   59
+      TabIndex        =   61
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -2258,7 +2256,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   468
       Left            =   0
-      TabIndex        =   61
+      TabIndex        =   63
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -2325,22 +2323,22 @@ Begin VB.Form frmZZSEBPRC
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":70F1
+      Bindings        =   "ZZSEBPRC.frx":70F9
       Height          =   1008
       Index           =   0
       Left            =   168
-      OleObjectBlob   =   "ZZSEBPRC.frx":710B
-      TabIndex        =   95
+      OleObjectBlob   =   "ZZSEBPRC.frx":7113
+      TabIndex        =   93
       Top             =   684
       Width           =   2604
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":83ED
+      Bindings        =   "ZZSEBPRC.frx":83F5
       Height          =   1008
       Index           =   4
       Left            =   144
-      OleObjectBlob   =   "ZZSEBPRC.frx":8407
-      TabIndex        =   96
+      OleObjectBlob   =   "ZZSEBPRC.frx":840F
+      TabIndex        =   94
       Top             =   624
       Width           =   2604
    End
@@ -2463,7 +2461,10 @@ Private tgfDropdown(4) As clsFloatingDropDown
 Private bCancelProcess As Boolean
 Private cValidate As cValidateInput
 Private cValidSls As cValidateInput
-Private cValidHrs As cValidateInput
+
+Private bSalesRecordExist As Boolean
+
+Private objHours As clsPRFHOURS
 '
 
 Private Sub cmdApprove_Click()
@@ -2595,12 +2596,22 @@ Private Sub efraBaseIIDetail_GotFocus()
     subSetFocus txtEmployee
 End Sub
 
+Private Sub efraBaseIIHours_GotFocus()
+    If objHours Is Nothing Then Exit Sub
+    
+    objHours.efraBridge_GotFocus
+End Sub
+
 Private Sub efraBaseIIProcess_GotFocus()
     If txtPrftCtr.Enabled Then
         subSetFocus txtPrftCtr
     Else
         subSetFocus cmdProcess
     End If
+End Sub
+
+Private Sub efraBaseIISales_GotFocus()
+    cValidSls.GotFocus efraBaseIISales
 End Sub
 
 Private Sub efraBaseIIView_GotFocus()
@@ -2690,7 +2701,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     CRLF = Chr(10) + Chr(13)
 
     ' ** change the help file for the application
-    App.HelpFile = "WHOLSALE.HLP"
+    App.HelpFile = szHelp7_11
 End Sub
 
 Private Sub Form_Unload(CANCEL As Integer)
@@ -2704,6 +2715,8 @@ Private Sub Form_Unload(CANCEL As Integer)
     
     Unload frmContext
     Unload frmAbout
+    
+    Set objHours = Nothing
     
     'project local database object variables
     If Not dbLocal Is Nothing Then
@@ -2766,9 +2779,15 @@ Private Sub Form_Load()
     subInitErrorHandler   ' Setup Error Control
     subInitSpreadsheets
     subSetFloatingDropDown TabSales
-    subSetFloatingDropDown nTabHours
     subSetupCombos
     subInitValidation
+    
+    'initialize the PRFHOURS class
+    If Not fnInitialPRFHOURSclass() Then
+        Unload Me
+        Exit Sub
+    End If
+    
     Set clsMath = New clsEquation
     
     #If Not PROTOTYPE Then
@@ -2989,19 +3008,6 @@ Private Sub tfnResetScreen(Index As Integer)
     Screen.MousePointer = vbHourglass
     subSetFocus efraBackground
     
-    frmContext.ButtonEnabled(COPY_UP) = False
-    frmContext.ButtonEnabled(FO_HOLD_UP) = False
-    mnuExit.Enabled = True
-    mnuCopy.Enabled = False
-    mnuPaste.Enabled = False
-    For i = 0 To 3
-        optType(i).Value = False
-    Next i
-    cmdRefresh(Index).Enabled = False
-    cmdUpdateInsertBtn(Index).Enabled = False
-    cmdDelete(Index).Enabled = False
-    cValidate.ResetFlags
-    
     Select Case Index
         Case TabSales
             If nDataStatus = DATA_CHANGED Then
@@ -3009,39 +3015,28 @@ Private Sub tfnResetScreen(Index As Integer)
                     Exit Sub
                 End If
             End If
+            
             nDataStatus = DATA_INIT
             txtFromDate = ""
             txtToDate = ""
             cValidSls.ResetFlags
             tgmSales.ClearData
-            subEnableControls Index, False
+            subEnableFirstLineSlsOrHrs Index, False
+            tblSales.Enabled = False
+            
+            frmContext.ButtonEnabled(CANCEL_UP) = False
+            cmdCancel(TabSales).Enabled = False
+            mnuCancel.Enabled = False
             cmdAddBtn(Index).Enabled = True
             cmdEditBtn(Index).Enabled = True
             eTabMain.TabEnabled(TabProcess) = True
             eTabSub.TabEnabled(TabHours) = True
             subSetFocus cmdAddBtn(Index)
+            cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_UPDATE
         Case nTabHours
-            If nDataStatus = DATA_CHANGED Then
-                If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
-                    Screen.MousePointer = vbDefault
-                    Exit Sub
-                End If
-            End If
-            nDataStatus = DATA_INIT
-            txtHEmployee = ""
-            txtHEmpName = ""
-            txtSSN = ""
-            cValidHrs.ResetFlags
-            tgmHours.ClearData
-            tgmPrftCtr.ClearData
-            lblPCTotal = ""
-            lblTotalHrs = ""
-            subEnableControls Index, False
-            cmdAddBtn(Index).Enabled = True
-            cmdEditBtn(Index).Enabled = True
-            eTabSub.TabEnabled(TabSales) = True
+            objHours.mnuCancel_Click
             eTabMain.TabEnabled(TabProcess) = True
-            subSetFocus cmdAddBtn(Index)
+            eTabSub.TabEnabled(TabSales) = True
         Case TabProcess
             If nDataStatus = DATA_CHANGED Then
                 If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
@@ -3052,9 +3047,14 @@ Private Sub tfnResetScreen(Index As Integer)
             nDataStatus = DATA_INIT
             txtPrftCtr = ""
             txtPrftCtrName = ""
-            txtDate = CDate(Date)
+            txtDate = tfnFormatDate(Date)
             txtFrequency = ""
+            txtEmpProcess = ""
+            txtEmpNameProcess = ""
             lstProcess.Clear
+    
+            cValidate.ResetFlags
+            
             eTabMain.TabEnabled(TabSales) = True
             eTabMain.TabEnabled(TabDetails) = False
             eTabMain.TabEnabled(TabApprove) = False
@@ -3082,6 +3082,15 @@ Private Sub tfnResetScreen(Index As Integer)
             subEnablePrint Index, False
             subSetFocus txtEmployee
     End Select
+    
+    frmContext.ButtonEnabled(COPY_UP) = False
+    frmContext.ButtonEnabled(FO_HOLD_UP) = False
+    mnuExit.Enabled = True
+    mnuCopy.Enabled = False
+    mnuPaste.Enabled = False
+    cmdRefresh(Index).Enabled = False
+    cmdUpdateInsertBtn(Index).Enabled = False
+    cmdDelete(Index).Enabled = False
     
     Screen.MousePointer = vbDefault
     
@@ -3164,8 +3173,8 @@ Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, y As Single)
-    tgsApprove.MouseUp Button, Shift, y
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsApprove.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3194,10 +3203,6 @@ End Sub
 
 Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmDetail.ReadData RowBuf, StartLocation, ReadPriorRows
-End Sub
-
-Private Sub tblPrftCtr_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
-    tgmPrftCtr.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
@@ -3234,9 +3239,13 @@ End Sub
 Private Sub subSetupToolBar()
     With frmContext
         .BeginSetupToolbar Me
+            'for PRFHOURS
+            .AddButton "Add &Profit Center", PROFITCENTER_UP
+            .AddButton "Add E&mployee", EMP_MST_UP, , True
+            
             .AddButton "Add Commission &Code", PRDCLS_UP
             .AddButton "Add Co&mmission Formula", SYS_LOCKS_UP
-            .AddButton "&Launch Commssion Master", PROFITCENTER_UP
+            .AddButton "&Launch Commssion Master", POFAPLVL_UP
             .AddButton "&Export to Payroll", PRAPPROV_UP
             .AddButton "View Formula Details", FO_HOLD_UP, , True
         .EndSetupToolbar
@@ -3248,13 +3257,29 @@ End Sub
 Public Sub TBButtonCallBack(ByVal nID As Integer)
     Select Case nID
         Case CANCEL_UP
-            subCancel eTabMain.CurrTab
+            If eTabMain.CurrTab = 0 Then
+                If eTabSub.CurrTab = TabSales Then
+                    subCancel eTabSub.CurrTab
+                Else
+                    subCancel nTabHours
+                End If
+            Else
+                subCancel eTabMain.CurrTab
+            End If
         Case EXIT_UP
-            subExit
+            If eTabMain.CurrTab = 0 And eTabSub.CurrTab = TabHours Then
+                If objHours.fnExit() Then
+                    subExit
+                End If
+            Else
+                subExit
+            End If
         Case FO_HOLD_UP  'Approve PR
             subShowFormulaDetails
         Case PRINT_UP
             subPrint eTabMain.CurrTab
+        Case Else
+            objHours.TBButtonCallBack nID
     End Select
 End Sub
 
@@ -3266,7 +3291,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3458,12 +3483,14 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     
     Select Case tbl.Name
         Case "tblSales"
-            myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
-            myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
-        Case "tblHours"
+'            myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
+'            myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
+            myWidth = Array(0.22, 0.58, 0.2)
+            myField = Array("prft_ctr", "prft_name", "amount")
+        Case "tblTimeCard"
             myWidth = Array(0.21, 0.21, 0.16, 0.16, 0.26)
             myField = Array("prh_date", "prh_prft_ctr", "prh_pay_code", "prh_pay_type", "prh_hours")
-        Case "tblPrftCtr"
+        Case "tblProfitCenter"
             myWidth = Array(0.5, 0.5)
             myField = Array("", "")
         Case "tblApprove"
@@ -3485,7 +3512,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     For i = 0 To UBound(myWidth)
         tbl.Columns.Add i
         With tbl.Columns(i)
-            .Width = myWidth(i) * (tbl.Width - 50)
+            .Width = myWidth(i) * (tbl.Width - 255)
             .DataField = myField(i)
             .Visible = True
             .HeadAlignment = vbCenter
@@ -3499,9 +3526,9 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colSPrftName).Caption = "Profit Center Name"
             tbl.Columns(colSAmount).Caption = "Amount"
             tbl.Columns(colSAmount).Alignment = vbRightJustify
-            tbl.Columns(colSFromDate).Caption = "From Date"
-            tbl.Columns(colSToDate).Caption = "To Date"
-        Case "tblHours"
+'            tbl.Columns(colSFromDate).Caption = "From Date"
+'            tbl.Columns(colSToDate).Caption = "To Date"
+        Case "tblTimeCard"
             tbl.Caption = "Time Card Entry"
             tbl.Columns(colHClockIn).Caption = "Clock-In Date"
             tbl.Columns(colHPrftCtr).Caption = "Profit Center"
@@ -3509,7 +3536,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colHPayType).Caption = "Pay Type"
             tbl.Columns(colHHrsDol).Caption = "Hours/Dollars"
             tbl.Columns(colHHrsDol).Alignment = vbRightJustify
-        Case "tblPrftCtr"
+        Case "tblProfitCenter"
             tbl.Caption = "Profit Center Total"
             tbl.Columns(colPProfit).Caption = "Profit"
             tbl.Columns(colPTotal).Caption = "Total"
@@ -3563,16 +3590,18 @@ Private Sub subInitSpreadsheets()
         .AddEditColumn colSPrftCtr, "Enter Profit Center", szIntegerPattern
         .AddEditColumn colSPrftName, "Enter Profit Center Name", "^P{1,40}"
         .AddEditColumn colSAmount, "Enter Amount", sDecimalString
-        .AddEditColumn colSFromDate, "Enter From Date", szDatePattern
-        .AddEditColumn colSToDate, "Enter To Date", szDatePattern
+        '.AddEditColumn colSFromDate, "Enter From Date", szDatePattern
+        '.AddEditColumn colSToDate, "Enter To Date", szDatePattern
         .DisplayFormat(colSAmount) = "###,###,##0.00"
+        .RemoveEditColumn colSPrftCtr
+        .RemoveEditColumn colSPrftName
     End With
     
     'Table Time Card Class Implementation
     sDecimalString = tfnDecimalPattern(8, 2)
-    subSetGridWidth tblHours
+    subSetGridWidth tblTimeCard
     Set tgmHours = New clsTGSpreadSheet
-    Set tgmHours.Table = tblHours
+    Set tgmHours.Table = tblTimeCard
     Set tgmHours.StatusBar = ffraStatusbar ' message bar name
     Set tgmHours.Form = Me
     Set tgmHours.engFactor = t_engFactor
@@ -3588,9 +3617,9 @@ Private Sub subInitSpreadsheets()
     End With
     
     'Table Sales Class Implementation
-    subSetGridWidth tblPrftCtr
+    subSetGridWidth tblProfitCenter
     Set tgmPrftCtr = New clsTGSpreadSheet
-    Set tgmPrftCtr.Table = tblPrftCtr
+    Set tgmPrftCtr.Table = tblProfitCenter
     Set tgmPrftCtr.StatusBar = ffraStatusbar ' message bar name
     Set tgmPrftCtr.Form = Me
     Set tgmPrftCtr.engFactor = t_engFactor
@@ -3741,16 +3770,6 @@ Private Sub subInitValidation()
     cValidate.MinTabIndex = txtPrftCtr.TabIndex
     cValidate.MaxTabIndex = txtEmpName.TabIndex
     
-    'Class implementation for Hours Tab
-    Set cValidHrs = New cValidateInput
-    Set cValidHrs.Form = Me
-    Set cValidHrs.StatusBar = ffraStatusbar
-    cValidHrs.AddEditBox txtHEmployee, "Enter Employee Number"
-    cValidHrs.AddEditBox txtHEmpName, "Enter Employee Name"
-    cValidHrs.AddEditBox txtSSN, "Enter Social Security Number"
-    cValidHrs.MinTabIndex = txtHEmployee.TabIndex
-    cValidHrs.MaxTabIndex = tblHours.TabIndex
-    
     'Class implementation for Sales Tab
     Set cValidSls = New cValidateInput
     Set cValidSls.Form = Me
@@ -3759,6 +3778,9 @@ Private Sub subInitValidation()
     cValidSls.AddEditBox txtToDate, "Enter To Date"
     cValidSls.MinTabIndex = optType(nWeek).TabIndex
     cValidSls.MaxTabIndex = tblSales.TabIndex
+    Set cValidSls.ControlForFocus = efraBaseIISales
+    Set cValidSls.LastBox = txtToDate
+    cValidSls.SetFirstControls cmdDelete(TabSales), cmdRefresh(TabSales), cmdCancel(TabSales), cmdUpdateInsertBtn(TabSales), cmdExitCancelBtn
     
 End Sub
 
@@ -3774,36 +3796,28 @@ Private Function fnSetComboSQL(nTabIndex As Integer) As String
         Case txtEmployee.TabIndex, txtEmpName.TabIndex
             strSQL = "SELECT prm_empno, prm_empname FROM sTmpCustTable"
             strSQL = strSQL & " WHERE prm_empno IN (SELECT bm_empno FROM bonus_master)"
-        Case txtHEmployee.TabIndex, txtHEmpName.TabIndex, txtSSN.TabIndex
-            strSQL = "SELECT prm_empno, prm_empname, prm_ssn FROM sTmpCustTable "
-            strSQL = strSQL & " WHERE prm_empno IN("
-            If t_nFormMode = ADD_MODE Then
-                strSQL = strSQL & "SELECT DISTINCT prep_empno FROM pr_emp_pay)"
-            Else
-                strSQL = strSQL & "SELECT DISTINCT prh_empno FROM pr_hours)"
-            End If
-        Case txtFromDate.TabIndex, txtToDate.TabIndex
-            strSQL = fnGetSalesSQL(True, nTabIndex)
+        Case txtFromDate.TabIndex
+            strSQL = fnGetSalesSQL(txtFromDate)
+        Case txtToDate.TabIndex
+            strSQL = fnGetSalesSQL(txtToDate)
     End Select
     fnSetComboSQL = strSQL
 End Function
 
-Public Function fnInvalidData(txtBox As Textbox) As Boolean
+Public Function fnInValidData(txtBox As Textbox) As Boolean
     #If PROTOTYPE Then
         Exit Function
     #End If
 
     Select Case txtBox.TabIndex
         Case txtPrftCtr.TabIndex
-            fnInvalidData = Not fnValidPrftCtr(txtBox)
+            fnInValidData = Not fnValidPrftCtr(txtBox)
         Case txtDate.TabIndex
-            fnInvalidData = Not fnValidDate(txtBox)
-        Case txtEmployee.TabIndex, txtHEmployee.TabIndex
-            fnInvalidData = Not fnValidEmployee(txtBox)
+            fnInValidData = Not IsValidDate(txtBox)
+        Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
+            fnInValidData = objHours.fnInValidData(txtBox)
         Case txtFromDate.TabIndex, txtToDate.TabIndex
-            fnInvalidData = Not fnValidSalesDate(txtBox)
-        Case txtSSN.TabIndex
-            fnInvalidData = False
+            fnInValidData = Not fnValidSalesDate(txtBox)
     End Select
     
 End Function
@@ -3812,14 +3826,6 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidEmployee"
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim sMsg As String
-    Dim clsError As cValidateInput
-    
-    If eTabMain.CurrTab = TabSales Then
-        Set clsError = cValidHrs
-    Else 'Tab Details...
-        Set clsError = cValidate
-    End If
     
     fnValidEmployee = False
     
@@ -3829,34 +3835,26 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
     End If
     
     If Trim(Box.Text) = "" Then
-        clsError.SetErrorMessage Box, "You Must Enter a Employee Number"
+        cValidate.SetErrorMessage Box, "You Must Enter a Employee Number"
         Exit Function
     End If
     
     If Not IsNumeric(Trim(Box.Text)) Then
-        clsError.SetErrorMessage Box, "Employee Number does not exist"
+        cValidate.SetErrorMessage Box, "Employee Number does not exist"
         Exit Function
     End If
     
     strSQL = "SELECT prm_empno FROM pr_master WHERE prm_empno IN("
-    If clsError Is cValidHrs Then
-        If t_nFormMode = ADD_MODE Then
-            strSQL = strSQL & " SELECT prep_empno FROM pr_emp_pay GROUP BY prep_empno"
-        Else
-            strSQL = strSQL & " SELECT prh_empno FROM pr_hours GROUP BY prh_empno"
-        End If
-    Else
-        strSQL = strSQL & " SELECT DISTINCT bm_empno FROM bonus_master"
-    End If
+    strSQL = strSQL & " SELECT DISTINCT bm_empno FROM bonus_master"
     strSQL = strSQL & " ) AND prm_empno = " & Box.Text
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        clsError.SetErrorMessage Box, "Failed to access Database"
+        cValidate.SetErrorMessage Box, "Failed to access Database"
         Exit Function
     End If
             
     If rsTemp.RecordCount = 0 Then
-        clsError.SetErrorMessage Box, "Employee Number does not exist"
+        cValidate.SetErrorMessage Box, "Employee Number does not exist"
         Exit Function
     End If
     
@@ -3864,19 +3862,19 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
     
 End Function
 
-Private Sub tblComboDropdown_Click()
+Private Sub tblComboDropDown_Click()
     tgcDropdown.Click tblComboDropdown
 End Sub
 
-Private Sub tblComboDropdown_GotFocus()
+Private Sub tblComboDropDown_GotFocus()
     tgcDropdown.GotFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropdown_LostFocus()
+Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropdown_KeyPress(KeyAscii As Integer)
+Private Sub tblComboDropDown_KeyPress(KeyAscii As Integer)
     tgcDropdown.Keypress tblComboDropdown, KeyAscii
     Exit Sub
     Dim bCode As Boolean
@@ -3889,16 +3887,16 @@ Private Sub tblComboDropdown_KeyPress(KeyAscii As Integer)
     
 End Sub
 
-Private Sub tblComboDropdown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub subSetupCombos()
@@ -3926,17 +3924,12 @@ Private Sub subSetupCombos()
         .AddCombo
         .AddComboBox txtEmployee, cmdEmployee, "prm_empno", .SQL_LONG_TYPE
         .AddComboBox txtEmpName, cmdEmpName, "prm_empname", .SQL_STRING_TYPE(60)
-     
-        .AddCombo
-        .AddComboBox txtHEmployee, cmdHEmployee, "prm_empno", .SQL_LONG_TYPE
-        .AddComboBox txtHEmpName, cmdHEmpName, "prm_empname", .SQL_STRING_TYPE(60)
-        .AddComboBox txtSSN, cmdSSN, "prm_ssn", .SQL_STRING_TYPE(11)
         
         .AddCombo
-        .AddComboBox txtFromDate, cmdFromDate, "bs_from_date", .SQL_STRING_TYPE(10)
+        .AddComboBox txtFromDate, cmdFromDate, "bs_from_date", .SQL_DATE_TYPE
         
         .AddCombo
-        .AddComboBox txtToDate, cmdToDate, "bs_to_date", .SQL_STRING_TYPE(10)
+        .AddComboBox txtToDate, cmdToDate, "bs_to_date", .SQL_DATE_TYPE
      End With
 End Sub
 
@@ -4256,7 +4249,6 @@ Private Function fnValidPrftCtr(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidPrftCtr"
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim sMsg As String
     
     fnValidPrftCtr = False
     
@@ -4284,34 +4276,6 @@ Private Function fnValidPrftCtr(Box As Textbox) As Boolean
     End If
     
     fnValidPrftCtr = True
-    
-End Function
-
-Private Function fnValidDate(Box As Textbox) As Boolean
-    Const SUB_NAME As String = "fnValidDate"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    
-    fnValidDate = False
-    
-    If Trim(Box.Text) = "" Then
-        fnValidDate = True
-        Exit Function
-    End If
-    
-    If Len(Trim(Box)) < 6 Then
-        cValidate.SetErrorMessage Box, "Invalid date format"
-        Exit Function
-    End If
-    
-    txtDate = CDate(tfnFormatDate(txtDate))
-    
-    If Not IsDate(Trim(Box.Text)) Then
-        cValidate.SetErrorMessage Box, "Invalid date format"
-        Exit Function
-    End If
-    
-    fnValidDate = True
     
 End Function
 
@@ -4438,8 +4402,10 @@ Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, _
     Select Case Table.TabIndex
         Case tblSales.TabIndex
             Select Case nCol
-                Case colSPrftCtr, colSPrftName
+                Case colSPrftCtr
                     fnValidCellValue = fnValidGridPrftCtr(sText, nCol, lRow)
+                Case colSPrftName
+                    fnValidCellValue = True
                 Case colSAmount
                     If Trim(sText) = "" Then
                         tgmSales.ErrorMessage(nCol) = "You must enter the amount"
@@ -4447,28 +4413,12 @@ Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, _
                     Else
                         fnValidCellValue = True
                     End If
-                Case colSFromDate, colSToDate
-                    fnValidCellValue = fnValidGridFromToDate(sText, nCol, lRow)
+'                Case colSFromDate, colSToDate
+'                    fnValidCellValue = fnValidGridFromToDate(sText, nCol, lRow)
             End Select
-        Case tblHours.TabIndex
-            Select Case nCol
-                Case colHClockIn
-                    fnValidCellValue = fnValidClockInDate(sText, lRow)
-                Case colHPrftCtr
-                    fnValidCellValue = fnValidGridPrftCtr(sText, nCol, lRow)
-                Case colHPayCode
-                    fnValidCellValue = fnValidPayCode(sText, nCol, lRow)
-                Case colHPayType
-                    fnValidCellValue = True
-                Case colHHrsDol
-                    If Trim(sText) = "" Then
-                        tgmHours.ErrorMessage(nCol) = "You must enter an Hour/Dollar Number"
-                        Exit Function
-                    Else
-                        fnValidCellValue = True
-                    End If
-            End Select
-        Case tblPrftCtr.TabIndex
+        Case tblTimeCard.TabIndex
+            fnValidCellValue = objHours.fnValidCellValue(Table, nCol, lRow, sText)
+        Case tblProfitCenter.TabIndex
             fnValidCellValue = True
         Case tblApprove.TabIndex
             fnValidCellValue = True
@@ -4481,28 +4431,43 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         Exit Sub
     #End If
     
-    cmdEditBtn(Index).Enabled = False
-    cmdAddBtn(Index).Enabled = False
-    cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_INSERT
-    t_nFormMode = ADD_MODE
-    subEnableFirstLineSlsOrHrs Index, True
-    
     If Index = TabSales Then
+        t_nFormMode = ADD_MODE
+        subEnableFirstLineSlsOrHrs Index, True
+        
+        frmContext.ButtonEnabled(CANCEL_UP) = True
+        cmdCancel(TabSales).Enabled = True
+        mnuCancel.Enabled = True
+        
+        cmdEditBtn(Index).Enabled = False
+        cmdAddBtn(Index).Enabled = False
+        cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_INSERT
+        
+        tgcDropdown.ComboOn(txtFromDate) = False
+        tgcDropdown.ComboOn(txtToDate) = False
+        
+        tgmSales.AddEditColumn colSPrftCtr, "Enter Profit Center", szIntegerPattern
+        tgmSales.AddEditColumn colSPrftName, "Enter Profit Center Name", "^P{1,40}"
+        
         tgmSales.AllowAddNew = True
+        
         eTabSub.TabEnabled(TabHours) = False
         eTabMain.TabEnabled(TabProcess) = False
-        subSetFocus optType(nWeek)
+        
+        subSetFocusoptType
     Else 'Index is Hours...
-        tgmHours.AllowAddNew = True
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
-        subSetFocus txtHEmployee
+'        tgmHours.AllowAddNew = True
+'        subSetFocus txtEmployeeNumber
+        objHours.cmdAddBtn_Click
     End If
     
 End Sub
 
 Private Sub cmdDelete_Click(Index As Integer)
     Dim nRow As Integer
+    Dim nPrftCtr As Integer
     
     Select Case Index
         Case TabSales
@@ -4513,33 +4478,20 @@ Private Sub cmdDelete_Click(Index As Integer)
                 If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
                     Exit Sub
                 End If
-                If Not fnDeleteSales(fnGetSalesType, txtToDate, txtFromDate) Then
+                nPrftCtr = tfnRound(tgmSales.CellValue(colSPrftCtr, tgmSales.GetCurrentRowNumber))
+                If Not fnDeleteSales(fnGetSalesType, nPrftCtr, txtToDate, txtFromDate) Then
                     MsgBox "Failed to delete the sales record", vbExclamation
                     Exit Sub
                 End If
             End If
+            
             tgmSales.DeleteRow
+            
             If t_nFormMode = EDIT_MODE And tgmSales.RowCount = 0 Then
                 tfnResetScreen Index
             End If
         Case nTabHours
-            If tgmHours.RowCount < 1 Then
-                Exit Sub
-            End If
-            nRow = tgmHours.GetCurrentRowNumber
-            If t_nFormMode = EDIT_MODE Then
-                If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
-                    Exit Sub
-                End If
-                If Not fnDeleteHours(txtHEmployee, txtSSN, tgmHours.CellValue(colHPayCode, nRow)) Then
-                    MsgBox "Failed to delete the hours record", vbExclamation
-                    Exit Sub
-                End If
-            End If
-            tgmHours.DeleteRow
-            If t_nFormMode = EDIT_MODE And tgmHours.RowCount = 0 Then
-                tfnResetScreen Index
-            End If
+            objHours.cmdDeleteBtn_Click
     End Select
 End Sub
 
@@ -4548,102 +4500,92 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         Exit Sub
     #End If
     
-    cmdEditBtn(Index).Enabled = False
-    cmdAddBtn(Index).Enabled = False
-    cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_UPDATE
-    t_nFormMode = EDIT_MODE
-    subEnableFirstLineSlsOrHrs Index, True
-    
     If Index = TabSales Then
+        t_nFormMode = EDIT_MODE
+        subEnableFirstLineSlsOrHrs Index, True
+        
+        frmContext.ButtonEnabled(CANCEL_UP) = True
+        cmdCancel(TabSales).Enabled = True
+        mnuCancel.Enabled = True
+        
+        cmdEditBtn(Index).Enabled = False
+        cmdAddBtn(Index).Enabled = False
+        
+        cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_UPDATE
+    
+        tgcDropdown.ComboOn(txtFromDate) = True
+        tgcDropdown.ComboOn(txtToDate) = True
+        
+        tgmSales.RemoveEditColumn colSPrftCtr
+        tgmSales.RemoveEditColumn colSPrftName
+        
         tgmSales.AllowAddNew = False
+        
         eTabSub.TabEnabled(TabHours) = False
         eTabMain.TabEnabled(TabProcess) = False
-        subSetFocus optType(nWeek)
+        
+        subSetFocusoptType
     Else 'Index is Hours...
-        tgmHours.AllowAddNew = False
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
-        subSetFocus txtHEmployee
+'        tgmHours.AllowAddNew = False
+'        subSetFocus txtEmployeeNumber
+        objHours.cmdEditBtn_Click
     End If
     
 End Sub
 
 Private Sub cmdRefresh_Click(Index As Integer)
-    Select Case Index
-        Case TabSales
-            If Not fnLoadSales() Then
-                Exit Sub
-            End If
-        Case nTabHours
-            If Not fnLoadHours(txtHEmployee, txtSSN) Then
-                Exit Sub
-            End If
-    End Select
-    cmdUpdateInsertBtn(Index).Enabled = False
-End Sub
-
-Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
-    Dim i As Integer
-    Dim lChkLnk As Long
+    Dim sErrMsg As String
     
     Select Case Index
         Case TabSales
-            For i = 0 To tgmSales.RowCount - 1
-                If Not fnInsertUpdateSales(tgmSales.CellValue(colSPrftCtr, i), _
-                         tgmSales.CellValue(colSFromDate, i), _
-                         tgmSales.CellValue(colSToDate, i), _
-                         tgmSales.CellValue(colSAmount, i), fnGetSalesType) Then
-                    Exit Sub
-                End If
-            Next i
+            cmdUpdateInsertBtn(Index).Enabled = False
+            
+            sErrMsg = fnLoadSales()
+            If sErrMsg <> "" Then
+                tfnSetStatusBarError sErrMsg
+                Exit Sub
+            End If
         Case nTabHours
-            For i = 0 To tgmHours.RowCount - 1
-                lChkLnk = -1
-                If tgmHours.CellValue(colHHrsDol, i) <> 0 Then
-                    lChkLnk = 0
-                End If
-                If t_nFormMode = ADD_MODE Then
-                    If Not fnInsertHours(txtHEmployee, txtSSN, _
-                                         tgmHours.CellValue(colHClockIn, i), _
-                                         tgmHours.CellValue(colHPrftCtr, i), _
-                                         tgmHours.CellValue(colHPayCode, i), _
-                                         tgmHours.CellValue(colHPayType, i), _
-                                         tgmHours.CellValue(colHHrsDol, i), _
-                                         0, lChkLnk, "P") Then
-                        MsgBox "Failed to insert the employee hours", vbExclamation
-                        Exit Sub
-                    End If
-                Else
-                    'Delete the record first and then insert it...
-                    If Not fnDeleteHours(txtHEmployee, txtSSN) Then
-                        MsgBox "Failed to update employee hours", vbExclamation
-                        Exit Sub
-                    End If
-                    If Not fnInsertHours(txtHEmployee, txtSSN, _
-                                         tgmHours.CellValue(colHClockIn, i), _
-                                         tgmHours.CellValue(colHPrftCtr, i), _
-                                         tgmHours.CellValue(colHPayCode, i), _
-                                         tgmHours.CellValue(colHPayType, i), _
-                                         tgmHours.CellValue(colHHrsDol, i), 0, lChkLnk, _
-                                         tgmHours.CellValue(ColHHdnSource, i)) Then
-                        MsgBox "Failed to update employee hours", vbExclamation
-                        Exit Sub
-                    End If
-                End If
-            Next i
+            objHours.cmdRefreshSelectBtn_Click
     End Select
-    nDataStatus = DATA_INIT
-    tfnResetScreen Index
 End Sub
 
-Private Sub subEnableControls(Index As Integer, bYesNo As Boolean)
-    subEnableFirstLineSlsOrHrs Index, bYesNo
-    If Index = TabSales Then
-        tblSales.Enabled = bYesNo
-    Else
-        tblHours.Enabled = bYesNo
-        tblPrftCtr.Enabled = bYesNo
-    End If
+Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
+    Select Case Index
+        Case TabSales
+            If Not fnCheckDuplicateInGrid() Then
+                Exit Sub
+            End If
+            
+            If bSalesRecordExist Then
+                If MsgBox("Sales record(s) already exists for From Date/To Date and will be replaced." _
+                   + " Are you sure you want to replace the existing sales record with the sales record on the Grid?", _
+                   vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+                    Exit Sub
+                End If
+                
+                If Not fnDeleteSalesRecord() Then
+                    tfnSetStatusBarError "Failed to delete the existing record before insert"
+                    Exit Sub
+                End If
+            End If
+            
+            If Not fnInsertUpdateSales() Then
+                If t_nFormMode = ADD_MODE Then
+                    tfnSetStatusBarError "Failed to insert sales record"
+                Else
+                    tfnSetStatusBarError "Failed to update sales record"
+                End If
+                Exit Sub
+            End If
+    
+            nDataStatus = DATA_INIT
+            tfnResetScreen Index
+        Case nTabHours
+            objHours.cmdUpdateInsertBtn_Click
+    End Select
 End Sub
 
 Private Sub cmdAddBtn_GotFocus(Index As Integer)
@@ -4670,38 +4612,7 @@ Private Sub cmdUpdateInsertBtn_GotFocus(Index As Integer)
     End If
 End Sub
 
-Private Function fnLoadHours(lEmpNo As Long, sSSN As String) As Boolean
-    Const SUB_NAME As String = "fnLoadHours"
-    Dim strSQL As String
-    
-    fnLoadHours = False
-    If t_nFormMode = ADD_MODE Then
-        fnLoadHours = True
-        Exit Function
-    End If
-    
-    strSQL = "SELECT * FROM pr_hours WHERE 1=1"
-    If tfnRound(lEmpNo) <> 0 Then
-        strSQL = strSQL & " AND prh_empno = " & tfnRound(lEmpNo)
-    End If
-    If Trim(sSSN) <> "" Then
-        strSQL = strSQL & " AND prh_ssn = " & tfnSQLString(Trim(sSSN))
-    End If
-    strSQL = strSQL & " ORDER BY prh_prft_ctr"
-    
-    tgmHours.FillWithSQL t_dbMainDatabase, strSQL
-    
-    If tgmHours.RowCount = 0 Then
-        MsgBox "No entry found for the selection criteria", vbExclamation
-        Exit Function
-    End If
-    
-    fnLoadPrftCtr
-    fnLoadHours = True
-
-End Function
-
-Private Function fnGetSalesType() As String
+Public Function fnGetSalesType() As String
     Dim i As Integer
     Dim sType As String
     
@@ -4748,16 +4659,6 @@ Private Sub subSetFloatingDropDown(Index As Integer)
                 .AddDropDown 1
                 .AddColumn colSPrftCtr, "prft_ctr", .COLUMN_TYPE_INTEGER
                 .AddColumn colSPrftName, "prft_name", .COLUMN_TYPE_STRING
-            Case nTabHours
-                Set .MainTable = tblHours
-                Set .EditClass = tgmHours
-                .AddDropDown 1
-                .AddColumn colHPrftCtr, "prft_ctr", .COLUMN_TYPE_INTEGER
-                .AddExtraColumn "Profit Center Name", "prft_name", 2500
-                
-                .AddDropDown 2
-                .AddColumn colHPayCode, "prep_pay_code", .COLUMN_TYPE_STRING
-                .AddExtraColumn "Pay Description", "prpa_desc", 2500
         End Select
     End With
     
@@ -4765,353 +4666,115 @@ End Sub
 
 Private Sub subSetFloatingSQL(Index As Integer)
     Dim strSQL As String
-    Dim nYear As Integer
     
     Select Case Index
         Case TabSales
             strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
+            strSQL = strSQL + " WHERE prft_type IN ('R', 'B')"
+            
             tgfDropdown(Index).SetSQL colSPrftCtr, strSQL
-        Case nTabHours
-            If tblHours.col = colHPrftCtr Then
-                strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
-                tgfDropdown(Index).SetSQL colHPrftCtr, strSQL
-            Else 'colHPayCode
-                On Error Resume Next
-                nYear = Year(CDate(tgmHours.CellValue(colHClockIn, tgmHours.GetCurrentRowNumber)))
-                strSQL = "SELECT distinct prep_pay_code, prpa_desc FROM pr_emp_pay,pr_pay "
-                If nYear > 0 Then
-                    strSQL = strSQL & " WHERE prep_year = " & tfnSQLString(nYear)
-                End If
-                strSQL = strSQL & " AND prpa_pay_code = prep_pay_code"
-                strSQL = strSQL & " AND (prep_active IS NULL OR prep_active <> 'N')"
-                strSQL = strSQL & " AND ((prpa_type='N' AND prpa_calc_method='D')"
-                strSQL = strSQL & " OR   (prpa_type='P' AND prpa_calc_method='H')) "
-                strSQL = strSQL & " AND prep_empno = " & tfnRound(txtHEmployee)
-                tgfDropdown(Index).SetSQL colHPayCode, strSQL
-            End If
     End Select
     
 End Sub
 
 Private Sub tblDropDown_Click(Index As Integer)
-    tgfDropdown(Index).TableClick tblDropDown(Index)
+    If Index = nTabHours Then
+        objHours.tblFloating_Click
+    Else
+        tgfDropdown(Index).TableClick tblDropDown(Index)
+    End If
 End Sub
 
 Private Sub tblDropDown_KeyPress(Index As Integer, KeyAscii As Integer)
-    tgfDropdown(Index).Keypress tblDropDown(Index), KeyAscii
+    If Index = nTabHours Then
+        objHours.tblFloating_KeyPress KeyAscii
+    Else
+        tgfDropdown(Index).Keypress tblDropDown(Index), KeyAscii
+    End If
 End Sub
 
 Private Sub tblDropDown_LostFocus(Index As Integer)
-    tgfDropdown(Index).LostFocus tblDropDown(Index)
+    If Index = nTabHours Then
+        objHours.tblFloating_LostFocus
+    Else
+        tgfDropdown(Index).LostFocus tblDropDown(Index)
+    End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, y As Single)
-    tgfDropdown(Index).MouseUp y
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+    If Index = nTabHours Then
+        objHours.tblFloating_MouseUp Button, Shift, X, Y
+    Else
+        tgfDropdown(Index).MouseUp Y
+    End If
 End Sub
 
 Private Sub tblDropDown_RowColChange(Index As Integer, LastRow As Variant, ByVal LastCol As Integer)
-    tgfDropdown(Index).RowColChange tblDropDown(Index)
-End Sub
-
-Private Sub txtHEmployee_Change()
-    cValidHrs.Change txtHEmployee
-    tgcDropdown.Change txtHEmployee
-    txtHEmpName = ""
-End Sub
-
-Private Sub txtHEmployee_GotFocus()
-    tgcDropdown.GotFocus txtHEmployee
-    cValidHrs.GotFocus txtHEmployee
-    
-    If tgcDropdown.SingleRecordSelected Then
-        subEnterPhaseIISlsOrHrs nTabHours
-        Screen.MousePointer = vbDefault
-    End If
-    
-End Sub
-
-Private Sub txtHEmployee_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtHEmployee) = fnSetComboSQL(txtHEmployee.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-        
-    bKeyCode = tgcDropdown.Keypress(txtHEmployee, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-       If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                subEnterPhaseIISlsOrHrs nTabHours
-                Screen.MousePointer = vbDefault
-          End If
-          KeyAscii = 0
-       End If
+    If Index = nTabHours Then
+        objHours.tblFloating_RowColChange LastRow, LastCol
     Else
-        cValidHrs.Keypress txtHEmployee, KeyAscii
+        tgfDropdown(Index).RowColChange tblDropDown(Index)
     End If
-
-End Sub
-
-Private Sub txtHEmployee_LostFocus()
-    tgcDropdown.LostFocus txtHEmployee
-    If cValidHrs.LostFocus(txtSSN, cmdEmployee, txtHEmployee, cmdHEmployee, txtHEmpName, cmdHEmpName, tblComboDropdown) Then
-    End If
-    Screen.MousePointer = vbDefault
-End Sub
-
-Private Sub txtHEmpName_Change()
-    tgcDropdown.Change txtHEmpName
-End Sub
-
-Private Sub txtHEmpName_GotFocus()
-    tfnSetStatusBarMessage "Enter Employee Name"
-    tgcDropdown.GotFocus txtHEmpName
-    Screen.MousePointer = vbDefault
-    
-    If tgcDropdown.SingleRecordSelected Then
-        subEnterPhaseIISlsOrHrs nTabHours
-        Screen.MousePointer = vbDefault
-    End If
-End Sub
-
-Private Sub txtHEmpName_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtHEmpName) = fnSetComboSQL(txtHEmpName.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-    
-    bKeyCode = tgcDropdown.Keypress(txtHEmpName, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-        If KeyAscii = vbKeyReturn Then
-            If tgcDropdown.SingleRecordSelected Then
-                subEnterPhaseIISlsOrHrs nTabHours
-                Screen.MousePointer = vbDefault
-            End If
-        KeyAscii = 0
-        End If
-    End If
-
-End Sub
-Private Sub cmdHEmployee_Click()
-    Screen.MousePointer = vbHourglass
-    tgcDropdown.ComboSQL(txtHEmployee) = fnSetComboSQL(txtHEmployee.TabIndex)
-    tgcDropdown.Click cmdHEmployee
-    Screen.MousePointer = vbDefault
-End Sub
-
-Private Sub cmdHEmpName_Click()
-    tgcDropdown.ComboSQL(txtHEmpName) = fnSetComboSQL(txtHEmpName.TabIndex)
-    tgcDropdown.Click cmdHEmpName
 End Sub
 
 Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
+    Dim sErrMsg As String
     
-    If Index = nTabHours Then
-        If cValidHrs.FirstInvalidInput >= 0 Then
-            subSetFocus cmdCancel(Index)
-            Exit Sub
-        End If
-    ElseIf Index = TabSales Then
+    If Index = TabSales Then
         If cValidSls.FirstInvalidInput >= 0 Then
-            subSetFocus cmdCancel(Index)
+            'subSetFocus cmdCancel(Index)
             Exit Sub
         End If
     End If
 
     Screen.MousePointer = vbHourglass
-    subEnableControls Index, True
     subEnableFirstLineSlsOrHrs Index, False
     
     If Index = TabSales Then
-        If Not fnLoadSales() Then
-            cmdCancel_Click (TabSales)
-            Exit Sub
-        End If
-    Else ' nTabHours
-        If Not fnLoadHours(txtHEmployee, txtSSN) Then
-            cmdCancel_Click (nTabHours)
+        sErrMsg = fnLoadSales()
+        If sErrMsg <> "" Then
+            subSetFocus cmdCancel(TabSales)
+            DoEvents
+            tfnSetStatusBarError sErrMsg
+            'cmdCancel_Click (TabSales)
+            subEnableFirstLineSlsOrHrs Index, True
+            Screen.MousePointer = vbDefault
             Exit Sub
         End If
     End If
         
     If Index = TabSales Then
+        tblSales.Enabled = True
         subSetFocus tblSales
-    Else
-        subSetFocus tblHours
     End If
-    Screen.MousePointer = vbDefault
     
+    Screen.MousePointer = vbDefault
 End Sub
 
 Private Sub subEnableFirstLineSlsOrHrs(Index As Integer, bYesNo As Boolean)
     Select Case Index
         Case TabSales
-            txtFromDate.Enabled = bYesNo
-            subEnableSearchbtn cmdFromDate, bYesNo
-            txtToDate.Enabled = bYesNo
-            subEnableSearchbtn cmdToDate, bYesNo
             efraOptSales.Enabled = bYesNo
-            'Dim i As Integer
-            'For i = 0 To 3
-            '    optType(i).Enabled = bYesNo
-            'Next i
-        Case TabHours, nTabHours
-            txtHEmployee.Enabled = bYesNo
-            txtHEmpName.Enabled = bYesNo
-            subEnableSearchbtn cmdHEmployee, bYesNo
-            subEnableSearchbtn cmdHEmpName, bYesNo
-            txtSSN.Enabled = bYesNo
-            subEnableSearchbtn cmdSSN, bYesNo
+            txtFromDate.Enabled = bYesNo
+            txtToDate.Enabled = bYesNo
+            If t_nFormMode = ADD_MODE Then
+                bYesNo = False
+            End If
+            subEnableSearchbtn cmdFromDate, bYesNo
+            subEnableSearchbtn cmdToDate, bYesNo
     End Select
 End Sub
 
-Private Sub tblHours_AfterColEdit(ByVal ColIndex As Integer)
-    tgmHours.AfterColEdit ColIndex
-    Dim lRow As Long: lRow = tgmHours.GetCurrentRowNumber
-    
-    If tgmHours.RowCount = 0 Then Exit Sub
-    
-    If tblHours.col = colHClockIn Then
-        tgmHours.CellValue(colHClockIn, lRow) = CDate(tfnFormatDate(tgmHours.CellValue(colHClockIn, lRow)))
-    End If
-    
-    If t_nFormMode = EDIT_MODE Then
-        If nDataStatus = DATA_CHANGED Then
-            subEnableRefreshBtn True, nTabHours
-        Else
-            subEnableRefreshBtn False, nTabHours
-        End If
-    End If
-
-End Sub
-
-Private Sub tblHours_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgmHours.BeforeColEdit ColIndex, KeyAscii, CANCEL
-End Sub
-
-Private Sub tblHours_Change()
-    tgmHours.Change
-    subEnableUpdateBtn False, nTabHours
-    nDataStatus = DATA_CHANGED
-End Sub
-
-Private Sub tblHours_FirstRowChange()
-    tgmHours.FirstRowChange
-    tgfDropdown(nTabHours).FirstRowChange
-    
-    If tblHours.Row = -1 Then
-        subEnableDeleteBtn False, nTabHours
-    End If
-    
-End Sub
-
-Private Sub tblHours_GotFocus()
-    tfnSetStatusBarMessage "Time Card Entry"
-    tgmHours.GotFocus
-    tgfDropdown(nTabHours).GotFocus
-End Sub
-
-Private Sub tblHours_KeyDown(KeyCode As Integer, Shift As Integer)
-    tgmHours.KeyDown KeyCode, Shift
-    tgfDropdown(nTabHours).KeyDown tblHours, KeyCode
-End Sub
-
-Private Sub tblHours_KeyPress(KeyAscii As Integer)
-    Dim lRow As Long
-    
-    tgfDropdown(nTabHours).Keypress tblHours, KeyAscii
-    lRow = tgmHours.GetCurrentRowNumber
-    
-    If tblHours.col = colHPayCode Then
-        KeyAscii = Asc(UCase(Chr(KeyAscii)))
-    End If
-    
-    If Not tgmHours.Keypress(KeyAscii) Then
-        KeyAscii = 0
-    End If
-    
-    If t_nFormMode = EDIT_MODE Then
-        If KeyAscii = vbKeyReturn And tgmHours.RowCount - 1 = lRow And tblHours.col = colHHrsDol Then
-            If cmdUpdateInsertBtn(nTabHours).Enabled Then
-                subSetFocus cmdUpdateInsertBtn(nTabHours)
-            Else
-                subSetFocus cmdCancel(nTabHours)
-            End If
-        End If
-    End If
-    
-End Sub
-
-Private Sub tblHours_LeftColChange()
-    tgfDropdown(nTabHours).LeftColChange
-End Sub
-
-Private Sub tblHours_LostFocus()
-    tgmHours.LostFocus
-    tgfDropdown(nTabHours).LostFocus tblHours
-    subSetStdBtn nTabHours, tgmHours
-End Sub
-
-Private Sub tblHours_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
-    'frmContext.MouseDown Button, EMP_MST_UP
-End Sub
-
-Private Sub tblHours_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-    Dim lRow As Long
-    
-    If tgfDropdown(nTabHours).RowColChange(tblHours) Then
-        tgmHours.RowColChange LastRow, LastCol
-    End If
-    
-    lRow = tgmHours.GetCurrentRowNumber
-    
-    If t_nFormMode = ADD_MODE Then
-        If tgmHours.CellValue(colHClockIn, lRow) <> "" Then
-            subEnableDeleteBtn True, nTabHours
-        Else
-            subEnableDeleteBtn False, nTabHours
-        End If
-    Else
-        If tgmHours.RowCount > 0 Then
-            subEnableDeleteBtn True, nTabHours
-        Else
-            subEnableDeleteBtn False, nTabHours
-        End If
-    End If
-    
-    fnLoadPrftCtr
-    subSetStdBtn nTabHours, tgmHours
-
-End Sub
-
-Private Sub tblHours_SelChange(CANCEL As Integer)
-    CANCEL = True
-End Sub
-
-Private Sub tblHours_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
-    tgmHours.ReadData RowBuf, StartLocation, ReadPriorRows
-End Sub
-
-Private Sub subEnableDeleteBtn(bOnOff As Boolean, Index As Integer)
+Private Sub SubEnableDeleteBtn(bOnOff As Boolean, Index As Integer)
     cmdDelete(Index).Enabled = bOnOff
-  '  mnuDelete.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableRefreshBtn(bOnOff As Boolean, Index As Integer)
     cmdRefresh(Index).Enabled = bOnOff
-   ' mnuRefreshSelect.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableUpdateBtn(bOnOff As Boolean, Index As Integer)
     cmdUpdateInsertBtn(Index).Enabled = bOnOff
-    'mnuUpdateInsert.Enabled = bOnOff
 End Sub
 
 Private Function fnValidGridPrftCtr(sText As String, nCol As Integer, lRow As Long) As Boolean
@@ -5120,181 +4783,95 @@ Private Function fnValidGridPrftCtr(sText As String, nCol As Integer, lRow As Lo
     Dim rsTemp As Recordset
     
     fnValidGridPrftCtr = False
+            
+    strSQL = "SELECT prft_ctr, prft_name, prft_type FROM sys_prft_ctr"
+    strSQL = strSQL + " WHERE prft_ctr = " & tfnRound(sText)
     
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        tgmSales.ErrorMessage(nCol) = "Failed to access Database"
+        Exit Function
+    End If
     
+    If rsTemp.RecordCount = 0 Then
+        tgmSales.ErrorMessage(nCol) = "Profit Center does not exist"
+        Exit Function
+    End If
+    
+    If Not (fnGetField(rsTemp!prft_type) = "R" Or fnGetField(rsTemp!prft_type) = "B") Then
+        tgmSales.ErrorMessage(nCol) = "Profit Center type must be 'R' or 'B'"
+        Exit Function
+    End If
+    
+    tgmSales.CellValue(colSPrftName, lRow) = fnGetField(rsTemp!prft_name)
     
     fnValidGridPrftCtr = True
     
 End Function
 
-Private Function fnValidPayCode(sText As String, nCol As Integer, lRow As Long) As Boolean
-    Const SUB_NAME As String = "fnValidPayCode"
-    Dim sChkDubInGrid
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim nYear As Integer
-    
-    fnValidPayCode = False
-    
-    If Trim(sText) = "" Then
-        tgmHours.ErrorMessage(nCol) = "You must enter a Pay Code"
-        Exit Function
-    End If
-    
-    strSQL = "SELECT prpa_pay_code FROM pr_pay WHERE prpa_pay_code = " & tfnSQLString(sText)
-    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
-        tgmHours.ErrorMessage(nCol) = "Pay Code does not exist"
-        Exit Function
-    End If
-    
-    nYear = Year(CDate(tgmHours.CellValue(colHClockIn, lRow)))
-    If nYear <= 0 Then Exit Function
-    
-    strSQL = "SELECT DISTINCT prep_pay_code FROM pr_emp_pay,pr_pay "
-    strSQL = strSQL & " WHERE prep_year = " & tfnSQLString(nYear)
-    strSQL = strSQL & " AND (prep_active IS NULL OR prep_active <> 'N')"
-    strSQL = strSQL & " AND prpa_pay_code = prep_pay_code"
-    strSQL = strSQL & " AND ((prpa_type='N' AND prpa_calc_method='D')"
-    strSQL = strSQL & " OR   (prpa_type='P' AND prpa_calc_method='H')) "
-    strSQL = strSQL & " AND prep_empno = " & tfnRound(txtHEmployee)
-    
-    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
-        tgmHours.ErrorMessage(nCol) = "This Pay Code is invalid "
-        Exit Function
-    End If
-    
-    If Not IsDate(tgmHours.CellValue(colHClockIn, lRow)) Then
-        tblHours.col = colHClockIn
-        Exit Function
-    End If
-    
-    'Check duplication in table
-    Dim nPrftCtr As Integer: nPrftCtr = tgmHours.CellValue(colHPrftCtr, lRow)
-    Dim sDate As String:     sDate = tgmHours.CellValue(colHClockIn, lRow)
-    
-    strSQL = "SELECT prh_empno FROM pr_hours "
-    strSQL = strSQL & " WHERE prh_empno = " & tfnRound(txtHEmployee)
-    strSQL = strSQL & " AND prh_prft_ctr = " & nPrftCtr
-    strSQL = strSQL & " AND prh_date = " & tfnDateString(sDate, True)
-    strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sText)
-    strSQL = strSQL & " AND prh_pay_type = " & tfnSQLString(tgmHours.CellValue(colHPayType, lRow))
-    
-    If GetRecordCount(strSQL) > 0 And t_nFormMode = ADD_MODE Then
-        tgmHours.ErrorMessage(nCol) = "Date-PrftCtr-PayCode already exists in the table"
-        Exit Function
-    End If
-
-    'Check duplication in the Grid
-    Dim Range() As String, i As Integer
-    sChkDubInGrid = fnCheckDubInHrsGrid(lRow)
-    If sChkDubInGrid <> "" Then
-        Range = Split(sChkDubInGrid, ",")
-        For i = 0 To UBound(Range)
-            If sDate & "~" & CStr(nPrftCtr) & "~" & Trim(sText) = Range(i) Then
-                tgmHours.ErrorMessage(nCol) = "Date-PrftCtr-PayCode already exists in the grid"
-                Exit Function
-            End If
-        Next i
-    End If
-    
-    fnValidPayCode = True
-    
-End Function
-
-Private Sub txtSSN_Change()
-    cValidHrs.Change txtSSN
-    tgcDropdown.Change txtSSN
-End Sub
-
-Private Sub txtSSN_GotFocus()
-    tgcDropdown.GotFocus txtSSN
-    cValidHrs.GotFocus txtSSN
-    
-    If tgcDropdown.SingleRecordSelected Then
-        subEnterPhaseIISlsOrHrs nTabHours
-        Screen.MousePointer = vbDefault
-    End If
-    
-End Sub
-
-Private Sub txtSSN_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtSSN) = fnSetComboSQL(txtSSN.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-        
-    bKeyCode = tgcDropdown.Keypress(txtSSN, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-       If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                subEnterPhaseIISlsOrHrs nTabHours
-                Screen.MousePointer = vbDefault
-          End If
-          KeyAscii = 0
-       End If
-    Else
-        cValidHrs.Keypress txtSSN, KeyAscii
-    End If
-
-End Sub
-
-Private Sub txtSSN_LostFocus()
-    tgcDropdown.LostFocus txtSSN
-    If cValidHrs.LostFocus(txtSSN, cmdHEmployee, txtHEmployee, cmdHEmployee, txtHEmpName, cmdHEmpName, tblComboDropdown) Then
-    End If
-    Screen.MousePointer = vbDefault
-End Sub
-
-Private Sub cmdSSN_Click()
-    Screen.MousePointer = vbHourglass
-    tgcDropdown.ComboSQL(txtSSN) = fnSetComboSQL(txtSSN.TabIndex)
-    tgcDropdown.Click cmdSSN
-    Screen.MousePointer = vbDefault
-End Sub
-
 Private Function fnValidSalesDate(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidSalesDate"
     Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim sMsg As String
+    Dim sTemp As String
+    Dim sErrMsg As String
     
-    sMsg = " From Date "
-    If Box.Name = "txtToDate" Then
-        sMsg = " To Date "
+    sTemp = "From Date"
+    If Box Is txtToDate Then
+        sTemp = "To Date"
     End If
     
     fnValidSalesDate = False
     
-    If Trim(Box.Text) = "" Then
-        fnValidSalesDate = True
+    If Trim(Box) = "" Then
+        'fnValidSalesDate = True
+        cValidSls.SetErrorMessage Box, "You must enter a " & sTemp
         Exit Function
     End If
     
-    If Not IsDate(tfnFormatDate(Box)) Then
-        cValidSls.SetErrorMessage Box, "Invalid Date Format"
+    If Not IsValidDate(Box) Then
+        cValidSls.SetErrorMessage Box, sTemp & " is not valid"
         Exit Function
     End If
     
-    Box.Text = CDate(tfnFormatDate(Box))
+    Box = tfnFormatDate(Box)
     
-    If Box.Name = "txtFromDate" And cValidSls.ValidInput(txtToDate) And txtToDate <> "" Then
-        If Box.Text > txtToDate Then
-            fnValidSalesDate = False
-            cValidate.SetErrorMessage Box, "From Date must be less than To Date"
+    If Box Is txtFromDate Then
+        If Not IsValidDate(txtToDate) Then
+            fnValidSalesDate = True
+            Exit Function
+        End If
+    Else
+        If Not IsValidDate(txtFromDate) Then
+            fnValidSalesDate = True
             Exit Function
         End If
     End If
     
-    If Box.Name = "txtToDate" And cValidSls.ValidInput(txtFromDate) And txtFromDate <> "" Then
-        If Box.Text < txtFromDate Then
-            fnValidSalesDate = False
-            cValidSls.SetErrorMessage Box, "To Date must be greater than From Date"
+    If CDate(tfnDateString(txtFromDate)) > CDate(tfnDateString(txtToDate)) Then
+        cValidSls.SetErrorMessage txtFromDate, "From Date must be earlier than To Date"
+        cValidSls.SetErrorMessage txtToDate, "To Date must be later than From Date"
+        
+        If Box Is txtFromDate Then
+            cValidSls.ValidInput(txtToDate) = False
+        Else
+            cValidSls.ValidInput(txtFromDate) = False
+        End If
+    
+        Exit Function
+    End If
+    
+    If t_nFormMode = ADD_MODE Then
+        sErrMsg = fnCheckSales()
+        If sErrMsg <> "" Then
+            cValidSls.SetErrorMessage txtFromDate, sErrMsg
+            cValidSls.SetErrorMessage txtToDate, sErrMsg
             Exit Function
         End If
+    End If
+    
+    If Box Is txtFromDate Then
+        cValidSls.ValidInput(txtToDate) = True
+    Else
+        cValidSls.ValidInput(txtFromDate) = True
     End If
     
     fnValidSalesDate = True
@@ -5319,19 +4896,29 @@ Private Sub txtFromDate_KeyPress(KeyAscii As Integer)
     Dim bKeyCode As Boolean
     
     If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtFromDate) = fnSetComboSQL(txtFromDate.TabIndex)
-        Screen.MousePointer = vbHourglass
+        If tgcDropdown.ComboOn(txtFromDate) Then
+            tgcDropdown.ComboSQL(txtFromDate) = fnSetComboSQL(txtFromDate.TabIndex)
+            Screen.MousePointer = vbHourglass
+        End If
     End If
         
     bKeyCode = tgcDropdown.Keypress(txtFromDate, KeyAscii)
     Screen.MousePointer = vbDefault
     
     If Not bKeyCode Then
-       If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                subSetFocus txtToDate
-                Screen.MousePointer = vbDefault
-          End If
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.ComboOn(txtFromDate) Then
+                If tgcDropdown.SingleRecordSelected Then
+                      subSetFocus txtToDate
+                      Screen.MousePointer = vbDefault
+                End If
+            Else
+'                If cValidSls.FirstInvalidInput < 0 Then
+'                    subEnterPhaseIISlsOrHrs TabSales
+'                Else
+                    subSetFocus txtToDate
+'                End If
+            End If
           KeyAscii = 0
        End If
     Else
@@ -5340,7 +4927,11 @@ Private Sub txtFromDate_KeyPress(KeyAscii As Integer)
 End Sub
 
 Private Sub txtFromDate_LostFocus()
-    cValidSls.LostFocus txtFromDate, cmdFromDate, tblComboDropdown
+    txtFromDate = tfnFormatDate(txtFromDate)
+    
+    If cValidSls.LostFocus(txtFromDate, cmdFromDate, tblComboDropdown) Then
+'        subEnterPhaseIISlsOrHrs TabSales
+    End If
     tgcDropdown.LostFocus txtFromDate
 End Sub
 
@@ -5369,8 +4960,10 @@ Private Sub txtToDate_KeyPress(KeyAscii As Integer)
     Dim bKeyCode As Boolean
     
     If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtToDate) = fnSetComboSQL(txtToDate.TabIndex)
-        Screen.MousePointer = vbHourglass
+        If tgcDropdown.ComboOn(txtToDate) Then
+            tgcDropdown.ComboSQL(txtToDate) = fnSetComboSQL(txtToDate.TabIndex)
+            Screen.MousePointer = vbHourglass
+        End If
     End If
         
     bKeyCode = tgcDropdown.Keypress(txtToDate, KeyAscii)
@@ -5378,10 +4971,18 @@ Private Sub txtToDate_KeyPress(KeyAscii As Integer)
     
     If Not bKeyCode Then
        If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                subEnterPhaseIISlsOrHrs TabSales
-                Screen.MousePointer = vbDefault
-          End If
+            If tgcDropdown.ComboOn(txtToDate) Then
+                If tgcDropdown.SingleRecordSelected Then
+                      subEnterPhaseIISlsOrHrs TabSales
+                      Screen.MousePointer = vbDefault
+                End If
+            Else
+                If cValidSls.FirstInvalidInput < 0 Then
+                    subEnterPhaseIISlsOrHrs TabSales
+                Else
+                    SendKeys "{TAB}", True
+                End If
+            End If
           KeyAscii = 0
        End If
     Else
@@ -5390,7 +4991,13 @@ Private Sub txtToDate_KeyPress(KeyAscii As Integer)
 End Sub
 
 Private Sub txtToDate_LostFocus()
-    cValidSls.LostFocus txtToDate, cmdToDate, tblComboDropdown
+    txtToDate = tfnFormatDate(txtToDate)
+    
+    If cValidSls.LostFocus(txtToDate, cmdToDate, tblComboDropdown) Then
+        If Not (ActiveControl Is cmdCancel(TabSales) Or ActiveControl Is cmdExitCancelBtn) Then
+            subEnterPhaseIISlsOrHrs TabSales
+        End If
+    End If
     tgcDropdown.LostFocus txtToDate
 End Sub
 
@@ -5432,7 +5039,7 @@ Private Sub tblSales_FirstRowChange()
     tgfDropdown(TabSales).FirstRowChange
     
     If tblSales.Row = -1 Then
-        subEnableDeleteBtn False, TabSales
+        SubEnableDeleteBtn False, TabSales
     End If
     
 End Sub
@@ -5459,7 +5066,7 @@ Private Sub tblSales_KeyPress(KeyAscii As Integer)
     End If
     
     If t_nFormMode = EDIT_MODE Then
-        If KeyAscii = vbKeyReturn And tgmSales.RowCount - 1 = lRow And tblSales.col = colSToDate Then
+        If KeyAscii = vbKeyReturn And tgmSales.RowCount - 1 = lRow Then  'And tblSales.col = colSToDate Then
             If cmdUpdateInsertBtn(TabSales).Enabled Then
                 subSetFocus cmdUpdateInsertBtn(TabSales)
             Else
@@ -5480,7 +5087,7 @@ Private Sub tblSales_LostFocus()
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub tblSales_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     'frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -5495,15 +5102,15 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
     If t_nFormMode = ADD_MODE Then
         If tgmSales.CellValue(colSPrftCtr, lRow) <> "" Then
-            subEnableDeleteBtn True, TabSales
+            SubEnableDeleteBtn True, TabSales
         Else
-            subEnableDeleteBtn False, TabSales
+            SubEnableDeleteBtn False, TabSales
         End If
     Else
         If tgmSales.RowCount > 0 Then
-            subEnableDeleteBtn True, TabSales
+            SubEnableDeleteBtn True, TabSales
         Else
-            subEnableDeleteBtn False, TabSales
+            SubEnableDeleteBtn False, TabSales
         End If
     End If
     
@@ -5518,54 +5125,6 @@ End Sub
 Private Sub tblSales_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmSales.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
-
-Private Function fnValidClockInDate(ByVal szText As String, ByVal lRow As Long) As Boolean
-    Const SUB_NAME As String = "fnValidClockInDate"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim nError As Integer
-    
-    fnValidClockInDate = False
-    
-    If Trim(szText) = "" Then
-        tgmHours.ErrorMessage(colHClockIn) = "You must enter a Clock-in Date"
-        Exit Function
-    End If
-    
-    If Not IsFactorDate(szText, nError) Then 'the format of sztext has been changed here
-        If nError = 1 Then
-            tgmHours.ErrorMessage(colHClockIn) = "Invalid date format"
-        Else
-            tgmHours.ErrorMessage(colHClockIn) = "Invalid date"
-        End If
-        Exit Function
-    End If
-    
-    'check in table gl_period
-    strSQL = "SELECT glp_status FROM gl_period "
-    strSQL = strSQL & " WHERE glp_end_dt >= " & tfnSQLString(CDate(szText))
-    strSQL = strSQL & " AND glp_beg_dt <= " & tfnSQLString(CDate(szText))
-    
-    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
-        tgmHours.ErrorMessage(colHClockIn) = "There is no valid G/L Period containing this Date"
-        Exit Function
-    End If
-    
-    Select Case fnGetField(rsTemp!glp_status)
-        Case "O"
-        Case "W"
-            tgmHours.ErrorMessage(colHClockIn) = "This G/L Period is about to close!"
-        Case "C"
-            tgmHours.ErrorMessage(colHClockIn) = "This G/L Period is already closed"
-            Exit Function
-        Case Else
-            tgmHours.ErrorMessage(colHClockIn) = "Invalid G/L Period Status"
-            Exit Function
-    End Select
-    
-    fnValidClockInDate = True
-    
-End Function
 
 'This function will return all the values already used in the grid.
 Private Function fnCheckDubInHrsGrid(lCurrRow As Long) As String
@@ -5598,7 +5157,7 @@ Private Sub subSetStdBtn(Index As Integer, tgmEditor As clsTGSpreadSheet)
     
     If tgmEditor.RowCount < 1 Then
         subEnableUpdateBtn False, Index
-        subEnableDeleteBtn False, Index
+        SubEnableDeleteBtn False, Index
         Exit Sub
     End If
     
@@ -5618,64 +5177,89 @@ Private Sub subSetStdBtn(Index As Integer, tgmEditor As clsTGSpreadSheet)
     
 End Sub
 
-Private Function fnValidGridFromToDate(sText As String, nCol As Integer, lRow As Long) As Boolean
-    Const SUB_NAME As String = "fnValidGridFromToDate"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim sMsg As String
-    
-    fnValidGridFromToDate = False
-    
-    If nCol = colSFromDate Then
-        sMsg = " From Date"
-    Else
-        sMsg = " To Date"
-    End If
-    
-    If Trim(sText) = "" Then
-        tgmSales.ErrorMessage(nCol) = "You must enter a " & sMsg
-        Exit Function
-    End If
-    
-    If Len(Trim(sText)) < 6 Then
-        tgmSales.ErrorMessage(nCol) = "Invalid date format"
-        Exit Function
-    End If
-    
-    If nCol = colSFromDate Then
-        tgmSales.CellValue(colSFromDate, lRow) = CDate(tfnFormatDate(sText))
-    Else
-        tgmSales.CellValue(colSToDate, lRow) = CDate(tfnFormatDate(sText))
-    End If
-    
-    If Not IsDate(Trim(sText)) Then
-        tgmSales.ErrorMessage(nCol) = "Invalid date format"
-        Exit Function
-    End If
-    
-    fnValidGridFromToDate = True
-    
-End Function
+'Private Function fnValidGridFromToDate(sText As String, nCol As Integer, lRow As Long) As Boolean
+'    Const SUB_NAME As String = "fnValidGridFromToDate"
+'    Dim strSQL As String
+'    Dim rsTemp As Recordset
+'    Dim sTemp As String
+'
+'    fnValidGridFromToDate = True
+'    Exit Function
+'
+'    If nCol = colSFromDate Then
+'        sTemp = "From Date"
+'    Else
+'        sTemp = "To Date"
+'    End If
+'
+'    If Trim(sText) = "" Then
+'        tgmSales.ErrorMessage(nCol) = "You must enter a " & sTemp
+'        Exit Function
+'    End If
+'
+'    If Len(Trim(sText)) < 6 Then
+'        tgmSales.ErrorMessage(nCol) = "Invalid date format"
+'        Exit Function
+'    End If
+'
+'    If nCol = colSFromDate Then
+'        tgmSales.CellValue(colSFromDate, lRow) = CDate(tfnFormatDate(sText))
+'    Else
+'        tgmSales.CellValue(colSToDate, lRow) = CDate(tfnFormatDate(sText))
+'    End If
+'
+'    If Not IsDate(Trim(sText)) Then
+'        tgmSales.ErrorMessage(nCol) = "Invalid date format"
+'        Exit Function
+'    End If
+'
+'    fnValidGridFromToDate = True
+'
+'End Function
 
-Private Function fnLoadSales() As Boolean
+Private Function fnLoadSales() As String
     Const SUB_NAME As String = "fnLoadSales"
     Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim i As Long
     
-    fnLoadSales = False
     strSQL = fnGetSalesSQL()
     
-    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
-        MsgBox "Failed to load the sales", vbExclamation
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        fnLoadSales = "Failed to access database to load the sales record"
         Exit Function
     End If
     
-    tgmSales.FillWithSQL t_dbMainDatabase, strSQL
-    fnLoadSales = True
+    If rsTemp.RecordCount = 0 Then
+        If t_nFormMode = ADD_MODE Then
+            fnLoadSales = "No Sales record available to Add"
+        Else
+            fnLoadSales = "No Sales record available to Edit"
+        End If
+        Exit Function
+    End If
+    
+    tgmSales.FillWithRecordset rsTemp
+    
+    'fill the date??
+'    For i = 0 To tgmSales.RowCount - 1
+'        If t_nFormMode = ADD_MODE Then
+'            tgmSales.CellValue(colSFromDate, i) = txtFromDate
+'            tgmSales.CellValue(colSToDate, i) = txtToDate
+'        Else
+'            tgmSales.CellValue(colSFromDate, i) = tfnFormatDate(tgmSales.CellValue(colSFromDate, i))
+'            tgmSales.CellValue(colSToDate, i) = tfnFormatDate(tgmSales.CellValue(colSToDate, i))
+'        End If
+'    Next i
+'
+'    tgmSales.Rebind
+'    DoEvents
+    
+    fnLoadSales = ""
 
 End Function
 
-Private Function fnGetSalesSQL(Optional bCombo As Boolean = False, _
-                               Optional nTabIndex As Integer) As String
+Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
     Dim strSQL As String
     Dim sSalesType As String
     
@@ -5686,64 +5270,54 @@ Private Function fnGetSalesSQL(Optional bCombo As Boolean = False, _
     End If
     
     Select Case sSalesType
-        Case sWeek
-            strSQL = ""
-            strSQL = strSQL & ""
-        Case sOneMth
-            strSQL = ""
-            strSQL = strSQL & ""
-        Case sThreeMth
-            strSQL = ""
-            strSQL = strSQL & ""
+        Case sWeek, sOneMth, sThreeMth
+            strSQL = "SELECT rssl_prft_ctr AS prft_ctr, prft_name,"
+            strSQL = strSQL & " SUM(rsc_retail) as amount"
+            strSQL = strSQL & " FROM rs_shiftlink, sys_prft_ctr, rs_scat, rs_cat"
+            strSQL = strSQL & " WHERE rssl_shl = rsc_shl"
+            strSQL = strSQL & " AND rssl_prft_ctr = prft_ctr"
+            strSQL = strSQL & " AND rsc_catagory = rsct_catagory"
+            strSQL = strSQL & " AND rsct_type IN ('M', 'N', 'D')"
+            strSQL = strSQL & " AND rssl_date BETWEEN " & tfnDateString(txtFromDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
+            strSQL = strSQL & " GROUP BY rssl_prft_ctr, prft_name"
+            strSQL = strSQL & " ORDER BY rssl_prft_ctr"
         Case sGas
-            strSQL = "SELECT rsd_prft_ctr AS prft_ctr, prft_name, "
-            strSQL = strSQL & " SUM(rsd_gal) as amount, rsd_date as from_date"
-            strSQL = strSQL & " FROM rs_daily, sys_prft_ctr "
+            strSQL = "SELECT rsd_prft_ctr AS prft_ctr, prft_name,"
+            strSQL = strSQL & " SUM(rsd_gal) as amount"
+            strSQL = strSQL & " FROM rs_daily, sys_prft_ctr"
             strSQL = strSQL & " WHERE prft_ctr = rsd_prft_ctr"
-            If Trim(txtFromDate) <> "" Then
-                strSQL = strSQL & " AND rsd_date >= " & tfnDateString(Trim(txtFromDate), True)
-            End If
-            If Trim(txtToDate) <> "" Then
-                strSQL = strSQL & " AND rsd_date <= " & tfnDateString(Trim(txtToDate), True)
-            End If
-            strSQL = strSQL & " GROUP BY rsd_date, rsd_prft_ctr, prft_name"
+            strSQL = strSQL & " AND rsd_date BETWEEN " & tfnDateString(txtFromDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
+            strSQL = strSQL & " GROUP BY rsd_prft_ctr, prft_name"
             strSQL = strSQL & " ORDER BY rsd_prft_ctr"
-            If bCombo Then
-                If nTabIndex = txtFromDate.TabIndex Then
-                    strSQL = "SELECT rsd_date AS bs_from_date FROM rs_daily WHERE 1=1"
-                    If txtToDate <> "" Then
-                        strSQL = strSQL & " AND rsd_date <= " & tfnDateString(Trim(txtToDate), True)
-                    End If
-                ElseIf nTabIndex = txtToDate.TabIndex Then
-                    strSQL = "SELECT rsd_date AS bs_to_date FROM rs_daily WHERE 1=1"
-                    If txtFromDate <> "" Then
-                        strSQL = strSQL & " AND rsd_date >= " & tfnDateString(Trim(txtFromDate), True)
-                    End If
-                End If
-                strSQL = strSQL & " GROUP BY rsd_date"
-            End If
         Case "EDIT_MODE"
-            strSQL = "SELECT bs_to_date as to_date, bs_from_date as from_date,"
-            strSQL = strSQL & " bs_sales_amount as amount, prft_ctr, prft_name"
-            strSQL = strSQL & " FROM bonus_sales, sys_prft_ctr "
-            strSQL = strSQL & " WHERE bs_prft_ctr = prft_ctr"
-            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(Trim(fnGetSalesType))
-            If Trim(txtFromDate) <> "" Then
-                strSQL = strSQL & " AND bs_from_date >= " & tfnDateString(Trim(txtFromDate), True)
-            End If
-            If Trim(txtToDate) <> "" Then
-                strSQL = strSQL & " AND bs_to_date <= " & tfnDateString(Trim(txtToDate), True)
-            End If
-            If bCombo Then
-                strSQL = "SELECT bs_from_date, bs_to_date FROM bonus_sales"
-                If nTabIndex = txtFromDate.TabIndex Then
-                    If txtToDate <> "" Then
-                        strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(Trim(txtToDate), True)
+            If txtBox Is Nothing Then
+                strSQL = "SELECT prft_ctr, prft_name, bs_sales_amount as amount,"
+                strSQL = strSQL & " bs_to_date as to_date, bs_from_date as from_date"
+                strSQL = strSQL & " FROM bonus_sales, sys_prft_ctr "
+                strSQL = strSQL & " WHERE bs_prft_ctr = prft_ctr"
+                strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                strSQL = strSQL & " AND bs_from_date = " & tfnDateString(txtFromDate, True)
+                strSQL = strSQL & " AND bs_to_date = " & tfnDateString(txtToDate, True)
+                strSQL = strSQL & " ORDER BY prft_ctr"
+            Else
+                If txtBox Is txtFromDate Then
+                    strSQL = "SELECT bs_from_date"
+                    strSQL = strSQL & " FROM bonus_sales"
+                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                    If IsValidDate(txtToDate) Then
+                        strSQL = strSQL & " AND bs_to_date = " & tfnDateString(txtToDate, True)
                     End If
-                ElseIf nTabIndex = txtToDate.TabIndex Then
-                    If txtFromDate <> "" Then
-                        strSQL = strSQL & " WHERE bs_to_date >= " & tfnDateString(Trim(txtFromDate), True)
+                    strSQL = strSQL & " GROUP BY bs_from_date"
+                Else
+                    strSQL = "SELECT bs_to_date"
+                    strSQL = strSQL & " FROM bonus_sales"
+                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                    If IsValidDate(txtFromDate) Then
+                        strSQL = strSQL & " AND bs_from_date = " & tfnDateString(txtFromDate, True)
                     End If
+                    strSQL = strSQL & " GROUP BY bs_to_date"
                 End If
             End If
     End Select
@@ -5751,48 +5325,318 @@ Private Function fnGetSalesSQL(Optional bCombo As Boolean = False, _
     
 End Function
 
-Private Function fnLoadPrftCtr() As Boolean
-    Dim i As Integer, j As Integer
-    Dim sArPrftCtr() As Variant
+Private Function IsValidDate(ByVal sDate As String) As Boolean
+    If sDate = "" Then
+        Exit Function
+    End If
     
-    tgmPrftCtr.ClearData
-    For i = 0 To tgmHours.RowCount
-        If i = tgmHours.RowCount Then
-            Exit For
-        End If
-        If i = 0 Then
-            ReDim Preserve sArPrftCtr(1, j)
-            sArPrftCtr(0, j) = tgmHours.CellValue(colHPrftCtr, i)
-            sArPrftCtr(1, j) = tfnRound(tgmHours.CellValue(colHHrsDol, i), DEFAULT_DECIMALS)
-        Else
-            If tgmHours.CellValue(colHPrftCtr, i) = sArPrftCtr(0, j) Then
-                sArPrftCtr(1, j) = tfnRound(sArPrftCtr(1, j), 6) + tfnRound(tgmHours.CellValue(colHHrsDol, i), 6)
-            Else
-                j = j + 1
-                ReDim Preserve sArPrftCtr(1, j)
-                sArPrftCtr(0, j) = tgmHours.CellValue(colHPrftCtr, i)
-                sArPrftCtr(1, j) = tfnRound(tgmHours.CellValue(colHHrsDol, i), DEFAULT_DECIMALS)
-            End If
-        End If
-    Next i
+    sDate = tfnFormatDate(sDate)
     
-    tgmPrftCtr.FillWithArray sArPrftCtr
-    subUpdateTotals
-
+    If SRegExpMatch(szDatePattern, sDate) <> 0 Then
+        Exit Function
+    End If
+    
+    If Not IsDate(tfnDateString(sDate)) Then
+        Exit Function
+    End If
+    
+    IsValidDate = True
 End Function
 
-Private Sub subUpdateTotals()
+Private Sub subSetFocusoptType()
     Dim i As Integer
     
-    lblTotalHrs = ""
-    lblPCTotal = ""
-
-    For i = 0 To tgmHours.RowCount - 1
-        lblTotalHrs = Val(lblTotalHrs) + tfnRound(tgmHours.CellValue(colHHrsDol, i), DEFAULT_DECIMALS)
+    For i = 0 To 3
+        If optType(i).Value Then
+            subSetFocus optType(i)
+            Exit Sub
+        End If
     Next i
-
-    For i = 0 To tgmPrftCtr.RowCount - 1
-        lblPCTotal = Val(lblPCTotal) + tfnRound(tgmPrftCtr.CellValue(colPTotal, i), DEFAULT_DECIMALS)
-    Next i
-
+    
+    subSetFocus optType(0)
 End Sub
+
+Private Function fnCheckSales() As String
+    Const SUB_NAME As String = "fnCheckSales"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    bSalesRecordExist = False
+    
+    'check from date
+    strSQL = "SELECT COUNT(bs_from_date) AS cnt_date"
+    strSQL = strSQL & " FROM bonus_sales"
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+    strSQL = strSQL & " AND " & tfnDateString(txtFromDate, True)
+    strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+        fnCheckSales = "Failed to access database"
+        Exit Function
+    End If
+    
+    If tfnRound(rsTemp!cnt_date) > 0 Then
+        bSalesRecordExist = True
+    End If
+    
+    If Not bSalesRecordExist Then
+        strSQL = "SELECT COUNT(bs_from_date) AS cnt_date"
+        strSQL = strSQL & " FROM bonus_sales"
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " AND bs_from_date BETWEEN " & tfnDateString(txtFromDate, True)
+        strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+            fnCheckSales = "Failed to access database"
+            Exit Function
+        End If
+        
+        If tfnRound(rsTemp!cnt_date) > 0 Then
+            bSalesRecordExist = True
+        End If
+    End If
+
+    'check to date
+    If Not bSalesRecordExist Then
+        strSQL = "SELECT COUNT(bs_to_date) AS cnt_date"
+        strSQL = strSQL & " FROM bonus_sales"
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
+        strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+            fnCheckSales = "Failed to access database"
+            Exit Function
+        End If
+        
+        If tfnRound(rsTemp!cnt_date) > 0 Then
+            bSalesRecordExist = True
+        End If
+    End If
+    
+    If Not bSalesRecordExist Then
+        strSQL = "SELECT COUNT(bs_to_date) AS cnt_date"
+        strSQL = strSQL & " FROM bonus_sales"
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " AND bs_to_date BETWEEN " & tfnDateString(txtFromDate, True)
+        strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+            fnCheckSales = "Failed to access database"
+            Exit Function
+        End If
+        
+        If tfnRound(rsTemp!cnt_date) > 0 Then
+            bSalesRecordExist = True
+        End If
+    End If
+    
+    If bSalesRecordExist Then
+        If MsgBox("Sales record(s) already exists for From Date/To Date and will be replaced." _
+           + " Are you sure you want to replaced the existing sales record?", _
+           vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+            bSalesRecordExist = False
+            fnCheckSales = "Sales record(s) already exists for From Date/To Date"
+            Exit Function
+        End If
+    End If
+    
+    fnCheckSales = ""
+End Function
+
+Private Function fnCheckDuplicateInGrid() As Boolean
+    Dim lRow As Long
+    Dim i As Long
+    
+    If tgmSales.RowCount = 1 Then
+        fnCheckDuplicateInGrid = True
+        Exit Function
+    End If
+    
+    For lRow = 0 To tgmSales.RowCount - 1
+        For i = lRow + 1 To tgmSales.RowCount - 1
+            If tfnRound(tgmSales.CellValue(colSPrftCtr, lRow)) = _
+               tfnRound(tgmSales.CellValue(colSPrftCtr, i)) Then
+                On Error Resume Next
+                tblSales.Bookmark = tgmSales.Bookmark(i)
+                subSetFocus tblSales
+                DoEvents
+                tfnSetStatusBarError "Duplicate Profit Center encountered"
+                Exit Function
+            End If
+        Next i
+    Next lRow
+
+    fnCheckDuplicateInGrid = True
+End Function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Private Sub txtEmployeeNumber_Change()
+    objHours.txtEmployeeNumber_Change
+End Sub
+
+Private Sub txtEmployeeNumber_GotFocus()
+    objHours.txtEmployeeNumber_GotFocus
+End Sub
+
+Private Sub txtEmployeeNumber_KeyPress(KeyAscii As Integer)
+    objHours.txtEmployeeNumber_KeyPress KeyAscii
+End Sub
+
+Private Sub txtEmployeeNumber_LostFocus()
+    objHours.txtEmployeeNumber_LostFocus
+End Sub
+
+Private Sub txtEmployeeName_Change()
+    objHours.txtEmployeeName_Change
+End Sub
+
+Private Sub txtEmployeeName_GotFocus()
+    objHours.txtEmployeeName_GotFocus
+End Sub
+
+Private Sub txtEmployeeName_KeyPress(KeyAscii As Integer)
+    objHours.txtEmployeeName_KeyPress KeyAscii
+End Sub
+
+Private Sub cmdEmployeeNumber_Click()
+    objHours.cmdEmployeeNumber_Click
+End Sub
+
+Private Sub cmdEmployeeName_Click()
+    objHours.cmdEmployeeName_Click
+End Sub
+
+Private Sub txtSSN_Change()
+    objHours.txtSSN_Change
+End Sub
+
+Private Sub txtSSN_GotFocus()
+    objHours.txtSSN_GotFocus
+End Sub
+
+Private Sub txtSSN_KeyPress(KeyAscii As Integer)
+    objHours.txtSSN_KeyPress KeyAscii
+End Sub
+
+Private Sub txtSSN_LostFocus()
+    objHours.txtSSN_LostFocus
+End Sub
+
+Private Sub cmdSSN_Click()
+    objHours.cmdSSN_Click
+End Sub
+
+Private Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
+    objHours.tblTimeCard_AfterColEdit ColIndex
+End Sub
+
+Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, CANCEL
+End Sub
+
+Private Sub tblTimeCard_Change()
+    objHours.tblTimeCard_Change
+End Sub
+
+Private Sub tblTimeCard_FirstRowChange()
+    objHours.tblTimeCard_FirstRowChange
+End Sub
+
+Private Sub tblTimeCard_GotFocus()
+    objHours.tblTimeCard_GotFocus
+End Sub
+
+Private Sub tblTimeCard_KeyDown(KeyCode As Integer, Shift As Integer)
+    objHours.tblTimeCard_KeyDown KeyCode, Shift
+End Sub
+
+Private Sub tblTimeCard_KeyPress(KeyAscii As Integer)
+    objHours.tblTimeCard_KeyPress KeyAscii
+End Sub
+
+Private Sub tblTimeCard_LeftColChange()
+    'objHours.tblTimeCard_LeftColChange
+End Sub
+
+Private Sub tblTimeCard_LostFocus()
+    objHours.tblTimeCard_LostFocus
+End Sub
+
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
+End Sub
+
+Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    objHours.tblTimeCard_RowColChange LastRow, LastCol
+End Sub
+
+Private Sub tblTimeCard_SelChange(CANCEL As Integer)
+    CANCEL = True
+End Sub
+
+Private Sub tblTimeCard_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+    objHours.tblTimeCard_UnboundReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+Private Sub tblProfitCenter_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+    objHours.tblProfitCenter_UnboundReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+Private Sub cmdFloatingBtn_Click()
+    objHours.cmdFloatingBtn_Click
+End Sub
+
+Private Sub cmdFloatingBtn_GotFocus()
+    objHours.cmdFloatingBtn_GotFocus
+End Sub
+
+Private Sub cmdFloatingBtn_LostFocus()
+    objHours.cmdFloatingBtn_LostFocus
+End Sub
+
+Private Function fnInitialPRFHOURSclass() As Boolean
+    
+    On Error GoTo errTrap
+    
+    Set objHours = New clsPRFHOURS
+    
+    Set objHours.MainForm = Me
+    Set objHours.FormToolBar = tbToolbar
+    Set objHours.StatusBar = ffraStatusbar
+    Set objHours.EmpNumTexBox = txtEmployeeNumber
+    Set objHours.EmpNumButton = cmdEmployeeNumber
+    Set objHours.EmpNameTexBox = txtEmployeeName
+    Set objHours.EmpNameButton = cmdEmployeeName
+    Set objHours.SSNTexBox = txtSSN
+    Set objHours.SSNButton = cmdSSN
+    Set objHours.ComboDropDownData = datComboDropDown
+    Set objHours.FloatingData = datDropDown
+    Set objHours.ComboDropdownGrid = tblComboDropdown
+    Set objHours.TimeCardGrid = tblTimeCard
+    Set objHours.ProfitCenterGrid = tblProfitCenter
+    Set objHours.FloatingGrid = tblDropDown(nTabHours)
+    Set objHours.FloatingButton = cmdFloatingBtn
+    Set objHours.TotalDollarsTexBox = txtTotalDollars
+    Set objHours.TotalTexBox = txtTotal
+    Set objHours.AddButton = cmdAddBtn(nTabHours)
+    Set objHours.EditButton = cmdEditBtn(nTabHours)
+    Set objHours.DeleteButton = cmdDelete(nTabHours)
+    Set objHours.UpdateInsertButton = cmdUpdateInsertBtn(nTabHours)
+    Set objHours.RefreshSelectButton = cmdRefresh(nTabHours)
+    Set objHours.CancelButton = cmdCancel(nTabHours)
+    Set objHours.CancelMenuButton = mnuCancel
+    Set objHours.ExitButton = cmdExitCancelBtn
+    Set objHours.Bridge = efraBaseIIHours
+    
+    objHours.Form_Initialize
+    objHours.Form_Load
+    
+    fnInitialPRFHOURSclass = True
+    
+    Exit Function
+    
+errTrap:
+    tfnErrHandler "fnInitialPRFHOURSclass"
+End Function
