@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -718,7 +718,7 @@ End Function
 '#      GL processing.
 '#      Try to avoid unnecessary function call tfn_Get_GL_Batch_Nbr
 '#      since this will waste Batch numbers
-Public Function tfn_Get_GL_Batch_Nbr() As Long
+Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim lValue As Long
@@ -740,23 +740,46 @@ Public Function tfn_Get_GL_Batch_Nbr() As Long
 '        strSQL = "INSERT INTO sys_parm VALUES (2225,'0','Last G/L Batch Number Used')"
 '        t_dbMainDatabase.ExecuteSQL strSQL
 '    End If
-    
-    strSQL = "SELECT Max(glj_batch) HighBatch FROM gl_journal"
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rsTemp.RecordCount > 0 Then
-        lValue = tfnRound(rsTemp!HighBatch)
-    Else
-        lValue = 0
-    End If
-    
-    Do While True
-        lValue = lValue + 1
+    If lBatch = 0 Then 'Generate Batch Number
+        strSQL = "SELECT Max(glj_batch) HighBatch FROM gl_journal"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If rsTemp.RecordCount > 0 Then
+            lValue = tfnRound(rsTemp!HighBatch)
+        Else
+            lValue = 0
+        End If
+        
+        Do While True
+            lValue = lValue + 1
+            strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            If rsTemp.RecordCount = 0 Then
+                strSQL = "UPDATE sys_parm SET parm_field = '" & CStr(lValue) & "' WHERE parm_nbr = 2225"
+                t_dbMainDatabase.ExecuteSQL strSQL
+                
+                strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
+                strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
+                t_dbMainDatabase.ExecuteSQL strSQL
+                
+                tfn_Unlock_GL_Batch_Nbr
+                
+                m_Saved_GL_Batch = lValue
+                tfn_Get_GL_Batch_Nbr = lValue
+                Exit Function
+            End If
+        Loop
+    Else 'Validate user batch input
+        If lBatch < 0 Then
+            tfn_Get_GL_Batch_Nbr = -1
+            Exit Function
+        ElseIf lBatch = m_Saved_GL_Batch Then
+            tfn_Get_GL_Batch_Nbr = lBatch
+            Exit Function
+        End If
+        lValue = lBatch
         strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount = 0 Then
-            strSQL = "UPDATE sys_parm SET parm_field = '" & CStr(lValue) & "' WHERE parm_nbr = 2225"
-            t_dbMainDatabase.ExecuteSQL strSQL
-            
             strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
             strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
             t_dbMainDatabase.ExecuteSQL strSQL
@@ -766,8 +789,10 @@ Public Function tfn_Get_GL_Batch_Nbr() As Long
             m_Saved_GL_Batch = lValue
             tfn_Get_GL_Batch_Nbr = lValue
             Exit Function
+        Else
+            tfn_Get_GL_Batch_Nbr = -1
         End If
-    Loop
+    End If
     Exit Function
 Err_Exit:
     tfn_Get_GL_Batch_Nbr = -1
@@ -1158,7 +1183,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2282,7 +2307,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
