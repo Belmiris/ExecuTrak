@@ -23,6 +23,12 @@ Attribute VB_Exposed = False
 '   More types can be put into this module to write other types of EDI flat file
 '
 '***********************************************************'
+'   Modification History
+'   Programmer      :   Vijaya Alla
+'   Date            :   02/19/04
+'   Description     :   395302-Factor-Date Sensitive Taxes
+'   Table Accessed  :   tx_header
+'***********************************************************'
 
 'Properties:
 'Get       EDITypeR:   returns a flag for R type record
@@ -1830,10 +1836,10 @@ Property Let TaxPaidTaxCode(sCode As String)
     If sCode = "" Then
         Exit Property
     End If
-    
-    strSQL = "SELECT DISTINCT tt_trn FROM tx_table" _
-           & " WHERE tt_level = 'S'" _
-           & " AND (" & fnAppenCriteria("tt_code", sCode) & ")"
+    'Vijaya on 02/19/04 Magic#395302
+    strSQL = "SELECT DISTINCT txh_trn FROM tx_header" _
+           & " WHERE txh_level = 'S'" _
+           & " AND (" & fnAppenCriteria("txh_code", sCode) & ")"
 
     Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If rsTemp Is Nothing Then
@@ -1843,7 +1849,7 @@ Property Let TaxPaidTaxCode(sCode As String)
     While Not rsTemp.EOF
         m_nTPTCount = m_nTPTCount + 1
         If m_nTPTCount <= 20 Then
-            m_lTaxPaidTrn(m_nTPTCount) = tfnRound(rsTemp!tt_trn)
+            m_lTaxPaidTrn(m_nTPTCount) = tfnRound(rsTemp!txh_trn)
         End If
         rsTemp.MoveNext
     Wend

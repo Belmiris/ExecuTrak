@@ -21,7 +21,7 @@ Global frgt_acct As Long
 Global frgt_rev As Long
 Global freight_account As String * 1
 Global freight_revenue As String * 1
-Global i As Long, j As Long, k As Long, L As Long, m As Long, n As Long
+Global I As Long, j As Long, k As Long, L As Long, m As Long, n As Long
 Global gpc_num As Long
 Global gproduct As String * 16
 Global gtax_use As String * 8
@@ -46,8 +46,10 @@ Global pr_sys_parm As Recordset  '              record like sys_parm.*
 Global pr_use_g As Recordset  '                 record like tx_use_g.*
 Global pr_use_link As Recordset  '              record like tx_use_link.*
 Global pr_table As Recordset  '                 record like tx_table.*
+Global pr_header_detail As Recordset  '         record like tx_header.*,tx_detail.*
 Global pr_inv_classes As Recordset  '           record like inv_classes.*
 Global pr_gl_master As Recordset  '             record like gl_master.*
+Global pr_gl_period As Recordset  '             record like gl_period.*
 Global pr_fm_frgt_cd As Recordset  '            record like fm_frgt_cd.*
 Global pr_altname As Recordset  '               record like ar_altname.*
 Global pr_customer As Recordset  '              record like ar_customer.*
@@ -167,6 +169,10 @@ Global true_sign As Double
 Private bUseNonStkMstr As Boolean
 
 Private Const nDBInformix As Integer = 1
+'Vijaya on 02/05/04 Magic#395302
+Public bExists_tx_header As Boolean
+''''''''''''''''''''''''''''''''
+'
 
 Public Sub initialize_tax_buffers()
     error_found = False
@@ -391,7 +397,7 @@ Public Function fltr_count()
 End Function
 
 Public Sub filter_trn()
-    Dim i As Integer
+    Dim I As Integer
     Dim j As Integer
     Dim k As Integer
 
@@ -402,17 +408,17 @@ Public Sub filter_trn()
         Exit Sub
     End If
 
-    i = 1
-    While i <= trn_arry_cnt
-        If (trn_arry(i).charge = "Y" Or trn_arry(i).charge = "N") And (trn_arry(i).limit = 0 Or trn_arry(i).extn <> 0) Then
-            i = i + 1
+    I = 1
+    While I <= trn_arry_cnt
+        If (trn_arry(I).charge = "Y" Or trn_arry(I).charge = "N") And (trn_arry(I).limit = 0 Or trn_arry(I).extn <> 0) Then
+            I = I + 1
             GoTo continue_while
         End If
-        If (trn_arry(i).limit = 0) Or (trn_arry(i).extn <> 0) Then
+        If (trn_arry(I).limit = 0) Or (trn_arry(I).extn <> 0) Then
             fltr_arry_cnt = fltr_arry_cnt + 1
-            fltr_arry(fltr_arry_cnt) = trn_arry(i)
+            fltr_arry(fltr_arry_cnt) = trn_arry(I)
         End If
-        For j = i To trn_arry_cnt
+        For j = I To trn_arry_cnt
             k = j + 1
             If k <= trn_arry_cnt Then
                 trn_arry(j) = trn_arry(k)
@@ -477,27 +483,27 @@ Public Sub extrn_bl_gl(this_pc As Long, _
         fnd_smmry product
         fnd_grp_tax product
 
-        For i = 1 To trn_arry_cnt
-            Select Case trn_arry(i).ttype
+        For I = 1 To trn_arry_cnt
+            Select Case trn_arry(I).ttype
             Case "N"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case "G"
-                trn_arry(i).tunits = gunits
+                trn_arry(I).tunits = gunits
             Case "A"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case Else
-                trn_arry(i).tunits = tunits
+                trn_arry(I).tunits = tunits
             End Select
-            Select Case trn_arry(i).ttype
+            Select Case trn_arry(I).ttype
             Case "$"
                 gross_limit = smm_tax(smm_ptr).smm_d_amt
             Case Else
                 gross_limit = smm_tax(smm_ptr).smm_gunits
             End Select
-            trn_arry(i).extn = compute_tax_amt(trn_arry(i).tunits, trn_arry(i).amount, _
-                            trn_arry(i).order_group, trn_arry(i).limit, trn_arry(i).ttype, _
-                            trn_arry(i).trn) * true_sign
-            trn_arry(i).tunits = trn_arry(i).tunits * true_sign
+            trn_arry(I).extn = compute_tax_amt(trn_arry(I).tunits, trn_arry(I).amount, _
+                            trn_arry(I).order_group, trn_arry(I).limit, trn_arry(I).ttype, _
+                            trn_arry(I).trn) * true_sign
+            trn_arry(I).tunits = trn_arry(I).tunits * true_sign
         Next
 
     End If  '{end of tax check }
@@ -625,27 +631,27 @@ Public Sub intrn_bl_gl(this_pc As Long, _
         fnd_smmry product
         fnd_grp_tax product
 
-        For i = 1 To trn_arry_cnt
-            Select Case trn_arry(i).ttype
+        For I = 1 To trn_arry_cnt
+            Select Case trn_arry(I).ttype
             Case "N"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case "G"
-                trn_arry(i).tunits = gunits
+                trn_arry(I).tunits = gunits
             Case "A"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case Else
-                trn_arry(i).tunits = tunits
+                trn_arry(I).tunits = tunits
             End Select
-            Select Case trn_arry(i).ttype
+            Select Case trn_arry(I).ttype
             Case "$"
                 gross_limit = smm_tax(smm_ptr).smm_d_amt
             Case Else
                 gross_limit = smm_tax(smm_ptr).smm_gunits
             End Select
-            trn_arry(i).extn = compute_tax_amt(trn_arry(i).tunits, trn_arry(i).amount, _
-                                trn_arry(i).order_group, trn_arry(i).limit, _
-                                trn_arry(i).ttype, trn_arry(i).trn) * true_sign
-            trn_arry(i).tunits = trn_arry(i).tunits * true_sign
+            trn_arry(I).extn = compute_tax_amt(trn_arry(I).tunits, trn_arry(I).amount, _
+                                trn_arry(I).order_group, trn_arry(I).limit, _
+                                trn_arry(I).ttype, trn_arry(I).trn) * true_sign
+            trn_arry(I).tunits = trn_arry(I).tunits * true_sign
 
         Next
 
@@ -670,10 +676,11 @@ Public Sub intrn_bl_gl(this_pc As Long, _
         post_also ("T")
         For L = 1 To trn_arry_cnt
             If trn_arry(L).charge = "Y" Then
-'                return true,11
-'block it to see the result
-'                found_error = True: error_found = 11
-'                Exit Sub
+            'Vijaya on 02/05/04 Magic#395302
+            'Uncommented Becaue we need to be same as 4GL code
+'               return true,11
+                found_error = True: error_found = 11
+                Exit Sub
             End If
             post_tax "B", trn_arry(L).tt_gl_acct, trn_arry(L).charge, trn_arry(L).extn, buckt
         Next
@@ -741,27 +748,27 @@ Public Sub intrn_del_gl(this_pc As Long, _
         fnd_smmry product
         fnd_grp_tax product
 
-        For i = 1 To trn_arry_cnt
-            Select Case trn_arry(i).ttype
+        For I = 1 To trn_arry_cnt
+            Select Case trn_arry(I).ttype
             Case "N"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case "G"
-                trn_arry(i).tunits = gunits
+                trn_arry(I).tunits = gunits
             Case "A"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case Else
-                trn_arry(i).tunits = tunits
+                trn_arry(I).tunits = tunits
             End Select
-            Select Case trn_arry(i).ttype
+            Select Case trn_arry(I).ttype
             Case "$"
                 gross_limit = smm_tax(smm_ptr).smm_d_amt
             Case Else
                 gross_limit = smm_tax(smm_ptr).smm_gunits
             End Select
-            trn_arry(i).extn = compute_tax_amt(trn_arry(i).tunits, trn_arry(i).amount, _
-                            trn_arry(i).order_group, trn_arry(i).limit, trn_arry(i).ttype, _
-                            trn_arry(i).trn) * true_sign
-            trn_arry(i).tunits = trn_arry(i).tunits * true_sign
+            trn_arry(I).extn = compute_tax_amt(trn_arry(I).tunits, trn_arry(I).amount, _
+                            trn_arry(I).order_group, trn_arry(I).limit, trn_arry(I).ttype, _
+                            trn_arry(I).trn) * true_sign
+            trn_arry(I).tunits = trn_arry(I).tunits * true_sign
         Next
     End If    '{end of tax check }
 
@@ -866,34 +873,34 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
         fnd_smmry product
         fnd_grp_tax product
 
-        For i = 1 To trn_arry_cnt
-            Select Case trn_arry(i).ttype
+        For I = 1 To trn_arry_cnt
+            Select Case trn_arry(I).ttype
             Case "N"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case "G"
-                trn_arry(i).tunits = gunits
+                trn_arry(I).tunits = gunits
             Case "A"
-                trn_arry(i).tunits = nunits
+                trn_arry(I).tunits = nunits
             Case Else
-                trn_arry(i).tunits = tunits
+                trn_arry(I).tunits = tunits
             End Select
-            Select Case trn_arry(i).ttype
+            Select Case trn_arry(I).ttype
             Case Is = "$"
                 gross_limit = smm_tax(smm_ptr).smm_d_amt
             Case Else
                 gross_limit = smm_tax(smm_ptr).smm_gunits
             End Select
-            trn_arry(i).extn = compute_tax_amt(trn_arry(i).tunits, trn_arry(i).amount, _
-                                trn_arry(i).order_group, trn_arry(i).limit, trn_arry(i).ttype, _
-                                trn_arry(i).trn) * true_sign
-            trn_arry(i).tunits = trn_arry(i).tunits * true_sign
+            trn_arry(I).extn = compute_tax_amt(trn_arry(I).tunits, trn_arry(I).amount, _
+                                trn_arry(I).order_group, trn_arry(I).limit, trn_arry(I).ttype, _
+                                trn_arry(I).trn) * true_sign
+            trn_arry(I).tunits = trn_arry(I).tunits * true_sign
             
             '-----------------------------------------------------------------
             '#Add the following codes by WJ on 05/28/03
             '#Magic #400088.
             '# Calculate re_tax_amount - used to balance detax routine
-            If trn_arry(i).charge = "Y" Then
-                 re_tax_amount = re_tax_amount + trn_arry(i).extn
+            If trn_arry(I).charge = "Y" Then
+                 re_tax_amount = re_tax_amount + trn_arry(I).extn
             End If
             '------------------------------------------------------------------
         Next
@@ -1033,110 +1040,154 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
     Dim found_sw As Integer, sSql As String, pr_use_link As Recordset
 
     On Error GoTo errTrap
-
-    found_sw = 0
-    For i = 1 To ulink_cnt
-        If pa_ulink(i).tul_link = pr_use_g!tu_link Then
-            trn_arry_cnt = trn_arry_cnt + 1
-            'david 06/18/2001
-            ReDim Preserve trn_arry(trn_arry_cnt)
-            j = trn_arry_cnt
-            trn_arry(j).trn = pa_ulink(i).tul_trn
-            trn_arry(j).ulink = pa_ulink(i).tul_link
-            found_sw = 1
-        End If
-    Next
-
-'    declare c_tx_link cursor for
-        sSql = "select * from tx_use_link Where tul_link = " & pr_use_g!tu_link
+    
+    'Vijaya on 02/05/04 Magic#395302
+    If fnCStr(t_tax_date) = "" Then
+        set_tax_date Date
+    End If
+    If bExists_tx_header Then
+        'declare c_taxes cursor
+        sSql = "SELECT * FROM tx_use_link, tx_header, tx_detail"
+        sSql = sSql & " WHERE tul_link =" & pr_use_g!tu_link
+        sSql = sSql & " AND tul_trn  = txh_trn"
+        sSql = sSql & " AND tul_trn  = txd_trn"
+        sSql = sSql & " AND " & tfnDateString(t_tax_date, True) & " between txd_beg_date "
+        sSql = sSql & " AND txd_end_date"
         fnGetRecord pr_use_link, sSql, nDBInformix, "load_trn_arry"
-
-    If found_sw = 0 Then
         pr_use_link.MoveLast
         pr_use_link.MoveFirst
         While Not pr_use_link.EOF
-            ulink_cnt = ulink_cnt + 1
-            ReDim Preserve pa_ulink(ulink_cnt)
-            With pa_ulink(ulink_cnt)
-                .tul_link = pr_use_link!tul_link
-                .tul_trn = pr_use_link!tul_trn
-                .tul_sched = pr_use_link!tul_sched
-            End With
             trn_arry_cnt = trn_arry_cnt + 1
             ReDim Preserve trn_arry(trn_arry_cnt)
-            i = ulink_cnt
             j = trn_arry_cnt
-            trn_arry(j).trn = pa_ulink(i).tul_trn
-            trn_arry(j).ulink = pa_ulink(i).tul_link
-            pr_use_link.MoveNext
-       Wend
-    End If
-
-    If trn_arry_cnt = 0 Then
-        bParam1 = True
-        nParam2 = 2
-        Exit Sub
-    End If
-
-    Dim k As Long
-    For i = 1 To trn_arry_cnt
-        For j = 1 To tt_max
-            If pa_table(j).tt_trn = 0 Then
-                k = trn_arry(i).trn
-                Set pr_table = ftx_table(k, t_dbMainDatabase)
-                If pr_table Is Nothing Then
-                    bParam1 = True
-                    nParam2 = 3
-                    Exit Sub
-                End If
-                'david 02/20/2003  #391336
-                'the basis 'A' tax should be excluded!!!
-                If fnCStr(pr_table!tt_basis) <> "A" Then
-                    If tt_cnt < tt_max Then
-                        tt_cnt = tt_cnt + 1
-                    End If
-                    For k = tt_cnt To 2 Step -1
-                        j = k - 1
-                        pa_table(k) = pa_table(j)
-                    Next
-                    With pa_table(1)
-                        .tt_code = pr_table!tt_code
-                        .tt_level = pr_table!tt_level
-                        .tt_where = pr_table!tt_where
-                        .tt_order = pr_table!tt_order
-                        .tt_gl_acct = pr_table!tt_gl_acct
-                        .tt_rate = pr_table!tt_rate
-                        .tt_charge = pr_table!tt_charge
-                        .tt_basis = pr_table!tt_basis
-                        .tt_limit = pr_table!tt_limit
-                        .tt_date = pr_table!tt_date
-                        .tt_trn = pr_table!tt_trn
-                        .tt_descr = pr_table!tt_descr
-                    End With
-                End If
-                ''''''''''''''''''''''''''
-            End If
-            If trn_arry(i).trn = pa_table(j).tt_trn Then
-                trn_arry(i).ttype = pa_table(j).tt_basis
-                trn_arry(i).amount = pa_table(j).tt_rate
-                trn_arry(i).charge = pa_table(j).tt_charge
-                trn_arry(i).limit = pa_table(j).tt_limit
-                trn_arry(i).order_group = pa_table(j).tt_order
-                trn_arry(i).tt_gl_acct = pa_table(j).tt_gl_acct
-                Set pr_gl_master = fgl_master(sSeries, trn_arry(i).tt_gl_acct, gpc_num, t_dbMainDatabase)
+            If j <= trn_max Then
+                trn_arry(j).trn = pr_use_link.tul_trn
+                trn_arry(j).ulink = pr_use_link.tul_link
+                trn_arry(j).ttype = pr_use_link.txd_basis
+                trn_arry(j).amount = pr_use_link.txd_rate
+                trn_arry(j).charge = pr_use_link.txd_charge
+                trn_arry(j).tt_gl_acct = pr_use_link.txd_gl_acct
+                trn_arry(j).limit = pr_use_link.txd_limit
+                'we don't use limit_type
+                trn_arry(j).order_group = pr_use_link.txd_order
+                Set pr_gl_master = fgl_master(sSeries, trn_arry(j).tt_gl_acct, gpc_num, t_dbMainDatabase)
                 
                 If pr_gl_master Is Nothing Then
-                    pr_gl_master_glm_account = trn_arry(i).tt_gl_acct
+                    pr_gl_master_glm_account = trn_arry(j).tt_gl_acct
                     pr_gl_master_glm_prft_ctr = gpc_num
                     bParam1 = True
                     nParam2 = 10
                     Exit Sub
                 End If
-                Exit For
+            End If
+            pr_use_link.MoveNext
+        Wend
+    Else
+    ''''''''''''''''''''''''''''''''
+    'old style
+        found_sw = 0
+        For I = 1 To ulink_cnt
+            If pa_ulink(I).tul_link = pr_use_g!tu_link Then
+                trn_arry_cnt = trn_arry_cnt + 1
+                'david 06/18/2001
+                ReDim Preserve trn_arry(trn_arry_cnt)
+                j = trn_arry_cnt
+                trn_arry(j).trn = pa_ulink(I).tul_trn
+                trn_arry(j).ulink = pa_ulink(I).tul_link
+                found_sw = 1
             End If
         Next
-    Next
-
+    
+    '    declare c_tx_link cursor for
+            sSql = "select * from tx_use_link Where tul_link = " & pr_use_g!tu_link
+            fnGetRecord pr_use_link, sSql, nDBInformix, "load_trn_arry"
+    
+        If found_sw = 0 Then
+            pr_use_link.MoveLast
+            pr_use_link.MoveFirst
+            While Not pr_use_link.EOF
+                ulink_cnt = ulink_cnt + 1
+                ReDim Preserve pa_ulink(ulink_cnt)
+                With pa_ulink(ulink_cnt)
+                    .tul_link = pr_use_link!tul_link
+                    .tul_trn = pr_use_link!tul_trn
+                    .tul_sched = pr_use_link!tul_sched
+                End With
+                trn_arry_cnt = trn_arry_cnt + 1
+                ReDim Preserve trn_arry(trn_arry_cnt)
+                I = ulink_cnt
+                j = trn_arry_cnt
+                trn_arry(j).trn = pa_ulink(I).tul_trn
+                trn_arry(j).ulink = pa_ulink(I).tul_link
+                pr_use_link.MoveNext
+           Wend
+        End If
+    
+        If trn_arry_cnt = 0 Then
+            bParam1 = True
+            nParam2 = 2
+            Exit Sub
+        End If
+    
+        Dim k As Long
+        For I = 1 To trn_arry_cnt
+            For j = 1 To tt_max
+                If pa_table(j).tt_trn = 0 Then
+                    k = trn_arry(I).trn
+                    Set pr_table = ftx_table(k, t_dbMainDatabase)
+                    If pr_table Is Nothing Then
+                        bParam1 = True
+                        nParam2 = 3
+                        Exit Sub
+                    End If
+                    'david 02/20/2003  #391336
+                    'the basis 'A' tax should be excluded!!!
+                    If fnCStr(pr_table!tt_basis) <> "A" Then
+                        If tt_cnt < tt_max Then
+                            tt_cnt = tt_cnt + 1
+                        End If
+                        For k = tt_cnt To 2 Step -1
+                            j = k - 1
+                            pa_table(k) = pa_table(j)
+                        Next
+                        With pa_table(1)
+                            .tt_code = pr_table!tt_code
+                            .tt_level = pr_table!tt_level
+                            .tt_where = pr_table!tt_where
+                            .tt_order = pr_table!tt_order
+                            .tt_gl_acct = pr_table!tt_gl_acct
+                            .tt_rate = pr_table!tt_rate
+                            .tt_charge = pr_table!tt_charge
+                            .tt_basis = pr_table!tt_basis
+                            .tt_limit = pr_table!tt_limit
+                            .tt_date = pr_table!tt_date
+                            .tt_trn = pr_table!tt_trn
+                            .tt_descr = pr_table!tt_descr
+                        End With
+                    End If
+                    ''''''''''''''''''''''''''
+                End If
+                If trn_arry(I).trn = pa_table(j).tt_trn Then
+                    trn_arry(I).ttype = pa_table(j).tt_basis
+                    trn_arry(I).amount = pa_table(j).tt_rate
+                    trn_arry(I).charge = pa_table(j).tt_charge
+                    trn_arry(I).limit = pa_table(j).tt_limit
+                    trn_arry(I).order_group = pa_table(j).tt_order
+                    trn_arry(I).tt_gl_acct = pa_table(j).tt_gl_acct
+                    Set pr_gl_master = fgl_master(sSeries, trn_arry(I).tt_gl_acct, gpc_num, t_dbMainDatabase)
+                    
+                    If pr_gl_master Is Nothing Then
+                        pr_gl_master_glm_account = trn_arry(I).tt_gl_acct
+                        pr_gl_master_glm_prft_ctr = gpc_num
+                        bParam1 = True
+                        nParam2 = 10
+                        Exit Sub
+                    End If
+                    Exit For
+                End If
+            Next
+        Next
+    End If
 '{
 '         Simple bubble sort to force order then abs(limit)
 '}
@@ -1319,11 +1370,18 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
     Dim hold_basis As String * 1
     Dim delta As Double
     Dim sWHERE As String
-    Dim sLevel As String
+    
+    'Vijaya on 02/05/04 Magic#395302
+    Dim stx_charge As String
+     
+    If fnCStr(t_tax_date) = "" Then
+        set_tax_date Date
+    End If
+    ''''''''''''''''''''''''''''''''
         
     If tunits < 0 Then
-         tunits = Abs(tunits)
-         sign_it = -1
+        tunits = Abs(tunits)
+        sign_it = -1
     Else
         sign_it = 1
     End If
@@ -1349,8 +1407,9 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
       Case Else
         basis_amount = tunits
     End Select
-
-    group_amount = group_amount + tax_amount
+    'Vijaya on 02/05/04 Magic#395302
+    'Moved the code down same as 4GL
+    'group_amount = group_amount + tax_amount
     If order_group <> last_order_group Then
         If last_order_group <> 0 Then
             base_amount = base_amount + group_amount
@@ -1361,6 +1420,29 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
     last_order_group = order_group
 
     gross_limit = Abs(gross_limit)
+    
+    'Vijaya on 02/05/04 Magic#395302
+    If bExists_tx_header Then
+        Set pr_header_detail = ftx_Header_detail(trn, CDate(t_tax_date), t_dbMainDatabase)
+        If Not pr_header_detail Is Nothing Then
+            If pr_header_detail.RecordCount > 0 Then
+               If Not IsNull(pr_header_detail!txh_where) Then
+                    sWHERE = Trim(pr_header_detail!txh_where)
+               End If
+               stx_charge = pr_header_detail!txd_charge
+            End If
+        End If
+    Else
+        Set pr_table = ftx_table(trn, t_dbMainDatabase)
+        If Not pr_table Is Nothing Then
+            If pr_table.RecordCount > 0 Then
+               If Not IsNull(pr_table!tt_where) Then
+                    sWHERE = Trim(pr_table!tt_where)
+               End If
+               stx_charge = pr_table!tt_charge
+            End If
+        End If
+    End If
 
     Select Case True
     Case limit < 0
@@ -1419,31 +1501,19 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
 
     Select Case Trim$(basis)
     Case "$"
+        
+        'Vijaya on 02/05/04 Moved the code up
         '#Florida has a very strange way to calculate taxes.
         '#So if Level="S"--state and Where="FL"--Florida,
         '#we have a new routine to calculate the taxes.
         '#Magic #381858. WJ 09/03/2002
-        sLevel = ""
-        sWHERE = ""
-        
         'Set pr_table = ftx_table(trn_arry(I).trn, t_dbMainDatabase)
         '#This was wrong. Should use trn. WJ, 4/01/2003,Magic 404131
-        Set pr_table = ftx_table(trn, t_dbMainDatabase)
         
-        If Not pr_table Is Nothing Then
-            If pr_table.RecordCount > 0 Then
-               If Not IsNull(pr_table!tt_level) Then
-                    sLevel = Trim(pr_table!tt_level)
-               End If
-               If Not IsNull(pr_table!tt_where) Then
-                    sWHERE = Trim(pr_table!tt_where)
-               End If
-            End If
-        End If
-                
         '#If it is Florida State Taxes
-        If sLevel = "S" And sWHERE = "FL" Then
-            tax_amount = florida_bracket_tax(wrk_amount, rate)
+        If sWHERE = "FL" Then
+            'tax_amount = florida_bracket_tax(wrk_amount, rate)
+            tax_amount = round_up_sls_tx(wrk_amount * rate)
         Else
             '#For all other taxes, it is simple - Dol * Rate and
             '#Round it.
@@ -1492,6 +1562,13 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         base_amount = base_amount - freight_tmp
     End If
 
+    'Vijaya on 02/05/04 Magic#395302
+    'move the code down Because it be the same as 4GL
+    If stx_charge = "Y" Then
+        group_amount = group_amount + tax_amount
+    End If
+    ''''''''''''''''''''''''''''''''
+    
     compute_tax_amt = tax_amount
 
 End Function
@@ -1615,8 +1692,18 @@ Public Sub detax(use_group As String, tclass As String, _
     Dim level_rate As Single
     Dim last_level As Integer
     
+    'Vijaya on 02/05/04 Magic#395302
+    Dim stx_charge As String
+    ''''''''''''''''''''''''''''''''
+    
     On Error GoTo errTrap
 
+    'Vijaya on 02/05/04 Magic#395302
+    If fnCStr(t_tax_date) = "" Then
+        set_tax_date Date
+    End If
+    ''''''''''''''''''''''''''''''''
+    
     Set pr_use_g = ftx_use_g(use_group, tclass, t_dbMainDatabase)
 
     If pr_use_g Is Nothing Then
@@ -1633,7 +1720,6 @@ Public Sub detax(use_group As String, tclass As String, _
         Exit Sub
     End If
 
-
     base_amount = Abs(tdolrs)
     last_order_group = -32767
     last_limit = 0
@@ -1643,20 +1729,31 @@ Public Sub detax(use_group As String, tclass As String, _
     last_level = 0
 
     If trn_arry_cnt > 0 Then
-        For i = 1 To trn_arry_cnt
-            If trn_arry(i).order_group = 0 Then
-                Set pr_table = ftx_table(trn_arry(i).trn, t_dbMainDatabase)
-                'ReDim Preserve dtx(i)
-                dtx(i).Description = pr_table!tt_descr
-                dtx(i).amount = de_tax_amt(i, _
+        For I = 1 To trn_arry_cnt
+            If trn_arry(I).order_group = 0 Then
+                'Vijaya on 02/05/04 Magic#395302
+                If bExists_tx_header Then
+                    Set pr_header_detail = ftx_Header_detail(trn_arry(I).trn, CDate(t_tax_date), t_dbMainDatabase)
+                    If Not pr_header_detail Is Nothing Then
+                        If pr_header_detail.RecordCount > 0 Then
+                            dtx(I).Description = pr_header_detail!txh_descr
+                        End If
+                    End If
+                Else
+                    Set pr_table = ftx_table(trn_arry(I).trn, t_dbMainDatabase)
+                    'ReDim Preserve dtx(i)
+                    dtx(I).Description = pr_table!tt_descr
+                End If
+                ''''''''''''''''''''''''''''''''
+                dtx(I).amount = de_tax_amt(I, _
                                 tunits, _
-                                trn_arry(i).amount, _
+                                trn_arry(I).amount, _
                                 -32767, _
-                                trn_arry(i).limit, _
-                                trn_arry(i).ttype, _
-                                trn_arry(i).charge)
+                                trn_arry(I).limit, _
+                                trn_arry(I).ttype, _
+                                trn_arry(I).charge)
 
-                de_tax_amount = de_tax_amount + dtx(i).amount
+                de_tax_amount = de_tax_amount + dtx(I).amount
             End If
         Next
     End If
@@ -1664,29 +1761,51 @@ Public Sub detax(use_group As String, tclass As String, _
     level_rate = 0
     If trn_arry_cnt > 0 Then
         j = 0 'WJ 12/04/2001 Magic 339720
-        For i = trn_arry_cnt To 1 Step -1
-            If trn_arry(i).order_group <> 0 Then
-                Set pr_table = ftx_table(trn_arry(i).trn, t_dbMainDatabase)
-                dtx(i).Description = pr_table!tt_descr
-                If last_level = 0 Then
-                    last_level = trn_arry(i).order_group
-                End If
-                If trn_arry(i).order_group = last_level Then
-                    If pr_table!tt_charge = "Y" Then
-                        level_rate = level_rate + trn_arry(i).amount
-                        j = i
-                    End If
-                    trn_arry(i).amount = 0
-                    dtx(i).amount = 0
+        For I = trn_arry_cnt To 1 Step -1
+            If trn_arry(I).order_group <> 0 Then
+                'Vijaya on 02/05/04 Magic#395302
+                If bExists_tx_header Then
+                    Set pr_header_detail = ftx_Header_detail(trn_arry(I).trn, CDate(t_tax_date), t_dbMainDatabase)
+                    dtx(I).Description = pr_header_detail!txh_descr
+                    stx_charge = pr_header_detail!txd_charge
                 Else
-                    trn_arry(j).amount = level_rate
-                    dtx(j).amount = de_tax_amt(j, tunits, trn_arry(j).amount, trn_arry(j).order_group, trn_arry(j).limit, trn_arry(j).ttype, trn_arry(j).charge)
-                    de_tax_amount = de_tax_amount + dtx(j).amount
-                    level_rate = trn_arry(i).amount
-                    trn_arry(i).amount = 0
-                    dtx(i).amount = 0
-                    last_level = trn_arry(i).order_group
-                    j = i
+                    Set pr_table = ftx_table(trn_arry(I).trn, t_dbMainDatabase)
+                    dtx(I).Description = pr_table!tt_descr
+                    stx_charge = pr_table!tt_charge
+                End If
+                ''''''''''''''''''''''''''''''''
+                If last_level = 0 Then
+                    last_level = trn_arry(I).order_group
+                End If
+                If trn_arry(I).order_group = last_level Then
+                    'Vijaya on 02/05/04 Magic#395302 Changed from
+                    'If pr_table!tt_charge = "Y" Then to stx_charge
+                    If stx_charge = "Y" Then
+                        level_rate = level_rate + trn_arry(I).amount
+                        j = I
+                    End If
+                    trn_arry(I).amount = 0
+                    dtx(I).amount = 0
+                Else
+                    'Vijaya on 02/05/04 Magic#395302 Changed
+                    'Because it be same as 4GL Code
+                    If j > 0 Then
+                        trn_arry(j).amount = level_rate
+                        dtx(j).amount = de_tax_amt(j, tunits, trn_arry(j).amount, trn_arry(j).order_group, trn_arry(j).limit, trn_arry(j).ttype, trn_arry(j).charge)
+                        de_tax_amount = de_tax_amount + dtx(j).amount
+                    End If
+                    'Vijaya on 02/05/04 Magic#395302 Changed
+                    'Because it be same as 4GL Code
+                    If stx_charge = "Y" Then
+                        level_rate = trn_arry(I).amount
+                        j = I
+                    Else
+                        level_rate = 0
+                        j = 0
+                    End If
+                    trn_arry(I).amount = 0
+                    dtx(I).amount = 0
+                    last_level = trn_arry(I).order_group
                 End If
             End If
         Next
@@ -1827,7 +1946,7 @@ Public Function de_tax_amt(trn_i As Long, tunits As Double, rate As Single, orde
 End Function
 
 Public Sub start_smmry()
-    Dim i As Integer
+    Dim I As Integer
 
     ReDim smm_tax(5)
     
@@ -1837,13 +1956,13 @@ Public Sub start_smmry()
     grp_cnt = 0
 
     sum_fuels = 0
-    For i = 1 To 25
-        a_tax_total(i) = 0
+    For I = 1 To 25
+        a_tax_total(I) = 0
     Next
 
-    For i = 1 To 50
-        sls_tax_arry(i).trn = 0
-        sls_tax_arry(i).amount = 0
+    For I = 1 To 50
+        sls_tax_arry(I).trn = 0
+        sls_tax_arry(I).amount = 0
     Next
     sls_tax_cnt = 0
 End Sub
@@ -1857,12 +1976,12 @@ Public Sub bld_smmry(prod As String, d_amt As Double, bunits As Double, gunits A
     Set lr_header = finv_header(prod, t_dbMainDatabase)
     rec_fnd = False
     If smm_cnt > 0 Then
-        For i = 1 To smm_cnt
-            If smm_tax(i).smm_class = lr_header!ivh_prodtcl Then
-                smm_tax(i).smm_d_amt = smm_tax(i).smm_d_amt + d_amt
-                smm_tax(i).smm_bunits = smm_tax(i).smm_bunits + bunits
-                smm_tax(i).smm_gunits = smm_tax(i).smm_gunits + gunits
-                smm_tax(i).smm_nunits = smm_tax(i).smm_nunits + nunits
+        For I = 1 To smm_cnt
+            If smm_tax(I).smm_class = lr_header!ivh_prodtcl Then
+                smm_tax(I).smm_d_amt = smm_tax(I).smm_d_amt + d_amt
+                smm_tax(I).smm_bunits = smm_tax(I).smm_bunits + bunits
+                smm_tax(I).smm_gunits = smm_tax(I).smm_gunits + gunits
+                smm_tax(I).smm_nunits = smm_tax(I).smm_nunits + nunits
                 rec_fnd = True
                 Exit For
             End If
@@ -1870,12 +1989,12 @@ Public Sub bld_smmry(prod As String, d_amt As Double, bunits As Double, gunits A
     End If
     If (rec_fnd = False) Then
         smm_cnt = smm_cnt + 1
-        i = smm_cnt
-        smm_tax(i).smm_class = lr_header!ivh_prodtcl
-        smm_tax(i).smm_d_amt = d_amt
-        smm_tax(i).smm_bunits = bunits
-        smm_tax(i).smm_gunits = gunits
-        smm_tax(i).smm_nunits = nunits
+        I = smm_cnt
+        smm_tax(I).smm_class = lr_header!ivh_prodtcl
+        smm_tax(I).smm_d_amt = d_amt
+        smm_tax(I).smm_bunits = bunits
+        smm_tax(I).smm_gunits = gunits
+        smm_tax(I).smm_nunits = nunits
     End If
 
     If (it_is_a_fuel(prod, t_dbMainDatabase)) Then
@@ -1892,18 +2011,18 @@ Public Sub bld_smmry(prod As String, d_amt As Double, bunits As Double, gunits A
         End If
         sum_fuels = sum_fuels + nunits
         If grp_cnt > 0 Then
-            For i = 1 To grp_cnt
-                If grp_tax(i).grp_class = lr_classes!icl_fuel_group Then
-                    grp_tax(i).grp_bunits = grp_tax(i).grp_bunits + nunits
+            For I = 1 To grp_cnt
+                If grp_tax(I).grp_class = lr_classes!icl_fuel_group Then
+                    grp_tax(I).grp_bunits = grp_tax(I).grp_bunits + nunits
                     Exit Sub
                 End If
             Next
         End If
         grp_cnt = grp_cnt + 1
-        i = grp_cnt
-        grp_tax(i).grp_class = lr_classes!icl_fuel_group
-        grp_tax(i).grp_bunits = nunits
-        grp_tax(i).grp_tax = 0
+        I = grp_cnt
+        grp_tax(I).grp_class = lr_classes!icl_fuel_group
+        grp_tax(I).grp_bunits = nunits
+        grp_tax(I).grp_tax = 0
     End If
 End Sub
 
@@ -1913,9 +2032,9 @@ Private Sub fnd_smmry(prod As String)
     Dim lr_header As Recordset  '    record like inv_header.*
     Set lr_header = finv_header(prod, t_dbMainDatabase)
     If smm_cnt > 0 Then
-        For i = 1 To smm_cnt
-            If smm_tax(i).smm_class = lr_header!ivh_prodtcl Then
-                smm_ptr = i
+        For I = 1 To smm_cnt
+            If smm_tax(I).smm_class = lr_header!ivh_prodtcl Then
+                smm_ptr = I
                 Exit Sub
             End If
         Next
@@ -1932,11 +2051,11 @@ Public Sub fnd_grp_tax(prod As String)
     dsl_gals = 0
     Set lr_header = finv_header(prod, t_dbMainDatabase)
     Set lr_classes = finv_classes(lr_header!ivh_prodtcl, "T", t_dbMainDatabase)
-    For i = 1 To grp_cnt
-        If grp_tax(i).grp_class = dsl_fuel_group Then
-            dsl_gals = dsl_gals + grp_tax(i).grp_bunits
+    For I = 1 To grp_cnt
+        If grp_tax(I).grp_class = dsl_fuel_group Then
+            dsl_gals = dsl_gals + grp_tax(I).grp_bunits
         Else
-            gas_gals = gas_gals + grp_tax(i).grp_bunits
+            gas_gals = gas_gals + grp_tax(I).grp_bunits
         End If
     Next
     effective_sum_fuels = sum_fuels
@@ -1956,10 +2075,10 @@ Public Sub fnd_grp_tax(prod As String)
 End Sub
 
 Public Sub reset_grp_tax()
-    Dim i As Integer
+    Dim I As Integer
 
-    For i = 1 To grp_cnt
-        grp_tax(i).grp_tax = 0
+    For I = 1 To grp_cnt
+        grp_tax(I).grp_tax = 0
     Next
 End Sub
 
@@ -2025,7 +2144,17 @@ Private Function fnGetTT_LIMIT_TYPE(ByVal lTrn As Long) As String
     End If
     
     On Error GoTo FieldNotExit
-    strSQL = "SELECT tt_lmt_type FROM tx_table WHERE tt_trn=" & val(lTrn)
+    'Vijaya on 02/06/04 Magic#395302
+    If bExists_tx_header Then
+        strSQL = "SELECT txd_lmt_type FROM tx_header, tx_detail"
+        strSQL = strSQL & " WHERE txh_trn = txd_trn"
+        strSQL = strSQL & " AND txh_trn = " & val(lTrn)
+        strSQL = strSQL & " AND " & tfnDateString(t_tax_date, True) & " between txd_beg_date "
+        strSQL = strSQL & " AND txd_end_date"
+    Else
+        strSQL = "SELECT tt_lmt_type FROM tx_table WHERE tt_trn=" & val(lTrn)
+    End If
+    ''''''''''''''''''''''''''''''''
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     If rsTemp Is Nothing Then
         GoTo FieldNotExit
@@ -2034,10 +2163,19 @@ Private Function fnGetTT_LIMIT_TYPE(ByVal lTrn As Long) As String
     If rsTemp!RecordCount < 1 Then
         fnGetTT_LIMIT_TYPE = "I"
     Else
-        If Not IsNull(rsTemp!tt_lmt_type) Then
-            fnGetTT_LIMIT_TYPE = Trim(rsTemp!tt_lmt_type)
+        'Vijaya on 02/06/04 Magic#395302
+        If bExists_tx_header Then
+            If Not IsNull(rsTemp!txd_lmt_type) Then
+                fnGetTT_LIMIT_TYPE = Trim(rsTemp!txd_lmt_type)
+            Else
+                fnGetTT_LIMIT_TYPE = "I"
+            End If
         Else
-            fnGetTT_LIMIT_TYPE = "I"
+            If Not IsNull(rsTemp!tt_lmt_type) Then
+                fnGetTT_LIMIT_TYPE = Trim(rsTemp!tt_lmt_type)
+            Else
+                fnGetTT_LIMIT_TYPE = "I"
+            End If
         End If
     End If
     Exit Function
@@ -2130,3 +2268,153 @@ Private Function fnCheckNonStkMstr(rsIn As Recordset, _
     fnCheckNonStkMstr = fnGetRecord(rsIn, sSql, nDBInformix, SUB_NAME, False) > 0
 End Function
 
+'Vijaya on 02/04/04 Magic#395302
+'We don't need this function but we need to make
+'sure if some Program doesn't have date and use this module
+'call in form_load this function and pass today date
+Public Sub set_tax_date(txdt As String, Optional bCheckGlSeries As Boolean = True)
+    
+    Static bAlready_check As Boolean
+    
+    t_tax_date = tfnFormatDate(txdt)
+    If bCheckGlSeries Then
+        Set pr_gl_period = fgl_period(CDate(t_tax_date), t_dbMainDatabase)
+        If Not pr_gl_period Is Nothing Then
+            If pr_gl_period.RecordCount > 0 Then
+                sSeries = fnCStr(pr_gl_period!glp_series)
+            Else
+                sSeries = "^^^^^"
+            End If
+        Else
+            sSeries = "^^^^^"
+        End If
+    End If
+    If Not bAlready_check Then
+        bExists_tx_header = fnCheckTableFieldExist("tx_header", "txh_code")
+    End If
+End Sub
+
+Public Function fnCheckTableFieldExist(sTable As String, sField As String) As Boolean
+    Const SUB_NAME As String = "fnCheckTableFieldExist"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    fnCheckTableFieldExist = False
+    
+    strSQL = "SELECT colname FROM systables, syscolumns WHERE systables.tabid = syscolumns.tabid"
+    strSQL = strSQL + " AND tabname = " + tfnSQLString(sTable)
+    If sField <> "" Then
+        strSQL = strSQL + " AND colname = " + tfnSQLString(sField)
+    End If
+    
+    If fnGetRecord(rsTemp, strSQL, nDBInformix, SUB_NAME) > 0 Then
+        fnCheckTableFieldExist = rsTemp.RecordCount > 0
+    End If
+    Set rsTemp = Nothing
+End Function
+
+Public Function round_up_sls_tx(wk_amt As Double) As Single
+
+    Dim frac_cents As Double
+    Dim tax_amt As Double
+    Dim sign_it As Integer
+    Dim str_amt As String
+    Dim nPos As Integer
+
+    'make the wk_amt non-negative and compute the tax
+    'apply the sign to tax amt after it is calculated
+    If wk_amt < 0 Then
+       sign_it = -1
+       wk_amt = wk_amt * sign_it
+    Else
+        sign_it = 1
+    End If
+
+    'format the amt using 10 whole #, 6 decimal
+    str_amt = Format(wk_amt, "0000000000.000000")
+    tax_amt = Mid(str_amt, 1, 13)
+    frac_cents = Mid(str_amt, 14, 4)
+    ' Always add a penny if there is a fraction!
+    If frac_cents > 0 Then
+        tax_amt = tax_amt + 0.01
+    End If
+    round_up_sls_tx = tfnRound(tax_amt * sign_it, 2)
+End Function
+
+'#424531 02/23/2004 I change this back to public so that we can
+'#compile version <= 3.28.00. We can change it to private after
+'#later --      WJ
+'Private Function ftx_table( _
+                                sParm1 As Long, _
+                                db As DataBase _
+                                ) As Recordset
+ Public Function ftx_table( _
+                                sParm1 As Long, _
+                                db As DataBase _
+                                )
+    Const SUB_NAME = "ftx_table"
+    'returning pr_tx_table As Recordset
+        
+    Dim sSql As String
+    Dim iIndex As Integer
+    Dim rs As Recordset
+    Const conDimension = 10
+    Static rsArray() As Recordset
+
+    On Error GoTo ftx_tableRedim
+    iIndex = 1
+    Do While Not (rsArray(iIndex) Is Nothing)
+        If rsArray(iIndex)!tt_trn = sParm1 Then
+            Set ftx_table = rsArray(iIndex)
+            Exit Function   'return now with this "buffered" recordset
+        End If
+        iIndex = iIndex + 1
+        If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
+    Loop 'While
+    
+    sSql = "SELECT * FROM tx_table WHERE tt_trn = " & QStr(sParm1)
+    Set rs = fnMainmodsOpenRecordset(sSql, SUB_NAME, db)
+    If rs Is Nothing Then
+        Exit Function
+    End If
+    If rs.RecordCount > 0 Then
+        rs.MoveFirst    'populate with first record
+        #If cDEBUG Then
+            On Error Resume Next
+            While Not rs.EOF
+                Debug.Print "ftx_table(" & QStr(sParm1) & ") = " & rs.Fields(0)
+                rs.MoveNext    ' Locate next record
+            Wend
+            On Error GoTo 0
+            rs.MoveFirst
+        #End If
+        If iIndex > conDimension Then
+            ' shuffle array elements up (lose oldest -- highest -- element)
+            For iIndex = conDimension - 1 To 1 Step -1
+                Set rsArray(iIndex + 1) = rsArray(iIndex)
+            Next
+            iIndex = 1 'the current recordset will be placed as the first element
+        End If
+        Set rsArray(iIndex) = rs        'buffer this recordset (which also gets returned)
+    Else
+        iIndex = conDimension
+        ReDim rsArray(iIndex)           'this will cause "Nothing" to be returned
+    End If
+    
+    Set ftx_table = rsArray(iIndex)
+    Exit Function
+    
+ftx_tableRedim:
+    If Err.Number = 9 Then 'Subscript out of range
+        ' this is the expected error on the FIRST call to this function; we
+        ' must dimension the static array and retry the first reference to it.
+        Err.Clear
+        ReDim rsArray(conDimension)
+        On Error GoTo 0
+        Resume
+    Else
+        Err.Raise Err.Number
+    End If
+    
+End Function    ''ftx_table
+''''''''''''''''''''''''''''''''
