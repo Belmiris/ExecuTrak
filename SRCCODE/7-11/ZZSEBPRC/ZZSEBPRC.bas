@@ -64,6 +64,7 @@ Public Const colABonusAmt As Integer = 7
 Public colAHdsOverride As Integer
 Public colAHdnPrftName As Integer
 Public colAHdsBonusDesc As Integer
+Public colAHdnSeq As Integer
 Public colAHdnBAmtLvls As Integer
 
 'Detail Grid Column Names

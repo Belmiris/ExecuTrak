@@ -2635,7 +2635,7 @@ Private Sub cmdApprove_Click()
     End If
     
     tgmApprove.Rebind
-    cmdOk.Enabled = fnHasApprove()
+    cmdOK.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2672,7 +2672,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2681,8 +2681,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2780,6 +2780,8 @@ Private Sub eTabMain_Click()
             #End If
             frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
+                
+            cmdOK.Enabled = fnHasApprove()
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
             #If PROTOTYPE Then
@@ -3266,7 +3268,7 @@ Private Sub tfnResetScreen(Index As Integer)
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
-                        cmdOk.Enabled = fnHasApprove()
+                        cmdOK.Enabled = fnHasApprove()
                     End If
                 End If
             End If
@@ -3683,6 +3685,7 @@ Private Sub cmdProcess_Click()
             vArrBonus(colAHdsOverride, nSize) = fnGetField(rsTemp!bm_override)
             vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
             vArrBonus(colAHdsBonusDesc, nSize) = fnGetField(rsTemp!bc_code_desc) 'Hidden Column
+            vArrBonus(colAHdnSeq, nSize) = tfnRound(rsTemp!bm_sequence) 'Hidden Column
             vArrBonus(colAHdnBAmtLvls, nSize) = "" 'Hidden Column
             
             dBLvlAmt = fnGetBonusAmount(rsTemp)
@@ -3711,7 +3714,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    cmdOk.Enabled = fnHasApprove()
+    cmdOK.Enabled = fnHasApprove()
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -3897,17 +3900,25 @@ Private Sub subInitSpreadsheets()
         colAHdsOverride = .AddHiddenField("HiddenOverride")
         colAHdnPrftName = .AddHiddenField("HiddenPrftName")
         colAHdsBonusDesc = .AddHiddenField("HiddenBonusDesc")
+        colAHdnSeq = .AddHiddenField("HiddenSeq")
         colAHdnBAmtLvls = .AddHiddenField("HiddenLevels")
         
         .SortByColumn = True
         
         .AddSortColumn colAEmpNo, colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAHdnSeq, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             colAPayCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
     
         .AddSortColumn colAPrftCtr, colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAHdnSeq, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             colAPayCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+    
+        .AddSortColumn colAPayCode, colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAPayCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+    
     End With
     
     'Implement the selector class
