@@ -78,7 +78,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -138,7 +137,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -174,7 +172,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":00F2
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -275,7 +272,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -312,7 +308,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -350,7 +345,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -387,7 +381,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -424,7 +417,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -458,7 +450,6 @@ Begin VB.Form clsCRITERIA
          Strikethrough   =   0   'False
       EndProperty
       BevelOuter      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -494,7 +485,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -532,7 +522,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -564,7 +553,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "System"
             Size            =   9.75
@@ -1557,7 +1545,7 @@ Private Sub subSetupCombos()
                 Set .Form = Me
                 Set .DataBase = t_dbMainDatabase
                 Set .DataLink = datComboDropDown
-                Set .Table = tblComboDropdown
+                Set .Table = tblComboDropDown
                 
                 'Set .LocalDatabase = dbLocal (Your local database object variable)
                 'Add the combos below
@@ -1578,19 +1566,19 @@ errTrap:
 End Sub
 
 Private Sub tblComboDropdown_Click()
-    tgcDropdown.Click tblComboDropdown
+    tgcDropdown.Click tblComboDropDown
 End Sub
 
 Private Sub tblComboDropDown_GotFocus()
-    tgcDropdown.GotFocus tblComboDropdown
+    tgcDropdown.GotFocus tblComboDropDown
 End Sub
 
 Private Sub tblComboDropDown_KeyPress(KeyAscii As Integer)
-    tgcDropdown.Keypress tblComboDropdown, KeyAscii
+    tgcDropdown.Keypress tblComboDropDown, KeyAscii
 End Sub
 
 Private Sub tblComboDropDown_LostFocus()
-    tgcDropdown.LostFocus tblComboDropdown
+    tgcDropdown.LostFocus tblComboDropDown
 End Sub
 
 Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -1620,20 +1608,20 @@ End Sub
 Private Sub txtFilter_DblClick()
     'unlock the textbox and allow edit
     txtFilter.Locked = False
-    frmFMFFGRT.tfnSetStatusBarMessage "Enter or change Filter"
+    m_frmParent.tfnSetStatusBarMessage "Enter or change Filter"
 End Sub
 
 Private Sub txtFilter_GotFocus()
     If txtFilter.Locked Then
-        frmFMFFGRT.tfnSetStatusBarMessage "Filter"
+        m_frmParent.tfnSetStatusBarMessage "Filter"
     Else
         Dim sErrMsg As String
         sErrMsg = fnValidFilter()
         
         If sErrMsg = "" Then
-            frmFMFFGRT.tfnSetStatusBarMessage "Enter or change Filter"
+            m_frmParent.tfnSetStatusBarMessage "Enter or change Filter"
         Else
-            frmFMFFGRT.tfnSetStatusBarError sErrMsg, True
+            m_frmParent.tfnSetStatusBarError sErrMsg, True
         End If
     End If
 End Sub
@@ -1649,7 +1637,7 @@ Private Sub txtFilter_KeyPress(KeyAscii As Integer)
                 subSetFocus cmdFilterOK
             Else
                 If txtFilter.Tag = "Changed" Then
-                    frmFMFFGRT.tfnSetStatusBarError sErrMsg
+                    m_frmParent.tfnSetStatusBarError sErrMsg
                     subSetFocus txtFilter
                 Else
                     SendKeys "{TAB}", True
@@ -1679,7 +1667,7 @@ Private Sub txtFilter_LostFocus()
             txtFilter.Locked = True
         Else
             If txtFilter.Tag = "Changed" Then
-                frmFMFFGRT.tfnSetStatusBarError sErrMsg
+                m_frmParent.tfnSetStatusBarError sErrMsg
                 subSetFocus txtFilter
             End If
         End If
@@ -1926,7 +1914,7 @@ Private Sub subSetupValidationSub()
         .AddEditBox txtValue, "Enter Value"
         .MinTabIndex = 0
         .ESCControl = cmdFilterCancel
-        .ESCControl = tblComboDropdown
+        .ESCControl = tblComboDropDown
         Set .LastBox = txtValue
         Set .ControlForFocus = efraForFocus
         .SetFirstControls cmdFilterOK, cmdFilterCancel
