@@ -63,11 +63,30 @@ Public Function product_price( _
                                 t_dbMainDatabase As DataBase _
                              ) As Double
     ' dest_flag is I or E:
+    'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     product_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
-                                dfQuantity, dfCost, Null, lOrigin, DEST_FLAG, _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
                                 t_dbMainDatabase)
 End Function ' product_price
 
+'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+Public Function Fuel_price( _
+                                DEST_FLAG As String, _
+                                sProductLink As String, _
+                                ByVal lProfitCenter As Long, _
+                                ByVal lCustomer As Long, _
+                                dfQuantity As Double, _
+                                dfCost As Double, _
+                                dfDiscountedCost As Double, _
+                                lOrigin As Long, _
+                                t_dbMainDatabase As DataBase _
+                             ) As Double
+                        
+    ' dest_flag is I or E:
+    Fuel_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
+                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
+                                t_dbMainDatabase)
+End Function ' product_price
 Public Function prod_price( _
                                 sProductLink As String, _
                                 lProfitCenter As Long, _
@@ -78,8 +97,9 @@ Public Function prod_price( _
                                 t_dbMainDatabase As DataBase _
                             ) As Double
     ' dest_flag is always I:
+    'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     prod_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
-                                dfQuantity, dfCost, Null, lOrigin, "I", _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase)
 
 End Function ' prod_price
@@ -89,6 +109,7 @@ Private Function sp_price(ByVal sProductLink As String, _
                             ByVal lCustomer As Long, _
                             ByVal dfQuantity As Double, _
                             ByVal dfCost As Double, _
+                            ByVal dfDiscountedCost As Double, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
@@ -458,6 +479,8 @@ Private Function sp_price(ByVal sProductLink As String, _
         Select Case fnFirstCharU(pr_sp_table!pt_type)
             Case "F":   dfPrice = pr_inv_master!invt_price   'inventory base
             Case "C":   dfPrice = dfCost                     'cost
+            'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+            Case "D":   dfPrice = dfDiscountedCost
             Case Else:  sp_price = pr_sp_table!pt_factor    'use factor
                         Exit Function
         End Select
