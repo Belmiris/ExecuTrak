@@ -1,0 +1,64 @@
+Type=Exe
+Module=modConstants; ..\..\..\SHARED\CONSTANT.BAS
+Module=modWinApi; ..\..\..\SHARED\WINAPI.BAS
+Module=modTemplate; ..\..\..\SHARED\TEMPLATE.BAS
+Module=modRegexp; ..\..\..\SHARED\REGEXP.BAS
+Form=..\..\..\SHARED\ABOUT.FRM
+Form=..\..\..\SHARED\context.frm
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\SYSTEM\stdole2.tlb#Standard OLE Types
+Reference=*\G{00025E04-0000-0000-C000-000000000046}#3.5#0#C:\PROGRAM FILES\COMMON FILES\MICROSOFT SHARED\DAO\dao2535.tlb#Microsoft DAO 2.5 Object Library
+Object={C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0; FACTFRM.OCX
+Object={3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0; FACTTAB.OCX
+Object={01028C21-0000-0000-0000-000000000046}#4.0#0; TG32OV.OCX
+Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; mscomctl.ocx
+Object={478E45E0-5745-11CF-8918-00A02416C765}#1.0#0; SQAOTE32.OCX
+Object={F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0; COMDLG32.OCX
+Form=ZZFINVMT.frm
+Module=modErrorHandler; ..\..\..\SHARED\errhndle.bas
+Class=clsErrorHandler; ..\..\..\SHARED\ClsFiles\clserror.cls
+Module=modZZFINVMT; ZZFINVMT.bas
+IconForm="frmZZFINVMT"
+Startup="frmZZFINVMT"
+HelpFile="FACTOR.HLP"
+Title="ZZFINVMT"
+ExeName32="ZZFINVMT.EXE"
+Path32="W:\VB2KDEV\SRCCODE\7-11\ZZFINVMT"
+Command32=""
+Name="ZZFINVMT"
+HelpContextID="0"
+Description="Process Retail Sales Purchase Invoices"
+CompatibleMode="0"
+MajorVer=3
+MinorVer=25
+RevisionVer=1
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionComments="ZZFINVMT"
+VersionCompanyName="FACTOR, A Division of WR Hess Company"
+VersionFileDescription="ZZFINVMT.EXE"
+VersionLegalCopyright="Copyright © 1997-2000 FACTOR, A Division of WR Hess Company"
+VersionLegalTrademarks="FACTOR"
+VersionProductName="FACTOR"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+
+[SQA]
+DisableUpdate=0
+UpdateMode=1
+
+[MS Transaction Server]
+AutoRefresh=1
