@@ -112,8 +112,81 @@ Private Const COL_HOUR = 3
 Private bWarned As Boolean 'for warning of Date with glp_status ='W'
 
 Private bTableExists As Boolean
-'
 
+'---------------------------------------------------------------------------------
+'Prft Ctr Validation Changes ------ Made by Weigong Jiang per Magic #370194
+Private aryEmpPCs() As Integer
+Private aryPCCount As Integer
+
+Private Sub subInitPCArry(ByVal lEmp As Long) 'WJ
+        
+    Dim strSQL As String
+    Dim rsPrftCtr As Recordset
+    Dim nCount As Long
+    Dim i As Integer
+    
+    strSQL = "SELECT bh_prft_ctr FROM bonus_hold " _
+        & " WHERE bh_empno = " & lEmp _
+        & " GROUP BY bh_prft_ctr"
+    aryPCCount = GetRecordSet(rsPrftCtr, strSQL)
+    
+    If aryPCCount > 0 Then
+        ReDim aryEmpPCs(aryPCCount - 1)
+        
+        For i = 0 To aryPCCount - 1
+            aryEmpPCs(i) = tfnRound(rsPrftCtr!bh_prft_ctr)
+            rsPrftCtr.MoveNext
+        Next
+    Else
+        ReDim aryEmpPCs(0)
+    End If
+End Sub
+
+Private Function fnCheckPrftCtrCnt() As Integer 'WJ
+    Dim aryPC() As Integer
+    Dim i As Integer
+    Dim j As Integer
+    Dim aryCount As Integer
+    Dim nPC As Integer
+    Dim bFound As Boolean
+    
+    If aryPCCount > 5 Then
+        fnCheckPrftCtrCnt = aryPCCount
+    Else
+        aryCount = aryPCCount
+        If aryCount > 0 Then
+            ReDim aryPC(aryCount - 1)
+        End If
+        For j = 0 To aryCount - 1
+            aryPC(j) = aryEmpPCs(j)
+        Next
+        For i = 0 To tgcEditor.RowCount - 1
+            bFound = False
+            If fnGetField(tgcEditor.CellValue(COL_PRFT, i)) <> szEMPTY Then
+                nPC = tfnRound(tgcEditor.CellValue(COL_PRFT, i))
+                
+                For j = 0 To aryCount - 1
+                    If nPC = aryPC(j) Then
+                        bFound = True
+                        Exit For
+                    End If
+                Next
+            End If
+            If Not bFound Then
+                ReDim Preserve aryPC(aryCount)
+                aryPC(aryCount) = nPC
+                aryCount = aryCount + 1
+                
+            End If
+            If aryCount > 5 Then
+                Exit For
+            End If
+        Next
+        fnCheckPrftCtrCnt = aryCount
+    End If
+    
+End Function
+'----------------------------------------------------------------------------------------------
 '===========================
 'public properties/functions
 '===========================
@@ -453,8 +526,8 @@ Public Sub tblFloating_LostFocus()
     tgcFEditor.LostFocus tblFloating
 End Sub
 
-Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcFEditor.MouseUp y
+Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcFEditor.MouseUp Y
 End Sub
 
 Public Sub tblFloating_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -465,8 +538,8 @@ Public Sub tblProfitCenter_AfterColEdit(ByVal ColIndex As Integer)
     tgcEditorPrft.AfterColEdit ColIndex
 End Sub
 
-Public Sub tblProfitCenter_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-     tgcEditorPrft.BeforeColEdit ColIndex, KeyAscii, Cancel
+Public Sub tblProfitCenter_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+     tgcEditorPrft.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
 Public Sub tblProfitCenter_Change()
@@ -511,8 +584,8 @@ Public Sub tblProfitCenter_RowColChange(LastRow As Variant, ByVal LastCol As Int
    tgcEditorPrft.RowColChange LastRow, LastCol
 End Sub
 
-Public Sub tblProfitCenter_SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub tblProfitCenter_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Public Sub tblProfitCenter_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -557,8 +630,8 @@ Public Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
  
 End Sub
 
-Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    tgcEditor.BeforeColEdit ColIndex, KeyAscii, Cancel
+Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    tgcEditor.BeforeColEdit ColIndex, KeyAscii, CANCEL
     cmdUpdateInsertBtn.Enabled = False
 End Sub
 
@@ -566,9 +639,9 @@ Public Sub tblTimeCard_Change()
     tgcEditor.Change
     
     If tblTimeCard.col = COL_DATE Then
-        tblTimeCard.Columns(COL_PRFT).Value = ""
+        tblTimeCard.Columns(COL_PRFT).value = ""
         tgcEditor.CellValue(COL_PRFT, tgcEditor.GetCurrentRowNumber) = ""
-        tblTimeCard.Columns(COL_CODE).Value = ""
+        tblTimeCard.Columns(COL_CODE).value = ""
         tgcEditor.CellValue(COL_CODE, tgcEditor.GetCurrentRowNumber) = ""
     End If
     
@@ -645,7 +718,7 @@ Public Sub tblTimeCard_LostFocus()
     'subSetFormStatus
 End Sub
 
-Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     
     If tblTimeCard.col = 1 And Button = RIGHT_BUTTON Then
         frmContext.MouseDown Button, PROFITCENTER_UP
@@ -671,19 +744,19 @@ Public Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     'subSetFormStatus
 End Sub
 
-Public Sub tblTimeCard_Scroll(Cancel As Integer)
+Public Sub tblTimeCard_Scroll(CANCEL As Integer)
     tgcFEditor.Scroll
 End Sub
 
-Public Sub tblTimeCard_SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub tblTimeCard_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Public Sub tblTimeCard_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgcEditor.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
-Public Sub txtEmployeeName_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub txtEmployeeName_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -832,7 +905,7 @@ Public Sub cmdEmployeeName_Click()
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeNumber_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub txtEmployeeNumber_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -912,7 +985,7 @@ Public Sub cmdSSN_Click()
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtSSN_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub txtSSN_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -1614,14 +1687,14 @@ Private Function fnValidNumber(txtBox As Textbox)
     
     Set rsTemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
     
-    If rsTemp!prm_date_termed <> "" Then
+    If fnGetField(rsTemp!prm_date_termed) <> "" Then
         cValidate.SetErrorMessage txtBox, "This is a terminated employee! Can't modify the pay hours."
         Exit Function
     End If
     
     Dim empSecurityId As String
     
-    empSecurityId = rsTemp!prm_security_code
+    empSecurityId = fnGetField(rsTemp!prm_security_code)
     
     sSql = "select prs_code from pr_security where prs_name = " & tfnSQLString(tfnGetUserName)
     
@@ -1635,7 +1708,7 @@ Private Function fnValidNumber(txtBox As Textbox)
         Exit Function
     End If
     
-    userSecurityID = rsTemp!prs_code
+    userSecurityID = fnGetField(rsTemp!prs_code)
     'sam on 05/15/00 per bob on 279344
     
     If userSecurityID < empSecurityId Then   'sam added
@@ -1657,6 +1730,11 @@ Private Function fnValidNumber(txtBox As Textbox)
         cValidate.SetErrorMessage txtBox, "Entered invalid Employee Number"
     End If
         
+    If t_nFormMode = ADD_MODE Then
+        If fnValidNumber Then
+            subInitPCArry Val(txtBox.Text)
+        End If
+    End If
     Exit Function
 
 err:
@@ -1837,6 +1915,7 @@ err:
     
 End Function
 
+
 Private Function fnValidProfitCtr(ByVal szText As String, _
                                   ByVal lRow As Long) As Boolean
             
@@ -1859,13 +1938,14 @@ Private Function fnValidProfitCtr(ByVal szText As String, _
     
     On Error GoTo errHandler
     
-    sSql = " SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
-    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
-    sSql = sSql & " AND prft_ctr = " & tfnRound(szText)
-    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
-    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
-    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
+'    sSql = " SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
+'    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
+'    sSql = sSql & " AND prft_ctr = " & tfnRound(szText)
+'    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
+'    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
+'    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
         
+    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr WHERE prft_ctr = " & tfnRound(szText)
     If GetRecordCount(sSql) <= 0 Then
         tgcEditor.ErrorMessage(COL_PRFT) = "Invalid Profit Center Number"
         Exit Function
@@ -1884,7 +1964,16 @@ Private Function fnValidProfitCtr(ByVal szText As String, _
         tgcEditor.ErrorMessage(COL_PRFT) = "Date/Profit Center/Pay Code already exists for this Employee"
         Exit Function
     End If
+        
+    Dim nPCCount As Integer
     
+    If t_nFormMode = ADD_MODE Then
+        nPCCount = fnCheckPrftCtrCnt
+        If nPCCount > 5 Then
+            tgcEditor.ErrorMessage(COL_PRFT) = "Profit Center Count has exceeded 5 for this Employee"
+            Exit Function
+        End If
+    End If
     fnValidProfitCtr = True
     
     Exit Function
@@ -1912,7 +2001,7 @@ Private Function fnValidPayCode(szText As String) As Boolean
     On Error GoTo errHandler
     
     lRow = tgcEditor.GetCurrentRowNumber
-    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).Value))
+    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).value))
     
     If nYear <= 0 Then
         Exit Function
@@ -2009,7 +2098,7 @@ Private Sub subResetFloatingSQL2()
         Exit Sub
     End If
     
-    If Not IsDate(tblTimeCard.Columns(COL_DATE).Value) Then
+    If Not IsDate(tblTimeCard.Columns(COL_DATE).value) Then
         tblTimeCard.col = COL_DATE
         Exit Sub
     End If
@@ -2017,15 +2106,17 @@ Private Sub subResetFloatingSQL2()
     On Error GoTo errHandler
     
     'sql from profit center
-    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
-    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
-    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
-    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
-    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
+    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr "
+    
+'    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
+'    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
+'    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
+'    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
+'    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
     
     tgcFEditor.SetSQL COL_PRFT, sSql
     
-    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).Value))
+    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).value))
     
     If nYear <= 0 Then
         Exit Sub
