@@ -58,27 +58,33 @@ Attribute VB_Exposed = False
 '           Selects all the rows in the grid
 
 Option Explicit
-    Private Const MODE_KEY_CONTROL = 1
-    Private Const MODE_NO_KEY_CONTROL = 2
-    Private Const MyShiftMask = -&H1000
+    
+Private Const MODE_KEY_CONTROL = 1
+Private Const MODE_NO_KEY_CONTROL = 2
+Private Const MyShiftMask = -&H1000
 
-    Private m_tgTable As Object
-    Private m_tgcEditor As clsTGSpreadSheet
-    Private m_tgcSelector As clsTGSelector
+Private Const szROW_STYLE As String = "RowStyle"
+Private Const szCURRENT_CELL_STYLE As String = "CurrCellStyle"
 
-    Private m_bTableGotFocus As Boolean
-    Private m_bTableClicked As Boolean
-    Private m_nClickPointY As Integer
-    Private m_vLastRow As Variant
+Private m_tgTable As Object
+Private m_tgcEditor As clsTGSpreadSheet
+Private m_tgcSelector As clsTGSelector
 
-    Private m_nIdleColumn As Integer
-    Private m_nSelectMode As Integer
-    Private m_nShiftControl As Integer
-    Private m_nLastClickedRow As Integer
-    Private m_bRowHilighted As Boolean
-    Private m_bAvoidBeep As Boolean
-    Private m_bSelectCurrRow As Boolean
-    Private m_vLastSelected As Variant
+Private m_bTableGotFocus As Boolean
+Private m_bTableClicked As Boolean
+Private m_nClickPointY As Integer
+Private m_vLastRow As Variant
+
+Private m_nIdleColumn As Integer
+Private m_nSelectMode As Integer
+Private m_nShiftControl As Integer
+Private m_nLastClickedRow As Integer
+Private m_bRowHighLighted As Boolean
+Private m_bAvoidBeep As Boolean
+Private m_bSelectCurrRow As Boolean
+Private m_vLastSelected As Variant
+'
+
 Property Let AllowMultipleSelect(bTemp As Boolean)
 
     If bTemp Then
@@ -221,6 +227,8 @@ Public Sub Click()
         End If
         'subSetCurrentRow
     End If
+
+    SetRowHighLighted m_bRowHighLighted
 End Sub
 
 Private Function fnLong(vTemp As Variant) As Long
@@ -353,9 +361,7 @@ Public Sub GotFocus()
     m_bTableGotFocus = True
     If Not m_tgcEditor Is Nothing Then
         If m_tgcEditor.RowCount > 0 Then
-            m_tgcEditor.SetRowHighLighted m_bRowHilighted
-            'subSetCurrentRow
-            'subMarkSelected m_tgTable.bookmark
+            SetRowHighLighted m_bRowHighLighted
         End If
     End If
 End Sub
@@ -389,7 +395,15 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
             End If
             'subSetCurrentRow
         Else
-            m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
+            'david 02/01/2001
+            If (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) Then
+                SelectAll
+                Shift = 0
+                KeyCode = 0
+                Exit Sub
+            Else
+                m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
+            End If
         End If
     End If
     If KeyCode = vbKeyDown Then
@@ -410,17 +424,17 @@ Public Sub LostFocus()
     End If
     m_bTableClicked = False
     If Not m_tgcEditor Is Nothing Then
-        m_tgcEditor.SetRowHighLighted False
+        SetRowHighLighted False
     End If
 End Sub
 
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal y As Integer)
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal Y As Integer)
     If Button = vbLeftButton Then
         If Shift <> vbShiftMask Then
             m_nLastClickedRow = -1
         End If
         m_nShiftControl = Shift
-        m_nClickPointY = y
+        m_nClickPointY = Y
         DoEvents
     End If
 End Sub
@@ -488,6 +502,7 @@ Public Sub SelectAll()
     With m_tgTable.SelBookmarks
         For i = 0 To nRows - 1
             .Add m_tgcEditor.MakeBookmark(i)
+            SetRowHighLighted m_bRowHighLighted
         Next
     End With
 
@@ -499,12 +514,12 @@ End Property
 
 
 Property Let RowHighLighted(bStatus As Boolean)
-    m_bRowHilighted = bStatus
-    m_tgcEditor.SetRowHighLighted bStatus
+    m_bRowHighLighted = bStatus
+    SetRowHighLighted bStatus
 End Property
 
 Property Get RowHighLighted() As Boolean
-    RowHighLighted = m_bRowHilighted
+    RowHighLighted = m_bRowHighLighted
 End Property
 
 Property Let SelectCurrRow(ByVal bTemp As Boolean)
@@ -596,6 +611,8 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
         End If
         m_vLastSelected = m_tgcEditor.Bookmark
     End If
+
+    SetRowHighLighted m_bRowHighLighted
 End Sub
 
 
@@ -642,6 +659,67 @@ End Property
 Property Get Temp() As Integer
     Temp = m_nShiftControl
 End Property
+
+Private Sub SetRowHighLighted(bHighLighted As Boolean)
+    Dim m_styRow As Style  ' row style
+    Dim m_styCurrentCell As Style   ' current cell style
+    Dim m_styHighLightedRow As Style
+    
+    m_tgTable.ClearCellStyle dbgAllCells
+    
+    ' set some properties for the table
+    Set m_styRow = m_tgTable.Styles.Item(szROW_STYLE)
+    Set m_styHighLightedRow = m_tgTable.Styles.Item(szROW_STYLE)
+    Set m_styCurrentCell = m_tgTable.Styles.Item(szCURRENT_CELL_STYLE)
+    
+    If bHighLighted Then
+        ' create highlight row style
+        With m_styRow
+            .BackColor = &HFF0000
+            .ForeColor = &HFFFFFF
+        End With
+
+        ' create current cell style
+        If m_tgcEditor.EditColumnCount > 0 Then
+            With m_styCurrentCell
+                .BackColor = &HFFFFFF
+                .ForeColor = &H0
+            End With
+        Else
+            Set m_styCurrentCell = m_styRow
+        End If
+    
+        If m_tgcEditor.EditColumnCount > 0 Then
+            If m_tgTable.SelBookmarks.Count > 0 Then
+                With m_styHighLightedRow
+                    .BackColor = m_tgTable.SelectedBackColor
+                    .ForeColor = &HFFFFFF
+                End With
+                
+                m_tgTable.AddCellStyle dbgSelectedRow, m_styHighLightedRow
+                m_tgTable.MarqueeStyle = dbgNoMarquee
+            Else
+                m_tgTable.MarqueeStyle = dbgHighlightRowRaiseCell
+            End If
+        Else
+            m_tgTable.MarqueeStyle = dbgHighlightRow
+        End If
+    Else
+        ' create plain row style
+        With m_styRow
+            .BackColor = &HFFFFFF
+            .ForeColor = &H0
+        End With
+        m_tgTable.MarqueeStyle = dbgNoMarquee
+    End If
+
+    'add the new styles to the table
+    m_tgTable.AddCellStyle dbgMarqueeRow, m_styRow
+    m_tgTable.AddCellStyle dbgMarqueeRow + dbgCurrentCell, m_styCurrentCell
+    m_tgTable.AddCellStyle dbgMarqueeRow + dbgUpdatedCell + dbgCurrentCell, m_styCurrentCell
+    m_tgTable.AddCellStyle dbgMarqueeRow + dbgUpdatedCell, m_styRow
+    m_tgTable.AddCellStyle dbgUpdatedCell, m_styCurrentCell
+End Sub
 
 Private Sub Class_Initialize()
     m_nSelectMode = MODE_KEY_CONTROL

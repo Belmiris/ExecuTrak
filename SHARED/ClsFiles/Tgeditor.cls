@@ -654,7 +654,6 @@ Property Get DisplayFormat(ByVal nCol As Integer) As String
     End If
 End Property
 
-
 Property Set engFactor(objTemp As DBEngine)
     Set engDBEngine = objTemp
 End Property
@@ -717,6 +716,10 @@ Public Sub FirstRowChange()
     End If
     lBackFirstRow = FirstRow
 End Sub
+
+Property Get EditColumnCount() As Integer
+    EditColumnCount = nColumnCount
+End Property
 
 Private Function fnCellValue(ByVal nCol As Integer, _
                              ByVal lRow As Long) As Variant
@@ -1199,7 +1202,7 @@ Property Let MaxRows(lTemp As Long)
     lMaxRows = lTemp
 End Property
 
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     nKeyProcessing = KEY_P_FINISHED
 End Sub
 
@@ -2994,8 +2997,8 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         End If
     #End If
     
-    sODBCErrors = Err.Description
-    If Err.Number = 3146 Then
+    sODBCErrors = err.Description
+    If err.Number = 3146 Then
         If Not engDBEngine Is Nothing Then
             With engDBEngine.Errors
                 If .Count > 0 Then
@@ -3017,7 +3020,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
-            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
+            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(err.Number) & vbCrLf & err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -3043,7 +3046,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     If sMsg <> "" Then
         MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
-    Err.Clear
+    err.Clear
 
 End Sub
 
@@ -3467,8 +3470,8 @@ extFill:
     On Error GoTo 0
     Exit Sub
 errFill:
-    MsgBox Err.Description, nCRITICAL   ', App.Caption
-    Err.Clear
+    MsgBox err.Description, nCRITICAL   ', App.Caption
+    err.Clear
     Resume extFill
 End Sub
 
@@ -3633,14 +3636,14 @@ retTrue:
     On Error GoTo 0
     Exit Function
 retFalse:
-    If Err.Number = 13 Then
+    If err.Number = 13 Then
         lRow = tgTable.Row
         Resume Next
-    ElseIf Err.Number = 6148 Then
+    ElseIf err.Number = 6148 Then
         SendKeys "{DOWN}", True
     Else
         fnGotoNextRow = False
-        Err.Clear
+        err.Clear
         Resume retTrue
     End If
 End Function
@@ -3666,7 +3669,7 @@ retTrue1:
     On Error GoTo 0
     Exit Function
 retFalse1:
-    Err.Clear
+    err.Clear
     Resume retTrue1
 End Function
 
@@ -3851,11 +3854,11 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
     Exit Sub
     
 errKeyDown:
-    If Err.Number <> 28 Then
+    If err.Number <> 28 Then
         On Error GoTo 0
         Resume
     End If
-    Err.Clear
+    err.Clear
     nKeyProcessing = KEY_P_FINISHED
 
 End Sub
@@ -4253,7 +4256,7 @@ errRowChanging:
 '        'Statck overflow
 '        Resume
 '    End If
-    Err.Clear
+    err.Clear
     bRowChanging = False
 End Function
 
@@ -4414,7 +4417,7 @@ End Function
 
 Public Function MakeBookmark(ByVal Index As Long) As Variant
     'Generate a bookmark
-    MakeBookmark = Str$(Index)
+    MakeBookmark = str$(Index)
 End Function
 Public Sub AddData(ByVal RowBuf As RowBuffer, NewRowBookmark As Variant)
 
@@ -4579,7 +4582,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
 errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
-        Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
+        err.Number & vbCrLf & "Error Desc: " & err.Description, vbExclamation
 End Sub
 
 Public Sub HeadClick(ColIndex As Integer, Optional bReValidate As Boolean = False)
