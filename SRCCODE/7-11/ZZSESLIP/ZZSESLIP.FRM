@@ -4,7 +4,7 @@ Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmZZSESLIP 
    BackColor       =   &H00C0C0C0&
-   Caption         =   "Day off Slip Days Entry"
+   Caption         =   "Day Off Slip Days Entry"
    ClientHeight    =   6348
    ClientLeft      =   1056
    ClientTop       =   1956
@@ -108,7 +108,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -506,7 +506,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75 
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -541,7 +541,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1306,7 +1306,7 @@ Private Sub tfnResetScreen()
     cvalidate.ResetFlags
     tgmSlip.ClearData
     nDataStatus = DATA_INIT
-    subSetFocus cmdAddBtn
+    subSetFocus cmdaddbtn
     subHideHourGlass
     DoEvents
     
@@ -1449,7 +1449,7 @@ Private Sub subInitErrorHandler()
 End Sub
 
 Private Sub subEnableAddBtn(bOnOff As Boolean)
-    cmdAddBtn.Enabled = bOnOff
+    cmdaddbtn.Enabled = bOnOff
     mnuAdd.Enabled = bOnOff
 End Sub
 
@@ -1460,7 +1460,7 @@ End Sub
 
 Private Sub subEnableDeleteBtn(bOnOff As Boolean)
     cmdDeleteBtn.Enabled = bOnOff
-    mnuDelete.Enabled = bOnOff
+    mnudelete.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableRefreshBtn(bOnOff As Boolean)
