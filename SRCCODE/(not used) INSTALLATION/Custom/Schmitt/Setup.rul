@@ -348,10 +348,10 @@ StartCopy:
                         goto ZFAILURE;
         endswitch;
         
-	SetStatusWindow(95, "Registering OCX and DLL files...");
-	Do(SELFREGISTRATIONPROCESS);
+	//SetStatusWindow(95, "Registering OCX and DLL files...");
+	//Do(SELFREGISTRATIONPROCESS);
         
-        SetStatusWindow(97, "Create Shortcuts...");
+        //SetStatusWindow(97, "Create Shortcuts...");
         
         StatusUpdate(OFF, 0);
 
