@@ -570,7 +570,7 @@ Private Sub subWriteDetailProcLog(udtInvHeader As RSINV_Header, udtInvDetail As 
     dExtCost = udtInvDetail.dQuantity * udtInvDetail.dCost
     sLine = sLine & Space(11 - Len(CStr(udtInvDetail.dCost))) & CStr(dExtCost)
     Print #g_nProcessingFile, sLine
-    g_dTotalCost = g_dTotalCost
+    g_dTotalCost = g_dTotalCost + udtInvDetail.dCost
     
     g_dTotalExtCost = g_dTotalExtCost + dExtCost
     
