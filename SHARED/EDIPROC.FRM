@@ -278,7 +278,7 @@ Public Function LaunchEDIPROC() As String
             Exit Function
         End If
         
-        Wait 45
+        Wait 20
     Loop While fnExeIsRunning(sExeFile)
     
     Screen.MousePointer = vbDefault
