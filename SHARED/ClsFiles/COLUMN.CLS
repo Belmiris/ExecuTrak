@@ -1,9 +1,15 @@
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
 END
 Attribute VB_Name = "clsColumns"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '***********************************************************'
 '
@@ -29,7 +35,9 @@ Option Explicit
     Private sDataField As String
     Private nColumnType As Integer
     Private nColumnWidth As Integer
-    
+    'david 10/25/2001
+    Private sOrderByString As String
+    '''''''''''''''''
     Private sSql As String
     Private nDropDownType As Integer
     Private nECDirection As Integer
@@ -67,6 +75,7 @@ End Property
 Property Let ColWidth(nWidth As Integer)
     nColumnWidth = nWidth
 End Property
+
 Property Get DataField() As String
     DataField = sDataField
 End Property
@@ -74,6 +83,7 @@ End Property
 Property Let DataField(sField As String)
     sDataField = sField
 End Property
+
 Property Get DropDownType() As Integer
     DropDownType = nDropDownType
 End Property
@@ -81,9 +91,11 @@ End Property
 Property Let DropDownType(nType As Integer)
     nDropDownType = nType
 End Property
+
 Property Let ExtDirection(nDir As Integer)
     nECDirection = nDir
 End Property
+
 Property Get ExtDirection() As Integer
     ExtDirection = nECDirection
 End Property
@@ -103,6 +115,7 @@ Property Let Visible(bStatus As Boolean)
         m_nFlags = m_nFlags And Not FLAG_VISIBLE
     End If
 End Property
+
 Property Let CursorControl(bStatus As Boolean)
     If bStatus Then
         m_nFlags = m_nFlags Or FLAG_CURSOR_CONTROL
@@ -143,7 +156,6 @@ Property Let ShowCaption(bStatus As Boolean)
     End If
 End Property
 
-
 Property Let Status(bStatus As Boolean)
     If bStatus Then
         m_nFlags = m_nFlags Or FLAG_STATUS
@@ -183,6 +195,7 @@ Property Get PopulateBox() As Boolean
         PopulateBox = False
     End If
 End Property
+
 Property Get NoDataMessage() As Boolean
     If m_nFlags And FLAG_MESSAGE Then
         NoDataMessage = True
@@ -205,5 +218,13 @@ Property Get Status() As Boolean
     Else
         Status = False
     End If
+End Property
+
+Property Get OrderByFields() As String
+    OrderByFields = sOrderByString
+End Property
+
+Property Let OrderByFields(sFields As String)
+    sOrderByString = sFields
 End Property
 

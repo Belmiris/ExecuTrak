@@ -48,81 +48,86 @@ Attribute VB_Exposed = False
 
 Option Explicit
     
-    Private Const TYPE_STRING = 1
-    Private Const TYPE_INTEGER = 2
-    Private Const TYPE_HIDDEN = 3
-    
-    Private Const TYPE_DRPDN_FACTORSEARCH = 1
-    Private Const TYPE_DRPDN_COMMONDROPDOWN = 2
-    Private Const TYPE_DRPDN_NO_CRITERIA = 3
-    Private Const TYPE_DRPDN_NO_CRITERIA2 = 3
-    
-    Private Const EXTRA_COL_RIGHT = 1
-    Private Const EXTRA_COL_LEFT = 2
-    
-    Private Const DB_INFORMIX As Integer = 1
-    Private Const DB_ACCESS As Integer = 2
+Private Const TYPE_STRING = 1
+Private Const TYPE_INTEGER = 2
+Private Const TYPE_HIDDEN = 3
 
-    Private Const EXTRACOLUMNOFFSET = 1000
-    Private Const sINITIAL As Integer = -1
-    
-    Private Const DEFAULT_VISIBLE_ROWS As Integer = 5
-    Private Const SCROLLBAR_WIDTH = 252
+Private Const TYPE_DRPDN_FACTORSEARCH = 1
+Private Const TYPE_DRPDN_COMMONDROPDOWN = 2
+Private Const TYPE_DRPDN_NO_CRITERIA = 3
+Private Const TYPE_DRPDN_NO_CRITERIA2 = 3
 
-    Private nCurrentDropDown As Integer
-    
-    Private colDropDowns As Collection
+Private Const EXTRA_COL_RIGHT = 1
+Private Const EXTRA_COL_LEFT = 2
 
-    Private nColumnCount As Integer
+Private Const DB_INFORMIX As Integer = 1
+Private Const DB_ACCESS As Integer = 2
 
-    Private tgMain As TDBGrid
-    Private tgDropDown As TDBGrid
-    Private lblStatusbar As Control
-    Private frmParent As Form
-    Private cmdSearch As Control
-    Private datLink As Data
-    Private dbMain As DataBase
-    
-    Private bTableClicked As Boolean
-    Private nClickPointY As Single
-    Private bValidSelection As Boolean
-    Private nLastColumn As Integer
-    Private nDatabase As Integer
-    Private nMainTableTop As Integer
-    Private nMainTableLeft As Integer
-    Private nTopBoundary As Integer
-    Private nBottomBoundary As Integer
-    Private nMaxVisibleRows As Integer
-    Private nVisibleColumns As Integer
-    Private bSearchOnReturn As Boolean
-    Private bKeyPressed As Boolean
-    Private bNavigating As Boolean
-    Private bShowList As Boolean
-    Private bAutoHide As Boolean
+Private Const EXTRACOLUMNOFFSET = 1000
+Private Const sINITIAL As Integer = -1
 
-    Private nOriginalTableWidth As Integer
-    Private nOriginalTableHeight As Integer
-    Private nFontSize As Integer
+Private Const DEFAULT_VISIBLE_ROWS As Integer = 5
+Private Const SCROLLBAR_WIDTH = 252
 
-    Private Const STATUS_INIT = 0
-    Private Const STATUS_FILLED = 1
+Private nCurrentDropDown As Integer
 
-    Private m_clsEdit As Object
-    Private m_LastRow As Integer
-    Private m_nSeries As Integer
-    Private m_nCurrentDropDown As Integer
-    Private m_bDefaultCursorControl As Boolean
-    Private m_bLocked As Boolean
+Private colDropDowns As Collection
 
-    'david 03/05/2001
-    Private m_nColWhenSearchBtnClick As Integer
-    Private m_lRowWhenSearchBtnClick As Long
-    
-    #If Win32 Then
-        Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
-    #Else
-        Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
-    #End If
+Private nColumnCount As Integer
+
+Private tgMain As TDBGrid
+Private tgDropDown As TDBGrid
+Private lblStatusbar As Control
+Private frmParent As Form
+Private cmdSearch As Control
+Private datLink As Data
+Private dbMain As DataBase
+
+Private bTableClicked As Boolean
+Private nClickPointY As Single
+Private bValidSelection As Boolean
+Private nLastColumn As Integer
+Private nDatabase As Integer
+Private nMainTableTop As Integer
+Private nMainTableLeft As Integer
+Private nTopBoundary As Integer
+Private nBottomBoundary As Integer
+Private nMaxVisibleRows As Integer
+Private nVisibleColumns As Integer
+Private bSearchOnReturn As Boolean
+Private bKeyPressed As Boolean
+Private bNavigating As Boolean
+Private bShowList As Boolean
+Private bAutoHide As Boolean
+
+Private nOriginalTableWidth As Integer
+Private nOriginalTableHeight As Integer
+Private nFontSize As Integer
+
+Private Const STATUS_INIT = 0
+Private Const STATUS_FILLED = 1
+
+Private m_clsEdit As Object
+Private m_LastRow As Integer
+Private m_nSeries As Integer
+Private m_nCurrentDropDown As Integer
+Private m_bDefaultCursorControl As Boolean
+Private m_bLocked As Boolean
+
+'david 03/05/2001
+Private m_nColWhenSearchBtnClick As Integer
+Private m_lRowWhenSearchBtnClick As Long
+
+#If Win32 Then
+    Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
+#Else
+    Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
+#End If
+
+'david 10/25/2001
+Private bHeaderClick As Boolean
+Private sPrevSortingCol As String
+'''''''''''''''''
 '
 
 Property Let AutoHide(ByVal bTemp As Boolean)
@@ -542,21 +547,25 @@ End Function
 Public Sub AddExtraColumn(sCap As String, _
                           sField As String, _
                           nWidth As Integer, _
-                          Optional nDropDown As Variant)
+                          Optional nDropDown As Variant, _
+                          Optional sOrderByFields As String = "")
     Dim colTemp As Collection
     Dim clsCol As New clsColumns
 
     If Not IsMissing(nDropDown) Then
         nCurrentDropDown = nDropDown
     End If
+    
     If fnKeyExist(colDropDowns, nCurrentDropDown) Then
         Set colTemp = colDropDowns.Item(Str$(nCurrentDropDown))
     Else
         Exit Sub
     End If
+    
     If colTemp Is Nothing Then
         MsgBox "Error adding new column"
     End If
+    
     clsCol.ColumnIndex = EXTRACOLUMNOFFSET + colTemp.Count
     clsCol.Caption = sCap
     clsCol.DataField = sField
@@ -564,6 +573,12 @@ Public Sub AddExtraColumn(sCap As String, _
     clsCol.Visible = True
     
     colTemp.Add clsCol
+
+    'david 10/25/2001
+    If sOrderByFields <> "" Then
+        AddOrderByFields sField, sOrderByFields
+    End If
+    '''''''''''''''''
 End Sub
 
 
@@ -674,7 +689,9 @@ errfnKeyExist:
     End If
 End Function
 
-Private Function fnLoadTable(nColumn As Integer) As Boolean
+Private Function fnLoadTable(nColumn As Integer, _
+                             Optional bCalledByHeaderClick As Boolean = False, _
+                             Optional ColIndex As Integer = -1) As Boolean
 
     'Declare Sub's Variables
     Dim szCode As String
@@ -692,10 +709,21 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
     Dim lCount As Long
     Dim sGroupByClause As String
     
+    'david 10/25/2001
+    If bCalledByHeaderClick Then
+        If ColIndex < 0 Then
+            Exit Function
+        End If
+    Else
+        sPrevSortingCol = ""
+    End If
+    ''''''''''''''''''
+    
 '    Dim nTWidth As Integer
     If dbMain Is Nothing Then
         Exit Function
     End If
+    
     If tgMain.Row < 0 Then
         On Error Resume Next
         tgMain.SetFocus
@@ -710,7 +738,12 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
     Screen.MousePointer = vbHourglass
     bValidSelection = False
     
-    tgDropDown.Visible = False
+    'david 10/25/2001
+    If Not bCalledByHeaderClick Then
+        tgDropDown.Visible = False
+    End If
+    ''''''''''''''''''
+    
     fnGetKeys lDropDown, lColIndex, nColumn
     subSetFlagSelection lDropDown, False
     
@@ -788,9 +821,11 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
                     End If
                 End If
             End If
+            
             sTemp = colTemp.Item(lColIndex).DataField
         Else
             lCol = fnCoulmnOrder(lDropDown, nColumn)
+            
             If lCol > 0 Then
                 sTemp = Str$(lCol)
             End If
@@ -799,7 +834,43 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
         sTemp = colTemp.Item(lColIndex).DataField
     End If
     
+    Dim sDataField As String
+    Dim stCol As New clsColumns
+    Dim bIndexFound As Boolean
+    
+    'david 10/25/2001
+    If bCalledByHeaderClick Then
+        sDataField = LCase(tgDropDown.Columns(ColIndex).DataField)
+    Else
+        sDataField = sTemp
+    End If
+        
+    Set stCol = Nothing
+
+    bIndexFound = False
+    
+    For Each stCol In colTemp
+        If sDataField = LCase(stCol.DataField) Then
+            bIndexFound = True
+            Exit For
+        End If
+    Next
+    
+    If bIndexFound Then
+        If stCol.OrderByFields <> "" Then
+            sTemp = stCol.OrderByFields
+        End If
+    End If
+        
+    sPrevSortingCol = sDataField
+        
+    If bCalledByHeaderClick Then
+        bHeaderClick = True
+    End If
+    ''''''''''''''''''
+    
     szQuery = szQuery & sGroupByClause & " ORDER BY " & sTemp
+    
     'Get the records
     If Not fnGetRecord(rsTemp, szQuery, nDatabase) Then
         Screen.MousePointer = vbDefault
@@ -832,13 +903,18 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
             Else
                 tgDropDown.Height = (tgDropDown.HeadLines + nMaxVisibleRows) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
             End If
+            
             fnLocateDropDownTable colTemp
-
-            tgDropDown.Visible = True
-            On Error Resume Next
-            bShowList = True
-            tgDropDown.ZOrder 0
-            tgDropDown.SetFocus
+            
+            'david 10/25/2001
+            If Not bCalledByHeaderClick Then
+                tgDropDown.Visible = True
+                On Error Resume Next
+                bShowList = True
+                tgDropDown.ZOrder 0
+                tgDropDown.SetFocus
+            End If
+            ''''''''''''''''''
         End If
     Else
         If colDropDowns.Item(lDropDown).Item(1).NoDataMessage Then
@@ -1167,7 +1243,8 @@ Public Sub AddColumn(nIndex As Integer, _
                      Optional sField As Variant, _
                      Optional nColType As Variant, _
                      Optional nColWidth As Variant, _
-                     Optional nDropDown As Variant)
+                     Optional nDropDown As Variant, _
+                     Optional sOrderByFields As String = "")
 
     Dim i As Integer
     Dim j As Integer
@@ -1211,6 +1288,13 @@ Public Sub AddColumn(nIndex As Integer, _
     Else
         stCol.ColWidth = nColWidth
     End If
+    
+    'david 10/25/2001
+    If sOrderByFields <> "" Then
+        AddOrderByFields sField, sOrderByFields
+    End If
+    '''''''''''''''''
+    
     stCol.Visible = True
 End Sub
 
@@ -1743,10 +1827,18 @@ Public Function RowColChange(tgTable As Object) As Boolean
     Dim lOldRow As Integer
     Dim lLastRow As Long
     
+    'david 10/25/2001
+    If bHeaderClick Then
+        bHeaderClick = False
+        bTableClicked = False
+        Exit Function
+    End If
+    ''''''''''''''''''
     
     If m_bLocked Then
         Exit Function
     End If
+    
     If frmParent.ActiveControl Is Nothing Then
         Exit Function
     End If
@@ -1870,6 +1962,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     End If
     
 End Sub
+
 Public Sub TableClick(tgTable As Object)
     If m_bLocked Then
         Exit Sub
@@ -1895,6 +1988,14 @@ Public Sub TableClick(tgTable As Object)
     ElseIf tgTable.TabIndex = tgMain.TabIndex Then
         fnMoveButton
     End If
+End Sub
+
+Public Sub HeadClick(ByVal ColIndex As Integer)
+    If LCase(tgDropDown.Columns(ColIndex).DataField) = sPrevSortingCol Then
+        Exit Sub
+    End If
+    
+    fnLoadTable tgMain.col, True, ColIndex
 End Sub
 
 Property Get ValidSelection() As Boolean
@@ -2058,7 +2159,6 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
 
 End Sub
 
-
 Private Sub Class_Initialize()
     Set colDropDowns = New Collection
     nMainTableTop = -1
@@ -2070,7 +2170,10 @@ Private Sub Class_Initialize()
     bSearchOnReturn = False
     bAutoHide = True
     m_bLocked = False
+    bHeaderClick = False
+    bTableClicked = False
 End Sub
+
 Private Sub Class_Terminate()
     Dim colTemp As clsColumns
     While colDropDowns.Count > 0
@@ -2087,4 +2190,50 @@ Private Sub Class_Terminate()
     Set m_clsEdit = Nothing
 End Sub
 
-
+'david 10/25/2001
+Public Sub AddOrderByFields(ByVal sDataField As String, _
+                            ByVal sOrderByString As String, _
+                            Optional nDropDown As Variant)
+    Dim i As Integer
+    Dim nIndex As Integer
+    Dim stCol As New clsColumns
+    Dim colTemp As Collection
+    
+    If sOrderByString = "" Then
+        Exit Sub
+    End If
+    
+    If Not IsMissing(nDropDown) Then
+        nCurrentDropDown = nDropDown
+    End If
+    
+    If Not fnKeyExist(colDropDowns, nCurrentDropDown) Then
+        MsgBox "DropDown Key not found.", vbCritical
+        Exit Sub
+    End If
+    
+    Set colTemp = colDropDowns.Item(Str$(nCurrentDropDown))
+    
+    nIndex = -1
+    sDataField = LCase(sDataField)
+    
+    For Each stCol In colTemp
+        If LCase(stCol.DataField) = sDataField Then
+            nIndex = stCol.ColumnIndex
+            Exit For
+        End If
+    Next
+    
+    If nIndex < 0 Then
+        MsgBox "DropDown Data Field not found.", vbCritical
+        Exit Sub
+    End If
+    
+    i = InStr(UCase(sOrderByString), "ORDER BY")
+    
+    If i > 0 Then
+        sOrderByString = Trim(Mid(sOrderByString, i + Len("ORDER BY")))
+    End If
+    
+    stCol.OrderByFields = sOrderByString
+End Sub
