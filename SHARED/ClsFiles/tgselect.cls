@@ -330,7 +330,7 @@ End Function
 
 Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                                ByVal Shift As Integer) As Integer
-    Dim nRow As Integer
+    Dim lRow As Long
     Dim vCurrent As Variant
     Dim nCurrent As Integer
     Dim nLast As Integer
@@ -346,7 +346,7 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
     bAltDown = (Shift And vbAltMask) > 0
     bCtrlDown = (Shift And vbCtrlMask) > 0
      
-    nRow = m_tgcEditor.GetCurrentRowNumber
+    lRow = m_tgcEditor.GetCurrentRowNumber
 
     'david 12/10/2002
     'new codes
@@ -356,50 +356,54 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         'do nothing
     ElseIf bShiftDown And bCtrlDown Then
         If KeyCode = vbKeyHome Or KeyCode = vbKeyPageUp Then
-            nRow = 0
-            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            lRow = 0
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(lRow)
         ElseIf KeyCode = vbKeyEnd Or KeyCode = vbKeyPageDown Then
-            nRow = m_tgcEditor.RowCount - 1
-            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            lRow = m_tgcEditor.RowCount - 1
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(lRow)
         End If
     ElseIf bCtrlDown And bAltDown Then
         'do nothing
     ElseIf bShiftDown Or (bShiftDown = 0 And (Not bCtrlDown)) Then
         If KeyCode = vbKeyDown Then
-            If nRow < m_tgcEditor.RowCount - 1 Then
-                nRow = nRow + 1
-            Else
-                nRow = m_tgcEditor.RowCount - 1
+            'david 03/26/2004
+            'when allow add new
+            'fix to allow the highlighting to go to the last new row
+            If lRow <= m_tgcEditor.RowCount - 1 Then
+                lRow = lRow + 1
+            'Else
+            '    lRow = m_tgcEditor.RowCount - 1
             End If
+            '''''''''''''''''
         ElseIf KeyCode = vbKeyUp Then
-            If nRow > 0 Then
-                nRow = nRow - 1
+            If lRow > 0 Then
+                lRow = lRow - 1
             Else
-                nRow = 0
+                lRow = 0
             End If
         ElseIf KeyCode = vbKeyPageUp Then
-            If nRow <= 0 Then
+            If lRow <= 0 Then
                 Exit Function
             End If
             
             'david 12/11/2002
             'fixed pageup highlighting row
-            'nRow = nRow - m_tgTable.VisibleRows + 1
-            nRow = nRow - m_tgTable.VisibleRows + 2
+            'lRow = lRow - m_tgTable.VisibleRows + 1
+            lRow = lRow - m_tgTable.VisibleRows + 2
             '''''''''''''''''
             
-            If nRow < 0 Then
-                nRow = 0
+            If lRow < 0 Then
+                lRow = 0
             End If
         ElseIf KeyCode = vbKeyPageDown Then
-            If nRow >= m_tgcEditor.RowCount Then
+            If lRow >= m_tgcEditor.RowCount Then
                 Exit Function
             End If
             
-            nRow = nRow + m_tgTable.VisibleRows - 1
+            lRow = lRow + m_tgTable.VisibleRows - 1
             
-            If nRow >= m_tgcEditor.RowCount Then
-                nRow = m_tgcEditor.RowCount - 1
+            If lRow >= m_tgcEditor.RowCount Then
+                lRow = m_tgcEditor.RowCount - 1
             End If
         
         'david 12/10/2002
@@ -407,17 +411,17 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         'when focus is in last editable cell and right arrow key is pressed
         'or when focus is in first editable cell and left arrow key is pressed
         ElseIf KeyCode = vbKeyLeft And m_tgTable.Col = m_tgcEditor.FirstEditableCol Then
-            If nRow <= 0 Then
+            If lRow <= 0 Then
                 Exit Function
             End If
             
-            nRow = nRow - 1
+            lRow = lRow - 1
         ElseIf KeyCode = vbKeyRight And m_tgTable.Col = m_tgcEditor.LastEditableCol Then
-            If nRow >= m_tgcEditor.RowCount Then
+            If lRow >= m_tgcEditor.RowCount Then
                 Exit Function
             End If
             
-            nRow = nRow + 1
+            lRow = lRow + 1
         '''''''''''''''''
         Else
             fnMarkCurrent = -1
@@ -425,15 +429,15 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         End If
     ElseIf bCtrlDown Then
         If KeyCode = vbKeyHome Then
-            nRow = 0
-            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            lRow = 0
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(lRow)
             
             If m_tgcEditor.FirstEditableCol >= 0 Then
                 m_tgTable.Col = m_tgcEditor.FirstEditableCol
             End If
         ElseIf KeyCode = vbKeyEnd Then
-            nRow = m_tgcEditor.RowCount - 1
-            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            lRow = m_tgcEditor.RowCount - 1
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(lRow)
             
             If m_tgcEditor.LastEditableCol >= 0 Then
                 m_tgTable.Col = m_tgcEditor.LastEditableCol
@@ -443,8 +447,12 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         'do nothing
     End If
     
-    If nRow < m_tgcEditor.RowCount Then
-        vCurrent = m_tgcEditor.MakeBookmark(nRow)
+    'david 03/26/2004
+    'when allow add new
+    'fix to allow the highlighting to go to the last new row
+    '''''''''''''''''
+    If lRow <= m_tgcEditor.RowCount Then
+        vCurrent = m_tgcEditor.MakeBookmark(lRow)
         
         If bShiftDown Or (bShiftDown And bCtrlDown) Then
             nCurrent = fnRowSelected(vCurrent)
@@ -482,7 +490,7 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
             End If
         Else
             subMarkSelected vCurrent
-            fnMarkCurrent = nRow
+            fnMarkCurrent = lRow
         End If
     End If
 End Function
@@ -673,7 +681,7 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     
     If KeyCode = vbKeyDown Then
         If Not m_tgcEditor Is Nothing Then
-            If m_tgcEditor.GetCurrentRowNumber >= m_tgcEditor.RowCount - 1 Then
+            If m_tgcEditor.GetCurrentRowNumber > m_tgcEditor.RowCount - 1 Then
                 KeyCode = 0
                 Exit Sub
             End If
