@@ -1,11 +1,7 @@
 //***************************************************************************
 //
 // Installation script for the C-Store Auditing System release
-// 3.01a  3/22/99  Craig  Recompile without SQAOCX
-// 3.01 - March 2, 1999 Irving
-// 3.00 - December 1, 1998 David
-// 3.00 - December 7, 1998 David
-// 3.00   July 30, 1999 Xijian
+//
 //Setup log "CSASETUP.TXT"
 //
 //***************************************************************************
