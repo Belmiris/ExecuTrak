@@ -299,8 +299,9 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         End If
     Else
         Dim rsTemp As Recordset
-        
-        If fnCStr(pr_inv_header!ivh_stocking) <> "S" Then
+        'changed by junsong
+      '  If fnCStr(pr_inv_header!ivh_stocking) <> "S" Then
+        If fnGetIvhStockingFlag() = "N" Then
             If fnCheckNonStkMstr(rsTemp, pr_inv_header!ivh_link, this_pc) Then
                 bUseNonStkMstr = True
                 Set pr_inv_master = rsTemp
@@ -1894,3 +1895,39 @@ Private Function fnCheckNonStkMstr(rsIn As Recordset, _
         
     fnCheckNonStkMstr = fnGetRecord(rsIn, sSql, nDBInformix, SUB_NAME, False) > 0
 End Function
+
+Public Function fnGetIvhStockingFlag() As String
+    Dim rsTemp As Recordset
+    Dim strSQL As String
+    Const SUB_NAME As String = "fnGetIvhStockingFlag"
+    Dim sErrMsg As String
+    strSQL = "SELECT * FROM inv_header WHERE ivh_link IN "
+    strSQL = strSQL & "(SELECT invt_prodlnk FROM inv_master WHERE "
+    strSQL = strSQL & "invt_prft_ctr = " & g_lPrftCtr & ")"
+
+    If fnGetRecord(rsTemp, strSQL, nDBInformix, SUB_NAME) < 0 Then
+        Exit Function
+    ElseIf rsTemp.RecordCount > 0 Then
+        'stocking
+        fnGetIvhStockingFlag = "S"
+        Exit Function
+    Else
+        strSQL = "SELECT * FROM inv_header WHERE ivh_link IN"
+        strSQL = strSQL & " (SELECT ponsm_link FROM po_non_Stock_mstr WHERE "
+        strSQL = strSQL & " ponsm_prft_ctr = " & g_lPrftCtr & ")"
+        If fnGetRecord(rsTemp, strSQL, nDBInformix, SUB_NAME) < 0 Then
+            Exit Function
+        ElseIf rsTemp.RecordCount > 0 Then
+            'Non_stocking
+            fnGetIvhStockingFlag = "N"
+            Exit Function
+        Else
+    '        sErrMsg = "Product Master Record was not set up"
+    '        GoTo EXIT_HERE
+        End If
+    End If
+    Exit Function
+EXIT_HERE:
+   ' frmMain.tfnSetStatusBarError sErrMsg
+End Function
+
