@@ -1689,7 +1689,7 @@ Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     tgcDropdown.TableMouseUp Y
 End Sub
 
@@ -1770,7 +1770,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -2979,9 +2979,19 @@ Private Function fnCreateTempTableVar() As Boolean
     Dim i As Integer
     
     'predefined variables
-    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
-        "months_in_grade", "months_as_manager", "years_as_manager", "months_employed", _
-        "shortage_amount", "check_amount", "pay_hours", "inv_shortage_ratio")
+    sarrVariable = Array("3_mo_shortage_avg", _
+                         "3_month_sales_avg", _
+                         "day_off_slip_day", _
+                         "days_employed", _
+                         "gallons_sold", _
+                         "inside_sales", _
+                         "inv_record_months", _
+                         "months_as_manager", _
+                         "months_employed", _
+                         "ot_hours", _
+                         "regular_hours", _
+                         "two_week_sales", _
+                         "yrs_at_lvl_jan_1")
     
     On Error GoTo Continue
     strSQL = "DROP TABLE tmpvariable"
@@ -3371,7 +3381,7 @@ Private Sub tblEditSelect_LostFocus()
     tgmEditSelect.LostFocus
 End Sub
 
-Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     tgsEditSelect.MouseUp Button, Shift, Y
 End Sub
 
@@ -3560,18 +3570,20 @@ Private Function fnGetVarValue(sV As String, _
     Dim sarrVariable()
     
     'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
-    sarrVariable = Array("inside_sales", _
-                         "gallons_sold", _
+    sarrVariable = Array("3_mo_shortage_avg", _
+                         "3_month_sales_avg", _
                          "day_off_slip_day", _
-                         "total_pay", _
-                         "months_in_grade", _
+                         "days_employed", _
+                         "gallons_sold", _
+                         "inside_sales", _
+                         "inv_record_months", _
                          "months_as_manager", _
-                         "years_as_manager", _
                          "months_employed", _
-                         "shortage_amount", _
+                         "ot_hours", _
+                         "regular_hours", _
+                         "two_week_sales", _
+                         "yrs_at_lvl_jan_1", _
                          "check_amount", _
-                         "pay_hours", _
-                         "inv_shortage_ratio", _
                          "not used")
     
     fnGetVarValue = 0#
@@ -3585,47 +3597,40 @@ Private Function fnGetVarValue(sV As String, _
     End If
     
     Select Case sVariable
-        Case sarrVariable(0)  'inside sales
+        
+        Case "3_mo_shortage_avg"
             fnGetVarValue = 1.1
-        Case sarrVariable(1)  'gallons sold
+        Case "3_month_sales_avg"
             fnGetVarValue = 2.2
-        Case sarrVariable(2)  'day off slip days
+        Case "day_off_slip_day"
             fnGetVarValue = 3.3
-        
-        Case sarrVariable(3)  'total pay
+        Case "days_employed"
             fnGetVarValue = 4.4
-            
-        Case sarrVariable(4)  'months in grade
+        Case "gallons_sold"
             fnGetVarValue = 5.5
-        
-        Case sarrVariable(5)  'months as manager
+        Case "inside_sales"
             fnGetVarValue = 6.6
-        
-        Case sarrVariable(6)  'years as manager
+        Case "inv_record_months"
             fnGetVarValue = 7.7
-        
-        Case sarrVariable(7)  'months employed
+        Case "months_as_manager"
             fnGetVarValue = 8.8
-            
-        Case sarrVariable(8)  'shortage amount
+        Case "months_employed"
             fnGetVarValue = 9.9
-            
-        Case sarrVariable(9)  'check_amount
+        Case "ot_hours"
             fnGetVarValue = 10.12
-            
-        Case sarrVariable(10)  'pay hours
+        Case "regular_hours"
             fnGetVarValue = 11.21
-            
-        Case sarrVariable(11)  'inventory shortage ratio
+        Case "two_week_sales"
             fnGetVarValue = 12.34
-            
-        Case sarrVariable(12)  'not used
-            Exit Function
-        
+        Case "yrs_at_lvl_jan_1"
+            fnGetVarValue = 23.45
+        Case "check_amount"
+            'return 0
+        Case "not used"
+            'return 0
         Case Else
             sErrMsg = "Variable '" + sVariable + "' in " + sV + " is not valid"
             Exit Function
-    
     End Select
 End Function
 
