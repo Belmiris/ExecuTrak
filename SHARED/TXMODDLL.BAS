@@ -1274,14 +1274,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     End If
     
@@ -1886,7 +1886,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = Val(lLimit)
+                .m_lLimit = val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -2008,8 +2008,8 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
         'new dll
         Do
-            hld_miles = Round(hld_miles)
-            hld_tot_gals = Round(hld_tot_gals, 1)
+            hld_miles = round(hld_miles)
+            hld_tot_gals = round(hld_tot_gals, 1)
             nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2206,7 +2206,16 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     If rsTemp Is Nothing Then
          Exit Sub
     End If
-
+    
+    '#lLading May be -1. Skip this routine if -1 since it is not ready to do loading fee
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & CStr(lMovement) & " AND lLading <= 0 "
+    Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsMvBal Is Nothing Then
+         Exit Sub
+    ElseIf rsMvBal.RecordCount > 0 Then
+         Exit Sub
+    End If
+    
     '#If not balanced, do not need to do it
     strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MLading WHERE lMovement = " & lMovement
     Set rsTemp = txMod_OpenRecord(strSQL, , , m_local)
@@ -2375,6 +2384,9 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         this_tax = (Abs(this_units) / Abs(aryATax(i).sum_bunits)) * Abs(aryATax(i).a_tax_tot)
                     End If
                     this_tax = tfnRound(this_tax, 2)
+                Else
+                    '#Not enough information to cal A Tax.
+                    Exit Do
                 End If
                   
                 this_tax = tfnRound(Abs(this_tax), 2)
@@ -2536,8 +2548,8 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     Dim wrk_nbr         As Long
     Dim gal_inv         As Double
     Dim gal_wrk         As Double
-    Dim X               As Integer
-    Dim Y               As Integer
+    Dim x               As Integer
+    Dim y               As Integer
 
     '# New variables to loads of 10,000+
     Dim low_end         As Long
@@ -2561,11 +2573,11 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     dsl_gals = 0
     gas_gals = 0
     
-    For X = 0 To ldf_cnt
-        If Trim(aryLDF(X).dv_prodtcl) = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(X).dv_vol
+    For x = 0 To ldf_cnt
+        If Trim(aryLDF(x).dv_prodtcl) = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(X).dv_vol
+            gas_gals = gas_gals + aryLDF(x).dv_vol
         End If
     Next
     '# Return if LPG only
@@ -2575,8 +2587,8 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
 
     '# Add all of the 'A' tax amounts
     atax_tot = 0
-    For X = 1 To ldf_cnt
-        atax_tot = atax_tot + tfnRound(aryLDF(X).dv_atax, 2)
+    For x = 1 To ldf_cnt
+        atax_tot = atax_tot + tfnRound(aryLDF(x).dv_atax, 2)
     Next
     
     If tfnRound(atax_tot, 2) = 0 And texas_diverted = False Then
@@ -2590,7 +2602,7 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gal_inv = 0
     gas_gals = 0
     dsl_gals = 0
-    X = -1
+    x = -1
     ReDim Preserve aryLDF(ldf_cnt + 10)
     
     Do While True
@@ -2598,14 +2610,14 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             Exit Do
         End If
 
-        X = X + 1
-        If X > ldf_cnt Then
-            aryLDF(X).dv_nbr = 0
+        x = x + 1
+        If x > ldf_cnt Then
+            aryLDF(x).dv_nbr = 0
         End If
         If wrk_nbr = 0 Then
-            wrk_nbr = aryLDF(X).dv_nbr
+            wrk_nbr = aryLDF(x).dv_nbr
         End If
-        If wrk_nbr <> aryLDF(X).dv_nbr Then
+        If wrk_nbr <> aryLDF(x).dv_nbr Then
             gal_wrk = Abs(gal_inv)
             If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
                 gal_wrk = 8000
@@ -2637,7 +2649,7 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 Loop
             End If
             atax_new = atax_new + atax_inv
-            wrk_nbr = aryLDF(X).dv_nbr
+            wrk_nbr = aryLDF(x).dv_nbr
             If wrk_nbr = 0 Then
                 Exit Do
             End If
@@ -2645,11 +2657,11 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             gas_gals = 0
             dsl_gals = 0
         End If
-        gal_inv = gal_inv + aryLDF(X).dv_vol
-        If aryLDF(X).dv_prodtcl = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(X).dv_vol
+        gal_inv = gal_inv + aryLDF(x).dv_vol
+        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(X).dv_vol
+            gas_gals = gas_gals + aryLDF(x).dv_vol
         End If
     Loop
 
@@ -2664,17 +2676,17 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gal_inv = 0
     gas_gals = 0
     dsl_gals = 0
-    X = -1
+    x = -1
 
     Do While True
-        X = X + 1
-        If X > ldf_cnt Then
-            aryLDF(X).dv_nbr = 0
+        x = x + 1
+        If x > ldf_cnt Then
+            aryLDF(x).dv_nbr = 0
         End If
         If wrk_nbr = 0 Then
-            wrk_nbr = aryLDF(X).dv_nbr
+            wrk_nbr = aryLDF(x).dv_nbr
         End If
-        If wrk_nbr <> aryLDF(X).dv_nbr Then
+        If wrk_nbr <> aryLDF(x).dv_nbr Then
             gal_wrk = Abs(gal_inv)
             If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
                 gal_wrk = 8000
@@ -2707,22 +2719,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             End If
             atax_new = 0
             If ldf_cnt > 0 Then
-                For Y = 0 To ldf_cnt - 1
-                    If aryLDF(Y).dv_nbr = wrk_nbr Then
+                For y = 0 To ldf_cnt - 1
+                    If aryLDF(y).dv_nbr = wrk_nbr Then
                         If gal_inv <> 0 Then
-                            atax_wrk = (aryLDF(Y).dv_vol / gal_inv) * atax_inv
+                            atax_wrk = (aryLDF(y).dv_vol / gal_inv) * atax_inv
                         Else
                             atax_wrk = 0
                         End If
                         atax_wrk = tfnRound(atax_wrk, 2)
-                        aryLDF(Y).dv_atax = atax_wrk
+                        aryLDF(y).dv_atax = atax_wrk
                         atax_new = atax_new + atax_wrk
                     End If
                 Next
             End If
             atax_wrk = atax_inv - atax_new
             aryLDF(ldf_cnt).dv_atax = tfnRound(atax_wrk, 2)
-            wrk_nbr = aryLDF(X).dv_nbr
+            wrk_nbr = aryLDF(x).dv_nbr
             If wrk_nbr = 0 Then
                 Exit Do
             End If
@@ -2730,11 +2742,11 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             gas_gals = 0
             dsl_gals = 0
         End If
-        gal_inv = gal_inv + aryLDF(X).dv_vol
-        If aryLDF(X).dv_prodtcl = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(X).dv_vol
+        gal_inv = gal_inv + aryLDF(x).dv_vol
+        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(X).dv_vol
+            gas_gals = gas_gals + aryLDF(x).dv_vol
         End If
     Loop
     Exit Sub
