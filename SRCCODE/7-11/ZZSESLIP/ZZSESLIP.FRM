@@ -12,7 +12,7 @@ Begin VB.Form frmZZSESLIP
    DrawMode        =   14  'Copy Pen
    BeginProperty Font 
       Name            =   "Arial"
-      Size            = 9.75 
+      Size            =   9.6
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -40,7 +40,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -54,7 +54,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -76,7 +76,7 @@ Begin VB.Form frmZZSESLIP
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size        = 8.75   
+         Size            =   9
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -88,7 +88,7 @@ Begin VB.Form frmZZSESLIP
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            = 9.75 
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -108,7 +108,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -123,7 +123,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -159,7 +159,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -195,7 +195,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -231,7 +231,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -267,7 +267,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -303,7 +303,7 @@ Begin VB.Form frmZZSESLIP
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -324,7 +324,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -335,7 +335,7 @@ Begin VB.Form frmZZSESLIP
          FMName          =   "POFSELGP"
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -364,7 +364,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75 
+               Size            =   9.6
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -374,7 +374,7 @@ Begin VB.Form frmZZSESLIP
             BevelOuter      =   6
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            = 9.75 
+               Size            =   9.6
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -419,7 +419,7 @@ Begin VB.Form frmZZSESLIP
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -432,7 +432,7 @@ Begin VB.Form frmZZSESLIP
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            = 9.75 
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -455,7 +455,7 @@ Begin VB.Form frmZZSESLIP
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -468,7 +468,7 @@ Begin VB.Form frmZZSESLIP
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            = 9.75 
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -506,7 +506,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75  
+               Size            =   9.6
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -518,7 +518,7 @@ Begin VB.Form frmZZSESLIP
             BorderWidth     =   4
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            = 9.75
+               Size            =   9.6
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -541,7 +541,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -772,7 +772,7 @@ Private Const t_szCAPTION_REFRESH As String = "&Refresh"
 Private Const t_szCAPTION_SELECT As String = "&Select"
 Private Const t_szCAPTION_CANCEL As String = "&Cancel"
 Private Const t_szCAPTION_EXIT As String = "E&xit"
-Private Const szHelpEDI As String = "EDI888.HLP"
+Private Const szHelp7_ELEVEN As String = "7-Eleven.HLP"
 '==========================
 'Status Bar Default Strings
 '==========================
@@ -874,7 +874,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     CRLF = Chr(10) + Chr(13)
 
     ' ** change the help file for the application
-    App.HelpFile = szHelpEDI
+    App.HelpFile = szHelp7_ELEVEN
 End Sub
 
 Private Sub Form_Unload(CANCEL As Integer)
@@ -894,6 +894,7 @@ Private Sub Form_Unload(CANCEL As Integer)
     If Not t_dbMainDatabase Is Nothing Then
         t_dbMainDatabase.Close
     End If
+    
     Set t_dbMainDatabase = Nothing
     
     Set t_wsWorkSpace = Nothing
@@ -905,13 +906,9 @@ Private Sub Form_Unload(CANCEL As Integer)
 End Sub
 
 Private Sub Form_Load()
-    #If FACTOR_MENU Then
-        #If PROTOTYPE Then
-            MsgBox "This is a prototype screen only.", vbExclamation
-        #End If
-    #End If
     
     #If Not PROTOTYPE Then
+        
         If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
             Unload Me
             Exit Sub
@@ -947,7 +944,8 @@ Private Sub Form_Load()
     subSetupDropDown
     
     Me.Show
-    Screen.MousePointer = vbHourglass
+    subShowHourGlass
+    
     tfnSetInitializingMessage
     Me.Enabled = False
     
@@ -957,7 +955,7 @@ Private Sub Form_Load()
     tfnResetScreen 'set the default screen
     tmrKeyBoard.Enabled = True
     tfnSetStatusBarMessage t_szADDEDIT
-    Screen.MousePointer = vbDefault
+    subHideHourGlass
     
 End Sub
 
@@ -986,27 +984,33 @@ Private Sub cmdDeleteBtn_GotFocus()
 End Sub
 
 Private Sub cmdUpdateInsertBtn_GotFocus()
+    
     If cmdUpdateInsertBtn.Caption = t_szCAPTION_UPDATE Then
         tfnSetStatusBarMessage t_szUPDATE
     Else
         tfnSetStatusBarMessage t_szINSERT
     End If
+    
 End Sub
 
 Private Sub cmdRefreshSelectBtn_GotFocus()
+    
     If cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH Then
         tfnSetStatusBarMessage t_szREFRESH
     Else
         tfnSetStatusBarMessage t_szSELECT
     End If
+    
 End Sub
 
 Private Sub cmdExitCancelBtn_GotFocus()
+    
     If cmdExitCancelBtn.Caption = t_szCAPTION_EXIT Then
         tfnSetStatusBarMessage t_szEXIT
     Else
         tfnSetStatusBarMessage t_szCANCEL
     End If
+    
 End Sub
 
 Private Sub cmdAddBtn_Click()
@@ -1016,7 +1020,6 @@ Private Sub cmdAddBtn_Click()
     #End If
     
     t_nFormMode = ADD_MODE
-    'subSetFocus efraBackground
     't_bStartupFlag = False
     subEnableOutFrame True
     subEnableAddBtn False
@@ -1025,13 +1028,10 @@ Private Sub cmdAddBtn_Click()
     subEnableRefreshBtn False
     subEnableCancel True
     subSetupSlipGrid
+    subSetFocus txtEmployee
     
     cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
     mnuUpdateInsert.Caption = t_szCAPTION_INSERT
-    cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH
-    mnuRefreshSelect.Caption = t_szCAPTION_REFRESH
-    
-    subSetFocus txtEmployee
     
 End Sub
 
@@ -1046,7 +1046,6 @@ Private Sub cmdEditBtn_Click()
     #End If
     
     t_nFormMode = EDIT_MODE
-    'subSetFocus efraBackground
     subEnableOutFrame True
     subEnableAddBtn False
     subEnableEditBtn False
@@ -1054,38 +1053,32 @@ Private Sub cmdEditBtn_Click()
     subEnableRefreshBtn False
     subEnableCancel True
     subSetupSlipGrid
+    subSetFocus txtEmployee
     
     cmdUpdateInsertBtn.Caption = t_szCAPTION_UPDATE
     mnuUpdateInsert.Caption = t_szCAPTION_UPDATE
-    cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH
-    mnuRefreshSelect.Caption = t_szCAPTION_REFRESH
-    
-    subSetFocus txtEmployee
-    
 End Sub
 
 Private Sub cmdUpdateInsertBtn_Click()
-    Dim i As Long
-    
+    subShowHourGlass
     tfnSetStatusBarCorrect "Inserting data, please wait..."
-    'update insert record
-    Screen.MousePointer = vbHourglass
     
     If fnInsertData() Then
         tfnUnlockRow
         tfnResetScreen
     End If
     
-    Screen.MousePointer = vbDefault
-    
+    subHideHourGlass
 End Sub
 
 Private Sub cmdExitCancelBtn_Click()
+
     If cmdExitCancelBtn.Caption = t_szCAPTION_CANCEL Then
         cmdTBCancel_Click
     Else
         cmdTBExit_Click
     End If
+    
 End Sub
 
 Private Sub cmdRefreshSelectBtn_Click()
@@ -1094,14 +1087,12 @@ Private Sub cmdRefreshSelectBtn_Click()
         Exit Sub
     End If
     
-    Screen.MousePointer = vbHourglass
+    subShowHourGlass
     fnLoadData
-    Screen.MousePointer = vbDefault
-    
     nDataStatus = DATA_INIT
     subEnableRefreshBtn False
     subEnableUpdateBtn False
-    
+    subHideHourGlass
 End Sub
 
 '=====================
@@ -1123,7 +1114,6 @@ Private Sub cmdTBCancel_Click()
         End If
     End If
     
-    t_nFormMode = IDLE_MODE
     tfnResetScreen
     
 End Sub
@@ -1186,6 +1176,7 @@ End Sub
 'Main Edit Menu Events Cancel, Copy/Paste
 '========================================
 Private Sub mnuMainEdit_Click()
+  
   If t_nFormMode <> IDLE_MODE And TypeOf Screen.ActiveControl Is Textbox Then
     mnuCopy.Enabled = (Screen.ActiveControl.SelLength > 0)
     mnuCut.Enabled = (Screen.ActiveControl.SelLength > 0)
@@ -1195,6 +1186,7 @@ Private Sub mnuMainEdit_Click()
     mnuCut.Enabled = False
     mnuPaste.Enabled = False
   End If
+  
 End Sub
 
 Private Sub mnuCancel_Click()
@@ -1285,7 +1277,8 @@ Private Sub tfnResetScreen()
     
     On Error Resume Next
     
-    Screen.MousePointer = vbHourglass
+    t_nFormMode = IDLE_MODE
+    subShowHourGlass
     subEnableEmployee True
     subEnableOutFrame False
     subEnableAddBtn True
@@ -1316,8 +1309,8 @@ Private Sub tfnResetScreen()
     cvalidate.ResetFlags
     tgmSlip.ClearData
     nDataStatus = DATA_INIT
-    Screen.MousePointer = vbDefault
     subSetFocus cmdAddBtn
+    subHideHourGlass
     DoEvents
     
 End Sub
@@ -1361,7 +1354,6 @@ End Sub
 
 Private Sub tblSlip_Click()
     tgfDropdown.TableClick tblSlip
-    'tgmSlip.SetRowHighLighted True
 End Sub
 
 Private Sub tblSlip_FirstRowChange()
@@ -1385,7 +1377,6 @@ End Sub
 Private Sub tblSlip_KeyDown(KeyCode As Integer, Shift As Integer)
     tgfDropdown.KeyDown tblSlip, KeyCode
     tgmSlip.KeyDown KeyCode, Shift
-    
 End Sub
 
 Private Sub tblSlip_KeyPress(KeyAscii As Integer)
@@ -1487,11 +1478,13 @@ End Sub
 Private Sub subEnableCancel(bStatus As Boolean)
     mnuCancel.Enabled = bStatus
     frmContext.ButtonEnabled(CANCEL_UP) = bStatus
+    
     If bStatus Then
         cmdExitCancelBtn.Caption = t_szCAPTION_CANCEL
     Else
         cmdExitCancelBtn.Caption = t_szCAPTION_EXIT
     End If
+    
 End Sub
 
 Private Sub Form_Resize()
@@ -1499,6 +1492,7 @@ Private Sub Form_Resize()
 End Sub
 
 Private Sub subSetupToolBar()
+    
     With frmContext
         .BeginSetupToolbar Me
         '.AddButton "Add &Employee", EMP_MST_UP
@@ -1506,15 +1500,18 @@ Private Sub subSetupToolBar()
     
         .HelpFile = szHelpFileName
     End With
+    
 End Sub
 
 Public Sub TBButtonCallBack(ByVal nID As Integer)
+    
     Select Case nID
         Case CANCEL_UP
             cmdTBCancel_Click
         Case EXIT_UP
             cmdTBExit_Click
     End Select
+    
 End Sub
 
 Private Sub mnuModules_Click(Index As Integer)
@@ -1562,7 +1559,6 @@ Private Sub subInitializeSpreadSheet()
         
     Next
     
-    'tblSlip.Caption = "Bonus Master"
     tblSlip.Columns(ColPrftCtr).Caption = "Profit Center"
     tblSlip.Columns(colPrftDesc).Caption = "Profit Center Description"
     tblSlip.Columns(ColSlipDate).Caption = "Slip Date"
@@ -1582,6 +1578,7 @@ Private Sub subInitializeSpreadSheet()
         .AddEditColumn colShiftNum, "Enter Shift Number", szIntegerPattern
         .AllowAddNew = True
     End With
+    
 End Sub
 
 Private Sub tblDropDown_Click()
@@ -1615,10 +1612,7 @@ Private Function fnLoadData() As Boolean
     strSQL = strSQL & " FROM sys_prft_ctr, bonus_day_off_slip "
     strSQL = strSQL & " WHERE prft_ctr = bd_prft_ctr AND bd_empno = " & tfnRound(txtEmployee)
     strSQL = strSQL & " ORDER BY bd_prft_ctr, bd_slip_date, bd_shift"
-    
-'    strSQL = "SELECT * FROM bonus_day_off_slip WHERE bd_empno = " & tfnRound(txtEmployee)
-'    strSQL = strSQL & " ORDER BY bd_prft_ctr, bd_slip_date, bd_shift"
-    
+        
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database to get records", vbCritical
         Exit Function
@@ -1629,7 +1623,7 @@ Private Function fnLoadData() As Boolean
         Exit Function
     End If
     
-    tgmSlip.FillWithRecordset rsTemp
+    tgmSlip.FillWithRecordset rsTemp, True
     subEnableDeleteBtn True
     
     fnLoadData = True
@@ -1661,7 +1655,7 @@ Private Sub txtEmployee_KeyPress(KeyAscii As Integer)
     
     If KeyAscii = vbKeyReturn Then
         tgcDropdown.ComboSQL(txtEmployee) = fnSetEmpComboSQL
-        Screen.MousePointer = vbHourglass
+        subShowHourGlass
     End If
     
     bKeyCode = tgcDropdown.Keypress(txtEmployee, KeyAscii)
@@ -1686,7 +1680,7 @@ Private Sub txtEmployee_KeyPress(KeyAscii As Integer)
         cvalidate.Keypress txtEmployee, KeyAscii
     End If
     
-    Screen.MousePointer = vbDefault
+    subHideHourGlass
 End Sub
 
 Private Sub txtEmployee_LostFocus()
@@ -1721,7 +1715,7 @@ Private Sub txtEmpName_KeyPress(KeyAscii As Integer)
     
     If KeyAscii = vbKeyReturn Then
         tgcDropdown.ComboSQL(txtEmpName) = fnSetEmpComboSQL
-        Screen.MousePointer = vbHourglass
+        subShowHourGlass
     End If
     
     bKeyCode = tgcDropdown.Keypress(txtEmpName, KeyAscii)
@@ -1743,21 +1737,21 @@ Private Sub txtEmpName_KeyPress(KeyAscii As Integer)
         
     End If
     
-    Screen.MousePointer = vbDefault
+    subHideHourGlass
 End Sub
 
 Private Sub cmdEmployee_Click()
-    Screen.MousePointer = vbHourglass
+    subShowHourGlass
     tgcDropdown.ComboSQL(txtEmployee) = fnSetEmpComboSQL
     tgcDropdown.Click cmdEmployee
-    Screen.MousePointer = vbDefault
+    subHideHourGlass
 End Sub
 
 Private Sub cmdEmpName_Click()
-    Screen.MousePointer = vbHourglass
+    subShowHourGlass
     tgcDropdown.ComboSQL(txtEmpName) = fnSetEmpComboSQL
     tgcDropdown.Click cmdEmpName
-    Screen.MousePointer = vbDefault
+    subHideHourGlass
 End Sub
 
 Private Sub subInitValidation()
@@ -1853,15 +1847,6 @@ End Sub
 
 Private Sub tblComboDropdown_KeyPress(KeyAscii As Integer)
     tgcDropdown.Keypress tblComboDropdown, KeyAscii
-    Exit Sub
-    Dim bCode As Boolean
-    
-    bCode = tgcDropdown.Keypress(tblComboDropdown, KeyAscii)
-    
-    If Not bCode Then
-        KeyAscii = 0
-    End If
-    
 End Sub
 
 Private Sub tblComboDropdown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -1878,21 +1863,23 @@ End Sub
 
 Private Sub subSetupCombos()
     Set tgcDropdown = CreateObject(t_szOLECOMBO)
-    Set tgcDropdown.Form = Me
-    Set tgcDropdown.DBEngine = t_engFactor
-    Set tgcDropdown.DataBase = t_dbMainDatabase
-    Set tgcDropdown.DataLink = datComboDropDown
-    Set tgcDropdown.Table = tblComboDropdown
     
     #If PROTOTYPE Then
         Exit Sub
     #End If
     
-     With tgcDropdown
+    With tgcDropdown
+        Set .Form = Me
+        Set .DBEngine = t_engFactor
+        Set .DataBase = t_dbMainDatabase
+        Set .DataLink = datComboDropDown
+        Set .Table = tblComboDropdown
+        
         .AddCombo
         .AddComboBox txtEmployee, cmdEmployee, "prm_empno", .SQL_LONG_TYPE
         .AddComboBox txtEmpName, cmdEmpName, "prm_empname", .SQL_STRING_TYPE(60)
-     End With
+    End With
+     
 End Sub
 
 Private Function fnSwitchPhase() As Boolean
@@ -1906,6 +1893,7 @@ Private Function fnSwitchPhase() As Boolean
     If t_nFormMode = ADD_MODE Then
         bYesNo = True
     Else
+        
         If Not fnLoadData Then
             Exit Function
         End If
@@ -1916,8 +1904,8 @@ Private Function fnSwitchPhase() As Boolean
     End If
     
     subEnableEmployee Not bYesNo
-    
     fnSwitchPhase = bYesNo
+    
 End Function
 
 Private Sub subEnableEmployee(bOnOff As Boolean)
@@ -1935,46 +1923,34 @@ Private Sub subEnableOutFrame(bOnOff As Boolean)
 End Sub
 
 Private Function fnCreateSearchTable(szNumber As String, szName As String) As Boolean
-    Dim sSql As String
-    Dim sSQL1 As String
-    Dim sSQL2 As String
-    Dim sSQLL  As String
-    Dim sSqDrop As String
+    Dim sDropSQL As String
+    Dim strSQL As String
+    
+    On Error Resume Next
+    sDropSQL = " DROP TABLE sTmpCustTable"
+    t_dbMainDatabase.ExecuteSQL sDropSQL
+    On Error GoTo 0
 
-    'Drop temp table first
-    sSqDrop = " DROP TABLE sTmpCustTable"
-    On Error GoTo ErrorDropTable
-    t_dbMainDatabase.ExecuteSQL sSqDrop
-    'Create a temp table
-    sSql = " CREATE TEMP  TABLE sTmpCustTable " & " ( " & szNumber & " INTEGER," & szName & " CHAR(60)) "
-    On Error GoTo errCreateTable
-    t_dbMainDatabase.ExecuteSQL sSql
-    On Error GoTo errInsertRecords
-    sSQL1 = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
-    sSQL1 = sSQL1 & " || TRIM(prm_first_name) || ' '  || TRIM(prm_middle_name) "
-    sSQL1 = sSQL1 & " FROM pr_master WHERE  TRIM(prm_middle_name)<> ''"
-    'sSQL1 = sSQL1 & " AND prm_security_code <= " & tfnSQLString(Security_Code)
-    t_dbMainDatabase.ExecuteSQL sSQL1
-    sSQL2 = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
-    sSQL2 = sSQL2 & " || TRIM(prm_first_name)  "
-    sSQL2 = sSQL2 & " FROM pr_master WHERE  TRIM(prm_middle_name) = '' OR prm_middle_name IS NULL"
-    'sSQL2 = sSQL2 & " AND prm_security_code <= " & tfnSQLString(Security_Code)
-    t_dbMainDatabase.ExecuteSQL sSQL2
+    On Error GoTo EXITHERE
+    strSQL = " CREATE TEMP  TABLE sTmpCustTable " & " ( " & szNumber & " INTEGER," & szName & " CHAR(60)) "
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    strSQL = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
+    strSQL = strSQL & " || TRIM(prm_first_name) || ' '  || TRIM(prm_middle_name) "
+    strSQL = strSQL & " FROM pr_master WHERE  TRIM(prm_middle_name)<> ''"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    strSQL = " INSERT INTO  sTmpCustTable " & " SELECT prm_empno, TRIM(prm_last_name) || ', '"
+    strSQL = strSQL & " || TRIM(prm_first_name)  "
+    strSQL = strSQL & " FROM pr_master WHERE  TRIM(prm_middle_name) = '' OR prm_middle_name IS NULL"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
     fnCreateSearchTable = True
     Exit Function
-ErrorDropTable:
-    Resume Next
-errCreateTable:
-  '  MsgBox "Cannot create temporary table for searching.", vbOKOnly + vbCritical, App.Title
-    tfnErrHandler "fnCreateSearchTable", sSql
+    
+EXITHERE:
+    tfnErrHandler "fnCreateSearchTable", strSQL
     Err.Clear
-    fnCreateSearchTable = False
-    Exit Function
-errInsertRecords:
-  '  MsgBox "Cannot insert records into temmporary table.", vbOKOnly + vbCritical, App.Title
-  tfnErrHandler "fnCreateSearchTable", sSQL1 & "or " & sSQL2
-    Err.Clear
-    On Error Resume Next
     fnCreateSearchTable = False
 End Function
 
@@ -2025,11 +2001,6 @@ Private Function fnValidPrftCtr(szText As String, lRow As Long, nCol As Integer)
         Exit Function
     Else
         tgmSlip.CellValue(colPrftDesc, lRow) = Trim(rsTemp!prft_name & "")
-'        If Not ActiveControl Is cmdSearch Then
-'            tgmSlip.CellValue(colPrftDesc, lRow) = Trim(rsTemp!prft_name & "")
-'            tblSlip.col = colPrftDesc
-'        End If
-        
     End If
     
     fnValidPrftCtr = True
@@ -2053,7 +2024,6 @@ Private Function fnValidEntireRowValue(szText As String, lCurRow As Long, nCurCo
     Dim i As Long
     
     If tgmSlip.ValidCell(ColPrftCtr, lCurRow) And tgmSlip.ValidCell(ColSlipDate, lCurRow) Then
-        
         strSQL = "SELECT * FROM bonus_day_off_slip WHERE "
         strSQL = strSQL & " bd_empno = " & tfnRound(txtEmployee)
         strSQL = strSQL & " AND bd_prft_ctr = " & tgmSlip.CellValue(ColPrftCtr, lCurRow)
@@ -2105,12 +2075,12 @@ Private Sub subSetupDropDown()
         .DefaultCursorControl = True
     
         .AddDropDown 1
-        .AddColumn 0, "prft_ctr"
-        .ColumnCaption(0) = "Profit Center"
-        .ColumnType(0) = .COLUMN_TYPE_INTEGER
-        .AddColumn 1, "prft_name"
-        .ColumnCaption(1) = "Profit Center description"
-        .ColumnType(1) = .COLUMN_TYPE_STRING
+        .AddColumn ColPrftCtr, "prft_ctr"
+        .ColumnCaption(ColPrftCtr) = "Profit Center"
+        .ColumnType(ColPrftCtr) = .COLUMN_TYPE_INTEGER
+        .AddColumn colPrftDesc, "prft_name"
+        .ColumnCaption(colPrftDesc) = "Profit Center description"
+        .ColumnType(colPrftDesc) = .COLUMN_TYPE_STRING
         .DropDownSQL(1) = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
     End With
     
@@ -2137,10 +2107,10 @@ Public Function fnValidCellValue(tgTable As TDBGrid, _
         Case ColSlipDate
             bValid = fnValidSlipDate(szText, lCurrRow, nCurrCol)
                 
-                If bValid Then
-                    tgmSlip.Revalidate colShiftNum, lCurrRow
-                End If
-                
+            If bValid Then
+                tgmSlip.Revalidate colShiftNum, lCurrRow
+            End If
+            
         Case colShiftNum
             bValid = fnValidShiftNum(szText, lCurrRow, nCurrCol)
     End Select
@@ -2214,6 +2184,7 @@ Private Function fnInsertData() As Boolean
     Dim nCount As Integer
     
     If t_nFormMode = ADD_MODE Then
+        
         For i = 0 To tgmSlip.RowCount - 1
             tgmSlip.GetRow vData, nCount, i
             
@@ -2257,4 +2228,5 @@ Private Sub subSetupSlipGrid()
         End If
         
     End With
+    
 End Sub
