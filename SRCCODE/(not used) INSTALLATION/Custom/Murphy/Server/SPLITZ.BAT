@@ -16,7 +16,7 @@ call copysetf.bat %1
 echo .
 echo ******2 split client.z
 call fsplit ..\disk\%1client.z ..\disk %2
-if not exist ..\disk\%1client.1 goto copyfile
+if not exist ..\disk\%1client.1 goto splitdone
 move ..\disk\%1client.1 ..\disk\disk1
 if not exist ..\disk\%1client.2 goto splitdone
 move ..\disk\%1client.2 ..\disk\disk2
