@@ -126,6 +126,7 @@ Private m_bDefaultCursorControl As Boolean
 Private m_bLocked As Boolean
 
 Private m_bCaseSensitive As Boolean
+Private m_bSortOnColumnClick As Boolean
 
 'david 03/05/2001
 Private m_nColWhenSearchBtnClick As Integer
@@ -2005,29 +2006,66 @@ Public Sub TableClick(tgTable As Object)
         Exit Sub
     End If
     If tgTable.TabIndex = tgDropDown.TabIndex Then
+'david 01/30/2002
+'        Dim nRowTop As Integer
+'        Dim nRowBtm As Integer
+'        bShowList = False
+'        If tgDropDown.Row >= 0 Then
+'            nRowTop = tgDropDown.RowTop(tgDropDown.Row)
+'            nRowBtm = nRowTop + tgDropDown.RowHeight
+'            If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
+'                fnGetText tgMain.col
+'                On Error Resume Next
+'                tgMain.SetFocus
+'                subInputSelected
+'            Else
+'                bTableClicked = True
+'            End If
+'        Else
+'            bTableClicked = True
+'        End If
         Dim nRowTop As Integer
         Dim nRowBtm As Integer
-        bShowList = False
+
         If tgDropDown.Row >= 0 Then
-            nRowTop = tgDropDown.RowTop(tgDropDown.Row)
-            nRowBtm = nRowTop + tgDropDown.RowHeight
-            If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
-                fnGetText tgMain.col
-                On Error Resume Next
-                tgMain.SetFocus
-                subInputSelected
+            nRowTop = tgDropDown.RowTop(0)
+
+            If nClickPointY < nRowTop Then
+                If m_bSortOnColumnClick Then
+                    bTableClicked = True
+                Else
+                    bTableClicked = False
+                End If
             Else
-                bTableClicked = True
+                bShowList = False
+                
+                If tgDropDown.Row >= 0 Then
+                    nRowTop = tgDropDown.RowTop(tgDropDown.Row)
+                    nRowBtm = nRowTop + tgDropDown.RowHeight
+                    If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
+                        fnGetText tgMain.col
+                        On Error Resume Next
+                        tgMain.SetFocus
+                        subInputSelected
+                    Else
+                        bTableClicked = True
+                    End If
+                Else
+                    bTableClicked = True
+                End If
             End If
-        Else
-            bTableClicked = True
         End If
+''''''''''''''''''
     ElseIf tgTable.TabIndex = tgMain.TabIndex Then
         fnMoveButton
     End If
 End Sub
 
 Public Sub HeadClick(ByVal ColIndex As Integer)
+    If Not m_bSortOnColumnClick Then
+        Exit Sub
+    End If
+    
     fnLoadTable tgMain.col, True, ColIndex
 End Sub
 
@@ -2035,6 +2073,7 @@ Property Get ValidSelection() As Boolean
     ValidSelection = bValidSelection
     bValidSelection = False
 End Property
+
 Property Let ValidSelection(bStatus As Boolean)
     bValidSelection = bStatus
 End Property
@@ -2052,6 +2091,7 @@ Property Let Visible(nIndex As Integer, bStatus As Boolean)
     End If
 
 End Property
+
 Public Sub SetVisible(nCol As Integer, bStatus As Boolean)
     Dim lIndex As Long
     Dim lColIndex As Long
@@ -2283,6 +2323,14 @@ End Property
 
 Property Get CaseSensitive() As Boolean
      CaseSensitive = m_bCaseSensitive
+End Property
+
+Property Let SortOnColumnClick(bStatus As Boolean)
+    m_bSortOnColumnClick = bStatus
+End Property
+
+Property Get SortOnColumnClick() As Boolean
+     SortOnColumnClick = m_bSortOnColumnClick
 End Property
 
 'david 01/30/2002
