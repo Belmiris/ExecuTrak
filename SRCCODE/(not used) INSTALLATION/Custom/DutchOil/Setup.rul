@@ -1,10 +1,8 @@
 //***************************************************************************
 //
-// Installation script for the mm fowler customer release
+// Installation script for the Dutch Oil Electronic Data Transmission release
 //
-// 2.00 - March 11, 1999 Irving
-//
-//Setup log "MMFSETUP.TXT"
+//Setup log "DUTSETUP.TXT"
 //
 //***************************************************************************
 
@@ -26,7 +24,7 @@
 #define PRODUCT_NAME            "Dutch Oil Electronic Data Transmission"
 #define MODULE_NAME             "Dutch Oil Electronic Data Transmission"
 #define PRODUCT_KEY             "zzemmasu.exe"
-#define PRODUCT_SUBDIR		"DutchOil"
+#define PRODUCT_SUBDIR		"ExecTrak"
 #define CUSTOMER_DIR            "DutchOil"
 
 #define KEY_DEFAULT             ""
@@ -54,20 +52,19 @@ declare
         NUMBER nTemp, i;
         STRING szBaseDirectory;
         STRING szDestMsg, svUninstLogFile;
-        STRING szMsg, szNumber, szTemp, szFolder;
+        STRING szMsg, szNumber, szTemp, szFolder, szDisk;
         STRING szSCIcon, szSCExe, szSCWork, szAppDir;
         STRING szOldRunValue, szNewRunValue;
         STRING szDBFrom, szDBTo, szForceInstall;
 
-        BOOL bZFailure, bExist16BitCstormnt;
+        BOOL bZFailure;
 	BOOL bTemp, bTemp1, bTemp2;
 
         LIST    listInfo;
 
         // function prototypes
         prototype CheckDiskSpace(NUMBER);
-        prototype UnInstallCstormnt16();
-
+  
 
 // the script starts here
 program
@@ -93,10 +90,10 @@ StartHere:
                 szForceInstall = "0 ";
 	endif;
 
-        if( CreateFile( nvFileOut, WINSYSDIR, "MMFSETUP.TXT" ) < 0 ) then
+        if( CreateFile( nvFileOut, WINSYSDIR, "DUTSETUP.TXT" ) < 0 ) then
 
     		MessageBeep( 0 );
-                MessageBox( "MMFSETUP.TXT could not be opened", SEVERE );
+                MessageBox( "DUTSETUP.TXT could not be opened", SEVERE );
             abort;
 	else
                 LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
@@ -165,30 +162,23 @@ GetTargetPath:
         szTemp = szBaseDirectory ^ "";
         StrToLower(szTemp, szTemp);
 
-        ParsePath(szFolder, szBaseDirectory, DISK);
-        StrToLower(szFolder, szFolder);
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        StrToLower(szDisk, szDisk);
 
-        nTemp = StrFind(szTemp, szFolder ^ "factor");
+        nTemp = StrFind(szTemp, szDisk ^ "factor");
 
-        StrToUpper(szFolder, szFolder);
+        StrToUpper(szDisk, szDisk);
 
         if (nTemp < 0) then   //incorrect directory
                 szMsg = PRODUCT_NAME + " Program Directory '" +
                     szBaseDirectory + "\\' is not valid.\n\n";
                 szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
-                    szFolder ^ APP_BASE_PATH + "' directory.";
+                    szDisk ^ APP_BASE_PATH + "' directory.";
 
                 MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
         endif;
 
-        szBaseDirectory = szFolder ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
-
-        //check 16-bit cstormnt directory
-        if (ExistsDir(szBaseDirectory ^ CUSTOMER_DIR) = EXISTS) then
-                bExist16BitCstormnt = TRUE;
-        else
-                bExist16BitCstormnt = FALSE;
-        endif;
+        szBaseDirectory = szDisk ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
 
 
 Check_Disk_Space:
@@ -212,11 +202,6 @@ ConfirmCopy:
                 ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
         endif;
         ListAddString(listInfo, "", AFTER);
-        if (bExist16BitCstormnt) then
-                ListAddString(listInfo, "Uninstall C-Store Auditing 16-bit Program:", AFTER);
-                ListAddString(listInfo, "        YES", AFTER);
-                ListAddString(listInfo, "", AFTER);
-        endif;
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
         ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
@@ -241,20 +226,21 @@ SetupRegAndUninstall:
 		
 
 StartCopy:
-        UnInstallCstormnt16();
 
-        TARGETDIR = szBaseDirectory;
+       
+	TARGETDIR = szBaseDirectory;
 
 	LOGMSG="INSTALLING IN : " + szBaseDirectory;
 	LOGWRITE(LOGMSG);
 
-        Disable(HOURGLASS);
-        SdShowMsg("", FALSE);
+	Disable(HOURGLASS);
+	SdShowMsg("", FALSE);
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
 	Enable(STATUS);
-        StatusUpdate(ON, 90);
+        	StatusUpdate(ON, 90);
 
+	Enable(SELFREGISTERBATCH);
 	FileSetBeginDefine("All Files");
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
@@ -280,7 +266,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factole.z", "*.*", COMP_NORMAL) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -293,7 +279,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("custctl.z", "*.*", COMP_NORMAL | SHAREDFILE) < 0) then
+                if (CompressGet("custctl.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -318,7 +304,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF shared.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("shared.z", "*.*", COMP_NORMAL | SHAREDFILE) < 0) then
+                if (CompressGet("shared.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("SHARED.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -332,7 +318,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("rtm.z", "*.*", COMP_NORMAL | SHAREDFILE) < 0) then
+                if (CompressGet("rtm.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("RTM.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -351,7 +337,8 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 
                 // These go into the FACTOR\EXECTRAK directory
-                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
+                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
                         MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -364,7 +351,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -377,7 +365,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE) < 0) then
+                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -388,7 +377,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE) < 0) then
+                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -402,7 +392,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE) < 0) then
+                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("SHARED.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -415,7 +406,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE) < 0) then
+                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("RTM.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -475,28 +467,13 @@ StartCopy:
                         goto ZFAILURE;
         endswitch;
 
-        //registering MSRD2X32.DLL
-        LOGMSG="START REGISTERING FILE: MSRD2X32.DLL IN " + WINSYSDIR;
-        LOGWRITE(LOGMSG);
+	SetStatusWindow(91, "Registering DLLs and OCXs...");
 
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "MSRD2X32.DLL", WAIT);
-
-        LOGMSG="END REGISTERING FILE: MSRD2X32.DLL IN " + WINSYSDIR;
-        LOGWRITE(LOGMSG);
-
-        //registering DAO3032.DLL
-        LOGMSG="START REGISTERING FILE: DAO3032.DLL IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
-
-        szAppDir = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
-        LongPathToShortPath(szAppDir);
-        szAppDir = szAppDir ^ "dao3032.dll";
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szAppDir, WAIT);
-
-        LOGMSG="END REGISTERING FILE: DAO3032.DLL IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
-
-        SetStatusWindow(91, "Registering Database Engine DLLs...");
+	Do(SELFREGISTRATIONPROCESS);
+	
+	SetStatusWindow(95, "Registering DLLs and OCXs...");
+        
+        SetStatusWindow(96, "Registering Database Engine DLLs...");
 
         TARGETDIR = WINDIR ^ "TEMP";
         SRCDIR = TARGETDIR;
@@ -514,7 +491,7 @@ StartCopy:
         LaunchAppAndWait(szBaseDirectory ^ "Bin" ^ "cpylocal.exe", szForceInstall +
                 szDBFrom + " " + szDBTo, WAIT);
 
-        SetStatusWindow(92, "Copying Local Database...");
+        SetStatusWindow(97, "Copying Local Database...");
 
         // delete the local database from WINDOWS\TEMP directory
         TARGETDIR = SRCDIR;
@@ -526,46 +503,6 @@ StartCopy:
         LOGWRITE(LOGMSG);
 
         StatusUpdate(OFF, 0);
-
-        LOGMSG="START REGISTER OF OLE SERVER";
-        LOGWRITE(LOGMSG);
-
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szBaseDirectory ^ "OLE" ^ "OLECOMBO.DLL", WAIT);
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szBaseDirectory ^ "OLE" ^ "TBKIT.DLL", WAIT);
- 
-        LaunchAppAndWait(szFolder ^ APP_BASE_PATH ^ "OLE" ^ "rsstore.exe", "", WAIT);
-        LaunchAppAndWait(szFolder ^ APP_BASE_PATH ^ "OLE" ^ "pipeline.exe", "", WAIT);
-
-        LOGMSG="END REGISTER OF OLE SERVER";
-        LOGWRITE(LOGMSG);
-
-        SetStatusWindow(93, "Registering OLE Server...");
-
-        // register OCXs
-        LOGMSG="START OF REREGISTER OCXs IN " + WINSYSDIR;
-        LOGWRITE(LOGMSG);
-
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "COMCTL32.OCX", WAIT);
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "COMDLG32.OCX", WAIT);
-
-        SetStatusWindow(94, "Registering OLE Server...");
-
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "SQAOTE32.OCX", WAIT);
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "TG32OV.OCX", WAIT);
-
-        SetStatusWindow(95, "Registering OLE Server...");
-
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "THREED32.OCX", WAIT);
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "VSOCX32.OCX", WAIT);
-
-        SetStatusWindow(96, "Registering OLE Server...");
-
-        LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + WINSYSDIR ^ "VSVIEW32.OCX", WAIT);
-
-        LOGMSG="END OF REREGISTER OCXs IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
-
-        SetStatusWindow(97, "Registering OLE Server...");
 
 	szFolder = COMPANY_NAME ^ PRODUCT_NAME;
 
@@ -587,18 +524,6 @@ StartCopy:
         LongPathToQuote(szSCExe, TRUE);
         AddFolderIcon(szFolder, "Setup Cross Ref 2",
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-
-        SetStatusWindow(95, "Finishing " + PRODUCT_NAME + " intallation...");
-
-        //szSCExe = szAppDir ^ "zzemmbop.exe";
-	//LongPathToQuote(szSCExe, TRUE);
-        //AddFolderIcon(szFolder, "Payment Processing",
-	//			  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-
-        //szSCExe = szAppDir ^ "zzemmfmp.exe";
-	//LongPathToQuote(szSCExe, TRUE);
-        //AddFolderIcon(szFolder, "Bill of Lading Processing",
-	//			  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
         SetStatusWindow(96, "Finishing " + PRODUCT_NAME + " intallation...");
 
@@ -739,76 +664,6 @@ begin
     
     return bSpaceOK;
 
-end;
-
-
-function UnInstallCstormnt16()
-
-        STRING szFolder, szTemp, szResult;
-
-        STRING szFolderName, szItemName, svCmdLine, svWrkDir, svIconPath;
-        STRING svShortCutKey, svGroupPath, szTitle, szMsg, szInfo, svMinFlag;
-        STRING svMinimizeFlag;
-        NUMBER nvIconIndex, nvMinimizeFlag, nResult, nvMinFlag, nTemp;
-
-begin
-        szMsg = "Setup is uninstalling " + PRODUCT_NAME + " 16-bit programs. Please wait...";
-        Enable(HOURGLASS);
-        SdShowMsg (szMsg, TRUE);
-
-        VarSave(SRCTARGETDIR);
-
-        //get the uninstall shortcut property
-        szFolderName = WINDIR ^ "START MENU\\PROGRAMS" ^ COMPANY_NAME ^ PRODUCT_NAME;
-        szItemName = "Uninstall " + PRODUCT_NAME;
-
-        nResult = QueryProgItem (szFolderName, szItemName, svCmdLine, svWrkDir,
-                 svIconPath, nvIconIndex, svShortCutKey, nvMinimizeFlag);
-
-        if (nResult >= 0) then
-                if (nResult = IS_ITEM) then
-                        // svCmdLine will have the value
-                        // C:\\WINDOWS\\uninst.exe -f"C:\\Factor\\Cstormnt\\DeIsL1.isu"
-
-                        StrToLower(svCmdLine, svCmdLine);
-
-                        nTemp = StrFind(svCmdLine, " ");
-
-                        if (nTemp >= 0) then
-                                StrSub(szTemp,svCmdLine,0,nTemp);
-                                szResult = szTemp + "Factor16";
-                                StrSub(szResult,svCmdLine,nTemp + 1,StrLength(svCmdLine) - nTemp + 1);
-
-                                LaunchAppAndWait(szTemp, szResult, WAIT);
-                        endif;
-                endif;
-        endif;
-
-        //delete 16-bit Factor\CUSTOMER directory
-        GetDisk(szBaseDirectory, szFolder);
-
-        SRCDIR = szFolder;
-
-        szTemp = szFolder ^ "Factor" ^ CUSTOMER_DIR ^ "*.*";
-        SetFileInfo (szTemp, FILE_ATTRIBUTE, FILE_ATTR_NORMAL, szMsg);
-
-        szTemp = szFolder ^ "Factor" ^ CUSTOMER_DIR;
-
-        LOGMSG="START DELETING " + CUSTOMER_DIR + " PROGRAM DIRECTORY IN " + szTemp;
-        LOGWRITE(LOGMSG);
-
-        DeleteDir(szTemp, ALLCONTENTS);
-
-        LOGMSG="END DELETING " + CUSTOMER_DIR + " PROGRAM DIRECTORY IN " + szTemp;
-        LOGWRITE(LOGMSG);
-
-        //delete 16-bit C-Store Auditing programs shortcuts Folder
-        DeleteProgramFolder("Factor" ^ PRODUCT_NAME);
-
-        SdShowMsg(szMsg, FALSE);
-        Disable(HOURGLASS);
-
-        VarRestore(SRCTARGETDIR);
 end;
 
 
