@@ -538,17 +538,17 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.x = myRect.Left
-    myPoint.y = myRect.Top
+    myPoint.X = myRect.Left
+    myPoint.Y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -1653,23 +1653,27 @@ Private Sub fnGetText(nCol As Integer)
         End If
         For i = 1 To colColumn.Count
             With colColumn.Item(i)
-                If .ColumnIndex < EXTRACOLUMNOFFSET Then
-                    If Not m_clsEdit Is Nothing Then
-                        'david 01/24/2001
-                        'm_clsEdit.BeforeColEdit .ColumnIndex, 0, False
-                        m_clsEdit.BeforeColEdit .ColumnIndex, -1, False
-                    End If
-                    If IsNull(datLink.Recordset(.DataField)) Then
-                        tgMain.Columns(.ColumnIndex).Text = ""
-                    Else
-                        On Error GoTo errGetText
-                        tgMain.Columns(.ColumnIndex).Text = Trim$(datLink.Recordset(.DataField))
-                        On Error GoTo 0
-                    End If
-                    If Not m_clsEdit Is Nothing Then
-                        m_clsEdit.AfterColEdit .ColumnIndex
+                
+                If fnDataFieldInRecordSet(.DataField, datLink.Recordset) Then
+                    If .ColumnIndex < EXTRACOLUMNOFFSET Then
+                        If Not m_clsEdit Is Nothing Then
+                            'david 01/24/2001
+                            'm_clsEdit.BeforeColEdit .ColumnIndex, 0, False
+                            m_clsEdit.BeforeColEdit .ColumnIndex, -1, False
+                        End If
+                        If IsNull(datLink.Recordset(.DataField)) Then
+                            tgMain.Columns(.ColumnIndex).Text = ""
+                        Else
+                            On Error GoTo errGetText
+                            tgMain.Columns(.ColumnIndex).Text = Trim$(datLink.Recordset(.DataField))
+                            On Error GoTo 0
+                        End If
+                        If Not m_clsEdit Is Nothing Then
+                            m_clsEdit.AfterColEdit .ColumnIndex
+                        End If
                     End If
                 End If
+                
             End With
         Next i
         If Not m_clsEdit Is Nothing Then
@@ -1867,11 +1871,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(y As Single)
+Public Sub MouseUp(Y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = y
+    nClickPointY = Y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
@@ -2288,7 +2292,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.title
     End If
     Err.Clear
 
@@ -2709,3 +2713,31 @@ errTrap:
     fnCnvtOrderByFieldsToColIndex = ""
 End Function
 
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Junsong 05/05/2004
+'When you use the field name to retrieve the data in the recordset, this field must have been
+'set in the SQL to load recordset, otherwise it will launched runtime error
+'The problem occured when the column header is shown on the drop down list, and
+'the user click column header a few times, then select one row on the drop down list
+'and the next column in the main grid is aslo including drop down, for example in the Inventory part
+' of SMEWKORD(the first column and second column are drop down) or FMFFGRT.
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Private Function fnDataFieldInRecordSet(ByVal sField As String, ByVal rsDat As Recordset) As Boolean
+    Dim i As Long
+    
+    If rsDat Is Nothing Then
+        fnDataFieldInRecordSet = False
+    Else
+        
+        For i = 0 To rsDat.Fields.Count - 1
+            
+            If UCase(rsDat.Fields(i).Name) = UCase(sField) Then
+                fnDataFieldInRecordSet = True
+                Exit For
+            End If
+            
+        Next
+        
+    End If
+    
+End Function
