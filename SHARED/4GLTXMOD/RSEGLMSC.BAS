@@ -71,7 +71,7 @@ Public Sub fuel_gl()
     
     For j = 0 To UBound(aryComp)
         If Not (tfnRound(aryComp(j).dfCompDollars, 2) = 0 And aryComp(j).dfCompUnits = 0) Then
-Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: "; aryComp(j).sProduct
+Debug.Print "PumpNo:"; aryComp(j).sPump; ", Seq:"; aryComp(j).sSeq; ", Product:"; aryComp(j).sProduct; ", Tax Use Group:" & aryComp(j).sUseGroup & ", Tax Class:" & aryComp(j).sTaxClass; " "; aryComp(j).dfPrice; " "; aryComp(j).dfCompUnits; " "; aryComp(j).dfCompDollars
             ivh_product = aryComp(j).sProduct
             ivh_product = Left$(ivh_product, InStr(ivh_product, ",") - 1)
             meter_total = meter_total + aryComp(j).dfCompDollars

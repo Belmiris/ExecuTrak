@@ -1067,27 +1067,32 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
                     nParam2 = 3
                     Exit Sub
                 End If
-                If tt_cnt < tt_max Then
-                    tt_cnt = tt_cnt + 1
+                'david 02/20/2003  #391336
+                'the basis 'A' tax should be excluded!!!
+                If fnCStr(pr_table!tt_basis) <> "A" Then
+                    If tt_cnt < tt_max Then
+                        tt_cnt = tt_cnt + 1
+                    End If
+                    For k = tt_cnt To 2 Step -1
+                        j = k - 1
+                        pa_table(k) = pa_table(j)
+                    Next
+                    With pa_table(1)
+                        .tt_code = pr_table!tt_code
+                        .tt_level = pr_table!tt_level
+                        .tt_where = pr_table!tt_where
+                        .tt_order = pr_table!tt_order
+                        .tt_gl_acct = pr_table!tt_gl_acct
+                        .tt_rate = pr_table!tt_rate
+                        .tt_charge = pr_table!tt_charge
+                        .tt_basis = pr_table!tt_basis
+                        .tt_limit = pr_table!tt_limit
+                        .tt_date = pr_table!tt_date
+                        .tt_trn = pr_table!tt_trn
+                        .tt_descr = pr_table!tt_descr
+                    End With
                 End If
-                For k = tt_cnt To 2 Step -1
-                    j = k - 1
-                    pa_table(k) = pa_table(j)
-                Next
-                With pa_table(1)
-                    .tt_code = pr_table!tt_code
-                    .tt_level = pr_table!tt_level
-                    .tt_where = pr_table!tt_where
-                    .tt_order = pr_table!tt_order
-                    .tt_gl_acct = pr_table!tt_gl_acct
-                    .tt_rate = pr_table!tt_rate
-                    .tt_charge = pr_table!tt_charge
-                    .tt_basis = pr_table!tt_basis
-                    .tt_limit = pr_table!tt_limit
-                    .tt_date = pr_table!tt_date
-                    .tt_trn = pr_table!tt_trn
-                    .tt_descr = pr_table!tt_descr
-                End With
+                ''''''''''''''''''''''''''
             End If
             If trn_arry(i).trn = pa_table(j).tt_trn Then
                 trn_arry(i).ttype = pa_table(j).tt_basis

@@ -144,6 +144,8 @@ Public Sub post_debit(gl_acct As Long, gl_amount As Double)
         Exit Sub
     End If
 
+Debug.Print "post_debit-" & gl_acct & ", " & gl_amount
+
     this_pc = gthis_pc(-1)
     Set pr_tmp_master = fgl_master(sSeries, gl_acct, this_pc, t_dbMainDatabase)
     If pr_tmp_master Is Nothing Then
@@ -196,6 +198,8 @@ Public Sub post_credit(gl_acct As Long, gl_amount As Double)
     If gl_amount = 0# Then
         Exit Sub
     End If
+
+Debug.Print "post_credit-" & gl_acct & ", " & gl_amount
 
     this_pc = gthis_pc(-1)
     Set pr_tmp_master = fgl_master(sSeries, gl_acct, this_pc, t_dbMainDatabase)
