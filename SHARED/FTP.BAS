@@ -71,6 +71,11 @@ Private Declare Function FtpPutFile Lib "wininet.dll" Alias "FtpPutFileA" _
       ByVal lpszRemoteFile As String, _
       ByVal dwFlags As Long, ByVal dwContext As Long) As Boolean
 
+
+Public Declare Function FtpRenameFile Lib "wininet.dll" Alias "FtpRenameFileA" _
+    (ByVal hFtpSession As Long, ByVal lpszOldFileName As String, ByVal lpszNewFileName As String) As Boolean
+
+
 Private Declare Function FtpSetCurrentDirectory Lib "wininet.dll" Alias "FtpSetCurrentDirectoryA" _
     (ByVal hFtpSession As Long, ByVal lpszDirectory As String) As Boolean
     
@@ -232,7 +237,6 @@ Private Const HTTP_ADDREQ_FLAG_ADD = &H20000000
 ' it is removed. If not empty, the header value is replaced
 Private Const HTTP_ADDREQ_FLAG_REPLACE = &H80000000
 '
-
 Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String, _
                                 sSourcePathAndFile As String, _
                                 Optional bFromUnixToLocal As Boolean = True, _
@@ -246,11 +250,12 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     
     Dim hOpen As Long, hConnection As Long, hFind As Long
     Dim lBinAscii As Long, lActPassive As Long
-    Dim bFlag As Boolean, i As Integer
+    Dim bFlag, bRenameFlag As Boolean, i As Integer
     Dim sSourcePath As String, sSourceFile As String, sItemName As String
     Dim pData As WIN32_FIND_DATA
     Dim lLastDLLError As Long
     Dim sArrFile() As String
+    Dim sArrOldname() As String
     
     fnTransferFile = False
     sDestPath = Trim(sDestPath)
@@ -332,6 +337,8 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             GoTo CloseHandle
         End If
         'Get the filenames, More than one file possible...
+        
+        
         sItemName = Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
         lLastDLLError = NO_ERROR
         Do
@@ -354,11 +361,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         
         IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
         sArrFile = Split(sItemName, ",")
+        sArrOldname = Split(sItemName, ",")
         
         'Transfer the file to the local path specified...
         Dim sDest As String
         Dim nNum As Integer, sNum As String
         For i = 0 To UBound(sArrFile)
+            sArrFile(i) = fnGenerateNewFile10()
+            
             If sDestFileName <> "" Then
                 nNum = InStr(1, sDestFileName, ".")
                 If i = 0 Then
@@ -374,14 +384,26 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             Else
                 sDest = sDestPath & sArrFile(i)
             End If
-            bFlag = FtpGetFile(hConnection, sArrFile(i), sDest, False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
+            
+            bFlag = FtpRenameFile(hConnection, sArrOldname(i), sArrFile(i))
             If bFlag = False Then
                 fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
                 GoTo CloseHandle
             End If
+            
+            bFlag = FtpGetFile(hConnection, sArrFile(i), sDest, False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
+            If bFlag = False Then
+                bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
+                fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
+                GoTo CloseHandle
+            End If
+            On Error Resume Next
+            Name sDestPath & sArrFile(i) As sDestPath & sArrOldname(i)
+            On Error GoTo ErrTrap
             If bDeleteSourceFile Then
                 bFlag = FtpDeleteFile(hConnection, sArrFile(i))
                 If bFlag = False Then
+                    bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
                     fnErrorOut Err.LastDllError, "FtpDeleteFile", bShowError, sRetErrMsg
                     GoTo CloseHandle
                 End If
@@ -675,4 +697,20 @@ ErrorOutofRange:
     tfnErrHandler "subSortFileDate", False
     On Error GoTo 0
 End Sub
+
+Private Function fnGenerateNewFile10() As String
+    Dim i As Integer
+    Dim sTemp As String
+    Dim sChar As String
+    
+    Randomize
+    
+    sTemp = ""
+    For i = 1 To 10
+        sChar = Chr((Int(Rnd() * 25)) + 97)
+        sTemp = sTemp + sChar
+    Next i
+    
+    fnGenerateNewFile10 = sTemp & ".eml"
+End Function
 
