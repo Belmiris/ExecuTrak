@@ -2576,7 +2576,7 @@ Property Let ValidatedFlag(ByVal nCol As Integer, ByVal lRow As Long, ByVal bSta
 End Property
 
 Property Get ValidCell(ByVal nCol As Integer, ByVal lRow As Long) As Boolean
-    If lRow < 0 Or nRowCount < 0 Then
+    If lRow < 0 Or nRowCount < 0 Or lRow >= nRowCount Then
         Exit Property
     End If
     
@@ -2604,7 +2604,7 @@ Property Get ValidCell(ByVal nCol As Integer, ByVal lRow As Long) As Boolean
 End Property
 
 Property Let ValidCell(ByVal nCol As Integer, ByVal lRow As Long, bStatus As Boolean)
-    If lRow < 0 Or nRowCount < 0 Then
+    If lRow < 0 Or nRowCount < 0 Or lRow >= nRowCount Then
         Exit Property
     End If
     Dim nFCol As Integer
@@ -2882,7 +2882,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As Database, _
+Public Function FillWithSQL(dbSource As DataBase, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
@@ -3079,11 +3079,11 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
         If (nCellChanged(nECol, lRow) And STATUS_CHANGED) = STATUS_CHANGED Then
             lblStatusbar.ForeColor = &H8000&  'Green text
             lblStatusbar.Caption = "Data is valid"
-            lblStatusbar.Font.Bold = False
+            lblStatusbar.Font.bOld = False
         Else
             lblStatusbar.Caption = sPrompt(nECol)
             lblStatusbar.ForeColor = &H80000012
-            lblStatusbar.Font.Bold = False
+            lblStatusbar.Font.bOld = False
         End If
     Else
         Dim bAddRow As Boolean
@@ -3102,11 +3102,11 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
                 End If
             End If
             lblStatusbar.ForeColor = &HFF&       'Red Text on
-            lblStatusbar.Font.Bold = True
+            lblStatusbar.Font.bOld = True
         Else
             lblStatusbar.Caption = sPrompt(nECol)
             lblStatusbar.ForeColor = &H80000012
-            lblStatusbar.Font.Bold = False
+            lblStatusbar.Font.bOld = False
         End If
     End If
     lblStatusbar.Refresh
@@ -3793,7 +3793,7 @@ errKeyDown:
     nKeyProcessing = KEY_P_FINISHED
 
 End Sub
-Public Function Keypress(KeyAscii As Integer) As Boolean
+Public Function KeyPress(KeyAscii As Integer) As Boolean
 
 '
 ' Check the key pressed against the regular expression
@@ -3805,7 +3805,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
     Dim sTemp As String
     Dim lRow As Long
     
-    Keypress = False
+    KeyPress = False
     
     If tgTable Is Nothing Then
         Exit Function
@@ -3818,7 +3818,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
 
     ' check enter, backspace, escape
     If KeyAscii = vbKeyReturn Or KeyAscii = vbKeyBack Or KeyAscii = vbKeyEscape Then
-        Keypress = True
+        KeyPress = True
         If bHighlightInvalidCell Then
             If bAllowAddNew Then
                 If GetCurrentRowNumber = RowCount - 1 Then
@@ -3838,7 +3838,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
 
     ' check for cut/copy/paste keys
     If KeyAscii = ASC_CTRL_C Or KeyAscii = ASC_CTRL_V Or KeyAscii = ASC_CTRL_X Then
-        Keypress = True
+        KeyPress = True
         Exit Function
     ElseIf KeyAscii = vbKeyCtrlY Then
         If bCtrlYClearRow Then
@@ -3855,13 +3855,13 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
             End If
             subClearRow lRow
         End If
-        Keypress = False
+        KeyPress = False
         Exit Function
     End If
         
     fnCheckForValueItem KeyAscii
     If sPatternCode(nCol) = "" Then
-        Keypress = True
+        KeyPress = True
         If bHighlightInvalidCell Then
             If lEditingRow >= 0 And lEditingRow < nMaxRow Then
                 nCellChanged(nCol, lEditingRow) = STATUS_CHANGED
@@ -3889,10 +3889,10 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
     #End If
     
     If nCode < 0 Or (nCode <> 0 And nCode <> tgTable.SelStart + 2) Then
-        Keypress = False
+        KeyPress = False
         Beep
     Else
-        Keypress = True
+        KeyPress = True
         If bForcedEditing Then
             BeforeColEdit tgTable.col, 0, False
             bForcedEditing = False
