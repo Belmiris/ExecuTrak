@@ -1525,7 +1525,7 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         End If
         'first line
         If Not IsNull(rsTemp.Fields(fieldNum)) Then
-            'david 04/29/2002
+            'david 04/30/2002
             sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
             '''''''''''''''''
         Else
@@ -1537,7 +1537,7 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         'the rest
         While Not rsTemp.EOF
             If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                'david 04/29/2002
+                'david 04/30/2002
                 sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
                 '''''''''''''''''
             Else
@@ -2640,7 +2640,7 @@ Public Function fnSetScreenResolution(nScreenWidth As Integer, nScreenHeight As 
     End Select
 End Function
 
-'david 04/29/2002
+'david 04/30/2002
 Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
