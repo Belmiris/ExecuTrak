@@ -1,7 +1,7 @@
 VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmZZSEBMFM 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Commission Master File Maintenance"
@@ -11,7 +11,7 @@ Begin VB.Form frmZZSEBMFM
    ClientWidth     =   8964
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.6
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -39,7 +39,7 @@ Begin VB.Form frmZZSEBMFM
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -53,7 +53,7 @@ Begin VB.Form frmZZSEBMFM
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -75,7 +75,7 @@ Begin VB.Form frmZZSEBMFM
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -87,7 +87,7 @@ Begin VB.Form frmZZSEBMFM
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -107,7 +107,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -122,7 +122,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -143,7 +143,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -158,7 +158,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -179,7 +179,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -194,7 +194,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -215,7 +215,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -230,7 +230,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -251,7 +251,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -266,7 +266,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -287,7 +287,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -302,7 +302,7 @@ Begin VB.Form frmZZSEBMFM
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -323,7 +323,7 @@ Begin VB.Form frmZZSEBMFM
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -334,7 +334,7 @@ Begin VB.Form frmZZSEBMFM
          FMName          =   "POFSELGP"
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -376,7 +376,7 @@ Begin VB.Form frmZZSEBMFM
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -386,7 +386,7 @@ Begin VB.Form frmZZSEBMFM
             BevelOuter      =   6
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -443,7 +443,7 @@ Begin VB.Form frmZZSEBMFM
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -456,7 +456,7 @@ Begin VB.Form frmZZSEBMFM
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -479,7 +479,7 @@ Begin VB.Form frmZZSEBMFM
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -492,7 +492,7 @@ Begin VB.Form frmZZSEBMFM
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -555,7 +555,7 @@ Begin VB.Form frmZZSEBMFM
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -568,7 +568,7 @@ Begin VB.Form frmZZSEBMFM
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1011,7 +1011,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     
     On Error Resume Next
     
@@ -1503,8 +1503,8 @@ Private Sub tblBonus_Click()
     tgsBonus.Click
 End Sub
 
-Private Sub tblBonus_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsBonus.MouseUp Button, Shift, Y
+Private Sub tblBonus_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsBonus.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
@@ -1521,17 +1521,17 @@ Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
     subSetStdBtn
 End Sub
 
-Private Sub tblBonus_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblBonus_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     If ColIndex = ColOverride Then
         If tgmBonus.CellValue(nxColCalcMethod, tgmBonus.GetCurrentRowNumber) = "H" And _
            tgmBonus.CellValue(ColOverride, tgmBonus.GetCurrentRowNumber) = "Y" Then
             tfnSetStatusBarMessage "Override will always be 'Y' when Calc Method of the pay code is 'H'"
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
     
-    tgmBonus.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmBonus.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblBonus_Change()
@@ -1619,7 +1619,7 @@ Private Sub tblBonus_LostFocus()
     tgfDropdown.LostFocus tblBonus
 End Sub
 
-Private Sub tblBonus_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblBonus_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -1674,9 +1674,9 @@ Private Sub tblBonus_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 End Sub
 
-Private Sub tblBonus_SelChange(CANCEL As Integer)
-    tgsBonus.SelChange CANCEL
-    CANCEL = True
+Private Sub tblBonus_SelChange(Cancel As Integer)
+    tgsBonus.SelChange Cancel
+    Cancel = True
 End Sub
 
 Private Sub tblBonus_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -1770,7 +1770,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1965,16 +1965,16 @@ Private Sub tblDropDown_LostFocus()
     tgfDropdown.LostFocus tblDropDown
 End Sub
 
-Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgfDropdown.MouseUp Y
+Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgfDropdown.MouseUp y
 End Sub
 
 Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDropDown_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Function fnDeleteBonusCode(Optional lEmpNo As Long = -1, _
@@ -2091,6 +2091,7 @@ Private Function fnLoadData() As String
     
     'Lock the whole table.
     strSQL = "bm_empno = " & tfnRound(txtEmployee)
+    
     If Not tfnLockRow("ZZSEBMFM", "bonus_master", strSQL, , sLockedUser) Then
         fnLoadData = "Commission record for the employee is locked by " + sLockedUser
         Exit Function
@@ -2123,6 +2124,7 @@ Private Function fnLoadData() As String
             tfnUnlockRow
             Exit Function
         End If
+        
         strSQL = "SELECT * FROM t_bonus_mstr, bonus_codes, sys_prft_ctr"
         strSQL = strSQL & " WHERE bc_bonus_code = bm_bonus_code"
         strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
@@ -2333,7 +2335,7 @@ Private Sub txtEmployee_LostFocus()
     Screen.MousePointer = vbDefault
 End Sub
 
-Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -2515,12 +2517,12 @@ Private Sub tblComboDropdown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropdown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcDropdown.TableMouseUp Y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcDropdown.TableMouseUp y
 End Sub
 
 Private Sub subSetupCombos()
@@ -2551,9 +2553,12 @@ Private Sub subEnterPhaseTwo()
         Exit Sub
     End If
     
-    If Not tfnLockRow(efraToolBar.FMName, "bm_master", txtEmployee) Then
-        Exit Sub
-    End If
+    'comment out by junsong 03/16/01, we don't need to lock row two times
+    'since it will lock low in function fnloadData.
+    
+'    If Not tfnLockRow(efraToolBar.FMName, "bm_master", txtEmployee) Then
+'        Exit Sub
+'    End If
     
     subSetFocus efraBackground
     
@@ -3144,9 +3149,13 @@ Private Function fnCreateTempBonusMaster() As Boolean
     aryEmpPrftCtr = Split(sEmpPrftCtrList, ",")
     
     For i = 0 To UBound(aryEmpPrftCtr)
-        strSQL = "SELECT bc_bonus_code, bc_code_desc, bc_override FROM bonus_codes, bonus_grades WHERE 1 = 1"
-        strSQL = strSQL & " AND bc_grade = bg_grade"
+        strSQL = "SELECT bc_bonus_code, bc_code_desc, bc_override FROM bonus_codes, bonus_grades "
+        strSQL = strSQL & " WHERE bc_grade = bg_grade"
         strSQL = strSQL & " AND bg_emp_level = " & tfnRound(txtGrade)
+        'add by junsong 03/16/01, the bonus should exists for this employee in employee pay
+        strSQL = strSQL & " AND EXISTS (SELECT prep_pay_code FROM pr_emp_pay WHERE prep_pay_code = bc_bonus_code "
+        strSQL = strSQL & " AND prep_empno = " & tfnRound(txtEmployee) & " )"
+        'end add
         strSQL = strSQL & " AND bc_bonus_code NOT IN (SELECT bm_bonus_code FROM bonus_master"
         strSQL = strSQL & " WHERE bm_empno = " & tfnRound(txtEmployee)
         strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(aryEmpPrftCtr(i))

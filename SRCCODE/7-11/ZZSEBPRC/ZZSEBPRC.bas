@@ -49,8 +49,8 @@ Public Const colPProfit As Integer = 0
 Public Const colPTotal As Integer = 1
 
 'Approve value
-Public Const colAppYes As Integer = 0
-Public Const colAppNo As Integer = 1
+Public Const sColAppYes As String = "Y"
+Public Const sColAppNo As String = "N"
 
 'Approve Grid Column Names
 Public Const colAApprove As Integer = 0
@@ -355,9 +355,11 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             ReDim sArrReport(tgmApprove.RowCount - 1)
             For i = 0 To tgmApprove.RowCount - 1
                 sApprove = "N"
-                If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
+                
+                If tgmApprove.CellValue(colAApprove, i) = sColAppYes Then
                     sApprove = "Y"
                 End If
+                
                 sArrReport(i) = fnTranc(sApprove, 5, vbCenter) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpNo, i), 9, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpName, i), 46, vbLeftJustify) & Space(1) _
@@ -638,7 +640,7 @@ Public Function fnInsertHoldBonus() As String
     strSQLinsert = strSQLinsert & " bh_hours, bh_date, bh_override, bh_chk_link) VALUES ("
     
     For lRow = 0 To tgmApprove.RowCount - 1
-        If tgmApprove.CellValue(colAApprove, lRow) = colAppYes Then
+        If tgmApprove.CellValue(colAApprove, lRow) = sColAppYes Then
             lEmpNo = tfnRound(tgmApprove.CellValue(colAEmpNo, lRow))
             nPrftCtr = tfnRound(tgmApprove.CellValue(colAPrftCtr, lRow))
             sPayCode = fnGetField(tgmApprove.CellValue(colAPayCode, lRow))
@@ -1211,8 +1213,11 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = "SELECT bs_sales_amount AS var_value "
             strSQL = strSQL & " FROM bonus_sales"
             strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
-            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+            strSQL = strSQL & " AND bs_to_date >= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
+
+'            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+'            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
             strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sOneMth)
         
         Case "inv_record_months"
@@ -2688,102 +2693,106 @@ End Function
 Public Function fnHasApprove(Optional vApproveCount) As Boolean
     Dim i As Long
     
-'    For i = 0 To tgmApprove.RowCount - 1
-'        If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
-'            fnHasApprove = True
-'            If IsMissing(vApproveCount) Then
-'                Exit Function
-'            End If
-'            vApproveCount = vApproveCount + 1
-'        End If
-'    Next i
-
-    Dim bkmk As Variant
-    Dim lTotalBmk As Long
-    Dim vKeepBookMark As Variant
-    Dim lCurRow As Long
-    
-    lCurRow = tgmApprove.GetCurrentRowNumber
-    vKeepBookMark = frmZZSEBPRC.tblApprove.Bookmark
-    
-    lTotalBmk = tgmApprove.RowCount
-    
-    If lTotalBmk > 0 Then
+    For i = 0 To tgmApprove.RowCount - 1
         
-        For i = 0 To lTotalBmk - 1
-
-            frmZZSEBPRC.tblApprove.Bookmark = tgmApprove.Bookmark(i)
+        If tgmApprove.CellValue(colAApprove, i) = sColAppYes Then
+            fnHasApprove = True
             
-            'check it's called from beforColEdit
-            If i = lCurRow Then
-            
-                If Not IsMissing(vApproveCount) Then
-                    'this one have to take care when beforecolEdit event
-                    If vApproveCount = -1 Then
-                        
-                        'this is called by beforeColEdit
-                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppNo Then
-                            fnHasApprove = True
-                            vApproveCount = 1
-                            Exit Function
-                        End If
-                        
-                    'called by insert or update
-                    Else
-                        
-                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
-                            tgmApprove.CellValue(colAApprove, i) = colAppYes
-                            fnHasApprove = True
-                        
-                            If IsMissing(vApproveCount) Then
-                                frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
-                                Exit Function
-                            End If
-                
-                            vApproveCount = vApproveCount + 1
-                        Else
-                            tgmApprove.CellValue(colAApprove, i) = colAppNo
-                        End If
-                        
-                    End If
-                    
-                Else
-                    'others need
-                    If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
-                        tgmApprove.CellValue(colAApprove, i) = colAppYes
-                        fnHasApprove = True
-                        Exit Function
-                    Else
-                        tgmApprove.CellValue(colAApprove, i) = colAppNo
-                    End If
-                    
-                End If
-                
-            Else
-                If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
-                    fnHasApprove = True
-                    tgmApprove.CellValue(colAApprove, i) = colAppYes
-                    
-                    If IsMissing(vApproveCount) Then
-                        frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
-                        Exit Function
-                    End If
-                
-                    vApproveCount = vApproveCount + 1
-                Else
-                    tgmApprove.CellValue(colAApprove, i) = colAppNo
-                End If
-                                 
+            If IsMissing(vApproveCount) Then
+                Exit Function
             End If
             
-        Next i
-    
-    Else
-        fnHasApprove = False
-        Exit Function
-    End If
-    
-    frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+            vApproveCount = vApproveCount + 1
+        End If
+        
+    Next i
+
+'    Dim bkmk As Variant
+'    Dim lTotalBmk As Long
+'    Dim vKeepBookMark As Variant
+'    Dim lCurRow As Long
+'
+'    lCurRow = tgmApprove.GetCurrentRowNumber
+'    vKeepBookMark = frmZZSEBPRC.tblApprove.Bookmark
+'
+'    lTotalBmk = tgmApprove.RowCount
+'
+'    If lTotalBmk > 0 Then
+'
+'        For i = 0 To lTotalBmk - 1
+'
+'            frmZZSEBPRC.tblApprove.Bookmark = tgmApprove.Bookmark(i)
+'
+'            check it 's called from beforColEdit
+'            If i = lCurRow Then
+'
+'                If Not IsMissing(vApproveCount) Then
+'                    this one have to take care when beforecolEdit event
+'                    If vApproveCount = -1 Then
+'
+'                        this is called by beforeColEdit
+'                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = sColAppNo Then
+'                            fnHasApprove = True
+'                            vApproveCount = 1
+'                            Exit Function
+'                        End If
+'
+'                    called by insert or update
+'                    Else
+'
+'                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = sColAppYes Then
+'                            tgmApprove.CellValue(colAApprove, i) = sColAppYes
+'                            fnHasApprove = True
+'
+'                            If IsMissing(vApproveCount) Then
+'                                frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+'                                Exit Function
+'                            End If
+'
+'                            vApproveCount = vApproveCount + 1
+'                        Else
+'                            tgmApprove.CellValue(colAApprove, i) = sColAppNo
+'                        End If
+'
+'                    End If
+'
+'                Else
+'                    others need
+'                    If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = sColAppYes Then
+'                        tgmApprove.CellValue(colAApprove, i) = sColAppYes
+'                        fnHasApprove = True
+'                        Exit Function
+'                    Else
+'                        tgmApprove.CellValue(colAApprove, i) = sColAppNo
+'                    End If
+'
+'                End If
+'
+'            Else
+'                If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = sColAppYes Then
+'                    fnHasApprove = True
+'                    tgmApprove.CellValue(colAApprove, i) = sColAppYes
+'
+'                    If IsMissing(vApproveCount) Then
+'                        frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+'                        Exit Function
+'                    End If
+'
+'                    vApproveCount = vApproveCount + 1
+'                Else
+'                    tgmApprove.CellValue(colAApprove, i) = sColAppNo
+'                End If
+'
+'            End If
+'
+'        Next i
+'
+'    Else
+'        fnHasApprove = False
+'        Exit Function
+'    End If
+'
+'    frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
     
 End Function
 

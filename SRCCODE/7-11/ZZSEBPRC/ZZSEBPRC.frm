@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1875,7 +1875,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1912,7 +1912,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1949,7 +1949,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1986,7 +1986,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2023,7 +2023,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2060,7 +2060,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75  
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2430,7 +2430,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2443,7 +2443,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2639,7 +2639,7 @@ Private Sub cmdApprove_Click()
     lRow = tgmApprove.GetCurrentRowNumber
     
     If tgsApprove.Count = 0 Then
-        tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppYes
+        tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = sColAppYes
         tblApprove.col = 1
         tblApprove.col = 0
     Else
@@ -2648,7 +2648,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOk.Enabled = True
+    cmdOK.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -2688,7 +2688,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2697,8 +2697,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2798,10 +2798,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOk.Enabled = True
+                cmdOK.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOk.Enabled = False
+                cmdOK.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -2825,12 +2825,12 @@ Private Sub eTabMain_Click()
 
 End Sub
 
-Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     If Not eTabMain.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
-    If Not CANCEL Then t_bTabSwitch = True
+    If Not Cancel Then t_bTabSwitch = True
 End Sub
 
 Private Sub eTabSub_Click()
@@ -2842,13 +2842,13 @@ Private Sub eTabSub_Click()
     End Select
 End Sub
 
-Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     If Not eTabSub.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
 
-    If Not CANCEL Then
+    If Not Cancel Then
         t_bTabSwitch = True
     End If
 End Sub
@@ -2870,7 +2870,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -3330,10 +3330,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOk.Enabled = True
+                            cmdOK.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOk.Enabled = False
+                            cmdOK.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -3384,16 +3384,16 @@ Private Sub tblApprove_AfterColEdit(ByVal ColIndex As Integer)
     tgmApprove.AfterColEdit ColIndex
 End Sub
 
-Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgmApprove.BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    tgmApprove.BeforeColEdit ColIndex, KeyAscii, Cancel
     
     If ColIndex = colAApprove Then
         
-        If fnHasApprove(-1) Then
-            cmdOk.Enabled = True
+        If fnHasApprove() Then
+            cmdOK.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOk.Enabled = False
+            cmdOK.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -3469,9 +3469,9 @@ Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     tgsApprove.RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblApprove_SelChange(CANCEL As Integer)
-    tgsApprove.SelChange CANCEL
-    CANCEL = True
+Private Sub tblApprove_SelChange(Cancel As Integer)
+    tgsApprove.SelChange Cancel
+    Cancel = True
 End Sub
 
 Private Sub tblApprove_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3492,8 +3492,8 @@ Private Sub tblDetails_KeyPress(KeyAscii As Integer)
     End If
 End Sub
 
-Private Sub tblDetails_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDetails_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3768,18 +3768,23 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
+    
     If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(txtPrftCtr)
     End If
+    
     If cValidate.ValidInput(txtEmpProcess) And txtEmpProcess <> "" Then
         strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmpProcess)
     End If
+    
     If cValidate.ValidInput(txtFrequency) And txtFrequency <> "" Then
         strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(Trim(txtFrequency))
     End If
-    strSQL = strSQL & " AND " & tfnDateString(txtEndDate, True)
+    
+    strSQL = strSQL & " AND " & tfnDateString(txtStartDate, True)
     strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
-'    strSQL = strSQL & " AND " & tfnDateString(Date, True)
+
+'    strSQL = strSQL & " AND " & tfnDateString(txtEndDate, True)
 '    strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
     strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bc_bonus_code, bf_level"
     
@@ -3794,7 +3799,7 @@ Private Sub cmdProcess_Click()
     
     If nCount = 0 Then
         subLogErrMsg "No record found to process."
-        bNoRecordFound = True
+        'bNoRecordFound = True
         bError = True
         GoTo TERMINATE_PROCESS
     End If
@@ -3835,7 +3840,7 @@ Private Sub cmdProcess_Click()
             
             nSize = nSize + 1
             ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
-            vArrBonus(colAApprove, nSize) = colAppNo
+            vArrBonus(colAApprove, nSize) = sColAppNo
             vArrBonus(colAEmpNo, nSize) = fnGetField(rsTemp!bm_empno)
             vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(fnGetField(rsTemp!bm_empno))
             vArrBonus(colADate, nSize) = txtEndDate
@@ -3993,12 +3998,12 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
         Case "tblApprove"
             tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
-            VItem.Value = colAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
-            VItem.Value = colAppNo: VItem.DisplayValue = "N": vitems.Add VItem
+            VItem.Value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
+            VItem.Value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
             vitems.Presentation = 1
             vitems.CycleOnClick = True
             vitems.Translate = True
-            vitems.DefaultItem = colAppNo
+            'vitems.DefaultItem = sColAppNo
             tbl.Caption = "Commission Approval"
             tbl.HeadLines = 2
             tbl.Columns(colAApprove).Caption = "Approve"
@@ -4125,6 +4130,9 @@ Private Sub subInitSpreadsheets()
 
 errTrap:
     tfnErrHandler "subInitSpreadsheets"
+    'add by junsong 03/16/01
+    Unload Me
+    
 End Sub
 
 Private Sub subSetupExetension()
@@ -4535,8 +4543,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropDown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
 Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -5228,7 +5236,7 @@ Private Sub subSetApproveAll()
     
     For i = 0 To lCount - 1
         Screen.MousePointer = vbHourglass
-        tgmApprove.CellValue(colAApprove, lTemp(i)) = colAppYes
+        tgmApprove.CellValue(colAApprove, lTemp(i)) = sColAppYes
     Next i
     
     Screen.MousePointer = vbDefault
@@ -6150,11 +6158,11 @@ Private Sub tblSales_AfterColEdit(ByVal ColIndex As Integer)
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     If ColIndex = colSPrftCtr Then
         tgmSales.CellValue(colSPrftName, tgmSales.GetCurrentRowNumber) = ""
     End If
-    tgmSales.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmSales.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblSales_Change()
@@ -6262,9 +6270,9 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 End Sub
 
-Private Sub tblSales_SelChange(CANCEL As Integer)
-    tgsSales.SelChange CANCEL
-    CANCEL = True
+Private Sub tblSales_SelChange(Cancel As Integer)
+    tgsSales.SelChange Cancel
+    Cancel = True
 End Sub
 
 Private Sub tblSales_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -6917,8 +6925,8 @@ Private Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
     objHours.tblTimeCard_AfterColEdit ColIndex
 End Sub
 
-Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblTimeCard_Change()
@@ -6957,8 +6965,8 @@ Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     objHours.tblTimeCard_RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblTimeCard_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblTimeCard_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblTimeCard_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
