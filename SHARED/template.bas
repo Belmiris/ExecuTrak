@@ -563,11 +563,11 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwAvailPageFile: Indicates the number of bytes available in the paging file.
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
-    Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
-    fnMemoryString = sMsg
+    Dim sMSG As String
+    sMSG = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMSG = sMSG & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMSG = sMSG & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
+    fnMemoryString = sMSG
 End Function
 Public Sub checkMemory()
 'this sub is called from a timer
@@ -576,7 +576,7 @@ Public Sub checkMemory()
 'if certain memory thresholds are met, the information is logged to the error log
 'and a message is displayed to the user.
     Dim psLogMemoryStatus As LOG_MEMORY_STATUS 'structure to hold mem values
-    Dim sMsg As String, sIniValue As String
+    Dim sMSG As String, sIniValue As String
     Static bolQueriedINI As Boolean
     Static iInterval As Single
     Static iMemTime As Single
@@ -596,17 +596,17 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
-            sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+            sMSG = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
-                    Err.Description = sMsg 'need to do this so msg will get written in the error log
-                    tfnErrHandler "checkMemory", sMsg, False 'write to the error log
+                    Err.Description = sMSG 'need to do this so msg will get written in the error log
+                    tfnErrHandler "checkMemory", sMSG, False 'write to the error log
                     Err.Clear 'clear the workaround
                 End If
             #End If
             MsgBox "Please save your work, close ExecuTrak for Windows, and restart ExecuTrak." & _
-            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMsg, vbExclamation, "SYSTEM MEMORY IS LOW"
+            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMSG, vbExclamation, "SYSTEM MEMORY IS LOW"
         End If
 
     End If
@@ -766,7 +766,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1032,6 +1032,9 @@ End Sub
 '==========================
 'This sub receives a recordset, closes it and sets it to nothing
 'the resume next is in case the rs was passed in already closed or unopened or nothing already
+'NEVER call this sub if the recordset has been passed into your sub/func byref or
+'if you call another sub/func sending it the recordset.
+'this should only be used when you are certain the recordset will no longer be used
 '===========================
 Public Sub CleanUp(ByRef inRS As Recordset)
 On Error GoTo ErrorCatch
@@ -1202,12 +1205,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1338,7 +1341,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
