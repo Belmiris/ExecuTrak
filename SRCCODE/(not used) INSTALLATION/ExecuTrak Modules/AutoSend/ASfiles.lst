@@ -1,0 +1,8 @@
+DIR=G:\PROGRAM\RELEASE\Custom\DutchOil MASK=*.*
+DIR=g:\program\release\exectrak\custctl MASK=*.*
+DIR=g:\program\release\exectrak\dll MASK=*.*
+DIR=g:\program\release\exectrak\local_db MASK=*.*
+DIR=g:\program\release\exectrak\ole MASK=tbkit.dll
+DIR=g:\program\release\exectrak\ole MASK=olecombo.dll
+DIR=g:\program\release\exectrak\rtm MASK=*.*
+DIR=g:\program\release\exectrak\shared MASK=*.*
