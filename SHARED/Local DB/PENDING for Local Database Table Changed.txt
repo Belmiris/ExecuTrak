@@ -1,3 +1,14 @@
+''''''''''''''''' DONE - 3.26.0006 - 03/07/2002 ''''''''''''''''''''''''
+version: 3.26.0006
+Date: 03/07/2002
+Description: 
+	Papco CFN Process.
+
+	add new table zzpc_sih_invoice (copy from sih_invoice)
+	add new table zzpc_sih_inv_line (copy from sih_inv_line)
+	add new table zzpc_sih_inv_tax (copy from sih_inv_line)
+
+
 ''''''''''''''''' DONE - 3.26.0005 - 02/01/2002 ''''''''''''''''''''''''
 version: 3.26.????
 Date: 01/25/2002
