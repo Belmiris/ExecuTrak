@@ -1403,8 +1403,7 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         End If
         'first line
         If Not IsNull(rsTemp.Fields(fieldNum)) Then
-            sTemp = RTrim$(rsTemp.Fields(fieldNum))    'Vijaya Commented on 08/30/01
-            'sTemp = rsTemp.Fields(fieldNum)
+            sTemp = RTrim$(rsTemp.Fields(fieldNum))
         Else
             sTemp = ""
         End If
@@ -1414,8 +1413,7 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         'the rest
         While Not rsTemp.EOF
             If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(fieldNum))   'Vijaya Commented on 08/30/01
-                'sTemp = sTemp + vbCrLf + rsTemp.Fields(fieldNum)
+                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(fieldNum))
             Else
                 sTemp = sTemp + vbCrLf + ""
             End If
