@@ -317,7 +317,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
                 sArrReport(i) = fnTranc(sApprove, 5, vbCenter) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpNo, i), 9, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpName, i), 46, vbLeftJustify) & Space(1) _
-                    & fnTranc(tgmApprove.CellValue(colAPrftCtr, i), 6, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmApprove.CellValue(colAPrftCtr, i), 5, vbLeftJustify) & Space(2) _
                     & fnTranc(tgmApprove.CellValue(colAPayCode, i), 4, vbLeftJustify) & Space(2) _
                     & fnTranc(tgmApprove.CellValue(colAPayHours, i), 5, vbLeftJustify) & Space(2) _
                     & fnTranc(tgmApprove.CellValue(colADate, i), 10, vbLeftJustify) & Space(1) _
