@@ -265,38 +265,54 @@ Public Sub BeginDetail()
     Seek #FILE_HANDLE, m_lHeaderPosition + 1
 End Sub
 
-Public Sub BeginTrans()
-
-    Dim ciTemp As New ETFMTaxRecord
-    Dim sTemp As String
+#If NEW_XLATOR Then
+    Public Sub BeginTrans()
+        Dim lCurr As Long
+        Dim sTemp As String
+        
+        lCurr = Seek(FILE_HANDLE)
+        m_lHeaderPosition = lCurr
+        
+        sTemp = String(m_nLineLength, " ")
+        If fnWriteLine(sTemp) Then
+            m_lTotalGallons = 0
+        End If
+        
+    End Sub
+#Else
+    Public Sub BeginTrans()
     
-    Close #FILE_HANDLE
-    m_nErrorNumber = ErrorFree
-    m_sLastVBError = ""
-    
-    If m_nErrorNumber <> ErrorFree Then
+        Dim ciTemp As New ETFMTaxRecord
+        Dim sTemp As String
+        
+        Close #FILE_HANDLE
+        m_nErrorNumber = ErrorFree
+        m_sLastVBError = ""
+        
+        If m_nErrorNumber <> ErrorFree Then
+            Exit Sub
+        End If
+        
+        'Get a template item line
+        sTemp = fnBuildEDIFMTaxItem(ciTemp)
+        m_nLineLength = Len(sTemp)
+        
+        On Error Resume Next
+        Kill m_sFileName
+        On Error GoTo errOpenFile
+        Open m_sFileName For Random As #FILE_HANDLE Len = EDI_FMTAX_RECORD_LENGGH
+        If fnWriteLine(sTemp) Then
+            subCheckRequiredFields
+            m_lHeaderPosition = 1
+            m_lTotalGallons = 0
+        End If
+        
         Exit Sub
-    End If
-    
-    'Get a template item line
-    sTemp = fnBuildEDIFMTaxItem(ciTemp)
-    m_nLineLength = Len(sTemp)
-    
-    On Error Resume Next
-    Kill m_sFileName
-    On Error GoTo errOpenFile
-    Open m_sFileName For Random As #FILE_HANDLE Len = EDI_FMTAX_RECORD_LENGGH
-    If fnWriteLine(sTemp) Then
-        subCheckRequiredFields
-        m_lHeaderPosition = 1
-        m_lTotalGallons = 0
-    End If
-    
-    Exit Sub
 errOpenFile:
-    m_nErrorNumber = Err.Number
-    m_sLastVBError = fnGetVBError
-End Sub
+        m_nErrorNumber = Err.Number
+        m_sLastVBError = fnGetVBError
+    End Sub
+#End If
 
 Property Let EDIType(sTemp As String)
     m_sEDIType = sTemp
@@ -1810,3 +1826,46 @@ Private Function fnTrnNumbers(lSource() As Long, _
     Next I
     fnTrnNumbers = "(" & sTemp & ")"
 End Function
+
+#If NEW_XLATOR Then
+    Public Sub FileHeaderID()
+        Dim ciTemp As New ETFMTaxRecord
+        Dim sTemp As String
+        
+        Close #FILE_HANDLE
+        m_nErrorNumber = ErrorFree
+        m_sLastVBError = ""
+        
+        If m_nErrorNumber <> ErrorFree Then
+            Exit Sub
+        End If
+        
+        'Get a template item line
+        sTemp = fnBuildEDIFMTaxItem(ciTemp)
+        m_nLineLength = Len(sTemp)
+        
+        'Get FileHeaderID
+        sTemp = fnBuildFileHeaderID()
+        
+        On Error Resume Next
+        Kill m_sFileName
+        On Error GoTo errOpenFile
+        Open m_sFileName For Random As #FILE_HANDLE Len = EDI_FMTAX_RECORD_LENGGH
+        If fnWriteLine(sTemp) Then
+            subCheckRequiredFields
+        End If
+        
+        Exit Sub
+errOpenFile:
+        m_nErrorNumber = Err.Number
+        m_sLastVBError = fnGetVBError
+    End Sub
+    
+    Private Function fnBuildFileHeaderID() As String
+        Const sFG As String = "TF"
+        Const sDOC_ID As String = "813"
+        
+        fnBuildFileHeaderID = fnFixLength(sFG & sDOC_ID & fnFixLength(m_sTheirID, 15) & m_sMode, _
+            m_nLineLength)
+    End Function
+#End If
