@@ -412,6 +412,8 @@ Public Const TOGGLE_TRUCK_UP = 14100
 Public Const TRUCK_UP = 14150
 Public Const DRIVER_UP = 14200
 
+Public Const DELV_REASON_UP = 14250
+
 '''
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
