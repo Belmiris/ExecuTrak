@@ -125,6 +125,41 @@ Property Let AutoHide(ByVal bTemp As Boolean)
     bAutoHide = bTemp
 End Property
 
+Property Let ColVisible(ByVal nIdxCol As Integer, _
+                        ByVal nDPCol As Integer, _
+                        ByVal bVisible As Boolean)
+    
+    Dim lIndex As Long
+    Dim lColIndex As Long
+    
+    fnGetKeys lIndex, lColIndex, nIdxCol
+    If lIndex > 0 Then
+        If nDPCol > 0 Then
+            lColIndex = nDPCol
+        End If
+        If lColIndex > 1 Then
+            colDropDowns.Item(lIndex).Item(lColIndex).Visible = bVisible
+        Else
+            MsgBox "Cannot set column one invisible"
+        End If
+    End If
+
+End Property
+
+Property Let DataField(ByVal nCol As Integer, _
+                       ByVal sField As String)
+    
+    Dim lIndex As Long
+    Dim lColIndex As Long
+    
+    fnGetKeys lIndex, lColIndex, nCol
+    If lIndex > 0 Then
+        colDropDowns.Item(lIndex).Item(lColIndex).DataField = sField
+    End If
+                        
+End Property
+
+
 Property Get CurrentDropDown() As Integer
     CurrentDropDown = m_nCurrentDropDown
 End Property
@@ -358,8 +393,10 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
                     tgDropDown.Columns(i).DataField = .DataField
                 End If
             End With
-            tgDropDown.Columns(lCol - 1).Visible = True
-            nTWidth = nTWidth + tgDropDown.Columns(i).Width
+            tgDropDown.Columns(lCol - 1).Visible = colTemp(lCol).Visible
+            If colTemp(lCol).Visible Then
+                nTWidth = nTWidth + tgDropDown.Columns(i).Width
+            End If
             nTemp = nRight - nTWidth
             If bFlag Then
                 nTemp = nTemp + SCROLLBAR_WIDTH
@@ -406,8 +443,10 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
                     tgDropDown.Columns(lCol - 1).DataField = .DataField
                 End If
             End With
-            tgDropDown.Columns(lCol - 1).Visible = True
-            nTWidth = nTWidth + tgDropDown.Columns(lCol - 1).Width
+            tgDropDown.Columns(lCol - 1).Visible = colTemp(lCol).Visible
+            If colTemp(lCol).Visible Then
+                nTWidth = nTWidth + tgDropDown.Columns(lCol - 1).Width
+            End If
             If tgDropDown.Left + nTWidth > nMainTableLeft + tgMain.Width Then
                 nTWidth = nMainTableLeft + tgMain.Width - tgDropDown.Left
             End If
@@ -855,7 +894,6 @@ Public Sub SetPopulateBox(nCol As Integer, bStatus As Boolean)
 
 End Sub
 
-
 Public Sub SetSQL(ByVal nCol As Integer, sSql As String)
     Dim lIndex As Long
     Dim lColIndex As Long
@@ -1037,7 +1075,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If val(tgMain.Row) >= 0 Then
+                    If Val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1325,9 +1363,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(val(sPrefix))
+    sTrimedPrefix = CStr(Val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If val(sPrefix) > 0 Then
+    If Val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1480,7 +1518,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = val(tgMain.Row)
+                lRow = Val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1784,7 +1822,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1801,7 +1839,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
