@@ -1582,7 +1582,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1590,7 +1590,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2068,7 +2068,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2324,14 +2324,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2706,14 +2706,14 @@ End Function
 ' Project Number:       373550
 ' Program Version:      N/A
 ' ARGS:                 strInput: String, input string
-' Returns:              string, strInput with every "^" set as vbCR
+' Returns:              string, strInput with every "^" set as vbCRLF
 ' Description:          Used to convert text stored in database fields (with
 '                       embedded CR's translated to Carets) back into formatted
 '                       visible output.
 '-
 '##############################################################################
 Public Function tfnCaretToCR(strInput As String) As String
-    tfnCaretToCR = Replace(strInput, "^", vbCr)
+    tfnCaretToCR = Replace(strInput, "^", vbCrLf)
 End Function
 
 '##############################################################################
@@ -2730,6 +2730,7 @@ End Function
 '-
 '##############################################################################
 Public Function tfnCRToCaret(strInput As String) As String
+    tfnCRToCaret = Replace(strInput, vbCrLf, "^")
     tfnCRToCaret = Replace(strInput, vbCr, "^")
 End Function
 
