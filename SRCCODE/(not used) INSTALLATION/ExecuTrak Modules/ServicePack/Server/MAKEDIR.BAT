@@ -78,3 +78,43 @@ copy disk.id ..\disk\disk19\disk19.id
 deltree /Y ..\disk\disk20
 md ..\disk\disk20
 copy disk.id ..\disk\disk20\disk20.id
+
+deltree /Y ..\disk\disk21
+md ..\disk\disk21
+copy disk.id ..\disk\disk21\disk21.id
+
+deltree /Y ..\disk\disk22
+md ..\disk\disk22
+copy disk.id ..\disk\disk22\disk22.id
+
+deltree /Y ..\disk\disk23
+md ..\disk\disk23
+copy disk.id ..\disk\disk23\disk23.id
+
+deltree /Y ..\disk\disk24
+md ..\disk\disk24
+copy disk.id ..\disk\disk24\disk24.id
+
+deltree /Y ..\disk\disk25
+md ..\disk\disk25
+copy disk.id ..\disk\disk25\disk25.id
+
+deltree /Y ..\disk\disk26
+md ..\disk\disk26
+copy disk.id ..\disk\disk26\disk26.id
+
+deltree /Y ..\disk\disk27
+md ..\disk\disk27
+copy disk.id ..\disk\disk27\disk27.id
+
+deltree /Y ..\disk\disk28
+md ..\disk\disk28
+copy disk.id ..\disk\disk28\disk28.id
+
+deltree /Y ..\disk\disk29
+md ..\disk\disk29
+copy disk.id ..\disk\disk29\disk29.id
+
+deltree /Y ..\disk\disk30
+md ..\disk\disk30
+copy disk.id ..\disk\disk30\disk30.id

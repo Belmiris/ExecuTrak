@@ -6,56 +6,6 @@ if exist ..\disk\disk20\??client.20 goto disk20
 if exist ..\disk\disk19\??client.19 goto disk19
 if exist ..\disk\disk18\??client.18 goto disk18
 if exist ..\disk\disk17\??client.17 goto disk17
-if exist ..\disk\disk16\??client.16 goto disk16
-if exist ..\disk\disk15\??client.15 goto disk15
-if exist ..\disk\disk14\??client.14 goto disk14
-if exist ..\disk\disk13\??client.13 goto disk13
-if exist ..\disk\disk12\??client.12 goto disk12
-if exist ..\disk\disk11\??client.11 goto disk11
-if exist ..\disk\disk10\??client.10 goto disk10
-if exist ..\disk\disk9\??client.9 goto disk9
-if exist ..\disk\disk8\??client.8 goto disk8
-if exist ..\disk\disk7\??client.7 goto disk7
-if exist ..\disk\disk6\??client.6 goto disk6
-if exist ..\disk\disk5\??client.5 goto disk5
-if exist ..\disk\disk4\??client.4 goto disk4
-if exist ..\disk\disk3\??client.3 goto disk3
-if exist ..\disk\disk2\??client.2 goto disk2
-
-echo Total Distribution Diskette Required = 1
-goto start
-
-:disk2
-echo Total Distribution Diskette Required = 2
-goto start
-
-:disk3
-echo Total Distribution Diskette Required = 3
-goto start
-
-:disk4
-echo Total Distribution Diskette Required = 4
-goto start
-
-:disk5
-echo Total Distribution Diskette Required = 5
-goto start
-
-:disk6
-echo Total Distribution Diskette Required = 6
-goto start
-
-:disk7
-echo Total Distribution Diskette Required = 7
-goto start
-
-:disk8
-echo Total Distribution Diskette Required = 8
-goto start
-
-:disk9
-echo Total Distribution Diskette Required = 9
-goto start
 
 :disk10
 echo Total Distribution Diskette Required = 10
@@ -100,6 +50,47 @@ goto start
 :disk20
 echo Total Distribution Diskette Required = 20
 goto start
+
+:disk21
+echo Total Distribution Diskette Required = 21
+goto start
+
+:disk22
+echo Total Distribution Diskette Required = 22
+goto start
+
+:disk23
+echo Total Distribution Diskette Required = 23
+goto start
+
+:disk24
+echo Total Distribution Diskette Required = 24
+goto start
+
+:disk25
+echo Total Distribution Diskette Required = 25
+goto start
+
+:disk26
+echo Total Distribution Diskette Required = 26
+goto start
+
+:disk27
+echo Total Distribution Diskette Required = 27
+goto start
+
+:disk28
+echo Total Distribution Diskette Required = 28
+goto start
+
+:disk29
+echo Total Distribution Diskette Required = 29
+goto start
+
+:disk30
+echo Total Distribution Diskette Required = 30
+goto start
+
 
 :start
 echo .
@@ -268,8 +259,106 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk20\*.* a:
 
-if exist ..\disk\disk21\??client.21 goto need_more_disk
+if not exist ..\disk\disk21\??client.21 goto makedisk_done
 
+echo insert disk#21
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk21\*.* a:
+
+if not exist ..\disk\disk22\??client.22 goto makedisk_done
+
+echo insert disk#22
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk22\*.* a:
+
+if not exist ..\disk\disk23\??client.23 goto makedisk_done
+
+echo insert disk#23
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk23\*.* a:
+
+if not exist ..\disk\disk24\??client.24 goto makedisk_done
+
+echo insert disk#24
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk24\*.* a:
+
+if not exist ..\disk\disk25\??client.25 goto makedisk_done
+
+echo insert disk#25
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk25\*.* a:
+
+if not exist ..\disk\disk26\??client.26 goto makedisk_done
+
+echo insert disk#26
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk26\*.* a:
+
+if not exist ..\disk\disk27\??client.27 goto makedisk_done
+
+echo insert disk#27
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk27\*.* a:
+
+if not exist ..\disk\disk28\??client.28 goto makedisk_done
+
+echo insert disk#28
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk28\*.* a:
+
+if not exist ..\disk\disk29\??client.29 goto makedisk_done
+
+echo insert disk#29
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk29\*.* a:
+
+if not exist ..\disk\disk30\??client.30 goto makedisk_done
+
+echo insert disk#30
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk30\*.* a:
+
+if not exist ..\disk\disk31\??client.31 goto makedisk_done
+
+echo insert disk#31
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk31\*.* a:
+
+if exist ..\disk\disk32\??client.32 goto need_more_disk
 :makedisk_done
 echo .
 echo Distribution Disk making has completed.
