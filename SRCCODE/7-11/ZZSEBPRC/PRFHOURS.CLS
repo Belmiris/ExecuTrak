@@ -427,8 +427,8 @@ Public Sub tblFloating_LostFocus()
     tgcFEditor.LostFocus tblFloating
 End Sub
 
-Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcFEditor.MouseUp Y
+Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcFEditor.MouseUp y
 End Sub
 
 Public Sub tblFloating_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -625,7 +625,7 @@ Public Sub tblTimeCard_LostFocus()
     subSetFormStatus
 End Sub
 
-Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     If tblTimeCard.col = 1 And Button = RIGHT_BUTTON Then
         frmContext.MouseDown Button, PROFITCENTER_UP
     End If
@@ -664,7 +664,7 @@ Public Sub tblTimeCard_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation 
     tgcEditor.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
-Public Sub txtEmployeeName_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub txtEmployeeName_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -805,7 +805,7 @@ Public Sub cmdEmployeeName_Click()
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeNumber_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub txtEmployeeNumber_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -882,7 +882,7 @@ Public Sub cmdSSN_Click()
 End Sub
 
 
-Public Sub txtSSN_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub txtSSN_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -993,19 +993,20 @@ errorDollar:
 End Sub
 
 Private Sub subCheckEmpNum()
-    
-    If cValidate.FirstInvalidInput < 0 Then
+
+    'comment out if statement, we don't need validate here junsong 03/14/01
+    'If cValidate.FirstInvalidInput < 0 Then
         subEnableEmployee False
-        'efraInnerFrame.Enabled = True
         tblTimeCard.Enabled = True
         tblProfitCenter.Enabled = True
+        
         If t_nFormMode = EDIT_MODE Then
             fnFillTimeCard
             nDataStatus = DATA_LOADED
         End If
-        
-    End If
-'    tblTimeCard.Enabled = True
+    
+    'End If
+    
     subSetFocus tblTimeCard
 End Sub
 
@@ -1028,8 +1029,7 @@ Private Sub fnFillProfitTable()
 '    If Trim(txtTotalDollars.Text) = Trim(txtTotal.Text) And t_nFormMode = EDIT_MODE Then
 '          Exit Sub
 '    End If
-    
- 
+     
     
     toTalRowNumber = tgcEditor.RowCount
     For Index = 0 To 20 Step 1
@@ -1605,8 +1605,9 @@ Private Sub tfnResetScreen()
     DoEvents
     tblTimeCard.Enabled = False
     
-    tgcEditor.ClearData
-    tgcEditorPrft.ClearData
+    'comment out by junsong 03/14/01 why we need second times
+    'tgcEditor.ClearData
+    'tgcEditorPrft.ClearData
     DoEvents
     
     cmdAddBtn.Enabled = True
@@ -1629,9 +1630,10 @@ Private Sub subCreateTempTable()
     sTempTemp = "temp_table1"
     sTempTemp1 = "temp_table2"
         
-    sSql = "SELECT DISTINCT prm_empno AS empno, trim(prm_last_name) || ', ' || trim(prm_first_name) " _
+     sSql = "SELECT DISTINCT prm_empno AS empno, trim(prm_last_name) || ', ' || trim(prm_first_name) " _
        & "AS empname, prm_ssn AS empssn FROM pr_master,pr_security " _
        & "WHERE prs_code>=prm_security_code AND prs_name=" & tfnSQLString(tfnGetUserName) _
+       & " AND prm_date_termed IS NULL " _
        & " INTO TEMP " & sTempTable
      
     fnExecuteSQL (sSql)
@@ -1794,16 +1796,26 @@ End Function
 Private Sub subReSetComboSql()
     
     Dim sSql As String
-    Dim sSQL1 As String
     
-    sSql = "SELECT empno, empname, empssn FROM " & sTempTable
+    'replacing following SQL by Junsong 03/14/00
+    
+'    sSql = "SELECT empno, empname, empssn FROM " & sTempTable
+'
+'    If t_nFormMode = EDIT_MODE Then
+'        sSql = sSql & " WHERE empno IN (SELECT prh_empno FROM pr_hours)"
+'    Else
+'        sSql = sSql & " WHERE empno IN (SELECT pempno FROM " & sTempTable1 & ")"
+'    End If
+'    sSql = sSql & " and empno in (select prm_empno from pr_master where prm_date_termed is null) "
     
     If t_nFormMode = EDIT_MODE Then
-        sSql = sSql & " WHERE empno IN (SELECT prh_empno FROM pr_hours)"
+        sSql = "select distinct empno, empname, empssn FROM " & sTempTable & ",pr_hours "
+        sSql = sSql & " WHERE empno = prh_empno "
     Else
-        sSql = sSql & " WHERE empno IN (SELECT pempno FROM " & sTempTable1 & ")"
+        sSql = "select distinct empno, empname, empssn FROM " & sTempTable & "," & sTempTable1
+        sSql = sSql & " WHERE empno = pempno"
     End If
-    sSql = sSql & " and empno in (select prm_empno from pr_master where prm_date_termed is null) "
+
     tgcDropdown.ComboSQL(txtEmployeeNumber) = sSql
         
 End Sub

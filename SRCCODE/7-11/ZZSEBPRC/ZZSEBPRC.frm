@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -118,6 +118,7 @@ Begin VB.Form frmZZSEBPRC
          Caption         =   "Pay En&try|Proce&ss Checks|&View/Approve Checks|View &Details"
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
             Height          =   4728
+            HelpContextID   =   550
             Left            =   14580
             TabIndex        =   72
             TabStop         =   0   'False
@@ -182,7 +183,7 @@ Begin VB.Form frmZZSEBPRC
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   525
+                  HelpContextID   =   555
                   Left            =   72
                   TabIndex        =   56
                   Tag             =   "pn_alt"
@@ -194,7 +195,7 @@ Begin VB.Form frmZZSEBPRC
                   DataSource      =   "datVendor"
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   527
+                  HelpContextID   =   557
                   Left            =   1608
                   TabIndex        =   58
                   Tag             =   "pn_name"
@@ -205,7 +206,7 @@ Begin VB.Form frmZZSEBPRC
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   575
+                  HelpContextID   =   551
                   Left            =   60
                   TabIndex        =   52
                   Tag             =   "pn_alt"
@@ -217,7 +218,7 @@ Begin VB.Form frmZZSEBPRC
                   DataSource      =   "datVendor"
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   577
+                  HelpContextID   =   553
                   Left            =   2364
                   TabIndex        =   54
                   Tag             =   "pn_name"
@@ -226,7 +227,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin DBTrueGrid.TDBGrid tblDetails 
                   Height          =   2724
-                  HelpContextID   =   579
+                  HelpContextID   =   559
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":0000
                   TabIndex        =   60
@@ -235,7 +236,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdEmployee 
                   Height          =   360
-                  HelpContextID   =   576
+                  HelpContextID   =   552
                   Left            =   1944
                   TabIndex        =   53
                   TabStop         =   0   'False
@@ -271,7 +272,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdEmpName 
                   Height          =   360
-                  HelpContextID   =   578
+                  HelpContextID   =   554
                   Left            =   8244
                   TabIndex        =   55
                   TabStop         =   0   'False
@@ -307,7 +308,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdDPrftCtr 
                   Height          =   360
-                  HelpContextID   =   526
+                  HelpContextID   =   556
                   Left            =   1188
                   TabIndex        =   57
                   TabStop         =   0   'False
@@ -343,7 +344,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdDPrftCtrName 
                   Height          =   360
-                  HelpContextID   =   528
+                  HelpContextID   =   558
                   Left            =   5796
                   TabIndex        =   59
                   TabStop         =   0   'False
@@ -519,6 +520,7 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             Begin FACTFRMLib.FactorFrame efraBaseIIProcess 
                Height          =   4152
+               HelpContextID   =   520
                Left            =   60
                TabIndex        =   77
                TabStop         =   0   'False
@@ -582,7 +584,7 @@ Begin VB.Form frmZZSEBPRC
                      BackColor       =   &H00FFFFFF&
                      ForeColor       =   &H00000000&
                      Height          =   360
-                     HelpContextID   =   530
+                     HelpContextID   =   523
                      Left            =   1404
                      TabIndex        =   31
                      Tag             =   "pn_alt"
@@ -593,7 +595,7 @@ Begin VB.Form frmZZSEBPRC
                      BackColor       =   &H00FFFFFF&
                      ForeColor       =   &H00000000&
                      Height          =   360
-                     HelpContextID   =   529
+                     HelpContextID   =   521
                      Left            =   48
                      TabIndex        =   30
                      Tag             =   "pn_alt"
@@ -604,7 +606,7 @@ Begin VB.Form frmZZSEBPRC
                      BackColor       =   &H00FFFFFF&
                      ForeColor       =   &H00000000&
                      Height          =   360
-                     HelpContextID   =   529
+                     HelpContextID   =   522
                      Left            =   48
                      TabIndex        =   32
                      Tag             =   "pn_alt"
@@ -613,7 +615,7 @@ Begin VB.Form frmZZSEBPRC
                   End
                   Begin FACTFRMLib.FactorFrame cmdFrequency 
                      Height          =   360
-                     HelpContextID   =   531
+                     HelpContextID   =   524
                      Left            =   1968
                      TabIndex        =   33
                      TabStop         =   0   'False
@@ -676,7 +678,7 @@ Begin VB.Form frmZZSEBPRC
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   532
+                  HelpContextID   =   529
                   Left            =   2508
                   TabIndex        =   38
                   Tag             =   "pn_alt"
@@ -688,7 +690,7 @@ Begin VB.Form frmZZSEBPRC
                   DataSource      =   "datVendor"
                   ForeColor       =   &H00000000&
                   Height          =   360
-                  HelpContextID   =   534
+                  HelpContextID   =   531
                   Left            =   4044
                   TabIndex        =   40
                   Tag             =   "pn_name"
@@ -700,7 +702,7 @@ Begin VB.Form frmZZSEBPRC
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
                   Height          =   2352
-                  HelpContextID   =   536
+                  HelpContextID   =   533
                   IntegralHeight  =   0   'False
                   ItemData        =   "ZZSEBPRC.frx":1838
                   Left            =   72
@@ -817,7 +819,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdEmpProcess 
                   Height          =   360
-                  HelpContextID   =   533
+                  HelpContextID   =   530
                   Left            =   3624
                   TabIndex        =   39
                   TabStop         =   0   'False
@@ -853,7 +855,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame cmdEmpNameProcess 
                   Height          =   360
-                  HelpContextID   =   535
+                  HelpContextID   =   532
                   Left            =   8232
                   TabIndex        =   41
                   TabStop         =   0   'False
@@ -922,7 +924,7 @@ Begin VB.Form frmZZSEBPRC
             End
             Begin FACTFRMLib.FactorFrame cmdProcess 
                Height          =   396
-               HelpContextID   =   537
+               HelpContextID   =   534
                Left            =   5988
                TabIndex        =   43
                Top             =   4260
@@ -1033,6 +1035,7 @@ Begin VB.Form frmZZSEBPRC
          End
          Begin FACTFRMLib.FactorFrame efraBasePayEntry 
             Height          =   4704
+            HelpContextID   =   500
             Left            =   12
             TabIndex        =   68
             TabStop         =   0   'False
@@ -1120,6 +1123,7 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   Begin FACTFRMLib.FactorFrame efraBaseIIHours 
                      Height          =   4152
+                     HelpContextID   =   510
                      Left            =   48
                      TabIndex        =   25
                      Top             =   48
@@ -1186,7 +1190,7 @@ Begin VB.Form frmZZSEBPRC
                         DataSource      =   "datVendor"
                         ForeColor       =   &H00000000&
                         Height          =   360
-                        HelpContextID   =   515
+                        HelpContextID   =   513
                         Left            =   2028
                         TabIndex        =   19
                         Tag             =   "pn_name"
@@ -1197,7 +1201,7 @@ Begin VB.Form frmZZSEBPRC
                         BackColor       =   &H00FFFFFF&
                         ForeColor       =   &H00000000&
                         Height          =   360
-                        HelpContextID   =   513
+                        HelpContextID   =   511
                         Left            =   72
                         TabIndex        =   15
                         Tag             =   "pn_alt"
@@ -1206,7 +1210,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin VB.TextBox txtSSN 
                         Height          =   360
-                        HelpContextID   =   517
+                        HelpContextID   =   515
                         Left            =   6036
                         TabIndex        =   21
                         Top             =   276
@@ -1214,7 +1218,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin FACTFRMLib.FactorFrame cmdEmployeeNumber 
                         Height          =   360
-                        HelpContextID   =   514
+                        HelpContextID   =   512
                         Left            =   1608
                         TabIndex        =   17
                         TabStop         =   0   'False
@@ -1250,7 +1254,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin FACTFRMLib.FactorFrame cmdEmployeeName 
                         Height          =   360
-                        HelpContextID   =   516
+                        HelpContextID   =   514
                         Left            =   5616
                         TabIndex        =   20
                         TabStop         =   0   'False
@@ -1286,7 +1290,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin FACTFRMLib.FactorFrame cmdSSN 
                         Height          =   360
-                        HelpContextID   =   518
+                        HelpContextID   =   516
                         Left            =   7944
                         TabIndex        =   22
                         TabStop         =   0   'False
@@ -1322,7 +1326,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin DBTrueGrid.TDBGrid tblTimeCard 
                         Height          =   3036
-                        HelpContextID   =   519
+                        HelpContextID   =   517
                         Left            =   72
                         OleObjectBlob   =   "ZZSEBPRC.frx":1FBA
                         TabIndex        =   23
@@ -1331,7 +1335,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin DBTrueGrid.TDBGrid tblProfitCenter 
                         Height          =   3036
-                        HelpContextID   =   520
+                        HelpContextID   =   518
                         Left            =   6036
                         OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
                         TabIndex        =   24
@@ -1606,6 +1610,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin FACTFRMLib.FactorFrame efraBaseSales 
                   Height          =   4692
+                  HelpContextID   =   501
                   Left            =   12
                   TabIndex        =   82
                   TabStop         =   0   'False
@@ -1669,7 +1674,7 @@ Begin VB.Form frmZZSEBPRC
                         BackColor       =   &H00FFFFFF&
                         ForeColor       =   &H00000000&
                         Height          =   360
-                        HelpContextID   =   504
+                        HelpContextID   =   502
                         Left            =   96
                         TabIndex        =   3
                         Tag             =   "pn_alt"
@@ -1797,7 +1802,7 @@ Begin VB.Form frmZZSEBPRC
                      End
                      Begin FACTFRMLib.FactorFrame cmdSalesType 
                         Height          =   360
-                        HelpContextID   =   505
+                        HelpContextID   =   503
                         Left            =   2340
                         TabIndex        =   4
                         TabStop         =   0   'False
@@ -1870,7 +1875,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1907,7 +1912,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1944,7 +1949,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1981,7 +1986,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2018,7 +2023,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2055,7 +2060,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            = 9.75 
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2083,6 +2088,7 @@ Begin VB.Form frmZZSEBPRC
          End
          Begin FACTFRMLib.FactorFrame efraBaseView 
             Height          =   4728
+            HelpContextID   =   540
             Left            =   14520
             TabIndex        =   71
             TabStop         =   0   'False
@@ -2158,7 +2164,7 @@ Begin VB.Form frmZZSEBPRC
                End
                Begin DBTrueGrid.TDBGrid tblApprove 
                   Height          =   4044
-                  HelpContextID   =   550
+                  HelpContextID   =   541
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":4E4E
                   TabIndex        =   46
@@ -2241,7 +2247,7 @@ Begin VB.Form frmZZSEBPRC
             End
             Begin FACTFRMLib.FactorFrame cmdSelectAll 
                Height          =   396
-               HelpContextID   =   551
+               HelpContextID   =   542
                Left            =   48
                TabIndex        =   47
                Top             =   4260
@@ -2277,7 +2283,7 @@ Begin VB.Form frmZZSEBPRC
             End
             Begin FACTFRMLib.FactorFrame cmdApprove 
                Height          =   396
-               HelpContextID   =   552
+               HelpContextID   =   543
                Left            =   1476
                TabIndex        =   48
                Top             =   4260
@@ -2424,7 +2430,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2437,7 +2443,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2638,9 +2644,11 @@ Private Sub cmdApprove_Click()
         tblApprove.col = 0
     Else
         subSetApproveAll
+        tblApprove_LostFocus
+        tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -2680,7 +2688,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2689,8 +2697,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2698,8 +2706,8 @@ Private Sub cmdOK_Click()
     
     Me.Enabled = True
     
-    nDataStatus = DATA_INIT
-    tgmApprove.ClearData
+    'nDataStatus = DATA_INIT
+    'tgmApprove.ClearData
     
     tfnResetScreen TabApprove
     tfnResetScreen TabProcess
@@ -2790,10 +2798,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -3055,8 +3063,29 @@ Private Sub subCancel(Index As Integer)
             bCancelProcess = True
             Exit Sub
         End If
+        
+        If nDataStatus = DATA_CHANGED Then
+            If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
+                Screen.MousePointer = vbDefault
+                Exit Sub
+            End If
+        End If
+        
     End If
-
+    
+    If Index = TabApprove Then
+        
+        If fnHasApprove() Then
+            
+            If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
+                Screen.MousePointer = vbDefault
+                Exit Sub
+            End If
+            
+        End If
+        
+    End If
+    
     tfnResetScreen Index
     Screen.MousePointer = vbDefault
 
@@ -3243,13 +3272,6 @@ Private Sub tfnResetScreen(Index As Integer)
             eTabMain.TabEnabled(TabProcess) = True
             eTabSub.TabEnabled(TabSales) = True
         Case TabProcess
-            If nDataStatus = DATA_CHANGED Then
-                If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
-                    Screen.MousePointer = vbDefault
-                    Exit Sub
-                End If
-            End If
-            
             nDataStatus = DATA_INIT
             txtStartDate = ""
             txtEndDate = ""
@@ -3291,8 +3313,8 @@ Private Sub tfnResetScreen(Index As Integer)
                 subSetFocus txtStartDate
             End If
         Case TabApprove
-            If fnHasApprove() Then
-                If tfnCancelExit(t_szCANCEL_MESSAGE) Then
+           ' If fnHasApprove() Then
+            '    If tfnCancelExit(t_szCANCEL_MESSAGE) Then
                     tgmApprove.ClearData
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
@@ -3306,19 +3328,20 @@ Private Sub tfnResetScreen(Index As Integer)
                             tblApprove.col = 2
                             tblApprove.col = 0
                         End If
+                        
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
                     End If
                     
-                End If
+             '   End If
                 
-            End If
+            'End If
             
             
             bLoadingBonusDetail = False
@@ -3366,11 +3389,11 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     
     If ColIndex = colAApprove Then
         
-        If fnHasApprove() Then
-            cmdOK.Enabled = True
+        If fnHasApprove(-1) Then
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -3383,10 +3406,11 @@ Private Sub tblApprove_Change()
 End Sub
 
 Private Sub tblApprove_Click()
-    If tblApprove.col = colAApprove Then
-        tblApprove.col = 1
-        tblApprove.col = 0
-    End If
+'    If tblApprove.col = colAApprove Then
+'        tblApprove.col = 1
+'        tblApprove.col = 0
+'    End If
+'
     tgsApprove.Click
 End Sub
 
@@ -3662,6 +3686,8 @@ Private Sub cmdProcess_Click()
         Exit Sub
     End If
     
+    bNoRecordFound = False
+    
     subLogErrMsg "", True
     
     subLogErrMsg "Commission Processing" + IIf(bShowDetail, " Detail", "") + " Log"
@@ -3717,7 +3743,9 @@ Private Sub cmdProcess_Click()
                 subLogErrMsg "Pay Code for Regular Hour = " + tfnSQLString(sPayCode_RegHrs)
                 subLogErrMsg "Pay Code for Overtime Hour = " + tfnSQLString(sPayCode_OtHrs)
             End If
+            
         End If
+        
     Else
         subLogErrMsg "SysParm#30854 not found"
     End If
@@ -3757,6 +3785,7 @@ Private Sub cmdProcess_Click()
     
     Screen.MousePointer = vbHourglass
     nCount = GetRecordSet(rsTemp, strSQL, , SUB_NAME)
+    
     If nCount < 0 Then
         subLogErrMsg "Failed to access the database."
         bError = True
@@ -3765,6 +3794,7 @@ Private Sub cmdProcess_Click()
     
     If nCount = 0 Then
         subLogErrMsg "No record found to process."
+        bNoRecordFound = True
         bError = True
         GoTo TERMINATE_PROCESS
     End If
@@ -3843,6 +3873,7 @@ Private Sub cmdProcess_Click()
                 subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
                     & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
             End If
+            
         End If
         
         rsTemp.MoveNext
@@ -3874,6 +3905,13 @@ TERMINATE_PROCESS:
     End If
     
     subLogErrMsg "*Finished Processing*"
+    
+    If bNoRecordFound Then
+        MsgBox "Data was found to be missing while processing the commissions. This " _
+             & "could cause the comminsions to be miscalculated. Please review the " _
+             & "Process Checks Log, and re-process if neccessary.", vbInformation + vbOKOnly
+    End If
+    
     Screen.MousePointer = vbDefault
     
     subSetProgress 0
@@ -3882,6 +3920,7 @@ TERMINATE_PROCESS:
     If bError Then
         subSetFocus cmdProcess
     End If
+    
 End Sub
 
 Private Sub cmdProcess_GotFocus()
@@ -3957,7 +3996,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             VItem.Value = colAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
             VItem.Value = colAppNo: VItem.DisplayValue = "N": vitems.Add VItem
             vitems.Presentation = 1
-            vitems.CycleOnClick = False
+            vitems.CycleOnClick = True
             vitems.Translate = True
             vitems.DefaultItem = colAppNo
             tbl.Caption = "Commission Approval"
@@ -5394,10 +5433,12 @@ Private Sub cmdRefresh_Click(Index As Integer)
             cmdUpdateInsertBtn(Index).Enabled = False
             
             sErrMsg = fnLoadSales()
+            
             If sErrMsg <> "" Then
                 tfnSetStatusBarError sErrMsg
                 Exit Sub
             End If
+            
         Case nTabHours
             objHours.cmdRefreshSelectBtn_Click
     End Select
@@ -5586,10 +5627,10 @@ Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
     End If
         
     If Index = TabSales Then
-        'comment by junsong 03/13/01
-'        If t_nFormMode = ADD_MODE Then
-'            subSetStdBtn TabSales, tgmSales
-'        End If
+        
+        If t_nFormMode = ADD_MODE Then
+            subSetStdBtn TabSales, tgmSales
+        End If
         
         tblSales.Enabled = True
         DoEvents
@@ -6317,6 +6358,7 @@ Private Function fnLoadSales() As String
     End If
     
     If rsTemp.RecordCount = 0 Then
+        
         If t_nFormMode = ADD_MODE Then
             If MsgBox("Sales record not available for the From Date and To Date. " _
                + "Do you want to continue?", vbQuestion + vbYesNo) = vbNo Then
@@ -6325,6 +6367,7 @@ Private Function fnLoadSales() As String
         Else
             fnLoadSales = "No Sales record available to Edit"
         End If
+        
         Exit Function
     End If
     

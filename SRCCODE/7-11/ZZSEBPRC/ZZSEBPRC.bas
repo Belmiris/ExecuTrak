@@ -97,6 +97,7 @@ Public bShowDetail As Boolean
 Public sPayCode_RegHrs As String
 Public sPayCode_OtHrs As String
 '
+Public bNoRecordFound As Boolean
 
 Public Sub Main()
     Dim sCommand As String
@@ -576,6 +577,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <> 1 Then
         subLogErrMsg Space(7) & "No record found for the commission formula"
+        bNoRecordFound = True
         Exit Function
     End If
     
@@ -602,6 +604,8 @@ Public Function fnCheckApprove() As Boolean
     lApproved = 0
     
     fnHasApprove lApproved
+    tgmApprove.Rebind
+    DoEvents
     
     If lApproved = 0 Then
         frmZZSEBPRC.tfnSetStatusBarError "No Approved row available to insert"
@@ -609,7 +613,7 @@ Public Function fnCheckApprove() As Boolean
     End If
     
     If lApproved < tgmApprove.RowCount Then
-        If MsgBox("Row(s) that is not approved will not be inserted. Are you sure you want " _
+        If MsgBox("Rows that are not approved will not be inserted. Are you sure you want " _
            + "to continue?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
             Exit Function
         End If
@@ -949,21 +953,28 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     'Get real values...
     If sV1 <> "" Then
         V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
+        
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
         Else
+            
             If bShowDetail Then
+                
                 If sV1 = "check_amount" Then
                     subLogErrMsg "**v1 (" + sV1 + ") = the result of the formula"
                 Else
                     subLogErrMsg "**v1 (" + sV1 + ") = " & V1
                 End If
+                
             End If
+            
         End If
+        
     End If
     
     If sV2 <> "" Then
         V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
+        
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
         Else
@@ -979,17 +990,23 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     
     If sV3 <> "" Then
         V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
+        
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
         Else
+        
             If bShowDetail Then
+                
                 If sV3 = "check_amount" Then
                     subLogErrMsg "**v3 (" + sV3 + ") = the result of the formula"
                 Else
                     subLogErrMsg "**v3 (" + sV3 + ") = " & V3
                 End If
+                
             End If
+            
         End If
+        
     End If
     
     'set the variables value for condition
@@ -1033,37 +1050,47 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     
     If sCond <> "" Then
         bConditionOK = objCond.CheckCondition(sCond, sErrMsg)
+        
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sCond & ")"
             Exit Function
         Else
+            
             If bShowDetail Then
                 subLogErrMsg "Condition = " & sCond
                 subLogErrMsg "Result = " & IIf(bConditionOK, "True", "False")
             End If
+            
         End If
+        
     End If
     
     dBonusAmt = 0#
     
     If bConditionOK Then
         dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
+        
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
             Exit Function
         Else
+            
             If bShowDetail Then
                 subLogErrMsg "Formula = " & sFmla
                 subLogErrMsg "Result = " & dBonusAmt
             End If
+            
         End If
+        
     End If
     
     'reset the v1, v2, or v3 if they are "check_amount"
     If bShowDetail Then
+    
         If sV1 = "check_amount" Or sV2 = "check_amount" Or sV3 = "check_amount" Then
             subLogErrMsg "check_amount = " & dBonusAmt
         End If
+    
     End If
     
     If sV1 = "check_amount" Then
@@ -1085,29 +1112,38 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
             bConditionOK = True
         Else
             bConditionOK = objCond.CheckCondition(sACond, sErrMsg)
+            
             If sErrMsg <> "" Then
                 subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sACond & ")"
                 Exit Function
             Else
+                
                 If bShowDetail Then
                     subLogErrMsg "Adj. Condition = " & sACond
                     subLogErrMsg "Result = " & IIf(bConditionOK, "True", "False")
                 End If
+                
             End If
+            
         End If
     
         If bConditionOK Then
             dBonusAmt = tfnRound(objMath.Calculate(sAFmla, sErrMsg), DEFAULT_DECIMALS)
+            
             If sErrMsg <> "" Then
                 subLogErrMsg sErrMsg & ", Invalid Formula (" & sAFmla & ")"
                 Exit Function
             Else
+                
                 If bShowDetail Then
                     subLogErrMsg "Formula = " & sAFmla
                     subLogErrMsg "Result = " & dBonusAmt
                 End If
+            
             End If
+        
         End If
+        
     End If
     
     fnCalculateBonus = dBonusAmt
@@ -1283,6 +1319,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     
     If rsTemp.RecordCount = 0 Then
         sErrMsg = "No record found for " & sVinV
+        bNoRecordFound = True
         Exit Function
     End If
     
@@ -1315,10 +1352,12 @@ Private Function fn3MonthsAverage(sVariable As String, _
     strSQL = "SELECT prm_date_hired, prm_prft_ctr1"
     strSQL = strSQL & " FROM pr_master"
     strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         sErrMsg = "Failed to access the database to get " & sVinV
         Exit Function
     End If
+    
     If rsTemp.RecordCount = 0 Then
         sErrMsg = "Employee record not found for " & sVinV
         Exit Function
@@ -1333,43 +1372,58 @@ Private Function fn3MonthsAverage(sVariable As String, _
     nMonthCount = 0
     
     For i = 1 To 3 '3 months
+        
         Select Case i
-        Case 1
-            sTemp = "Previous Month"
-        Case 2
-        sTemp = "2 Months ago"
-        Case 3
-        sTemp = "3 Months ago"
+            Case 1
+                sTemp = "Previous Month"
+            Case 2
+                sTemp = "2 Months ago"
+            Case 3
+                sTemp = "3 Months ago"
         End Select
         
         'get the profit center of the employee worked for
-        sDatePrev = DateAdd("m", -i, CDate(sDateStart))
+        Select Case sVariable
+            Case "3_mo_shortage_avg"
+                sDatePrev = DateAdd("m", -i, CDate(sDateStart))
+            ' the first month is current month
+            Case "3_month_sales_avg"
+                sDatePrev = DateAdd("m", -i + 1, CDate(sDateStart))
+        End Select
         
         strSQL = "SELECT prhs_effective_dt, prhs_prft_ctr1"
         strSQL = strSQL & " FROM pr_history"
         strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
         strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(sDatePrev, True)
         strSQL = strSQL & " ORDER BY prhs_effective_dt DESC"
+        
         If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
             sErrMsg = "Failed to access the database to get " & sVinV
             Exit Function
         End If
+        
         If rsTemp.RecordCount = 0 Then
             subLogErrMsg "History not found for " + tfnDateString(sDatePrev, True) + ", use Date Hired."
             
             If IsValidDate(sDateHired) Then
+                
                 If CDate(sDateHired) <= CDate(sDatePrev) Then
                     nPrevPrftCtr = nPrftCtr
                 Else
                     sErrMsg = "Date Hired is later than " + tfnDateString(sDatePrev, True) + " to get " & sVinV
                     Exit Function
                 End If
+            
             Else
                 sErrMsg = "Date Hired is not valid"
                 Exit Function
             End If
+            
         Else
-            subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+            If bShowDetail Then
+                subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+            End If
+            
             nPrevPrftCtr = tfnRound(rsTemp!prhs_prft_ctr1)
         End If
         
@@ -1401,14 +1455,23 @@ Private Function fn3MonthsAverage(sVariable As String, _
         
         If rsTemp.RecordCount = 0 Then
             subLogErrMsg "No record found as of " + tfnDateString(sDatePrev) + " for " & sVinV & "."
+            bNoRecordFound = True
         Else
             Select Case sVariable
-            Case "3_mo_shortage_avg"
-                dTmpAmt = tfnRound(rsTemp!var_value, 2)
-                subLogErrMsg "Shortage Ratio as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
-            Case "3_month_sales_avg"
-                dTmpAmt = tfnRound(rsTemp!var_value, 2)
-                subLogErrMsg "Inside Sales as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
+                Case "3_mo_shortage_avg"
+                    dTmpAmt = tfnRound(rsTemp!var_value, 2)
+                    
+                    If bShowDetail Then
+                        subLogErrMsg "Shortage Ratio as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
+                    End If
+                    
+                Case "3_month_sales_avg"
+                    dTmpAmt = tfnRound(rsTemp!var_value, 2)
+                    
+                    If bShowDetail Then
+                        subLogErrMsg "Inside Sales as of " + tfnDateString(sDatePrev) + " = " & dTmpAmt
+                    End If
+                    
             End Select
             
             dAmount = dAmount + dTmpAmt
@@ -1643,14 +1706,17 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
     strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
     strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(sDateStart, True)
     strSQL = strSQL & " ORDER BY prhs_effective_dt"
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         sErrMsg = "Failed to access the database to get " & sVinV
         Exit Function
     End If
+    
     If rsTemp.RecordCount = 0 Then
         subLogErrMsg "History not found for " + tfnDateString(sDateStart, True) + ", use Date Hired."
         
         If IsValidDate(sDateHired) Then
+            
             If CDate(sDateHired) <= CDate(sDateStart) Then
                 dDiff = Int(fnDateDiff("yyyy", CDate(sDateHired), CDate(sDateStart), _
                     vbFirstJan1))
@@ -1658,12 +1724,18 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
                 sErrMsg = "Date Hired is later than " + tfnDateString(sDateStart, True) + " to get " & sVinV
                 Exit Function
             End If
+        
         Else
             sErrMsg = "Date Hired is not valid"
             Exit Function
         End If
+    
     Else
-        subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+        
+        If bShowDetail Then
+            subLogErrMsg "Effective Date " + tfnDateString(rsTemp!prhs_effective_dt, True) + " in History found."
+        End If
+        
         If IsValidDate(rsTemp!prhs_effective_dt) Then
             dDiff = Int(fnDateDiff("yyyy", CDate(rsTemp!prhs_effective_dt), CDate(sDateStart), _
                 vbFirstJan1))
@@ -1671,6 +1743,7 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
             sErrMsg = "Effective Hired is not valid"
             Exit Function
         End If
+    
     End If
     
     fnYearAtLevelJan1 = dDiff
@@ -2016,6 +2089,7 @@ Private Function fnShortageAmount(sVinV As String, _
     
     If rsTemp.RecordCount = 0 Then
         sErrMsg = "No record found for " & sVinV
+        bNoRecordFound = True
         Exit Function
     End If
     
@@ -2614,15 +2688,103 @@ End Function
 Public Function fnHasApprove(Optional vApproveCount) As Boolean
     Dim i As Long
     
-    For i = 0 To tgmApprove.RowCount - 1
-        If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
-            fnHasApprove = True
-            If IsMissing(vApproveCount) Then
-                Exit Function
+'    For i = 0 To tgmApprove.RowCount - 1
+'        If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
+'            fnHasApprove = True
+'            If IsMissing(vApproveCount) Then
+'                Exit Function
+'            End If
+'            vApproveCount = vApproveCount + 1
+'        End If
+'    Next i
+
+    Dim bkmk As Variant
+    Dim lTotalBmk As Long
+    Dim vKeepBookMark As Variant
+    Dim lCurRow As Long
+    
+    lCurRow = tgmApprove.GetCurrentRowNumber
+    vKeepBookMark = frmZZSEBPRC.tblApprove.Bookmark
+    
+    lTotalBmk = tgmApprove.RowCount
+    
+    If lTotalBmk > 0 Then
+        
+        For i = 0 To lTotalBmk - 1
+
+            frmZZSEBPRC.tblApprove.Bookmark = tgmApprove.Bookmark(i)
+            
+            'check it's called from beforColEdit
+            If i = lCurRow Then
+            
+                If Not IsMissing(vApproveCount) Then
+                    'this one have to take care when beforecolEdit event
+                    If vApproveCount = -1 Then
+                        
+                        'this is called by beforeColEdit
+                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppNo Then
+                            fnHasApprove = True
+                            vApproveCount = 1
+                            Exit Function
+                        End If
+                        
+                    'called by insert or update
+                    Else
+                        
+                        If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
+                            tgmApprove.CellValue(colAApprove, i) = colAppYes
+                            fnHasApprove = True
+                        
+                            If IsMissing(vApproveCount) Then
+                                frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+                                Exit Function
+                            End If
+                
+                            vApproveCount = vApproveCount + 1
+                        Else
+                            tgmApprove.CellValue(colAApprove, i) = colAppNo
+                        End If
+                        
+                    End If
+                    
+                Else
+                    'others need
+                    If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
+                        tgmApprove.CellValue(colAApprove, i) = colAppYes
+                        fnHasApprove = True
+                        Exit Function
+                    Else
+                        tgmApprove.CellValue(colAApprove, i) = colAppNo
+                    End If
+                    
+                End If
+                
+            Else
+                If frmZZSEBPRC.tblApprove.Columns(colAApprove).Value = colAppYes Then
+                    fnHasApprove = True
+                    tgmApprove.CellValue(colAApprove, i) = colAppYes
+                    
+                    If IsMissing(vApproveCount) Then
+                        frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+                        Exit Function
+                    End If
+                
+                    vApproveCount = vApproveCount + 1
+                Else
+                    tgmApprove.CellValue(colAApprove, i) = colAppNo
+                End If
+                                 
             End If
-            vApproveCount = vApproveCount + 1
-        End If
-    Next i
+            
+        Next i
+    
+    Else
+        fnHasApprove = False
+        Exit Function
+    End If
+    
+    frmZZSEBPRC.tblApprove.Bookmark = vKeepBookMark
+    
 End Function
 
 Public Function fnDateDiff(sInterval As String, _
