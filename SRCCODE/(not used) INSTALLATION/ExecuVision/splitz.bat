@@ -19,7 +19,7 @@ echo NO split factdll.z
 copy ..\disk\factdll.z ..\disk\disk4
 
 echo split rtm.z
-call fsplit ..\disk\rtm.z ..\disk 310
+call fsplit ..\disk\rtm.z ..\disk 260
 move ..\disk\rtm.1 ..\disk\disk4
 move ..\disk\rtm.2 ..\disk\disk5
 move ..\disk\rtm.3 ..\disk\disk6
