@@ -46,6 +46,17 @@ Attribute VB_Exposed = False
 '                a. call .ButtonClick                         in Click event
 '                b. call .LostFocus Button-Name               in LostFocus event
 
+'          ******************************************************************
+'          *david 10/30/2001 for 3.26.xxxx release
+'          *The COLUMN_TYPE_STRING SQL will be case INSENSITIVE (default)
+'          *This means that the search (such as name, desc and etc.) will NOT BE case sensitive
+'          *
+'          *new property
+'          *CaseSensitive() - set or return the value of the COLUMN_TYPE_STRING to be treated
+'          *                  True - Query will be case sensitive,
+'          *                  False - Query will NOT be case sensitive
+'          ******************************************************************
+
 Option Explicit
     
 Private Const TYPE_STRING = 1
@@ -113,6 +124,8 @@ Private m_nSeries As Integer
 Private m_nCurrentDropDown As Integer
 Private m_bDefaultCursorControl As Boolean
 Private m_bLocked As Boolean
+
+Private m_bCaseSensitive As Boolean
 
 'david 03/05/2001
 Private m_nColWhenSearchBtnClick As Integer
@@ -525,17 +538,17 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.X = myRect.Left
-    myPoint.Y = myRect.Top
+    myPoint.x = myRect.Left
+    myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -790,7 +803,11 @@ Private Function fnLoadTable(nColumn As Integer, _
                             If nDatabase = DB_ACCESS Then
                                 szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "*") & ")"
                             Else
-                                szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                                If m_bCaseSensitive Then
+                                    szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                                Else
+                                    szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
+                                End If
                             End If
                             
                             szLink = " AND ("
@@ -1164,7 +1181,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1462,9 +1479,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1631,7 +1648,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1772,11 +1789,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(Y As Single)
+Public Sub MouseUp(y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = Y
+    nClickPointY = y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
@@ -1943,7 +1960,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1960,7 +1977,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2179,6 +2196,7 @@ Private Sub Class_Initialize()
     m_bLocked = False
     bHeaderClick = False
     bTableClicked = False
+    m_bCaseSensitive = False
 End Sub
 
 Private Sub Class_Terminate()
@@ -2244,3 +2262,59 @@ Public Sub AddOrderByFields(ByVal sDataField As String, _
     
     stCol.OrderByFields = sOrderByString
 End Sub
+
+'david 10/30/2001
+Property Let CaseSensitive(bStatus As Boolean)
+     m_bCaseSensitive = bStatus
+End Property
+
+Property Get CaseSensitive() As Boolean
+     CaseSensitive = m_bCaseSensitive
+End Property
+
+'david 10/30/2001
+'this function will rebuild the criteria string so that it can be used for case insensitive WHERE clause
+'NOTE: need to use the MATCHES keyword in the WHERE clause
+Public Function CaseInSensitiveString(ByVal s As String) As String
+    Dim i As Integer
+    Dim sRet As String
+    Dim sChar As String
+    Dim bSpaceFound As Boolean
+    
+    s = Trim(s)
+    
+    If Trim(s) = "" Then
+        sRet = "*"
+    Else
+        For i = 1 To Len(s)
+            sChar = Mid(s, i, 1)
+            If sChar = " " Then
+                If Not bSpaceFound Then
+                    sRet = sRet + "*"
+                    bSpaceFound = True
+                End If
+            Else
+                If IsAphabet(sChar) Then
+                    sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
+                Else
+                    sRet = sRet + sChar
+                End If
+                
+                bSpaceFound = False
+            End If
+        Next i
+            
+        sRet = "*" + sRet + "*"
+    End If
+    
+    CaseInSensitiveString = sRet
+End Function
+
+Private Function IsAphabet(ByVal sChar As String) As Boolean
+    sChar = UCase(sChar)
+    
+    If sChar >= "A" And sChar <= "Z" Then
+        IsAphabet = True
+    End If
+End Function
+
