@@ -73,7 +73,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     
     Const MAXLINE As Long = 2147483647
     
-    'On Error GoTo ErrorHandler
+    On Error GoTo ErrorHandler
     
     'check how many header read
     g_lHeaderCount = 0
