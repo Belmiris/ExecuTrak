@@ -563,17 +563,17 @@ End Function
 
 Private Function fnParentDir(sCurr As String) As String
 
-    Dim I As Integer
+    Dim i As Integer
     
-    I = Len(sCurr)
-    Do While I > 0
-        If Mid(sCurr, I, 1) = "\" Then
+    i = Len(sCurr)
+    Do While i > 0
+        If Mid(sCurr, i, 1) = "\" Then
             Exit Do
         End If
-        I = I - 1
+        i = i - 1
     Loop
-    If I > 0 Then
-        fnParentDir = Left(sCurr, I)
+    If i > 0 Then
+        fnParentDir = Left(sCurr, i)
     Else
         fnParentDir = ""
     End If
@@ -701,7 +701,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
 
     Dim sDirs() As String
     Dim sPath As String
-    Dim I As Integer
+    Dim i As Integer
     Dim i1 As Integer
     
     subParseString sDirs, sOrigPath, "\"
@@ -714,11 +714,11 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
     fnPreparePath = False
     On Error Resume Next
     sPath = ""
-    For I = i1 To UBound(sDirs)
-        If I = i1 Then
-            sPath = sDirs(I)
+    For i = i1 To UBound(sDirs)
+        If i = i1 Then
+            sPath = sDirs(i)
         Else
-            sPath = sPath & "\" & sDirs(I)
+            sPath = sPath & "\" & sDirs(i)
         End If
         If Not fnIsPath(sPath) Then
             Err.Clear
@@ -727,7 +727,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
                 Exit Function
             End If
         End If
-    Next I
+    Next i
     fnPreparePath = True
 End Function
 
@@ -1276,4 +1276,25 @@ Private Function fnSetODBCINIPath(sDSN As String) As Boolean
         fnSetODBCINIPath = True
     End If
 End Function
+
+Public Sub GetODBCINIPath(lODBCKey As Long, _
+                           sODBCPath As String, _
+                           sDSN As String)
+    Dim sTemp As String
+    
+    sODBCPath = szODBC_REG_KEY2
+    lODBCKey = HKEY_CURRENT_USER
+    sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
+    If sTemp = "" Then
+        sODBCPath = szODBC_REG_KEY1
+        lODBCKey = HKEY_USERS
+        sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
+        If sTemp = "" Then
+            sODBCPath = szODBC_REG_KEY2
+            lODBCKey = HKEY_LOCAL_MACHINE
+            sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
+        End If
+    End If
+End Sub
+
 
