@@ -686,7 +686,7 @@ Public Function tfnFormatDateTime(sDateTime As String, sToMinuteOrSecond As Stri
     If nPosi > 0 Then
         sDate = Left(sDateTime, nPosi - 1)
         
-        If InStr(sDate, "-") > 0 Then
+        If InStr(sDate, "-") > 3 Then
             sDate = Format(sDate, "yyyy-mm-dd")
         Else
             sDate = tfnFormatDate(sDate)
@@ -794,11 +794,27 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
     End If
 End Function
 
-Public Function tfnDateTimeString(sDateTime As String) As String
-    Const FORMAT_DATE = "YYYY-MM-DD"
-    Const FORMAT_TIME = "HH:MM:SS"
+'sYearTo argument required only when bUsedInWhereClause = True
+'Y-year to year
+'M-year to month
+'D-year to day
+'H-year to hour
+'N-year to minute
+'S-year to second
+Public Function tfnDateTimeString(ByVal sDateTime As String, _
+                                  Optional sYearTo As String = "S", _
+                                  Optional bUsedInWhereClause As Boolean = False) As String
 
-    Dim sDate As String, sTime As String, nPosi As Integer
+    Dim sUsedDateTime As String
+    Dim sQualifier As String
+    Dim sYYYY As String
+    Dim sMO As String
+    Dim sDD As String
+    Dim sHH As String
+    Dim sMN As String
+    Dim sSS As String
+    
+    sYearTo = UCase(sYearTo)
     
     tfnDateTimeString = "''"
     sDateTime = Trim(sDateTime)
@@ -807,24 +823,101 @@ Public Function tfnDateTimeString(sDateTime As String) As String
         Exit Function
     End If
     
-    nPosi = InStr(sDateTime, " ")
+    If Not fnParseDateTime(sDateTime, sYYYY, sMO, sDD, sHH, sMN, sSS) Then
+        Exit Function
+    End If
     
-    If nPosi > 0 Then
-        sDate = Left(sDateTime, nPosi - 1)
-        
-        If Not IsDate(tfnDateString(sDate)) Then
-            Exit Function
-        End If
-        
-        sTime = Trim(Mid(sDateTime, nPosi + 1))
-        tfnDateTimeString = "{ts " & tfnSQLString(Format(tfnDateString(sDate), FORMAT_DATE) & " " & Format(sTime, FORMAT_TIME)) & "}"
+    Select Case sYearTo
+    Case "Y"
+        sUsedDateTime = tfnSQLString(sYYYY)
+        sQualifier = "year to year"
+    Case "M"
+        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO)
+        sQualifier = "year to month"
+    Case "D"
+        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD)
+        sQualifier = "year to day"
+    Case "H"
+        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH)
+        sQualifier = "year to hour"
+    Case "N"
+        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN)
+        sQualifier = "year to minute"
+    Case "S"
+        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS)
+        sQualifier = "year to second"
+    End Select
+    
+    If bUsedInWhereClause Then
+        tfnDateTimeString = "extend(" + sUsedDateTime + "," + sQualifier + ")"
     Else
-        sDate = sDateTime
-        
-        If IsDate(tfnDateString(sDate)) Then
-            tfnDateTimeString = "{ts '" & Format(tfnDateString(sDate), FORMAT_DATE) & " 00:00:00'" & "}"
-        End If
+        tfnDateTimeString = "{ts " + sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS + "}"
     End If
     
 End Function
 
+Public Function fnParseDateTime(ByVal sDateTime As String, _
+                                sYYYY As String, _
+                                Optional sMO As String = "", _
+                                Optional sDD As String = "", _
+                                Optional sHH As String = "", _
+                                Optional sMN As String = "", _
+                                Optional sSS As String = "") As Boolean
+
+    Const FORMAT_DATE = "YYYY-MM-DD"
+    Const FORMAT_TIME = "HH:MM:SS"
+    
+    Dim nPosi  As Integer
+    Dim sDate As String
+    Dim sTime As String
+    
+    sDateTime = tfnFormatDateTime(Trim(sDateTime), "S")
+
+    If sDateTime = "" Then
+        Exit Function
+    End If
+    
+    If Not IsDate(sDateTime) Then
+        Exit Function
+    End If
+
+    On Error GoTo errHandler
+    
+    nPosi = InStr(sDateTime, " ")
+    
+    If nPosi > 0 Then
+        sDate = Format(Left(sDateTime, nPosi - 1), FORMAT_DATE)
+        sTime = Format(Trim(Mid(sDateTime, nPosi + 1)), FORMAT_TIME)
+    Else
+        sDate = Format(sDateTime, FORMAT_DATE)
+        sTime = "00:00:00"
+    End If
+    
+    'parse date into yyyy,mm,dd
+    nPosi = InStr(sDate, "-")
+    If nPosi <= 0 Then
+        Exit Function
+    End If
+    
+    sYYYY = Left(tfnDateString(sDate), 4)
+    sDate = Mid(sDate, 6)
+    
+    nPosi = InStr(sDate, "-")
+    If nPosi <= 0 Then
+        Exit Function
+    End If
+    
+    sMO = Left(sDate, 2)
+    sDD = Right(sDate, 2)
+    
+    sHH = Left(sTime, 2)
+    sMN = Mid(sTime, 4, 2)
+    sSS = Right(sTime, 2)
+    
+    fnParseDateTime = True
+    
+    Exit Function
+    
+errHandler:
+    
+End Function
