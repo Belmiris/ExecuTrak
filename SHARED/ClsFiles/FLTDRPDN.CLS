@@ -1042,6 +1042,10 @@ Property Let SearchOnReturn(bFlag As Boolean)
     bSearchOnReturn = bFlag
 End Property
 
+Property Get SearchOnReturn() As Boolean
+    SearchOnReturn = bSearchOnReturn
+End Property
+
 Public Sub SetPopulateBox(nCol As Integer, bStatus As Boolean)
     Dim lIndex As Long
     Dim lColIndex As Long

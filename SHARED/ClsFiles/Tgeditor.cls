@@ -4896,7 +4896,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4974,7 +4974,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -5033,7 +5033,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     m_bColIsSorted = False
     
@@ -5110,7 +5110,7 @@ Debug.Print sSortCols
         End If
     End If
     
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -5125,7 +5125,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     nSortCount = -1
     
@@ -5262,13 +5262,12 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-errTrap:
+ErrTrap:
     'error, no sort
 End Function
 
 Public Function GetErrorMessage(lRow As Long, nCol As Integer) As String
     Dim nECol As Integer
-    Dim bFlag As Boolean
     
     nECol = fnColumnNumber(nCol)
     
@@ -5276,8 +5275,15 @@ Public Function GetErrorMessage(lRow As Long, nCol As Integer) As String
         Exit Function
     End If
 
-    'fnValidate nCol, lRow, fnGetUserData(MakeBookmark(lRow), nCol)
-    GetErrorMessage = sErrMessage(nECol)
+    If Not bValidCell(nECol, lRow) Then
+        If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
+            If sErrMessage(nECol) = "" Then
+                GetErrorMessage = "Data is invalid; " & sPrompt(nECol)
+            Else
+                GetErrorMessage = sErrMessage(nECol)
+            End If
+        End If
+    End If
 End Function
 
 Private Function IsColForSorting(nSortCol As Integer, Optional Index As Integer) As Boolean
@@ -5385,7 +5391,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
         Exit Sub
     End If
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5406,7 +5412,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
