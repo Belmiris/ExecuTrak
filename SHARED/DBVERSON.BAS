@@ -21,7 +21,7 @@ Private Declare Function RCmdCancel Lib "RCMD.DLL" () As Integer
 Private Declare Function RCmdNoEvents Lib "RCMD.DLL" () As Integer
 Private Declare Function RCmdEvents Lib "RCMD.DLL" () As Integer
 
-Private Const sINIFile As String = ".\dbverson.ini"
+Private Const sINIFile As String = "C:\Factor\dbverson.ini"
 
 Private Function fnChangeFileAttr(sTable As String) As Boolean
     Dim sHost As String
