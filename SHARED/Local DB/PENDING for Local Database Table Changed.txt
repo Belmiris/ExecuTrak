@@ -6,7 +6,7 @@ Description:
 
 	add new table zzpc_sih_invoice (copy from sih_invoice)
 	add new table zzpc_sih_inv_line (copy from sih_inv_line)
-		+ (zzpct_site, zzpct_seq, zzpct_date)
+		+ (idph_base_cost, zzpct_site, zzpct_seq, zzpct_date)
 	add new table zzpc_sih_inv_tax (copy from sih_inv_line)
 
 
