@@ -14,14 +14,14 @@
 
 #define SIZE_REQ_SERVER         4
 
-#define PRODUCT_NAME            "Factor Service Pack"
-#define MODULE_NAME             "Factor Service Pack"
+#define PRODUCT_NAME            "Service Pack"
+#define MODULE_NAME             "Service Pack"
 #define APP_KEY_FILE            "FACTMENU.EXE"
 #define KEY_DEFAULT             "SP"
 #define KEY_CLIENT_PATH         "SP Client Path"
 #define KEY_SERVER_PATH         "SP Server Path"
 #define KEY_REMOTE              "SPRemote"
-#define WELCOME_TITLE           "ExecuTrak Factor Service Pack Installation"
+#define WELCOME_TITLE           "ExecuTrak Service Pack Installation"
 
 #define COMPANY_NAME		"FACTOR"
 #define APP_BASE_PATH		"Factor"
