@@ -525,17 +525,17 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.x = myRect.Left
-    myPoint.y = myRect.Top
+    myPoint.X = myRect.Left
+    myPoint.Y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -785,7 +785,14 @@ Private Function fnLoadTable(nColumn As Integer, _
                     ' if a code mask has been entered, add to the SQL
                     If szCode <> "" Then
                         If colTemp.Item(lCol).ColType = TYPE_STRING Then
-                            szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                            
+                            'Add if by junsong 10/16/01, % does not work for DAO right now.
+                            If nDatabase = DB_ACCESS Then
+                                szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "*") & ")"
+                            Else
+                                szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                            End If
+                            
                             szLink = " AND ("
                         ElseIf colTemp.Item(lCol).ColType = TYPE_INTEGER Then
                             szQuery = szQuery & szLink & fnGenetateSearchString(colTemp.Item(lCol).DataField, szCode) & ")"
@@ -1157,7 +1164,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If val(tgMain.Row) >= 0 Then
+                    If Val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1455,9 +1462,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(val(sPrefix))
+    sTrimedPrefix = CStr(Val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If val(sPrefix) > 0 Then
+    If Val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1506,7 +1513,7 @@ Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Intege
         Case DB_INFORMIX
             Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         Case DB_ACCESS
-            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
+            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenDynaset)
         Case Else
             fnGetRecord = False
             MsgBox "Drop down database not setup", vbOKOnly + vbCritical, frmParent.Caption
@@ -1624,7 +1631,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = val(tgMain.Row)
+                lRow = Val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1765,11 +1772,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(y As Single)
+Public Sub MouseUp(Y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = y
+    nClickPointY = Y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
@@ -1936,7 +1943,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1953,7 +1960,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
