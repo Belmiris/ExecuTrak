@@ -141,24 +141,21 @@ Attribute VB_Exposed = False
 '           Property: read-only. Return the number of the combos in the control.
 
 Option Explicit
-    
-#Const DEBUG_MODE = False
-#If MAKE_DLL Then
-    Private Const dbgBlackLine = 1
-    Private Const dbgFixedSingle = 1
-    Private Const dbgNone = 0
-    Private Const dbgHorizontal = 1
-    Private Const dbgVertical = 2
-    Private Const dbgBoth = 3
-    Private Const dbgAutomatic = 4
-    Private Const dbgHighlightRow = 3
-    Private Const dbg3D = 1
-    Private Const dbgScrollOnSelect = 0
-    Private Const dbgControlNavigation = 0
-    Private Const dbgMarqueeRow = 2
-    Private Const dbgCurrentCell = 1
-    Private Const dbgUnbound = 1
-#End If
+
+Private Const dbgBlackLine = 1
+Private Const dbgFixedSingle = 1
+Private Const dbgNone = 0
+Private Const dbgHorizontal = 1
+Private Const dbgVertical = 2
+Private Const dbgBoth = 3
+Private Const dbgAutomatic = 4
+Private Const dbgHighlightRow = 3
+Private Const dbg3D = 1
+Private Const dbgScrollOnSelect = 0
+Private Const dbgControlNavigation = 0
+Private Const dbgMarqueeRow = 2
+Private Const dbgCurrentCell = 1
+Private Const dbgUnbound = 1
 
 Private Const TYPE_STRING As Integer = -1
 Private Const TYPE_LONG As Integer = -2
@@ -259,7 +256,166 @@ Private m_bSortOnColumnClick As Boolean
     Private Declare Sub GetWindowRect Lib "USER" (ByVal hwnd As Integer, lpRect As RECT)
     Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
 #End If
+
+'#04/22/2003 Vals added by
+'#WJ Magic #407922. Automaticall Detect Data Type
+'#And Try to Format and Align the Grid Column Display
+Private Const DB_CHAR_TYPE = 0
+Private Const DB_INT_TYPE = 1
+Private Const DB_NUM_TYPE = 2
+Private Const DB_DATE_TYPE = 3
 '
+
+Property Set Form(frmMain As Object)
+    Set frmParent = frmMain
+    m_nOringalFormWidth = frmMain.Width
+    m_nOringalFormHeight = frmMain.Height
+End Property
+
+Property Set DataBase(dbSource As Object)
+    'Set the database property of the dropdown control
+    Set dbRemote = dbSource
+End Property
+
+Property Set DataLink(dLink As Object)
+    'Set the datalink property of the dropdown control
+    Set datLink = dLink
+End Property
+
+Property Set DBEngine(objTemp As Object)
+    Set engDatabase = objTemp
+End Property
+
+Property Set LocalDatabase(dbSource As Object)
+    Set t_dbLocal = dbSource
+End Property
+
+'#04/22/2003 Function added by
+'#WJ Magic #407922. Automaticall Detect Data Type
+'#And Try to Format and Align the Grid Column Display
+
+Private Function fnFieldType(ByVal rsTemp As Recordset, _
+                             ByVal sFieldName As String, _
+                             ByVal nDB As Integer, _
+                             ByRef right_nbr As Integer) As Integer
+    Dim strSQL As String
+    Dim rsCol As Recordset
+    Dim dbField As Field
+    Dim bFound As Boolean
+    Dim nType As Integer
+    
+    On Error GoTo errTrap
+    
+    fnFieldType = DB_CHAR_TYPE
+    
+    right_nbr = 0
+    bFound = False
+    For Each dbField In rsTemp.Fields
+        If Trim(dbField.Name) = Trim(sFieldName) Then
+             bFound = True
+             Exit For
+        End If
+    Next
+    If bFound = False Then
+        Exit Function
+    End If
+    
+    Select Case dbField.Type
+        Case dbInteger, dbLong
+            fnFieldType = DB_INT_TYPE
+        Case dbCurrency
+            right_nbr = 2
+            fnFieldType = DB_NUM_TYPE
+        Case dbDate
+            If dbField.Size = 8 Then
+                fnFieldType = DB_DATE_TYPE
+            End If
+        Case dbSingle, dbDouble, dbNumeric, dbDecimal, dbFloat
+            fnFieldType = DB_NUM_TYPE
+            If nDB = DB_INFORMIX Then
+                strSQL = "SELECT * FROM syscolumns WHERE colName='" & dbField.Name & "'"
+                If fnGetRecord(rsCol, strSQL, nDB) Then
+                    If rsCol.RecordCount > 0 Then
+                        fnInformixColTypeDesc rsCol!colType, rsCol!colLength, right_nbr
+                    End If
+                End If
+            End If
+    End Select
+    
+    Exit Function
+errTrap:
+    On Error GoTo 0
+End Function
+
+'#04/22/2003 Function added by
+'#WJ Magic #407922. Automaticall Detect Data Type
+'#And Try to Format and Align the Grid Column Display
+Private Function fnInformixColTypeDesc(ByVal nColType As Integer, _
+                               ByVal nColLength As Integer, _
+                               ByRef right_nbr As Integer) As String
+     
+     Dim left_nbr As Integer
+     Dim coltypecal As Integer
+     
+     On Error GoTo errTrap
+     
+     right_nbr = 0
+     
+     If nColType >= 256 Then
+        coltypecal = nColType - 256
+     Else
+        coltypecal = nColType
+     End If
+     Select Case coltypecal
+        Case 0
+            fnInformixColTypeDesc = "char(" & nColLength & ")"
+        Case 1
+            fnInformixColTypeDesc = "smallint"
+        Case 2
+            fnInformixColTypeDesc = "integer"
+        Case 3
+            fnInformixColTypeDesc = "float"
+        Case 4
+            fnInformixColTypeDesc = "smallfloat"
+        Case 5
+            left_nbr = nColLength \ 256
+            right_nbr = nColLength - (left_nbr * 256)
+            Select Case right_nbr
+                Case 0
+                    fnInformixColTypeDesc = "decimal(" & left_nbr & ",0)"
+                Case 255
+                    fnInformixColTypeDesc = "decimal(" & left_nbr & ")"
+                Case Else
+                    fnInformixColTypeDesc = "decimal(" & left_nbr & "," & right_nbr & ")"
+            End Select
+        Case 6
+            fnInformixColTypeDesc = "serial(1)"
+        Case 7
+            fnInformixColTypeDesc = "date"
+        Case 8
+            left_nbr = nColLength \ 256
+            right_nbr = nColLength - (left_nbr * 256)
+            Select Case right_nbr
+                Case 0
+                    fnInformixColTypeDesc = "money(" & left_nbr & ",0)"
+                Case 255
+                    fnInformixColTypeDesc = "money(" & left_nbr & ")"
+                Case Else
+                    fnInformixColTypeDesc = "money(" & left_nbr & "," & right_nbr & ")"
+            End Select
+        Case 10
+            fnInformixColTypeDesc = "datetime"
+        Case 14
+            fnInformixColTypeDesc = "interval"
+     End Select
+     If right_nbr >= 8 Then
+        right_nbr = 0
+     End If
+     Exit Function
+errTrap:
+    On Error GoTo 0
+
+End Function
 
 Property Let AppendCriteria(objControl As Object, bTemp As Boolean)
     Dim lDropDown As Integer
@@ -300,7 +456,7 @@ Private Sub subColWidth(nW As Integer, _
     Dim objTextBox As Object
     Dim nTop As Long
     
-    Set txtBox = colTemp(nCol).TextBox
+    Set txtBox = colTemp(nCol).Textbox
     Set cmdButton = colTemp(nCol).Button
     bAddTo = True
     If fnLeftMostCol(colTemp, nCol) Then
@@ -308,7 +464,7 @@ Private Sub subColWidth(nW As Integer, _
     Else
         Set objTextBox = colTemp.Item(nCol - 1).Button
         If objTextBox Is Nothing Then
-            Set objTextBox = colTemp.Item(nCol - 1).TextBox
+            Set objTextBox = colTemp.Item(nCol - 1).Textbox
         End If
         If objTextBox Is Nothing Then
             nW = DEFAULT_COLWIDTH
@@ -316,10 +472,10 @@ Private Sub subColWidth(nW As Integer, _
             If cmdButton Is Nothing Then
                 nW = txtBox.Left + txtBox.Width - (objTextBox.Left + objTextBox.Width)
             Else
-                If colTemp.Item(nCol - 1).TextBox Is Nothing Then
+                If colTemp.Item(nCol - 1).Textbox Is Nothing Then
                     nTop = objTextBox.Top
                 Else
-                    nTop = colTemp.Item(nCol - 1).TextBox.Top
+                    nTop = colTemp.Item(nCol - 1).Textbox.Top
                 End If
                 If Abs(txtBox.Top - nTop) < 100 Then
                     nW = cmdButton.Left + cmdButton.Width - (objTextBox.Left + objTextBox.Width)
@@ -392,8 +548,8 @@ Private Function fnGetTop() As Integer
     
     If clsCurrentDropdown.Position = nDROP_UP Then
         For Each clsTemp In clsCurrentDropdown.Combos
-            If Not clsTemp.TextBox Is Nothing Then
-                nHeight = clsTemp.TextBox.Height
+            If Not clsTemp.Textbox Is Nothing Then
+                nHeight = clsTemp.Textbox.Height
                 Exit For
             End If
         Next clsTemp
@@ -453,7 +609,9 @@ Private Function fnSQLValidation(ByVal lDropDown As Integer, _
     nPos = InStr(UCase(szQuery), szUNION)
     If nPos = 0 Then
         szQuery = fnAppendCriteria1(szQuery, clsCurrentDropdown.dbType, 0, bTakeEmpty, False)
-        sColName = colCombo.Item(lComboIndex).DataField
+        'david 09/21/2004
+        sColName = fnGetFieldName(colCombo.Item(lComboIndex).DataField)
+        '''''''''''''''''
     Else
         Dim szQuery1 As String
         Dim szQuery2 As String
@@ -495,11 +653,6 @@ Private Function fnSQLValidation(ByVal lDropDown As Integer, _
     fnSQLValidation = szQuery
 
 End Function
-
-Property Set DBEngine(objTemp As Object)
-    Set engDatabase = objTemp
-End Property
-
 
 Property Let Populate(objControl As Object, bTemp As Boolean)
     Dim lDropDown As Integer
@@ -547,9 +700,9 @@ Public Sub Resize()
         For i = 1 To clsDD.Combos.Count
             Set clsCombo = clsDD.Combos(i)
             If Not bLeftSet Then
-                If Not (clsCombo.TextBox Is Nothing Or clsCombo.Button Is Nothing) Then
+                If Not (clsCombo.Textbox Is Nothing Or clsCombo.Button Is Nothing) Then
                     bLeftSet = True
-                    fnGetOffsets nLeft, nTop, clsCombo.TextBox
+                    fnGetOffsets nLeft, nTop, clsCombo.Textbox
                     clsDD.TableLeft = nLeft - nTW
                     clsDD.TableTop = nTop
                 End If
@@ -627,7 +780,7 @@ Public Function SecondaryBox(objCtrl As Object, sField As String) As Object
     sKey = UCase(Trim(sField))
     For Each clsTemp In colComboControls.Item(lDropDown).Combos
         If sKey = UCase(clsTemp.AliasName) Then
-            Set SecondaryBox = clsTemp.TextBox
+            Set SecondaryBox = clsTemp.Textbox
         End If
     Next clsTemp
 
@@ -790,7 +943,7 @@ Public Sub FillText(objCtrl As Object)
                     m_bFillingText = True
                     For Each clsCycle In colComboControls.Item(lDropDown).Combos
                         If Not clsCycle Is clsTemp Then
-                            clsCycle.TextBox = clsCycle.FieldValue
+                            clsCycle.Textbox = clsCycle.FieldValue
                         End If
                     Next
                     DoEvents
@@ -813,7 +966,7 @@ Private Sub subSetType(objControl As Object, _
         .ComboType = nType
         .RegExpPattern = fnGetPCode(nType)
         If nType < MAX_TYPES Then
-            If TypeOf objControl Is TextBox Then
+            If TypeOf objControl Is Textbox Then
                 objControl.MaxLength = -nType \ TYPE_DCM_INT_MASK
             End If
         End If
@@ -952,7 +1105,7 @@ Public Sub AddExtraField(txtBox As Object, _
         clsCombo.ColWidth = -1
     End If
     With clsCombo
-        Set .TextBox = txtBox
+        Set .Textbox = txtBox
         Set .Button = Nothing
         .AliasName = Trim(sField)
         .FieldValue = ""
@@ -1083,24 +1236,26 @@ Private Function fnAppendCriteria(ByVal szQuery As String, _
     End If
     Set colCombo = clsCurrentDropdown.Combos
     For lCol = 1 To colCombo.Count
-        If Not (colCombo.Item(lCol).TextBox Is Nothing) Then
+        If Not (colCombo.Item(lCol).Textbox Is Nothing) Then
             bAppendCriteria = False
             If colCombo.Item(lCol).AppendCriteria Then
-                If TypeOf colCombo.Item(lCol).TextBox Is TextBox Then
-                    If Not colCombo.Item(lCol).TextBox.Locked Then
+                If TypeOf colCombo.Item(lCol).Textbox Is Textbox Then
+                    If Not colCombo.Item(lCol).Textbox.Locked Then
                         bAppendCriteria = True
                     End If
                 End If
             End If
             If bAppendCriteria Then
-                szCode = Trim$(colCombo.Item(lCol).TextBox.Text)
+                szCode = Trim$(colCombo.Item(lCol).Textbox.Text)
                 ' if a criteria has been entered, add to the SQL
 '                If szCode <> "" And Not (colCombo.Item(lCol).Button Is Nothing) Then    'Old
                 If szCode <> "" Then
-                    sDataField = fnUnscrambleDataField(colCombo.Item(lCol).DataField, nCol)
+                    'david 09/21/2004
+                    sDataField = fnGetFieldName(fnUnscrambleDataField(colCombo.Item(lCol).DataField, nCol))
+                    '''''''''''''''''
                     Select Case colCombo.Item(lCol).ComboType
                         Case TYPE_DATE
-                            If tfnRegExpControlChange(colCombo.Item(lCol).TextBox, colCombo.Item(lCol).RegExpPattern) Then
+                            If tfnRegExpControlChange(colCombo.Item(lCol).Textbox, colCombo.Item(lCol).RegExpPattern) Then
                                 sTemp = tfnDateString(tfnFormatDate(szCode))
                                 If IsDate(sTemp) Then
                                     szQuery = szQuery & szLink & sDataField & " >= '" & sTemp & "')"
@@ -1267,25 +1422,27 @@ Private Function fnAppendCriteria1(ByVal szQuery As String, _
     End If
     Set colCombo = clsCurrentDropdown.Combos
     For lCol = 1 To colCombo.Count
-        If Not (colCombo.Item(lCol).TextBox Is Nothing) Then
+        If Not (colCombo.Item(lCol).Textbox Is Nothing) Then
             bAppendCriteria = False
             If colCombo.Item(lCol).AppendCriteria Then
                 If bAllFields Or colCombo.Item(lCol).KeyField Then
-                    If TypeOf colCombo.Item(lCol).TextBox Is TextBox Then
-                        If Not colCombo.Item(lCol).TextBox.Locked Then
+                    If TypeOf colCombo.Item(lCol).Textbox Is Textbox Then
+                        If Not colCombo.Item(lCol).Textbox.Locked Then
                             bAppendCriteria = True
                         End If
                     End If
                 End If
             End If
             If bAppendCriteria Then
-                szCode = Trim$(colCombo.Item(lCol).TextBox.Text)
+                szCode = Trim$(colCombo.Item(lCol).Textbox.Text)
                 ' if a criteria has been entered, add to the SQL
-                sDataField = fnUnscrambleDataField(colCombo.Item(lCol).DataField, nCol)
+                'david 09/21/2004
+                sDataField = fnGetFieldName(fnUnscrambleDataField(colCombo.Item(lCol).DataField, nCol))
+                '''''''''''''''''
                 If Not bTakeEmpty Or szCode <> "" Then
                     Select Case colCombo.Item(lCol).ComboType
                         Case TYPE_DATE
-                            If tfnRegExpControlChange(colCombo.Item(lCol).TextBox, colCombo.Item(lCol).RegExpPattern) Then
+                            If tfnRegExpControlChange(colCombo.Item(lCol).Textbox, colCombo.Item(lCol).RegExpPattern) Then
                                 szQuery = szQuery & szLink & sDataField & " = '" & tfnDateString(tfnFormatDate(szCode)) & "')"
                                 szLink = " AND ("
                             End If
@@ -1427,6 +1584,7 @@ Private Function fnTypeOf(v As Variant) As Integer
         Loop Until i > nLen
     End If
 End Function
+
 Private Function fnUnscrambleDataField(sDataField As String, nCol As Integer) As String
     Dim sArray() As String
     fnParseString sArray, sDataField
@@ -1434,6 +1592,37 @@ Private Function fnUnscrambleDataField(sDataField As String, nCol As Integer) As
         fnUnscrambleDataField = sArray(nCol - 1)
     Else
         fnUnscrambleDataField = sArray(0)
+    End If
+End Function
+'david 09/21/2004
+'taking care of field with alias
+Private Function fnGetFieldName(ByVal sField As String, Optional bReturnAlias As Boolean = False) As String
+    Dim sDataField As String
+    Dim sAlias As String
+    
+    Dim nPosi As Integer
+    nPosi = InStrRev(sField, " ")
+    If nPosi > 0 Then
+        'field alias found
+        sAlias = Trim(Mid(sField, nPosi + 1))
+        sField = Trim(Left(sField, nPosi - 1))
+        nPosi = InStrRev(LCase(sField), " as")
+        If nPosi > 0 Then
+            sField = Trim(Left(sField, nPosi - 1))
+        End If
+        If Left(sField, 1) <> "(" Then
+            sField = "(" + sField + ")"
+        End If
+        sDataField = sField
+    Else
+        sDataField = sField
+        sAlias = sField
+    End If
+
+    If bReturnAlias Then
+        fnGetFieldName = sAlias
+    Else
+        fnGetFieldName = sDataField
     End If
 End Function
 
@@ -1480,7 +1669,7 @@ Public Sub ReadData(ByVal RowBuf As Object, _
         End If
         Bookmk = Str(Index)
         For j = 0 To RowBuf.ColumnCount - 1
-            RowBuf.Value(i, j) = sGridData(j, Index)
+            RowBuf.value(i, j) = sGridData(j, Index)
         Next j
         RowBuf.Bookmark(i) = Bookmk
         RowsFetched = RowsFetched + 1
@@ -1624,10 +1813,6 @@ Private Sub fnSetupAlias(nIndex As Integer)
     nErrorNumber = 0
 End Sub
 
-Property Set LocalDatabase(dbSource As Object)
-    Set t_dbLocal = dbSource
-End Property
-
 Property Let RegExpPattern(objControl As Object, sPattern As String)
     Dim lDropDown As Integer
     Dim nctrlType As Integer
@@ -1672,12 +1857,12 @@ Public Sub ReLocateTable(Optional vTemp)
             If i = 1 Then
                 Dim nLeft As Integer
                 Dim nTop As Integer
-                fnGetOffsets nLeft, nTop, .TextBox
+                fnGetOffsets nLeft, nTop, .Textbox
                 colComboControls.Item(lDropDown).TableLeft = nLeft  ' + txtBox.Left
                 colComboControls.Item(lDropDown).TableTop = nTop    '+ txtBox.Height     '+ txtBox.Top
 '                .ColWidth = .TextBox.Width
                 If Not .Button Is Nothing Then
-                    .ColWidth = .Button.Left + .Button.Width - .TextBox.Left
+                    .ColWidth = .Button.Left + .Button.Width - .Textbox.Left
                 End If
             Else
 '                .ColWidth = .TextBox.Left + .TextBox.Width - (colTemp.Item(i - 1).TextBox.Left + colTemp.Item(i - 1).TextBox.Width)
@@ -2002,12 +2187,12 @@ End Sub
     
         GetWindowRect n_hWnd, myRect
     
-        myPoint.x = myRect.Left
+        myPoint.X = myRect.Left
         myPoint.y = myRect.Top
         
         If ScreenToClient(nParenthWnd, myPoint) Then
     '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-            nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox
+            nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox
             If nLeft < -nLimit Or nLeft > nLimit Then
                 nLeft = Screen.TwipsPerPixelX
             End If
@@ -2030,12 +2215,12 @@ End Sub
     
         GetWindowRect n_hWnd, myRect
     
-        myPoint.x = myRect.Left
+        myPoint.X = myRect.Left
         myPoint.y = myRect.Top
         
         If ScreenToClient(nParenthWnd, myPoint) Then
     '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-            nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox
+            nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox
             If nLeft < -nLimit Or nLeft > nLimit Then
                 nLeft = Screen.TwipsPerPixelX
             End If
@@ -2126,7 +2311,7 @@ Public Sub AddExtraColumn(sField As String, _
         If IsMissing(vBox) Then
             .Populate = False
         Else
-            Set .TextBox = vBox
+            Set .Textbox = vBox
             .Populate = True
         End If
         Set .Button = Nothing
@@ -2226,8 +2411,8 @@ Private Sub fnGetKeys(nDropDown As Integer, _
             If .Active Or bQueryActive Then
                 Set colTemp = .Combos
                 For j = 1 To colTemp.Count
-                    If Not (colTemp.Item(j).TextBox Is Nothing) Then
-                        If colTemp.Item(j).TextBox.TabIndex = objKey.TabIndex Then
+                    If Not (colTemp.Item(j).Textbox Is Nothing) Then
+                        If colTemp.Item(j).Textbox.TabIndex = objKey.TabIndex Then
                             nDropDown = i
                             nCombo = j
                             nType = CONTROL_TYPE_TEXTBOX
@@ -2268,7 +2453,9 @@ Private Sub subIndexFromField(nDropDown As Integer, _
             If .Active Then
                 Set colTemp = .Combos
                 For j = 1 To colTemp.Count
-                    If colTemp.Item(j).DataField = sField Then
+                    'david 09/21/2004
+                    If fnGetFieldName(colTemp.Item(j).DataField) = sField Or _
+                       fnGetFieldName(colTemp.Item(j).DataField, True) = sField Then
                         nDropDown = i
                         nCombo = j
                         Exit Sub
@@ -2389,7 +2576,9 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
     
     If nPos = 0 Then
         szQuery = fnAppendCriteria(szQuery, clsCurrentDropdown.dbType, 0)
-        sColName = colCombo.Item(lComboIndex).DataField
+        'david 09/21/2004
+        sColName = fnGetFieldName(colCombo.Item(lComboIndex).DataField, True)
+        '''''''''''''''''
     Else
         Dim szQuery1 As String
         Dim szQuery2 As String
@@ -2442,7 +2631,9 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
         If colCombo.Item(lComboIndex).OrderByFields <> "" Then
             sTemp = colCombo.Item(lComboIndex).OrderByFields
         Else
-            sTemp = tgDropDown.Columns(ColIndex).DataField
+            'david 09/21/2004
+            sTemp = fnGetFieldName(tgDropDown.Columns(ColIndex).DataField, True)
+            '''''''''''''''''
         End If
         
         sTemp = fnCnvtOrderByFieldsToColIndex(szQuery, sTemp)
@@ -2481,7 +2672,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
         ' Set the return value false
         tgDropDown.Visible = False
         frmParent.Cls
-        fnSetFocus colCombo.Item(lComboIndex).TextBox
+        fnSetFocus colCombo.Item(lComboIndex).Textbox
         Exit Function
     End If
     
@@ -2519,7 +2710,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
             tgDropDown.Visible = False
             bValidSelection = True
             frmParent.Cls
-            fnSetFocus colCombo.Item(lComboIndex).TextBox
+            fnSetFocus colCombo.Item(lComboIndex).Textbox
         Else
             If tgDropDown.DataMode <> dbgUnbound Then
                 Set datLink.Recordset = rsTemp
@@ -2533,6 +2724,9 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
             nPos = 1
             nLen = clsCurrentDropdown.TableWidth
             
+            '#Add two vals WJ 04/22/2003
+            Dim nDataType As Integer
+            Dim right_nbr As Integer
             For lCol = 1 To colCombo.Count
                 If colCombo.Item(lCol).ColWidth > 0 Then
                     If colCombo.Item(lCol).Visible Then
@@ -2540,8 +2734,31 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
                         tgDropDown.Columns.Add nColCount
                         With tgDropDown.Columns(nColCount)
                             .Width = colCombo.Item(lCol).ColWidth
-                            .DataField = colCombo.Item(lCol).AliasName
+                            'david 09/21/2004
+                            .DataField = fnGetFieldName(colCombo.Item(lCol).AliasName, True)
+                            '''''''''''''''''
                             .Caption = colCombo.Item(lCol).Caption
+                            '-----------Start for #407922 ----------
+                            '#Add the following by WJ on 04/22/2003
+                            '#for #407922. Detect the Data Type and
+                            '#format/Align the display fields
+                            nDataType = fnFieldType(rsTemp, .DataField, clsCurrentDropdown.dbType, right_nbr)
+                            '0 - left; 1 - right, 2 - mid
+                            Select Case nDataType
+                                Case DB_NUM_TYPE
+                                    .Alignment = 1
+                                    If right_nbr >= 1 And right_nbr <= 8 Then
+                                        .NumberFormat = "0." & String(right_nbr, "0")
+                                    End If
+                                Case DB_INT_TYPE
+                                    .Alignment = 0
+                                Case DB_DATE_TYPE
+                                   .Alignment = 0
+                                   .NumberFormat = "mm/dd/yyyy"
+                                Case Else
+                                   .Alignment = 0
+                            End Select
+                            '-----------End for #407922 ----------
                             .Visible = True
                         End With
                         nColCount = nColCount + 1
@@ -2623,7 +2840,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
             End If
             MsgBox sMsg, vbOKOnly + vbInformation
         End If
-        fnSetFocus colCombo.Item(lComboIndex).TextBox
+        fnSetFocus colCombo.Item(lComboIndex).Textbox
         fnLoadTable = False
     End If
     
@@ -2726,10 +2943,10 @@ Public Function Keypress(objControl As Object, KeyAscii As Integer) As Boolean
     If objControl.TabIndex = tgDropDown.TabIndex Then
         If KeyAscii = vbKeyReturn Then
             fnGetText
-            fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).TextBox
+            fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
             tgDropDown.Visible = False
         ElseIf KeyAscii = vbKeyEscape Then
-            fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).TextBox
+            fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
             tgDropDown.Visible = False
         End If
     Else
@@ -2839,7 +3056,7 @@ Public Function AddComboBox(txtBox As Object, _
         Else
             .KeyField = False
         End If
-        Set .TextBox = txtBox
+        Set .Textbox = txtBox
         Set .Button = cmdButton
         .AliasName = Trim(sField)
         .DataField = Trim(sField)
@@ -2961,7 +3178,7 @@ Public Function AddCriteriaField(txtBox As Object, _
         Else
             .KeyField = False
         End If
-        Set .TextBox = txtBox
+        Set .Textbox = txtBox
         .AliasName = Trim(sField)
         .DataField = Trim(sField)
         .FieldValue = ""
@@ -3012,16 +3229,6 @@ errAddComboBox:
     Exit Function
 End Function
 
-Property Set DataBase(dbSource As Object)
-    'Set the database property of the dropdown control
-    Set dbRemote = dbSource
-End Property
-
-Property Set DataLink(dLink As Object)
-    'Set the datalink property of the dropdown control
-    Set datLink = dLink
-End Property
-
 Private Sub subClearCombo(clsTemp As clsComboSet, _
                           ByVal lDropDown As Integer, _
                           ByVal bClearKey As Boolean)
@@ -3033,15 +3240,15 @@ Private Sub subClearCombo(clsTemp As clsComboSet, _
         For Each ciTemp In colComboControls.Item(lDropDown).Combos
             If Not ciTemp Is clsTemp Then
                 With ciTemp
-                    If Not .TextBox Is Nothing Then
-                        If TypeOf .TextBox Is TextBox Then
+                    If Not .Textbox Is Nothing Then
+                        If TypeOf .Textbox Is Textbox Then
                             If Not .KeyField Or bClearKey Then
-                                If .TextBox.Enabled And Not .TextBox.Locked Then
-                                    .TextBox.Text = ""
+                                If .Textbox.Enabled And Not .Textbox.Locked Then
+                                    .Textbox.Text = ""
                                 End If
                             End If
                         Else
-                            .TextBox.Caption = ""
+                            .Textbox.Caption = ""
                         End If
                     End If
                 End With
@@ -3257,7 +3464,7 @@ Public Sub Click(objControl As Object)
                 If lComboIndex > 0 Then
                     bValidSelection = True
                     On Error Resume Next
-                    colComboControls(lDropDown).Combos(lComboIndex).TextBox.SetFocus
+                    colComboControls(lDropDown).Combos(lComboIndex).Textbox.SetFocus
                 End If
                 Exit Sub
             End If
@@ -3292,23 +3499,64 @@ Public Function fnGetRecord(rsTemp As Object, strSQL As String, nDB As Integer)
     ' nDB = 1 ---> Informax Database (remote)
     '     = 2 ---> Access Database (local)
 
-    On Error GoTo SQLError
     Select Case nDB
-        Case DB_INFORMIX
+    Case DB_INFORMIX
+        'david 09/12/2002  #383118
+        'the dbSQLPassThrough parameter causes some of the selected records
+        'NOT being shown in the dropdown list (when scrolling down),
+        'so remove the dbSQLPassThrough parameter
+        'but WITHOUT dbSQLPassThrough parameter, the Query that involves with
+        'the Temp table will fail.
+        
+        On Error Resume Next
+        Set rsTemp = dbRemote.OpenRecordset(strSQL, dbOpenSnapshot)
+        
+        If Err.Number <> 0 Then
+            'subShowDebugInfo "OpenRecordset WITHOUT dbSQLPassThrough failed. Try next..."
+            On Error GoTo SQLError
             Set rsTemp = dbRemote.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        Case DB_ACCESS
-            Set rsTemp = t_dbLocal.OpenRecordset(strSQL, dbOpenSnapshot)
-        Case Else
-            fnGetRecord = False
-            MsgBox "Drop down database not setup", vbOKOnly + vbCritical
-            Exit Function
+        End If
+        '''''''''''''''''''''''''''
+    Case DB_ACCESS
+        On Error GoTo SQLError
+        Set rsTemp = t_dbLocal.OpenRecordset(strSQL, dbOpenSnapshot)
+    Case Else
+        fnGetRecord = False
+        MsgBox "Drop down database not setup", vbOKOnly + vbCritical
+        Exit Function
     End Select
-    If rsTemp.RecordCount > 0 Then
-        rsTemp.MoveLast
-        rsTemp.MoveFirst
-    End If
+    
+    Select Case nDB
+    Case DB_INFORMIX
+        If rsTemp.RecordCount > 0 Then
+            'david 09/12/2002  #383118
+            'speed up the dropdown list to show
+            'rsTemp.MoveLast
+            'rsTemp.MoveNext
+            rsTemp.Move 12
+            '''''''''''''''''''''''''''
+            rsTemp.MoveFirst
+            
+            'david 09/12/2002  #383118
+            'with all the possible work around above (when OpenRecordset),
+            'some of the selected records are still NOT being shown in the dropdown list (when scrolling down)
+            'THIS IS A WORK AROUND!!!
+            If rsTemp.RecordCount = 13 Then
+                'subShowDebugInfo "RecordCount = 13"
+                rsTemp.MoveLast
+                rsTemp.MoveFirst
+            End If
+            '''''''''''''''''''''''''''
+        End If
+    Case DB_ACCESS
+        If rsTemp.RecordCount > 0 Then
+            rsTemp.MoveLast
+            rsTemp.MoveFirst
+        End If
+    End Select
     
     fnGetRecord = True
+
 quitsub:
     On Error GoTo 0
     Exit Function
@@ -3384,21 +3632,21 @@ Private Sub fnGetText()
             For i = 1 To colCombo.Count
                 With colCombo.Item(i)
                     If colCombo.Item(i).Populate Then
-                        If Not .TextBox Is Nothing Then
+                        If Not .Textbox Is Nothing Then
                             If .ComboType = TYPE_DATE Then
-                                If TypeOf .TextBox Is TextBox Then
-                                    .TextBox.Text = tfnFormatDate(sGridData(i - 1, lRow))
+                                If TypeOf .Textbox Is Textbox Then
+                                    .Textbox.Text = tfnFormatDate(sGridData(i - 1, lRow))
                                 Else
-                                    .TextBox.Caption = tfnFormatDate(sGridData(i - 1, lRow))
+                                    .Textbox.Caption = tfnFormatDate(sGridData(i - 1, lRow))
                                 End If
                             Else
-                                If TypeOf .TextBox Is TextBox Then
-                                    .TextBox.Text = Trim$(sGridData(i - 1, lRow))
+                                If TypeOf .Textbox Is Textbox Then
+                                    .Textbox.Text = Trim$(sGridData(i - 1, lRow))
                                 Else
-                                    .TextBox.Caption = Trim$(sGridData(i - 1, lRow))
+                                    .Textbox.Caption = Trim$(sGridData(i - 1, lRow))
                                 End If
                             End If
-                            .FieldValue = .TextBox
+                            .FieldValue = .Textbox
                         End If      'If Not .Textbox Is Nothing Then
                         .Changed = False
                         .Valid = True
@@ -3418,29 +3666,31 @@ Private Sub fnGetText()
                 For i = 1 To colCombo.Count
                     With colCombo.Item(i)
                         If colCombo.Item(i).Populate Then
-                            If Not .TextBox Is Nothing Then
-                                If IsNull(datLink.Recordset(.AliasName)) Then
-                                    If TypeOf .TextBox Is TextBox Then
-                                        .TextBox.Text = ""
+                            If Not .Textbox Is Nothing Then
+                                'david 09/21/2004
+                                If IsNull(datLink.Recordset(fnGetFieldName(.AliasName, True))) Then
+                                    If TypeOf .Textbox Is Textbox Then
+                                        .Textbox.Text = ""
                                     Else
-                                        .TextBox.Caption = ""
+                                        .Textbox.Caption = ""
                                     End If
                                 Else
                                     If .ComboType = TYPE_DATE Then
-                                        If TypeOf .TextBox Is TextBox Then
-                                            .TextBox.Text = tfnFormatDate(datLink.Recordset(.AliasName))
+                                        If TypeOf .Textbox Is Textbox Then
+                                            .Textbox.Text = tfnFormatDate(datLink.Recordset(fnGetFieldName(.AliasName, True)))
                                         Else
-                                            .TextBox.Caption = tfnFormatDate(datLink.Recordset(.AliasName))
+                                            .Textbox.Caption = tfnFormatDate(datLink.Recordset(fnGetFieldName(.AliasName, True)))
                                         End If
                                     Else
-                                        If TypeOf .TextBox Is TextBox Then
-                                            .TextBox.Text = Trim$(datLink.Recordset(.AliasName))
+                                        If TypeOf .Textbox Is Textbox Then
+                                            .Textbox.Text = Trim$(datLink.Recordset(fnGetFieldName(.AliasName, True)))
                                         Else
-                                            .TextBox.Caption = Trim$(datLink.Recordset(.AliasName))
+                                            .Textbox.Caption = Trim$(datLink.Recordset(fnGetFieldName(.AliasName, True)))
                                         End If
                                     End If
                                 End If
-                                .FieldValue = .TextBox
+                                '''''''''''''''''
+                                .FieldValue = .Textbox
                             End If      'If Not .Textbox Is Nothing Then
                             .Changed = False
                             .Valid = True
@@ -3460,10 +3710,10 @@ Private Sub fnGetText()
     Exit Sub
 errGetText:
     If i <= colCombo.Count Then
-        If TypeOf colCombo.Item(i).TextBox Is TextBox Then
-            colCombo.Item(i).TextBox.Text = ""
+        If TypeOf colCombo.Item(i).Textbox Is Textbox Then
+            colCombo.Item(i).Textbox.Text = ""
         Else
-            colCombo.Item(i).TextBox.Caption = ""
+            colCombo.Item(i).Textbox.Caption = ""
         End If
     End If
     m_bFillingText = False
@@ -3500,9 +3750,9 @@ Public Sub GotFocus(objControl As Object)
         
         tfnRegExpControlChange objControl, clsTemp.RegExpPattern
         
-        clsTemp.TextBox.SelStart = 0
+        clsTemp.Textbox.SelStart = 0
 
-        clsTemp.TextBox.SelLength = Len(clsTemp.TextBox.Text)
+        clsTemp.Textbox.SelLength = Len(clsTemp.Textbox.Text)
 
     End If
 
@@ -3578,7 +3828,7 @@ Public Sub LostFocus(objControl As Object)
             nTemp = frmParent.ActiveControl.TabIndex
             On Error GoTo 0
             If nTemp = tgDropDown.TabIndex Then
-                fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).TextBox
+                fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
             End If
         End If
         tgDropDown.Visible = False
@@ -3598,7 +3848,7 @@ Public Sub LostFocus(objControl As Object)
         If nctrlType = CONTROL_TYPE_TEXTBOX Then
             If lDropDown > 0 Then
                 For Each clsTemp In colComboControls.Item(lDropDown).Combos
-                    If frmParent.ActiveControl Is clsTemp.TextBox Or frmParent.ActiveControl Is clsTemp.Button Then
+                    If frmParent.ActiveControl Is clsTemp.Textbox Or frmParent.ActiveControl Is clsTemp.Button Then
                         Exit Sub
                     End If
                 Next
@@ -3612,9 +3862,9 @@ Public Sub LostFocus(objControl As Object)
                                 End If
                             Else
                                 If clsTemp.Populate Then
-                                    If Not clsTemp.TextBox Is Nothing Then
+                                    If Not clsTemp.Textbox Is Nothing Then
                                         m_bFillingText = True
-                                        clsTemp.TextBox = clsTemp.FieldValue
+                                        clsTemp.Textbox = clsTemp.FieldValue
                                         DoEvents
                                         m_bFillingText = False
                                     End If
@@ -3663,12 +3913,6 @@ Private Function fnCurrentRow() As Long
     End If
 End Function
 
-Property Set Form(frmMain As Object)
-    Set frmParent = frmMain
-    m_nOringalFormWidth = frmMain.Width
-    m_nOringalFormHeight = frmMain.Height
-End Property
-
 Public Sub RowColChange()
     Dim lCol As Long
     
@@ -3682,7 +3926,7 @@ Public Sub RowColChange()
     
     If bTableClicked Then
         fnGetText
-        fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).TextBox
+        fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
         tgDropDown.Visible = False
         tgDropDown.ZOrder 1
         bTableClicked = False
@@ -4025,7 +4269,7 @@ Private Sub Class_Terminate()
     'Clear all the contents in the collections
     While colComboControls.Count > 0
         While colComboControls.Item(1).Combos.Count > 0
-            Set colComboControls.Item(1).Combos.Item(1).TextBox = Nothing
+            Set colComboControls.Item(1).Combos.Item(1).Textbox = Nothing
             Set colComboControls.Item(1).Combos.Item(1).Button = Nothing
             colComboControls.Item(1).Combos.Remove 1
         Wend
@@ -4198,5 +4442,55 @@ errTrap:
     'error, return empty order by
     fnCnvtOrderByFieldsToColIndex = ""
 End Function
+
+'##############################################################################
+' subShowDebugInfo:
+' Author: David Chai
+' Date: 09/13/2002
+' Project Number: N/A
+' Program Version: N/A
+' ARGS:
+'   sMsg: string, message to show on the main form's status bar
+' Returns:
+'   none
+' Description:
+'   show the message on the main form' status bar in red color.
+'   NOTE: THIS FUNCTION SHOULD BE CALLED FOR DEBUGGING PURPOSELY!!!
+'-
+'##############################################################################
+Public Sub subShowDebugInfo(sMsg As String)
+    Dim lColor As Long
+    Dim bBold As Boolean
+    Dim sStatusMsg As String
+    
+    On Error Resume Next
+    
+    'save the old status bar message
+    With frmParent
+        
+        lColor = .ffraStatusbar.ForeColor
+        bBold = .ffraStatusbar.Font.Bold
+        sStatusMsg = .ffraStatusbar
+        
+        .ffraStatusbar.ForeColor = &HFF&
+        .ffraStatusbar.Font.Bold = True
+        .ffraStatusbar = sMsg
+        .ffraStatusbar.Refresh
+        
+        'pause for 1 second...
+        Dim sngTimer As Single
+        sngTimer = Timer
+        While Timer - sngTimer < 0.5
+            'do nothing
+        Wend
+        
+        'restore the old status bar message
+        .ffraStatusbar.ForeColor = lColor
+        .ffraStatusbar.Font.Bold = bBold
+        .ffraStatusbar = sStatusMsg
+        .ffraStatusbar.Refresh
+    End With
+End Sub
+
 
 
