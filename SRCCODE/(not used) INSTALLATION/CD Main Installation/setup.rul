@@ -25,22 +25,24 @@ declare
 
         //log setup variables and write log function prototype
         NUMBER nvFileIn, nvFileOut;
-        NUMBER nResult, nFailApp;
+        NUMBER nResult, nFailApp, nTotalApp;
         STRING szPath, szAppName, szExeName, szSetupIns;
         STRING szLineText, szComponents, szSubDir, szLaunch, szVersion;
-        STRING szMsg, szMsg1, szMsg2, szTitle, szID, szTemp;
+        STRING szMsg, szMsg1, szMsg2, szTitle, szID, szTemp, szModuleID;
         STRING szFolder, szSCIcon, szSCExe, szSCWork;
 
         LIST    ListApp, ListExe, ListFail;
 
         BOOL bTemp1, bTemp2, bInstalled, bRun, bRun00, bIsBaseInstall, bContinue;
-        BOOL bBaseInstallFailed, bIsExecVisionInstall, bRebootNeeded;
+        BOOL bBaseInstallFailed, bIsExecVisionInstall, bRebootNeeded, bIsTMIInstall;
 
         //function prototypes
 
 	prototype subReadModuleList();
         prototype fnChangeExtension(STRING);
         prototype fnRunSetup(STRING, BOOL);
+        prototype fnIsTMIinstallation(STRING);
+        prototype fnFinishReboot(STRING);
 
 
 program
@@ -114,6 +116,7 @@ SayWelcome:
 	bInstalled = FALSE;
 	bBaseInstallFailed = FALSE;
 	nFailApp = 0;
+	nTotalApp = 0;
 
 	ListFail = ListCreate(STRINGLIST);
 
@@ -127,18 +130,21 @@ SayWelcome:
 		bIsBaseInstall = FALSE;
 		bIsExecVisionInstall = FALSE;
 
-		StrToUpper(szTemp, szAppName); 
+		StrToUpper(szModuleID, szAppName); 
 		
-		if (StrFind(szTemp, "EXECUTRAK BASE SYSTEM") >= 0) then
+		//check ExecuTrak Installation
+		if (StrFind(szModuleID, "EXECUTRAK BASE SYSTEM") >= 0) then
 			bIsBaseInstall = TRUE;
 		endif;
 		
-		if (StrFind(szTemp, "EXECUVISION") >= 0) then
+		//check ExecuVision Installation
+		if (StrFind(szModuleID, "EXECUVISION") >= 0) then
 			bIsBaseInstall = TRUE;
 			bIsExecVisionInstall = TRUE;
 		endif;
 		
-		if (StrFind(szTemp, "HARBINGER") >= 0) then
+		//check Harbinger TrustedLink for Commerce Installation
+		if (StrFind(szModuleID, "HARBINGER") >= 0) then
 			bRebootNeeded = TRUE;
 			bIsExecVisionInstall = TRUE;
 		endif;
@@ -166,6 +172,11 @@ SayWelcome:
 		endif;
 
 		if (bRun) then
+			//check TMI StoreTrak Installation
+			if (fnIsTMIinstallation(szModuleID)) then
+				bIsTMIInstall = TRUE;
+			endif;
+
                         Enable (HOURGLASS);
 
                         //store result into szSetupIns variable
@@ -189,6 +200,7 @@ SayWelcome:
 				nFailApp = nFailApp + 1;
 			endif;
 
+			nTotalApp = nTotalApp + 1;
 		else
 			if ((!bRun00) && bIsBaseInstall) then
 				//do nothing
@@ -216,22 +228,45 @@ SayWelcome:
 
 	if (bBaseInstallFailed) then
 		if (!bIsExecVisionInstall) then
-			MessageBox("ExecurTrak Base System Installation Failed.\n\n" +
-				"All other modules were not installed into your system.", SEVERE);
+			if (bIsTMIInstall) then
+				MessageBox("StoreTrak System Installation Failed.", SEVERE);
+			else
+				MessageBox("ExecuTrak Base System Installation Failed.\n\n" +
+					"All other modules were not installed into your system.", SEVERE);
+			endif;
 		endif;
 	else
 		if (bContinue) then
 			if (nFailApp > 0) then
 				Disable(BACKBUTTON);
-				SdShowInfoList("Unsuccessful Installation Module List", "The following modules were not installed into your system.", ListFail);
+				SdShowInfoList("Unsuccessful Installation Module List", 
+					"The following modules were not installed into your system.", 
+					ListFail);
+
+				if (bIsTMIInstall) then
+					if (nFailApp < nTotalApp) then
+						fnFinishReboot("StoreTrak System Installation has finished " +
+							"installing files to your system. Before you can use " +
+							"StoreTrak System, you must restart your computer.");
+					endif;
+				endif;
 			endif;
 		
 			if (bInstalled = TRUE ) then
-				if (!bRebootNeeded) then
-				       SdFinish(WELCOME_TITLE + " Completed",
-				                 WELCOME_TITLE + " has finished installing files to your system.",
-				                 "Click Finish to end " + WELCOME_TITLE,
-				                 "", "", bTemp1, bTemp2);
+				if (bIsTMIInstall) then
+					if (nTotalApp > 0) then
+						fnFinishReboot("StoreTrak System Installation has finished " +
+							"installing files to your system. Before you can use " +
+							"StoreTrak System, you must restart your computer.");
+					endif;
+				else
+					if (!bRebootNeeded) then
+					       SdFinish(WELCOME_TITLE + " Completed",
+					                WELCOME_TITLE + " has finished installing files " +
+							"to your system.",
+					                "Click Finish to end " + WELCOME_TITLE + ".",
+					                "", "", bTemp1, bTemp2);
+					endif;
 				endif;
 			else
 			       SdFinish(WELCOME_TITLE + " Incompleted",
@@ -405,6 +440,65 @@ begin
 	                endif;
 		endif;
         endif;
+
+end;
+
+
+function fnIsTMIinstallation(szID)
+
+        STRING szTemp;
+
+begin
+
+	if (StrFind(szID, "COMMSERVER SYSTEM") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "STORETRAK SYSTEM") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "MESSAGING SYSTEM") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "WORKFORCE MANAGEMENT") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "HOME OFFICE CLIENT") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "SUPERTRAK") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "LABOR SCHEDULER") >= 0) then
+                return TRUE;
+	endif;
+	if (StrFind(szID, "SCANNING DSD") >= 0) then
+                return TRUE;
+	endif;
+	//if (StrFind(szID, "2 MODEM COMMSERVER") >= 0) then
+        //        return TRUE;
+	//endif;
+	//if (StrFind(szID, "4 MODEM COMMSERVER") >= 0) then
+        //        return TRUE;
+	//endif;
+	if (StrFind(szID, "POWER USER") >= 0) then
+                return TRUE;
+	endif;
+
+        return FALSE;
+
+end;
+
+
+function fnFinishReboot(sRebootMsg)
+
+begin
+
+        MessageBox(sRebootMsg + "\n\nWARNING: Please save all changes and close all other applications. Click " +
+            "on OK button to Reboot your system.", WARNING);
+
+        CommitSharedFiles(0);
+
+        System(SYS_BOOTMACHINE);
 
 end;
 
