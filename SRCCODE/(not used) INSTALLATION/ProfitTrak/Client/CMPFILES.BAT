@@ -10,12 +10,12 @@ call buildlog %1 %2
 
 echo .
 echo Compress Application files
-icomp G:\PROGRAM\RELEASE\ProfitTrak\*.* ..\disk\disk1\ptbin.z
-icomp G:\PROGRAM\RELEASE\ProfitTrak\BIN\*.* ..\disk\disk1\ptbin.z Bin
-icomp G:\PROGRAM\RELEASE\ProfitTrak\qrt_file\*.* ..\disk\disk1\ptbin.z Bin
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\*.* ..\disk\disk1\ptbin.z
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\BIN\*.* ..\disk\disk1\ptbin.z Bin
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\qrt_file\*.* ..\disk\disk1\ptbin.z Bin
 
-icomp G:\PROGRAM\RELEASE\ProfitTrak\ole\*.* ..\disk\disk1\ptbin.z ole
-icomp G:\PROGRAM\RELEASE\ProfitTrak\ini\*.* ..\disk\disk1\ptbin.z ini
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\ole\*.* ..\disk\disk1\ptbin.z ole
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\ini\*.* ..\disk\disk1\ptbin.z ini
 
 icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\ptbin.z Bin
 

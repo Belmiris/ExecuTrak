@@ -90,7 +90,7 @@ icomp ..\..\%2client\disk\disk1\*.* ..\disk\%2client.z
 
 echo .
 echo Compress all files in ProfitTrak\Models directory to ptmodels.z
-icomp G:\PROGRAM\RELEASE\ProfitTrak\Models\*.* ..\disk\ptmodels.z -i
+icomp G:\PROGRAM\RELEASE\Exectrak\PT\Models\*.* ..\disk\ptmodels.z -i
 
 
 if "%1" == "b" goto compress_both
