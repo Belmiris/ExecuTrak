@@ -593,7 +593,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -816,15 +816,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .value
+            sVal = .Value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).value = .value Then
-                    sVal = .ValueItems(i).value
+                If .ValueItems(i).Value = .Value Then
+                    sVal = .ValueItems(i).Value
                     Exit For
                 End If
             Next
@@ -1186,10 +1186,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).value
+    vTemp = tgTable.Columns(nCol).Value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).value = vTemp Then
+            If .Item(i).Value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1273,9 +1273,9 @@ End Property
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 '''''''''''''''''
-Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
-    subSaveHighlightedRowID Button, Shift, X, y
+    subSaveHighlightedRowID Button, Shift, x, y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -2354,9 +2354,9 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
         End If
     End If
     
-    Dim m_styRow As Style            ' row style
-    Dim m_styCurrentCell As Style    ' current cell style
-    Dim m_styHighLightedRow As Style
+    Dim m_styRow As DBTRUEGRID.Style            ' row style
+    Dim m_styCurrentCell As DBTRUEGRID.Style    ' current cell style
+    Dim m_styHighLightedRow As DBTRUEGRID.Style
 
     tgTable.ClearCellStyle dbgAllCells
     
@@ -4444,12 +4444,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -5029,14 +5029,10 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim lDummyRow As Long
     Dim nIndex As Integer
     
-    Dim lRow As Long
-    Dim nCol As Integer
-    Dim j As Long
-    Dim k As Long
     Dim i As Integer
-    Dim vTemp As Variant
-    Dim bCompareExp As Boolean
+    Dim j As Long
     Dim sSortCols As String
+    Dim nCol As Integer
     
     On Error GoTo errTrap
     
@@ -5066,32 +5062,103 @@ Debug.Print sSortCols
     'read data
     GetRecords vData, lDummyRow, szEMPTY
 
-    'sorting
-    lRow = UBound(vData, 2)
-    nCol = UBound(vData, 1)
+'''    'sorting (bubble exit sort)
+'''    Dim lRow As Long
+'''    Dim k As Long
+'''    Dim vTemp As Variant
+'''    Dim bCompareExp As Boolean
+'''    Dim bFinished As Boolean
+'''
+'''    lRow = UBound(vData, 2)
+'''    nCol = UBound(vData, 1)
+'''
+'''    For j = 0 To lRow - 1
+'''        For k = j + 1 To lRow
+'''            bFinished = True
+'''            bCompareExp = fnCompareSortKeysNeedToSwap(nIndex, vData(), j, k)
+'''
+'''            If bCompareExp Then
+'''                m_bColIsSorted = True
+'''
+'''                For i = 0 To nCol
+'''                    vTemp = vData(i, j)
+'''                    vData(i, j) = vData(i, k)
+'''                    vData(i, k) = vTemp
+'''                Next
+'''
+'''                'swap highlighted row id
+'''                If lCountHighlightedID > 0 Then
+'''                    vTemp = aryHighlightedID(j)
+'''                    aryHighlightedID(j) = aryHighlightedID(k)
+'''                    aryHighlightedID(k) = vTemp
+'''                End If
+'''
+'''                bFinished = False
+'''            End If
+'''        Next k
+'''
+'''        If bFinished Then
+'''            Exit For
+'''        End If
+'''    Next j
     
-    For j = 0 To lRow - 1
-        For k = j + 1 To lRow
-            bCompareExp = fnCompareSortKeysNeedToSwap(nIndex, vData(), j, k)
+    'begin shell sort
+    Dim NumEls As Long
+    Dim Index As Long
+    Dim Index2 As Long
+    Dim FirstItem As Long
+    Dim Distance As Long
+    Dim Value()
+
+    NumEls = UBound(vData, 2) + 1
+    FirstItem = LBound(vData, 2)
+    nCol = UBound(vData, 1)
+
+    'Find the best value for distance.
+    Do
+        Distance = Distance * 3 + 1
+    Loop Until Distance > NumEls
+
+    ReDim Value(nCol)
+
+    'Sort the array.
+    Do
+        Distance = Distance \ 3
+
+        For Index = Distance + FirstItem To NumEls + FirstItem - 1
+            'Value = vData(Index)
+            'array assignment
+            For i = 0 To nCol
+                Value(i) = vData(i, Index)
+            Next
             
-            If bCompareExp Then
-                m_bColIsSorted = True
-                
+            Index2 = Index
+
+            'Do While (vData(Index2 - Distance) > Value)
+            Do While (fnCompareSortKeysNeedToSwap2(nIndex, vData, Index2 - Distance, Value))
+                'vData(Index2) = vData(Index2 - Distance)
+                'array assignment
                 For i = 0 To nCol
-                    vTemp = vData(i, j)
-                    vData(i, j) = vData(i, k)
-                    vData(i, k) = vTemp
+                    vData(i, Index2) = vData(i, Index2 - Distance)
                 Next
                 
-                'swap highlighted row id
-                If lCountHighlightedID > 0 Then
-                    vTemp = aryHighlightedID(j)
-                    aryHighlightedID(j) = aryHighlightedID(k)
-                    aryHighlightedID(k) = vTemp
+                m_bColIsSorted = True
+
+                Index2 = Index2 - Distance
+
+                If Index2 - Distance < FirstItem Then
+                    Exit Do
                 End If
-            End If
-        Next k
-    Next j
+            Loop
+
+            'vData(Index2) = Value
+            'array assignment
+            For i = 0 To nCol
+                vData(i, Index2) = Value(i)
+            Next
+        Next Index
+    Loop Until Distance = 1
+    'end shell sort
     
     If m_bColIsSorted Then
         'david 05/10/2001
@@ -5271,6 +5338,157 @@ errTrap:
     'error, no sort
 End Function
 
+Private Function fnCompareSortKeysNeedToSwap2(nIndex, vData(), j As Long, vValue()) As Boolean
+    Dim n As Integer
+    Dim dfData1 As Double
+    Dim dfData2 As Double
+    Dim sData1 As String
+    Dim sData2 As String
+    Dim sKey1 As String
+    Dim sKey2 As String
+    Dim nSortCount As Integer
+    
+    On Error GoTo errTrap
+    
+    nSortCount = -1
+    
+    For n = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
+        Select Case m_arySortCol(n, nIndex).nColType
+        Case m_NUMERIC_TYPE
+            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
+                dfData1 = 0
+            Else
+                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+            End If
+        
+            If IsNull(vValue(m_arySortCol(n, nIndex).nColIndex)) Then
+                dfData2 = 0
+            Else
+                dfData2 = Val(vValue(m_arySortCol(n, nIndex).nColIndex))
+            End If
+            
+            If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                If dfData1 > dfData2 Then
+                    fnCompareSortKeysNeedToSwap2 = True
+                    Exit Function
+                ElseIf dfData1 < dfData2 Then
+                    'no swap
+                    Exit Function
+                End If
+            Else  'descending
+                If dfData1 < dfData2 Then
+                    fnCompareSortKeysNeedToSwap2 = True
+                    Exit Function
+                ElseIf dfData1 > dfData2 Then
+                    'no swap
+                    Exit Function
+                End If
+            End If
+        Case m_STRING_TYPE
+            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
+                sData1 = ""
+            Else
+                If m_arySortCol(n, nIndex).nCaseSensitive = m_CASE_SENSITIVE Then
+                    sData1 = vData(m_arySortCol(n, nIndex).nColIndex, j)
+                Else
+                    sData1 = UCase(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                End If
+            End If
+        
+            If IsNull(vValue(m_arySortCol(n, nIndex).nColIndex)) Then
+                sData2 = ""
+            Else
+                If m_arySortCol(n, nIndex).nCaseSensitive = m_CASE_SENSITIVE Then
+                    sData2 = vValue(m_arySortCol(n, nIndex).nColIndex)
+                Else
+                    sData2 = UCase(vValue(m_arySortCol(n, nIndex).nColIndex))
+                End If
+            End If
+        
+            If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                If sData1 > sData2 Then
+                    fnCompareSortKeysNeedToSwap2 = True
+                    Exit Function
+                ElseIf sData1 < sData2 Then
+                    'no swap
+                    Exit Function
+                End If
+            Else  'descending
+                If sData1 < sData2 Then
+                    fnCompareSortKeysNeedToSwap2 = True
+                    Exit Function
+                ElseIf sData1 > sData2 Then
+                    'no swap
+                    Exit Function
+                End If
+            End If
+        Case m_DATE_TYPE
+            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
+                sData1 = ""
+            Else
+                sData1 = tfnDateString(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                
+                If Not IsDate(sData1) Then
+                    sData1 = ""
+                End If
+            End If
+        
+            If IsNull(vValue(m_arySortCol(n, nIndex).nColIndex)) Then
+                sData2 = ""
+            Else
+                sData2 = tfnDateString(vValue(m_arySortCol(n, nIndex).nColIndex))
+                
+                If Not IsDate(sData2) Then
+                    sData2 = ""
+                End If
+            End If
+        
+            If sData1 <> "" And sData2 <> "" Then
+                If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                    If CDate(sData1) > CDate(sData2) Then
+                        fnCompareSortKeysNeedToSwap2 = True
+                        Exit Function
+                    ElseIf sData1 < sData2 Then
+                        'no swap
+                        Exit Function
+                    End If
+                Else  'descending
+                    If CDate(sData1) < CDate(sData2) Then
+                        fnCompareSortKeysNeedToSwap2 = True
+                        Exit Function
+                    ElseIf sData1 > sData2 Then
+                        'no swap
+                        Exit Function
+                    End If
+                End If
+            Else  'sData1 = "" Or sData2 = ""
+                If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                    If sData1 <> "" Then
+                        fnCompareSortKeysNeedToSwap2 = True
+                        Exit Function
+                    Else
+                        'no swap
+                        Exit Function
+                    End If
+                Else  'descending
+                    If sData2 <> "" Then
+                        fnCompareSortKeysNeedToSwap2 = True
+                        Exit Function
+                    Else
+                        'no swap
+                        Exit Function
+                    End If
+                End If
+            End If
+        End Select
+    Next n
+
+    Exit Function
+    
+errTrap:
+    'error, no sort
+End Function
+
 Public Function GetErrorMessage(lRow As Long, nCol As Integer) As String
     Dim nECol As Integer
     
@@ -5379,7 +5597,7 @@ Private Sub subSelectRow(ByVal lRow As Long)
     End With
 End Sub
 
-Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim j As Long
     Dim k As Long
     Dim lSelected() As Long
