@@ -5,7 +5,7 @@ Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "SQAOTE32.OCX"
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form frmzzseinvp 
    BackColor       =   &H00C0C0C0&
-   Caption         =   "Process Retail Sales Purchase Invoices"
+   Caption         =   "Pre-Process Retail Sales Purchase Invoices"
    ClientHeight    =   6060
    ClientLeft      =   1056
    ClientTop       =   1956
@@ -177,7 +177,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -213,7 +213,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -249,7 +249,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False

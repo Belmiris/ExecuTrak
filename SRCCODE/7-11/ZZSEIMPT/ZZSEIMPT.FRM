@@ -4083,9 +4083,14 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         lPriceBookLnk = fnGetPriceBookLink(sItemCode, lVendor, nPrftctr)
         lMaxSeq = lMaxSeq + 1
         
-        If lPriceBookLnk <= 0 Then
+        If lPriceBookLnk = 0 Then
             MsgBox "No Price book link found", vbInformation
             Exit Function
+        End If
+        
+        'making price book link negative when the cost is an exception
+        If tgmDetail.CellValue(colHdnDetailFlag, i) = "N" Then
+            lPriceBookLnk = -1 * lPriceBookLnk
         End If
         
         strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
@@ -4116,7 +4121,7 @@ Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftc
     strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(sItemCode)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
-        lIcLink = IIf(IsNull(rsTemp!rsbi_ic_lnk), -1, rsTemp!rsbi_ic_lnk)
+        lIcLink = tfnRound(rsTemp!rsbi_ic_lnk)
     Else
         Exit Function
     End If
@@ -4128,7 +4133,7 @@ Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftc
     strSQL = strSQL & " AND rsbb_vendor = rsbs_vendor AND rsbb_ic_lnk = " & lIcLink
 
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
-        fnGetPriceBookLink = rsTemp!rsbb_bk_lnk
+        fnGetPriceBookLink = tfnRound(rsTemp!rsbb_bk_lnk)
     Else
         Exit Function
     End If
@@ -4189,8 +4194,8 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
                 strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
                 strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
                 strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
-                strSQL = strSQL & "NULL, NULL, NULL," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
-                strSQL = strSQL & "NULL, NULL, NULL, " & lMaxCatSeq + 1 & ")"
+                strSQL = strSQL & "0, 0, 0," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
+                strSQL = strSQL & "0, 0, NULL, " & lMaxCatSeq + 1 & ")"
             
                 If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
                     Exit Function
@@ -4366,10 +4371,10 @@ Private Function fnInsertGlInfo(sCostAccount As String, dExtCost As Double, lSeq
             
         If bTotal Then
             strSQL = strHeader & "(" & g_lHoldShiftLink & ",'G', NULL, " & tfnRound(sCostAccount) & ","
-            strSQL = strSQL & " NULL, " & tfnRound(dExtCost, 2) & ", NULL, NULL, NULL, NULL, NULL, " & lSeq \ 2 + 1 & ")"
+            strSQL = strSQL & " 0, " & tfnRound(dExtCost, 2) & ", 0, 0, 0, NULL, NULL, " & lSeq \ 2 + 1 & ")"
         Else
             strSQL = strHeader & "(" & g_lHoldShiftLink & ",'G', NULL, " & tfnRound(sCostAccount) & ","
-            strSQL = strSQL & tfnRound(dExtCost, 2) & ", NULL,NULL, NULL, NULL, NULL, NULL, " & lSeq \ 2 + 1 & ")"
+            strSQL = strSQL & tfnRound(dExtCost, 2) & ", 0, 0, 0, 0, NULL, NULL, " & lSeq \ 2 + 1 & ")"
         End If
     Else
     
