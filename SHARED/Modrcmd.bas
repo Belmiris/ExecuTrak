@@ -102,7 +102,10 @@ Private Function fnDBPath() As String
 End Function
 
 Public Function fnExecute4GE(sCmdLine As String, _
-                             Optional vEnviron As Variant) As Boolean
+                             Optional vEnviron As Variant, _
+                             Optional bShowMsgBox As Boolean = True, _
+                             Optional sErrMsg As String = "") As Boolean
+    
     Const SUB_NAME = "fnExecute4GE"
     
     Dim sHost As String
@@ -173,7 +176,16 @@ Public Function fnExecute4GE(sCmdLine As String, _
             fnExecute4GE = True
         Else
             fnExecute4GE = False
-            tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, sTemp
+            
+            'david 01/18/2002
+            If bShowMsgBox Then
+                tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, sTemp
+            Else
+                tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, sTemp, False
+            End If
+            
+            sErrMsg = ERR_MSG_RUN4GE & " - " & sTemp
+            '''''''''''''''''''
         End If
     Else
         sCmd = "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;cd " & sDBPath & ";" _
@@ -188,10 +200,20 @@ Public Function fnExecute4GE(sCmdLine As String, _
         If rsTemp.RecordCount > 0 Then
             If tfnRound(rsTemp.Fields(0)) = 0 Then
                 sTemp = fnCStr(rsTemp.Fields(1))
+                
                 If rsTemp.Fields.Count > 2 Then
                     sTemp = sTemp & vbCrLf & "System command: " & fnCStr(rsTemp.Fields(2))
                 End If
-                tfnErrHandler SUB_NAME, -1, sTemp
+                
+                'david 01/18/2002
+                If bShowMsgBox Then
+                    tfnErrHandler SUB_NAME, -1, sTemp
+                Else
+                    tfnErrHandler SUB_NAME, -1, sTemp, False
+                End If
+                
+                sErrMsg = sTemp
+                '''''''''''''''''''
             Else
                 fnExecute4GE = True
             End If
@@ -199,7 +221,15 @@ Public Function fnExecute4GE(sCmdLine As String, _
     End If
     Exit Function
 errExecuteProcedure:
-    tfnErrHandler SUB_NAME, RUN_TIME_PROC, strSQL
+    'david 01/18/2002
+    If bShowMsgBox Then
+        tfnErrHandler SUB_NAME, RUN_TIME_PROC, strSQL
+    Else
+        tfnErrHandler SUB_NAME, RUN_TIME_PROC, strSQL, False
+    End If
+    
+    sErrMsg = RUN_TIME_PROC & " - " & strSQL
+    '''''''''''''''''''
 End Function
 
 Private Function fnParmIndex(vTemp As Variant) As Integer
@@ -214,7 +244,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = Val(vTemp)
+            fnParmIndex = val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -331,10 +361,10 @@ Private Function fnRunRCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If err.Number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
     End If
 End Function
 
@@ -383,7 +413,7 @@ Private Function fnVariables(sHost As String) As String
     fnVariables = sTemp
 End Function
 
-Private Function fnDefaultParm(sSection As String, _
+Private Function fnDefaultParm(sSECTION As String, _
                               sKey As String, _
                               sDefault As String) As String
     Dim sIniFileName As String
@@ -397,13 +427,13 @@ Private Function fnDefaultParm(sSection As String, _
     sBuffer = Space(MAX_STRING_LENGTH) 'clear and make the string fixed length
     
     'get the [value] for the [section], [key], and ini file sent
-    nLength = GetPrivateProfileString(sSection, sKey, szEMPTY, sBuffer, MAX_STRING_LENGTH, sIniFileName)
+    nLength = GetPrivateProfileString(sSECTION, sKey, szEMPTY, sBuffer, MAX_STRING_LENGTH, sIniFileName)
     
     If nLength <> 0 Then 'if length positive [value] has been found
         fnDefaultParm = Left(sBuffer, nLength) 'make it a basic string
     Else
         'write the [value] for the [section], [key], and ini file sent
-        WritePrivateProfileString sSection, sKey, sDefault, sIniFileName
+        WritePrivateProfileString sSECTION, sKey, sDefault, sIniFileName
         fnDefaultParm = sDefault
     End If
 
@@ -425,7 +455,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = Val(vDefault)
+        nWhatToUse = val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
@@ -497,10 +527,10 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If err.Number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
     End If
     
     
