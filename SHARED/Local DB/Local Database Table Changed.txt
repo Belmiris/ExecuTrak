@@ -1,3 +1,10 @@
+version: 3.26.0007
+Date: 04/15/2002
+Description: 
+	East River Heating System Custom.
+
+	alter table fd_delivery add fdd_tank_num text(5);
+
 version: 3.26.0006
 Date: 03/07/2002
 Description: 
