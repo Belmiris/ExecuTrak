@@ -23,3 +23,11 @@ deltree /Y ..\disk\disk6
 md ..\disk\disk6
 copy disk.id ..\disk\disk6\disk6.id
 
+deltree /Y ..\disk\disk7
+md ..\disk\disk7
+copy disk.id ..\disk\disk7\disk7.id
+
+deltree /Y ..\disk\disk8
+md ..\disk\disk8
+copy disk.id ..\disk\disk8\disk8.id
+
