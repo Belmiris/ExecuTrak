@@ -3386,23 +3386,12 @@ Public Sub subMoveLogFile()
     Dim szNewName As String
     Dim nPosi As Integer
     
-    '****************** TO BE DELETE WHEN THE FEATURE IS TURNED ON ******************
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    Exit Sub
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    'THIS FEATURE IS CURRENTLY TURNED OFF.
-    '****************** TO BE DELETE WHEN THE FEATURE IS TURNED ON ******************
-    
     If Not tfnIsFile(sLogFilePath) Then
         'file not found, ok
         Exit Sub
     End If
     
     'get the \factor
-    
     sLogPath = UCase(App.Path)
     
     nPosi = InStrRev(sLogPath, "\EXECTRAK")
