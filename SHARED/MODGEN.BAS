@@ -18,6 +18,7 @@ Option Explicit
 
 Public Const CHECK_AR = 100
 Public Const CHECK_AP = 200
+Private lLockedAR_AP_NBR As Long
 
 Private Type MyType
    ch As String
@@ -140,17 +141,21 @@ Public Function IsInDatabase(nNumber As Long, nArAp As Integer) As Boolean
     Dim rsTemp As Recordset
     Dim bFound As Boolean
     
+    IsInDatabase = False
+    
     If nArAp = CHECK_AP Then
         szSQL = "INSERT INTO p_altname(pn_alt) VALUES (" & CStr(nNumber) & ")"
     ElseIf nArAp = CHECK_AR Then
         szSQL = "INSERT INTO ar_altname(an_customer) VALUES (" & CStr(nNumber) & ")"
     End If
     On Error GoTo Errtrap
-    t_dbMainDatabase.Execute szSQL, dbSQLPassThrough
-    bFound = (t_dbMainDatabase.RecordsAffected = 0)
-    IsInDatabase = bFound
+    t_dbMainDatabase.ExecuteSQL szSQL
+    
+    lLockedAR_AP_NBR = nNumber
+    
     Exit Function
 Errtrap:
+    lLockedAR_AP_NBR = -1
     If t_engFactor.Errors(0).Number = -239 Then
         'Duplicate record found
         IsInDatabase = True
@@ -162,8 +167,8 @@ End Function
 Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim X As Long
-    Dim Y As Long
+    Dim x As Long
+    Dim y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
@@ -183,16 +188,16 @@ Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Lo
        a = Mid(szLastname, 1, 1)
        b = Mid(szLastname, 2, 1)
     End If
-    X = Let_Val(a, b)
-    Y = 100000000 '9_digit
+    x = Let_Val(a, b)
+    y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           Y = Let_Val(a, Letter(i + 1).ch)
+           y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAr(X, Y)
+    z = GetMaxAr(x, y)
     subCheckTheNumber z, CHECK_AR
     If LOCK_RECORD Then
         While IsInDatabase(z, CHECK_AR)
@@ -205,11 +210,12 @@ End Function
 Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim X As Long
-    Dim Y As Long
+    Dim x As Long
+    Dim y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
+    
     If IsMissing(vLock) Then
         LOCK_RECORD = False
     Else
@@ -224,16 +230,16 @@ Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Lo
        a = Mid(szLastname, 1, 1)
        b = Mid(szLastname, 2, 1)
     End If
-    X = Let_Val(a, b)
-    Y = 100000000 '9_digit
+    x = Let_Val(a, b)
+    y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           Y = Let_Val(a, Letter(i + 1).ch)
+           y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAp(X, Y)
+    z = GetMaxAp(x, y)
     subCheckTheNumber z, CHECK_AP
     If LOCK_RECORD Then
         While IsInDatabase(z, CHECK_AP)
@@ -270,36 +276,61 @@ Private Sub subCheckTheNumber(lNumber As Long, nApAr As Integer)
     Loop Until bOK
 End Sub
 
-Public Function UnlockAr(ByVal nAR As Long) As Boolean
+Public Function UnlockAr(Optional nAR) As Boolean
     Const SUB_NAME = "UnlockAr"
     
     Dim strSQL As String
     
-    strSQL = "DELETE FROM ar_altname WHERE an_customer = " & CStr(nAR) _
-           & " AND an_cust IS Null"
-    On Error GoTo errUnlockAr
-    t_dbMainDatabase.Execute strSQL, dbSQLPassThrough
     UnlockAr = True
+    
+    If Not IsMissing(nAR) Then
+        lLockedAR_AP_NBR = tfnRound(nAR)
+    End If
+    If lLockedAR_AP_NBR <= 0 Then
+        Exit Function
+    End If
+    
+    'make sure all null but an_customer
+    strSQL = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
+    
+    On Error GoTo errUnlockAr
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    lLockedAR_AP_NBR = -1
+    
     Exit Function
 errUnlockAr:
-    tfnErrHandler strSQL, SUB_NAME
+    ''tfnErrHandler strSQL, SUB_NAME
     UnlockAr = False
 End Function
 
 
-Public Function UnlockAp(ByVal nAP As Long) As Boolean
+Public Function UnlockAp(Optional nAP) As Boolean
     Const SUB_NAME = "UnlockAp"
     
     Dim strSQL As String
     
-    strSQL = "DELETE FROM p_altname WHERE pn_alt = " & CStr(nAP) _
-           & " AND pn_vendor IS Null"
-    On Error GoTo errUnlockAp
-    t_dbMainDatabase.Execute strSQL, dbSQLPassThrough
     UnlockAp = True
+    
+    If Not IsMissing(nAP) Then
+        lLockedAR_AP_NBR = tfnRound(nAP)
+    End If
+    If lLockedAR_AP_NBR <= 0 Then
+        Exit Function
+    End If
+    'make sure all null but pn_alt
+    
+    strSQL = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
+    strSQL = strSQL & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
+    
+    On Error GoTo errUnlockAp
+    t_dbMainDatabase.ExecuteSQL strSQL
+    lLockedAR_AP_NBR = -1
     Exit Function
 errUnlockAp:
-    tfnErrHandler strSQL, SUB_NAME
+    ''tfnErrHandler strSQL, SUB_NAME
     UnlockAp = False
 End Function
 
