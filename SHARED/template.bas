@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -508,6 +508,8 @@ Public Const t_lBigFormHeight As Long = 8760
 Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 
+Private m_Saved_GL_Batch As Long
+
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
     
@@ -704,6 +706,92 @@ ErrorTrap:
     tfnGet_AR_Access_Flag = szEMPTY
     
     On Error GoTo 0
+End Function
+
+'#Function Name: tfn_Get_GL_Batch_Nbr
+'#Parm Passed : None
+'#Return: the batch number if success; -1 if fail;
+'#
+'#WJ 01/27/2003
+'#NOTE: You need to call tfn_Unlock_GL_Batch_Nbr
+'#      After you finish processing or cancel the
+'#      GL processing.
+'#      Try to avoid unnecessary function call tfn_Get_GL_Batch_Nbr
+'#      since this will waste Batch numbers
+Public Function tfn_Get_GL_Batch_Nbr() As Long
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lValue As Long
+    
+    On Error GoTo Err_Exit
+    
+'#4GL use parm 2225, however, in windows Bob wanted to use Max(glj_batch).
+'#While max will work, but parm should be faster? If we decide to use 2225
+'#later, it may slow the program down ...
+
+'
+'    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 2225 "
+'
+'    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+'    If rsTemp.RecordCount > 0 Then
+'        lValue = tfnRound(rsTemp!parm_field)
+'    Else
+'        lValue = 0
+'        strSQL = "INSERT INTO sys_parm VALUES (2225,'0','Last G/L Batch Number Used')"
+'        t_dbMainDatabase.ExecuteSQL strSQL
+'    End If
+    
+    strSQL = "SELECT Max(glj_batch) HighBatch FROM gl_journal"
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rsTemp.RecordCount > 0 Then
+        lValue = tfnRound(rsTemp!HighBatch)
+    Else
+        lValue = 0
+    End If
+    
+    Do While True
+        lValue = lValue + 1
+        strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If rsTemp.RecordCount = 0 Then
+            strSQL = "UPDATE sys_parm SET parm_field = '" & CStr(lValue) & "' WHERE parm_nbr = 2225"
+            t_dbMainDatabase.ExecuteSQL strSQL
+            
+            strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
+            strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
+            t_dbMainDatabase.ExecuteSQL strSQL
+            
+            tfn_Unlock_GL_Batch_Nbr
+            
+            m_Saved_GL_Batch = lValue
+            tfn_Get_GL_Batch_Nbr = lValue
+            Exit Function
+        End If
+    Loop
+    Exit Function
+Err_Exit:
+    tfn_Get_GL_Batch_Nbr = -1
+End Function
+
+'#Function Name: tfn_Unlock_GL_Batch_Nbr
+'#Parm Passed : None
+'#Return: true/false
+'#
+'#WJ 01/27/2003
+Public Function tfn_Unlock_GL_Batch_Nbr() As Boolean
+    Dim strSQL As String
+    
+    On Error GoTo Err_Exit
+    
+    If m_Saved_GL_Batch > 0 Then
+        strSQL = "DELETE FROM gl_journal WHERE glj_account = 0 AND glj_amount = 0 AND glj_batch=" & m_Saved_GL_Batch
+        t_dbMainDatabase.ExecuteSQL strSQL
+    End If
+    m_Saved_GL_Batch = 0
+    tfn_Unlock_GL_Batch_Nbr = True
+    Exit Function
+Err_Exit:
+    tfn_Unlock_GL_Batch_Nbr = False
 End Function
 
 '
@@ -945,7 +1033,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -997,7 +1085,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1005,8 +1093,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1070,7 +1158,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2194,7 +2282,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2422,7 +2510,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim i As Long
+    Dim I As Long
     
     sText = vText & ""
     
@@ -2430,13 +2518,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For i = 1 To Len(sText)
-                sChar = Mid(sText, i, 1)
+            For I = 1 To Len(sText)
+                sChar = Mid(sText, I, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next i
+            Next I
         
             sTemp = RTrim(sText)
         Else
@@ -2526,7 +2614,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -2580,12 +2668,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -2623,7 +2711,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -2634,8 +2722,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(i).m_sTable = sTemp
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_sTable = sTemp
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -2831,19 +2919,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Long
+        Dim I As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For i = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(i).m_sTable = ""
-                        arryLockHandles(i).m_lHandle = -1
+                        arryLockHandles(I).m_sTable = ""
+                        arryLockHandles(I).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -2856,10 +2944,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next i
+        Next I
         
-        If i < UBound(arryLockHandles) Then
-            For j = i + 1 To UBound(arryLockHandles)
+        If I < UBound(arryLockHandles) Then
+            For j = I + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
