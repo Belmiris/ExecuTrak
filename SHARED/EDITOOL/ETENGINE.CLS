@@ -419,26 +419,31 @@ End Function
 Private Function fnBuildEDIFMTaxHeader() As String
 
     Dim sHDRLine As String
-
+    
 '    sHDRLine = EDI_HDR_RECORD_TYPE & fnFixLength(m_sTheirID, 35) & EDI_HDR_REF_NBR_CODE _
-             & m_sTaxTypeCode & EDI_HDR_TAX_AUTHORITY_CODE & EDI_HDR_STATE_CODE _
-             & fnFormatDate(Date) & EDI_HDR_TAXPAYER_FEIN_TYPE & fnFixLength(m_sTaxpayerID, 9) _
-             & EDI_HDR_STATE_ID_NBR & fnFixLength(m_sTaxpayerLicense, 11) & EDI_HDR_FILING_PERIOD_CODE _
-             & fnFixLength(fnCentury(Date), 2) _
-             & EDI_HDR_RANGE_OF_DATE & fnFixLength(fnFormatDate(m_sStartDate), 6) & "-" & fnFixLength(fnFormatDate(m_sEndDate), 6) _
-             & EDI_HDR_TAX_INFO_ID_NBR_1 & fnFixLength(CStr(m_lTotalGallons), 10) & EDI_HDR_UOM _
-             & EDI_HDR_TAX_INFO_ID_NBR_2 & EDI_HDR_VERSION_NBR _
-             & EDI_HDR_PRIMARY_TAXPAYER_COD & fnFixLength(m_sCompany, 35) & m_sMode
+'             & m_sTaxTypeCode, 5 & EDI_HDR_TAX_AUTHORITY_CODE & EDI_HDR_STATE_CODE _
+'             & fnFormatDate(Date) & EDI_HDR_TAXPAYER_FEIN_TYPE & fnFixLength(m_sTaxpayerID, 9) _
+'             & EDI_HDR_STATE_ID_NBR & fnFixLength(m_sTaxpayerLicense, 11) & EDI_HDR_FILING_PERIOD_CODE _
+'             & fnFixLength(fnCentury(m_sEndDate), 2) _
+'             & EDI_HDR_RANGE_OF_DATE & fnFixLength(fnFormatDate(m_sEndDate), 6) & Space(7) _
+'             & EDI_HDR_TAX_INFO_ID_NBR_1 & fnFixLength(CStr(m_lTotalGallons), 10) & EDI_HDR_UOM _
+'             & EDI_HDR_TAX_INFO_ID_NBR_2 & EDI_HDR_VERSION_NBR _
+'             & EDI_HDR_PRIMARY_TAXPAYER_COD & fnFixLength(m_sCompany, 35) & m_sMode
 
+
+    'changed by Junsong 05/18/2004 all the field must be fixed length, otherwise the translator will
+    'not work correctly. I found the problem that if someone did not enter license type(and Validation failed), all the report
+    'does not work.
+    
     sHDRLine = EDI_HDR_RECORD_TYPE & fnFixLength(m_sTheirID, 35) & EDI_HDR_REF_NBR_CODE _
-             & m_sTaxTypeCode & EDI_HDR_TAX_AUTHORITY_CODE & EDI_HDR_STATE_CODE _
+             & fnFixLength(m_sTaxTypeCode, 5) & EDI_HDR_TAX_AUTHORITY_CODE & EDI_HDR_STATE_CODE _
              & fnFormatDate(Date) & EDI_HDR_TAXPAYER_FEIN_TYPE & fnFixLength(m_sTaxpayerID, 9) _
              & EDI_HDR_STATE_ID_NBR & fnFixLength(m_sTaxpayerLicense, 11) & EDI_HDR_FILING_PERIOD_CODE _
              & fnFixLength(fnCentury(m_sEndDate), 2) _
              & EDI_HDR_RANGE_OF_DATE & fnFixLength(fnFormatDate(m_sEndDate), 6) & Space(7) _
              & EDI_HDR_TAX_INFO_ID_NBR_1 & fnFixLength(CStr(m_lTotalGallons), 10) & EDI_HDR_UOM _
              & EDI_HDR_TAX_INFO_ID_NBR_2 & EDI_HDR_VERSION_NBR _
-             & EDI_HDR_PRIMARY_TAXPAYER_COD & fnFixLength(m_sCompany, 35) & m_sMode
+             & EDI_HDR_PRIMARY_TAXPAYER_COD & fnFixLength(m_sCompany, 35) & fnFixLength(m_sMode, 1)
 
     fnBuildEDIFMTaxHeader = fnFixLength(sHDRLine, m_nLineLength)
 End Function
