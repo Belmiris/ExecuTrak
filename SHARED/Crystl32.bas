@@ -1,3 +1,4 @@
+Attribute VB_Name = "CRYSTAL32"
 '
 '               Visual Basic Declarations of CRPE32.DLL
 '               =====================================
@@ -396,6 +397,8 @@ Global Const PE_BYTE_LEN = 1
 Global Const PE_WORD_LEN = 2
 Global Const PE_LONG_LEN = 4
 Global Const PE_DOUBLE_LEN = 8
+
+Global Const CW_USEDEFAULT As Integer = -32768  'const for print report
 
 ' Open, print and close report (used when no changes needed to report)
 ' --------------------------------------------------------------------
@@ -1474,6 +1477,7 @@ Declare Function PEGetSubreportInfo Lib "crpe32.dll" (ByVal printJob%, ByVal sub
 Declare Function PEOpenSubreport Lib "crpe32.dll" (ByVal parentJob%, ByVal subreportName$) As Integer
 Declare Function PECloseSubreport Lib "crpe32.dll" (ByVal printJob%) As Integer
 ' End Of Declarations
+'
 
 Function PE_SECTION_CODE(sectionType%, groupN%, sectionN%) As Integer
 ' A function to create section codes:
