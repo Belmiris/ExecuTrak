@@ -10,19 +10,11 @@ call buildlog %1 %2
 
 echo .
 echo Compress Application files
-icomp G:\program\release\exectrak\pt\*.* ..\disk\disk1\ptbin.z
-icomp G:\program\release\exectrak\pt\bin\*.* ..\disk\disk1\ptbin.z Bin
+icomp G:\PROGRAM\RELEASE\ProfitTrak\*.* ..\disk\disk1\ptbin.z
+icomp G:\PROGRAM\RELEASE\ProfitTrak\BIN\pt*.* ..\disk\disk1\ptbin.z Bin
+icomp G:\PROGRAM\RELEASE\ProfitTrak\BIN\sp*.* ..\disk\disk1\ptbin.z Bin
+icomp G:\PROGRAM\RELEASE\ProfitTrak\ole\*.* ..\disk\disk1\ptbin.z ole
 icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\ptbin.z Bin
-icomp G:\program\release\exectrak\pt\qrt_file\*.* ..\disk\disk1\ptbin.z Bin
-
-echo .
-icomp G:\program\release\exectrak\pt\ole\*.* ..\disk\disk1\ptole.z
-
-echo .
-icomp G:\program\release\exectrak\pt\ini\*.* ..\disk\disk1\ptini.z
-
-echo .
-icomp G:\program\release\exectrak\pt\Models\*.* ..\disk\disk1\ptmodels.z -i
 
 echo .
 echo Compress Local Database

@@ -2,10 +2,11 @@
 echo .
 echo Making Distribution Disk
 
-if exist ..\disk\disk9\crystal.3 goto disk9
-if exist ..\disk\disk8\crystal.3 goto disk8
-if exist ..\disk\disk7\crystal.3 goto disk7
-if exist ..\disk\disk6\crystal.3 goto disk6
+
+if exist ..\disk\disk9\SHARED.Z goto disk9
+if exist ..\disk\disk8\SHARED.Z goto disk8
+if exist ..\disk\disk7\SHARED.Z goto disk7
+if exist ..\disk\disk6\SHARED.Z goto disk6
 
 echo Total Distribution Diskette Required = 1
 goto start
@@ -65,7 +66,6 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk3\*.* a:
 
-if exist ..\disk\disk3\crystal.3 goto makedisk_done
 
 echo insert disk#4
 pause
@@ -74,7 +74,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk4\*.* a:
 
-if exist ..\disk\disk4\crystal.3 goto makedisk_done
+if exist ..\disk\disk4\SHARED.Z goto makedisk_done
 
 echo insert disk#5
 pause
@@ -83,7 +83,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk5\*.* a:
 
-if exist ..\disk\disk5\crystal.3 goto makedisk_done
+if exist ..\disk\disk5\SHARED.Z goto makedisk_done
 
 echo insert disk#6
 pause
@@ -92,7 +92,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk6\*.* a:
 
-if exist ..\disk\disk6\crystal.3 goto makedisk_done
+if exist ..\disk\disk6\SHARED.Z goto makedisk_done
 
 echo insert disk#7
 pause
@@ -101,7 +101,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk7\*.* a:
 
-if exist ..\disk\disk7\crystal.3 goto makedisk_done
+if exist ..\disk\disk7\SHARED.Z goto makedisk_done
 
 echo insert disk#8
 pause
@@ -110,7 +110,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk8\*.* a:
 
-if exist ..\disk\disk8\crystal.3 goto makedisk_done
+if exist ..\disk\disk8\SHARED.Z goto makedisk_done
 
 echo insert disk#9
 pause
@@ -119,7 +119,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk9\*.* a:
 
-if exist ..\disk\disk9\crystal.3 goto makedisk_done
+if exist ..\disk\disk9\SHARED.Z goto makedisk_done
 
 :makedisk_done
 echo .

@@ -89,28 +89,40 @@ echo ******2 Compress client setup files to %2client.z
 icomp ..\..\%2client\disk\disk1\*.* ..\disk\%2client.z
 
 echo .
-echo Compress all files in Ole directory to factole.z
-icomp G:\program\release\exectrak\ole\tbkit.dll ..\disk\factole.z
-icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
+echo Compress all files in ProfitTrak\INI directory to ptini.z
+icomp G:\PROGRAM\RELEASE\ProfitTrak\INI\*.* ..\disk\ptini.z ini
 
 echo .
-echo Compress all files in Custctl directory to custctl.z
-icomp G:\program\release\exectrak\custctl\*.* ..\disk\custctl.z
+echo Compress all files in ProfitTrak\Models directory to ptmodels.z
+icomp G:\PROGRAM\RELEASE\ProfitTrak\Models\*.* ..\disk\ptmodels.z -i
 
 echo .
-echo Compress all files in Dll directory to factdll.z
-icomp G:\program\release\exectrak\dll\*.* ..\disk\factdll.z
+echo Compress all files in ProfitTrak\BIN\iq*.* directory to ptbin.z
+icomp G:\PROGRAM\RELEASE\ProfitTrak\BIN\iq*.* ..\disk\ptiqbin.z bin
 
 echo .
-echo Compress all files in Rtm directory to rtm.z
-icomp G:\program\release\exectrak\rtm\*.* ..\disk\rtm.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Custctl directory to custctl.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\custctl\*.* ..\disk\custctl.z
 
 echo .
-echo Compress all files in Shared directory to shared.z
-icomp G:\program\release\exectrak\shared\*.* ..\disk\shared.z
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Dll directory to factdll.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\dll\*.* ..\disk\factdll.z
+echo .
+echo Compress all files in \EXECVISN\Dll directory to factdll.z
+icomp G:\program\release\execvisn\dll\*.* ..\disk\factdll.z
 
-echo Compress all files in Crystal directory to crystal.z
-icomp G:\program\release\exectrak\crystal\*.* ..\disk\crystal.z
+
+echo .
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Ole directory to factole.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\*.* ..\disk\factole.z
+
+echo .
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Rtm directory to rtm.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\rtm\*.* ..\disk\rtm.z
+
+echo .
+echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Shared directory to shared.z
+icomp G:\PROGRAM\RELEASE\EXECTRAK\shared\*.* ..\disk\shared.z
 
 
 if "%1" == "b" goto compress_both
