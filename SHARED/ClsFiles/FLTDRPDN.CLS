@@ -991,21 +991,41 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
 '        cmdSearch.Visible = False
 '        Exit Sub
 '    End If
+    Dim sKey As String
+    
     If bKeyPressed Then
         KeyAscii = 0
         Exit Sub
     End If
     bKeyPressed = True
     If tgTable.TabIndex = tgDropDown.TabIndex Then
-        If KeyAscii = vbKeyReturn Then
-            bShowList = False
-            fnGetText tgMain.col
-            subInputSelected
-        ElseIf KeyAscii = vbKeyEscape Then
-            bShowList = False
-            tgDropDown.Visible = False
+        If frmParent.ActiveControl Is tgMain Then
             On Error Resume Next
             tgMain.SetFocus
+            Select Case KeyAscii
+                Case vbKeyReturn
+                    sKey = "~"
+                Case vbKeyLeft
+                    sKey = "{LEFT}"
+                Case vbKeyRight
+                    sKey = "{RIGHT}"
+                Case vbKeyUp
+                    sKey = "{UP}"
+                Case vbKeyDown
+                    sKey = "{DOWN}"
+            End Select
+            SendKeys sKey
+        Else
+            If KeyAscii = vbKeyReturn Then
+                bShowList = False
+                fnGetText tgMain.col
+                subInputSelected
+            ElseIf KeyAscii = vbKeyEscape Then
+                bShowList = False
+                tgDropDown.Visible = False
+                On Error Resume Next
+                tgMain.SetFocus
+            End If
         End If
     ElseIf tgTable.TabIndex = tgMain.TabIndex Then
         If bSearchOnReturn Then
@@ -1490,7 +1510,7 @@ Private Sub fnMoveButton()
                     cmdSearch.Picture = frmContext.LoadPicture(SEARCH_UP)
             End Select
             On Error GoTo 0
-            If tgMain.col < tgMain.LeftCol Or objCol.Left + objCol.Width >= tgMain.Width Then
+            If tgMain.col < tgMain.LeftCol Or (tgMain.col > tgMain.LeftCol And objCol.Left = 0) Or objCol.Left + objCol.Width >= tgMain.Width Then
                 cmdSearch.Visible = False
                 cmdSearch.ZOrder 1
             Else
