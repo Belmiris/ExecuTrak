@@ -144,8 +144,8 @@ Public Function fnExecute4GE(sCmdLine As String, _
                 sEnviron = sEnviron & ";"
             End If
         End If
-        sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" & sEnviron & "cd $HOME;" _
-             & "$PROGPATH/" & sCmdLine
+        sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" _
+             & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
         
         sTemp = fnRunRCmd(sHost, sUserID, sPassWD, sCmd)
         If sTemp = "" Then
