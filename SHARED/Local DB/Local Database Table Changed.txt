@@ -1,3 +1,10 @@
+version: 3.28.0403 davidc
+Date: 04/07/2004
+#401172-2, 401172-3
+
+Description: 
+	Add new table fmh_frgt_chgd for Freight Modifications Project.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version: 3.28.0302 davidc
 Date: 03/19/2004
 #401439-1
