@@ -885,7 +885,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
 End Function
@@ -1025,8 +1025,8 @@ Public Sub tfnUpdateVersion()
     #End If
     
     sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.major))
-    sMinorVersion = Trim(CStr(App.minor))
+    sMajorVersion = Trim(CStr(App.Major))
+    sMinorVersion = Trim(CStr(App.Minor))
     sRevision = Trim(CStr(App.Revision))
     
     On Error GoTo 0
@@ -1114,22 +1114,24 @@ End Sub
 'Variables: pointer to the form the status bar is on
 'Return   : none
 '
-Public Sub tfnUpdateStatusBar(frmForm As Form)
-    Dim intKeyStatus As Integer
-
-    On Error Resume Next
-
-    '-------------- Fix the Frm Caption  -- WJ 03/26/2002 -----
+Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolean = True)
     Dim sOn As String
+    
+    On Error Resume Next
+    
     sOn = " on " & Trim(tfnGetDataSourceName)
-    'david 03/29/2002
-    'fixed for those program that run stand-alone and without database connection
+    
     If Trim(sOn) <> "on" Then
         If InStr(frmForm.Caption, sOn) <= 0 Then
             frmForm.Caption = frmForm.Caption & sOn
         End If
     End If
-    '----------------------------------------------------------
+    
+    If Not bRefreshStatus Then
+        Exit Sub
+    End If
+    
+    Dim intKeyStatus As Integer
     
     intKeyStatus = GetKeyState(VK_CAPITAL)
 
@@ -1137,7 +1139,7 @@ Public Sub tfnUpdateStatusBar(frmForm As Form)
         frmForm.ffraStatusbar.PanelCaption(2) = "CAPS"
     Else
         frmForm.ffraStatusbar.PanelCaption(2) = szEMPTY
-        End If
+    End If
 
     DoEvents
 
@@ -1393,7 +1395,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1447,7 +1449,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1561,7 +1563,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
