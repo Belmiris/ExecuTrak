@@ -966,27 +966,29 @@ End Function
 
 Public Function tfnOpenLocalDatabase() As Database
     
-    On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
-
-    If t_engFactor Is Nothing Then
-        Set t_engFactor = New DBEngine 'create a new dDBEngine
-        t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
-    End If
+    #If FACTOR_MENU <> 1 Then
+        On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
     
-    If t_wsWorkSpace Is Nothing Then
-        Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
-    End If
-
-    Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(t_engFactor.IniPath & "\factor.mdb")
-    On Error GoTo 0
-    Exit Function
-
+        If t_engFactor Is Nothing Then
+            Set t_engFactor = New DBEngine 'create a new dDBEngine
+            t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
+        End If
+        
+        If t_wsWorkSpace Is Nothing Then
+            Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
+        End If
+    
+        Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(t_engFactor.IniPath & "\factor.mdb")
+        On Error GoTo 0
+        Exit Function
+    
 ERROR_CONNECTING:
-    MsgBox Err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
-
-    Set tfnOpenLocalDatabase = Nothing
-
-    On Error GoTo 0
+        MsgBox Err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
+    
+        Set tfnOpenLocalDatabase = Nothing
+    
+        On Error GoTo 0
+    #End If
 End Function
 
 '
