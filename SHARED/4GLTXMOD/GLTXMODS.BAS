@@ -1488,6 +1488,7 @@ Public Sub detax(use_group As String, tclass As String, _
 
     level_rate = 0
     If trn_arry_cnt > 0 Then
+        j = 0 'WJ 12/04/2001 Magic 339720
         For i = trn_arry_cnt To 1 Step -1
             If trn_arry(i).order_group <> 0 Then
                 Set pr_table = ftx_table(trn_arry(i).trn, t_dbMainDatabase)
@@ -1516,9 +1517,11 @@ Public Sub detax(use_group As String, tclass As String, _
         Next
         'last_level is not null
         If last_level <> 0 Then
-            trn_arry(j).amount = level_rate
-            dtx(j).amount = de_tax_amt(j, tunits, trn_arry(j).amount, trn_arry(j).order_group, trn_arry(j).limit, trn_arry(j).ttype, trn_arry(j).charge)
-            de_tax_amount = de_tax_amount + dtx(j).amount
+            If j > 0 Then 'WJ 12/04/2001 Magic 339720
+                trn_arry(j).amount = level_rate
+                dtx(j).amount = de_tax_amt(j, tunits, trn_arry(j).amount, trn_arry(j).order_group, trn_arry(j).limit, trn_arry(j).ttype, trn_arry(j).charge)
+                de_tax_amount = de_tax_amount + dtx(j).amount
+            End If
         End If
     End If
 
