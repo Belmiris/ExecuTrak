@@ -34,6 +34,9 @@ Private Const FLAG_CAPTION = 64
 Private nColumn As Integer
 Private sCaption As String
 Private sDataField As String
+'david 10/22/2003
+Private sSourceDataField As String
+'''''''''''''''''
 Private nColumnType As Integer
 Private nColumnWidth As Integer
 
@@ -91,6 +94,16 @@ End Property
 Property Let DataField(sField As String)
     sDataField = sField
 End Property
+
+'david 10/22/2003
+Property Get SourceDataField() As String
+    SourceDataField = sSourceDataField
+End Property
+
+Property Let SourceDataField(sField As String)
+    sSourceDataField = sField
+End Property
+'''''''''''''''''
 
 Property Get DropDownType() As Integer
     DropDownType = nDropDownType

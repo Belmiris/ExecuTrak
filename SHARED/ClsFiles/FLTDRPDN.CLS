@@ -538,12 +538,12 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.X = myRect.Left
+    myPoint.x = myRect.Left
     myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
@@ -722,6 +722,10 @@ Private Function fnLoadTable(nColumn As Integer, _
     Dim lCount As Long
     Dim sGroupByClause As String
     
+    'david 10/22/2003
+    Dim sField As String
+    '''''''''''''''''
+    
     'david 10/25/2001
     If bCalledByHeaderClick Then
         If ColIndex < 0 Then
@@ -797,6 +801,14 @@ Private Function fnLoadTable(nColumn As Integer, _
                     szCode = Trim$(tgMain.Columns(colTemp.Item(lCol).ColumnIndex).Text)
                     ' if a code mask has been entered, add to the SQL
                     If szCode <> "" Then
+                        'david 10/22/2003
+                        If colTemp.Item(lCol).SourceDataField = "" Then
+                            sField = colTemp.Item(lCol).DataField
+                        Else
+                            sField = colTemp.Item(lCol).SourceDataField
+                        End If
+                        '''''''''''''''''
+                    
                         If colTemp.Item(lCol).ColType = TYPE_STRING Then
                             
                             'Add if by junsong 10/16/01, % does not work for DAO right now.
@@ -804,15 +816,21 @@ Private Function fnLoadTable(nColumn As Integer, _
                                 szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "*") & ")"
                             Else
                                 If m_bCaseSensitive Then
-                                    szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                                    'david 10/22/2003
+                                    szQuery = szQuery & szLink & sField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                                    '''''''''''''''''
                                 Else
-                                    szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
+                                    'david 10/22/2003
+                                    szQuery = szQuery & szLink & sField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
+                                    '''''''''''''''''
                                 End If
                             End If
                             
                             szLink = " AND ("
                         ElseIf colTemp.Item(lCol).ColType = TYPE_INTEGER Then
-                            szQuery = szQuery & szLink & fnGenetateSearchString(colTemp.Item(lCol).DataField, szCode) & ")"
+                            'david 10/22/2003
+                            szQuery = szQuery & szLink & fnGenetateSearchString(sField, szCode) & ")"
+                            '''''''''''''''''
                             szLink = " AND ("
                         End If
                     End If
@@ -838,10 +856,22 @@ Private Function fnLoadTable(nColumn As Integer, _
                         End If
                     Next
                     If sTemp <> "" Then
-                        If InStr(UCase(szQuery), "WHERE ") > 0 Then
-                            szQuery = szQuery & " AND " & colTemp.Item(lColIndex).DataField & " NOT IN (" & sTemp & ")"
+                        'david 10/22/2003
+                        If colTemp.Item(lCol).SourceDataField = "" Then
+                            sField = colTemp.Item(lCol).DataField
                         Else
-                            szQuery = szQuery & " WHERE " & colTemp.Item(lColIndex).DataField & " NOT IN (" & sTemp & ")"
+                            sField = colTemp.Item(lCol).SourceDataField
+                        End If
+                        '''''''''''''''''
+                        
+                        If InStr(UCase(szQuery), "WHERE ") > 0 Then
+                            'david 10/22/2003
+                            szQuery = szQuery & " AND " & sField & " NOT IN (" & sTemp & ")"
+                            '''''''''''''''''
+                        Else
+                            'david 10/22/2003
+                            szQuery = szQuery & " WHERE " & sField & " NOT IN (" & sTemp & ")"
+                            '''''''''''''''''
                         End If
                     End If
                 End If
@@ -1281,7 +1311,13 @@ Public Sub Resize()
     End If
 End Sub
 
-
+'david 10/22/2003
+'sField can accept alias
+'e.g. trim(trim(pn_first_name) || ' ' || pn_name) AS pn_full_name
+'NOTE: if the alias is used in the dropdown SQL,
+'      in order to prevent the SQL error,
+'      the whole alias (example above) need to be included
+'      when adding the dropdown column during setup
 Public Sub AddColumn(nIndex As Integer, _
                      Optional sField As Variant, _
                      Optional nColType As Variant, _
@@ -1315,7 +1351,25 @@ Public Sub AddColumn(nIndex As Integer, _
     
     stCol.ColumnIndex = nIndex
     If Not IsMissing(sField) Then
-        stCol.DataField = sField
+        'david 10/22/2003
+        Dim nPosi As Integer
+        nPosi = InStrRev(sField, " ")
+        If nPosi > 0 Then
+            'field alias found
+            stCol.DataField = Trim(Mid(sField, nPosi + 1))
+            sField = Trim(Left(sField, nPosi - 1))
+            nPosi = InStrRev(LCase(sField), " as")
+            If nPosi > 0 Then
+                sField = Trim(Left(sField, nPosi - 1))
+            End If
+            If Left(sField, 1) <> "(" Then
+                sField = "(" + sField + ")"
+            End If
+            stCol.SourceDataField = sField
+        Else
+            stCol.DataField = sField
+        End If
+        '''''''''''''''''
     Else
         stCol.DataField = ""
     End If
@@ -2229,7 +2283,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
     Err.Clear
 
@@ -2565,7 +2619,7 @@ Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As
     Dim j As Integer
     Dim k As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If InStr(strSQL, szUNION) <= 0 Then
         fnCnvtOrderByFieldsToColIndex = sOrderByList
@@ -2645,7 +2699,7 @@ Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As
     
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, return empty order by
     fnCnvtOrderByFieldsToColIndex = ""
 End Function
