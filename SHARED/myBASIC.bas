@@ -35,14 +35,14 @@ Public Const DATA_CHANGED As Integer = 2
 Public nDataStatus As Integer 'data loaded,inti,changed flag
 Public bUpdateTable As Boolean  'almost never used
 Public Const SCROLL_BAR_WIDTH As Integer = 250
-Public dbLocal As Database
+Public dbLocal As DataBase
 Public Const nDB_LOCAL As Integer = 0
 Public Const nDB_REMOTE As Integer = 1
 Public Const DB_REMOTE = 1
 Public Const DB_LOCAL = 0
 Global t_engFactor2nd As DBEngine
 Global t_wsWorkSpace2nd As Workspace
-Global t_dbMainDatabase2nd As Database
+Global t_dbMainDatabase2nd As DataBase
 '======================================================
 
 
@@ -400,21 +400,21 @@ End Sub
 Public Function LinkListedData(vData(), nThisRow As Long, _
                nTotalRows As Long) As String
      Dim sLinks As String
-     Dim I As Long
+     Dim i As Long
      sLinks = ""
-     For I = 0 To nTotalRows - 1
-        If I <> nThisRow Then
+     For i = 0 To nTotalRows - 1
+        If i <> nThisRow Then
             If sLinks = "" Then
-                If Trim(vData(I)) <> "" Then
-                    sLinks = MyStr(vData(I))
+                If Trim(vData(i)) <> "" Then
+                    sLinks = MyStr(vData(i))
                 End If
             Else
-                If Trim(vData(I)) <> "" Then
-                    sLinks = sLinks & ", " & MyStr(vData(I))
+                If Trim(vData(i)) <> "" Then
+                    sLinks = sLinks & ", " & MyStr(vData(i))
                 End If
             End If
         End If
-     Next I
+     Next i
      If sLinks = "" Then
         sLinks = Chr(34) & Chr(34)
      End If
@@ -426,17 +426,17 @@ End Function
 Public Function IsAlreadyListed(vData(), ByVal nTerms As Long, _
                          ByVal nThisRow As Long, ByVal szTest As String) As Boolean
                           
-     Dim I As Long
+     Dim i As Long
      
      IsAlreadyListed = False
-     For I = 0 To nTerms - 1
-        If I <> nThisRow Then
-            If Trim(vData(I)) = Trim(szTest) Then
+     For i = 0 To nTerms - 1
+        If i <> nThisRow Then
+            If Trim(vData(i)) = Trim(szTest) Then
                IsAlreadyListed = True
                Exit For
             End If
         End If
-     Next I
+     Next i
 End Function
 '=====================================================
 
@@ -495,7 +495,7 @@ Public Function fnCreateTemp_Small(szTableName As String, _
     Exit Function
 errCreateTable:
     MsgBox "Can not create temporary table for searching.", vbOKOnly + vbCritical, App.Title
-    Err.Clear
+    err.Clear
     tfnErrHandler "fnCreateTemp_Small", szSql
    
 End Function
@@ -904,7 +904,7 @@ Public Function fnGetExeSQLCount(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -947,7 +947,16 @@ Public Function fnExecuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As Database
+    'david 01/27/2005  #465134
+    'if the ExecuteSQL returns more than 32767 rows,
+    'the function return type Integer
+    'will cause RUN-TIME ERROR 6 Overflow
+    'but I don't want to change the return type to Long
+    'because it may crash other programs that assigning
+    'the return value of this function to a Integer type variable.
+    Dim lRet As Long
+    
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -957,7 +966,14 @@ Public Function fnExecuteSQL(strSQL As String, _
     
     On Error GoTo errExecute
     If objDB Is t_dbMainDatabase Then
-        fnExecuteSQL = objDB.ExecuteSQL(strSQL)
+        'david 01/27/2005  #465134
+        lRet = objDB.ExecuteSQL(strSQL)
+        
+        If lRet > 32000 Then
+            lRet = 32000
+        End If
+        
+        fnExecuteSQL = CInt(lRet)
     Else
         objDB.Execute strSQL
         fnExecuteSQL = 0
@@ -1035,7 +1051,7 @@ End Sub
 
 Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
 
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1049,12 +1065,12 @@ Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
         End If
     #End If
     
-    If Err.Number = 3146 Or t_engFactor.Errors.Count > 2 Then
+    If err.Number = 3146 Or t_engFactor.Errors.Count > 2 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) _
-                        & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) _
+                        & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1067,14 +1083,14 @@ Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
             & " occurred while doing an ODBC query:" _
             & vbCrLf & vbCrLf & vbCrLf & sMsgs
     Else
-        sODBCErrors = Err.Description
+        sODBCErrors = err.Description
     End If
     
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
             sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf _
-                & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
+                & "Error# " & CStr(err.Number) & vbCrLf & err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -1102,7 +1118,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
     If sMsg <> "" Then
         MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
-    Err.Clear
+    err.Clear
 
 End Sub
 '==========================================================================
@@ -1372,7 +1388,7 @@ End Sub
 '===========================================
 
 'open local database, need to reset sInifilename
-Public Function fnOpenLocalDatabase() As Database
+Public Function fnOpenLocalDatabase() As DataBase
     
     Dim sDataBasePath As String
     Dim sIniFileName As String
@@ -1396,7 +1412,7 @@ Public Function fnOpenLocalDatabase() As Database
     Exit Function
 
 ERROR_CONNECTING:
-    MsgBox Err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
+    MsgBox err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
 
     Set fnOpenLocalDatabase = Nothing
 
@@ -1811,7 +1827,7 @@ Public Function fnOpen2ndDatabase() As Boolean
     Exit Function
 
 ERROR_CONNECTING:
-    MsgBox Err.Description, vbOKOnly + vbCritical, szCONNECTION_ERROR
+    MsgBox err.Description, vbOKOnly + vbCritical, szCONNECTION_ERROR
     fnOpen2ndDatabase = False
 
 End Function
