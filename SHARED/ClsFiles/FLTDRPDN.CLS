@@ -1513,7 +1513,7 @@ Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Intege
         Case DB_INFORMIX
             Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         Case DB_ACCESS
-            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenDynaset)
+            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
         Case Else
             fnGetRecord = False
             MsgBox "Drop down database not setup", vbOKOnly + vbCritical, frmParent.Caption
