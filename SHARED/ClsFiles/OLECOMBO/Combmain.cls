@@ -3207,31 +3207,34 @@ End Function
 Public Sub Click(objControl As Object)
     'Event call for all the controls
     If objControl.TabIndex = tgDropDown.TabIndex Then
-
-        'david 01/30/2002
-        Dim nRowTop As Integer
-
-        If tgDropDown.Row >= 0 Then
-            nRowTop = tgDropDown.RowTop(0)
-
-            If nClickPointY < nRowTop Then
-                If m_bSortOnColumnClick Then
+        If m_bSortOnColumnClick Then
+            'david 02/05/2002
+            Dim nRowTop As Integer
+    
+            If tgDropDown.Row >= 0 Then
+                nRowTop = tgDropDown.RowTop(0)
+    
+                If nClickPointY < nRowTop Then
                     bTableClicked = True
                 Else
-                    bTableClicked = False
+                    If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+                        bTableClicked = True
+                        RowColChange
+                    Else
+                        'Otherwise, set the flag
+                        bTableClicked = True
+                    End If
                 End If
             Else
-                If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
-                    bTableClicked = True
-                    RowColChange
-                Else
-                    'Otherwise, set the flag
-                    bTableClicked = True
-                End If
+                'Otherwise, set the flag
+                bTableClicked = True
             End If
         Else
-            'Otherwise, set the flag
-            If m_bSortOnColumnClick Then
+            If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+                bTableClicked = True
+                RowColChange
+            Else
+                'Otherwise, set the flag
                 bTableClicked = True
             End If
         End If
