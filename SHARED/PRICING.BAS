@@ -54,7 +54,6 @@ Private bBook_term As Boolean
 
 Private m_OverRideFlag_YN As String 'Add per magic 312713-48
 'Added by junsong per magic 355816'
-Private Const PRICE_BOOK_NOT_FOUND = "Price book was not set for customer"
 Private m_sSysParm6203 As String
 
 Public Function product_price( _
@@ -77,36 +76,6 @@ Public Function product_price( _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
     
-    'add by junsong per magic 355816
-    'If we can't find the price book for altnate customer, we try to find
-    'the price book for its master customer
-    
-    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
-        Dim lMasterCust As Long
-        Dim rsCust As Recordset
-        
-        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
-        
-        If Not (rsCust Is Nothing) Then
-            lMasterCust = tfnRound(rsCust!an_cust)
-            
-            If lMasterCust <> lCustomer Then
-                ' I changed from 'Y' to 'N' if we can not find the book for master vendor too,
-                ' then I don't want it to return error, so I use the master customer level
-                ' to calculate the price Junsong 02/26/01
-                m_sSysParm6203 = "N"
-                    
-                product_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
-                                dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
-                m_sSysParm6203 = "Y"
-    
-            End If
-            
-        End If
-        
-    End If
-    '
 End Function ' product_price
 
 'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
@@ -131,35 +100,6 @@ Public Function Fuel_price( _
                                 dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
     
-    'add by junsong per magic 355816
-    'If we can't find the price book for altnate customer, we try to find
-    'the price book for its master customer
-    
-    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
-        Dim lMasterCust As Long
-        Dim rsCust As Recordset
-        
-        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
-        
-        If Not (rsCust Is Nothing) Then
-            lMasterCust = tfnRound(rsCust!an_cust)
-            
-            If lMasterCust <> lCustomer Then
-                ' I changed from 'Y' to 'N' if we can not find the book for master vendor too,
-                ' then I don't want it to return error, so I use the master customer level
-                ' to calculate the price Junsong 02/26/01
-                m_sSysParm6203 = "N"
-        
-                Fuel_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
-                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
-    
-                m_sSysParm6203 = "Y"
-            End If
-            
-        End If
-        
-    End If
     
 End Function ' product_price
 
@@ -181,37 +121,6 @@ Public Function prod_price( _
     prod_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
-
-    'add by junsong per magic 355816
-    'If we can't find the price book for altnate customer, we try to find
-    'the price book for its master customer
-    
-    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
-        Dim lMasterCust As Long
-        Dim rsCust As Recordset
-        
-        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
-        
-        If Not (rsCust Is Nothing) Then
-            lMasterCust = tfnRound(rsCust!an_cust)
-            
-            If lMasterCust <> lCustomer Then
-                ' I changed from 'Y' to 'N' if we can not find the book for master vendor
-                ' then I don't want it to return error, so I use the master customer level
-                ' to calculate the price Junsong 02/26/01
-                m_sSysParm6203 = "N"
-                
-                prod_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
-                                dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
-                m_sSysParm6203 = "Y"
-                'change back to yes for other customer
-            End If
-            
-        End If
-        
-    End If
-    
 End Function ' prod_price
 
 Private Function sp_price(ByVal sProductLink As String, _
@@ -381,47 +290,50 @@ Private Function sp_price(ByVal sProductLink As String, _
         Dim c_last_term As String, c_book_price As String, c_purch_term As String
         Dim pr_sp_book As Recordset
         
-        
-        '////////////////////// START CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
-        Set pr_sp_book = Nothing
-        
-        If zzerc_contract_nbr >= 0 Then
-            c_book_price = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
-                           " zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
-                           " zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
-                           " zzerc_oper spb_oper,zzerc_price spb_price" & _
-                           " FROM zzer_contract " & _
-                           " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
-                           " AND zzerc_date <= " & QStr(wrk_date) & _
-                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
-            'Ohhh, Order By is really not useful!
-            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
-            
-            If Not pr_sp_book Is Nothing Then
-                If pr_sp_book.RecordCount <= 0 Then
-                    Set pr_sp_book = Nothing
-                End If
-            End If
-        End If
-        
+        Set pr_sp_book = fnGetSPBook(lCustomer, sWorkLocation, tfnRound(pr_inv_master!invt_prodlnk), zzerc_contract_nbr)
 
-        If pr_sp_book Is Nothing Then
-            'Codes inside this if are the privious
-            c_book_price = "SELECT * FROM sp_book" & _
-                           " WHERE spb_customer = " & QStr(lCustomer) & _
-                           " AND spb_loc = " & QStr(sWorkLocation) & _
-                           " AND spb_prodlnk = " & QStr(pr_inv_master!invt_prodlnk) & _
-                           " AND spb_date <= " & QStr(wrk_date) & _
-                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
-                            
-            ' open c_book_price
-            ' fetch c_book_price into pr_sp_book
-            
-            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
-        End If
-        
-        '////////////////////// END CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
-        
+'change by junsong 03/14 the follwoing module will be called two times, so I create a function
+'***********************************************
+'        '////////////////////// START CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
+'        Set pr_sp_book = Nothing
+'
+'        If zzerc_contract_nbr >= 0 Then
+'            c_book_price = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
+'                           " zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
+'                           " zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
+'                           " zzerc_oper spb_oper,zzerc_price spb_price" & _
+'                           " FROM zzer_contract " & _
+'                           " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
+'                           " AND zzerc_date <= " & QStr(wrk_date) & _
+'                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+'            'Ohhh, Order By is really not useful!
+'            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
+'
+'            If Not pr_sp_book Is Nothing Then
+'                If pr_sp_book.RecordCount <= 0 Then
+'                    Set pr_sp_book = Nothing
+'                End If
+'            End If
+'        End If
+'
+'
+'        If pr_sp_book Is Nothing Then
+'            'Codes inside this if are the privious
+'            c_book_price = "SELECT * FROM sp_book" & _
+'                           " WHERE spb_customer = " & QStr(lCustomer) & _
+'                           " AND spb_loc = " & QStr(sWorkLocation) & _
+'                           " AND spb_prodlnk = " & QStr(pr_inv_master!invt_prodlnk) & _
+'                           " AND spb_date <= " & QStr(wrk_date) & _
+'                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+'
+'            ' open c_book_price
+'            ' fetch c_book_price into pr_sp_book
+'
+'            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
+'        End If
+'
+'        '////////////////////// END CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
+'***************************************************
         If pr_sp_book Is Nothing Then
             sErrMsg = "Failed to get sp_book info"
             Exit Function
@@ -432,12 +344,25 @@ Private Function sp_price(ByVal sProductLink As String, _
         Else
             'changed by junsong 02/26/02
             If m_sSysParm6203 = "Y" Then
-                sErrMsg = PRICE_BOOK_NOT_FOUND
-                Exit Function
+                Set pr_ar_altname = far_altname(lCustomer, t_dbMainDatabase)
+                
+                If Not pr_ar_altname Is Nothing Then
+                    Set pr_sp_book = fnGetSPBook(tfnRound(pr_ar_altname!an_cust), sWorkLocation, tfnRound(pr_inv_master!invt_prodlnk), zzerc_contract_nbr)
+                    
+                    If pr_sp_book Is Nothing Then
+                        sErrMsg = "Failed to get sp_book info"
+                        Exit Function
+                    ElseIf pr_sp_book.RecordCount = 0 Then
+                        Exit Do
+                    End If
+        
+                Else
+                    Exit Do
+                End If
             Else
                 Exit Do 'while bBook_active
             End If
-            
+            ''''''''''''''''''''''''''''''''''
         End If
         ' close c_book_price
         
@@ -1005,6 +930,51 @@ Public Function fnGetOverRideFlag() As String
         fnGetOverRideFlag = "N"
     End If
 End Function
+
+'this function created by junsong to get the price book 03/14/02
+Private Function fnGetSPBook(lCustomer As Long, sWorkLocation As String, lProductlnk As Long, _
+                            Optional zzerc_contract_nbr As Long = -1) As Recordset
+    Dim rsTemp As Recordset
+    Dim strSQL As String
+    Const SUB_NAME As String = "fnGetSPBook"
+    
+    If zzerc_contract_nbr >= 0 Then
+        strSQL = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
+                 " zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
+                 " zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
+                 " zzerc_oper spb_oper,zzerc_price spb_price" & _
+                 " FROM zzer_contract " & _
+                 " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
+                 " AND zzerc_date <= " & QStr(wrk_date) & _
+                 " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+    
+        Set rsTemp = fnMainmodsOpenRecordset(strSQL, SUB_NAME)
+        
+        If Not rsTemp Is Nothing Then
+            
+            If rsTemp.RecordCount <= 0 Then
+                Set rsTemp = Nothing
+            End If
+            
+        End If
+    
+    End If
+
+    If rsTemp Is Nothing Then
+        strSQL = "SELECT * FROM sp_book" & _
+                " WHERE spb_customer = " & lCustomer & _
+                " AND spb_loc = " & QStr(sWorkLocation) & _
+                " AND spb_prodlnk = " & lProdLnk & _
+                " AND spb_date <= " & QStr(wrk_date) & _
+                " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+             
+        Set rsTemp = fnMainmodsOpenRecordset(strSQL, SUB_NAME)
+
+    End If
+        
+    Set fnGetSPBook = rsTemp
+End Function
+
 #If cMAIN Then
 Sub Main()          'include for testing
 
