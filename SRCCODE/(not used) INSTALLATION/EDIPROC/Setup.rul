@@ -12,7 +12,7 @@
 
 #define CHECK_ONE_COPY		1
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define SIZE_REQ_LOCAL          3
 #define SIZE_REQ_REMOTE         1
@@ -180,9 +180,6 @@ InstallationType:
 		endif;
 
 		if (szTemp = "") then
-			bProgramFoundInLocal = fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
-			bProgramFoundInRemote = fnFindFile("J:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
-
 			if (bProgramFoundInRemote) then
 		        	szBaseDirectory = "J:" ^ APP_BASE_PATH;
 			else
@@ -193,9 +190,9 @@ InstallationType:
         		StrToUpper(szDisk, szDisk);
         		szBaseDirectory = szDisk ^ APP_BASE_PATH;
 			if (szDisk = "C:") then
-				bProgramFoundInLocal = TRUE;
+				bProgramFoundInLocal = fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.MDB");
 			else
-				bProgramFoundInRemote = TRUE;
+				bProgramFoundInRemote = fnFindFile(szDisk ^ "FACTOR\\EXECTRAK\\BIN", "EDIPROC.MDB");
 			endif;
 		endif;
 
