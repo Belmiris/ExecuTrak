@@ -100,7 +100,21 @@ End Sub
 Public Property Let Equation(e As String)
    Parsed = False
    Dirty = True
+   
    Equ = LCase(e)
+   
+   'remove if, when, then
+    If Left(Equ, 2) = "if" Then
+        Equ = Trim(Mid(Equ, 3))
+    End If
+
+    If Left(Equ, 4) = "when" Then
+        Equ = Trim(Mid(Equ, 5))
+    End If
+
+    If Right(Equ, 4) = "then" Then
+        Equ = Trim(Left(Equ, Len(Equ) - 4))
+    End If
 End Property
 
 Public Property Get Equation() As String
@@ -770,9 +784,9 @@ Public Function Solve() As String
                      
                   Case "sin("
                      If Degrees Then
-                        Temp(m) = Sin(X * DEG_TO_RAD)
+                        Temp(m) = sIn(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Sin(X)
+                        Temp(m) = sIn(X)
                      End If
                      
                   Case "sqr("
@@ -815,9 +829,9 @@ Public Function Solve() As String
                      
                   Case "cosec("
                      If Degrees Then
-                        Temp(m) = (1 / Sin(X * DEG_TO_RAD))
+                        Temp(m) = (1 / sIn(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Sin(X)
+                        Temp(m) = 1 / sIn(X)
                      End If
                      
                   Case "cotan("
@@ -944,16 +958,16 @@ Public Function Solve() As String
    Exit Function
    
 SolveError:
-   Select Case Err
+   Select Case err
       'Overflow, division by 0, internal errors...
       Case 6, 11, EQ_PAREN To EQ_NAME
-         Solve = Err.Description
+         Solve = err.Description
       Case 5:
          Select Case eSpace
             Case ER_VAR
                Solve = "Undefined Variable: " & v
             Case Else
-               Solve = Err.Description
+               Solve = err.Description
          End Select
       Case Else
          Solve = "Invalid Equation"
@@ -983,4 +997,10 @@ Private Sub Class_Initialize()
    Degrees = False
 End Sub
 
+Public Function CheckCondition(sCondition As String, sErrMsg As String) As Boolean
+    
+    Equation = sCondition
+    CheckCondition = Solution(sErrMsg)
+
+End Function
 
