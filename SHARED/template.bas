@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -341,25 +341,37 @@ Public Const IQFACT_STREAM_UP = 11200
 Public Const FO_HOLD_UP = 11250
 Public Const CDPLAYER_UP = 11350
 Public Const AREPAYCC_UP = 11400
+Public Const SECURITY_UP = 11450
+Public Const APFVOIDR_UP = 11500
+Public Const SYS_LOCKS_UP = 11550
+Public Const DTN_ENT_UP = 11600
+Public Const ADJUST_UP = 11700
+Public Const CC_MASTER_UP = 11750
+Public Const WHL_RECVER_UP = 11800
+Public Const POFBRSPO_UP = 11850
+Public Const POEOENTR_UP = 11900
+Public Const POFNOSTK_UP = 11950
+Public Const POSORDER_UP = 12000
+Public Const POFSELGP_UP = 12150
+Public Const POFBRSPR_UP = 12200
+Public Const POERENTR_UP = 12250
+Public Const SMEWKORD_UP = 12300
+Public Const POFVENDR_UP = 12350
+Public Const POFAPLVL_UP = 12400
+Public Const POFVNPRI_UP = 12450
+Public Const CLOSEPO_UP = 12500
+Public Const POAPPROV_UP = 12550
+Public Const PRAPPROV_UP = 12600
+Public Const PRPRINT_UP = 12650
+
 'The following bitmaps need to be loaded into the form
 'And define 2 public functions to supply the bitmaps and module names:
 '1. Public Function GetPicture(ByVal nID As Integer) As Picture
 '2. Public Function GetModuleName(ByVal nID As Integer) As String
-Public Const SECURITY_UP = 11450
-Public Const APFVOIDR_UP = 11500
-Public Const SYS_LOCKS_UP = 11550
-
-Public Const DTN_ENT_UP = 11600
-Public Const ADJUST_UP = 11700
-Public Const CC_MASTER_UP = 11750
-
-Public Const WHL_RECVER_UP = 11800
-
-Public Const IMPORT_UP = 11850
-Public Const IMPORT_DOWN = 11900
-Public Const EXPORT_UP = 11950
-Public Const EXPORT_DOWN = 12000
-
+Public Const IMPORT_UP = 12700
+Public Const IMPORT_DOWN = 12750
+Public Const EXPORT_UP = 12800
+Public Const EXPORT_DOWN = 12850
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
@@ -1019,7 +1031,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As DataBase
+Public Function tfnOpenLocalDatabase() As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
