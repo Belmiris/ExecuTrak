@@ -1,0 +1,437 @@
+VERSION 5.00
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
+Begin VB.Form objEDIPROC 
+   Caption         =   "objEDIPROC"
+   ClientHeight    =   1368
+   ClientLeft      =   48
+   ClientTop       =   336
+   ClientWidth     =   2124
+   LinkTopic       =   "Form1"
+   ScaleHeight     =   1368
+   ScaleWidth      =   2124
+   StartUpPosition =   3  'Windows Default
+   Begin MSComDlg.CommonDialog cdlgOpen 
+      Left            =   288
+      Top             =   204
+      _ExtentX        =   677
+      _ExtentY        =   677
+      _Version        =   393216
+      CancelError     =   -1  'True
+   End
+End
+Attribute VB_Name = "objEDIPROC"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+
+'Implementation:
+'0. Include the component Microsoft Common Dialog Control 6.0 (SP3) in your project.
+'1. Include this Form EDIPROC.FRM (objEDIPROC) into your project.
+'2. Include TASK.BAS (modTASK) in shared directory into your project.
+
+Private m_AppPath As String
+Private m_frmParent As Form
+Private m_lstLog As ListBox
+
+'GENERAL
+Private m_MessageType As String
+Private m_WorkPath As String
+Private m_lFilePath As String
+Private m_WriteLogFlag As String
+Private m_LFileName As String
+Private m_LFileType As String
+
+'INCOMING and OUTGOING
+Private m_IFilePath As String
+Private m_IFileType As String
+Private m_IFileName As String
+Private m_OFilePath As String
+Private m_OFileType As String
+Private m_OFileName As String
+Private m_WriteMode As String
+Private m_BackupFileFlag As String
+Private m_RemoveOriginal As String
+Private m_BackupPath As String
+Private m_BackupFileType As String
+Private m_BackupFileName As String
+Private m_RunMode As String
+
+Private m_ErrorMessage As String
+
+'interface properties
+Property Set ParentForm(frmForm As Form)
+    Set m_frmParent = frmForm
+    m_AppPath = fnAddBkSlash(UCase(App.Path))
+End Property
+
+Property Set LogListBox(lstList As ListBox)
+    Set m_lstLog = lstList
+End Property
+
+Property Let MessageType(sParm As String)
+    m_MessageType = sParm
+End Property
+Property Let WorkPath(sParm As String)
+    m_WorkPath = sParm
+End Property
+Property Let LFilePath(sParm As String)
+    m_lFilePath = sParm
+End Property
+Property Let WriteLogFlag(sParm As String)
+    m_WriteLogFlag = sParm
+End Property
+Property Let LFileName(sParm As String)
+    m_lFilePath = sParm
+End Property
+Property Let LFileType(sParm As String)
+    m_LFileType = sParm
+End Property
+Property Let IFilePath(sParm As String)
+    m_IFilePath = sParm
+End Property
+Property Let IFileType(sParm As String)
+    m_IFileType = sParm
+End Property
+Property Let IFileName(sParm As String)
+    m_IFileName = sParm
+End Property
+Property Let OFilePath(sParm As String)
+    m_OFilePath = sParm
+End Property
+Property Let OFileType(sParm As String)
+    m_OFileType = sParm
+End Property
+Property Let OFileName(sParm As String)
+    m_OFileName = sParm
+End Property
+Property Let WriteMode(sParm As String)
+    m_WriteMode = sParm
+End Property
+Property Let BackupFileFlag(sParm As String)
+    m_BackupFileFlag = sParm
+End Property
+Property Let RemoveOriginal(sParm As String)
+    m_RemoveOriginal = sParm
+End Property
+Property Let BackupPath(sParm As String)
+    m_BackupPath = sParm
+End Property
+Property Let BackupFileType(sParm As String)
+    m_BackupFileType = sParm
+End Property
+Property Let BackupFileName(sParm As String)
+    m_BackupFileName = sParm
+End Property
+Property Let RunMode(sParm As String)
+    m_RunMode = sParm
+End Property
+
+Property Get ErrorMessage() As String
+    ErrorMessage = m_ErrorMessage
+End Property
+
+Private Function fnOpenFile() As Integer
+    On Error GoTo errHandler
+    
+    cdlgOpen.Action = 1
+    
+    fnOpenFile = vbOK
+    Me.Hide
+    
+    Exit Function
+
+errHandler:
+    fnOpenFile = vbCancel
+    Me.Hide
+End Function
+
+'return an error message if failed
+Public Function LaunchEDIPROC() As String
+    Const SUB_NAME As String = "LaunchEDIPROC"
+    Const sEDIPROC_EXE As String = "EDIPROC.EXE"
+    
+    Dim dfTimer As Single, sExeFile As String, sMsg As String
+    Dim dfBeginRun As Single, sParm As String
+    
+    m_ErrorMessage = ""
+    
+    'get the EDIPROC program path
+    sExeFile = m_AppPath + sEDIPROC_EXE
+    
+    sParm = fnBuildParm()
+    
+    'Launch EDI Translation Processor
+    dfBeginRun = Timer
+    If Not fnRunExe(sExeFile + " " + sParm) Then
+        m_ErrorMessage = "Failed to run EDI Translation Processor."
+        tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+        LaunchEDIPROC = m_ErrorMessage
+        Exit Function
+    End If
+        
+    sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
+    subAddLog sMsg
+        
+    'busy waiting for EDI Translation Processor to finish
+    dfTimer = Timer
+    Do
+        DoEvents
+        If Timer - dfTimer > 2100 Then
+            m_ErrorMessage = "EDI Translation Processor time out."
+            tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+            LaunchEDIPROC = m_ErrorMessage
+            Exit Function
+        End If
+    Loop While fnExeIsRunning(sExeFile)
+    
+    sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
+    subAddLog sMsg
+    
+    Wait 1
+    
+    sMsg = fnCheckEdiProcError()
+    If sMsg <> "" Then
+        GoTo errEdiProcError
+    End If
+    
+    Wait 1
+    
+    LaunchEDIPROC = ""
+    
+    Exit Function
+
+errEdiProcError:
+    
+    m_ErrorMessage = "Error: " + sMsg + " has occurred during EDI Translation." _
+        + vbCrLf + vbCrLf + "EDI Translation terminates." + vbCrLf + vbCrLf _
+        + "Report this message to Support."
+
+    LaunchEDIPROC = m_ErrorMessage
+End Function
+
+Private Function fnCheckEdiProcError() As String
+    Const SUB_NAME As String = "fnCheckEdiProcError"
+    
+    Dim dbEDI As Database
+    Dim sSql As String
+    Dim rsTemp As Recordset
+    Dim sFileName As String
+    Dim sErrMsg As String
+    
+    fnCheckEdiProcError = ""
+    
+    sFileName = m_AppPath + "EDIXLATE.MDB"
+    
+    Set dbEDI = tfnOpenEdiXlateDatabase(sFileName)
+    
+    If dbEDI Is Nothing Then
+        fnCheckEdiProcError = "Unable to open EDI Translation Database"
+        Exit Function
+    End If
+    
+    sSql = "SELECT el_desc FROM err_log"
+    If fnGetEdiXlateRecord(rsTemp, sSql, dbEDI, SUB_NAME, , False) < 0 Then
+        fnCheckEdiProcError = "Failed to access EDI Translation Database"
+        Exit Function
+    End If
+    
+    While Not rsTemp.EOF
+        If Not IsNull(rsTemp!el_desc) Then
+            sErrMsg = sErrMsg + Trim(rsTemp!el_desc) + vbCrLf
+        End If
+        rsTemp.MoveNext
+    Wend
+    
+    If Len(sErrMsg) > 2 Then
+        sErrMsg = Left(sErrMsg, Len(sErrMsg) - 2)
+    End If
+    
+    rsTemp.Close
+    Set rsTemp = Nothing
+    dbEDI.Close
+    Set dbEDI = Nothing
+    
+    fnCheckEdiProcError = sErrMsg
+End Function
+
+Private Function tfnOpenEdiXlateDatabase(sDatabaseNamePath As String) As Database
+    
+    On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
+
+    If t_engFactor Is Nothing Then
+        Set t_engFactor = New DBEngine 'create a new dDBEngine
+    End If
+    
+    If t_wsWorkSpace Is Nothing Then
+        Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
+    End If
+    
+    Set tfnOpenEdiXlateDatabase = t_wsWorkSpace.OpenDatabase(sDatabaseNamePath)
+    
+    Exit Function
+    
+ERROR_CONNECTING:
+    
+    tfnErrHandler "tfnOpenEdiXlateDatabase"
+    Set tfnOpenEdiXlateDatabase = Nothing
+End Function
+
+Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
+                            dbLocal As Database, sCalledFrom As String, _
+                            Optional bShowError, _
+                            Optional vMoveLast) As Long
+
+    Dim bMoveLast As Boolean
+    
+    If IsMissing(vMoveLast) Then
+        bMoveLast = True
+    Else
+        bMoveLast = vMoveLast
+    End If
+
+    On Error GoTo SQLError
+    Set rsTemp = dbLocal.OpenRecordset(strSQL, dbOpenSnapshot)
+    
+    If bMoveLast Then
+        If rsTemp.RecordCount > 0 Then
+            rsTemp.MoveLast
+            rsTemp.MoveFirst
+        End If
+    End If
+    
+    fnGetEdiXlateRecord = rsTemp.RecordCount
+    Exit Function
+
+SQLError:
+    tfnErrHandler "fnGetEdiXlateRecord," & sCalledFrom, strSQL, bShowError
+    fnGetEdiXlateRecord = -9999
+End Function
+
+Private Function fnAddBkSlash(ByVal sIn As String) As String
+    sIn = Trim(sIn)
+    If Right(sIn, 1) <> "\" Then fnAddBkSlash = sIn + "\" Else fnAddBkSlash = sIn
+End Function
+
+Private Sub Form_Initialize()
+    Set m_frmParent = Nothing
+    Set m_lstLog = Nothing
+End Sub
+
+Private Sub Form_Terminate()
+    On Error Resume Next
+    Set m_lstLog = Nothing
+    Set m_frmParent = Nothing
+End Sub
+
+Private Function fnBuildParm() As String
+    Dim sParm As String
+    
+    sParm = ""
+    
+    If m_MessageType <> "" Then
+        sParm = sParm + "MessageType=" + m_MessageType + ","
+    End If
+    If m_WorkPath <> "" Then
+        sParm = sParm + "WorkPath=" + m_WorkPath + ","
+    End If
+    If m_lFilePath <> "" Then
+        sParm = sParm + "LFilePath=" + m_lFilePath + ","
+    End If
+    If m_WriteLogFlag <> "" Then
+        sParm = sParm + "WriteLogFlag=" + m_WriteLogFlag + ","
+    End If
+    If m_LFileName <> "" Then
+        sParm = sParm + "LFileName=" + m_LFileName + ","
+    End If
+    If m_LFileType <> "" Then
+        sParm = sParm + "LFileType=" + m_LFileType + ","
+    End If
+    If m_IFilePath <> "" Then
+        sParm = sParm + "IFilePath=" + m_IFilePath + ","
+    End If
+    If m_IFileType <> "" Then
+        sParm = sParm + "IFileType=" + m_IFileType + ","
+    End If
+    If m_IFileName <> "" Then
+        sParm = sParm + "IFileName=" + m_IFileName + ","
+    End If
+    If m_OFilePath <> "" Then
+        sParm = sParm + "OFilePath=" + m_OFilePath + ","
+    End If
+    If m_OFileType <> "" Then
+        sParm = sParm + "OFileType=" + m_OFileType + ","
+    End If
+    If m_OFileName <> "" Then
+        sParm = sParm + "OFileName=" + m_OFileName + ","
+    End If
+    If m_WriteMode <> "" Then
+        sParm = sParm + "WriteMode=" + m_WriteMode + ","
+    End If
+    If m_BackupFileFlag <> "" Then
+        sParm = sParm + "BackupFileFlag=" + m_BackupFileFlag + ","
+    End If
+    If m_RemoveOriginal <> "" Then
+        sParm = sParm + "RemoveOriginal=" + m_RemoveOriginal + ","
+    End If
+    If m_BackupPath <> "" Then
+        sParm = sParm + "BackupPath=" + m_BackupPath + ","
+    End If
+    If m_BackupFileType <> "" Then
+        sParm = sParm + "BackupFileType=" + m_BackupFileType + ","
+    End If
+    If m_BackupFileName <> "" Then
+        sParm = sParm + "BackupFileName=" + m_BackupFileName + ","
+    End If
+    If m_RunMode <> "" Then
+        sParm = sParm + "RunMode=" + m_RunMode + ","
+    End If
+    
+    If sParm <> "" Then
+        sParm = Left(sParm, Len(sParm) - 1)
+    End If
+
+    fnBuildParm = sParm
+End Function
+
+Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
+    Dim lLine As Long, sTemp As String, nPosi As Integer
+    
+    If m_lstLog Is Nothing Then
+        Exit Sub
+    End If
+    
+    On Error Resume Next
+    
+    sTemp = sMsg
+    nPosi = InStr(sTemp, vbCr)
+     
+     While nPosi > 0
+        m_lstLog.AddItem Mid(sTemp, 1, nPosi - 1)
+        m_lstLog.ListIndex = m_lstLog.ListCount - 1
+        If Mid(sTemp, nPosi + 1) = vbLf Then
+            sTemp = Mid(sTemp, nPosi + 2)
+        Else
+            sTemp = Mid(sTemp, nPosi + 1)
+        End If
+        nPosi = InStr(sTemp, vbCr)
+    Wend
+    
+    If sTemp <> "" Then
+        m_lstLog.AddItem sTemp
+        m_lstLog.ListIndex = m_lstLog.ListCount - 1
+    End If
+    
+    m_lstLog.Refresh
+End Sub
+
+Private Sub Wait(dfSeconds As Single)
+    Dim dfTimer As Single
+    
+    dfTimer = Timer
+    While Timer - dfTimer <= dfSeconds
+        DoEvents
+    Wend
+End Sub
+
