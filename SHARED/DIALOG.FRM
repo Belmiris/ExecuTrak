@@ -64,7 +64,6 @@ Begin VB.Form objDrivePath
       ShowFocusRect   =   -1  'True
       Style           =   3
       BorderWidth     =   4
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -101,7 +100,6 @@ Begin VB.Form objDrivePath
       ShowFocusRect   =   -1  'True
       Style           =   3
       BorderWidth     =   4
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -161,12 +159,7 @@ End Sub
 
 Private Sub Form_Load()
     tfnCenterForm Me
-End Sub
-
-Private Sub Form_Unload(Cancel As Integer)
-    Cancel = True
-    Me.Hide
-    nStatus = vbCancel
+    tfnDisableFormSystemClose Me
 End Sub
 
 Private Sub lblDrive_Click()
@@ -222,14 +215,3 @@ Private Sub cmdCancel_Click()
     nStatus = vbCancel
     Me.Hide
 End Sub
-
- _
- _
- _
- _
- _
- _
- _
- _
- _
-

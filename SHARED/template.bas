@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -1108,10 +1108,15 @@ Public Sub tfnUpdateStatusBar(frmForm As Form)
     '-------------- Fix the Frm Caption  -- WJ 03/26/2002 -----
     Dim sOn As String
     sOn = " on " & Trim(tfnGetDataSourceName)
-    If InStr(frmForm.Caption, sOn) <= 0 Then
-        frmForm.Caption = frmForm.Caption & sOn
+    'david 03/29/2002
+    'fixed for those program that run stand-alone and without database connection
+    If Trim(sOn) <> "on" Then
+        If InStr(frmForm.Caption, sOn) <= 0 Then
+            frmForm.Caption = frmForm.Caption & sOn
+        End If
     End If
     '----------------------------------------------------------
+    
     intKeyStatus = GetKeyState(VK_CAPITAL)
 
     If intKeyStatus = 1 Then
@@ -1305,7 +1310,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2395,7 +2400,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
