@@ -662,9 +662,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             & " AND fmm_dispatch_flag = 'C'" _
             & " AND fmd_movement = fmm_movement"
         
-        'for export, consider both Internal and External Delivery!
+        'for 2-export, consider both Internal and External Delivery!
         'david 08/27/99
-        If nTypeCode <> "7" Then
+        'now for 10A-non hwy use, need to consider both Internal and External Delivery!
+        'david 03/17/00
+        If nTypeCode <> "7" And nTypeCode <> "10A" Then
             strSQL = strSQL & " AND fmd_dest_flag = 'E'"
         End If
         
@@ -683,8 +685,17 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         'david 08/18/99
         'for Others Schedule DO IT, becuase it work before
         'david 08/27/99
-        If nTypeCode <> "7" Then
-            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line," _
+        If nTypeCode = "7" Then
+            strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, " _
+                & " fmd_invoice, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
+                & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
+                & " WHERE fmldt_movement = fmm_movement" _
+                & " AND fmldt_trn = tul_trn" _
+                & " AND fmldt_ulink = tul_link"
+                strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
+                & ") INTO TEMP fm_temp2"
+        Else
+            strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line," _
                 & " fmldt_trn, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
                 & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
                 & " WHERE fmldt_movement = fmm_movement" _
@@ -694,15 +705,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
                 & ") AND fmldt_type = '" & sType & "'" _
                 & " INTO TEMP fm_temp2"
-        Else
-            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, " _
-                & " fmd_invoice, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
-                & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
-                & " WHERE fmldt_movement = fmm_movement" _
-                & " AND fmldt_trn = tul_trn" _
-                & " AND fmldt_ulink = tul_link"
-                strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
-                & ") INTO TEMP fm_temp2"
         End If
         
         If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
@@ -714,14 +716,14 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
         
-        If nTypeCode <> "7" Then
-            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
+        If nTypeCode = "7" Then
+            strSQL = "SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
                 & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
-                & " AND fmldt_bl_nbr = fmmb_dv_nbr" _
-                & " AND fmldt_line = fmmb_dv_line"
+                & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
+                & " AND fmd_invoice = fmmb_dv_nbr"
             strSQL = strSQL & " AND fml_bl_nbr = fmmb_bl_nbr" _
                 & " AND fml_movement = fmmb_movement" _
                 & " AND fmmb_dv_prodlnk = ivh_link" _
@@ -732,8 +734,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
-                & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
-                & " AND fmd_invoice = fmmb_dv_nbr"
+                & " AND fmldt_bl_nbr = fmmb_dv_nbr" _
+                & " AND fmldt_line = fmmb_dv_line"
             strSQL = strSQL & " AND fml_bl_nbr = fmmb_bl_nbr" _
                 & " AND fml_movement = fmmb_movement" _
                 & " AND fmmb_dv_prodlnk = ivh_link" _
@@ -784,10 +786,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 If m_sEDIType = EDI_TYPE_R Then
                     'Lading, get vendor info
                     sTemp = fnCStr(!fml_vendor)
-                    If Val(sTemp) = 43040004 Then
-'                        Stop
-                    End If
-                    
                     If sTemp <> "" Then
                         'get vendor info
                         subVendorInfo sInfo1, sInfo2, sInfo3, sTemp
