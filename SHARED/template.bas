@@ -49,7 +49,7 @@ Global Const szHelpElecCommerce As String = "EC.HLP"
 Global Const szHelpCMSystem As String = "CMS.HLP"
 Global Const szHelpPO As String = "PO.HLP" ' Wenstrong, For Purchase Order
 Global Const szHelpProfitTrak As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
-Global Const szHelpAPPALACHIAN As String = "APPALACHIAN.HLP"
+Global Const szHelpAPPALACH As String = "APPALACH.HLP" 'help file name for APPALACHIAN
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
