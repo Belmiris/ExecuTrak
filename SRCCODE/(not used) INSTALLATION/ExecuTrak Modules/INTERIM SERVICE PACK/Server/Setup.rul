@@ -849,44 +849,7 @@ begin
 					bGoCopy = TRUE;
 				else // EXE file
 					if fnFindFile(szDest, szName) then
-						szTemp = szFrom ^ szName;
-						if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
-							szVersionFrom = "";
-						endif;
-	
-						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
-	
-						szTemp = szDest ^ szName;
-						if VerGetFileVersion(szTemp, szVersionTo) != 0 then
-							szVersionTo = "";
-						endif;
-	
-						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
-	
-						if DEVELOP then
-							MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
-								szVersionFrom + ":\nszVersionTo=" + szVersionTo, INFORMATION);
-						endif;
-	
-						if szVersionFrom < szVersionTo then
-							//david 07/13/00
-							if szDateFrom > szDateTo then
-								bGoCopy = TRUE;
-							else
-								bGoCopy = FALSE;
-							endif;
-						else
-							if szVersionFrom = szVersionTo then
-								// check the date
-								if szDateFrom > szDateTo then
-									bGoCopy = TRUE;
-								else
-									bGoCopy = FALSE;
-								endif;
-							else
-								bGoCopy = TRUE;
-							endif;
-						endif;
+						bGoCopy = TRUE;
 					else  //file not found
 						//david 07/12/00
 						//take care of releasing new EXE file in service pack
@@ -922,7 +885,11 @@ begin
 		endif;
 
 		if bGoCopy then
-			nvXCopyFileParm = COMP_NORMAL;
+			if (szForceInstall = "1 ") then
+		        	nvXCopyFileParm = (COMP_NORMAL | INCLUDE_SUBDIR);
+			else
+		       		nvXCopyFileParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
+			endif;
 
 			if bSharedFile then
 				nvXCopyFileParm = nvXCopyFileParm | SHAREDFILE;

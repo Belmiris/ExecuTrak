@@ -46,7 +46,7 @@ icomp G:\PROGRAM\RELEASE\Exectrak\SERVPACK\*.* ..\disk\disk1\servfact.z
 
 echo .
 echo Compress updated dtnctrl files
-icomp G:\PROGRAM\RELEASE\Exectrak\SERVPACK\*.* ..\disk\disk1\servdtnc.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SERVPACK\DTNCTRL\*.* ..\disk\disk1\servdtnc.z 
 
 echo .
 echo Done

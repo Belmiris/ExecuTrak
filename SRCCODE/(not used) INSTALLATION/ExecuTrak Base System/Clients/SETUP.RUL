@@ -2118,10 +2118,10 @@ begin
 	szClientPath = szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR;
 	szPath = szBaseDirectory ^ PRODUCT_SUBDIR;
 
-        	if (szForceInstall = "1 ") then
-                	nvDecompressParm = (COMP_NORMAL | INCLUDE_SUBDIR);
-        	else
-               	nvDecompressParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
+	if (szForceInstall = "1 ") then
+        	nvDecompressParm = (COMP_NORMAL | INCLUDE_SUBDIR);
+	else
+       		nvDecompressParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
 	endif;
 
 	nvCount = 0;
@@ -2134,12 +2134,11 @@ begin
 	
 		if fnFindFile(szClientPath, szID) then
 			if (bRunLocal) then
+				//decompress XXBin.z
+				DecompressZfile(szClientPath, szPath, szID, nvDecompressParm);
 				if (DEBUG_CLIENT) then
 					MessageBox("szClientPath=" + szClientPath + ", szPath=" + 
 						szPath + ", szID=" + szID, INFORMATION);
-				else
-					//decompress XXBin.z
-					DecompressZfile(szClientPath, szPath, szID, nvDecompressParm);
 				endif;
 			endif;
 		
@@ -2441,63 +2440,9 @@ begin
 					bGoCopy = TRUE;
 				else // EXE file
 					if fnFindFile(szDest, szName) then
-						szTemp = szFrom ^ szName;
-						if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
-							szVersionFrom = "";
-						endif;
-	
-						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
-	
-						szTemp = szDest ^ szName;
-						if VerGetFileVersion(szTemp, szVersionTo) != 0 then
-							szVersionTo = "";
-						endif;
-	
-						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
-	
-						if DEVELOP then
-							MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
-								szVersionFrom + ":\nszVersionTo=" + szVersionTo, INFORMATION);
-						endif;
-	
-						if szVersionFrom < szVersionTo then
-							//david 07/13/00
-							if szDateFrom > szDateTo then
-								bGoCopy = TRUE;
-							else
-								bGoCopy = FALSE;
-							endif;
-						else
-							if szVersionFrom = szVersionTo then
-								// check the date
-								if szDateFrom > szDateTo then
-									bGoCopy = TRUE;
-								else
-									bGoCopy = FALSE;
-								endif;
-							else
-								bGoCopy = TRUE;
-							endif;
-						endif;
+						bGoCopy = TRUE;
 					else  //EXE file not found
-						//david 07/12/00
-						//take care of releasing new EXE file in service pack
-						//check for first 2 characters in the file name (ModuleID)
-	                			StrSub(szModID, szName, 0, 2);
-	                			szModID = szModID + "*.EXE";
-						if fnFindFile(szDest, szModID) then
-							bGoCopy = TRUE;
-						else
-							if (szName = "AREPAYCC.EXE") then
-								if fnFindFile(szDest, "EC*.EXE") then
-									bGoCopy = TRUE;
-								else
-									bGoCopy = FALSE;
-								endif;
-							else
-								bGoCopy = FALSE;
-							endif;
-						endif;
+						bGoCopy = FALSE;
 					endif;
 				endif;
 			endif;
@@ -2514,7 +2459,12 @@ begin
 		endif;
 
 		if bGoCopy then
-			nvXCopyFileParm = COMP_NORMAL;
+			//nvXCopyFileParm = COMP_NORMAL;
+			if (szForceInstall = "1 ") then
+		        	nvXCopyFileParm = (COMP_NORMAL | INCLUDE_SUBDIR);
+			else
+		       		nvXCopyFileParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
+			endif;
 
 			if bSharedFile then
 				nvXCopyFileParm = nvXCopyFileParm | SHAREDFILE;
