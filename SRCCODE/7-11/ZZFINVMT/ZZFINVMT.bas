@@ -49,7 +49,6 @@ Private Const PAGELENGTH As Integer = 120
 Private g_dTotalCost As Double
 Private g_dTotalExtCost As Double
 Private g_lHeaderCount As Long
-Private g_bNeedValidHeader As Boolean
 Private g_bNeedWriteHeader As Boolean
 Private g_bNeedErrHeader As Boolean
 Private g_lDetailLineNbr As Long
@@ -61,11 +60,18 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     Dim bIsOpen As Boolean
     Dim nFileNum As Integer
     Dim sLine As String
-    Dim nLineCount As Long
-    Dim sFirstLine As String
+    Dim lLineCount As Long
     Dim udtInvHeader As RSINV_Header
     Dim udtInvDetail As RSINV_Detail
     Dim sErrMsg As String
+    Dim lHeaderAddress As Long
+    Dim lHeaderLines As Long
+    Dim lSuccessHeaderLines As Long
+    Dim lDetailAddress As Long
+    Dim lDetailLines As Long
+    Dim lInsertLines As Long
+    
+    Const MAXLINE As Long = 2147483647
     
     On Error GoTo ErrorHandler
     
@@ -78,91 +84,97 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     bIsOpen = True
     
     subOpenAndClearLogFile
-    
-    If Not EOF(nFileNum) Then
-        Line Input #nFileNum, sFirstLine
-        lReadByte = lReadByte + Len(sFirstLine)
-        sngPercent = lReadByte / lTotalByte * 100
-        subSetProgress sngPercent
-    Else
-        sErrMsg = "The file " & sFileName & "  is empty"
-        GoTo EXITHERE
-    End If
-    
-    If Left(sFirstLine, 3) <> "HDR" Then
-        sErrMsg = "The first three letter is not 'HDR' in line 1."
-        GoTo EXITHERE
-    Else
         
-        If Not fnProcessHeaderLine(sFirstLine, udtInvHeader) Then
-            sErrMsg = "The file contents is not correct in line 1"
-            GoTo EXITHERE
-        End If
-        
-        subWriteHeaderProcLog udtInvHeader
-        'subWriteHeaderErrLog udtInvHeader
-    End If
-    
-    nLineCount = 1
-    
     Do While Not EOF(nFileNum)
         Line Input #nFileNum, sLine
-        
-        nLineCount = nLineCount + 1
+        lLineCount = lLineCount + 1
         lReadByte = lReadByte + Len(sLine)
         sngPercent = lReadByte / lTotalByte * 100
         subSetProgress sngPercent
         
-        If Left(sLine, 3) = "HDR" Then
+        If UCase(Left(sLine, 3)) = "HDR" Then
+            lHeaderLines = lHeaderLines + 1
+            
+            If lDetailLines <> lInsertLines Then
+                subDisplayMsg "Not successfully."
+                
+                If lInsertLines > 0 Then
+                    fnDeleteData udtInvHeader.lVendor, udtInvHeader.lInvNum
+                End If
+        
+            ElseIf lDetailLines = lInsertLines Then
+                
+                If lInsertLines > 0 Then
+                    lSuccessHeaderLines = lSuccessHeaderLines + 1
+                    subDisplayMsg "Processed Successfully."
+                ElseIf lHeaderLines > 1 And lInsertLines = 0 Then
+                    subDisplayMsg "No details for this vendor, so processed is not successfully."
+                End If
+                
+            End If
+            
+            lDetailLines = 0
+            lInsertLines = 0
             
             If Not fnProcessHeaderLine(sLine, udtInvHeader) Then
-                sErrMsg = "Invalid contents in line " & nLineCount
-                GoTo EXITHERE
-            End If
-            
-            subWriteHeaderProcLog udtInvHeader
-            'subWriteHeaderErrLog udtInvHeader
-            
-        ElseIf Left(sLine, 3) = "DET" Then
-        
-            If Not fnProcessDetailLine(sLine, udtInvDetail) Then
-                sErrMsg = "Invalid contents in line " & nLineCount
-                GoTo EXITHERE
-            End If
-            
-        Else
-            sErrMsg = "Invalid contents in line " & nLineCount
-            GoTo EXITHERE
-        End If
-        
-        'one header have one correspond detail
-        If udtInvDetail.sRecId = "DET" Then
-            
-            If Not fnInsertData(udtInvHeader, udtInvDetail) Then
-                sErrMsg = "Error occurs when inserting data in line " & nLineCount
-                GoTo EXITHERE
+                lHeaderAddress = MAXLINE
+                subDisplayMsg "Header in line " & lLineCount & " is not valid."
+            Else
+                subDisplayMsg "Processing Invoice " & udtInvHeader.lInvNum & " for Vendor " & udtInvHeader.lVendor & "."
+                lHeaderAddress = lLineCount
+                subWriteHeaderProcLog udtInvHeader
             End If
             
         End If
         
-        'set it to empty after new header is accept
-        udtInvDetail.sRecId = ""
+        If UCase(Left(sLine, 3)) = "DET" Then
+            lDetailAddress = lLineCount
+            
+            If lDetailAddress > lHeaderAddress And lHeaderLines > 0 Then
+                lDetailLines = lDetailLines + 1
+                
+                If Not fnProcessDetailLine(sLine, udtInvDetail) Then
+                    subDisplayMsg "Detail in line " & lLineCount & " is not valid."
+                    lInsertLines = lInsertLines - 1
+                Else
+                    
+                    If fnInsertData(udtInvHeader, udtInvDetail) Then
+                        lInsertLines = lInsertLines + 1
+                    End If
+                    
+                End If
+                
+            End If
+                
+        End If
+        
     Loop
     
+    If lDetailLines <> lInsertLines Then
+        subDisplayMsg "Not successfully."
+        
+        If lInsertLines > 0 Then
+            fnDeleteData udtInvHeader.lVendor, udtInvHeader.lInvNum
+        End If
+
+    ElseIf lDetailLines = lInsertLines Then
+        
+        If lInsertLines > 0 Then
+            lSuccessHeaderLines = lSuccessHeaderLines + 1
+            subDisplayMsg "Processed Successfully."
+        Else
+            subDisplayMsg "No details for this header."
+        End If
+        
+    End If
+            
     subWriteSummary
     subCloseLogFile
     
-    fnProcessRSInvFile = True
+    fnProcessRSInvFile = (lHeaderLines = lSuccessHeaderLines)
     Close #nFileNum
     Exit Function
-    
-EXITHERE:
-    fnProcessRSInvFile = False
-    subWriteSummary
-    Close #nFileNum
-    subCloseLogFile
-    Exit Function
-    
+        
 ErrorHandler:
 
     If bIsOpen Then
@@ -198,7 +210,8 @@ Private Function fnProcessHeaderLine(sLine As String, udtInvHeader As RSINV_Head
     Exit Function
 EXITHERE:
     fnProcessHeaderLine = False
-    subDisplayMsg Err.Description
+    Err.Clear
+    'subDisplayMsg Err.Description
 End Function
 
 Private Function fnProcessDetailLine(sLine As String, udtInvDetail As RSINV_Detail) As Boolean
@@ -223,7 +236,8 @@ Private Function fnProcessDetailLine(sLine As String, udtInvDetail As RSINV_Deta
     Exit Function
 EXITHERE:
     fnProcessDetailLine = False
-    subDisplayMsg Err.Description
+    Err.Clear
+    'subDisplayMsg Err.Description
 End Function
 
 Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
@@ -256,17 +270,11 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
                 Exit Function
             End If
             
-            strSQL = "SELECT * FROM rs_p_hold_header WHERE rsphh_vendor = " & udtInvHeader.lVendor
-            strSQL = strSQL & " AND rsphh_invoice = " & udtInvHeader.lInvNum
-            
-            If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnInsertData") = 0 Then
-                strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
-                strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
+            strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
+            strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
                 
-                If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
-                    Exit Function
-                End If
-    
+            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
+                Exit Function
             End If
                    
         End If
@@ -287,13 +295,22 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
         fnInsertData = True
     Else
         fnInsertData = False
-        subDisplayMsg "Data is not correct in the flat file, please check error log file."
     End If
     
 End Function
 
 Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     Dim strSQL As String
+    
+    strSQL = "DELETE FROM p_nbr WHERE pno_vendor = " & lVendor
+    strSQL = strSQL & " AND pno_invoice = " & lInvoice
+    strSQL = strSQL & " AND EXISTS (SELECT rsphh_status FROM rs_p_hold_header WHERE "
+    strSQL = strSQL & " rsphh_vendor = " & lVendor & " AND rsphh_invoice = " & lInvoice
+    strSQL = strSQL & " AND rsphh_status = 'N' )"
+    
+    If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteData") Then
+        Exit Function
+    End If
     
     'delete old data in rs_b_hold_header for this vendor and invoice
     strSQL = "DELETE FROM rs_p_hold_header WHERE rsphh_vendor = " & lVendor
@@ -330,80 +347,76 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
     
-    If g_bNeedValidHeader Then
-        sErrMsg = fnValidPrftCtr(udtInvHeader.nPrftCtr)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidReportDate(udtInvHeader.nPrftCtr, udtInvHeader.dtReportDate)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidShiftNum(udtInvHeader.nPrftCtr, udtInvHeader.nShiftNum, udtInvHeader.dtReportDate)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidVendor(udtInvHeader.lVendor, sPayTerm)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-          
-        sErrMsg = fnValidInvNum(udtInvHeader.lVendor, udtInvHeader.lInvNum)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidInvDate(udtInvHeader.dtInvdate, udtInvHeader.dtReportDate)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidPayTerm(udtInvHeader.sTerm, sPayTerm)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidPayType(udtInvHeader.sPayType)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-                
-        sErrMsg = fnValidDraftNum(udtInvHeader.sPayType, udtInvHeader.sDraftNum)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        sErrMsg = fnValidInvAmount(udtInvHeader.dInvAmount)
-        
-        If sErrMsg <> "" Then
-            fnValidData = False
-            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-        End If
-        
-        g_bNeedValidHeader = False
+    sErrMsg = fnValidPrftCtr(udtInvHeader.nPrftCtr)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
     
+    sErrMsg = fnValidReportDate(udtInvHeader.nPrftCtr, udtInvHeader.dtReportDate)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidShiftNum(udtInvHeader.nPrftCtr, udtInvHeader.nShiftNum, udtInvHeader.dtReportDate)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidVendor(udtInvHeader.lVendor, sPayTerm)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+      
+    sErrMsg = fnValidInvNum(udtInvHeader.lVendor, udtInvHeader.lInvNum)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidInvDate(udtInvHeader.dtInvdate, udtInvHeader.dtReportDate)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidPayTerm(udtInvHeader.lVendor, udtInvHeader.sTerm, sPayTerm)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidPayType(udtInvHeader.sPayType)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+            
+    sErrMsg = fnValidDraftNum(udtInvHeader.sPayType, udtInvHeader.sDraftNum)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+    sErrMsg = fnValidInvAmount(udtInvHeader.dInvAmount)
+    
+    If sErrMsg <> "" Then
+        fnValidData = False
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+        
     'valid detail
     sErrMsg = fnValidPurchaseType(udtInvDetail.sTypeCode)
         
@@ -459,11 +472,12 @@ Public Sub subSetProgress(sngPercent As Single)
     
     frmZZFINVMT.PbProgressBar.Value = sngPercent
     frmZZFINVMT.PbProgressBar.Refresh
-    
+    DoEvents
 End Sub
 
 Public Sub subDisplayMsg(sMsg As String)
     frmZZFINVMT.lstStatus.AddItem sMsg
+    frmZZFINVMT.lstStatus.Refresh
 End Sub
 
 Private Sub subWriteHeaderErrLog(udtInvHeader As RSINV_Header)
@@ -510,7 +524,6 @@ Private Sub subWriteHeaderProcLog(udtInvHeader As RSINV_Header)
     Dim dExtCost As Double
     
     sVendorName = fnGetVendorName(udtInvHeader.lVendor)
-    g_bNeedValidHeader = True 'valid header if header changed
     g_bNeedWriteHeader = True
     g_bNeedErrHeader = True
     
@@ -764,7 +777,7 @@ Private Function fnValidReportDate(nPrftCtr As Integer, dtReportDate As Date) As
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnvalidReportDate") < 0 Then
         sMsg = "Database Access Error."
     ElseIf rsTemp.RecordCount = 0 Then
-        sMsg = "Lastest process date is not available"
+        sMsg = "Lastest process date is not available."
     Else
         dtLastProcDate = IIf(IsNull(rsTemp!prft_posted_date), Null, CDate(rsTemp!prft_posted_date))
         
@@ -831,7 +844,7 @@ Private Function fnValidVendor(lVendor As Long, sPayTerm As String) As String
     Else
         
         If rsTemp!pm_status = "C" Then
-            fnValidVendor = "This Vendor can't be used"
+            fnValidVendor = "This Vendor can't be used."
         Else
             sPayTerm = Trim$(rsTemp!pm_std_disc_term & "")
             fnValidVendor = ""
@@ -846,13 +859,19 @@ Private Function fnValidInvNum(lVendor As Long, lInvNum As Long) As String
     Dim rsTemp As Recordset
     
     'check data in holding table already
-    strSQL = "SELECT * FROM rs_p_hold_header WHERE rsphh_vendor = " & lVendor
+    strSQL = "SELECT rsphh_status FROM rs_p_hold_header WHERE rsphh_vendor = " & lVendor
     strSQL = strSQL & " AND rsphh_invoice = " & tfnSQLString(lInvNum)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidInvNum") < 0 Then
         fnValidInvNum = "Database Access Error."
     ElseIf rsTemp.RecordCount > 0 Then
-        fnValidInvNum = ""
+        
+        If UCase(rsTemp!rsphh_status & "") = "N" Then
+            fnValidInvNum = ""
+        ElseIf UCase(rsTemp!rsphh_status & "") = "Y" Then
+            fnValidInvNum = "The Invocie for this vendor has already been Processed."
+        End If
+            
     Else
         strSQL = "SELECT * FROM p_nbr WHERE pno_vendor = " & lVendor
         strSQL = strSQL & " AND pno_invoice = " & tfnSQLString(lInvNum)
@@ -879,19 +898,33 @@ Private Function fnValidInvDate(dtInvdate As Date, dtReportDate As Date) As Stri
     
 End Function
 
-Private Function fnValidPayTerm(sTerm As String, sPayTerm As String) As String
-
+Private Function fnValidPayTerm(lVendor As Long, sTerm As String, sPayTerm As String) As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
     If Trim(sTerm) = "" Then
         sTerm = sPayTerm
+        fnValidPayTerm = ""
+    Else
+        strSQL = "SELECT pm_std_disc_term FROM p_vendor WHERE pm_vendor = " & lVendor
+        strSQL = strSQL & " AND pm_std_disc_term = " & tfnSQLString(sTerm)
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidPayTerm") < 0 Then
+            fnValidPayTerm = "Database access error."
+        ElseIf rsTemp.RecordCount = 0 Then
+            fnValidPayTerm = "Invalid discount term for this vendor."
+        Else
+            fnValidPayTerm = ""
+        End If
+        
     End If
     
-    fnValidPayTerm = ""
 End Function
 
 Private Function fnValidPayType(sPayType As String) As String
 
     If sPayType <> "C" And sPayType <> "P" And sPayType <> "D" And sPayType <> "T" Then
-        fnValidPayType = "Invalid pay Type"
+        fnValidPayType = "Invalid pay Type."
     Else
         fnValidPayType = ""
     End If
@@ -913,7 +946,7 @@ Private Function fnValidDraftNum(sPayType As String, sDraftNum As String) As Str
         strSQL = "SELECT pdr_draft_nbr FROM p_draft WHERE pdr_draft_nbr = " & CLng(sDraftNum)
     
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) > 0 Then
-            fnValidDraftNum = "Draft number has been used by other file"
+            fnValidDraftNum = "Draft number has been used by other file."
             Exit Function
         End If
 
@@ -921,7 +954,7 @@ Private Function fnValidDraftNum(sPayType As String, sDraftNum As String) As Str
         strSQL = "SELECT rssh_5 FROM rs_shifthold WHERE rssh_type = 'V' AND rssh_4 = 2 AND rssh_5 = " & CLng(sDraftNum)
         
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) > 0 Then
-            fnValidDraftNum = "Draft number has been used by holding file"
+            fnValidDraftNum = "Draft number has been used by holding file."
             Exit Function
         End If
         
@@ -939,7 +972,7 @@ Private Function fnValidPurchaseType(sType As String) As String
     'Right now, only handle price book type.
     'If sType <> "U" And sType <> "C" And sType <> "P" Then
     If sType <> "P" Then
-        fnValidPurchaseType = "Invalid purchase Type"
+        fnValidPurchaseType = "Invalid purchase Type."
     Else
         fnValidPurchaseType = ""
     End If

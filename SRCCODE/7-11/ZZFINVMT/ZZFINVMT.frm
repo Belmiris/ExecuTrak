@@ -12,7 +12,7 @@ Begin VB.Form frmZZFINVMT
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.6
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -51,7 +51,7 @@ Begin VB.Form frmZZFINVMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -63,7 +63,7 @@ Begin VB.Form frmZZFINVMT
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -85,7 +85,7 @@ Begin VB.Form frmZZFINVMT
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -96,7 +96,7 @@ Begin VB.Form frmZZFINVMT
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -116,7 +116,7 @@ Begin VB.Form frmZZFINVMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -127,7 +127,7 @@ Begin VB.Form frmZZFINVMT
          Caption         =   " "
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -177,7 +177,7 @@ Begin VB.Form frmZZFINVMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -192,7 +192,7 @@ Begin VB.Form frmZZFINVMT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -213,7 +213,7 @@ Begin VB.Form frmZZFINVMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -228,7 +228,7 @@ Begin VB.Form frmZZFINVMT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -249,7 +249,7 @@ Begin VB.Form frmZZFINVMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -263,7 +263,7 @@ Begin VB.Form frmZZFINVMT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   12
+            Size            = 9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -285,7 +285,7 @@ Begin VB.Form frmZZFINVMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -298,7 +298,7 @@ Begin VB.Form frmZZFINVMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -428,6 +428,16 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'***********************************************************'
+'
+' Copyright (c) 1996 FACTOR, A Division of W.R.Hess Company
+'
+' Module name   : ZZFINVMT.FRM
+' Date          : February 1, 2001
+' Programmer(s) : Junsong Qiu
+' This module is used to process imported invoice files.
+
+
 Option Explicit
 
 Private t_bStartupFlag As Boolean 'optional startup flag
@@ -499,15 +509,15 @@ Private Sub cmdProcess_Click()
         
         If fnIsFile(sFileName) Then
             subDisplayMsg "START PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
-            
+            subDisplayMsg String(100, "*")
             If fnProcessRSInvFile(sFileName) Then
-                subDisplayMsg "Processing successfully."
                 g_bProcessOk = True
             Else
-                subDisplayMsg "Processing Failed."
+                subDisplayMsg "Print Report to check error log!"
             End If
             
             subSetProgress 0
+            subDisplayMsg String(100, "*")
             subDisplayMsg "END PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
         Else
             subDisplayMsg "Input file not found"

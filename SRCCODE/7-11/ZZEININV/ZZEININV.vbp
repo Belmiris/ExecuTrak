@@ -31,6 +31,7 @@ Name="zzeininv"
 HelpContextID="0"
 Description="Import Invoices"
 CompatibleMode="0"
+PATH32="D:\FACTOR\EXECTRAK\BIN"
 MajorVer=3
 MinorVer=25
 RevisionVer=1
@@ -39,10 +40,10 @@ ServerSupportFiles=0
 VersionComments="ZZEININV"
 VersionCompanyName="FACTOR, A Division of WR Hess Company"
 VersionFileDescription="TEMPLATE.EXE"
-VersionLegalCopyright="Copyright (c) 1999 FACTOR, A Division of WR Hess Company"
+VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = -1 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = -1 :DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

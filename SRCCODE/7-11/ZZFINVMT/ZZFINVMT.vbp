@@ -23,7 +23,7 @@ Startup="frmZZFINVMT"
 HelpFile="FACTOR.HLP"
 Title="ZZFINVMT"
 ExeName32="ZZFINVMT.EXE"
-Path32="W:\VB2KDEV\SRCCODE\7-11\ZZFINVMT"
+Path32="D:\FACTOR\EXECTRAK\BIN"
 Command32=""
 Name="ZZFINVMT"
 HelpContextID="0"
@@ -37,10 +37,10 @@ ServerSupportFiles=0
 VersionComments="ZZFINVMT"
 VersionCompanyName="FACTOR, A Division of WR Hess Company"
 VersionFileDescription="ZZFINVMT.EXE"
-VersionLegalCopyright="Copyright © 1997-2000 FACTOR, A Division of WR Hess Company"
+VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
