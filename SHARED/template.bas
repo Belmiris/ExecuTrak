@@ -524,17 +524,20 @@ Public Function tfnGetUserName() As String
     
 End Function
 
-'Function : tfn_Is_Cust_Editable
+'Function : tfnGet_AR_Access_Flag
 'Variables: Cust #, User(optional)
-'Return   : True if cust is editable by the user; false if only viewable.
+'Return   : (1)szEmpty --- no access at all
+'           (2)E       --- Editable
+'           (3)V       --- View Only
 
-Public Function tfn_Is_Cust_Editable(ByVal sCust As String, _
-                                Optional vUser As Variant) As Boolean
+Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
+                                Optional vUser As Variant) As String
         
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sAccess As String
     Dim sUser As String
+    Dim sZone As String
     
     Static sSys_Parm_8 As String
     
@@ -558,38 +561,54 @@ Public Function tfn_Is_Cust_Editable(ByVal sCust As String, _
     End If
     
     If sSys_Parm_8 = "Y" Then
-        
         If IsMissing(vUser) Then
             sUser = tfnGetUserName
         Else
             sUser = vUser
         End If
+               
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
-        strSQL = "SELECT ara_privilege FROM ar_access,ar_altname WHERE an_access_zone=ara_access_zone"
-        strSQL = strSQL & " AND an_customer = " & Val(sCust) & " AND ara_userid = " & tfnSQLString(sUser)
-    
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
+        sZone = szEMPTY
         If Not rsTemp Is Nothing Then
             If rsTemp.RecordCount > 0 Then
-                If Not IsNull(rsTemp!ara_privilege) Then
-                    sAccess = UCase(Trim(rsTemp!ara_privilege))
+                If Not IsNull(rsTemp!an_access_zone) Then
+                    sZone = Trim(rsTemp!an_access_zone)
                 End If
             End If
         End If
-    End If
-    
-    If sAccess <> "V" Then
+        
+        If sZone = szEMPTY Then
+            sAccess = "E" 'zone is not defined for the customer yet! do as usual
+        Else
+             strSQL = "SELECT ara_privilege FROM ar_access WHERE ara_access_zone = " & tfnSQLString(sZone)
+             strSQL = strSQL & " AND ara_userid = " & tfnSQLString(sUser)
+                
+             sAccess = szEMPTY
+             Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            
+             If Not rsTemp Is Nothing Then
+                 If rsTemp.RecordCount > 0 Then
+                     If Not IsNull(rsTemp!ara_privilege) Then
+                         sAccess = UCase(Trim(rsTemp!ara_privilege))
+                     End If
+                 End If
+             End If
+        End If
+    Else ' if this future is off, user has full access
         sAccess = "E"
     End If
     
-    tfn_Is_Cust_Editable = (sAccess = "E")
+    tfnGet_AR_Access_Flag = sAccess
     Exit Function
 
 ErrorTrap:
     MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
-    tfn_Is_Cust_Editable = False
+    tfnGet_AR_Access_Flag = szEMPTY
+    
     On Error GoTo 0
 End Function
 
