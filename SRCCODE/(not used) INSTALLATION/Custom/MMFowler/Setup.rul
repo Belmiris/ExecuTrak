@@ -2,8 +2,6 @@
 //
 // Installation script for the mm fowler customer release
 //
-// 2.00 - March 11, 1999 Irving
-// 3.00 - August 6, 1999 Xijian
 //Setup log "MMFSETUP.TXT"
 //
 //***************************************************************************
@@ -54,24 +52,23 @@ declare
         NUMBER nTemp, i;
         STRING szBaseDirectory;
         STRING szDestMsg, svUninstLogFile;
-        STRING szMsg, szNumber, szTemp, szFolder;
+        STRING szMsg, szNumber, szTemp, szFolder, szDisk;
         STRING szSCIcon, szSCExe, szSCWork, szAppDir;
         STRING szOldRunValue, szNewRunValue;
         STRING szDBFrom, szDBTo, szForceInstall;
 
-        BOOL bZFailure, bExist16BitCstormnt;
+        BOOL bZFailure;
 	BOOL bTemp, bTemp1, bTemp2;
 
         LIST    listInfo;
 
         // function prototypes
         prototype CheckDiskSpace(NUMBER);
-        prototype UnInstallCstormnt16();
-
         prototype CopySetup();
 	prototype CopyLocalDB(STRING);
 	prototype fnFindFile(STRING, STRING);
 	prototype fnFinishReboot(STRING);
+
 
 // the script starts here
 program
@@ -178,30 +175,23 @@ GetTargetPath:
         szTemp = szBaseDirectory ^ "";
         StrToLower(szTemp, szTemp);
 
-        ParsePath(szFolder, szBaseDirectory, DISK);
-        StrToLower(szFolder, szFolder);
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        StrToLower(szDisk, szDisk);
 
-        nTemp = StrFind(szTemp, szFolder ^ "factor");
+        nTemp = StrFind(szTemp, szDisk ^ "factor");
 
-        StrToUpper(szFolder, szFolder);
+        StrToUpper(szDisk, szDisk);
 
         if (nTemp < 0) then   //incorrect directory
                 szMsg = PRODUCT_NAME + " Program Directory '" +
                     szBaseDirectory + "\\' is not valid.\n\n";
                 szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
-                    szFolder ^ APP_BASE_PATH + "' directory.";
+                    szDisk ^ APP_BASE_PATH + "' directory.";
 
                 MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
         endif;
 
-        szBaseDirectory = szFolder ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
-
-        //check 16-bit cstormnt directory
-        if (ExistsDir(szBaseDirectory ^ CUSTOMER_DIR) = EXISTS) then
-                bExist16BitCstormnt = TRUE;
-        else
-                bExist16BitCstormnt = FALSE;
-        endif;
+        szBaseDirectory = szDisk ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
 
 
 Check_Disk_Space:
@@ -225,11 +215,6 @@ ConfirmCopy:
                 ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
         endif;
         ListAddString(listInfo, "", AFTER);
-        if (bExist16BitCstormnt) then
-                ListAddString(listInfo, "Uninstall C-Store Auditing 16-bit Program:", AFTER);
-                ListAddString(listInfo, "        YES", AFTER);
-                ListAddString(listInfo, "", AFTER);
-        endif;
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
         ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
@@ -256,8 +241,6 @@ SetupRegAndUninstall:
 StartCopy:
 
 	CopySetup();
-
-        UnInstallCstormnt16();
 
         TARGETDIR = szBaseDirectory;
 
@@ -292,7 +275,7 @@ StartCopy:
                 LOGMSG="END FORCED COPY OF factbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-                TARGETDIR = szBaseDirectory ^ "OLE";
+	TARGETDIR = szBaseDirectory ^ "OLE";
 
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
@@ -376,7 +359,7 @@ StartCopy:
                 LOGMSG="END NORMAL COPY OF factbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-                TARGETDIR = szBaseDirectory ^ "OLE";
+	TARGETDIR = szBaseDirectory ^ "OLE";
         
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
@@ -602,8 +585,11 @@ StartCopy:
 
 	// finished - reboot system
 	if (BATCH_INSTALL) then
-        
 		CopyLocalDB("First");    
+	else
+        		CopyLocalDB("");
+	endif;   
+
         	LOGMSG="MUST REBOOT BEFORE RUNNING";
         	LOGWRITE(LOGMSG);
 
@@ -611,15 +597,6 @@ StartCopy:
         	fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
                		"  Before you can use " + PRODUCT_NAME + ", you must restart " +
                		"your computer.");
-
-	else
-
-        	CopyLocalDB("");
-        	SdFinish(WELCOME_TITLE + " Complete",
-               		WELCOME_TITLE + " has finished copying files to your computer.",
-               		"Click Finish to complete " + WELCOME_TITLE,
-               		"", "", bTemp1, bTemp2);
-	endif;   
 
 	exit;
 
@@ -682,76 +659,6 @@ begin
     
     return bSpaceOK;
 
-end;
-
-
-function UnInstallCstormnt16()
-
-        STRING szFolder, szTemp, szResult;
-
-        STRING szFolderName, szItemName, svCmdLine, svWrkDir, svIconPath;
-        STRING svShortCutKey, svGroupPath, szTitle, szMsg, szInfo, svMinFlag;
-        STRING svMinimizeFlag;
-        NUMBER nvIconIndex, nvMinimizeFlag, nResult, nvMinFlag, nTemp;
-
-begin
-        szMsg = "Setup is uninstalling " + PRODUCT_NAME + " 16-bit programs. Please wait...";
-        Enable(HOURGLASS);
-        SdShowMsg (szMsg, TRUE);
-
-        VarSave(SRCTARGETDIR);
-
-        //get the uninstall shortcut property
-        szFolderName = WINDIR ^ "START MENU\\PROGRAMS" ^ COMPANY_NAME ^ PRODUCT_NAME;
-        szItemName = "Uninstall " + PRODUCT_NAME;
-
-        nResult = QueryProgItem (szFolderName, szItemName, svCmdLine, svWrkDir,
-                 svIconPath, nvIconIndex, svShortCutKey, nvMinimizeFlag);
-
-        if (nResult >= 0) then
-                if (nResult = IS_ITEM) then
-                        // svCmdLine will have the value
-                        // C:\\WINDOWS\\uninst.exe -f"C:\\Factor\\Cstormnt\\DeIsL1.isu"
-
-                        StrToLower(svCmdLine, svCmdLine);
-
-                        nTemp = StrFind(svCmdLine, " ");
-
-                        if (nTemp >= 0) then
-                                StrSub(szTemp,svCmdLine,0,nTemp);
-                                szResult = szTemp + "Factor16";
-                                StrSub(szResult,svCmdLine,nTemp + 1,StrLength(svCmdLine) - nTemp + 1);
-
-                                LaunchAppAndWait(szTemp, szResult, WAIT);
-                        endif;
-                endif;
-        endif;
-
-        //delete 16-bit Factor\CUSTOMER directory
-        GetDisk(szBaseDirectory, szFolder);
-
-        SRCDIR = szFolder;
-
-        szTemp = szFolder ^ "Factor" ^ CUSTOMER_DIR ^ "*.*";
-        SetFileInfo (szTemp, FILE_ATTRIBUTE, FILE_ATTR_NORMAL, szMsg);
-
-        szTemp = szFolder ^ "Factor" ^ CUSTOMER_DIR;
-
-        LOGMSG="START DELETING " + CUSTOMER_DIR + " PROGRAM DIRECTORY IN " + szTemp;
-        LOGWRITE(LOGMSG);
-
-        DeleteDir(szTemp, ALLCONTENTS);
-
-        LOGMSG="END DELETING " + CUSTOMER_DIR + " PROGRAM DIRECTORY IN " + szTemp;
-        LOGWRITE(LOGMSG);
-
-        //delete 16-bit C-Store Auditing programs shortcuts Folder
-        DeleteProgramFolder("Factor" ^ PRODUCT_NAME);
-
-        SdShowMsg(szMsg, FALSE);
-        Disable(HOURGLASS);
-
-        VarRestore(SRCTARGETDIR);
 end;
 
 
@@ -927,5 +834,6 @@ begin
         System(SYS_BOOTMACHINE);
 
 end;
+
 
 #include "sddialog.rul"
