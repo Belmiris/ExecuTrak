@@ -139,7 +139,7 @@ End Sub
 
 Private Sub Form_Load()
     tfnDisableFormSystemClose Me
-    tfnCenterForm Me, frmECF810SU
+    tfnCenterForm Me
 End Sub
 
 Property Get Action() As Integer

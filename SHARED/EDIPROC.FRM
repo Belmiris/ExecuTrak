@@ -3,19 +3,19 @@ Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
    ClientHeight    =   1380
-   ClientLeft      =   45
-   ClientTop       =   330
-   ClientWidth     =   2130
+   ClientLeft      =   48
+   ClientTop       =   336
+   ClientWidth     =   2124
    LinkTopic       =   "Form1"
    LockControls    =   -1  'True
    ScaleHeight     =   1380
-   ScaleWidth      =   2130
+   ScaleWidth      =   2124
    StartUpPosition =   3  'Windows Default
    Begin MSComDlg.CommonDialog cdlgOpen 
       Left            =   276
       Top             =   192
-      _ExtentX        =   688
-      _ExtentY        =   688
+      _ExtentX        =   699
+      _ExtentY        =   699
       _Version        =   393216
       CancelError     =   -1  'True
       DialogTitle     =   "Select EDI Translator Program"
@@ -337,6 +337,8 @@ Private Function fnCheckEdiProcError() As String
     Dim rsTemp As Recordset
     Dim sFileName As String
     Dim sErrMsg As String
+    Dim sTemp As String
+    Dim bShowForm As Boolean
     
     fnCheckEdiProcError = ""
     
@@ -349,21 +351,44 @@ Private Function fnCheckEdiProcError() As String
         Exit Function
     End If
     
-    sSql = "SELECT el_desc FROM err_log"
+    sSql = "SELECT el_desc, el_number FROM err_log"
     sSql = sSql + " WHERE el_log_id = " + tfnSQLString(m_LogID)
     sSql = sSql + " ORDER BY el_id, el_seq"
+    
     If fnGetEdiXlateRecord(rsTemp, sSql, dbEDI, SUB_NAME, , False) < 0 Then
         fnCheckEdiProcError = "Failed to access EDI Translation Database"
         Exit Function
     End If
     
+    bShowForm = True
+    
     While Not rsTemp.EOF
         If Not IsNull(rsTemp!el_desc) Then
             sErrMsg = sErrMsg + Trim(rsTemp!el_desc)
+            sTemp = sTemp & Trim(rsTemp!el_desc) & vbCrLf
+            
+            If tfnRound(rsTemp!el_number <> -2410) Then
+                bShowForm = False
+            End If
+                
         End If
         rsTemp.MoveNext
     Wend
     
+    'Add by junsong 04/05/02 to skip some error
+    If bShowForm And sTemp <> "" Then
+        With EDIErrLog
+            .txtMsg = sTemp
+            .Show vbModal
+            
+            If .Action = vbIgnore Then
+                sErrMsg = ""
+            End If
+            
+        End With
+        
+    End If
+
     rsTemp.Close
     Set rsTemp = Nothing
     dbEDI.Close
@@ -630,7 +655,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -644,7 +669,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
