@@ -134,7 +134,7 @@ End Function
 'This Function will process the text in the text control, and split the text, put the result into
 'table, Return the total number of lines and put all lines into array sParam()
 Public Function fnBuildMultiLines(sParam() As String, _
-                           ByVal stext As String, _
+                           ByVal sText As String, _
                            sDelim As String, _
                            Optional nMaxLen As Variant = 70, _
                            Optional vStart As Variant, _
@@ -149,7 +149,8 @@ Public Function fnBuildMultiLines(sParam() As String, _
     
     'On Error Resume Next
     
-    If Trim(stext) = "" Or sDelim = " " Then
+    If Trim(sText) = "" Or sDelim = " " Then
+        fnBuildMultiLines = -1
         Exit Function
     End If
     
@@ -161,7 +162,7 @@ Public Function fnBuildMultiLines(sParam() As String, _
     
     
     If IsMissing(vEnd) Then
-        nEndOfText = Len(stext)
+        nEndOfText = Len(sText)
     Else
         nEndOfText = vEnd
     End If
@@ -174,13 +175,13 @@ Public Function fnBuildMultiLines(sParam() As String, _
     ReDim sParam(nArrayInc)
     
     While nLineStart <= nEndOfText
-        nLineEnd = InStr(nLineStart, stext, sDelim)
+        nLineEnd = InStr(nLineStart, sText, sDelim)
         
         If nLineEnd = 0 Or nLineEnd > nEndOfText Then
             nLineEnd = nEndOfText + 1
         End If
         
-        sTemp = Mid$(stext, nLineStart, nLineEnd - nLineStart)
+        sTemp = Mid$(sText, nLineStart, nLineEnd - nLineStart)
         
         If RTrim(sTemp) <> "" Then sTemp = RTrim(sTemp)
         
@@ -236,7 +237,7 @@ End Function
 
 Public Function fnGetMultiLines(rsTemp As Recordset, Optional nMaxLen As Variant = 70, Optional fieldNum As Variant) As String
     Dim sTemp As String
-    Dim stext As String
+    Dim sText As String
     Dim sLastText As String
 
     If rsTemp.RecordCount > 0 Then
@@ -251,32 +252,32 @@ Public Function fnGetMultiLines(rsTemp As Recordset, Optional nMaxLen As Variant
         While Not rsTemp.EOF
             
             If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                stext = rsTemp.Fields(fieldNum)
+                sText = rsTemp.Fields(fieldNum)
                 
                 If Right(sLastText, 1) <> " " Then
                     
-                    If Len(sLastText) + fnGetSpaceforText(stext) > nMaxLen Then
+                    If Len(sLastText) + fnGetSpaceforText(sText) > nMaxLen Then
                         
-                        If Trim(stext) = "" Then
+                        If Trim(sText) = "" Then
                             sTemp = sTemp + vbCrLf
                         Else
-                            sTemp = sTemp + RTrim(stext)
+                            sTemp = sTemp + RTrim(sText)
                         End If
                         
                     Else
-                        sTemp = sTemp + stext
+                        sTemp = sTemp + sText
                     End If
                 
                 Else
-                    sTemp = RTrim(sTemp) + vbCrLf + RTrim(stext)
+                    sTemp = RTrim(sTemp) + vbCrLf + RTrim(sText)
                 End If
                 
             Else
                 sTemp = sTemp + Space(nMaxLen * 2) + vbCrLf + ""
-                stext = ""
+                sText = ""
             End If
             
-            sLastText = stext
+            sLastText = sText
             rsTemp.MoveNext
         Wend
         
@@ -285,17 +286,17 @@ Public Function fnGetMultiLines(rsTemp As Recordset, Optional nMaxLen As Variant
     fnGetMultiLines = RTrim(sTemp)
 End Function
 
-Private Function fnGetSpaceforText(stext As String) As Integer
+Private Function fnGetSpaceforText(sText As String) As Integer
     Dim I As Integer
     Dim nSpaceNum As Integer
     
-    If Len(stext) <= 0 Then
+    If Len(sText) <= 0 Then
         Exit Function
     End If
     
-    For I = Len(stext) To 1 Step -1
+    For I = Len(sText) To 1 Step -1
         
-        If Asc(Mid(stext, I, 1)) <> 32 Then
+        If Asc(Mid(sText, I, 1)) <> 32 Then
             Exit For
         End If
         
