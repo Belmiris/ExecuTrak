@@ -1,64 +1,57 @@
 @echo off
-cls
 
-if "%1" == "" goto parm_missing
-if "%2" == "" goto parm_missing
-
-cd
 echo .
-
-call .\makedir
+call makedir
 
 echo .
 echo ******1 copy server setup files
-call copysetf.bat %1
+call copysetf.bat 4k
+
+echo  not split 4kclient.z
+
+copy..\disk\4kclient.z ..\disk\disk1
+
+echo  split shared.z
+call fsplit ..\disk\shared.z ..\disk 170
+move ..\disk\shared.1 ..\disk\disk1
+move ..\disk\shared.2 ..\disk\disk2
+
+echo No split factdll.z
+copy ..\disk\factdll.z ..\disk\disk2
+
+echo NO split factole.z
+copy ..\disk\factole.z ..\disk\disk2
+
+echo  split custctl.z
+call fsplit ..\disk\custctl.z ..\disk 890
+move ..\disk\custctl.1 ..\disk\disk2
+move ..\disk\custctl.2 ..\disk\disk3
+
+echo split rtm.z
+call fsplit ..\disk\rtm.z ..\disk 300
+move ..\disk\rtm.1 ..\disk\disk3
+move ..\disk\rtm.2 ..\disk\disk4
+move ..\disk\rtm.3 ..\disk\disk5
+move ..\disk\rtm.4 ..\disk\disk6
 
 echo .
-echo ******2 split client.z
-call fsplit ..\disk\%1client.z ..\disk %2
-if not exist ..\disk\%1client.1 goto splitdone
-move ..\disk\%1client.1 ..\disk\disk1
-if not exist ..\disk\%1client.2 goto splitdone
-move ..\disk\%1client.2 ..\disk\disk2
-if not exist ..\disk\%1client.3 goto splitdone
-move ..\disk\%1client.3 ..\disk\disk3
-if not exist ..\disk\%1client.4 goto splitdone
-move ..\disk\%1client.4 ..\disk\disk4
-if not exist ..\disk\%1client.5 goto splitdone
-move ..\disk\%1client.5 ..\disk\disk5
-
-:copyfile
-copy ..\disk\%1client.z ..\disk\disk1
-
-:splitdone
+echo split .z files is finished.  Run makedisk.bat to copy distribution disk.
 
 echo .
-echo split Z files has finished.
-choice /c:yn /t:n,5 Do you want to make the Distribution Disk.
+choice /c:yn /t:y,7 Do you want to Compile the Setup Script
+if errorlevel 2 goto skipsetup
+compile setup.rul
 
-if errorlevel 2 goto end
+:skipsetup
+echo .
+choice /c:yn /t:y,7 Do you want to Compile the Setup.lst
+if errorlevel 2 goto skipcompile
+packlist setup.lst
+echo .
 
-:makedisk
+
+:skipcompile
+call copysetf.bat
+
+echo .
 call makedisk
-
-goto finished
-
-:parm_missing
-echo .
-echo missing parameter.  format: splitz [AppName] [SplitSize].
-echo AppName - AP, AR, GL, and etc.
-echo SplitSize - Size of %1client.1 in bytes that will go to disk#1
-echo             For example, 724
-echo .
-
-goto finished
-
-:end
-
-echo .
-echo split .z files has finished.  Run makedisk.bat to copy distribution disk.
-goto finished
-
-:finished
-
-

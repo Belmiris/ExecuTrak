@@ -1,23 +1,5 @@
 @echo off
 
-if "%1" == "" goto parm_missing
-
-echo .
-choice /c:yn /t:y,7 Do you want to Compile the Server Setup Script
-if errorlevel 2 goto skipcompile
-
-compile setup
-echo .
-echo .
-echo Create a new packlist -- setup.lst
-echo 1; > setup.lst
-echo ..\disk\%1client.z >> setup.lst
-
-packlist setup.lst
-echo .
-
-
-:skipcompile
 copy \template\setup\_inst32i.ex_ ..\disk\disk1
 copy \template\setup\_isdel.exe ..\disk\disk1
 copy \template\setup\_setup.dll ..\disk\disk1

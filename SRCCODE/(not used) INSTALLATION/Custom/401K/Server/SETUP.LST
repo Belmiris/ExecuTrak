@@ -1,2 +1,12 @@
 1; 
 ..\disk\4kclient.z 
+..\disk\shared.z
+2;
+..\disk\factdll.z
+..\disk\factole.z
+..\disk\custctl.z
+3;
+..\disk\rtm.z
+4;
+5;
+6;
