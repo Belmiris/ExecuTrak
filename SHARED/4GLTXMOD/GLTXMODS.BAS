@@ -177,6 +177,10 @@ Public bExists_tx_header As Boolean
 Public Sub initialize_tax_buffers()
     error_found = False
     
+    'Vijaya on 12/09/04 Magic#465142
+    'Don't Delete trn_max because some times it won't call setup_for_gl
+    'It should be in Two Places
+    trn_max = 100
     tul_max = 800
     tt_max = 100
 
@@ -591,7 +595,7 @@ Public Sub intrn_bl_gl(this_pc As Long, _
                        ByVal cost As Double, _
                        tax_acct As Long)
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     setup_for_gl product, this_pc, tax_acct
     If found_error Then
@@ -692,7 +696,7 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     
     Exit Sub
 
-errTrap:
+ErrTrap:
     #If PROCESSING Then
         tfnErrHandler "intrn_bl_gl", False
     #Else
@@ -809,7 +813,7 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
                         ByVal tdolrs As Double, ByVal cost As Double, _
                         cust As Long, ByVal Sale As Double)
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     setup_for_gl product, this_pc, 0
     If found_error Then
@@ -968,7 +972,7 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     
     Exit Sub
 
-errTrap:
+ErrTrap:
     #If PROCESSING Then
         tfnErrHandler "extrn_del_gl", False
     #Else
@@ -1039,7 +1043,7 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
     Dim skeyi As String * 22, skeyj As String * 22
     Dim found_sw As Integer, sSql As String, pr_use_link As Recordset
 
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     'Vijaya on 02/05/04 Magic#395302
     If fnCStr(t_tax_date) = "" Then
@@ -1215,7 +1219,7 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
 
 Exit Sub
 
-errTrap:
+ErrTrap:
     #If PROCESSING Then
         tfnErrHandler "load_trn_arry", False
     #Else
@@ -1696,7 +1700,7 @@ Public Sub detax(use_group As String, tclass As String, _
     Dim stx_charge As String
     ''''''''''''''''''''''''''''''''
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
 
     'Vijaya on 02/05/04 Magic#395302
     If fnCStr(t_tax_date) = "" Then
@@ -1823,7 +1827,7 @@ Public Sub detax(use_group As String, tclass As String, _
 
     Exit Sub
     
-errTrap:
+ErrTrap:
     #If PROCESSING Then
         tfnErrHandler "detax", False
     #Else
