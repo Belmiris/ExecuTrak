@@ -137,7 +137,7 @@ Property Get ErrorMessage() As String
 End Property
 
 'return an error message if failed
-Public Function LaunchEDIPROC() As String
+Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     Const SUB_NAME As String = "LaunchEDIPROC"
     Const sEDIPROC_EXE As String = "EDIPROC.EXE"
     Const sEDIPROC_INI As String = "EDIPROC.INI"
@@ -261,12 +261,6 @@ Public Function LaunchEDIPROC() As String
     sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
     subAddLog sMsg
     
-    If Not m_frmParent Is Nothing Then
-        If UCase(m_RunMode) = "BACK" Then
-            m_frmParent.Show
-            m_frmParent.Enabled = False
-        End If
-    End If
     Screen.MousePointer = vbHourglass
     
     'busy waiting for EDI Translation Processor to finish
@@ -283,16 +277,10 @@ Public Function LaunchEDIPROC() As String
         
         Screen.MousePointer = vbHourglass
         
-        Wait 20
+        Wait nWait
     Loop While fnExeIsRunning(sExeFile)
     
     Screen.MousePointer = vbDefault
-    If Not m_frmParent Is Nothing Then
-        If Not m_frmParent.Enabled Then
-            m_frmParent.Enabled = True
-            m_frmParent.Show
-        End If
-    End If
     
     sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
     subAddLog sMsg
@@ -396,7 +384,7 @@ ERROR_CONNECTING:
     Set tfnOpenEdiXlateDatabase = Nothing
 End Function
 
-Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
+Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQl As String, _
                             dbLocal As Database, sCalledFrom As String, _
                             Optional bShowError, _
                             Optional vMoveLast) As Long
@@ -410,7 +398,7 @@ Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
     End If
 
     On Error GoTo SQLError
-    Set rsTemp = dbLocal.OpenRecordset(strSQL, dbOpenSnapshot)
+    Set rsTemp = dbLocal.OpenRecordset(strSQl, dbOpenSnapshot)
     
     If bMoveLast Then
         If rsTemp.RecordCount > 0 Then
@@ -423,7 +411,7 @@ Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
     Exit Function
 
 SQLError:
-    tfnErrHandler "fnGetEdiXlateRecord," & sCalledFrom, strSQL, bShowError
+    tfnErrHandler "fnGetEdiXlateRecord," & sCalledFrom, strSQl, bShowError
     fnGetEdiXlateRecord = -9999
 End Function
 
@@ -552,7 +540,7 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
     m_lstLog.Refresh
 End Sub
 
-Private Sub Wait(dfSeconds As Single)
+Private Sub Wait(dfSeconds As Integer)
     Dim dfTimer As Single
     
     dfTimer = Timer
