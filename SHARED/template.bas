@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -553,6 +553,9 @@ Private m_Saved_GL_Batch As Long
 
 'Vijaya on 02/05/04 Magic#395302
 Public t_tax_date As String     'pass the value into this variable if You have date
+
+Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
+
 ''''''''''''''''''''''''''''''''
 '# 2/26/04 Robert Atwood
 'Added compile-time flag NO_DST to turn off or on Date Sensitive Taxes.  If it
@@ -1224,7 +1227,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1293,7 +1296,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1347,7 +1350,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1471,7 +1474,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -2388,7 +2391,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2846,7 +2849,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
     #End If
     Err.Clear
 End Function
@@ -2978,7 +2981,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
  
 errSQL:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
     #End If
     
     Err.Clear
@@ -3315,7 +3318,7 @@ End Function
 
 Public Function tfn_Read_SYS_INI(sFileName As String, _
                               sUserID As String, _
-                              sSection As String, _
+                              sSECTION As String, _
                               sField As String, _
                               Optional bShowError As Boolean = True) As String
                               
@@ -3340,7 +3343,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
         strSQL = strSQL & " AND (ini_user_id is Null OR ini_user_id = '')"
     End If
     
-    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSection))
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
     On Error GoTo errTrap
@@ -3376,7 +3379,7 @@ End Function
 
 Public Function tfn_Write_SYS_INI(sFileName As String, _
                               sUserID As String, _
-                              sSection As String, _
+                              sSECTION As String, _
                               sField As String, _
                               sValue As String, _
                               Optional bShowError As Boolean = True) As Boolean
@@ -3389,7 +3392,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSection, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
     On Error GoTo errTrap
     
@@ -3397,14 +3400,14 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
         strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
-        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSection))
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
         strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sUserID)) + ","
-        strSQL = strSQL + tfnSQLString(UCase(sSection)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
         strSQL = strSQL + tfnSQLString(sValue) + ")"
     End If
@@ -3760,3 +3763,47 @@ SQLError:
 #End If
 End Function
 ''''''''''''''''''''''''''''''''
+
+'Sam Zheng on 07/29/2004 #427047-453803
+'To avoid the conflict with the different db version, I check the
+'ar_altname.an_active field first. Later we can delete the first part.
+Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
+                                    Optional szNumber As String = "")
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    On Error GoTo SQLError
+    
+    t_bUseActiveCustOnly = False
+    
+    'Part 1:
+    strSQL = " SELECT colname FROM systables,syscolumns " _
+            & " WHERE systables.tabid = syscolumns.tabid " _
+            & " AND tabname = 'ar_altname' " _
+            & " AND colname = 'an_active' "
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+    If rsTemp.RecordCount <= 0 Then
+        rsTemp.Close
+        Exit Sub
+    End If
+    
+    'Part 2:
+    t_bUseActiveCustOnly = True
+    If Trim(szTable) = "" Then  'no temp table
+        Exit Sub
+    End If
+    
+    strSQL = " DELETE from " & szTable _
+            & " WHERE " & szNumber & " IN " _
+            & " (SELECT an_customer FROM ar_altname " _
+            & "  WHERE an_active = 'N')"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    Exit Sub
+    
+SQLError:
+    t_bUseActiveCustOnly = False
+    tfnErrHandler "tfnGetActiveAltCustomers", strSQL
+    On Error GoTo 0
+End Sub
+
+
