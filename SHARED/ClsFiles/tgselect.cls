@@ -399,9 +399,15 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
             If Shift = 0 And KeyCode <> 0 Then
                 Dim i As Integer
                 
-                For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
-                    m_tgTable.SelBookmarks.Remove i
-                Next i
+                'david 10/19/2001
+                If m_tgTable.SelBookmarks.Count > 1 Then
+                    For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
+                        m_tgTable.SelBookmarks.Remove i
+                    Next i
+                End If
+                
+                m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
+                '''''''''''''''''
             ElseIf (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) And (Not m_tgTable.EditActive) Then
                 SelectAll
                 Shift = 0
