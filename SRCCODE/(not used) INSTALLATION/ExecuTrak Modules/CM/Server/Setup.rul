@@ -312,7 +312,7 @@ StartCopy:
 	LOGWRITE(LOGMSG);
 
 	Enable(SELFREGISTERBATCH);
-        	FileSetBeginDefine("All Files");
+        FileSetBeginDefine("All Files");
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 	StatusUpdate(ON, 90);
@@ -540,29 +540,31 @@ StartCopy:
 	
 	if (CMDLINE = "-A" || CMDLINE = "-a") then
 	
-		LOGMSG="START FORCED COPY OF factbin FILES IN " + TARGETDIR;
+		LOGMSG="START FORCED COPY OF cmbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 		
 		nReturn = CompressGet(KEY_DEFAULT + "bin.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
 		if (nReturn < 0) then
-		        MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
+		        MessageBox("CMBIN.Z could not be decompressed", SEVERE);
 		        goto DecompressError;
 		endif;
 		
-		LOGMSG="END FORCED COPY OF factbin FILES IN " + TARGETDIR;
+		LOGMSG="END FORCED COPY OF cmbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);   
 	else     
 // ************************* Normal install
 
-		LOGMSG="START NORMAL COPY OF factbin FILES IN " + TARGETDIR;
+		LOGMSG="START NORMAL COPY OF cmbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 		
 		nReturn = CompressGet(KEY_DEFAULT + "bin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
 		if (nReturn < 0) then
-		        MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
+		        MessageBox("CMBIN.Z could not be decompressed", SEVERE);
 		        goto DecompressError;
-		endif;
-	
+		endif;	
+		
+		LOGMSG="END NORMAL COPY OF cmbin FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
 	endif;
 
         
@@ -604,52 +606,16 @@ DecompressSuccessful:
 	SetStatusWindow(95, "Registering DLLs and Ocxes...");
 	
 	
-	if (!bFactMenuExist) then
-		Do(SELFREGISTRATIONPROCESS);
+	Do(SELFREGISTRATIONPROCESS);
+	        
+
+      	if (!bFactMenuExist) then
+		LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
+		LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
+		LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
 	endif;
-        
 
-      	SRCDIR = WINDIR ^ "TEMP";
-	szDBFrom = "\"" + SRCDIR + "\"";
-
-	//copy factor.mdb and factor.ldb to BIN and WINDOWS\SYSTEM directory
-
-	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin";
-	szDBTo = "\"" + TARGETDIR + "\"";
-
-	LOGMSG="LAUNCHING " + szBaseDirectory + "\\" + PRODUCT_SUBDIR + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
-	LOGWRITE(LOGMSG);
-	LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
-	LOGWRITE(LOGMSG);
-
-	LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin" ^ "cpylocal.exe", szForceInstall +
-        	szDBFrom + " " + szDBTo, WAIT);
-
-
-	TARGETDIR = WINSYSDIR;
-	szDBTo = "\"" + TARGETDIR + "\"";
-
-	LOGMSG="LAUNCHING " + szBaseDirectory + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
-	LOGWRITE(LOGMSG);
-	LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
-	LOGWRITE(LOGMSG);
-
-	LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "Bin" ^ "cpylocal.exe", szForceInstall +
-        	szDBFrom + " " + szDBTo, WAIT);
-
-	SetStatusWindow(97, "Copying Local Database...");
-
-	// delete the local database from WINDOWS\TEMP directory
-	TARGETDIR = SRCDIR;
-	LOGMSG="START DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
-	LOGWRITE(LOGMSG);
-	DeleteFile("FACTOR.MDB");
-	DeleteFile("FACTOR.LDB");
-	LOGMSG="END DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
-	LOGWRITE(LOGMSG);
-	
-
-        	StatusUpdate(OFF, 0);
+        StatusUpdate(OFF, 0);
 
 	// Run the client installation?
 	if (bRunStandAlone) then
@@ -745,30 +711,31 @@ DecompressSuccessful:
 	LOGMSG="INSTALLATION COMPLETE";
 	LOGWRITE(LOGMSG);
 
-	if (bRunStandAlone) then
-		if (bFactMenuExist) then
-			fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-				"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-				"your computer.");
-		else
-				if (BATCH_INSTALL) then
-					CopyLocalDB("First");    
-				else
-        					CopyLocalDB("");
-				endif;   
+	if (bFactMenuExist) then
+		CopyLocalDB("");
+		SdFinish(WELCOME_TITLE + " Complete",
+                         WELCOME_TITLE + " has finished copying files to your computer.",
+                         "Click Finish to complete " + WELCOME_TITLE,
+                         "", "", bTemp1, bTemp2);
 
-        				LOGMSG="MUST REBOOT BEFORE RUNNING";
-        				LOGWRITE(LOGMSG);
-
-        				Disable(BACKBUTTON);
-        				fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-               					"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-               					"your computer.");
-		endif;
 	else
+		if (BATCH_INSTALL) then
+		
+			CopyLocalDB("First");    
+		
+		else
+		
+			CopyLocalDB("");
+		endif;   
+		
+		LOGMSG="MUST REBOOT BEFORE RUNNING";
+		LOGWRITE(LOGMSG);
+		
+		Disable(BACKBUTTON);
 		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
 			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
 			"your computer.");
+	
 	endif;
 
 	exit;
