@@ -96,6 +96,11 @@ Public sPayCode_OtHrs As String
 '
 Public bNoRecordFound As Boolean
 
+'david 03/27/2003  #404567
+'implement bonus formula variables caching
+Public colVarCache As Collection
+'
+
 Public Sub Main()
     Dim sCommand As String
     
@@ -182,7 +187,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Dim x As Long
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If bClear Then
         frmZZSEBPRC!lstProcess.Clear
@@ -236,7 +241,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     'error
 End Sub
 
@@ -683,7 +688,7 @@ Public Function fnInsertHoldBonus() As String
                 'the check link is greater than zero
                 'and if the 'Process Hourly Employee only' checkbox is checked
                 'insert a new record...
-                If frmZZSEBPRC.chkHourly.value = vbChecked Then
+                If frmZZSEBPRC.chkHourly.Value = vbChecked Then
                     strSQL1 = lEmpNo & ", "
                     strSQL1 = strSQL1 & nPrftCtr & ", "
                     strSQL1 = strSQL1 & tfnSQLString(sPayCode) & ", "
@@ -1226,6 +1231,8 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     Dim rsTemp As Recordset
     Dim sVinV As String
     
+    Dim vCacheValue As Variant
+    
     sVinV = sVariable + " in " + sV
     
     fnGetVarValue = 0#
@@ -1238,106 +1245,179 @@ Private Function fnGetVarValue(lEmpNo As Long, _
         Exit Function
     End If
     
+    vCacheValue = Null
+    
+    #If USE_CACHE Then
+        If fnCache_Find(sVariable, vCacheValue) Then
+            If Not IsNull(vCacheValue) Then
+                fnGetVarValue = vCacheValue
+                Exit Function
+            End If
+        End If
+    #End If
+    
     Select Case sVariable
-        Case "3_mo_shortage_avg"
-            fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
-                tfnFormatDate(frmZZSEBPRC.txtStartDate))
-            Exit Function
-            
-        Case "3_month_sales_avg"
-            fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
-                tfnFormatDate(frmZZSEBPRC.txtStartDate))
-            Exit Function
+    Case "3_mo_shortage_avg"
+        fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
+            tfnFormatDate(frmZZSEBPRC.txtStartDate))
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+        
+    Case "3_month_sales_avg"
+        fnGetVarValue = fn3MonthsAverage(sVariable, sVinV, sErrMsg, lEmpNo, _
+            tfnFormatDate(frmZZSEBPRC.txtStartDate))
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
 
-        Case "day_off_slip_day"
-            strSQL = "SELECT COUNT (bd_prft_ctr) AS var_value "
-            strSQL = strSQL & " FROM bonus_day_off_slip "
-            strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
-            strSQL = strSQL & " AND bd_prft_ctr = " & nPrftCtr
-            strSQL = strSQL & " AND bd_slip_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+    Case "day_off_slip_day"
+        strSQL = "SELECT COUNT (bd_prft_ctr) AS var_value "
+        strSQL = strSQL & " FROM bonus_day_off_slip "
+        strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
+        strSQL = strSQL & " AND bd_prft_ctr = " & nPrftCtr
+        strSQL = strSQL & " AND bd_slip_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+        strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+    
+    Case "days_employed"
+        fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo, True)
         
-        Case "days_employed"
-            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo, True)
-            Exit Function
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
         
-        Case "gallons_sold"
-            fnGetVarValue = fnGallonsSold(sVinV, sErrMsg, lEmpNo)
-            Exit Function
+        Exit Function
+    
+    Case "gallons_sold"
+        fnGetVarValue = fnGallonsSold(sVinV, sErrMsg, lEmpNo)
         
-        Case "inside_sales"
-            fnGetVarValue = fnInsideSales(sVinV, sErrMsg, lEmpNo)
-            Exit Function
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
         
-        Case "inv_record_months"
-            fnGetVarValue = fnInvRecordMonths(sVinV, sErrMsg, lEmpNo)
-            Exit Function
-            
-        Case "months_as_manager"
-            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M")
-            Exit Function
+        Exit Function
+    
+    Case "inside_sales"
+        fnGetVarValue = fnInsideSales(sVinV, sErrMsg, lEmpNo)
         
-        Case "months_employed"
-            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo)
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+    
+    Case "inv_record_months"
+        fnGetVarValue = fnInvRecordMonths(sVinV, sErrMsg, lEmpNo)
+        Exit Function
+        
+    Case "months_as_manager"
+        fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M")
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+    
+    Case "months_employed"
+        fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo)
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+        
+    Case "ot_hours"
+        If sPayCode_OtHrs = "" Then
+            sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
             Exit Function
-            
-        Case "ot_hours"
-            If sPayCode_OtHrs = "" Then
-                sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
-                Exit Function
-            End If
-            
-            strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
-            strSQL = strSQL & " WHERE bh_chk_link = 0"
-            'david 05/10/2002 #368969
-            'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
-            strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_OtHrs + ")"
-            strSQL = strSQL & " AND bh_empno = " & lEmpNo
-            
-        Case "regular_hours"
-            If sPayCode_RegHrs = "" Then
-                sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
-                Exit Function
-            End If
-            
-            strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
-            strSQL = strSQL & " WHERE bh_chk_link = 0"
-            'david 05/10/2002 #368969
-            'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
-            strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_RegHrs + ")"
-            strSQL = strSQL & " AND bh_empno = " & lEmpNo
-                        
-        Case "two_week_sales"
-            fnGetVarValue = fnTwoWeekSales(sVinV, sErrMsg, lEmpNo)
+        End If
+        
+        strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
+        strSQL = strSQL & " WHERE bh_chk_link = 0"
+        'david 05/10/2002 #368969
+        'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+        strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_OtHrs + ")"
+        strSQL = strSQL & " AND bh_empno = " & lEmpNo
+        
+    Case "regular_hours"
+        If sPayCode_RegHrs = "" Then
+            sErrMsg = "Pay Code for Overtime Hour not set up for " + sVinV
             Exit Function
-            
-        Case "yrs_at_lvl_jan_1"
-            fnGetVarValue = fnYearAtLevelJan1(sVinV, sErrMsg, lEmpNo)
-            Exit Function
-            
-        Case "check_amount"
-            'the value will be obtained from the formula evaluation
-            'return 0
-            Exit Function
-        Case "asst_mgr_3_m_sales"
-            fnGetVarValue = fnGetAsstMgr3MonthSales(sVinV, sErrMsg, lEmpNo)
-            Exit Function
-        Case "asst_mgr_gals_sold"
-            strSQL = "SELECT bs_sales_amount as var_value FROM bonus_sales, pr_master, bonus_grades"
-            strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
-            strSQL = strSQL & " AND bs_prft_ctr = prm_prft_ctr1"
-            strSQL = strSQL & " AND prm_emp_level = bg_emp_level"
-            strSQL = strSQL & " AND bg_grade = 'A' "
-            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
-            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC!txtStartDate, True)
+        End If
+        
+        strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
+        strSQL = strSQL & " WHERE bh_chk_link = 0"
+        'david 05/10/2002 #368969
+        'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+        strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_RegHrs + ")"
+        strSQL = strSQL & " AND bh_empno = " & lEmpNo
+                    
+    Case "two_week_sales"
+        fnGetVarValue = fnTwoWeekSales(sVinV, sErrMsg, lEmpNo)
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+        
+    Case "yrs_at_lvl_jan_1"
+        fnGetVarValue = fnYearAtLevelJan1(sVinV, sErrMsg, lEmpNo)
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+        
+    Case "check_amount"
+        'the value will be obtained from the formula evaluation
+        'return 0
+        Exit Function
+    
+    Case "asst_mgr_3_m_sales"
+        fnGetVarValue = fnGetAsstMgr3MonthSales(sVinV, sErrMsg, lEmpNo)
+        
+        #If USE_CACHE Then
+            vCacheValue = fnGetVarValue
+            subCache_Add sVariable, vCacheValue
+        #End If
+        
+        Exit Function
+    
+    Case "asst_mgr_gals_sold"
+        strSQL = "SELECT bs_sales_amount as var_value FROM bonus_sales, pr_master, bonus_grades"
+        strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+        strSQL = strSQL & " AND bs_prft_ctr = prm_prft_ctr1"
+        strSQL = strSQL & " AND prm_emp_level = bg_emp_level"
+        strSQL = strSQL & " AND bg_grade = 'A' "
+        strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
+        strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC!txtStartDate, True)
 
-        Case "not used"
-            'return 0
-            Exit Function
-                        
-        Case Else
-            sErrMsg = "Variable " + sVinV + " is not valid"
-            Exit Function
+    Case "not used"
+        'return 0
+        Exit Function
+    
+    Case Else
+        sErrMsg = "Variable " + sVinV + " is not valid"
+        Exit Function
     
     End Select
     
@@ -1356,6 +1436,10 @@ Private Function fnGetVarValue(lEmpNo As Long, _
         fnGetVarValue = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
     End If
     
+    #If USE_CACHE Then
+        vCacheValue = fnGetVarValue
+        subCache_Add sVariable, vCacheValue
+    #End If
 End Function
 
 Private Function fn3MonthsAverage(sVariable As String, _
@@ -2502,7 +2586,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     Dim aryValues As Variant
     Dim objEvaluate As clsEquation
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sFormula = LCase(Trim(sFormula))
     
@@ -2533,7 +2617,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckFormula"
     fnCheckFormula = "Failed to validate Formula"
 
@@ -2547,7 +2631,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     Dim aryValues As Variant
     Dim objCondition As clsCondition
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sCond = LCase(Trim(sCond))
     
@@ -2578,7 +2662,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckCondition"
     fnCheckCondition = "Failed to validate Condition"
 
@@ -3158,7 +3242,7 @@ Public Function fnDateDiff(sInterval As String, _
     Dim lDaysInMonths As Long
     Dim lDiff As Long
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sInterval = LCase(sInterval)
     
@@ -3236,7 +3320,7 @@ Public Function fnDateDiff(sInterval As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnDateDiff"
 End Function
 
@@ -3456,7 +3540,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -3470,7 +3554,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
@@ -3481,7 +3565,7 @@ Public Function fnRenameFile(sFrom As String, sTo As String, _
                              Optional bCopy As Boolean = False) As String
     Dim sErrMsg As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sErrMsg = "Error occurred while deleting file '" & sTo & "'"
     If Dir(sTo) <> "" Then Kill sTo
@@ -3497,7 +3581,7 @@ Public Function fnRenameFile(sFrom As String, sTo As String, _
     fnRenameFile = ""
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnRenameFile", bShowErrMsg
     fnRenameFile = sErrMsg
 End Function
@@ -3749,3 +3833,70 @@ Public Sub subParseExtensionFilePathDrive(sFileName As String, _
 End Sub
 '''''''''''''''''
 
+#If USE_CACHE Then
+    Public Sub subCache_Clear()
+        Dim Num As Integer
+        
+        On Error GoTo errTrap
+        
+        If Not colVarCache Is Nothing Then
+            For Num = 1 To colVarCache.Count   ' Remove name from the collection.
+                colVarCache.Remove 1    ' Since collections are reindexed
+                                    ' automatically, remove the first
+            Next
+            
+            Set colVarCache = Nothing
+        End If
+        
+        Exit Sub
+    
+errTrap:
+        tfnErrHandler "subCache_Clear", False
+    End Sub
+    
+    Public Sub subCache_Add(sKey As String, vValue As Variant)
+        If colVarCache Is Nothing Then
+            Set colVarCache = New Collection
+            colVarCache.Add vValue, sKey
+            Exit Sub
+        End If
+        
+        On Error GoTo errTrap
+        colVarCache.Add vValue, sKey
+        
+        Exit Sub
+        
+errTrap:
+        If Err.Number = 457 Then  'ok
+            'This key is already associated with an element of this collection
+        Else  'error
+            tfnErrHandler "subCache_Add", False
+        End If
+    End Sub
+    
+    Public Function fnCache_Find(sKey As String, vValue As Variant) As Boolean
+        vValue = Null
+        
+        If Trim(sKey) = "" Then
+            Exit Function
+        End If
+        
+        If colVarCache Is Nothing Then
+            Exit Function
+        End If
+        
+        On Error GoTo errTrap
+        vValue = colVarCache.Item(sKey)
+        
+        fnCache_Find = True
+        
+        Exit Function
+        
+errTrap:
+        If Err.Number = 5 Then  'ok, because not found in collection
+        Else  'error
+            tfnErrHandler "fnCache_Find", False
+        End If
+    End Function
+#End If
+    

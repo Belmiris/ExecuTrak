@@ -53,6 +53,7 @@ Begin VB.Form frmZZSEBPRC
       ShowFocusRect   =   -1  'True
       Style           =   3
       BorderWidth     =   4
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -86,6 +87,7 @@ Begin VB.Form frmZZSEBPRC
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -140,6 +142,7 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -170,6 +173,7 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -260,6 +264,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":12DE
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -296,6 +301,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":13F0
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -332,6 +338,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1502
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -368,6 +375,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1614
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -438,6 +446,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -475,6 +484,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -509,6 +519,7 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -541,6 +552,7 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
                BevelOuter      =   5
                Caption         =   " "
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -550,6 +562,38 @@ Begin VB.Form frmZZSEBPRC
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin FACTFRMLib.FactorFrame cmdShowToPrftCtr 
+                  Height          =   75
+                  Left            =   8550
+                  TabIndex        =   153
+                  TabStop         =   0   'False
+                  Top             =   720
+                  Width           =   75
+                  _Version        =   65536
+                  _ExtentX        =   132
+                  _ExtentY        =   132
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            =   9.75
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  BevelOuter      =   0
+                  TitleBarHeight  =   24
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            =   12
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+               End
                Begin VB.CheckBox chkHourly 
                   Caption         =   "Process Hourly employees only (i.e. Non-Manager Gasoline Commissions)"
                   Enabled         =   0   'False
@@ -560,11 +604,11 @@ Begin VB.Form frmZZSEBPRC
                   Width           =   7488
                End
                Begin FACTFRMLib.FactorFrame efraProcessDate 
-                  Height          =   1332
+                  Height          =   1335
                   Left            =   72
                   TabIndex        =   99
                   TabStop         =   0   'False
-                  Top             =   48
+                  Top             =   45
                   Width           =   2400
                   _Version        =   65536
                   _ExtentX        =   4233
@@ -580,6 +624,7 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   BevelOuter      =   6
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -648,6 +693,7 @@ Begin VB.Form frmZZSEBPRC
                      Picture         =   "ZZSEBPRC.frx":1726
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -781,6 +827,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":183C
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -817,6 +864,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":194E
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -853,6 +901,7 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1A60
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -889,9 +938,42 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1B72
                   Style           =   3
                   BorderWidth     =   4
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+               End
+               Begin FACTFRMLib.FactorFrame cmdShowToEmp 
+                  Height          =   75
+                  Left            =   8550
+                  TabIndex        =   154
+                  TabStop         =   0   'False
+                  Top             =   1410
+                  Width           =   75
+                  _Version        =   65536
+                  _ExtentX        =   132
+                  _ExtentY        =   132
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            =   9.75
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  BevelOuter      =   0
+                  TitleBarHeight  =   24
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            =   12
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -958,6 +1040,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -995,6 +1078,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -1032,6 +1116,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -1067,6 +1152,7 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -1089,7 +1175,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   68
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            =   9.76
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1122,6 +1208,7 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -1157,6 +1244,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1193,6 +1281,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1228,6 +1317,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1263,6 +1353,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1293,6 +1384,7 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1424,6 +1516,7 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -1454,6 +1547,7 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1487,6 +1581,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1C84
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1568,6 +1663,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1D96
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1604,6 +1700,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1EA8
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1645,6 +1742,7 @@ Begin VB.Form frmZZSEBPRC
                         EndProperty
                         BevelOuter      =   5
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1676,6 +1774,7 @@ Begin VB.Form frmZZSEBPRC
                            EndProperty
                            Style           =   3
                            BorderWidth     =   4
+                           TitleBarHeight  =   24
                            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                               Name            =   "MS Sans Serif"
                               Size            =   9.75
@@ -1708,6 +1807,7 @@ Begin VB.Form frmZZSEBPRC
                            EndProperty
                            Style           =   3
                            BorderWidth     =   4
+                           TitleBarHeight  =   24
                            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                               Name            =   "MS Sans Serif"
                               Size            =   9.75
@@ -1866,6 +1966,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1903,6 +2004,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1940,6 +2042,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1977,6 +2080,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2014,6 +2118,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2051,6 +2156,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2086,6 +2192,7 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
+                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -2107,7 +2214,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            =   9.74
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2115,6 +2222,7 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2208,6 +2316,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":3ED5
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2244,6 +2353,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":3FE7
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2280,6 +2390,7 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":40F9
                         Style           =   3
                         BorderWidth     =   4
+                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2342,6 +2453,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2379,6 +2491,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2416,6 +2529,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2453,6 +2567,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2490,6 +2605,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2527,6 +2643,7 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
+                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2564,6 +2681,7 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -2594,6 +2712,7 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2652,6 +2771,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2689,6 +2809,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2725,6 +2846,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2761,6 +2883,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2798,6 +2921,7 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
+               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2861,6 +2985,7 @@ Begin VB.Form frmZZSEBPRC
       Align           =   2
       CaptionPos      =   1
       Style           =   5
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -2896,7 +3021,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            =   9.81
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2907,9 +3032,10 @@ Begin VB.Form frmZZSEBPRC
       FMName          =   "ZZSEBPRC"
       CaptionPos      =   4
       Style           =   6
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            =   9.81
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2971,6 +3097,480 @@ Begin VB.Form frmZZSEBPRC
       TabIndex        =   110
       Top             =   600
       Width           =   2604
+   End
+   Begin FACTFRMLib.FactorFrame efraToEmp 
+      Height          =   1560
+      Left            =   2535
+      TabIndex        =   133
+      TabStop         =   0   'False
+      Top             =   1920
+      Visible         =   0   'False
+      Width           =   6210
+      _Version        =   65536
+      _ExtentX        =   10954
+      _ExtentY        =   2752
+      _StockProps     =   77
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Arial"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      BevelOuter      =   6
+      TitleBarHeight  =   24
+      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "MS Sans Serif"
+         Size            =   12
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Begin VB.TextBox txtToEmpNo 
+         BackColor       =   &H00FFFFFF&
+         ForeColor       =   &H00000000&
+         Height          =   360
+         HelpContextID   =   529
+         Left            =   45
+         TabIndex        =   134
+         Tag             =   "pn_alt"
+         Top             =   585
+         Width           =   1104
+      End
+      Begin VB.TextBox txtToEmpName 
+         BackColor       =   &H00FFFFFF&
+         DataSource      =   "datVendor"
+         ForeColor       =   &H00000000&
+         Height          =   360
+         HelpContextID   =   531
+         Left            =   1575
+         TabIndex        =   136
+         Tag             =   "pn_name"
+         Top             =   585
+         Width           =   4176
+      End
+      Begin FACTFRMLib.FactorFrame cmdToEmpNo 
+         Height          =   360
+         HelpContextID   =   530
+         Left            =   1155
+         TabIndex        =   135
+         TabStop         =   0   'False
+         Tag             =   "Run #3"
+         Top             =   585
+         Width           =   360
+         _Version        =   65536
+         _ExtentX        =   635
+         _ExtentY        =   635
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         CaptionPos      =   4
+         Picture         =   "ZZSEBPRC.frx":8DE4
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToEmpName 
+         Height          =   360
+         HelpContextID   =   532
+         Left            =   5775
+         TabIndex        =   137
+         TabStop         =   0   'False
+         Tag             =   "Run #3"
+         Top             =   585
+         Width           =   360
+         _Version        =   65536
+         _ExtentX        =   635
+         _ExtentY        =   635
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         CaptionPos      =   4
+         Picture         =   "ZZSEBPRC.frx":8EF6
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToEmpOK 
+         Height          =   390
+         HelpContextID   =   534
+         Left            =   3360
+         TabIndex        =   138
+         Top             =   1095
+         Width           =   1305
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "O&K"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToEmpCancel 
+         Height          =   390
+         HelpContextID   =   15
+         Left            =   4800
+         TabIndex        =   139
+         Top             =   1095
+         Width           =   1305
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "&Cancel"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin VB.Label Label5 
+         Caption         =   "Employee Nbr"
+         Height          =   255
+         Left            =   45
+         TabIndex        =   142
+         Top             =   345
+         Width           =   1290
+      End
+      Begin VB.Label Label6 
+         Caption         =   "Employee Name"
+         Height          =   255
+         Left            =   1575
+         TabIndex        =   141
+         Top             =   345
+         Width           =   1950
+      End
+      Begin VB.Label Label7 
+         Caption         =   "To Employee Nbr:"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   700
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   255
+         Left            =   45
+         TabIndex        =   140
+         Top             =   30
+         Width           =   2400
+      End
+   End
+   Begin FACTFRMLib.FactorFrame efraToPrftCtr 
+      Height          =   1560
+      Left            =   2535
+      TabIndex        =   143
+      TabStop         =   0   'False
+      Top             =   1260
+      Visible         =   0   'False
+      Width           =   6210
+      _Version        =   65536
+      _ExtentX        =   10954
+      _ExtentY        =   2752
+      _StockProps     =   77
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Arial"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      BevelOuter      =   6
+      TitleBarHeight  =   24
+      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "MS Sans Serif"
+         Size            =   12
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Begin VB.TextBox txtToPrftName 
+         BackColor       =   &H00FFFFFF&
+         DataSource      =   "datVendor"
+         ForeColor       =   &H00000000&
+         Height          =   360
+         HelpContextID   =   531
+         Left            =   1575
+         TabIndex        =   146
+         Tag             =   "pn_name"
+         Top             =   585
+         Width           =   4176
+      End
+      Begin VB.TextBox txtToPrftCtr 
+         BackColor       =   &H00FFFFFF&
+         ForeColor       =   &H00000000&
+         Height          =   360
+         HelpContextID   =   529
+         Left            =   45
+         TabIndex        =   144
+         Tag             =   "pn_alt"
+         Top             =   585
+         Width           =   1104
+      End
+      Begin FACTFRMLib.FactorFrame cmdToPrftCtr 
+         Height          =   360
+         HelpContextID   =   530
+         Left            =   1155
+         TabIndex        =   145
+         TabStop         =   0   'False
+         Tag             =   "Run #3"
+         Top             =   585
+         Width           =   360
+         _Version        =   65536
+         _ExtentX        =   635
+         _ExtentY        =   635
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         CaptionPos      =   4
+         Picture         =   "ZZSEBPRC.frx":9008
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToPrftName 
+         Height          =   360
+         HelpContextID   =   532
+         Left            =   5775
+         TabIndex        =   147
+         TabStop         =   0   'False
+         Tag             =   "Run #3"
+         Top             =   585
+         Width           =   360
+         _Version        =   65536
+         _ExtentX        =   635
+         _ExtentY        =   635
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         CaptionPos      =   4
+         Picture         =   "ZZSEBPRC.frx":911A
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToPrftCtrOK 
+         Height          =   390
+         HelpContextID   =   534
+         Left            =   3360
+         TabIndex        =   148
+         Top             =   1095
+         Width           =   1305
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "O&K"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdToPrftCtrCancel 
+         Height          =   390
+         HelpContextID   =   15
+         Left            =   4800
+         TabIndex        =   149
+         Top             =   1095
+         Width           =   1305
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "&Cancel"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         TitleBarHeight  =   24
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin VB.Label Label10 
+         Caption         =   "To Profit Center:"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   700
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   255
+         Left            =   45
+         TabIndex        =   152
+         Top             =   30
+         Width           =   2400
+      End
+      Begin VB.Label Label9 
+         Caption         =   "Profit Center Name"
+         Height          =   255
+         Left            =   1575
+         TabIndex        =   151
+         Top             =   345
+         Width           =   1950
+      End
+      Begin VB.Label Label8 
+         Caption         =   "Profit Center"
+         Height          =   255
+         Left            =   45
+         TabIndex        =   150
+         Top             =   345
+         Width           =   1290
+      End
    End
    Begin VB.Menu mnuFile 
       Caption         =   "&File"
@@ -3251,7 +3851,6 @@ Private Sub cmdSelectAll_GotFocus()
     tfnSetStatusBarMessage "Select All"
 End Sub
 
-
 Private Sub efraBaseHours_GotFocus()
     subSetFocus cmdAddBtn(nTabHours)
 End Sub
@@ -3362,12 +3961,12 @@ Private Sub eTabMain_Click()
 
 End Sub
 
-Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     If Not eTabMain.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
-    If Not CANCEL Then t_bTabSwitch = True
+    If Not Cancel Then t_bTabSwitch = True
 End Sub
 
 Private Sub eTabSub_Click()
@@ -3381,13 +3980,13 @@ Private Sub eTabSub_Click()
     End Select
 End Sub
 
-Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     If Not eTabSub.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
 
-    If Not CANCEL Then
+    If Not Cancel Then
         t_bTabSwitch = True
     End If
 End Sub
@@ -3409,7 +4008,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -3606,7 +4205,9 @@ Private Sub subCancel(Index As Integer)
     
     If Index = TabProcess Then
         If bProcessing Then
-            bCancelProcess = True
+            If Not bCancelProcess Then
+                bCancelProcess = tfnCancelExit("Are you sure you want to cancel the Commission Processing?")
+            End If
             Exit Sub
         End If
         
@@ -3847,9 +4448,15 @@ Private Sub tfnResetScreen(Index As Integer)
             txtPrftCtrName = ""
             txtEmpProcess = ""
             txtEmpNameProcess = ""
+            
+            txtToPrftCtr = ""
+            txtToPrftName = ""
+            txtToEmpNo = ""
+            txtToEmpName = ""
+            
             bLoadingBonusDetail = False
             chkHourly.Enabled = False
-            chkHourly.value = vbUnchecked
+            chkHourly.Value = vbUnchecked
             bShowDetail = mnuDetailLog.CHECKED
 
             cValidate.ResetFlags
@@ -3957,8 +4564,8 @@ Private Sub tblApprove_AfterColEdit(ByVal ColIndex As Integer)
     tgmApprove.AfterColEdit ColIndex
 End Sub
 
-Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgmApprove.BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    tgmApprove.BeforeColEdit ColIndex, KeyAscii, Cancel
     
     If ColIndex = colAApprove Then
         
@@ -4042,9 +4649,9 @@ Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     tgsApprove.RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblApprove_SelChange(CANCEL As Integer)
-    tgsApprove.SelChange CANCEL
-    CANCEL = True
+Private Sub tblApprove_SelChange(Cancel As Integer)
+    tgsApprove.SelChange Cancel
+    Cancel = True
 End Sub
 
 Private Sub tblApprove_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -4065,8 +4672,8 @@ Private Sub tblDetails_KeyPress(KeyAscii As Integer)
     End If
 End Sub
 
-Private Sub tblDetails_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDetails_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -4216,13 +4823,13 @@ Private Sub subSetProgress(sngPercent As Single)
         End If
     Else
         'pbBarMain.Visible = False
-        pbBarMain.value = 0
+        pbBarMain.Value = 0
         If pbBarMain.ToolTipText = "" Then
             pbBarMain.ToolTipText = "Process Checks progress bar"
         End If
     End If
     
-    pbBarMain.value = sngPercent
+    pbBarMain.Value = sngPercent
     pbBarMain.Refresh
 End Sub
 
@@ -4289,10 +4896,15 @@ Private Sub cmdProcess_Click()
     subLogErrMsg "Started processing commission formulas..."
     subLogErrMsg " "
     
+    Dim sngTimer As Single
+    Dim sngTotal As Single
+    
+    sngTotal = Timer
+    
     'david 12/27/2002  #393054
     'SHOW WARNING MESSAGE
     'ONLY WHEN the 'Process Hourly Employee only' checkbox is NOT checked
-    If frmZZSEBPRC.chkHourly.value = vbUnchecked Then
+    If frmZZSEBPRC.chkHourly.Value = vbUnchecked Then
         i = fnCheckBonusHold()
     
         If i = vbCancel Then
@@ -4311,11 +4923,11 @@ Private Sub cmdProcess_Click()
         Exit Sub
     End If
     
-    subLogErrMsg " "
+    'subLogErrMsg " "
     
     'david 03/19/2003  #404567
     'get the minimum "mgr gas comm" for bonus paycode = '7MGS'
-    If chkHourly.value = vbChecked Then
+    If chkHourly.Value = vbChecked Then
         dMinManagerGasComm = fnGetMinManagerGasComm("7MGS")
     End If
     ''''''''''''''''''''''''''
@@ -4338,7 +4950,7 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
     
     'added  by junsong 10/16/2002 call #379824-3
-    If chkHourly.value = vbChecked Then
+    If chkHourly.Value = vbChecked Then
         'david 03/19/2003  #404567
         'bonus paycode = '7MGS'
         'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
@@ -4356,12 +4968,36 @@ Private Sub cmdProcess_Click()
         ''''''''''''''''''''''''''
     End If
     
-    If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
-        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(txtPrftCtr)
+    If (cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "") Or (txtToPrftCtr <> "") Then
+        If txtToPrftCtr = "" Then  'normal
+            strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(txtPrftCtr)
+        Else  'from...to
+            subLogErrMsg "From Proft Center: " & txtPrftCtr & "     To Profit Center: " & txtToPrftCtr
+            subLogErrMsg " "
+            
+            If txtPrftCtr = "" Then
+                strSQL = strSQL & " AND bm_eligible_pc <= " & tfnRound(txtToPrftCtr)
+            Else
+                strSQL = strSQL & " AND bm_eligible_pc BETWEEN " & tfnRound(txtPrftCtr)
+                strSQL = strSQL & " AND " & tfnRound(txtToPrftCtr)
+            End If
+        End If
     End If
     
-    If cValidate.ValidInput(txtEmpProcess) And txtEmpProcess <> "" Then
-        strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmpProcess)
+    If (cValidate.ValidInput(txtEmpProcess) And txtEmpProcess <> "") Or (txtToEmpNo <> "") Then
+        If txtToEmpNo = "" Then  'normal
+            strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmpProcess)
+        Else  'from...to
+            subLogErrMsg "From Employee: " & txtEmpProcess & "     To Employee: " & txtToEmpNo
+            subLogErrMsg " "
+            
+            If txtEmpProcess = "" Then
+                strSQL = strSQL & " AND bm_empno <= " & tfnRound(txtToEmpNo)
+            Else
+                strSQL = strSQL & " AND bm_empno BETWEEN " & tfnRound(txtEmpProcess)
+                strSQL = strSQL & " AND " & tfnRound(txtToEmpNo)
+            End If
+        End If
     End If
     
     If cValidate.ValidInput(txtFrequency) And txtFrequency <> "" Then
@@ -4396,6 +5032,7 @@ Private Sub cmdProcess_Click()
     
     For i = 1 To nCount
         DoEvents
+        
         If bCancelProcess Then
             GoTo TERMINATE_PROCESS
         End If
@@ -4406,22 +5043,20 @@ Private Sub cmdProcess_Click()
         
         nLevel = tfnRound(rsTemp!bf_level)
         
-        subLogErrMsg "Calculating commission for employee " & tfnRound(rsTemp!bm_empno) _
-            & ", profit center " & tfnRound(rsTemp!bm_eligible_pc) & ", commission code " _
-            & tfnSQLString(rsTemp!bc_bonus_code) & ", level " & nLevel
-        
+        'done for empno/prftctr/bonuscode
         If sEmpNo <> fnGetField(rsTemp!bm_empno) Or _
            sPrftCtr <> fnGetField(rsTemp!bm_eligible_pc) Or _
            sCode <> fnGetField(rsTemp!bc_bonus_code) Then
             
             If nSize >= 0 Then
+Debug.Print "Time="; Timer - sngTimer; ": fnGetBonusAmount(" & vArrBonus(colAEmpNo, nSize) & "," & vArrBonus(colAPayCode, nSize) & ")"
                 'david 03/19/2003  #404567
                 'bonus paycode = '7MGS'
                 'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
                 'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
                 'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
                 'in last/first full pay period, he will NOT be paid this commission anymore
-                If chkHourly.value = vbChecked And fnCstr(rsTemp!bc_bonus_code) = "7MGS" _
+                If chkHourly.Value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
                    And tfnRound(dMinManagerGasComm, 2) > 0 Then
                     If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
                         dTotalBonus = 0#
@@ -4432,10 +5067,10 @@ Private Sub cmdProcess_Click()
                         'vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
                         nSize = nSize - 1
                         
-                        If nSize > 0 Then
+                        If nSize >= 0 Then
                             ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
                         Else
-                            ReDim Preserve vArrBonus(colAHdnBAmtLvls, 0)
+                            ReDim vArrBonus(colAHdnBAmtLvls, 0)
                         End If
                     Else
                         vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
@@ -4445,13 +5080,27 @@ Private Sub cmdProcess_Click()
                 End If
                 
                 If bShowDetail Then
-                    subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
-                        + " calculation result: "
-                    subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
-                        & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+                    If nSize > -1 Then
+                        subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                            + " calculation result: "
+                        subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                            & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+                    End If
                 End If
+                
+                subLogErrMsg " "
                 ''''''''''''''''''''''''''
             End If
+            
+            #If USE_CACHE Then
+                subCache_Clear
+            #End If
+            
+sngTimer = Timer
+            
+            subLogErrMsg "Calculating commission for employee " & tfnRound(rsTemp!bm_empno) _
+                & ", profit center " & tfnRound(rsTemp!bm_eligible_pc) & ", commission code " _
+                & tfnSQLString(rsTemp!bc_bonus_code) & ", level " & nLevel
             
             nSize = nSize + 1
             ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
@@ -4467,12 +5116,16 @@ Private Sub cmdProcess_Click()
             vArrBonus(colAHdsBonusDesc, nSize) = fnGetField(rsTemp!bc_code_desc) 'Hidden Column
             vArrBonus(colAHdnSeq, nSize) = tfnRound(rsTemp!bm_sequence) 'Hidden Column
             vArrBonus(colAHdnBAmtLvls, nSize) = "" 'Hidden Column
-            
+
             dBLvlAmt = fnGetBonusAmount(rsTemp)
             dTotalBonus = dBLvlAmt
             
             vArrBonus(colAHdnBAmtLvls, nSize) = nLevel & "*" & fnGetField(dBLvlAmt)
         Else  'everything (empno, prftctr, paycode) is the same, except the bonus code level
+            subLogErrMsg "Calculating commission for employee " & tfnRound(rsTemp!bm_empno) _
+                & ", profit center " & tfnRound(rsTemp!bm_eligible_pc) & ", commission code " _
+                & tfnSQLString(rsTemp!bc_bonus_code) & ", level " & nLevel
+
             dBLvlAmt = fnGetBonusAmount(rsTemp)
             dTotalBonus = dTotalBonus + dBLvlAmt
             vArrBonus(colAHdnBAmtLvls, nSize) = vArrBonus(colAHdnBAmtLvls, nSize) _
@@ -4485,50 +5138,56 @@ Private Sub cmdProcess_Click()
         
         'last record...
         If i = nCount Then
-            'david 03/19/2003  #404567
-            'bonus paycode = '7MGS'
-            'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
-            'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
-            'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
-            'in last/first full pay period, he will NOT be paid this commission anymore
-            If chkHourly.value = vbChecked And fnCstr(rsTemp!bc_bonus_code) = "7MGS" _
-               And tfnRound(dMinManagerGasComm, 2) > 0 Then
-                If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
-                    dTotalBonus = 0#
-                    subLogErrMsg "Manager Gas Commission is not equal to minimum, set to 0"
-                    
-                    'we don't want to show zero bonus amount for '7MGS'
-                    'remove it from the array
-                    'vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
-                    nSize = nSize - 1
-                    
-                    If nSize > 0 Then
-                        ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
+            If nSize >= 0 Then
+Debug.Print "Time="; Timer - sngTimer; ": fnGetBonusAmount(" & vArrBonus(colAEmpNo, nSize) & "," & vArrBonus(colAPayCode, nSize) & ")"
+                'david 03/19/2003  #404567
+                'bonus paycode = '7MGS'
+                'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
+                'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
+                'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
+                'in last/first full pay period, he will NOT be paid this commission anymore
+                If chkHourly.Value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
+                   And tfnRound(dMinManagerGasComm, 2) > 0 Then
+                    If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
+                        dTotalBonus = 0#
+                        subLogErrMsg "Manager Gas Commission is not equal to minimum, set to 0"
+                        
+                        'we don't want to show zero bonus amount for '7MGS'
+                        'remove it from the array
+                        'vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                        nSize = nSize - 1
+                        
+                        If nSize >= 0 Then
+                            ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
+                        Else
+                            ReDim vArrBonus(colAHdnBAmtLvls, 0)
+                        End If
                     Else
-                        ReDim Preserve vArrBonus(colAHdnBAmtLvls, 0)
+                        vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
                     End If
-                Else
+                Else  'old code
                     vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
                 End If
-            Else  'old code
-                vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
-            End If
-        
-            If bShowDetail Then
-                subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
-                    + " calculation result: "
-                subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
-                    & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
-            End If
-            ''''''''''''''''''''''''''
-        
-            If bShowDetail Then
-                subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
-                    + " calculation result: "
-                subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
-                    & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
-            End If
             
+                If bShowDetail Then
+                    If nSize > -1 Then
+                        subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                            + " calculation result: "
+                        subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                            & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+                    End If
+                End If
+            
+                If bShowDetail Then
+                    subLogErrMsg "Commission Code " + tfnSQLString(rsTemp!bc_bonus_code) _
+                        + " calculation result: "
+                    subLogErrMsg "Total = " & vArrBonus(colABonusAmt, nSize) _
+                        & "(" & vArrBonus(colAHdnBAmtLvls, nSize) & ")"
+                End If
+                
+                subLogErrMsg " "
+                ''''''''''''''''''''''''''
+            End If
         End If
         
         rsTemp.MoveNext
@@ -4649,8 +5308,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
         Case "tblApprove"
             tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
-            VItem.value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
-            VItem.value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
+            VItem.Value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
+            VItem.Value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
             vitems.Presentation = 1
             vitems.CycleOnClick = True
             vitems.Translate = True
@@ -4685,7 +5344,7 @@ End Sub
 Private Sub subInitSpreadsheets()
     Dim sDecimalString As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'Table Sales Class Implementation
     sDecimalString = tfnDecimalPattern(10, 2)
@@ -4778,7 +5437,7 @@ Private Sub subInitSpreadsheets()
     
     Exit Sub
 
-ErrTrap:
+errTrap:
     tfnErrHandler "subInitSpreadsheets"
     'add by junsong 03/16/01
     Unload Me
@@ -4872,12 +5531,12 @@ Private Function fnSetComboSQL(nTabIndex As Integer) As String
     Dim sApprovePrftCtrList As String
     
     Select Case nTabIndex
-        Case txtPrftCtr.TabIndex, txtPrftCtrName.TabIndex
+        Case txtPrftCtr.TabIndex, txtPrftCtrName.TabIndex, txtToPrftCtr.TabIndex, txtToPrftName.TabIndex
             strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr WHERE prft_ctr IN "
             strSQL = strSQL & "(SELECT DISTINCT bm_eligible_pc FROM bonus_master)"
         Case txtFrequency.TabIndex
             strSQL = "SELECT bfq_frequency, bfq_freq_desc FROM bonus_frequency"
-        Case txtEmpProcess.TabIndex, txtEmpNameProcess.TabIndex
+        Case txtEmpProcess.TabIndex, txtEmpNameProcess.TabIndex, txtToEmpNo.TabIndex, txtToEmpName.TabIndex
             strSQL = "SELECT prm_empno, prm_empname FROM sTmpEmpTable"
             strSQL = strSQL & " WHERE prm_empno IN (SELECT bm_empno FROM bonus_master)"
         Case txtEmployee.TabIndex, txtEmpName.TabIndex
@@ -5002,7 +5661,7 @@ Private Function fnValidFrequency(txtBox As Textbox) As Boolean
     If UCase(Trim(txtBox.Text)) = "M" Then
         chkHourly.Enabled = True
     Else
-        chkHourly.value = vbUnchecked
+        chkHourly.Value = vbUnchecked
         chkHourly.Enabled = False
     End If
     
@@ -5035,7 +5694,7 @@ Private Sub subBuildFrequencyRegExp()
         Exit Sub
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sFreqRegExp = "^([" + fnCstr(rsTemp!bfq_frequency)
     rsTemp.MoveNext
@@ -5049,7 +5708,7 @@ Private Sub subBuildFrequencyRegExp()
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     sFreqRegExp = "^P$"
 End Sub
 
@@ -5206,8 +5865,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropDown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
 Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -5235,6 +5894,16 @@ Private Sub subSetupCombos()
         .AddComboBox txtEmpProcess, cmdEmpProcess, "prm_empno", .SQL_LONG_TYPE
         .AddComboBox txtEmpNameProcess, cmdEmpNameProcess, "prm_empname", .SQL_STRING_TYPE(60)
      
+        'david 03/27/2003
+        .AddCombo
+        .AddComboBox txtToPrftCtr, cmdToPrftCtr, "prft_ctr", .SQL_INT_TYPE
+        .AddComboBox txtToPrftName, cmdToPrftName, "prft_name", .SQL_STRING_TYPE(40)
+     
+        .AddCombo
+        .AddComboBox txtToEmpNo, cmdToEmpNo, "prm_empno", .SQL_LONG_TYPE
+        .AddComboBox txtToEmpName, cmdToEmpName, "prm_empname", .SQL_STRING_TYPE(60)
+        '''''''''''''''''
+        
         .AddCombo
         .AddComboBox txtFrequency, cmdFrequency, "bfq_frequency", .SQL_STRING_TYPE(1)
         .AddExtraColumn "bfq_freq_desc", 1300
@@ -5587,7 +6256,7 @@ Private Sub txtFrequency_Change()
     tgcDropdown.Change txtFrequency
     cmdProcess.Enabled = False
     chkHourly.Enabled = False
-    chkHourly.value = vbUnchecked
+    chkHourly.Value = vbUnchecked
 End Sub
 
 Private Sub txtFrequency_GotFocus()
@@ -5621,7 +6290,7 @@ Private Sub txtFrequency_KeyPress(KeyAscii As Integer)
         If KeyAscii = vbKeyReturn Then
             
             If tgcDropdown.SingleRecordSelected Then
-                  subSetFocus txtEndDate
+                subSetFocus txtEndDate
             End If
             
             KeyAscii = 0
@@ -6978,11 +7647,11 @@ Private Sub tblSales_AfterColEdit(ByVal ColIndex As Integer)
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     If ColIndex = colSPrftCtr Then
         tgmSales.CellValue(colSPrftName, tgmSales.GetCurrentRowNumber) = ""
     End If
-    tgmSales.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmSales.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblSales_Change()
@@ -7090,9 +7759,9 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 End Sub
 
-Private Sub tblSales_SelChange(CANCEL As Integer)
-    tgsSales.SelChange CANCEL
-    CANCEL = True
+Private Sub tblSales_SelChange(Cancel As Integer)
+    tgsSales.SelChange Cancel
+    Cancel = True
 End Sub
 
 Private Sub tblSales_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -7741,8 +8410,8 @@ Private Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
     objHours.tblTimeCard_AfterColEdit ColIndex
 End Sub
 
-Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblTimeCard_Change()
@@ -7781,8 +8450,8 @@ Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     objHours.tblTimeCard_RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblTimeCard_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblTimeCard_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblTimeCard_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -7803,7 +8472,7 @@ End Sub
 
 Private Function fnInitialOTProcessorClass() As Boolean
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     Set objOTProcessor = New clsOTProcessor
     
@@ -7834,13 +8503,13 @@ Private Function fnInitialOTProcessorClass() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnInitialOTProcessorClass"
 End Function
 
 Private Function fnInitialPRFHOURSclass() As Boolean
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     Set objHours = New clsPRFHOURS
     
@@ -7885,7 +8554,7 @@ Private Function fnInitialPRFHOURSclass() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnInitialPRFHOURSclass"
 End Function
 
@@ -7948,6 +8617,7 @@ Private Function fnCheckFrequency(sStartDate As String, _
             
         Else
             txtEndDate = sDate
+            SelectIt txtEndDate
         End If
         
     End If
@@ -7978,4 +8648,264 @@ Private Function fnGetMinManagerGasComm(sBonusCode As String) As Double
 
     fnGetMinManagerGasComm = tfnRound(rsTemp!bf_dollar, 2)
 End Function
+
+Private Sub cmdShowToPrftCtr_DblClick()
+    efraToPrftCtr.Visible = True
+    efraBackground.Enabled = False
+    subSetFocus txtToPrftCtr
+End Sub
+
+Private Sub cmdToPrftCtrOK_Click()
+    efraToPrftCtr.Visible = False
+    efraBackground.Enabled = True
+    subSetFocus txtEmpProcess
+End Sub
+
+Private Sub txtToPrftCtr_Change()
+    cValidate.Change txtToPrftCtr
+    tgcDropdown.Change txtToPrftCtr
+End Sub
+
+Private Sub txtToPrftCtr_GotFocus()
+    tgcDropdown.GotFocus txtToPrftCtr
+    cValidate.GotFocus txtToPrftCtr
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus cmdToPrftCtrOK
+    End If
+    
+End Sub
+
+Private Sub txtToPrftCtr_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtToPrftCtr) = fnSetComboSQL(txtToPrftCtr.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtToPrftCtr, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                subSetFocus cmdToPrftCtrOK
+            End If
+            KeyAscii = 0
+            Screen.MousePointer = vbDefault
+       End If
+    Else
+        cValidate.Keypress txtToPrftCtr, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtToPrftCtr_LostFocus()
+    tgcDropdown.LostFocus txtToPrftCtr
+    If cValidate.LostFocus(txtToPrftCtr, cmdToPrftCtr, txtToPrftName, cmdToPrftName) Then
+    End If
+End Sub
+
+Private Sub txtToPrftName_Change()
+    tgcDropdown.Change txtToPrftName
+End Sub
+
+Private Sub txtToPrftName_GotFocus()
+    tfnSetStatusBarMessage "Enter Profit Center Name"
+    tgcDropdown.GotFocus txtToPrftName
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus cmdToPrftCtrOK
+        Screen.MousePointer = vbDefault
+    End If
+End Sub
+
+Private Sub txtToPrftName_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtToPrftName) = fnSetComboSQL(txtToPrftName.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+    
+    bKeyCode = tgcDropdown.Keypress(txtToPrftName, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                subSetFocus cmdToPrftCtrOK
+            End If
+            KeyAscii = 0
+            Screen.MousePointer = vbDefault
+        End If
+    End If
+
+End Sub
+
+Private Sub txtToPrftName_LostFocus()
+    tgcDropdown.LostFocus txtToPrftName
+    If cValidate.LostFocus(txtToPrftCtr, cmdToPrftCtr, txtToPrftName, cmdToPrftName) Then
+    End If
+End Sub
+
+Private Sub cmdToPrftCtr_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.ComboSQL(txtToPrftCtr) = fnSetComboSQL(txtToPrftCtr.TabIndex)
+    tgcDropdown.Click cmdToPrftCtr
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdToPrftName_Click()
+    tgcDropdown.ComboSQL(txtToPrftName) = fnSetComboSQL(txtToPrftName.TabIndex)
+    tgcDropdown.Click cmdToPrftName
+End Sub
+
+Private Sub txtToEmpNo_Change()
+    cValidate.Change txtToEmpNo
+    tgcDropdown.Change txtToEmpNo
+End Sub
+
+Private Sub txtToEmpNo_GotFocus()
+    tgcDropdown.GotFocus txtToEmpNo
+    cValidate.GotFocus txtToEmpNo
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus cmdToEmpOK
+        Screen.MousePointer = vbDefault
+    End If
+    
+End Sub
+
+Private Sub txtToEmpNo_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtToEmpNo) = fnSetComboSQL(txtToEmpNo.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtToEmpNo, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+       If KeyAscii = vbKeyReturn Then
+          If tgcDropdown.SingleRecordSelected Then
+                subSetFocus cmdToEmpOK
+                Screen.MousePointer = vbDefault
+          End If
+          
+          KeyAscii = 0
+       End If
+       
+    Else
+        cValidate.Keypress txtToEmpNo, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtToEmpNo_LostFocus()
+    tgcDropdown.LostFocus txtToEmpNo
+    
+    If cValidate.LostFocus(txtToEmpNo, cmdToEmpNo, txtToEmpName, cmdEmpName) Then
+    End If
+    
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtToEmpName_Change()
+    tgcDropdown.Change txtToEmpName
+End Sub
+
+Private Sub txtToEmpName_GotFocus()
+    tfnSetStatusBarMessage "Enter EmpProcess Name"
+    tgcDropdown.GotFocus txtToEmpName
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus cmdToEmpOK
+        Screen.MousePointer = vbDefault
+    End If
+End Sub
+
+Private Sub txtToEmpName_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtToEmpName) = fnSetComboSQL(txtToEmpName.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+    
+    bKeyCode = tgcDropdown.Keypress(txtToEmpName, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                subSetFocus cmdToEmpOK
+                Screen.MousePointer = vbDefault
+            End If
+            
+            KeyAscii = 0
+        End If
+        
+    End If
+    
+End Sub
+
+Private Sub txtToEmpName_LostFocus()
+    tgcDropdown.LostFocus txtToEmpName
+    If cValidate.LostFocus(txtToEmpNo, cmdToEmpNo, txtToEmpName, cmdEmpName) Then
+    End If
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdToEmpNo_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.ComboSQL(txtToEmpNo) = fnSetComboSQL(txtToEmpNo.TabIndex)
+    tgcDropdown.Click cmdToEmpNo
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdToEmpName_Click()
+    tgcDropdown.ComboSQL(txtToEmpName) = fnSetComboSQL(txtToEmpName.TabIndex)
+    tgcDropdown.Click cmdToEmpName
+End Sub
+
+Private Sub cmdToPrftCtrCancel_Click()
+    efraToPrftCtr.Visible = False
+    efraBackground.Enabled = True
+    txtToPrftCtr = ""
+    txtToPrftName = ""
+    subSetFocus txtEmpProcess
+End Sub
+
+Private Sub cmdShowToEmp_DblClick()
+    efraToEmp.Visible = True
+    efraBackground.Enabled = False
+    subSetFocus txtToEmpNo
+End Sub
+
+Private Sub cmdToEmpOK_Click()
+    efraToEmp.Visible = False
+    efraBackground.Enabled = True
+    Select Case True
+    Case chkHourly.Enabled
+        subSetFocus chkHourly
+    Case cmdProcess.Enabled
+        subSetFocus cmdProcess
+    Case Else
+        subSetFocus cmdCancel(TabProcess)
+    End Select
+End Sub
+
+Private Sub cmdToEmpCancel_Click()
+    efraToEmp.Visible = False
+    efraBackground.Enabled = True
+    txtToEmpNo = ""
+    txtToEmpName = ""
+    subSetFocus chkHourly
+End Sub
 
