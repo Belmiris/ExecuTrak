@@ -71,7 +71,7 @@ Begin VB.Form LogForm
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -84,7 +84,7 @@ Begin VB.Form LogForm
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1596,7 +1596,7 @@ End Sub
 
 
 Private Sub subEnableSUOK(ByVal bFlag As Boolean)
-    cmdOK.Enabled = bFlag
+    cmdOk.Enabled = bFlag
 End Sub
 
 Private Sub subFixPath(sIPath As String, _
@@ -1755,12 +1755,12 @@ Private Sub subSetToNextBox(txtBox As Control)
             If txtBackupPath.Enabled Then
                 subSetFocus txtBackupPath
             Else
-                subSetFocus cmdOK, cmdClose
+                subSetFocus cmdOk, cmdClose
             End If
         Case txtBackupPath.TabIndex
             subSetFocus txtBackupName
         Case txtBackupName.TabIndex
-            subSetFocus cmdOK, cmdClose
+            subSetFocus cmdOk, cmdClose
     End Select
 End Sub
 

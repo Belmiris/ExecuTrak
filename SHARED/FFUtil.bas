@@ -651,6 +651,9 @@ End Function
 Private Function fnProgress() As Single
     If lFileSize <> 0 Then
         fnProgress = lFileCursor / lFileSize
+        If fnProgress > 1 Then
+            fnProgress = 1
+        End If
     End If
 End Function
 

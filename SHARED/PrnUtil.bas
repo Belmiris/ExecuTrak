@@ -229,10 +229,6 @@ Public Function fnSendToPrinter(AryIn() As String, _
     Dim lUBound As Long
     Dim i As Long
     
-    '----Set UP-----------------
-    If Not fnSetupPrinter(0) Then
-        Exit Function
-    End If
     '----BODY------------------------
     On Error Resume Next
     
@@ -361,9 +357,9 @@ Public Function fnSetupPrinter(ByVal nOrientation As Integer) As Boolean
     
     
     If nOrientation = vbPRORPortrait Then
-        nCharPerLine = CHAR_PERLINE_132
-    Else
         nCharPerLine = CHAR_PERLINE_110
+    Else
+        nCharPerLine = CHAR_PERLINE_132
     End If
     nLeftMargin = (Printer.ScaleWidth - Printer.TextWidth(Space(nCharPerLine))) / 2
     nTextHeight = Printer.ScaleHeight - BOTTOM_MARGIN
