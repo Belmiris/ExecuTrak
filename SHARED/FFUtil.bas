@@ -9,6 +9,20 @@ Option Explicit
 ' for detail. (the program ZZPSPRI is the first program with output set up
 ' ---- Weigong Jiang
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'On 02/24/2004, Add two new functions
+'fnprepareFile_new (Clone fnPrepareFile)
+'subPutLine_new    (Clone subPutline)
+'When we write something to file, we don't need to open it, close it and reopen it, ...
+'It take too much time if there are a lot data to write.
+'These two new functions are used in ZZFAWCST right now
+'The three steps for writing file will be:
+'1. fnPrepareFile_New
+'2. subPutLine_New
+'2. subCloseFile
+'----Junsong
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '    Private Const FF_PROC_INIFILE = "FACTOR.INI"
 
     Private FF_PROC_INIFILE As String  '= "FACTOR.INI"
@@ -318,7 +332,7 @@ End Function
 Private Function fnStr2BoolTrue(sTemp As String) As Boolean
     fnStr2BoolTrue = False
     If IsNumeric(sTemp) Then
-        If val(sTemp) <> 0 Then
+        If Val(sTemp) <> 0 Then
             fnStr2BoolTrue = True
         End If
     ElseIf UCase(sTemp) = PV_TRUE Then
@@ -1365,3 +1379,71 @@ Private Sub subSetStatusbarMessage(sStatusbarMsg As String)
     LogForm.ffraStatusbar.Caption = sStatusbarMsg
     LogForm.ffraStatusbar.Refresh
 End Sub
+
+'########################################################################
+'This is the clone of the function fnPrepareFile
+'This function will not Close the file when you open it
+'If you want to write 50000 lines, close and reopen will take 100 times slower.
+'This function will be used in ZZFAWCST to fix the performance issue.
+'########################################################################
+Public Function fnPrepareFile_New(sFName As String) As Boolean
+    
+    fnPrepareFile_New = False
+    On Error GoTo errOpenFile
+    m_nFileHandle = FreeFile
+
+    If fnTestFlag(m_nRunParm, RP_MASK_FILEWRITE) Then
+        If fnIsFile(sFName) Then
+            If vbNo = fnConfirmed("File: " & sFName & " already exists." & vbCrLf & "Do you want to over write it?") Then
+                Exit Function
+            End If
+        End If
+        Open sFName For Output As #m_nFileHandle
+        'commented out by jqiu 02/22/2004
+        'why close it? too slow if close it and reopen it every time when write one line
+        'subCloseFile
+        lFileCursor = 0
+        fnPrepareFile_New = True
+        LogForm.ShowProgress 0
+        LogForm.ShowProgressbar True
+        m_sOutputFName = sFName
+    Else
+        If bBatchMode Then
+            Open sFName For Input As #m_nFileHandle
+        Else
+            lFileSize = FileLen(sFName)
+            lFileCursor = 0
+            If lFileSize = 0 Then
+                subWriteLog "File name and path: " & sFName
+            Else
+                Open sFName For Input As #m_nFileHandle
+            End If
+            LogForm.ShowProgress 0
+            LogForm.ShowProgressbar True
+        End If
+        fnPrepareFile_New = True
+    End If
+    Exit Function
+errOpenFile:
+    subWriteLog "Error " & Err.Number & ", " & Err.Description
+End Function
+
+'########################################################################
+'This is the clone of the function subPutline
+'This function will not Close the file when you open it
+'If you want to write 50000 lines, closing and reopening it will make the program very slow.
+'This function will be used in ZZFAWCST to fix the performance issue.
+'########################################################################
+
+Public Sub subPutLine_New(sLine As String)
+    
+    On Error GoTo errWriteLine
+    Print #m_nFileHandle, sLine
+    lFileCursor = lFileCursor + Len(sLine) + 2
+    Exit Sub
+    
+errWriteLine:
+    subWriteLog "Unable to write to output file: " & m_sOutputFName
+    subWriteLog "Error " & Err.Number & ", " & Err.Description
+End Sub
+
