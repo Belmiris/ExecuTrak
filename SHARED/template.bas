@@ -649,7 +649,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     Const SUB_NAME = "tfnUnlockRow"
     
     #If FACTOR_MENU = 1 Then
-        tfnLockRow = True
+        tfnUnlockRow = True
         Exit Function
     #End If
     
