@@ -45,7 +45,7 @@ pause
 deltree /Y a:\*.* 
 xcopy ..\disk\disk2\*.* a:
 
-if exist ..\disk\disk2\factdb.z goto makedisk_done
+if not exist ..\disk\disk3\ediproc.* goto makedisk_done
 
 echo insert disk#3
 pause
@@ -53,7 +53,7 @@ pause
 deltree /Y a:\*.* 
 xcopy ..\disk\disk3\*.* a:
 
-if exist ..\disk\disk3\factdb.z goto makedisk_done
+if not exist ..\disk\disk4\ediproc.* goto makedisk_done
 
 echo insert disk#4
 pause
@@ -61,7 +61,7 @@ pause
 deltree /Y a:\*.* 
 xcopy ..\disk\disk4\*.* a:
 
-if exist ..\disk\disk4\factdb.z goto makedisk_done
+if not exist ..\disk\disk5\ediproc.* goto makedisk_done
 
 echo insert disk#5
 pause
@@ -69,15 +69,15 @@ pause
 deltree /Y a:\*.* 
 xcopy ..\disk\disk5\*.* a:
 
+if not exist ..\disk\disk6\ediproc.* goto makedisk_done
+
 echo insert disk#6
 pause
 
 deltree /Y a:\*.* 
 xcopy ..\disk\disk6\*.* a:
 
-if exist ..\disk\disk6\factdb.z goto makedisk_done
-
-if not exist ..\disk\disk6\factdb.z goto need_more_disk
+if exist ..\disk\disk7\ediproc.* goto need_more_disk
 
 :makedisk_done
 echo .
@@ -89,7 +89,7 @@ goto finished
 :need_more_disk
 echo .
 echo One or More Distribution Disk needs to be copied.
-echo Copy the disk mannually start with Disk#6.
+echo Copy the disk mannually start with Disk#7.
 echo .
 
 :finished

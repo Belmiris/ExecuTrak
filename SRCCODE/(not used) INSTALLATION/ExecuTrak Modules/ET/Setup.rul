@@ -11,14 +11,14 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.09.04"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "EDI309.04"
-#define UNINSTALL_NAME          "EDI Tax Filing  Version 3.09.04"
+#define PRODUCT_VERSION         "3.10"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "EDI310"
+#define UNINSTALL_NAME          "EDI Tax Filing  Version 3.10"
 
 #define KEY_TLC                 "dediexc.exe"
 #define PRODUCT_NAME_TLC        "EDI Trading Partner"
 #define MODULE_NAME_TLC         "EDI Trading Partner"
-#define PRODUCT_VERSION_TLC     "3.09.04"
+#define PRODUCT_VERSION_TLC     "3.10"
 
 #define SIZE_REQ_LOCAL          5       // 5 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes

@@ -10,7 +10,7 @@
 
 #include "winapi.h"
 
-#define CHECK_ONE_COPY		0
+#define CHECK_ONE_COPY		1
 // constants
 #define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
 
@@ -175,13 +175,28 @@ InstallationType:
         	NumToStr(szNumber, SIZE_REQ_REMOTE * 1024);
         	szBaseDirectory = "J:" ^ APP_BASE_PATH;
 	else
-		bProgramFoundInLocal = fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
-		bProgramFoundInRemote = fnFindFile("J:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
-	
-		if (bProgramFoundInRemote) then
-	        	szBaseDirectory = "J:" ^ APP_BASE_PATH;
+		if (GetProfString("FACTOR.INI", "EDI XLATOR", "Program", szTemp) < 0) then
+			szTemp = "";
+		endif;
+
+		if (szTemp = "") then
+			bProgramFoundInLocal = fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
+			bProgramFoundInRemote = fnFindFile("J:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
+
+			if (bProgramFoundInRemote) then
+		        	szBaseDirectory = "J:" ^ APP_BASE_PATH;
+			else
+		        	szBaseDirectory = "C:" ^ APP_BASE_PATH;
+			endif;
 		else
-	        	szBaseDirectory = "C:" ^ APP_BASE_PATH;
+			ParsePath(szDisk, szTemp, DISK);
+        		StrToUpper(szDisk, szDisk);
+        		szBaseDirectory = szDisk ^ APP_BASE_PATH;
+			if (szDisk = "C:") then
+				bProgramFoundInLocal = TRUE;
+			else
+				bProgramFoundInRemote = TRUE;
+			endif;
 		endif;
 
         	NumToStr(szNumber, SIZE_REQ_LOCAL * 1024);
@@ -353,10 +368,14 @@ StartCopy:
 	// Rename the original MDB and INI file
 	if ((bInstallToLocal && bProgramFoundInLocal) || (bInstallToRemote && bProgramFoundInRemote)) then
 		if (!fnSaveOriginalMDBINI()) then
+		    	SdShowMsg("", FALSE);
                         MessageBox("Failed to back up " + PRODUCT_NAME + " files. Installation aborts.", SEVERE);
 			abort;
 		endif;
 	endif;
+
+        Disable(HOURGLASS);
+    	SdShowMsg("", FALSE);
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
 	Enable(STATUS);
@@ -389,7 +408,6 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                // These go into the FACTOR\EXECTRAK directory
                 if (CompressGet("ediproc.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
 			COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
 	                        MessageBox("EDIPROC.Z could not be decompressed", SEVERE);
@@ -443,6 +461,36 @@ StartCopy:
                 MessageBox("Failed to update " + PRODUCT_NAME + " files. Installation aborts.", SEVERE);
 		abort;
 	endif;
+
+        SetStatusWindow(96, "Create " + PRODUCT_NAME + " Default Directories...");
+
+	// create default directory
+	szTemp = szBaseDirectory ^ "EDI" ^ "INCOMING" ^ "INPUT";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+	szTemp = szBaseDirectory ^ "EDI" ^ "INCOMING" ^ "OUTPUT";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+	szTemp = szBaseDirectory ^ "EDI" ^ "OUTGOING" ^ "INPUT";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+	szTemp = szBaseDirectory ^ "EDI" ^ "OUTGOING" ^ "OUTPUT";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+	szTemp = szBaseDirectory ^ "EDI" ^ "BAK";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+	szTemp = szBaseDirectory ^ "EDI" ^ "LOG";
+	if (ExistsDir(szTemp) = NOTEXISTS) then
+		CreateDir(szTemp);
+	endif;
+
+	UpdateEDIPROC_INI();
 
 
 CreateShortcut:
@@ -609,6 +657,10 @@ begin
 
 	bPass = TRUE;
 
+    	SdShowMsg(WELCOME_TITLE + " is making a backup copy of " + MODULE_NAME + " Database...", TRUE);
+
+        Enable(HOURGLASS);
+
 	if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
 		return FALSE;
 	endif;
@@ -755,7 +807,13 @@ begin
 				LOGMSG="Arguments = " + szParm;
 				LOGWRITE(LOGMSG);
 
+			    	SdShowMsg(WELCOME_TITLE + " is launching EDISETUP.EXE to update the " + MODULE_NAME + " Database...", TRUE);
+			        Enable(HOURGLASS);
+
              			LaunchAppAndWait(TARGETDIR ^ "edisetup.exe", szParm, WAIT);
+
+			        Disable(HOURGLASS);
+			    	SdShowMsg("", FALSE);
 			endif;
 		endif;
 	endif;
@@ -771,7 +829,7 @@ end;
 
 function UpdateFACTOR_INI()
 
-        STRING szNewValue, szKey, szINI;
+        STRING szNewValue, szSection, szKey, szINI;
 
 begin
 
@@ -780,10 +838,11 @@ begin
         LOGMSG="START UPDATING " + szINI;
         LOGWRITE(LOGMSG);
 
-        szKey = "EDI XLATOR";
+	szSection = "EDI XLATOR";
+        szKey = "Program";
         szNewValue = szBaseDirectory ^ "BIN";
 
-	WriteProfString(szINI, "Program", szKey, szNewValue);
+	WriteProfString(szINI, szSection, szKey, szNewValue);
 
         LOGMSG="END UPDATING " + szINI;
         LOGWRITE(LOGMSG);
@@ -793,7 +852,7 @@ end;
 
 function UpdateEDIPROC_INI()
 
-        STRING szNewValue, szKey, szINI;
+        STRING szNewValue, szSection, szKey, szINI;
 
 begin
 
@@ -802,10 +861,11 @@ begin
         LOGMSG="START UPDATING " + szINI;
         LOGWRITE(LOGMSG);
 
-        szKey = "GENERAL";
+        szSection = "GENERAL";
+	szKey = "WorkPath";
         szNewValue = szBaseDirectory ^ "EDI" ^ "";
 
-        WriteProfString(szINI, "WorkPath", szKey, szNewValue);
+        WriteProfString(szINI, szSection, szKey, szNewValue);
 
         LOGMSG="END UPDATING " + szINI;
         LOGWRITE(LOGMSG);
