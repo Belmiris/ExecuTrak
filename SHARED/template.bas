@@ -23,7 +23,11 @@ Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
-Public Const DEBUG_LOG_PATH = "C:\WINDOWS\TEMP\"
+Public Const DEBUG_LOG_PATH = "C:\FACTOR\TEMP\"
+'##################################################
+'# Added 10-30-01 Robert C Atwood
+'##################################################
+Public Const LOCAL_FACTOR_PATH = "C:\FACTOR\"
 
 '**************************************************
 'Constant for Help File name and Help Error message
@@ -722,7 +726,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -772,12 +776,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -810,7 +814,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -820,7 +824,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -904,12 +908,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Integer
+        Dim I As Integer
         
         sTable = LCase(Trim(vTable))
-        For i = 0 To nHandleCount
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -924,7 +928,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next i
+        Next I
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -1116,7 +1120,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1138,11 +1142,12 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
 
     Set t_engFactor = New DBEngine 'create a new dDBEngine
     
-    t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
     
     Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
+    t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
     
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
+    
     
     tfnOpenDatabase = True
     Exit Function
@@ -1167,7 +1172,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1175,8 +1180,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1241,20 +1246,32 @@ End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Database
-    
+
+'#####################################################################
+'# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
+'# (Must read factor.mdb from c:\factor\<datasourcename>\factor.mdb
+'#####################################################################
+Dim sWinSysDir As String
+'MsgBox "opening"
+    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName))
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
+            
     
         If t_engFactor Is Nothing Then
             Set t_engFactor = New DBEngine 'create a new dDBEngine
-            t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
+            t_engFactor.IniPath = sWinSysDir 'put the path in engine ini variable
         End If
         
         If t_wsWorkSpace Is Nothing Then
             Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
         End If
-    
-        Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(t_engFactor.IniPath & "\factor.mdb")
+        If Not fnCopyFactorMDB Then
+            
+                MsgBox Err.Description, vbOKOnly + vbCritical, "Could not create new local database"
+        End If
+  '  MsgBox sWinSysDir
+        Set tfnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(sWinSysDir & "\factor.mdb")
         On Error GoTo 0
         Exit Function
     
@@ -1616,16 +1633,17 @@ End Function
 'Return   : the path to the windows system directory
 '
 Public Function tfnGetSystemDir(Optional vAddSlash As Variant) As String
-    
+'# Modified 10-30-01 Robert Atwood to allow INI files to be stored in c:\factor instead of
+'# system directory
     Dim nLength As Integer     'length returned from API call
     Dim szSystemDir As String  'temp string to hold system directory
     
     szSystemDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
     
-    nLength = GetSystemDirectory(szSystemDir, MAX_STRING_LENGTH) 'call the API function to get the system directory
+    'nLength = GetSystemDirectory(szSystemDir, MAX_STRING_LENGTH) 'call the API function to get the system directory
   
-    szSystemDir = Left(szSystemDir, nLength) 'trim off the excess spaces
-    
+    'szSystemDir = Left(szSystemDir, nLength) 'trim off the excess spaces
+    szSystemDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName))
     If Not IsMissing(vAddSlash) Then
         If Right(szSystemDir, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
             szSystemDir = szSystemDir + szSLASH
@@ -1641,26 +1659,30 @@ End Function
 'Return   : the path to the windows directory
 '
 Public Function tfnGetWindowsDir(Optional vAddSlash As Variant) As String
-    
-    Dim nLength As Integer      'length returned from API call
-    Dim szWindowsDir As String  'temp string to hold windows directory
-    
-    szWindowsDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
-    
-    nLength = GetWindowsDirectory(szWindowsDir, MAX_STRING_LENGTH) 'get the current windows directory
-  
-    szWindowsDir = Left(szWindowsDir, nLength) 'trim off the excess spaces
-    
-    If Not IsMissing(vAddSlash) Then
-        If Right(szWindowsDir, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
-            szWindowsDir = szWindowsDir + szSLASH
-        End If
-    End If
-    
-    tfnGetWindowsDir = szWindowsDir 'return windows directory back to the caller
+    '#Modified to return the factor directory always now
+'    Dim nLength As Integer      'length returned from API call
+'    Dim szWindowsDir As String  'temp string to hold windows directory
+'
+'    szWindowsDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
+'
+'    nLength = GetWindowsDirectory(szWindowsDir, MAX_STRING_LENGTH) 'get the current windows directory
+'
+'    szWindowsDir = Left(szWindowsDir, nLength) 'trim off the excess spaces
+'
+'    If Not IsMissing(vAddSlash) Then
+'        If Right(szWindowsDir, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
+'            szWindowsDir = szWindowsDir + szSLASH
+'        End If
+'    End If
+    '######################################
+    'Modified 10-31-01 Robert Atwood
+    'for Multi-Company Factmentu
+    '######################################
+    tfnGetWindowsDir = LOCAL_FACTOR_PATH
+  '  tfnGetWindowsDir = szWindowsDir 'return windows directory back to the caller
 
 End Function
-'
+
 'Function : tfnGetAppDir - returns the application directory path
 'Variables: optional variable to add a slash to the end of the path
 'Return   : directory path
@@ -2131,7 +2153,6 @@ Public Function tfnGetHostName() As String
     #End If
     
 End Function
-
 Public Function tfnGetPassword() As String
     'return the current HostName as was logged into factmenu
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
@@ -2151,6 +2172,24 @@ Public Function tfnGetPassword() As String
     #End If
     
 End Function
+Public Function tfnGetDataSourceName() As String
+    'return the current DataSource Name as was logged into factmenu
+    'Robert Atwood 10-29-01
+    tfnGetDataSourceName = "ssfactor"
+    #If DEVELOP Or (FACTOR_MENU >= 0) Then
+        If t_dbMainDatabase Is Nothing Then Exit Function
+            
+        tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
+    #Else
+            If Not t_oleObject Is Nothing Then
+                tfnGetDataSourceName = t_oleObject.FactorPath
+            Else
+                tfnGetDataSourceName = ""
+            End If
+    #End If
+    
+End Function
+
 
 'david 10/26/00
 Public Sub tfnFixBackColor(ByRef frmMain As Form)
@@ -2190,86 +2229,84 @@ Public Sub subDisableSystemClose(frmMain As Form)
     End If
 End Sub
 
-Public Function fnCopyFactorMDB(dbLocalDataBase As Database, _
-                                Optional bShowError As Boolean = True, _
-                                Optional sErrMsg As String = "") As Boolean
+Public Function fnCopyFactorMDB() As Boolean '(dbLocalDataBase As Database, _
+                                'Optional bShowError As Boolean = True, _
+                                'Optional sErrMsg As String = "") As Boolean
+'##############################################################################
+'# Modified to use c:\factor\<datasourcename>\factor.mdb 10-30-01 Robert Atwood
+'##############################################################################
 
     Dim sWinSysDir As String
-    
-    sWinSysDir = UCase(Trim(tfnGetSystemDir()))
-    
+
+    'was:
+    'sWinSysDir = UCase(Trim(tfnGetSystemDir))
+    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName))
+
     'delete the bad directory
     On Error Resume Next
-    If Dir("C:\FACTOR\CYSTAL", vbDirectory) <> "" Then
-        If Dir("C:\FACTOR\CYSTAL\FACTOR.MDB") <> "" Then
-            Kill "C:\FACTOR\CYSTAL\FACTOR.MDB"
-        End If
-        If Dir("C:\FACTOR\CYSTAL", vbDirectory) <> "" Then
-            RmDir "C:\FACTOR\CYSTAL"
-        End If
-    End If
-
+    '
     If Dir(sWinSysDir + "\FACTOR.MDB", vbNormal) = "" Then
-        sErrMsg = "FACTOR.MDB does not exist in " + tfnSQLString(sWinSysDir) + "."
-        If bShowError Then
-            MsgBox sErrMsg, vbExclamation
+'        sErrMsg = "FACTOR.MDB does not exist in " + tfnSQLString(sWinSysDir) + "."
+'        If bShowError Then
+'            MsgBox sErrMsg, vbExclamation
+'        End If
+'        Exit Function
+'    End If
+
+        'create C:\FACTOR\CRYSTAL if not exists.
+        If Dir("C:\FACTOR", vbDirectory) = "" Then
+            MkDir "C:\FACTOR"
         End If
-        Exit Function
-    End If
     
-    'create C:\FACTOR\CRYSTAL if not exists.
-    If Dir("C:\FACTOR", vbDirectory) = "" Then
-        MkDir "C:\FACTOR"
-    End If
-    
-    If Dir("C:\FACTOR\CRYSTAL", vbDirectory) = "" Then
-        MkDir "C:\FACTOR\CRYSTAL"
-    End If
-    
-    If Dir("C:\FACTOR\CRYSTAL\FACTOR.MDB", vbNormal) <> "" Then
-        On Error GoTo errFileInUsed
-        Kill "C:\FACTOR\CRYSTAL\FACTOR.MDB"
-    End If
-    
-    'david 01/24/2001
-    'close the database and re-open it!
-    On Error GoTo errCloseDatabase
-    dbLocalDataBase.Close
-    
-    Set dbLocalDataBase = tfnOpenLocalDatabase(bShowError, sErrMsg)
-    
-    If dbLocalDataBase Is Nothing Then
-        Exit Function
-    End If
-    
-    Dim lRet As Long
-    
-    lRet = CopyFile(sWinSysDir + "\FACTOR.MDB", "C:\FACTOR\CRYSTAL\FACTOR.MDB", 1)
-    
-    If lRet = 0 Then
-        sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\CRYSTAL'."
-        If bShowError Then
-            MsgBox sErrMsg, vbExclamation
+        If Dir("C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)), vbDirectory) = "" Then
+            MkDir "C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName))
         End If
-    End If
     
-    fnCopyFactorMDB = True
+    '    If Dir("C:\FACTOR\CRYSTAL\FACTOR.MDB", vbNormal) <> "" Then
+    '        On Error GoTo errFileInUsed
+    '        Kill "C:\FACTOR\CRYSTAL\FACTOR.MDB"
+    '    End If
     
-    Exit Function
+    '    'david 01/24/2001
+    '    'close the database and re-open it!
+    '    On Error GoTo errCloseDatabase
+    '    dbLocalDataBase.Close
+    '
+    '    Set dbLocalDataBase = tfnOpenLocalDatabase(bShowError, sErrMsg)
+    '
+    '    If dbLocalDataBase Is Nothing Then
+    '        Exit Function
+    '    End If
+    
+        Dim lRet As Long
+        Dim sErrMsg As String
+        
+        lRet = CopyFile("C:\FACTOR\FACTOR.MDB", "C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)) & "\FACTOR.MDB", 1)
+    
+        If lRet = 0 Then
+            sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName))
+             MsgBox sErrMsg, vbExclamation
+        End If
+    
+        fnCopyFactorMDB = True
+    
+        Exit Function
     
 errFileInUsed:
-    sErrMsg = "'C:\FACTOR\CRYSTAL\FACTOR.MDB' is in used by another program."
-    If bShowError Then
-        MsgBox sErrMsg, vbExclamation
-    End If
-
-    Exit Function
+        sErrMsg = "'C:\FACTOR\" & UCase(Trim(tfnGetDataSourceName)) & "' is in use by another program."
+            MsgBox sErrMsg, vbExclamation
     
-errCloseDatabase:
-    sErrMsg = "Failed to close local database."
-    If bShowError Then
-        MsgBox sErrMsg, vbExclamation
+        Exit Function
+    Else
+        fnCopyFactorMDB = True
     End If
+    
+'
+'errCloseDatabase:
+'    sErrMsg = "Failed to close local database."
+'    If bShowError Then
+'        MsgBox sErrMsg, vbExclamation
+'    End If
 End Function
 
 ''''''''''''''''''''Sam Zheng on 08/24/2001 ''''''''''''''''''''''''''''''
