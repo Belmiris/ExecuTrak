@@ -2,6 +2,8 @@
 echo .
 echo Making Distribution Disk
 
+if exist ..\disk\disk24\??client.26 goto disk26
+if exist ..\disk\disk23\??client.25 goto disk25
 if exist ..\disk\disk24\??client.24 goto disk24
 if exist ..\disk\disk23\??client.23 goto disk23
 if exist ..\disk\disk22\??client.22 goto disk22
