@@ -813,6 +813,10 @@ Public Sub KeyUp()
 '    fnMoveButton
 End Sub
 
+Public Sub LeftColChange()
+    fnMoveButton
+End Sub
+
 Property Get NoCriteria() As Integer
     NoCriteria = TYPE_DRPDN_NO_CRITERIA
 End Property
@@ -1475,26 +1479,31 @@ Private Sub fnMoveButton()
                     cmdSearch.Picture = frmContext.LoadPicture(SEARCH_UP)
             End Select
             On Error GoTo 0
-            cmdSearch.Top = tgMain.Top + tgMain.RowTop(tgMain.Row) + Screen.TwipsPerPixelY
-            If fnVisibleColumns(colTemp.Item(lCol).ColumnIndex) >= nVisibleColumns Then
-                If tgMain.ExtendRightColumn Then
-                    nLeft = tgMain.Left + tgMain.Width - cmdSearch.Width
+            If tgMain.col < tgMain.LeftCol Or objCol.Left + objCol.Width >= tgMain.Width Then
+                cmdSearch.Visible = False
+                cmdSearch.ZOrder 1
+            Else
+                cmdSearch.Top = tgMain.Top + tgMain.RowTop(tgMain.Row) + Screen.TwipsPerPixelY
+                If fnVisibleColumns(colTemp.Item(lCol).ColumnIndex) >= nVisibleColumns Then
+                    If tgMain.ExtendRightColumn Then
+                        nLeft = tgMain.Left + tgMain.Width - cmdSearch.Width
+                    Else
+                        nLeft = tgMain.Left + objCol.Left + objCol.Width - cmdSearch.Width
+                    End If
+                    If nVisibleRows > 0 Then
+                        If m_clsEdit.RowCount >= nVisibleRows Then
+                            nLeft = nLeft - SCROLLBAR_WIDTH
+                        End If
+                    End If
                 Else
                     nLeft = tgMain.Left + objCol.Left + objCol.Width - cmdSearch.Width
                 End If
-                If nVisibleRows > 0 Then
-                    If m_clsEdit.RowCount >= nVisibleRows Then
-                        nLeft = nLeft - SCROLLBAR_WIDTH
-                    End If
+                cmdSearch.Left = nLeft
+                If tgMain.Enabled Then
+                    cmdSearch.Visible = True
                 End If
-            Else
-                nLeft = tgMain.Left + objCol.Left + objCol.Width - cmdSearch.Width
+                cmdSearch.ZOrder 0
             End If
-            cmdSearch.Left = nLeft
-            If tgMain.Enabled Then
-                cmdSearch.Visible = True
-            End If
-            cmdSearch.ZOrder 0
         End If
     End If
 End Sub
