@@ -1,20 +1,25 @@
 version: 3.25.10
 Date: 07/20/2001
-Module(s): Fuel Assitance Module
+Module(s): FDECDISP
 Description: 
 	1. Inherit from version 3.25.7
 	2. Add a new table fo_fuel_asst (
         	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
 		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
+Notes:  This change was done from FDECDISP 3.25.1001.
+
 
 version: 3.25.9
 Date: 07/20/2001
-Module(s): Fuel Assitance Module
+Module(s): FMEMVMNT
 Description: 
 	1. Inherit from version 3.25.6
 	2. Add a new table fo_fuel_asst (
         	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
 		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
+Notes:  This change was done for FMEMVMNT 3.25.0812 which was done at the same time the Simon's consolidated
+Fuel Dispatch was tested.  It will be released with the Consolidated FD.
+
 
 version: 3.25.8
 Date: 07/20/2001
@@ -25,12 +30,16 @@ Description:
         	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
 		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
 
+
 version: 3.25.7
 Date: 06/21/2001
 Module(s): FDECDISP
 Description: Add new columns (fdo_movement, fdo_ship_time, fdo_alt_name, fdo_alt_phone, fdo_time_stamp) into FD_ORDER table.
+Notes:  WAS NOT RELEASED (or should not have been released at the time Heating System Phase 2 was released)
+
 
 version: 3.25.6
 Date: 06/21/2001
 Module(s): FMEMVMNT
 Description: Add a new column bPriceOverride into MDeliveryDetail table.
+Notes:  WAS NOT RELEASED (or should not have been released at the time Heating System Phase 2 was released)
