@@ -316,3 +316,25 @@ Declare Function SendMessage Lib "user32" Alias "SendMessageA" _
     (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
 Declare Function GetSystemMetrics Lib "user32.dll" (ByVal nIndex As Long) As Long
 
+'#API Call to get username
+Declare Function W32GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (ByVal lpBuffer As String, _
+    nSize As Long) As Long
+'#API to get host name
+Declare Function W32GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
+'# Structure, API call to get free memory (for resource logging)
+
+Type LOG_MEMORY_STATUS
+    dwLength As Long
+    dwMemoryLoad As Long
+    dwTotalPhys As Long
+    dwAvailPhys As Long
+    dwTotalPageFile As Long
+    dwAvailPageFile As Long
+    dwTotalVirtual As Long
+    dwAvailVirtual As Long
+End Type
+
+Declare Sub GlobalMemoryStatus Lib "kernel32" (lpBuffer As LOG_MEMORY_STATUS)
+Declare Function GetCurrentProcessId Lib "kernel32" () As Long
+
+

@@ -530,24 +530,7 @@ Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 
 Private m_Saved_GL_Batch As Long
-'#API Call to get username
-Private Declare Function W32GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (ByVal lpBuffer As String, _
-    nSize As Long) As Long
-'#API to get host name
-Private Declare Function W32GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
-'# Structure, API call to get free memory (for resource logging)
-Private Type LOG_MEMORY_STATUS
-    dwLength As Long
-    dwMemoryLoad As Long
-    dwTotalPhys As Long
-    dwAvailPhys As Long
-    dwTotalPageFile As Long
-    dwAvailPageFile As Long
-    dwTotalVirtual As Long
-    dwAvailVirtual As Long
-End Type
-Private Declare Sub GlobalMemoryStatus Lib "kernel32" (lpBuffer As LOG_MEMORY_STATUS)
-Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
+'
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
@@ -704,7 +687,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1212,12 +1195,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1348,7 +1331,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
