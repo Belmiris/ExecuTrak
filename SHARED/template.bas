@@ -410,6 +410,7 @@ Public Function tfnIS_RM() As Boolean
     Dim rsTemp As Recordset
     On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
+        SYS_PARM_14000 = "N"
         strSQl = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, SQL_PASSTHROUGH)
         If Not rsTemp.EOF Then
