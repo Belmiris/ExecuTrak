@@ -668,8 +668,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                    & " WHERE fmldt_movement = fmm_movement" _
                    & " AND fmldt_trn = tul_trn" _
                    & " AND fmldt_ulink = tul_link"
-                   strSQL = strSQL & " AND " & fnAppenCriteria("tul_sched", sSchedule) _
-                   & " INTO TEMP fm_temp2"
+                   strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
+                   & ") INTO TEMP fm_temp2"
         End If
         
         If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
