@@ -266,8 +266,12 @@ Public Sub ShowColumnExt()
 
     Dim nCol As Integer
 '    Dim bFlag As Boolean
-    
-    nCol = fnColumn(fnCurrentColumn(x))
+    nCol = fnCurrentColumn(x)
+    If nCol >= tgTable.LeftCol Then
+        nCol = fnColumn(nCol)
+    Else
+        nCol = -1
+    End If
     
     If nCol >= 0 Then
         fnShowText nCol, y
@@ -413,7 +417,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nY As Integer)
     End If
     
     If sMsg <> "" Then
-        nWidth = picTextFrame.TextWidth(sMsg) + 200
+        nWidth = picTextFrame.TextWidth(sMsg) + 72
         nColWidth = fnColWidth(nColT)
         If arryColumns(nCol).m_nFlag <> STYLE_CELLTEXT Or nWidth > nColWidth Then
             nHeight = tgTable.RowHeight + Screen.TwipsPerPixelY
@@ -616,6 +620,9 @@ Property Set PictureBox(oPic As Object)
     picTextFrame.Visible = False
     picTextFrame.BackColor = &HC0FFFF    'Light Yellow
                              '&H80000005  ' White
+    If Not tgTable Is Nothing Then
+        Set picTextFrame.Font = tgTable.Font
+    End If
 End Property
 
 Private Function fnCurrentColumn(ByVal x As Single) As Integer
@@ -651,6 +658,9 @@ End Property
 
 Property Set Table(tgTemp As Object)
     Set tgTable = tgTemp
+    If Not picTextFrame Is Nothing Then
+        Set picTextFrame.Font = tgTable.Font
+    End If
 End Property
 
 Property Let UseEditorRow(bTemp As Boolean)
