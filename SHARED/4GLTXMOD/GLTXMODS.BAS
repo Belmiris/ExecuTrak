@@ -207,7 +207,7 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         Exit Sub
     End If
     
-    buckt = pr_sys_parm!parm_field
+    buckt = tfnRound(pr_sys_parm!parm_field)
 
     Set pr_gl_master = fgl_master(sSeries, buckt, this_pc, t_dbMainDatabase)
     If pr_gl_master Is Nothing Then
@@ -223,7 +223,7 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         found_error = True: error_found = 1052
         Exit Sub
     End If
-    clearing_acct = pr_sys_parm!parm_field
+    clearing_acct = tfnRound(pr_sys_parm!parm_field)
 
     Set pr_gl_master = fgl_master(sSeries, clearing_acct, this_pc, t_dbMainDatabase)
     If pr_gl_master Is Nothing Then
@@ -244,7 +244,7 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         If IsNull(pr_sys_parm!parm_field) Then
             tb_buckt = 0
         Else
-            tb_buckt = pr_sys_parm!parm_field
+            tb_buckt = tfnRound(pr_sys_parm!parm_field)
         End If
         td_buckt = tb_buckt
         If tb_buckt <> 0 Then
@@ -264,7 +264,7 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         found_error = True: error_found = 5001
         Exit Sub
     End If
-    ap_cntl = pr_sys_parm!parm_field
+    ap_cntl = tfnRound(pr_sys_parm!parm_field)
     Set pr_gl_master = fgl_master(sSeries, ap_cntl, this_pc, t_dbMainDatabase)
     If pr_gl_master Is Nothing Then
         pr_gl_master_glm_account = ap_cntl
