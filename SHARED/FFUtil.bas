@@ -708,12 +708,29 @@ End Sub
 Private Sub subInitialize()
     
     Dim aryInfo() As String
+    Dim i As Integer
     
     m_sINIParmSetion = LogForm.efraToolBar.FMName
     subGetInfo aryInfo
     LogForm.efraToolBar.FMName = aryInfo(0)
     LogForm.Caption = aryInfo(1)
     
+    subGetPrintMenu aryInfo
+    If UBound(aryInfo) = 0 Then
+        LogForm.mnuPrint1.Visible = False
+        LogForm.mnuPrint.Visible = True
+        LogForm.mnuPrint.Caption = aryInfo(0)
+    Else
+        With LogForm
+            .mnuPrint1.Visible = True
+            .mnuPrint.Visible = False
+            .mnuSubPrint(0).Caption = aryInfo(0)
+            For i = 1 To UBound(aryInfo)
+                Load .mnuSubPrint(i)
+                .mnuSubPrint(i).Caption = aryInfo(i)
+            Next i
+        End With
+    End If
     m_nRunParm = 0
     
     aryCmdLineParms(CLP_IDX_IPATH) = UCase(CLP_ID_IPATH)
@@ -805,6 +822,21 @@ Public Sub subParseLeftRight(sLeft As String, _
     Else
         sLeft = Trim(sSource)
     End If
+End Sub
+
+
+Public Sub subEnablePrint(ByVal bFlag As Boolean)
+    frmContext.ButtonEnabled(PRINT_UP) = bFlag
+    LogForm.mnuPrint.Enabled = bFlag
+    LogForm.mnuPrint1.Enabled = bFlag
+End Sub
+
+
+Public Sub subEnableSubPrint(ByVal nIndex As Integer, _
+                             ByVal bFlag As Boolean)
+    
+    LogForm.mnuSubPrint(nIndex).Enabled = bFlag
+    
 End Sub
 
 

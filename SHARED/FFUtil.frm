@@ -71,7 +71,7 @@ Begin VB.Form LogForm
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -84,7 +84,7 @@ Begin VB.Form LogForm
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1290,10 +1290,17 @@ Begin VB.Form LogForm
          Caption         =   "E&xit"
          HelpContextID   =   1
       End
-      Begin VB.Menu mnuPrint 
+      Begin VB.Menu mnuPrint1 
          Caption         =   "&Print"
          Enabled         =   0   'False
          HelpContextID   =   7
+         Begin VB.Menu mnuSubPrint 
+            Caption         =   "subPrint"
+            Index           =   0
+         End
+      End
+      Begin VB.Menu mnuPrint 
+         Caption         =   "&Print"
       End
    End
    Begin VB.Menu mnuMainEdit 
@@ -1563,11 +1570,6 @@ Private Sub subEnableLog(ByVal bFlag As Boolean)
 End Sub
 
 
-Private Sub subEnablePrint(bFlag As Boolean)
-    frmContext.ButtonEnabled(PRINT_UP) = bFlag
-    mnuPrint.Enabled = bFlag
-End Sub
-
 Public Sub ShowProgress(fPercent As Single)
     Dim nPercent As Integer
     
@@ -1594,7 +1596,7 @@ End Sub
 
 
 Private Sub subEnableSUOK(ByVal bFlag As Boolean)
-    cmdOk.Enabled = bFlag
+    cmdOK.Enabled = bFlag
 End Sub
 
 Private Sub subFixPath(sIPath As String, _
@@ -1753,12 +1755,12 @@ Private Sub subSetToNextBox(txtBox As Control)
             If txtBackupPath.Enabled Then
                 subSetFocus txtBackupPath
             Else
-                subSetFocus cmdOk, cmdClose
+                subSetFocus cmdOK, cmdClose
             End If
         Case txtBackupPath.TabIndex
             subSetFocus txtBackupName
         Case txtBackupName.TabIndex
-            subSetFocus cmdOk, cmdClose
+            subSetFocus cmdOK, cmdClose
     End Select
 End Sub
 
@@ -1831,7 +1833,7 @@ End Sub
 Public Sub TBButtonCallBack(ByVal nID As Integer)
     Select Case nID
         Case PRINT_UP
-            subPrintClick
+            subPrintReport 0
         Case COPY_UP
         Case EDI_SETUP_UP
             subShowSetup True
@@ -1976,6 +1978,7 @@ Private Sub cmdProcess_Click()
         'Do process
         bBatchMode = False
         subProcessFile sFile
+        subEnablePrint True
     Else
         subEnableCancel False
         subEnableProcess True
@@ -2175,10 +2178,6 @@ Private Sub mnuModules_Click(Index As Integer)
     frmContext.MenuClick Index
 End Sub
 
-Private Sub mnuPrint_Click()
-    subPrintClick
-End Sub
-
 Private Sub mnuContents_Click()
     frmContext.RunItem HELP_UP
 End Sub
@@ -2188,6 +2187,14 @@ Private Sub mnuAbout_Click()
     frmAbout.Show vbModal
 End Sub
 
+
+Private Sub mnuPrint_Click()
+    subPrintReport 0
+End Sub
+
+Private Sub mnuSubPrint_Click(Index As Integer)
+    subPrintReport Index
+End Sub
 
 Private Sub optBKFInput_Click(Index As Integer)
     subDataChanged
