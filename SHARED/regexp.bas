@@ -382,7 +382,9 @@ Public Function tfnDateString(vDate As Variant, _
     If Not IsMissing(vBackYears) Then
         nYearsLimit = vBackYears
     End If
-    If Not IsNull(vDate) Then
+    If IsNull(vDate) Then
+        sText = ""
+    Else
         sText = vDate
         If tfnNormDate(sText) Then
             sText = Format(sText, FMT_DATE_SHORT)
@@ -410,7 +412,11 @@ Public Function tfnDateString(vDate As Variant, _
         tfnDateString = sText
     Else
         If vQuote Then
-            tfnDateString = "'" & sText & "'"
+            If sText = "" Then
+                tfnDateString = "Null"
+            Else
+                tfnDateString = "'" & sText & "'"
+            End If
         Else
             tfnDateString = sText
         End If
