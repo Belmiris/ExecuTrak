@@ -1,0 +1,16 @@
+Context Help ID's for Bonus Master File Maintenance (ZZSEBMFM)
+
+Help ID's Range(400-500)
+
+400	Employee Number Text Box
+401	Employee Number Search Button
+402	Employee Name Text Box
+403	Employee Name Search Button
+
+404	Table True Grid Control
+	Bonus Code Column
+	Code Description Column
+	Eligible Profit Center Column
+	Eligible Date Column
+	Eligible Class Column
+	Stop Date Column

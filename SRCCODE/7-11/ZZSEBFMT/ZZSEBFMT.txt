@@ -1,0 +1,25 @@
+Help Context ID's for Bonus Formula Maintenance (ZZSEBFMT)
+
+Help ID's Range(300-400)
+
+300	Bonus Code Text Box
+301	Bonus Code Search Button
+302	Bonus Code Description Text Box
+303	Bonus Code Search Button
+304	Level Text Box
+305	Level Search Button
+306	Percent(pct) Text Box
+307	Dollar(dol) Text Box
+308	Amount1(amt1) Text Box
+309	Amount2(amt2) Text Box
+310	Max. Total(mxt) Text Box
+311	Variable1(v1) Text Box
+312	Variable1(v1) Search Button
+313	Variable2(v2) Text Box
+314	Variable2(v2) Search Button
+315	Variable3(v3) Text Box
+316	Variable3(v3) Search Button
+317	Formula Text Box
+318	Condition Text Box
+319	Adjustment Formula Text Box
+320	Adjustment Condition Text Box
