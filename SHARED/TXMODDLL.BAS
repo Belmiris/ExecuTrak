@@ -870,7 +870,7 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
                             Optional sErrMsg As String = "")
     
     Static nLastError As Integer
-    Dim sMsg As String
+    Dim sMSG As String
         
     If nLastError = nMsgNo Then
         Exit Sub
@@ -883,31 +883,31 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
     Select Case nMsgNo
         Case TXMOD_LINETAX_OK = 0           ' All's well
         Case TXMOD_LINETAX_NOMEM         ' Out of memory
-            sMsg = "Out of memory for tax calculation"
+            sMSG = "Out of memory for tax calculation"
         Case TXMOD_LINETAX_NODBASE       ' No database available
-            sMsg = "No database availble for tax calculation"
+            sMSG = "No database availble for tax calculation"
         Case TXMOD_LINETAX_NOTAXRECS     ' No tax records in the dbase
-            sMsg = "No tax records for the customer/product"
+            sMSG = "No tax records for the customer/product"
         Case TXMOD_LINETAX_NOINVHEAD     ' No inventory header record
-            sMsg = "No inventory header record available"
+            sMSG = "No inventory header record available"
         Case TXMOD_LINETAX_NOINVCLASS    ' No inventory class record
-            sMsg = "No inventory class record available"
+            sMSG = "No inventory class record available"
         Case TXMOD_LINETAX_BADSQL        ' SQL statement error
-            sMsg = "An error exists in the SQL statement for tax calculations"
+            sMSG = "An error exists in the SQL statement for tax calculations"
         Case TXMOD_LINETAX_BADBASIS      ' Bad basis flag
-            sMsg = "Bad basis flag from tax mods"
+            sMSG = "Bad basis flag from tax mods"
         Case TXMOD_LINETAX_BADBILLED     ' Bad billed units flag
-            sMsg = "Bad billed units flag"
+            sMSG = "Bad billed units flag"
         Case TXMOD_LINETAX_BADLTYPE      ' Bad line type (int/ext bl/del)
-            sMsg = "Bad line type"
+            sMSG = "Bad line type"
         Case TXMOD_LINETAX_BADPARMS     ' Bad parameters passed
-            sMsg = "Bad parameters for tax calculation"
+            sMSG = "Bad parameters for tax calculation"
     End Select
 
     If bShowMsgBox Then
-        MsgBox sMsg + ".", nButtons
+        MsgBox sMSG + ".", nButtons
     Else
-        sErrMsg = sMsg + "."
+        sErrMsg = sMSG + "."
     End If
 
 End Sub
@@ -973,10 +973,10 @@ Public Function fnGetTaxAmount(szProduct As String, _
     With myStruct
         .m_sProduct = szProduct
         .m_sUseGroup = szTaxUseGroup
-        .m_dDollarBase = Abs(fDollarBase)
-        .m_dFreight = Abs(fFreight)                     'Freight amount
-        .m_dNetUnits = Abs(lNet)
-        .m_dGrossUnits = Abs(lGross)
+        .m_dDollarBase = fDollarBase
+        .m_dFreight = fFreight                    'Freight amount
+        .m_dNetUnits = lNet
+        .m_dGrossUnits = lGross
         .m_cBilledUnitsFlag = Asc(szBillingFlag)
         .m_tLineType = nLineType
     End With
@@ -1087,10 +1087,10 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     With myStruct
         .m_sProduct = szProduct
         .m_sUseGroup = szTaxUseGroup
-        .m_dDollarBase = Abs(fDollarBase)
-        .m_dFreight = Abs(fFreight)                     'Freight amount
-        .m_dNetUnits = Abs(lNet)
-        .m_dGrossUnits = Abs(lGross)
+        .m_dDollarBase = fDollarBase
+        .m_dFreight = fFreight                    'Freight amount
+        .m_dNetUnits = lNet
+        .m_dGrossUnits = lGross
         .m_cBilledUnitsFlag = Asc(szBillingFlag)
         .m_tLineType = nLineType
     End With
