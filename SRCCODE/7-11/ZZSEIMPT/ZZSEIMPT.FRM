@@ -1,8 +1,8 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FactFrm.ocx"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "Sqaote32.ocx"
 Begin VB.Form frmZZSEIMPT 
    BackColor       =   &H00C0C0C0&
@@ -80,19 +80,18 @@ Begin VB.Form frmZZSEIMPT
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         CurrTab         =   1
          TabsPerPage     =   2
          Caption         =   "I&mport Invoices|Impor&t Invoice Detail"
          Begin FACTFRMLib.FactorFrame efraTab2Back 
-            Height          =   4290
-            Left            =   15
+            Height          =   4320
+            Left            =   18075
             TabIndex        =   10
             TabStop         =   0   'False
-            Top             =   15
-            Width           =   8850
+            Top             =   0
+            Width           =   8880
             _Version        =   65536
-            _ExtentX        =   15610
-            _ExtentY        =   7567
+            _ExtentX        =   15663
+            _ExtentY        =   7620
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -130,7 +129,7 @@ Begin VB.Form frmZZSEIMPT
                BackColor       =   8388608
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.67
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -163,7 +162,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -199,7 +198,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -235,7 +234,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -271,7 +270,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -307,7 +306,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.73
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -338,7 +337,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.78
+                     Size            =   9.75
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -390,7 +389,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.93
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -639,15 +638,15 @@ Begin VB.Form frmZZSEIMPT
             End
          End
          Begin FACTFRMLib.FactorFrame efraTabBack1 
-            Height          =   4320
-            Left            =   -22500
+            Height          =   4290
+            Left            =   15
             TabIndex        =   9
             TabStop         =   0   'False
-            Top             =   0
-            Width           =   8880
+            Top             =   15
+            Width           =   8850
             _Version        =   65536
-            _ExtentX        =   15663
-            _ExtentY        =   7620
+            _ExtentX        =   15610
+            _ExtentY        =   7567
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1428,7 +1427,15 @@ Attribute VB_Exposed = False
 ' Date          : February 1, 2001
 ' Programmer(s) : Junsong Qiu
 ' This module is used to process the data in the holding invoice information table.
-
+'****************************************************************************
+'   Modification History
+'   Programmer  :   Chris Albrecht
+'   Date        :   03/04/2005
+'   Magic#      :   412824 - Sewall - Expand Inv Nbr from 10 to 16
+'   Description :   Modify the application to allow the entry of invoice
+'                   numbers up to 16 characters in length.  Expand some of
+'                   the display fields to accommodate the new length
+'*****************************************************************************
 
 Option Explicit
 
@@ -2020,7 +2027,7 @@ Private Sub cmdExceptions_Click()
         subEnableDetailOKBtn False
     Else
         subEnableDetailDeleteBtn True
-        subEnableDetailOKBtn cmdOk.Enabled
+        subEnableDetailOKBtn cmdOK.Enabled
     End If
     
     subCheckButtonStatus
@@ -2262,10 +2269,10 @@ Private Sub etabMain_GotFocus()
 
 End Sub
 
-Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     
     If Not etabMain.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     
@@ -2307,7 +2314,7 @@ Private Sub tblDetail_FirstRowChange()
     tgfDropdown.FirstRowChange
 End Sub
 
-Private Sub tblDetail_Scroll(CANCEL As Integer)
+Private Sub tblDetail_Scroll(Cancel As Integer)
     tgfDropdown.Scroll
 End Sub
 
@@ -2331,8 +2338,8 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDropDown_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -2359,8 +2366,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropDown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
 
@@ -2380,7 +2387,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -2695,7 +2702,7 @@ Private Sub tfnResetScreen()
     txtFromPrftName.Text = ""
     txtToPrftCtr.Text = ""
     txtToPrftName.Text = ""
-    chkAllInvoice.Value = vbUnchecked
+    chkAllInvoice.value = vbUnchecked
     tgmHeader.ClearData
     tgmDetail.ClearData
     cValidate.ResetFlags
@@ -2742,16 +2749,16 @@ Private Sub tblHeader_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     Dim lCurHeaderRow As Long
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
     If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y" Then
-        CANCEL = True
+        Cancel = True
     End If
     
-    tgmHeader.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmHeader.BeforeColEdit ColIndex, KeyAscii, Cancel
     
 End Sub
 
@@ -2800,11 +2807,11 @@ Private Sub tblHeader_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblHeader_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblHeader_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
-Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmHeader.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
@@ -2832,15 +2839,15 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
     subEnableDetailOKBtn False
 End Sub
 
 Private Sub tblDetail_Change()
     tgmDetail.Change
     
-    If tblDetail.col = ColDetailItemCode Then
+    If tblDetail.Col = ColDetailItemCode Then
         tblDetail.Columns(ColDetailItemDesc).Text = ""
     End If
     
@@ -2870,7 +2877,7 @@ Private Sub tblDetail_KeyPress(KeyAscii As Integer)
     
     If KeyAscii = vbKeyReturn Then
         
-        If tblDetail.col = ColDetailItemCode Or tblDetail.col = ColDetailItemDesc Then
+        If tblDetail.Col = ColDetailItemCode Or tblDetail.Col = ColDetailItemDesc Then
             Dim lCurHeaderRow As Long
             Dim lVendor As Long
             
@@ -2905,11 +2912,11 @@ Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblDetail_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDetail_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
-Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmDetail.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
@@ -2955,7 +2962,7 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
 End Sub
 
 Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
-    cmdOk.Enabled = bOnOff
+    cmdOK.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
@@ -3328,7 +3335,7 @@ Private Function fnLoadHeaderData() As Boolean
     strSQL = strSQL & " FROM rs_p_hold_header, sys_prft_ctr, p_altname "
     strSQL = strSQL & " WHERE rsphh_prft_ctr = prft_ctr AND rsphh_vendor = pn_alt "
     
-    If chkAllInvoice.Value <> vbChecked Then
+    If chkAllInvoice.value <> vbChecked Then
         strSQL = strSQL & " AND rsphh_status = 'N' "
     End If
     
@@ -4048,9 +4055,13 @@ Private Function fnInsertVendorInvoice() As Boolean
     lMaxSeqNum = fnGetMaxSeqNum("V")
     
     strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
-    strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+    'Magic # 412824 - Chris Albrecht - 03/15/2005
+'    strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+    strSQL = strSQL & " rssh_1, rssh_code_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
     strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'V', " & tfnSQLString(sTerm) & ","
-    strSQL = strSQL & lVendor & "," & lInvoice & "," & dAmount & "," & nPayType & ","
+    'Magic # 412824 - Chris Albrecht - 03/15/2005
+'    strSQL = strSQL & lVendor & "," & lInvoice & "," & dAmount & "," & nPayType & ","
+    strSQL = strSQL & lVendor & "," & tfnSQLString(lInvoice) & "," & dAmount & "," & nPayType & ","
     strSQL = strSQL & IIf((sPayType = "M" Or sPayType = "D"), lDraftNbr, "NULL") & ","
     strSQL = strSQL & fnDateToSQLIntegerString(dtInvDate) & ", NULL, NULL," & lMaxSeqNum + 1 & ")"
     
@@ -4134,9 +4145,12 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         End If
         
         strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
-        strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+        'Magic # 412824 - Chris Albrecht - 03/15/2005
+'        strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+        strSQL = strSQL & " rssh_1, rssh_code_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
         strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'Y', " & tfnSQLString(sItemCode) & ","
-        strSQL = strSQL & lVendor & "," & lInvoice & "," & lPriceBookLnk & "," & dExtCost & ","
+'        strSQL = strSQL & lVendor & "," & lInvoice & "," & lPriceBookLnk & "," & dExtCost & ","
+        strSQL = strSQL & lVendor & "," & tfnSQLString(lInvoice) & "," & lPriceBookLnk & "," & dExtCost & ","
         strSQL = strSQL & dExtRetail & "," & dCost & "," & dRetail & "," & dQty & "," & lMaxSeq & ")"
         
         If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
@@ -4599,17 +4613,23 @@ Private Function fnInsertPayableGLInfo(sCostAccount As String, dExtCost As Doubl
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     
     strHeader = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, "
-    strHeader = strHeader & " rssh_1, rssh_2, rssh_3,  rssh_7, rssh_8,"
+    'Magic # 412824 - Chris Albrecht - 03/15/2005
+'    strHeader = strHeader & " rssh_1, rssh_2, rssh_3,  rssh_7, rssh_8,"
+    strHeader = strHeader & " rssh_1, rssh_2, rssh_3,  rssh_7, rssh_code_2,"
     strHeader = strHeader & " rssh_seq)VALUES ("
     
     'For the credit
     If bTotal Then
         strSQL = strHeader & g_lHoldShiftLink & ", 'W', " & tfnRound(sCostAccount) & ","
-        strSQL = strSQL & "0," & tfnRound(dExtCost, 2) & "," & lVendor & "," & lInvoice & "," & lSeq & ")"
+        'Magic # 412824 - Chris Albrecht - 03/15/2005
+'        strSQL = strSQL & "0," & tfnRound(dExtCost, 2) & "," & lVendor & "," & lInvoice & "," & lSeq & ")"
+        strSQL = strSQL & "0," & tfnRound(dExtCost, 2) & "," & lVendor & "," & tfnSQLString(lInvoice) & "," & lSeq & ")"
     Else
         'for debit
         strSQL = strHeader & g_lHoldShiftLink & ", 'W', " & tfnRound(sCostAccount) & ","
-        strSQL = strSQL & tfnRound(dExtCost, 2) & ",0," & lVendor & "," & lInvoice & "," & lSeq & ")"
+        'Magic # 412824 - Chris Albrecht - 03/15/2005
+'        strSQL = strSQL & tfnRound(dExtCost, 2) & ",0," & lVendor & "," & lInvoice & "," & lSeq & ")"
+        strSQL = strSQL & tfnRound(dExtCost, 2) & ",0," & lVendor & "," & tfnSQLString(lInvoice) & "," & lSeq & ")"
     End If
     
     
