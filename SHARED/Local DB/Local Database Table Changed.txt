@@ -1,8 +1,11 @@
 version: 3.26.0004
 Date: 01/04/2002
 Description: 
-	Sales & Marketing.
+	1. Sales & Marketing.
 	tables name prefix changed (from ps_ to mk_).
+
+	2. Fuel Movement. (01/08/2002)
+	alter table MLadingDetail ADD fOriginCost Double;
 
 version: 3.26.0003
 Date: 12/05/2001

@@ -1,3 +1,15 @@
+version: 3.26.0005
+Date: 01/07/2002
+Description: 
+	Murphy Voucher Jacket Enhancement.
+	alter table vouch_jacket_rpt add vjr_payment Memo;
+
+
+''''''''''''''''' DONE - 3.26.0004 - 01/08/2002 ''''''''''''''''''''''''
+version: 3.26.0004
+	No Pending. See Local Database Table Changed.txt
+
+
 ''''''''''''''''' DONE - 3.26.0003 - 12/05/2001 ''''''''''''''''''''''''
 version: 3.26.0003
 Date: 12/05/2001
