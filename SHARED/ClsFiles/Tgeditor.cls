@@ -354,7 +354,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -445,7 +445,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
         CANCEL = True
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             CANCEL = True
             Exit Sub
         End If
@@ -651,7 +651,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     nECol = fnColumnNumber(col)
     If nECol >= 0 Then
-        lRow = Val(Bookmark)
+        lRow = val(Bookmark)
         If Not bValidCell(nECol, lRow) Then
             If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
                 CellStyle.ForeColor = vbWhite
@@ -665,7 +665,7 @@ Public Property Get FirstRow() As Long
     If IsNull(tgTable.FirstRow) Then
         FirstRow = 0
     Else
-        FirstRow = Val(tgTable.FirstRow)
+        FirstRow = val(tgTable.FirstRow)
     End If
 End Property
 
@@ -690,7 +690,7 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     If IsNull(tgTable.FirstRow) Then
         lCurrRow = lRow
     Else
-        lCurrRow = lRow - Val(tgTable.FirstRow)
+        lCurrRow = lRow - val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
@@ -1278,7 +1278,7 @@ Public Sub ResetFlags(Optional vRow As Variant, _
     If IsMissing(vRow) Then
         j = GetCurrentRowNumber
     Else
-        j = Val(vRow)
+        j = val(vRow)
     End If
     If IsMissing(vCol) Then
         For i = 0 To nColumnCount - 1
@@ -1479,7 +1479,7 @@ Property Get LastRow() As Long
     If IsNull(tgTable.FirstRow) Then
         LastRow = nLastTableRow
     Else
-        LastRow = Val(tgTable.FirstRow) + nLastTableRow
+        LastRow = val(tgTable.FirstRow) + nLastTableRow
     End If
 End Property
 
@@ -1747,7 +1747,7 @@ Private Sub fnSaveChangedKeys()
     End If
     If sKeyFields(nKeyColumnCount, lKeyRows) = "  " Then
         sKeyFields(nKeyColumnCount, lKeyRows) = bmTemp
-        If Val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
+        If val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
             For nCol = 0 To nKeyColumnCount - 1
                 sKeyFields(nCol, lKeyRows) = GridArray(nKeyColumns(nCol), lEditingRow)
             Next
@@ -2586,7 +2586,11 @@ End Property
 
 Property Get ValidCell(ByVal nCol As Integer, ByVal lRow As Long) As Boolean
     If lRow < 0 Or nRowCount < 0 Or lRow >= nRowCount Then
-        Exit Property
+        If IsNull(GridArray(nCol, lRow)) Then
+            If Trim(GridArray(nCol, lRow)) = "" Then
+                Exit Property
+            End If
+        End If
     End If
     
     Dim nFCol As Integer
@@ -2891,7 +2895,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As Database, _
+Public Function FillWithSQL(dbSource As DataBase, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
@@ -3017,12 +3021,12 @@ Public Function GetCurrentRowNumber() As Long
     If IsNull(tgTable.FirstRow) Then
         lRow = 0
     Else
-        lRow = Val(tgTable.FirstRow)
+        lRow = val(tgTable.FirstRow)
     End If
     If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + Val(tgTable.Row)
+        GetCurrentRowNumber = lRow + val(tgTable.Row)
     End If
 
 End Function
@@ -3961,7 +3965,7 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
             nIndex = -1
         End If
     Else
-        nIndex = Val(StartLocation)
+        nIndex = val(StartLocation)
         If nIndex < 0 Or nIndex >= lRows Then
             nIndex = -9999
         End If
@@ -4201,7 +4205,7 @@ Private Function fnRound(vLastRow As Variant) As Long
     If IsNull(vLastRow) Then
         fnRound = 0
     Else
-        fnRound = Val(vLastRow)
+        fnRound = val(vLastRow)
     End If
 End Function
 
@@ -4348,7 +4352,7 @@ Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean
         ' take the Val() to get the array index
         ' this is the opposite of the function in MakeBookmark()
         Index = -9999
-        fnIndexFromBookmark = Val(Bookmk)
+        fnIndexFromBookmark = val(Bookmk)
     End If
 End Function
 
