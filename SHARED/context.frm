@@ -208,6 +208,10 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
                                 ParamArray objControls())
     Dim I As Integer
     Dim bInitSet As Boolean
+
+    sngMainFormHeight = frmTemp.Height
+    sngMainFormWidth = frmTemp.Width
+
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
     bInitSet = True
@@ -407,11 +411,13 @@ Public Sub ShowSBRight(sMsg As String)
     frmMainForm.ffraStatusbar.Refresh
 End Sub
 
-Public Sub FormResize()
+Public Sub FormResize(Optional bResize As Boolean = True)
     On Error Resume Next
     
-    frmMainForm.Height = sngMainFormHeight
-    frmMainForm.Width = sngMainFormWidth
+    If bResize Then
+        frmMainForm.Height = sngMainFormHeight
+        frmMainForm.Width = sngMainFormWidth
+    End If
     
     If Not objToolbar Is Nothing Then
         objToolbar.Resize
