@@ -432,6 +432,7 @@ End Function
 
 Private Function fnErrorOut(dError As Long, szCallFunction As String, _
                             bShowError As Boolean, sErrorMsg As String) As Boolean
+    Const WRONGPASSWORD As Integer = 12014
     Dim dwIntError As Long
     Dim dwLength As Long
     Dim strBuffer As String
@@ -453,6 +454,9 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
             sErrorMsg = "Failed to access the DLL"
         Case "InternetConnect"
             sErrorMsg = "Failed to connect to the host server"
+            If dError = WRONGPASSWORD Then
+                sErrorMsg = "Invalid login information provided, cannot continue!"
+            End If
         Case "FtpSetCurrentDirectory"
             sErrorMsg = "Invalid path, Failed to set the current directory"
         Case "FtpFindFirstFile"
