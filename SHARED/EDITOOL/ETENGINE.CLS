@@ -586,142 +586,72 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     If m_sEDIType = EDI_TYPE_R Then
         sType = "B"
         
-        'david 04/01/00
-        'USE THE EXISTING SQL STATEMENT
-        'IT PRODUCES THE SAME RESULT COMPARED BOB'S SQL BELOW #Else statement
-        #If True Then
-            'Begin Change. Ma. 06/16/00
-            ' Add one criteria (fml_int_ext = 'E') to limit out internal BOL
-            strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal,"
-            strSQL = strSQL + " fml_int_ext, fml_date"
-            strSQL = strSQL + " FROM fm_lading, fm_movement WHERE fml_date"
-            strSQL = strSQL + " BETWEEN " & tfnDateString(m_sStartDate, True)
-            strSQL = strSQL + " AND " + tfnDateString(m_sEndDate, True)
-            strSQL = strSQL + " AND fmm_dispatch_flag = 'C'"
-            strSQL = strSQL + " AND fml_movement = fmm_movement"
-            strSQL = strSQL + " INTO TEMP fm_temp1"
-'david 08/10/00
-'No Magic# found for the fixes!!!
-'UNDO Ma's changes, comment out
-'                & " AND fml_int_ext = 'E'" _
-                & " INTO TEMP fm_temp1"
-            'End Change. Ma
-            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
-                m_nErrorNumber = EC_CREATE_TT1_R
-                Exit Function
-            End If
+        strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal,"
+        strSQL = strSQL + " fml_int_ext, fml_date"
+        strSQL = strSQL + " FROM fm_lading, fm_movement WHERE fml_date"
+        strSQL = strSQL + " BETWEEN " & tfnDateString(m_sStartDate, True)
+        strSQL = strSQL + " AND " + tfnDateString(m_sEndDate, True)
+        strSQL = strSQL + " AND fmm_dispatch_flag = 'C'"
+        strSQL = strSQL + " AND fml_movement = fmm_movement"
+        strSQL = strSQL + " INTO TEMP fm_temp1"
             
-            If fnCheckExitCancel Then
-                Exit Function
-            End If
-            
-            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn,"
-            strSQL = strSQL + " fml_int_ext, fml_vendor, fml_terminal, fml_date"
-            strSQL = strSQL + " FROM fm_lad_tax, tx_use_link, fm_temp1"
-            strSQL = strSQL + " WHERE fmldt_movement = fmm_movement"
-            strSQL = strSQL + " AND fmldt_bl_nbr = fml_bl_nbr"
-            strSQL = strSQL + " AND fmldt_trn = tul_trn"
-            strSQL = strSQL + " AND fmldt_ulink = tul_link"
-            strSQL = strSQL + " AND (" & fnAppenCriteria("tul_sched", sSchedule) + ")"
-            strSQL = strSQL + " AND fmldt_type = '" & sType & "'"
-            
-            If m_nTPTCount >= 0 Then
-                Select Case nTypeCode
-                Case "1"
-                    If Not IsMissing(vExtractFrom) Then
-                        strSQL = strSQL & " AND (fmldt_trn IN " & _
-                            fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
-                    End If
-                Case "3"
-                    strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
+        If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
+            m_nErrorNumber = EC_CREATE_TT1_R
+            Exit Function
+        End If
+        
+        If fnCheckExitCancel Then
+            Exit Function
+        End If
+        
+        strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn,"
+        strSQL = strSQL + " fml_int_ext, fml_vendor, fml_terminal, fml_date"
+        strSQL = strSQL + " FROM fm_lad_tax, tx_use_link, fm_temp1"
+        strSQL = strSQL + " WHERE fmldt_movement = fmm_movement"
+        strSQL = strSQL + " AND fmldt_bl_nbr = fml_bl_nbr"
+        strSQL = strSQL + " AND fmldt_trn = tul_trn"
+        strSQL = strSQL + " AND fmldt_ulink = tul_link"
+        strSQL = strSQL + " AND (" & fnAppenCriteria("tul_sched", sSchedule) + ")"
+        strSQL = strSQL + " AND fmldt_type = '" & sType & "'"
+        
+        If m_nTPTCount >= 0 Then
+            Select Case nTypeCode
+            Case "1"
+                If Not IsMissing(vExtractFrom) Then
+                    strSQL = strSQL & " AND (fmldt_trn IN " & _
                         fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
-                End Select
-            End If
-            
-            strSQL = strSQL & " INTO TEMP fm_temp2"
-            
-            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
-                m_nErrorNumber = EC_CREATE_TT2_R
-                Exit Function
-            End If
+                End If
+            Case "3"
+                strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
+                    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+            End Select
+        End If
         
-            If fnCheckExitCancel Then
-                Exit Function
-            End If
+        strSQL = strSQL & " INTO TEMP fm_temp2"
         
-            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
-            strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
-            strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
-            strSQL = strSQL + " fmmb_dv_vol namount"
-            strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
-            strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
-            strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
-            strSQL = strSQL + " AND fmm_movement = fmmb_movement"
-            strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
-            strSQL = strSQL + " AND fmd_movement = fmmb_movement"
-            strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
-            strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+        If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
+            m_nErrorNumber = EC_CREATE_TT2_R
+            Exit Function
+        End If
     
-            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
-        #Else
-            'david 04/01/00
-            'NOT USED
-            'BOB'S SQL STATEMENT
-            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
-                & " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn," _
-                & " fmd_dest_code, fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount"
-                
-            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
-            strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
-            strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
-            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
-            strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
-            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
-            strSQL = strSQL & " ssfactor.inv_header inv_header,"
-            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
-            
-            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
-            strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
-            
-            strSQL = strSQL & " AND fml_date BETWEEN " & tfnDateString(m_sStartDate, True)
-            strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
-            strSQL = strSQL & " AND fmm_dispatch_flag = 'C'"
-            strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule)
-            strSQL = strSQL & ") AND fmldt_type = '" & sType & "'"
-            
-            If m_nTPTCount >= 0 Then
-                Select Case nTypeCode
-                Case "1"
-                    If Not IsMissing(vExtractFrom) Then
-                        strSQL = strSQL & " AND (fmldt_trn IN " & _
-                            fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
-                    End If
-                Case "3"
-                    strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
-                        fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
-                End Select
-            End If
-            
-            strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
-        #End If
+        If fnCheckExitCancel Then
+            Exit Function
+        End If
+    
+        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
+        strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
+        strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
+        strSQL = strSQL + " fmmb_dv_vol namount"
+        strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
+        strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
+        strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
+        strSQL = strSQL + " AND fmm_movement = fmmb_movement"
+        strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
+        strSQL = strSQL + " AND fmd_movement = fmmb_movement"
+        strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
+        strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+
+        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
         m_nErrorNumber = EC_GET_RECORD_R
     
@@ -749,33 +679,33 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
     
-            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
-            strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
-            strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
-            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
-            strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
-            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
-            strSQL = strSQL & " ssfactor.inv_header inv_header,"
-            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
-            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
-            strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
+            strSQL = strSQL & " FROM fm_delivery,"
+            strSQL = strSQL & " fm_delvr_d,"
+            strSQL = strSQL & " fm_lad_tax,"
+            strSQL = strSQL & " fm_lading,"
+            strSQL = strSQL & " fm_lading_d,"
+            strSQL = strSQL & " fm_movement,"
+            strSQL = strSQL & " fm_mv_bal,"
+            strSQL = strSQL & " inv_header,"
+            strSQL = strSQL & " tx_use_link"
+            strSQL = strSQL & " WHERE fmm_movement = fmmb_movement"
+            strSQL = strSQL & " AND fmd_movement = fmdd_movement"
+            strSQL = strSQL & " AND fmd_invoice = fmdd_invoice"
+            strSQL = strSQL & " AND fmmb_dv_nbr = fmd_invoice"
+            strSQL = strSQL & " AND fmmb_movement = fmd_movement"
+            strSQL = strSQL & " AND fmmb_dv_prodlnk = fmdd_prodlnk"
+            strSQL = strSQL & " AND fmmb_dv_line = fmdd_dt_seq_nbr"
+            strSQL = strSQL & " AND fmmb_movement = fml_movement"
+            strSQL = strSQL & " AND fmmb_bl_nbr = fml_bl_nbr"
+            strSQL = strSQL & " AND fml_movement = fmld_movement"
+            strSQL = strSQL & " AND fml_bl_nbr = fmld_bl_nbr"
+            strSQL = strSQL & " AND fmmb_bl_line = fmld_seq_nbr"
+            strSQL = strSQL & " AND fmld_movement = fmldt_movement"
+            strSQL = strSQL & " AND fmldt_trn = tul_trn"
+            strSQL = strSQL & " AND fmdd_prodlnk = ivh_link"
+            strSQL = strSQL & " AND fmldt_ulink = tul_link"
+            strSQL = strSQL & " AND fml_bl_nbr = fmldt_bl_nbr"
+            strSQL = strSQL & " AND fmld_seq_nbr = fmldt_line"
         Else
             sType = "I"
         
@@ -784,34 +714,34 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
     
-            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
-            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
-            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
-            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
+            strSQL = strSQL & " FROM fm_delivery, fm_delvr_d,"
+            strSQL = strSQL & " fm_lad_tax, fm_lading,"
+            strSQL = strSQL & " fm_lading_d, fm_movement,"
+            strSQL = strSQL & " fm_mv_bal, inv_header,"
+            strSQL = strSQL & " tx_use_link"
     
-            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQL = strSQL & " AND fm_delvr_d.fmdd_invoice = fm_lad_tax.fmldt_bl_nbr"
-            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQL = strSQL & " AND fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line"
+            strSQL = strSQL & " WHERE fmm_movement = fmmb_movement"
+            strSQL = strSQL & " AND fmd_movement = fmdd_movement"
+            strSQL = strSQL & " AND fmd_invoice = fmdd_invoice"
+            strSQL = strSQL & " AND fmmb_dv_nbr = fmd_invoice"
+            strSQL = strSQL & " AND fmmb_movement = fmd_movement"
+            strSQL = strSQL & " AND fmmb_dv_prodlnk = fmdd_prodlnk"
+            strSQL = strSQL & " AND fmmb_dv_line = fmdd_dt_seq_nbr"
+            strSQL = strSQL & " AND fmmb_movement = fml_movement"
+            strSQL = strSQL & " AND fmmb_bl_nbr = fml_bl_nbr"
+            strSQL = strSQL & " AND fml_movement = fmld_movement"
+            strSQL = strSQL & " AND fml_bl_nbr = fmld_bl_nbr"
+            strSQL = strSQL & " AND fmmb_bl_line = fmld_seq_nbr"
+            strSQL = strSQL & " AND fmld_movement = fmldt_movement"
+            strSQL = strSQL & " AND fmldt_trn = tul_trn"
+            strSQL = strSQL & " AND fmdd_prodlnk = ivh_link"
+            strSQL = strSQL & " AND fmdd_invoice = fmldt_bl_nbr"
+            strSQL = strSQL & " AND fmldt_ulink = tul_link"
+            strSQL = strSQL & " AND fmdd_dt_seq_nbr = fmldt_line"
         End If
         
-        strSQL = strSQL & " AND fm_movement.fmm_dispatch_flag='C'"
-        strSQL = strSQL & " AND (fm_lad_tax.fmldt_type='" + sType + "')"
+        strSQL = strSQL & " AND fmm_dispatch_flag='C'"
+        strSQL = strSQL & " AND (fmldt_type='" + sType + "')"
         strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
         strSQL = strSQL & " AND fml_date BETWEEN " + tfnDateString(m_sStartDate, True)
         strSQL = strSQL & " AND " + tfnDateString(m_sEndDate, True)
@@ -846,23 +776,23 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, " _
             & "ih_date, idp_seq_nbr, idp_prodlnk, ilt_trn, ilt_units "
         
-        strSQL = strSQL & " FROM ssfactor.inv_header inv_header,"
-        strSQL = strSQL & " ssfactor.si_inv_line si_inv_line,"
-        strSQL = strSQL & " ssfactor.si_inv_tax si_inv_tax,"
-        strSQL = strSQL & " ssfactor.si_invoice si_invoice,"
-        strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
-        strSQL = strSQL & " WHERE si_invoice.ih_nbr = si_inv_line.idp_nbr"
-        strSQL = strSQL & " AND si_inv_line.idp_prodlnk = inv_header.ivh_link"
-        strSQL = strSQL & " AND si_inv_line.idp_nbr = si_inv_tax.ilt_nbr"
-        strSQL = strSQL & " AND si_inv_line.idp_seq_nbr = si_inv_tax.ilt_line"
-        strSQL = strSQL & " AND si_inv_tax.ilt_ulink = tx_use_link.tul_link"
-        strSQL = strSQL & " AND si_inv_tax.ilt_trn = tx_use_link.tul_trn"
+        strSQL = strSQL & " FROM inv_header,"
+        strSQL = strSQL & " si_inv_line,"
+        strSQL = strSQL & " si_inv_tax,"
+        strSQL = strSQL & " si_invoice,"
+        strSQL = strSQL & " tx_use_link"
+        strSQL = strSQL & " WHERE ih_nbr = idp_nbr"
+        strSQL = strSQL & " AND idp_prodlnk = ivh_link"
+        strSQL = strSQL & " AND idp_nbr = ilt_nbr"
+        strSQL = strSQL & " AND idp_seq_nbr = ilt_line"
+        strSQL = strSQL & " AND ilt_ulink = tul_link"
+        strSQL = strSQL & " AND ilt_trn = tul_trn"
         
         strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
         strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
         strSQL = strSQL & " AND ih_date BETWEEN " & tfnDateString(m_sStartDate, True)
         strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
-        strSQL = strSQL & " AND (si_inv_line.idp_movement_flag = 0 OR si_inv_line.idp_movement_flag IS NULL)"
+        strSQL = strSQL & " AND (idp_movement_flag = 0 OR idp_movement_flag IS NULL)"
         
         m_nErrorNumber = EC_GET_RECORD_R
         
