@@ -764,6 +764,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     End If
 
     fnLoadTable = True
+    
     If Not colDropDowns.Item(lDropDown).Item(1).Visible Then
         Screen.MousePointer = vbDefault
         Exit Function
@@ -773,6 +774,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     
     szQuery = colTemp.Item(1).SQL
     nPos = InStr(UCase(szQuery), " GROUP BY ")
+    
     If nPos > 1 Then
         sGroupByClause = Right(szQuery, Len(szQuery) - nPos + 1)
         szQuery = Left(szQuery, nPos - 1)
@@ -891,13 +893,15 @@ Private Function fnLoadTable(nColumn As Integer, _
     If bCalledByHeaderClick Then
         bHeaderClick = True
         
+        sTemp = fnCnvtOrderByFieldsToColIndex(szQuery, sTemp)
+        
         If stCol.PrevOrderIsAscending() Then
             'order by descending
-            sTemp = fnFixSortOrder(sTemp, True)
+            sTemp = fnFixFirstSortOrder(sTemp, True)
             stCol.PrevOrderIsAscending() = False
         Else
             'order by ascending
-            sTemp = fnFixSortOrder(sTemp, False)
+            sTemp = fnFixFirstSortOrder(sTemp, False)
             stCol.PrevOrderIsAscending() = True
         End If
     Else
@@ -905,7 +909,11 @@ Private Function fnLoadTable(nColumn As Integer, _
     End If
     ''''''''''''''''''
     
-    szQuery = szQuery & sGroupByClause & " ORDER BY " & sTemp
+    szQuery = szQuery & sGroupByClause
+    
+    If sTemp <> "" Then
+        szQuery = szQuery & " ORDER BY " & sTemp
+    End If
     
     Screen.MousePointer = vbHourglass
     'Get the records
@@ -2508,7 +2516,7 @@ Private Function tfnYear(sText As String) As Integer
 End Function
 
 'david 01/28/2002
-Private Function fnFixSortOrder(ByVal sOrder As String, bDescending As Boolean) As String
+Private Function fnFixFirstSortOrder(ByVal sOrder As String, bDescending As Boolean) As String
     Dim nPosi As Integer
     Dim sTemp As String
     Dim sOthers As String
@@ -2536,6 +2544,113 @@ Private Function fnFixSortOrder(ByVal sOrder As String, bDescending As Boolean) 
         sTemp = sTemp + " DESC"
     End If
 
-    fnFixSortOrder = sTemp + sOthers
+    fnFixFirstSortOrder = sTemp + sOthers
+End Function
+
+Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As String) As String
+    Const szUNION As String = " UNION "
+    Const szSELECT As String = "SELECT "
+    Const szFROM As String = " FROM "
+    
+    Dim arySQL() As String
+    Dim aryField() As String
+    Dim aryOrderBy() As String
+    Dim aryByColIndex() As String
+    Dim nCountOrderBy As Integer
+    
+    Dim sField As String
+    Dim sOrderBy As String
+    
+    Dim sTemp As String
+    Dim nPosi1 As Integer
+    Dim nPosi2 As Integer
+    
+    Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    
+    On Error GoTo errTrap
+    
+    If InStr(strSQL, szUNION) <= 0 Then
+        fnCnvtOrderByFieldsToColIndex = sOrderByList
+        Exit Function
+    End If
+    
+    arySQL() = Split(strSQL, szUNION)
+    aryOrderBy() = Split(sOrderByList, ",")
+    
+    nCountOrderBy = UBound(aryOrderBy)
+    ReDim aryByColIndex(nCountOrderBy)
+    
+    For i = 0 To UBound(arySQL)
+        'extract fields
+        nPosi1 = InStr(UCase(arySQL(i)), szSELECT)
+        nPosi2 = InStr(UCase(arySQL(i)), szFROM)
+        
+        If nPosi1 > 0 And nPosi2 > 0 And nPosi1 < nPosi2 Then
+            sTemp = Trim(Mid(arySQL(i), nPosi1 + Len(szSELECT), nPosi2 - (Len(szSELECT) + nPosi1)))
+            aryField() = Split(sTemp, ",")
+            
+            For j = 0 To UBound(aryOrderBy)
+                sOrderBy = UCase(Trim(aryOrderBy(j)))
+                'check asc/desc
+                sTemp = ""
+                nPosi1 = InStr(sOrderBy, " ")
+                
+                If nPosi1 > 0 Then
+                    sTemp = Trim(Mid(sOrderBy, nPosi1 + 1))
+                    sOrderBy = Left(sOrderBy, nPosi1 - 1)
+                End If
+                
+                If aryByColIndex(j) = "" Then
+                    If IsNumeric(sOrderBy) Then
+                        aryByColIndex(j) = sOrderBy & Trim(" " + sTemp)
+                        nCountOrderBy = nCountOrderBy - 1
+                    Else
+                        For k = 0 To UBound(aryField)
+                            sField = UCase(Trim(aryField(k)))
+                            
+                            If InStr(sField, sOrderBy) > 0 Then
+                                aryByColIndex(j) = (k + 1) & Trim(" " + sTemp)
+                                nCountOrderBy = nCountOrderBy - 1
+                            End If
+                            
+                            If nCountOrderBy < 0 Then
+                                Exit For
+                            End If
+                        Next k
+                    End If
+                End If
+                
+                If nCountOrderBy < 0 Then
+                    Exit For
+                End If
+            Next j
+        End If
+    
+        If nCountOrderBy < 0 Then
+            Exit For
+        End If
+    Next i
+    
+    sTemp = ""
+    
+    For j = 0 To UBound(aryByColIndex)
+        If aryByColIndex(j) <> 0 Then
+            If sTemp <> "" Then
+                sTemp = sTemp + ", "
+            End If
+            
+            sTemp = sTemp + aryByColIndex(j)
+        End If
+    Next j
+    
+    fnCnvtOrderByFieldsToColIndex = sTemp
+    
+    Exit Function
+    
+errTrap:
+    'error, return empty order by
+    fnCnvtOrderByFieldsToColIndex = ""
 End Function
 
