@@ -367,6 +367,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     
     m_nOldValue = GridArray(ColIndex, lRow)
     If fnGetUserData(MakeBookmark(lRow), ColIndex) = fnCellValue(ColIndex, lRow) Then
+        lEditingRow = -1
         Exit Sub
     End If
     
