@@ -223,6 +223,14 @@ Public Sub Click()
     End If
 End Sub
 
+Private Function fnLong(vTemp As Variant) As Long
+    If IsNull(vTemp) Then
+        fnLong = -1
+    Else
+        fnLong = Val(vTemp)
+    End If
+End Function
+
 Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                                ByVal Shift As Integer) As Integer
     Dim nRow As Integer
@@ -291,6 +299,9 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                     Else
                         nEnd = nCurrent
                         nStart = nLast + 1
+                    End If
+                    If nStart < 0 Then
+                        nStart = 0
                     End If
                     For i = nStart To nEnd
                         m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(i)
@@ -369,7 +380,9 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
                 End If
             Else
                 If Count = 0 Then
-                    m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
+                    If m_tgcEditor.GetCurrentRowNumber >= 0 Then
+                        m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
+                    End If
                 Else
                     fnMarkCurrent KeyCode, m_nShiftControl
                 End If
@@ -437,7 +450,9 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
     If bSelect Then
         If Not RowIsSelected(lRow) Then
-            m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(lRow)
+            If lRow >= 0 Then
+                m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(lRow)
+            End If
         End If
     Else
         If RowIsSelected(lRow) Then
@@ -522,6 +537,9 @@ Private Sub subMarkSelected(vBkMark As Variant)
                 nStart = nEnd
                 nEnd = i
             End If
+            If nStart < 0 Then
+                nStart = 0
+            End If
             For i = nStart To nEnd
                 m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(i)
             Next
@@ -538,7 +556,9 @@ Private Sub subMarkSelected(vBkMark As Variant)
         Else
             Clear
             If m_bSelectCurrRow Then
-                m_tgTable.SelBookmarks.Add vBkMark
+                If fnLong(vBkMark) >= 0 Then
+                    m_tgTable.SelBookmarks.Add vBkMark
+                End If
             End If
             
 '            subToggleSelected vBkMark
@@ -596,11 +616,14 @@ Private Sub subToggleSelected(vBkMark As Variant)
         If i >= 0 Then
             .SelBookmarks.Remove i
         Else
-            .SelBookmarks.Add vBkMark
+            If fnLong(vBkMark) >= 0 Then
+                .SelBookmarks.Add vBkMark
+            End If
         End If
     End With
 
 End Sub
+
 
 Property Set Table(objTemp As Object)
     Set m_tgTable = objTemp
@@ -614,7 +637,6 @@ Property Set Table(objTemp As Object)
         End With
     End If
 End Property
-
 
 Property Get Temp() As Integer
     Temp = m_nShiftControl
