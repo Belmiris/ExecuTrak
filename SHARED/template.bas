@@ -411,7 +411,7 @@ Private SYS_PARM_14000 As String
 Public Function tfnIS_RM() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -431,7 +431,7 @@ Public Function tfnIS_RM() As Boolean
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     ''tfnErrHandler "tfnIS_RM", strSQl
 
@@ -542,7 +542,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -592,12 +592,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -625,7 +625,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -635,7 +635,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -719,12 +719,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Integer
+        Dim I As Integer
         
         sTable = LCase(Trim(vTable))
-        For i = 0 To nHandleCount
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -739,7 +739,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next i
+        Next I
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -931,7 +931,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -982,7 +982,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -990,8 +990,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1054,7 +1054,8 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "") As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1073,8 +1074,13 @@ Public Function tfnOpenLocalDatabase() As Database
         Exit Function
     
 ERROR_CONNECTING:
-        MsgBox Err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
-    
+        
+        If bShowMsgBox Then
+            MsgBox Err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
+        Else
+            sErrMsg = Err.Description
+        End If
+        
         Set tfnOpenLocalDatabase = Nothing
     
         On Error GoTo 0
@@ -1278,7 +1284,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1286,7 +1292,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1754,7 +1760,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     Else
         bCloseSize = vCloseSize
     End If
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
     If bCloseSize Then
         Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
@@ -1868,7 +1874,7 @@ Public Function tfnRun(szExeName As String, _
             szCmd = szCmd & " " & Trim(sParms)
         End If
         
-        hTempInstance = Shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
+        hTempInstance = shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
         If hTempInstance > SHELL_OK Or hTempInstance < 0 Then 'if hInstance greater than 32 application is running
             tfnRun = True 'application running
             Exit Function
