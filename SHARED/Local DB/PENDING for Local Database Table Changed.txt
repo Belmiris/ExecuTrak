@@ -1,7 +1,12 @@
+
+
+''''''''''''''''' DONE - 3.25.15  ''''''''''''''''''''''''
 version: 3.25.15???
 Date: 10/10/2001
 Description: 
+    For Profit Report Enhancement.
     1. Add new tables: prft_rpt_gj, prft_rpt_ap, prft_rpt_ar, prft_rpt_fm, prft_rpt_pr, prft_rpt_rs,    
     prft_rpt_ws, prft_rpt_det_total.
     2. Modify table PrftRptHeader - set "allow zero length" property to True for all fields.
+''''''''''''''''' DONE - 3.25.15  ''''''''''''''''''''''''
 
