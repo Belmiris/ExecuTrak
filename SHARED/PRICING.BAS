@@ -945,9 +945,9 @@ Private Function fnGetSPBook(lCustomer As Long, sWorkLocation As String, lProduc
     
     If zzerc_contract_nbr >= 0 Then
         strSQL = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
-                 " zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
-                 " zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
-                 " zzerc_oper spb_oper,zzerc_price spb_price" & _
+                 " zzerc_prodlnk spb_prodlnk, zzerc_date spb_date," & _
+                 " zzerc_pterminal spb_pterminal, zzerc_pvendor spb_pvendor," & _
+                 " zzerc_oper spb_oper, zzerc_price spb_price" & _
                  " FROM zzer_contract " & _
                  " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
                  " AND zzerc_date <= " & QStr(wrk_date) & _
