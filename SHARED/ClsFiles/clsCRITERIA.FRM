@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Begin VB.Form clsCRITERIA 
    Caption         =   "Criteria"
@@ -78,6 +78,7 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -89,7 +90,6 @@ Begin VB.Form clsCRITERIA
          EndProperty
          Begin VB.TextBox txtFilter 
             Height          =   360
-            HelpContextID   =   3252
             Left            =   165
             Locked          =   -1  'True
             TabIndex        =   13
@@ -98,7 +98,6 @@ Begin VB.Form clsCRITERIA
          End
          Begin VB.TextBox txtOp 
             Height          =   360
-            HelpContextID   =   3250
             Left            =   180
             TabIndex        =   3
             Top             =   1680
@@ -106,7 +105,6 @@ Begin VB.Form clsCRITERIA
          End
          Begin VB.TextBox txtValue 
             Height          =   360
-            HelpContextID   =   3252
             Left            =   1395
             TabIndex        =   5
             Top             =   1680
@@ -114,7 +112,6 @@ Begin VB.Form clsCRITERIA
          End
          Begin FACTFRMLib.FactorFrame cmdOp 
             Height          =   360
-            HelpContextID   =   3251
             Left            =   765
             TabIndex        =   4
             TabStop         =   0   'False
@@ -137,6 +134,7 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":0000
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -149,7 +147,6 @@ Begin VB.Form clsCRITERIA
          End
          Begin FACTFRMLib.FactorFrame cmdValue 
             Height          =   360
-            HelpContextID   =   3253
             Left            =   6750
             TabIndex        =   6
             TabStop         =   0   'False
@@ -172,6 +169,7 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":00F2
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -272,6 +270,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -308,6 +307,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -320,7 +320,7 @@ Begin VB.Form clsCRITERIA
       End
       Begin FACTFRMLib.FactorFrame cmdAdd 
          Height          =   390
-         HelpContextID   =   16
+         HelpContextID   =   10
          Left            =   165
          TabIndex        =   8
          Top             =   2490
@@ -345,6 +345,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -357,7 +358,7 @@ Begin VB.Form clsCRITERIA
       End
       Begin FACTFRMLib.FactorFrame cmdClear 
          Height          =   390
-         HelpContextID   =   15
+         HelpContextID   =   12
          Left            =   1657
          TabIndex        =   12
          Top             =   2490
@@ -381,6 +382,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -393,7 +395,7 @@ Begin VB.Form clsCRITERIA
       End
       Begin FACTFRMLib.FactorFrame cmdRefresh 
          Height          =   390
-         HelpContextID   =   15
+         HelpContextID   =   14
          Left            =   3149
          TabIndex        =   10
          Top             =   2490
@@ -417,6 +419,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -450,6 +453,7 @@ Begin VB.Form clsCRITERIA
          Strikethrough   =   0   'False
       EndProperty
       BevelOuter      =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -485,6 +489,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -522,6 +527,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -553,6 +559,7 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "System"
             Size            =   9.75
@@ -1435,9 +1442,9 @@ Private Sub tblCriteria_LostFocus()
     tgmCriteria.LostFocus
 End Sub
 
-Private Sub tblCriteria_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-Debug.Print "x="; x; ", nClickCol = "; nClickCol
-    nClickCol = tblCriteria.ColContaining(x)
+Private Sub tblCriteria_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Debug.Print "x="; X; ", nClickCol = "; nClickCol
+    nClickCol = tblCriteria.ColContaining(X)
 End Sub
 
 Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -1592,8 +1599,8 @@ Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
