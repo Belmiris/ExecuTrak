@@ -242,12 +242,12 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             End If
                                 
             strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
-            strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt)"
+            strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt, rsphh_status)"
             strSQL = strSQL & " VALUES(" & udtInvHeader.nProfctr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
             strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
             strSQL = strSQL & tfnDateString(udtInvHeader.dtInvdate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
             strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
-            strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ")"
+            strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ",'N')"
             
             g_bNeedWriteHeader = False
             g_lDetailLineNbr = 1
@@ -891,7 +891,9 @@ End Function
 
 Private Function fnValidPurchaseType(sType As String) As String
 
-    If sType <> "U" And sType <> "C" And sType <> "P" Then
+    'Right now, only handle price book type.
+    'If sType <> "U" And sType <> "C" And sType <> "P" Then
+    If sType <> "P" Then
         fnValidPurchaseType = "Invalid purchase Type"
     Else
         fnValidPurchaseType = ""

@@ -115,7 +115,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame eLblStatus 
                Height          =   372
                Left            =   60
-               TabIndex        =   55
+               TabIndex        =   56
                TabStop         =   0   'False
                Top             =   3888
                Width           =   2772
@@ -149,7 +149,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdDetailCancel 
                Height          =   396
                Left            =   7488
-               TabIndex        =   51
+               TabIndex        =   52
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -183,7 +183,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdOk 
                Height          =   396
                Left            =   6000
-               TabIndex        =   50
+               TabIndex        =   51
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -217,7 +217,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdDetailDelete 
                Height          =   396
                Left            =   4524
-               TabIndex        =   49
+               TabIndex        =   50
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -251,7 +251,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdExceptions 
                Height          =   396
                Left            =   3036
-               TabIndex        =   48
+               TabIndex        =   49
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -315,7 +315,7 @@ Begin VB.Form frmZZEININV
                Begin FACTFRMLib.FactorFrame efraDetail 
                   Height          =   2724
                   Left            =   72
-                  TabIndex        =   46
+                  TabIndex        =   47
                   TabStop         =   0   'False
                   Top             =   984
                   Width           =   8604
@@ -346,14 +346,14 @@ Begin VB.Form frmZZEININV
                      Height          =   2616
                      Left            =   48
                      OleObjectBlob   =   "ZZEININV.frx":0000
-                     TabIndex        =   47
+                     TabIndex        =   48
                      Top             =   48
                      Width           =   8520
                   End
                   Begin FACTFRMLib.FactorFrame cmdSearch 
                      Height          =   336
                      Left            =   396
-                     TabIndex        =   52
+                     TabIndex        =   53
                      Top             =   252
                      Width           =   1140
                      _Version        =   65536
@@ -402,7 +402,7 @@ Begin VB.Form frmZZEININV
                Begin FACTFRMLib.FactorFrame efraDetailHeader 
                   Height          =   840
                   Left            =   72
-                  TabIndex        =   33
+                  TabIndex        =   34
                   TabStop         =   0   'False
                   Top             =   132
                   Width           =   8604
@@ -433,7 +433,7 @@ Begin VB.Form frmZZEININV
                      Caption         =   "Amount"
                      Height          =   216
                      Left            =   6684
-                     TabIndex        =   54
+                     TabIndex        =   55
                      Top             =   468
                      Width           =   696
                   End
@@ -450,7 +450,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   216
                      Left            =   7440
-                     TabIndex        =   45
+                     TabIndex        =   46
                      Top             =   468
                      Width           =   1080
                   End
@@ -467,7 +467,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   216
                      Left            =   5892
-                     TabIndex        =   44
+                     TabIndex        =   45
                      Top             =   468
                      Width           =   1008
                   End
@@ -475,7 +475,7 @@ Begin VB.Form frmZZEININV
                      Caption         =   "Invoice #"
                      Height          =   216
                      Left            =   4872
-                     TabIndex        =   43
+                     TabIndex        =   44
                      Top             =   468
                      Width           =   756
                   End
@@ -492,7 +492,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   240
                      Left            =   7440
-                     TabIndex        =   42
+                     TabIndex        =   43
                      Top             =   120
                      Width           =   732
                   End
@@ -500,7 +500,7 @@ Begin VB.Form frmZZEININV
                      Caption         =   "Shift"
                      Height          =   240
                      Left            =   6684
-                     TabIndex        =   41
+                     TabIndex        =   42
                      Top             =   120
                      Width           =   468
                   End
@@ -517,7 +517,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   216
                      Left            =   2220
-                     TabIndex        =   40
+                     TabIndex        =   41
                      Top             =   468
                      Width           =   2772
                   End
@@ -534,7 +534,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   216
                      Left            =   1152
-                     TabIndex        =   39
+                     TabIndex        =   40
                      Top             =   468
                      Width           =   912
                   End
@@ -542,7 +542,7 @@ Begin VB.Form frmZZEININV
                      Caption         =   "Vendor No."
                      Height          =   216
                      Left            =   72
-                     TabIndex        =   38
+                     TabIndex        =   39
                      Top             =   468
                      Width           =   1056
                   End
@@ -559,7 +559,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   240
                      Left            =   4884
-                     TabIndex        =   37
+                     TabIndex        =   38
                      Top             =   120
                      Width           =   1056
                   End
@@ -576,7 +576,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   240
                      Left            =   2220
-                     TabIndex        =   36
+                     TabIndex        =   37
                      Top             =   120
                      Width           =   2700
                   End
@@ -593,7 +593,7 @@ Begin VB.Form frmZZEININV
                      EndProperty
                      Height          =   240
                      Left            =   1320
-                     TabIndex        =   35
+                     TabIndex        =   36
                      Top             =   120
                      Width           =   696
                   End
@@ -601,7 +601,7 @@ Begin VB.Form frmZZEININV
                      Caption         =   "Profit Center:"
                      Height          =   240
                      Left            =   72
-                     TabIndex        =   34
+                     TabIndex        =   35
                      Top             =   120
                      Width           =   1176
                   End
@@ -670,15 +670,15 @@ Begin VB.Form frmZZEININV
                   Strikethrough   =   0   'False
                EndProperty
                Begin FACTFRMLib.FactorFrame efraHeader 
-                  Height          =   2196
+                  Height          =   1848
                   Left            =   108
-                  TabIndex        =   28
+                  TabIndex        =   29
                   TabStop         =   0   'False
-                  Top             =   1512
+                  Top             =   1872
                   Width           =   8544
                   _Version        =   65536
                   _ExtentX        =   15071
-                  _ExtentY        =   3873
+                  _ExtentY        =   3260
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
@@ -700,16 +700,16 @@ Begin VB.Form frmZZEININV
                      Strikethrough   =   0   'False
                   EndProperty
                   Begin DBTrueGrid.TDBGrid tblHeader 
-                     Height          =   2088
+                     Height          =   1752
                      Left            =   0
                      OleObjectBlob   =   "ZZEININV.frx":12DD
-                     TabIndex        =   29
+                     TabIndex        =   30
                      Top             =   36
                      Width           =   8520
                   End
                End
                Begin FACTFRMLib.FactorFrame efraProfitCtr 
-                  Height          =   1440
+                  Height          =   1800
                   Left            =   108
                   TabIndex        =   13
                   TabStop         =   0   'False
@@ -717,8 +717,17 @@ Begin VB.Form frmZZEININV
                   Width           =   8544
                   _Version        =   65536
                   _ExtentX        =   15071
-                  _ExtentY        =   2540
+                  _ExtentY        =   3175
                   _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            =   9.6
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
                   BevelOuter      =   6
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
@@ -729,12 +738,20 @@ Begin VB.Form frmZZEININV
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
+                  Begin VB.CheckBox chkAllInvoice 
+                     Caption         =   "Include Processed Invoice"
+                     Height          =   300
+                     Left            =   336
+                     TabIndex        =   28
+                     Top             =   1404
+                     Width           =   6888
+                  End
                   Begin FACTFRMLib.FactorFrame cmdToPrftName 
                      Height          =   360
-                     Left            =   7671
+                     Left            =   7668
                      TabIndex        =   27
                      TabStop         =   0   'False
-                     Top             =   996
+                     Top             =   948
                      Width           =   360
                      _Version        =   65536
                      _ExtentX        =   635
@@ -749,6 +766,8 @@ Begin VB.Form frmZZEININV
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                     Style           =   3
+                     BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   12
@@ -761,10 +780,10 @@ Begin VB.Form frmZZEININV
                   End
                   Begin FACTFRMLib.FactorFrame cmdFromPrftName 
                      Height          =   360
-                     Left            =   7671
+                     Left            =   7668
                      TabIndex        =   26
                      TabStop         =   0   'False
-                     Top             =   336
+                     Top             =   300
                      Width           =   360
                      _Version        =   65536
                      _ExtentX        =   635
@@ -779,6 +798,8 @@ Begin VB.Form frmZZEININV
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                     Style           =   3
+                     BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   12
@@ -793,7 +814,8 @@ Begin VB.Form frmZZEININV
                      Height          =   360
                      Left            =   3288
                      TabIndex        =   25
-                     Top             =   996
+                     TabStop         =   0   'False
+                     Top             =   948
                      Width           =   360
                      _Version        =   65536
                      _ExtentX        =   635
@@ -826,7 +848,7 @@ Begin VB.Form frmZZEININV
                      Left            =   3288
                      TabIndex        =   24
                      TabStop         =   0   'False
-                     Top             =   336
+                     Top             =   300
                      Width           =   360
                      _Version        =   65536
                      _ExtentX        =   635
@@ -841,6 +863,8 @@ Begin VB.Form frmZZEININV
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                     Style           =   3
+                     BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   12
@@ -855,28 +879,28 @@ Begin VB.Form frmZZEININV
                      Height          =   360
                      Left            =   3696
                      TabIndex        =   23
-                     Top             =   996
+                     Top             =   948
                      Width           =   3960
                   End
                   Begin VB.TextBox txtToPrftCtr 
                      Height          =   360
                      Left            =   1212
                      TabIndex        =   22
-                     Top             =   996
+                     Top             =   948
                      Width           =   2100
                   End
                   Begin VB.TextBox txtFromPrftName 
                      Height          =   360
                      Left            =   3696
                      TabIndex        =   21
-                     Top             =   336
+                     Top             =   300
                      Width           =   3960
                   End
                   Begin VB.TextBox txtFromPrftCtr 
                      Height          =   360
                      Left            =   1212
                      TabIndex        =   20
-                     Top             =   336
+                     Top             =   300
                      Width           =   2064
                   End
                   Begin VB.Label lblToPrftName 
@@ -884,7 +908,7 @@ Begin VB.Form frmZZEININV
                      Height          =   336
                      Left            =   3696
                      TabIndex        =   19
-                     Top             =   744
+                     Top             =   696
                      Width           =   1860
                   End
                   Begin VB.Label lblToProfitCtr 
@@ -892,7 +916,7 @@ Begin VB.Form frmZZEININV
                      Height          =   336
                      Left            =   1212
                      TabIndex        =   18
-                     Top             =   744
+                     Top             =   696
                      Width           =   1860
                   End
                   Begin VB.Label lblFromPrftName 
@@ -900,7 +924,7 @@ Begin VB.Form frmZZEININV
                      Height          =   336
                      Left            =   3696
                      TabIndex        =   17
-                     Top             =   60
+                     Top             =   24
                      Width           =   1860
                   End
                   Begin VB.Label lblFromPrftCtr 
@@ -908,7 +932,7 @@ Begin VB.Form frmZZEININV
                      Height          =   336
                      Left            =   1212
                      TabIndex        =   16
-                     Top             =   60
+                     Top             =   24
                      Width           =   1860
                   End
                   Begin VB.Label lblTo 
@@ -916,7 +940,7 @@ Begin VB.Form frmZZEININV
                      Height          =   300
                      Left            =   336
                      TabIndex        =   15
-                     Top             =   996
+                     Top             =   948
                      Width           =   840
                   End
                   Begin VB.Label lblFrom 
@@ -924,7 +948,7 @@ Begin VB.Form frmZZEININV
                      Height          =   300
                      Left            =   336
                      TabIndex        =   14
-                     Top             =   336
+                     Top             =   300
                      Width           =   1056
                   End
                End
@@ -932,7 +956,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdQuery 
                Height          =   396
                Left            =   4584
-               TabIndex        =   30
+               TabIndex        =   31
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -966,7 +990,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdHeaderSelect 
                Height          =   396
                Left            =   6048
-               TabIndex        =   31
+               TabIndex        =   32
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -1000,7 +1024,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdHeaderDelete 
                Height          =   396
                Left            =   7512
-               TabIndex        =   32
+               TabIndex        =   33
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -1233,7 +1257,7 @@ Begin VB.Form frmZZEININV
       Height          =   648
       Left            =   0
       OleObjectBlob   =   "ZZEININV.frx":38D7
-      TabIndex        =   53
+      TabIndex        =   54
       TabStop         =   0   'False
       Top             =   600
       Width           =   1752
@@ -1416,7 +1440,7 @@ Private Sub subInitValidation()
         .AddEditBox txtToPrftCtr, "Enter To Profit Center"
         .ESCControl = cmdExitCancelBtn
         .MinTabIndex = tbToolbar.TabIndex
-        Set .ControlForFocus = efraProfitCtr
+        .MaxTabIndex = chkAllInvoice.TabIndex
         Set .LastBox = txtToPrftCtr
     End With
 
@@ -1435,6 +1459,8 @@ Public Function fnValidCellValue(tgTable As TDBGrid, _
     Select Case nCurrCol
         Case ColDetailItemCode
             fnValidCellValue = fnValidItemCode(szText, nCurrCol, lCurrRow)
+        Case ColDetailUOM
+            fnValidCellValue = fnValidUOM(szText, nCurrCol, lCurrRow)
         Case ColDetailQty
             fnValidCellValue = fnValidDetailQty(szText, nCurrCol, lCurrRow)
         Case ColDetailCost
@@ -1469,6 +1495,75 @@ Private Function fnValidItemCode(szText As String, nCurrCol As Integer, lCurrDet
     End If
     
 End Function
+
+Private Function fnValidUOM(szText As String, nCurrCol As Integer, lCurrDetailRow As Long) As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lVendor As Long
+    Dim lInvoice As Long
+    Dim nPrftCtr As Integer
+    Dim dtInvDate As Date
+    Dim lCurHeaderRow As Long
+    Dim dCost As Double
+    Dim dRetailPrice As Double
+    Dim sItemCode As String
+
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
+    
+    If Trim(szText) = "" Then
+        tgmDetail.ErrorMessage(ColDetailUOM) = " The Unit of Measure can't be empty."
+        Exit Function
+    End If
+    
+    If tgmDetail.ValidCell(ColDetailItemCode, lCurrDetailRow) Then
+        sItemCode = tgmDetail.CellValue(ColDetailItemCode, lCurrDetailRow)
+        
+        strSQL = "SELECT rsbi_stock_unit FROM rs_b_item WHERE "
+        strSQL = strSQL & " rsbi_vendor = " & lVendor
+        strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(sItemCode)
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidItemCode") < 0 Then
+            tgmDetail.ErrorMessage(nCurrCol) = "Database Access Error"
+        ElseIf rsTemp.RecordCount = 0 Then
+            tgmDetail.ErrorMessage(nCurrCol) = "Invalid Item entered"
+        Else
+        
+            If UCase(Trim(rsTemp!rsbi_stock_unit & "")) = UCase(Trim(szText)) Then
+                
+                If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dCost, dRetailPrice) Then
+                    fnValidUOM = False
+                    tgmDetail.ErrorMessage(nCurrCol) = "No Price book available for this item"
+                    Exit Function
+                End If
+                
+            Else
+            
+                If Not fnGetPriceFromItemCostMaint(lVendor, sItemCode, szText, dtInvDate, dCost, dRetailPrice) Then
+                    fnValidUOM = False
+                    tgmDetail.ErrorMessage(nCurrCol) = "No Price for this Unit of Measure."
+                    Exit Function
+                End If
+                
+            End If
+            
+            tgmDetail.CellValue(ColDetailCost, lCurrDetailRow) = tfnRound(dCost, 3)
+            tgmDetail.CellValue(ColDetailPBCost, lCurrDetailRow) = tfnRound(dCost, 3)
+            tgmDetail.CellValue(ColDetailRetail, lCurrDetailRow) = tfnRound(dRetailPrice, 3)
+            tgmDetail.CellValue(colHdnDetailFlag, lCurrDetailRow) = "Y"
+            fnValidUOM = True
+            
+        End If
+        
+    Else
+        fnValidUOM = True
+    End If
+    
+End Function
+
 
 Private Function fnValidDetailQty(szText As String, nCurrCol As Integer, lCurrDetailRow As Long) As Boolean
     
@@ -1571,10 +1666,11 @@ Private Sub subInitializeSpreadSheet()
     Dim vDetailFields As Variant
     Dim i As Integer
     
-    vHeaderWidth = Array(0.08, 0.2, 0.12, 0.12, 0.22, 0.12, 0.15)
-    vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total")
+    vHeaderWidth = Array(0.12, 0.18, 0.11, 0.11, 0.16, 0.1, 0.14, 0.1)
+    
+    vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total", "Processed")
     vHeaderFields = Array("rsphh_prft_ctr", "prft_name", "rsphh_rpt_date", "rsphh_vendor", "pn_name", "rsphh_invoice" _
-                         , "rsphh_invoice_amt")
+                         , "rsphh_invoice_amt", "rsphh_status")
     vDetailWidth = Array(0.08, 0.12, 0.16, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08)
     vDetailNames = Array("Line", "Item Code", "Description", "UOM", "Qty.", "Cost", "Ext. Cost", "PB Cost", "Ext. PB Cost", "Retail", "Ext. Retail")
     vDetailFields = Array("rsphd_line_nbr", "rsphd_code", "rsbi_desc", "rsphd_stock_unit", "rsphd_qty", "rsphd_cost", "Ext. cost", "rsbp_cost", "Ext. PB Cost", _
@@ -1681,6 +1777,18 @@ Private Sub subSetupDropDown()
     
 End Sub
 
+Private Sub chkAllInvoice_GotFocus()
+    tfnSetStatusBarMessage "Check to select all Invoice including processed."
+End Sub
+
+Private Sub chkAllInvoice_KeyPress(KeyAscii As Integer)
+    
+    If KeyAscii = vbKeyReturn Then
+        subSetFocus cmdQuery
+    End If
+    
+End Sub
+
 Private Sub cmdDetailCancel_Click()
     
     If g_bDetailDataChanged Then
@@ -1715,6 +1823,10 @@ Private Sub cmdDetailDelete_Click()
     lCurDetailRow = tgmDetail.GetCurrentRowNumber
     lLineNo = tgmDetail.CellValue(ColDetailLine, lCurDetailRow)
         
+    If lLineNo = 0 Then
+        Exit Sub
+    End If
+    
     If tgmDetail.RowCount > 0 Then
         
         If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
@@ -1773,7 +1885,7 @@ Private Sub cmdExceptions_Click()
         subEnableDetailOKBtn False
     Else
         subEnableDetailDeleteBtn True
-        subEnableDetailOKBtn cmdOk.Enabled
+        subEnableDetailOKBtn cmdOK.Enabled
     End If
     
     subCheckButtonStatus
@@ -1839,6 +1951,15 @@ Private Sub cmdHeaderSelect_Click()
     g_bExceptionsClicked = False
     
     If fnLoadDetailData(lCurHeaderRow) Then
+        
+        If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "N" Then
+            tgmDetail.Locked = False
+        Else
+            subEnableDetailOKBtn False
+            MsgBox "The data has already been processed, if you want to change something, go to module rsepurch0", vbInformation
+            tgmDetail.Locked = True
+        End If
+        
         etabMain.TabEnabled(1) = True
         etabMain.CurrTab = 1
         lblPrftCtr.Caption = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
@@ -1850,9 +1971,9 @@ Private Sub cmdHeaderSelect_Click()
         lblInvoice.Caption = tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow)
         lblAmount.Caption = tgmHeader.CellValue(ColHeaderInvAmount, lCurHeaderRow)
         subSetFocus tblDetail
-        subEnableDetailOKBtn False
         subEnableDetailCancelBtn False
         subEnableDetailDeleteBtn True
+        
     Else
         subSetFocus cmdExitCancelBtn
     End If
@@ -1861,7 +1982,7 @@ Private Sub cmdHeaderSelect_Click()
     
 End Sub
 
-Private Sub cmdOk_Click()
+Private Sub cmdOK_Click()
     
     If fnUpdateDetail() Then
         subEnableUpdateBtn True
@@ -1920,9 +2041,9 @@ Private Sub cmdToPrftName_Click()
     subHideHourGlass
 End Sub
 
-Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
     If Not etabMain.TabEnabled(NewTab) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     
@@ -1952,7 +2073,7 @@ Private Sub tblDetail_FirstRowChange()
     tgfDropdown.FirstRowChange
 End Sub
 
-Private Sub tblDetail_Scroll(Cancel As Integer)
+Private Sub tblDetail_Scroll(CANCEL As Integer)
     tgfDropdown.Scroll
 End Sub
 
@@ -1976,8 +2097,8 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDropDown_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -2004,8 +2125,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(Cancel As Integer)
-    tgcDropdown.SelChange Cancel
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+    tgcDropdown.SelChange CANCEL
 End Sub
 
 
@@ -2025,7 +2146,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelpFileName
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -2347,44 +2468,13 @@ Private Sub subEnableProfitctr(bOnOff As Boolean)
     
     tblHeader.Enabled = Not bOnOff
 End Sub
-'Private Sub tblHeader_AfterColEdit(ByVal ColIndex As Integer)
-'    tgmHeader.AfterColEdit ColIndex
-'End Sub
 '
-'Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-'    tgmHeader.BeforeColEdit ColIndex, KeyAscii, CANCEL
-'End Sub
-'
-'Private Sub tblHeader_Change()
-'    tgmHeader.Change
-'End Sub
-'
-'Private Sub tblHeader_GotFocus()
-'    tgmHeader.GotFocus
-'End Sub
-'
-'Private Sub tblHeader_KeyDown(KeyCode As Integer, Shift As Integer)
-'    tgmHeader.KeyDown KeyCode, Shift
-'End Sub
-'
-'Private Sub tblHeader_KeyPress(KeyAscii As Integer)
-'
-'    If Not tgmHeader.Keypress(KeyAscii) Then
-'        KeyAscii = 0
-'    End If
-'
-'End Sub
-'
-'Private Sub tblHeader_LostFocus()
-'    tgmHeader.LostFocus
-'End Sub
-'
-'Private Sub tblHeader_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-'    tgmHeader.RowColChange LastRow, LastCol
-'End Sub
-'
-Private Sub tblHeader_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblHeader_GotFocus()
+    tfnSetStatusBarMessage "Invoice Header"
+End Sub
+
+Private Sub tblHeader_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2398,7 +2488,7 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     g_bDetailDataChanged = True
     lCurDetailRow = tgmDetail.GetCurrentRowNumber
     
-    If ColIndex = ColDetailQty Then
+    If ColIndex = ColDetailQty Or ColIndex = ColDetailUOM Then
         tgmDetail.CellValue(ColDetailExtCost, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailCost, lCurDetailRow), 3) _
                         * tfnRound(tgmDetail.CellValue(ColDetailQty, lCurDetailRow), 3), 3)
         tgmDetail.CellValue(ColDetailExtPBCost, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailPBCost, lCurDetailRow), 3) _
@@ -2415,8 +2505,8 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
     subEnableDetailOKBtn False
 End Sub
 
@@ -2436,6 +2526,10 @@ Private Sub tblDetail_GotFocus()
     If tgfDropdown.ValidSelection Then
         subCheckButtonStatus
         subEnableDetailCancelBtn True
+    End If
+    
+    If tgmHeader.CellValue(ColHeaderStatus, tgmHeader.GetCurrentRowNumber) = "Y" Then
+        tfnSetStatusBarMessage "Invoice Detail"
     End If
     
 End Sub
@@ -2484,8 +2578,8 @@ Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblDetail_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDetail_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2527,7 +2621,7 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
 End Sub
 
 Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
-    cmdOk.Enabled = bOnOff
+    cmdOK.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
@@ -2714,7 +2808,7 @@ Private Sub txtToPrftCtr_GotFocus()
     cValidate.GotFocus txtToPrftCtr
     
     If tgcDropdown.SingleRecordSelected Then
-        subSetFocus cmdQuery
+        subSetFocus chkAllInvoice
     End If
     
 End Sub
@@ -2734,7 +2828,7 @@ Private Sub txtToPrftCtr_KeyPress(KeyAscii As Integer)
         If KeyAscii = vbKeyReturn Then
           
             If tgcDropdown.SingleRecordSelected Then
-                subSetFocus cmdQuery
+                subSetFocus chkAllInvoice
             End If
           
           KeyAscii = 0
@@ -2809,7 +2903,7 @@ Private Sub txtToPrftName_GotFocus()
     tgcDropdown.GotFocus txtToPrftName
 
     If tgcDropdown.SingleRecordSelected Then
-        subSetFocus cmdQuery
+        subSetFocus chkAllInvoice
     End If
     
 End Sub
@@ -2829,7 +2923,7 @@ Private Sub txtToPrftName_KeyPress(KeyAscii As Integer)
         If KeyAscii = vbKeyReturn Then
             
             If tgcDropdown.SingleRecordSelected Then
-                subSetFocus cmdQuery
+                subSetFocus chkAllInvoice
             End If
             
             KeyAscii = 0
@@ -2876,7 +2970,7 @@ Private Function fnLoadHeaderData() As Boolean
     Dim strSQL As String
     
     If cValidate.FirstInvalidInput >= 0 Then
-        MsgBox "Invalid Profit center entered, try again", vbExclamation
+        MsgBox "Invalid Profit center entered, Try again", vbInformation
         Exit Function
     End If
     
@@ -2886,9 +2980,13 @@ Private Function fnLoadHeaderData() As Boolean
     End If
     
     strSQL = "SELECT rsphh_prft_ctr, prft_name, rsphh_rpt_date, rsphh_vendor, pn_name, rsphh_invoice, rsphh_invoice_amt"
-    strSQL = strSQL & ",rsphh_shift, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_inv_date "
+    strSQL = strSQL & " ,rsphh_status,rsphh_shift, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_inv_date "
     strSQL = strSQL & " FROM rs_p_hold_header, sys_prft_ctr, p_altname "
-    strSQL = strSQL & " WHERE rsphh_prft_ctr = prft_ctr AND rsphh_vendor = pn_alt"
+    strSQL = strSQL & " WHERE rsphh_prft_ctr = prft_ctr AND rsphh_vendor = pn_alt "
+    
+    If chkAllInvoice.Value <> vbChecked Then
+        strSQL = strSQL & " AND rsphh_status = 'N' "
+    End If
     
     If Trim(txtFromPrftCtr) <> "" Then
         strSQL = strSQL & " AND rsphh_prft_ctr >= " & txtFromPrftCtr
@@ -2903,7 +3001,7 @@ Private Function fnLoadHeaderData() As Boolean
         t_bDataChanged = True
         fnLoadHeaderData = True
     Else
-        MsgBox "No information available", vbExclamation
+        MsgBox "No Records found for the given criteria", vbInformation
         fnLoadHeaderData = False
     End If
     
@@ -2918,15 +3016,17 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
     Dim lInvoice As Long
     Dim sItemCode As String
     Dim nPrftCtr As Integer
-    Dim dtInVDate As Date
+    Dim dtInvDate As Date
     Dim sItemUOM As String
     Dim vArray() As Variant
+    Dim dPBCost As Double
+    Dim dPBRetail As Double
     Dim i As Long
     
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
-    dtInVDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
+    dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
     
     strSQL = "SELECT rsphd_line_nbr, rsphd_code, rsbi_desc, rsbi_stock_unit, rsphd_qty, rsphd_cost"
     strSQL = strSQL & ", rsphd_retail, rsphd_stock_unit FROM rs_p_hold_detail, rs_b_item "
@@ -2961,7 +3061,13 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
         sItemUOM = Trim$(rsDetail!rsbi_stock_unit & "")
         
         If sItemUOM = CStr(vArray(ColDetailUOM, i)) Then
-            vArray(ColDetailPBCost, i) = fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInVDate)
+           
+            If fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dPBCost, dPBRetail) Then
+                vArray(ColDetailPBCost, i) = dPBCost
+            Else
+                vArray(ColDetailPBCost, i) = 0
+            End If
+            
         Else
             vArray(ColDetailPBCost, i) = vArray(ColDetailCost, i)
         End If
@@ -2979,7 +3085,7 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
 
     tgmDetail.FillWithArray vArray(), True, True
     
-    fnIsAmountBalance fnGetToTalCost()
+    subCheckButtonStatus
     
     If tgmDetail.RowCount > 0 Then
         fnLoadDetailData = True
@@ -3007,13 +3113,12 @@ Private Function fnIsAmountBalance(dTotalCost As Double) As Boolean
 End Function
 
 Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
-            nPrftCtr As Integer, dtInVDate As Date, Optional dRetailPrice As Double) As Double
+            nPrftCtr As Integer, dtInvDate As Date, dPBCost As Double, dRetailPrice As Double) As Boolean
     Dim lBook As Long
     Dim lSubBook As Long
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim lIcLink As Long
-    Dim dPBCost As Double
     
     Const sFUNC_NAME As String = "fnGetPriceBookCost"
     
@@ -3038,7 +3143,7 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
     End If
     
     strSQL = "SELECT rsbp_cost, rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
-    strSQL = strSQL & " AND " & tfnDateString(dtInVDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+    strSQL = strSQL & " AND " & tfnDateString(dtInvDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
     strSQL = strSQL & " AND rsbp_bk_lnk = "
     strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
     strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -3047,15 +3152,11 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
     strSQL = strSQL & ")"
 
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
-        dPBCost = IIf(IsNull(rsTemp!rsbp_cost), 0, rsTemp!rsbp_cost)
-        
-        If Not IsMissing(dRetailPrice) Then
-            dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, tfnRound(rsTemp!rsbp_retail, 3))
-        End If
-        
+        dPBCost = tfnRound(rsTemp!rsbp_cost, 3)
+        dRetailPrice = tfnRound(rsTemp!rsbp_retail, 3)
     Else
         strSQL = "SELECT rsbp_cost, rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
-        strSQL = strSQL & " AND " & tfnDateString(dtInVDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+        strSQL = strSQL & " AND " & tfnDateString(dtInvDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
         strSQL = strSQL & " AND rsbp_bk_lnk = "
         strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
         strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -3064,20 +3165,45 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
         strSQL = strSQL & ")"
 
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
-            dPBCost = IIf(IsNull(rsTemp!rsbp_cost), 0, rsTemp!rsbp_cost)
-            
-            If Not IsMissing(dRetailPrice) Then
-                dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, tfnRound(rsTemp!rsbp_retail, 3))
-            End If
-        
+            dPBCost = tfnRound(rsTemp!rsbp_cost, 3)
+            dRetailPrice = tfnRound(rsTemp!rsbp_retail, 3)
+        Else
+            dPBCost = 0
+            dRetailPrice = 0
+            fnGetPriceBookCost = False
+            Exit Function
         End If
             
     End If
     
-    fnGetPriceBookCost = tfnRound(dPBCost, 3)
+    fnGetPriceBookCost = True
 
 End Function
 
+Private Function fnGetPriceFromItemCostMaint(lVendor As Long, sItemCode As String, sUOM As String, dtInvDate As Date, dCost As Double, dRetail As Double) As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT icm1.icm_cost, icm1.icm_retail FROM item_cost_maint icm1 "
+    strSQL = strSQL & " WHERE icm1.icm_vendor = " & tfnRound(lVendor)
+    strSQL = strSQL & " AND icm1.icm_code = " & tfnSQLString(sItemCode)
+    strSQL = strSQL & " AND icm1.icm_uom = " & tfnSQLString(UCase(sUOM))
+    strSQL = strSQL & " AND icm1.icm_eff_date = "
+    strSQL = strSQL & " (SELECT MAX(icm_eff_date) FROM item_cost_maint "
+    strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(lVendor)
+    strSQL = strSQL & " AND icm_code = " & tfnSQLString(sItemCode)
+    strSQL = strSQL & " AND icm_eff_date <= " & tfnDateString(dtInvDate, True)
+    strSQL = strSQL & ")"
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetPriceFromItemCostMaint") <= 0 Then
+        fnGetPriceFromItemCostMaint = False
+    Else
+        dCost = IIf(IsNull(rsTemp!icm_cost), 0, rsTemp!icm_cost)
+        dRetail = IIf(IsNull(rsTemp!icm_retail), 0, rsTemp!icm_retail)
+        fnGetPriceFromItemCostMaint = True
+    End If
+        
+End Function
 
 Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     Dim strSQL As String
@@ -3101,11 +3227,11 @@ Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     fnDeleteData = True
 End Function
 
-Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUom As String, sItemDesc As String)
+Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUOM As String, sItemDesc As String)
     Dim vData(nMaxDetailCol) As Variant
     Dim lInvoice As Long
     Dim nPrftCtr As Integer
-    Dim dtInVDate As Date
+    Dim dtInvDate As Date
     Dim lCurHeaderRow As Long
     Dim lCurDetailRow As Long
     Dim dCost As Double
@@ -3114,9 +3240,11 @@ Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUom As 
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
-    dtInVDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
+    dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
     
-    dCost = fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInVDate, dRetailPrice)
+    If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dCost, dRetailPrice) Then
+        '
+    End If
     
     lCurDetailRow = tgmDetail.GetCurrentRowNumber
     
@@ -3136,7 +3264,7 @@ Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUom As 
     vData(ColDetailExtPBCost) = 0#
     vData(ColDetailRetail) = tfnRound(dRetailPrice, 3)
     vData(ColDetailExtRetail) = 0#
-    vData(ColDetailUOM) = sUom
+    vData(ColDetailUOM) = sUOM
     vData(colHdnDetailFlag) = "Y"
 
     tgmDetail.SetCurrentRowData vData
@@ -3217,7 +3345,7 @@ Private Sub subCheckButtonStatus()
     Dim dTotalCost As Double
     
     dTotalCost = fnGetToTalCost
-    
+
     If fnIsAmountBalance(dTotalCost) Then
         
         If tgmDetail.ValidData Then

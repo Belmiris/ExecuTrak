@@ -12,6 +12,7 @@ Public Const ColHeaderVendor As Integer = 3
 Public Const ColHeaderVendorName As Integer = 4
 Public Const ColHeaderInvoice As Integer = 5
 Public Const ColHeaderInvAmount As Integer = 6
+Public Const ColHeaderStatus As Integer = 7
 Public ColHdnHeaderShift As Integer
 Public ColHdnHeaderTerm As Integer
 Public ColHdnHeaderType As Integer
