@@ -11,7 +11,7 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.04"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define SIZE_REQ_SERVER         4
 
@@ -706,8 +706,11 @@ begin
 				szDest = szDir;  // ?:\FACTOR\EXECTRAK
 			elseif szName = "SERVBIN.Z" then
 				szDest = szBin;  // ?:\FACTOR\EXECTRAK\BIN
+			elseif szName = "SERVDLL.Z" then
+				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
-				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+				//szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+				szDest = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
 			elseif szName = "SERVDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
@@ -768,6 +771,9 @@ begin
 		
 		if !bSelfRegister then
 			nvPosi = StrFind(szName, ".MDB");
+			if nvPosi <0 then
+				nvPosi = StrFind(szName, ".QRT");
+			endif;
 			if nvPosi >=0 then
 				bGoCopy = TRUE;
 			else // EXE file
