@@ -467,17 +467,17 @@ End Function
 
 Private Function fnParentDir(sCurr As String) As String
 
-    Dim i As Integer
+    Dim I As Integer
     
-    i = Len(sCurr)
-    Do While i > 0
-        If Mid(sCurr, i, 1) = "\" Then
+    I = Len(sCurr)
+    Do While I > 0
+        If Mid(sCurr, I, 1) = "\" Then
             Exit Do
         End If
-        i = i - 1
+        I = I - 1
     Loop
-    If i > 0 Then
-        fnParentDir = Left(sCurr, i)
+    If I > 0 Then
+        fnParentDir = Left(sCurr, I)
     Else
         fnParentDir = ""
     End If
@@ -594,7 +594,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
 
     Dim sDirs() As String
     Dim sPath As String
-    Dim i As Integer
+    Dim I As Integer
     Dim i1 As Integer
     
     subParseString sDirs, sOrigPath, "\"
@@ -607,11 +607,11 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
     fnPreparePath = False
     On Error Resume Next
     sPath = ""
-    For i = i1 To UBound(sDirs)
-        If i = i1 Then
-            sPath = sDirs(i)
+    For I = i1 To UBound(sDirs)
+        If I = i1 Then
+            sPath = sDirs(I)
         Else
-            sPath = sPath & "\" & sDirs(i)
+            sPath = sPath & "\" & sDirs(I)
         End If
         If Not fnIsPath(sPath) Then
             Err.Clear
@@ -620,7 +620,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
                 Exit Function
             End If
         End If
-    Next i
+    Next I
     fnPreparePath = True
 End Function
 
@@ -826,46 +826,46 @@ Private Sub subLoadDataSources()
 
     Dim aryBuffer() As String
     Dim nCount As Integer
-    Dim i As Integer
+    Dim I As Integer
     Dim j As Integer
     Dim bInList As Boolean
     
     subLoadDSSection aryBuffer, nCount, HKEY_LOCAL_MACHINE, szODBC_REG_KEY2 & SECTION_REG_DS
-    For i = 0 To nCount - 1
-        If UCase(aryBuffer(i)) <> SECURITY_DATABASE Then
-            cmbDataSet.AddItem aryBuffer(i)
+    For I = 0 To nCount - 1
+        If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
+            cmbDataSet.AddItem aryBuffer(I)
         End If
-    Next i
+    Next I
     subLoadDSSection aryBuffer, nCount, HKEY_CURRENT_USER, szODBC_REG_KEY2 & SECTION_REG_DS
-    For i = 0 To nCount - 1
+    For I = 0 To nCount - 1
         bInList = False
         For j = 0 To cmbDataSet.ListCount - 1
-            If aryBuffer(i) = cmbDataSet.List(j) Then
+            If aryBuffer(I) = cmbDataSet.List(j) Then
                 bInList = True
                 Exit For
             End If
         Next j
         If Not bInList Then
-            If UCase(aryBuffer(i)) <> SECURITY_DATABASE Then
-                cmbDataSet.AddItem aryBuffer(i)
+            If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
+                cmbDataSet.AddItem aryBuffer(I)
             End If
         End If
-    Next i
+    Next I
     subLoadDSSection aryBuffer, nCount, HKEY_USERS, szODBC_REG_KEY1 & SECTION_REG_DS
-    For i = 0 To nCount - 1
+    For I = 0 To nCount - 1
         bInList = False
         For j = 0 To cmbDataSet.ListCount - 1
-            If aryBuffer(i) = cmbDataSet.List(j) Then
+            If aryBuffer(I) = cmbDataSet.List(j) Then
                 bInList = True
                 Exit For
             End If
         Next j
         If Not bInList Then
-            If UCase(aryBuffer(i)) <> SECURITY_DATABASE Then
-                cmbDataSet.AddItem aryBuffer(i)
+            If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
+                cmbDataSet.AddItem aryBuffer(I)
             End If
         End If
-    Next i
+    Next I
     If cmbDataSet.ListCount > 0 Then
         cmbDataSet.ListIndex = 0
     End If
@@ -878,7 +878,7 @@ Private Sub subLoadDataSources()
 End Sub
 
 
-Public Function DBConnect(sDsn As String, _
+Public Function DBConnect(sDSN As String, _
                              sUID As String, _
                              sPWD As String, _
                              Optional vHost As Variant) As String
@@ -893,8 +893,8 @@ Public Function DBConnect(sDsn As String, _
     Dim sDatabase As String
     Dim m_sHost As String
     
-    GetODBCINIPath lODBCKey, sODBCRoot, sDsn
-    sODBCPath = sODBCRoot & sDsn
+    GetODBCINIPath lODBCKey, sODBCRoot, sDSN
+    sODBCPath = sODBCRoot & sDSN
     If IsMissing(vHost) Then
         m_sHost = fnHost(lODBCKey, sODBCPath)
     Else
@@ -903,9 +903,9 @@ Public Function DBConnect(sDsn As String, _
     If Trim(m_sHost) = "" Then
         m_sHost = txtHost.Text
     End If
-    sConnect = "ODBC;DSN=" & sDsn & ";UID=" & sUID _
+    sConnect = "ODBC;DSN=" & sDSN & ";UID=" & sUID _
             & ";PWD=" & sPWD
-    If Trim(sDsn) = "" Then
+    If Trim(sDSN) = "" Then
         sDatabase = txtDatabase.Text
     Else
         sDatabase = fnDatabase(lODBCKey, sODBCPath)
@@ -932,20 +932,20 @@ End Function
 
 Public Sub GetODBCINIPath(lODBCKey As Long, _
                            sODBCPath As String, _
-                           sDsn As String)
+                           sDSN As String)
     Dim sTemp As String
     
     sODBCPath = szODBC_REG_KEY2
     lODBCKey = HKEY_CURRENT_USER
-    sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+    sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
     If sTemp = "" Then
         sODBCPath = szODBC_REG_KEY1
         lODBCKey = HKEY_USERS
-        sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+        sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
         If sTemp = "" Then
             sODBCPath = szODBC_REG_KEY2
             lODBCKey = HKEY_LOCAL_MACHINE
-            sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+            sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
         End If
     End If
 End Sub
@@ -1091,11 +1091,11 @@ Private Sub cmbDataSet_Click()
     Dim lODBCKey As Long
     Dim sODBCPath As String
     Dim sODBCRoot As String
-    Dim sDsn As String
+    Dim sDSN As String
     
-    sDsn = Trim(cmbDataSet.Text)
-    GetODBCINIPath lODBCKey, sODBCRoot, sDsn
-    sODBCPath = sODBCRoot & sDsn
+    sDSN = Trim(cmbDataSet.Text)
+    GetODBCINIPath lODBCKey, sODBCRoot, sDSN
+    sODBCPath = sODBCRoot & sDSN
     
     txtDatabase.Text = fnDatabase(lODBCKey, sODBCPath)
     txtHost.Text = fnHost(lODBCKey, sODBCPath)
@@ -1214,4 +1214,12 @@ Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     picFrame.Line -(X2, Y2), LINE_COLOR1
     picFrame.Line -(X1 - 2 * Screen.TwipsPerPixelX, Y2), LINE_COLOR1
     picFrame.Line (X1, Y2 - 2 * Screen.TwipsPerPixelY)-(X1, Y1), LINE_COLOR2
+End Sub
+
+Public Sub Connect(sDSN As String, sUID As String, sPWD As String)
+    cmbDataSet = sDSN
+    cmbDataSet_Click
+    txtUserName = sUID
+    txtPassword = sPWD
+    btnOK_Click
 End Sub
