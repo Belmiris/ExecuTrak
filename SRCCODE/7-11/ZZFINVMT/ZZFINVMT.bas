@@ -916,6 +916,7 @@ Private Function fnValidUOM(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_
         strSQL = "SELECT icm1.icm_cost, icm1.icm_retail FROM item_cost_maint icm1 "
         strSQL = strSQL & " WHERE icm1.icm_vendor = " & tfnRound(udtInvHeader.lVendor)
         strSQL = strSQL & " AND icm1.icm_code = " & tfnSQLString(udtInvDetail.sItemCode)
+        strSQL = strSQL & " AND icm1.icm_uom = " & tfnSQLString(UCase(udtInvDetail.sUOM))
         strSQL = strSQL & " AND icm1.icm_eff_date = "
         strSQL = strSQL & " (SELECT MAX(icm_eff_date) FROM item_cost_maint "
         strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(udtInvHeader.lVendor)

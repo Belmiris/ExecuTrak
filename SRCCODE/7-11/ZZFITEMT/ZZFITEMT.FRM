@@ -108,7 +108,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -607,7 +607,7 @@ Begin VB.Form frmZZFITEMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -620,7 +620,7 @@ Begin VB.Form frmZZFITEMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -827,8 +827,8 @@ Private nDataStatus As Integer
 Private tgmDetail As clsTGSpreadSheet
 Private cValidate As cValidateInput
 
-Private Const ColEffDate As Integer = 0
-Private Const ColUOM As Integer = 1
+Private Const ColUOM As Integer = 0
+Private Const ColEffDate As Integer = 1
 Private Const ColCost As Integer = 2
 Private Const ColRetail As Integer = 3
 Private Const nMaxCol As Integer = 3
@@ -1045,6 +1045,7 @@ Private Sub cmdAddBtn_Click()
     t_nFormMode = ADD_MODE
     
     With tgmDetail
+        .AddEditColumn ColUOM, "Enter Unit of Measure", "^P{1,5}$"
         .AddEditColumn ColEffDate, "Enter effective Date", szDatePattern
         .AllowAddNew = True
     End With
@@ -1076,6 +1077,7 @@ Private Sub cmdEditBtn_Click()
     t_nFormMode = EDIT_MODE
     
     With tgmDetail
+        .RemoveEditColumn ColUOM
         .RemoveEditColumn ColEffDate
         .AllowAddNew = False
     End With
@@ -1381,6 +1383,10 @@ Private Sub tblDetail_KeyPress(KeyAscii As Integer)
         KeyAscii = 0
     End If
     
+    If tblDetail.col = ColUOM Then
+        KeyAscii = Asc(UCase(Chr(KeyAscii)))
+    End If
+    
 End Sub
 
 Private Sub tblDetail_LostFocus()
@@ -1510,7 +1516,7 @@ Private Sub subInitializeSpreadSheet()
     Dim sDecimal10Pattern As String
     
     myWidth = Array(0.25, 0.25, 0.25, 0.25)
-    myField = Array("icm_eff_date", "icm_uom", "icm_cost", "icm_retail")
+    myField = Array("icm_uom", "icm_eff_date", "icm_cost", "icm_retail")
     
     While tblDetail.Columns.Count > 0
         tblDetail.Columns.Remove 0
@@ -1527,8 +1533,8 @@ Private Sub subInitializeSpreadSheet()
         
     Next
     
-    tblDetail.Columns(ColEffDate).Caption = "Effective Date"
     tblDetail.Columns(ColUOM).Caption = "Unit Of Measure"
+    tblDetail.Columns(ColEffDate).Caption = "Effective Date"
     tblDetail.Columns(ColCost).Caption = "Cost"
     tblDetail.Columns(ColRetail).Caption = "Retail"
 
@@ -1540,8 +1546,8 @@ Private Sub subInitializeSpreadSheet()
         Set .Table = tblDetail
         
         sDecimal10Pattern = tfnDecimalPattern(10, 3, False, True)
+        .AddEditColumn ColUOM, "Enter Unit of Measure", "^P{1,5}$"
         .AddEditColumn ColEffDate, "Enter Effective Date ", szDatePattern
-        .AddEditColumn ColUOM, "Enter Unit of Measure", "^P(1,5)$"
         .AddEditColumn ColCost, "Enter Cost", sDecimal10Pattern
         .AddEditColumn ColRetail, "Enter Retail Price", sDecimal10Pattern
         '.AllowAddNew = True
@@ -1556,7 +1562,7 @@ Private Function fnLoadData() As Boolean
     
     fnLoadData = False
     
-    strSQL = "SELECT icm_eff_date, icm_uom, icm_cost, icm_retail"
+    strSQL = "SELECT icm_uom, icm_eff_date, icm_cost, icm_retail"
     strSQL = strSQL & " FROM item_cost_maint "
     strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(txtVendor)
     strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
@@ -2087,38 +2093,47 @@ Private Function fnValidEffectiveDate(sDate As String, lCurRow As Long, nCurCol 
     
     If nCode = 0 Then
         sTemp = tfnDateString(tfnFormatDate(sDate))
+        tgmDetail.CellValue(nCurCol, lCurRow) = sTemp
         
         If IsDate(sTemp) Then
-            strSQL = "SELECT * FROM item_cost_maint WHERE icm_vendor = " & tfnRound(txtVendor)
-            strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
-            strSQL = strSQL & " AND icm_eff_date = " & tfnDateString(sDate, True)
-            
-            If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEffectiveDate") > 0 Then
-                tgmDetail.ErrorMessage(nCurCol) = "The effective date exists in the system already."
-                Exit Function
-            End If
-            
-            For i = 0 To tgmDetail.RowCount - 1
-            
-                If i <> lCurRow Then
-                    
-                    If CStr(tgmDetail.CellValue(ColEffDate, i)) = CStr(tgmDetail.CellValue(ColEffDate, lCurRow)) Then
-                        tgmDetail.ErrorMessage(nCurCol) = "The Effective Date is duplicate"
-                        Exit Function
-                    End If
-            
+        
+            If tgmDetail.ValidCell(ColUOM, lCurRow) Then
+                strSQL = "SELECT * FROM item_cost_maint WHERE icm_vendor = " & tfnRound(txtVendor)
+                strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
+                strSQL = strSQL & " AND icm_eff_date = " & tfnDateString(sDate, True)
+                strSQL = strSQL & " AND icm_uom = " & tfnSQLString(tgmDetail.CellValue(ColUOM, lCurRow))
+                
+                If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEffectiveDate") > 0 Then
+                    tgmDetail.ErrorMessage(nCurCol) = "The record is already in the system"
+                    Exit Function
                 End If
-            
-            Next
-
-            fnValidEffectiveDate = True
-            tgmDetail.CellValue(nCurCol, lCurRow) = sTemp
+                
+            End If
+        Else
+            tgmDetail.ErrorMessage(nCurCol) = "Invalid Date entered"
+            Exit Function
         End If
         
+        For i = 0 To tgmDetail.RowCount - 1
+        
+            If i <> lCurRow Then
+                
+                If CStr(tgmDetail.CellValue(ColEffDate, i)) = sTemp _
+                     And CStr(tgmDetail.CellValue(ColUOM, i)) = CStr(tgmDetail.CellValue(ColUOM, lCurRow)) Then
+                     
+                    tgmDetail.ErrorMessage(nCurCol) = "The record is duplicate in the grid"
+                    Exit Function
+                End If
+        
+            End If
+        
+        Next
+
+        fnValidEffectiveDate = True
     Else
         tgmDetail.ErrorMessage(nCurCol) = "Invalid Date entered"
     End If
-
+    
 End Function
 
 Private Function fnValidUOM(szText As String, lCurRow As Long, nCurCol As Integer) As Boolean
@@ -2159,6 +2174,11 @@ Public Function fnValidCellValue(tgTable As TDBGrid, _
     Select Case nCurrCol
         Case ColUOM
             bValid = fnValidUOM(szText, lCurrRow, nCurrCol)
+            
+            If bValid And tgmDetail.CellValue(ColEffDate, lCurrRow) <> "" Then
+                tgmDetail.Revalidate ColEffDate, lCurrRow
+            End If
+            
         Case ColEffDate
             bValid = fnValidEffectiveDate(szText, lCurrRow, nCurrCol)
         Case ColCost
