@@ -81,20 +81,20 @@ End Function
 Private Function fnDBPath() As String
     Dim sDBPath As String
     Dim sStatus As String
-    Dim I As Integer
+    Dim i As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
-    I = Len(sDBPath)
+    i = Len(sDBPath)
     sStatus = " "
-    While I > 0 And sStatus <> "/"
-        sStatus = Mid(sDBPath, I, 1)
-        I = I - 1
+    While i > 0 And sStatus <> "/"
+        sStatus = Mid(sDBPath, i, 1)
+        i = i - 1
     Wend
-    If I > 0 Then
-        fnDBPath = Left(sDBPath, I)
+    If i > 0 Then
+        fnDBPath = Left(sDBPath, i)
     Else
         fnDBPath = sDBPath
     End If
@@ -244,7 +244,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = Val(vTemp)
+            fnParmIndex = val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -298,7 +298,7 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     'Added for input pay period or other message which will show on the 4th line of pay stub
     Dim sMsg As String
     Dim sTmp As String
-    Dim I As Integer
+    Dim i As Integer
     Dim bDone As Boolean
     
     '##Provide a message box for user input the pay period or other message
@@ -315,8 +315,8 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
             MsgBox "The length of the message cannot be over 40 characters.", vbExclamation
             bDone = False
         ElseIf Len(sMsg) > 0 Then
-            For I = 1 To Len(sMsg)
-                sTmp = Mid(sMsg, I, 1)
+            For i = 1 To Len(sMsg)
+                sTmp = Mid(sMsg, i, 1)
                 
                 If sTmp = Chr(10) Or sTmp = Chr(13) Or sTmp = Chr(34) Or sTmp = Chr(39) Then
                     If MsgBox("Single quote ('), double quote ("") or 'Line Feed' are not allowed in the message," _
@@ -401,6 +401,7 @@ Private Function fnRunRCmd(sHost As String, _
             If nOutput > 1 Then
                 sErrMsg = sErrMsg & Chr(nOutput)
             End If
+            
             DoEvents
         Loop Until nOutput <= 1
         RCmdClose nCode
@@ -509,7 +510,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = Val(vDefault)
+        nWhatToUse = val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
@@ -600,6 +601,15 @@ Public Function fnRun4GLPricing(sCmdLine As String) As String
     Dim sCmd As String
     Dim sTemp As String
     Dim sEnviron As String
+    Static staCmd As String
+    Static staRtn As String
+    
+    If staCmd = sCmdLine Then
+        fnRun4GLPricing = staRtn
+        Exit Function
+    Else
+        staCmd = sCmdLine
+    End If
     
     If Not t_dbMainDatabase Is Nothing Then
         sHost = tfnGetHostName
@@ -627,8 +637,8 @@ Public Function fnRun4GLPricing(sCmdLine As String) As String
     
     sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" _
              & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
-    fnRun4GLPricing = fnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
-    
+    staRtn = fnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
+    fnRun4GLPricing = staRtn
 End Function
 
 
