@@ -80,7 +80,7 @@ Begin VB.Form frmZZSEIMPT
             Strikethrough   =   0   'False
          EndProperty
          TabsPerPage     =   2
-         Caption         =   "Imp&ort Invoices|Impor&t Invoices Details"
+         Caption         =   "I&mport Invoices|Impor&t Invoices Details"
          Begin FACTFRMLib.FactorFrame efraTab2Back 
             Height          =   4356
             Left            =   14460
@@ -1049,7 +1049,7 @@ Begin VB.Form frmZZSEIMPT
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
-               Caption         =   "S&elect"
+               Caption         =   "&Select"
                CaptionPos      =   4
                ShowFocusRect   =   -1  'True
                Style           =   3
@@ -1220,7 +1220,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1233,7 +1233,7 @@ Begin VB.Form frmZZSEIMPT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2212,10 +2212,10 @@ Private Sub etabMain_GotFocus()
 
 End Sub
 
-Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
     
     If Not etabMain.TabEnabled(NewTab) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     
@@ -2257,7 +2257,7 @@ Private Sub tblDetail_FirstRowChange()
     tgfDropdown.FirstRowChange
 End Sub
 
-Private Sub tblDetail_Scroll(CANCEL As Integer)
+Private Sub tblDetail_Scroll(Cancel As Integer)
     tgfDropdown.Scroll
 End Sub
 
@@ -2281,8 +2281,8 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDropDown_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -2309,8 +2309,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropDown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
 
@@ -2330,7 +2330,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -2692,16 +2692,16 @@ Private Sub tblHeader_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     Dim lCurHeaderRow As Long
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
     If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y" Then
-        CANCEL = True
+        Cancel = True
     End If
     
-    tgmHeader.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmHeader.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblHeader_Change()
@@ -2741,8 +2741,8 @@ Private Sub tblHeader_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblHeader_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblHeader_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2773,8 +2773,8 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
+Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
     subEnableDetailOKBtn False
 End Sub
 
@@ -2846,8 +2846,8 @@ Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblDetail_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblDetail_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
