@@ -69,7 +69,6 @@ declare
         prototype SetupScreen();
         prototype CheckDiskSpace(NUMBER);
         prototype ConfirmCancelIQVision();
-        prototype FindIQVA(STRING, BYREF STRING);
         prototype CheckExistsDir(STRING);
         prototype IsExists16BitVersion(STRING);
 
@@ -140,8 +139,6 @@ SayWelcome:
 
         SdWelcome(WELCOME_TITLE, szMsg);
 
-        Enable(BACKBUTTON);
-
 
 FindPreviousInstallation:
         nReturn = 0;
@@ -159,7 +156,54 @@ FindPreviousInstallation:
         NumToStr(szNumber, PROGRAM_SIZE * 1024);
 
 
+GetIQVisionInfo:
+
+	Disable(BACKBUTTON);
+	
+	szIQDir = IQ_DEFAULT_DIR;
+
+        	if (!fnFindFile(szIQDir, KEY_IQ)) then
+		szDestMsg = "Have you installed the IQ/VISION software?";
+		szTemp = "Choose No to continue with the IQ/VISION " +
+		     "installation after the " + WELCOME_TITLE + " has completed.\n\n" +
+		     "Choose Yes to skip the IQ/VISION installation.";
+		szComponents = "IQVISION";
+		
+		bTemp1 = FALSE;
+		bTemp2 = TRUE;
+		ComponentAddItem(szComponents, "N&o", 1024,bTemp1);
+		ComponentAddItem(szComponents, "&Yes", 2048,bTemp2);
+		
+		SdAskOptions("IQ/VISION Installation Option", szDestMsg, szTemp, szId, szComponents, EXCLUSIVE);
+
+                	if (ComponentIsItemSelected(szComponents, "N&o")) then
+		                MessageBox("Please install IQ/VISION software before " +
+		                        "installing the " + PRODUCT_NAME + ".", INFORMATION);
+			abort;
+		endif;
+        	endif;
+
+
+GetIQVisionPath:
+
+        	Enable(BACKBUTTON);
+        	
+	if (!fnFindFile(szIQDir, KEY_IQ)) then
+		if (GetIQVISIONPath() = BACK) then
+		        goto GetIQVisionInfo;
+		endif;
+
+	                if (CheckIQKey() = NOTEXISTS) then
+	                        goto GetIQVisionPath;
+	                endif;
+	endif;
+
+	StrToUpper(szIQDir, szIQDir);
+
+
 GetTargetPath:
+	Disable(BACKBUTTON);
+
         szDestMsg = "Setup will install " + PRODUCT_NAME + " in the Destination Directory.\n\n";
         szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
         szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
@@ -256,57 +300,6 @@ GetAppINIPath:
         szINIDirectory = szFolder ^ APP_BASE_PATH;
 
 
-GetIQVisionInfo:
-        szIQDir = IQ_DEFAULT_DIR;
-
-        if (fnFindFile(szIQDir, KEY_IQ)) then
-                bTemp1 = FALSE;
-                bTemp2 = TRUE;
-        else
-                bTemp1 = TRUE;
-                bTemp2 = FALSE;
-        endif;
-
-        szDestMsg = "Have you installed the IQ/VISION software?";
-        szTemp = "Choose No to continue with the IQ/VISION " +
-             "installation after the " + WELCOME_TITLE + " has completed.\n\n" +
-             "Choose Yes to skip the IQ/VISION installation.";
-        szComponents = "IQVISION";
-
-        ComponentAddItem(szComponents, "N&o", 1024,bTemp1);
-        ComponentAddItem(szComponents, "&Yes", 2048,bTemp2);
-
-        if (SdAskOptions("IQ/VISION Installation Option", szDestMsg, szTemp, szId, szComponents, EXCLUSIVE) = BACK) then
-                goto GetAppINIPath;
-        endif;
-
-        bTemp1 = FALSE;
-        bTemp2 = FALSE;
-
-
-GetIQVisionPath:
-        if (GetIQVISIONPath() = BACK) then
-                goto GetIQVisionInfo;
-        else
-                if (ComponentIsItemSelected(szComponents, "&Yes")) then
-                        if (CheckIQKey() = NOTEXISTS) then
-                                goto GetIQVisionPath;
-                        endif;
-                endif;
-        endif;
-
-        StrToUpper(szIQDir, szIQDir);
-
-        if (IQ_DEFAULT_DIR ^ "" != szIQDir ^ "") then
-                if (ComponentIsItemSelected(szComponents, "N&o")) then
-                        szTemp = "IQ VISION Default Setup Path has " +
-                            "been changed. Please write down the new path " +
-                            "'" + szIQDir + " 'for later used.";
-                        MessageBox(szTemp, INFORMATION);
-                endif;
-
-        endif;
-
 ConfirmCopy:
         // Show SdStartCopy dialog to confirm file transfer operation.
         listInfo = ListCreate( STRINGLIST );
@@ -325,12 +318,6 @@ ConfirmCopy:
                 ListAddString(listInfo, "", AFTER);
         endif;
 
-        ListAddString(listInfo, "Install IQ/VISION software:", AFTER);
-        if (ComponentIsItemSelected(szComponents, "&Yes")) then
-                ListAddString(listInfo, "        No", AFTER);
-        else
-                ListAddString(listInfo, "        Yes", AFTER);
-        endif;
         ListAddString(listInfo, "", AFTER);
         ListAddString(listInfo, "IQ/VISION program direcotry:", AFTER);
         ListAddString(listInfo, "        " + szIQDir, AFTER);
@@ -364,9 +351,9 @@ StartCopy:
 
 	  CopySetup();
 
-        Enable(STATUS);
-	  Enable(SELFREGISTERBATCH);
-        FileSetBeginDefine("All Files");  // begin of define fileset +++++++++++++++++
+	Enable(STATUS);
+	Enable(SELFREGISTERBATCH);
+	FileSetBeginDefine("All Files");  // begin of define fileset +++++++++++++++++
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
@@ -391,7 +378,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factole.z", "*.*", COMP_NORMAL) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -458,7 +445,8 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 
                 // These go into the FACTOR\EXECVISN directory
-                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
+                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
                         MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -471,7 +459,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -484,7 +473,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -495,7 +485,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -506,7 +497,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("RTM.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -520,7 +512,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("SHARED.Z could not be decompressed", SEVERE);
                         goto ZFailure;
                 endif;
@@ -855,51 +848,7 @@ CreateProgramFolder:
         // save the source and target disk drive before installing the IQ/VISION
         szTemp = SRCDISK;
 
-        // continue the IQ/VISON installation
-        if (ComponentIsItemSelected(szComponents, "&Yes")) then
-                SetStatusWindow(99, "Creating program folder and icons...");
-                goto UpdateIQVision;
-        else
-                SetStatusWindow(99, "Begin IQ/VISION installation...");
-        endif;
-
-
-InstallIQVision:
-
-        // change the Handler routine for IQ/VISION setup
-        Handler(EXIT, CancelIQVisionSetup_Handler);
-
-        SetDialogTitle(DLG_ENTER_DISK, "IQ/VISION Installation");
-        SetDialogTitle(DLG_ASK_YESNO, "IQ/VISION Installation");
-        SetDialogTitle(DLG_MSG_SEVERE, "IQ/VISION Installation");
-
-        SRCDIR = SRCDISK + "\\";
-
-        szMsg = "Please insert IQ/VISION Installation Disk #1 " +
-                "and click on OK to continue.";
-
-        // A tagfile on IQ/VISION setup disk#1 might needed.
-        EnterDisk(szMsg, "DATA1.CAB");
-
-// run the IQ/VISION setup
-#if (RUN_IQVISION_SETUP = 1)
-        nReturn = LaunchAppAndWait(SRCDIR ^ "setup.exe", "", WAIT);
-#else
-        nReturn = 1;
-#endif  // #if (RUN_IQVISION_SETUP)
-
-        if (nReturn != 1) then
-                if (AskYesNo("IQ/VISION Installation Failed.  \n\n" +
-                    "Please make sure you have the correct IQ/VISION Installation Disk" +
-                    "\n\nDo you want to try again?", YES) = YES) then
-                        goto InstallIQVision;
-                endif;
-
-                MessageBox("IQ/VISION Installation incomplete.  " + PRODUCT_NAME + " may not work properly.",
-                    SEVERE);
-                goto Finished;
-        endif;
-
+        SetStatusWindow(99, "Creating program folder and icons...");
 
 UpdateIQVision:
         // update new version of IQ/VISION - IQVA.EXE file
@@ -963,21 +912,24 @@ Finished:
 	if (BATCH_INSTALL) then
         
 		CopyLocalDB("First");    
-        	LOGMSG="MUST REBOOT BEFORE RUNNING";
-        	LOGWRITE(LOGMSG);
-
-        	Disable(BACKBUTTON);
-        	fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-               		"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-               		"your computer.");
-
+		LOGMSG="MUST REBOOT BEFORE RUNNING";
+		LOGWRITE(LOGMSG);
+		
+		Disable(BACKBUTTON);
+		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+			"your computer.");
+		
 	else
 
-        	CopyLocalDB("");
-        	SdFinish(WELCOME_TITLE + " Complete",
-               		WELCOME_TITLE + " has finished copying files to your computer.",
-               		"Click Finish to complete " + WELCOME_TITLE,
-               		"", "", bTemp1, bTemp2);
+		CopyLocalDB("");
+		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+			"your computer.");
+//		SdFinish(WELCOME_TITLE + " Complete",
+//			WELCOME_TITLE + " has finished copying files to your computer.",
+//			"Click Finish to complete " + WELCOME_TITLE,
+//			"", "", bTemp1, bTemp2);
 	endif;   
 
 
@@ -1412,52 +1364,51 @@ begin
         
 	  if szSetup = "" then
 		szProgDir = szBaseDirectory ^ "BIN";
-                szForceNormal = szForceInstall;
-        elseif szSetup = "First" then
-
+                	szForceNormal = szForceInstall;
+        	elseif szSetup = "First" then
 		szProgDir = szBaseDirectory ^ "BIN";
 		szFolder = "Startup";
-                szSCIcon = "";
-                szSCWork = WINDIR ^ "TEMP_SETUP";
-                szSCExe = szSCWork ^ "SETUP.EXE";
-                StrSub(szTemp, szForceInstall, 0, 1);
-                szSCExe = szSCExe + " CPYLOCAL " + szTemp + " " + szProgDir + " ";
-                
-                AddFolderIcon(szFolder, "CopyLocal",
-                      szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-
+		szSCIcon = "";
+		szSCWork = WINDIR ^ "TEMP_SETUP";
+		szSCExe = szSCWork ^ "SETUP.EXE";
+		StrSub(szTemp, szForceInstall, 0, 1);
+		szSCExe = szSCExe + " CPYLOCAL " + szTemp + " " + szProgDir + " ";
+		
+		AddFolderIcon(szFolder, "CopyLocal",
+		      szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		
 		return;
-        else
-        	StrSub(szTemp, CMDLINE, 0, 8);
+        	else
+        		StrSub(szTemp, CMDLINE, 0, 8);
 
-        	if szTemp = "CPYLOCAL" then
+        		if szTemp = "CPYLOCAL" then
             		
-            		szTemp = CMDLINE;
-            		nvPosi = StrFind(szTemp, " ");
-
-            		if nvPosi < 0 then
+	            		szTemp = CMDLINE;
+	            		nvPosi = StrFind(szTemp, " ");
+	
+	            		if nvPosi < 0 then
                 			return;
-            		endif;
-
-            		//skip CPYLOCAL
-            		StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
-
-            		//get force or normal installation
-            		nvPosi = StrFind(szTemp, " ");
-
-            		if nvPosi < 0 then
+	            		endif;
+	
+	            		//skip CPYLOCAL
+	            		StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
+	
+	            		//get force or normal installation
+	            		nvPosi = StrFind(szTemp, " ");
+	
+	            		if nvPosi < 0 then
                			return;
-            		endif;
-            		StrSub(szForceNormal, szTemp, 0, 1);
+	            		endif;
+	            		StrSub(szForceNormal, szTemp, 0, 1);
+	
+	            		szForceNormal = szForceNormal + " ";
 
-            		szForceNormal = szForceNormal + " ";
+	                        	//skip ForceNormal flag
+	                        	StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
 
-                        //skip ForceNormal flag
-                        StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
-
-            		//get cpylocal.exe program directory
-            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
-        	endif;
+	            		//get cpylocal.exe program directory
+	            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+        		endif;
 	endif;
 
         VarSave(SRCTARGETDIR);
@@ -1492,9 +1443,10 @@ begin
         nvPosi = StrFind(szProgDir, "\\BIN");
                         
         if nvPosi >= 0 then
-                StrSub(szTemp, szProgDir, 0, nvPosi);
-        	    LaunchAppAndWait(szTemp ^ "OLE" ^ "IQFOLE32.EXE", " /s", WAIT);
-        	    LaunchAppAndWait(szTemp ^ "OLE" ^ "IQRUNOLE.EXE", " /s", WAIT);
+                //StrSub(szTemp, szProgDir, 0, nvPosi);
+	szTemp = WINDISK ^ "Factor" ^ "OLE";
+        	    LaunchAppAndWait(szTemp ^ "IQFOLE32.EXE", " /s", WAIT);
+        	    LaunchAppAndWait(szTemp ^ "IQRUNOLE.EXE", " /s", WAIT);
         endif;
 
 

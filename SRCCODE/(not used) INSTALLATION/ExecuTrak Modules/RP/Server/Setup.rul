@@ -4,10 +4,6 @@
 //
 // Server
 //
-// 2.02 - March 5, 1999 Irving
-// 2.01 - February 2, 1999 Irving
-// 2.00 - January 26, 1999 Irving
-//
 //***************************************************************************
 
 // includes
@@ -65,7 +61,6 @@ declare
         // function prototypes
         prototype CheckDiskSpace(number);
         prototype Is16BitFactMenu();
-        prototype CheckTBKIT(STRING);
 
 
 // the script starts here
@@ -466,8 +461,6 @@ DecompressSuccessful:
 
         StatusUpdate(OFF, 0);
 
-        CheckTBKIT(szBaseDirectory);
-
 	// Run the client installation?
         if (bRunStandAlone) then
                 //TARGETDIR = szBaseDirectory ^ "Clients";
@@ -622,80 +615,6 @@ begin
                 endif;
         else
                 return FALSE;
-        endif;
-end;
-
-
-//check and move tbkit.dll from BIN to OLE and register it.
-function CheckTBKIT(szDir)
-
-        STRING szTemp;
-        BOOL bCopySuccess;
-
-begin
-
-        if (FindFile(szDir ^ PRODUCT_SUBDIR ^ "BIN", "TBKIT.DLL", szTemp) >= 0) then
-                if (szTemp != "") then
-                        SetStatusWindow(97, "Updating OLE Server...");
-
-                        VarSave(SRCTARGETDIR);
-
-                        SRCDIR = szDir ^ PRODUCT_SUBDIR ^ "BIN";
-                        TARGETDIR = szDir ^ PRODUCT_SUBDIR ^ "OLE";
-
-                        if (szForceInstall = "1 ") then
-                                LOGMSG="START OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-
-                                if (CopyFile("TBKIT.DLL", "TBKIT.DLL") < 0) then
-                                        MessageBeep(0);
-                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
-
-                                        bCopySuccess = FALSE;
-
-                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                        LOGWRITE(LOGMSG);
-                                else
-                                        bCopySuccess = TRUE;
-                                endif;
-
-                                LOGMSG="END OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-                        else
-                                LOGMSG="START OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-
-                                if (XCopyFile("TBKIT.DLL", "TBKIT.DLL", COMP_UPDATE_DATE | COMP_UPDATE_VERSION) < 0) then
-                                        MessageBeep(0);
-                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
-
-                                        bCopySuccess = FALSE;
-
-                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                        LOGWRITE(LOGMSG);
-                                else
-                                        bCopySuccess = TRUE;
-                                endif;
-
-                                LOGMSG="END OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-                        endif;
-
-                        if (bCopySuccess && bRunStandAlone) then
-                                LOGMSG="START REGISTER OF TBKIT.DLL OLE SERVER";
-                                LOGWRITE(LOGMSG);
-
-                                LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + TARGETDIR ^ "TBKIT.DLL", WAIT);
-
-                                LOGMSG="END REGISTER OF TBKIT.DLL OLE SERVER";
-                                LOGWRITE(LOGMSG);
-                        endif;
-
-                        TARGETDIR = SRCDIR;
-                        DeleteFile("TBKIT.DLL");
-
-                        VarRestore(SRCTARGETDIR);
-                endif;
         endif;
 end;
 
