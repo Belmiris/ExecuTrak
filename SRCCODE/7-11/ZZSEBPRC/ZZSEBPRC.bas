@@ -182,7 +182,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Dim x As Long
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If bClear Then
         frmZZSEBPRC!lstProcess.Clear
@@ -236,7 +236,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     'error
 End Sub
 
@@ -678,6 +678,31 @@ Public Function fnInsertHoldBonus() As String
                     fnInsertHoldBonus = sErrMsg
                     Exit Function
                 End If
+            
+                'david  #393054
+                'the check link is greater than zero
+                'and if the 'Process Hourly Employee only' checkbox is checked
+                'insert a new record...
+                If frmZZSEBPRC.chkHourly.Value = vbChecked Then
+                    strSQL1 = lEmpNo & ", "
+                    strSQL1 = strSQL1 & nPrftCtr & ", "
+                    strSQL1 = strSQL1 & tfnSQLString(sPayCode) & ", "
+                    strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colABonusAmt, lRow), 2) & ", "
+                    If fnGetField(tgmApprove.CellValue(colAPayHours, lRow)) = "" Then
+                        strSQL1 = strSQL1 & "NULL, "
+                    Else
+                        strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colAPayHours, lRow), 2) & ", "
+                    End If
+                    strSQL1 = strSQL1 & tfnDateString(sEndDate, True) & ", "
+                    strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAHdsOverride, lRow)) & ", "
+                    strSQL1 = strSQL1 & "0"  'per weigong insert 0 for bh_chk_link
+                    
+                    If Not fnExecuteSQL(strSQLinsert + strSQL1 + ")", , SUB_NAME) Then
+                        fnInsertHoldBonus = "Failed to insert Commission Data for Hourly Employee"
+                        Exit Function
+                    End If
+                End If
+                '''''''''''''''
             End If
         End If
     Next lRow
@@ -723,56 +748,56 @@ Public Function fnCheckBonusHold() As Integer
     Dim nBonusMasterCount As Long
     Dim nChkLinkIsZero As Long
     Dim nChkLinkNotZero As Long
-    
+
     strSQL = "SELECT bm_empno, bm_eligible_pc FROM bonus_master, bonus_formula"
     strSQL = strSQL & " WHERE " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
     strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
-    
+
     If frmZZSEBPRC!txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
     End If
-    
+
     If frmZZSEBPRC!txtEmpProcess <> "" Then
         strSQL = strSQL & " AND bm_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
     End If
-    
+
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
     'strSQL = strSQL & " GROUP BY bm_empno, bm_eligible_pc"
-    
+
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database", vbExclamation
         Exit Function
     End If
-    
+
     nBonusMasterCount = rsTemp.RecordCount
-    
+
     If nBonusMasterCount = 0 Then
         fnCheckBonusHold = vbYes
         Exit Function
     End If
-    
+
     strSQL = "SELECT bh_chk_link FROM bonus_hold"
     strSQL = strSQL & " WHERE bh_chk_link <> 0"
-    
+
     If frmZZSEBPRC!txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
     End If
-    
+
     If frmZZSEBPRC!txtEmpProcess <> "" Then
         strSQL = strSQL & " AND bh_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
     End If
-    
+
     strSQL = strSQL & " AND bh_date = " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
     'do not include pay code is hoursly
     strSQL = strSQL & " AND bh_pay_code NOT IN (SELECT prpa_pay_code FROM pr_pay "
     strSQL = strSQL & " WHERE (prpa_type = 'P' AND prpa_calc_method = 'H') "
     strSQL = strSQL & " OR (prpa_type = 'N' AND prpa_calc_method = 'D'))"
-    
+
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database", vbExclamation
         Exit Function
     End If
-    
+
     nChkLinkNotZero = rsTemp.RecordCount
 
     strSQL = "SELECT bh_chk_link FROM bonus_hold"
@@ -781,27 +806,27 @@ Public Function fnCheckBonusHold() As Integer
     strSQL = strSQL & " AND bh_pay_code NOT IN (SELECT prpa_pay_code FROM pr_pay "
     strSQL = strSQL & " WHERE (prpa_type = 'P' AND prpa_calc_method = 'H') "
     strSQL = strSQL & " OR (prpa_type = 'N' AND prpa_calc_method = 'D'))"
-    
-    
+
+
     If frmZZSEBPRC!txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
     End If
-    
+
     If frmZZSEBPRC!txtEmpProcess <> "" Then
         strSQL = strSQL & " AND bh_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
     End If
-    
+
     strSQL = strSQL & " AND bh_date = " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
 
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database", vbExclamation
         Exit Function
     End If
-    
+
     nChkLinkIsZero = rsTemp.RecordCount
 
     If nChkLinkNotZero >= nBonusMasterCount Then
-        
+
         If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
             sMsg = "All the Commission Records have been selected into Payroll Print Group, " _
                 + "and cannot be processed."
@@ -812,19 +837,19 @@ Public Function fnCheckBonusHold() As Integer
             sMsg = "All the Commission Records for the Profit Center have been selected " _
                 + "into Payroll Print Group, and cannot not be processed."
         End If
-        
+
         MsgBox sMsg, vbExclamation
 
         fnCheckBonusHold = vbCancel
-        
+
         subLogErrMsg sMsg
         subLogErrMsg " "
 
         Exit Function
     Else
-        
+
         If nChkLinkNotZero > 0 Then
-            
+
             If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
                 sMsg = "Some Commission Records have been selected into Payroll Print " _
                     + "Group, and cannot be processed. "
@@ -835,23 +860,23 @@ Public Function fnCheckBonusHold() As Integer
                 sMsg = "Some Commission Records for the Profit Center have been selected " _
                     + "into Payroll Print Group, and cannot not be processed. "
             End If
-            
+
             fnCheckBonusHold = MsgBox(sMsg + "Are you sure you want to continue?", vbQuestion _
                 + vbYesNo + vbDefaultButton2)
-            
+
             subLogErrMsg sMsg
             subLogErrMsg " "
-            
+
             Exit Function
         End If
-        
+
     End If
-    
-    
+
+
     sMsg = ""
-    
+
     If nChkLinkIsZero >= nBonusMasterCount Then
-        
+
         If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
             sMsg = "All the Commission Records"
         ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
@@ -859,11 +884,11 @@ Public Function fnCheckBonusHold() As Integer
         Else
             sMsg = "All the Commission Records for the Profit Center"
         End If
-    
+
     Else
-        
+
         If nChkLinkIsZero > 0 Then
-            
+
             If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
                 sMsg = "Some Commission Records"
             ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
@@ -871,23 +896,23 @@ Public Function fnCheckBonusHold() As Integer
             Else
                 sMsg = "Some Commission Records for the Profit Center"
             End If
-        
+
         End If
-    
+
     End If
-    
+
     If sMsg <> "" Then
         sMsg = sMsg + " have been processed, and will be replaced! "
 
         fnCheckBonusHold = MsgBox(sMsg + "Are you sure you want to continue?", vbQuestion _
             + vbYesNo + vbDefaultButton2)
-        
+
         subLogErrMsg sMsg
         subLogErrMsg " "
-        
+
         Exit Function
     End If
-    
+
     fnCheckBonusHold = vbYes
 End Function
 
@@ -2477,7 +2502,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     Dim aryValues As Variant
     Dim objEvaluate As clsEquation
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sFormula = LCase(Trim(sFormula))
     
@@ -2508,7 +2533,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckFormula"
     fnCheckFormula = "Failed to validate Formula"
 
@@ -2522,7 +2547,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     Dim aryValues As Variant
     Dim objCondition As clsCondition
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sCond = LCase(Trim(sCond))
     
@@ -2553,7 +2578,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckCondition"
     fnCheckCondition = "Failed to validate Condition"
 
@@ -3133,7 +3158,7 @@ Public Function fnDateDiff(sInterval As String, _
     Dim lDaysInMonths As Long
     Dim lDiff As Long
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sInterval = LCase(sInterval)
     
@@ -3211,7 +3236,7 @@ Public Function fnDateDiff(sInterval As String, _
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnDateDiff"
 End Function
 

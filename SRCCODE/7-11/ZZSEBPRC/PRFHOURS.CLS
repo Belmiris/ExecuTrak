@@ -127,6 +127,7 @@ Private bWarned As Boolean 'for warning of Date with glp_status ='W'
 
 Private bTableExists As Boolean
 Private g_lOriginalRowCount As Long
+'
 
 '===========================
 'public properties/functions
@@ -1877,6 +1878,10 @@ Private Function fnValidEmpNo(sText As String, nCol As Integer, lRow As Long) As
     Dim i As Long
     Dim sEmpName As String
     
+    Dim sPrftCtrList As String
+    Dim sTemp As String
+    Dim nCountPrftCtr As Integer
+    
     fnValidEmpNo = False
     
     If Trim(sText) = "" Then
@@ -1923,26 +1928,87 @@ Private Function fnValidEmpNo(sText As String, nCol As Integer, lRow As Long) As
 '            Exit Function
 '        End If
         
+        'david 12/27/2002  #394605
+        'need to also check the profit center in pr_master for the employee
+        'the bh_prft_ctr + prm_prft_ctrX +
+'        strSQL = "SELECT count(DISTINCT bh_prft_ctr) as prftCount FROM bonus_hold"
+'        strSQL = strSQL & " WHERE bh_chk_link = 0 "
+'        'don't care date
+'        'strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
+'        strSQL = strSQL & " AND bh_prft_ctr <> " & tfnRound(txtEHPrftCtr)
+'        strSQL = strSQL & " AND bh_empno = " & tfnRound(sText)
+'        strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
+'
+'        If tfnRound(rsTemp!prftCount) >= 5 Then
+'            tgcEditor.ErrorMessage(nCol) = "Employee may only have hours for five separate profit centers in a single pay period."
+'            Exit Function
+'        End If
+
+        'david 12/27/2002  #394605
+        'need to check the profit center in pr_master for the employee
+        nCountPrftCtr = 0
+        sPrftCtrList = ""
+        
+        For i = 1 To 5
+            sTemp = fnGetField(rsTemp.Fields("prm_prft_ctr" & i))
+            
+            If sTemp <> "" Then
+                If sPrftCtrList <> "" Then
+                    sPrftCtrList = sPrftCtrList + ","
+                End If
+                
+                sPrftCtrList = sPrftCtrList + sTemp
+                
+                If sTemp <> txtEHPrftCtr Then
+                    nCountPrftCtr = nCountPrftCtr + 1
+                End If
+            End If
+        Next i
+
+        strSQL = "SELECT DISTINCT bm_eligible_pc FROM bonus_master"
+        strSQL = strSQL & " WHERE bm_empno = " & tfnRound(sText)
+        strSQL = strSQL & " AND bm_eligible_pc <> " & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND bm_eligible_pc NOT IN (" + sPrftCtrList + ")"
+        
+        If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") < 0 Then
+            tgcEditor.ErrorMessage(nCol) = "Database Access Error"
+            Exit Function
+        End If
+        
+        'add bm_eligible_pc into the list
+        While Not rsTemp.EOF
+            sTemp = fnGetField(rsTemp!bm_eligible_pc)
+            
+            If sTemp <> "" Then
+                If sPrftCtrList <> "" Then
+                    sPrftCtrList = sPrftCtrList + ","
+                End If
+                
+                sPrftCtrList = sPrftCtrList + sTemp
+                nCountPrftCtr = nCountPrftCtr + 1
+            End If
+            
+            rsTemp.MoveNext
+        Wend
+        
         strSQL = "SELECT count(DISTINCT bh_prft_ctr) as prftCount FROM bonus_hold"
         strSQL = strSQL & " WHERE bh_chk_link = 0 "
-        'don't care date
-        'strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
         strSQL = strSQL & " AND bh_prft_ctr <> " & tfnRound(txtEHPrftCtr)
         strSQL = strSQL & " AND bh_empno = " & tfnRound(sText)
         strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
         
-         If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") <= 0 Then
+        If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") <= 0 Then
             tgcEditor.ErrorMessage(nCol) = "Database Access Error"
             Exit Function
-        Else
-            
-            If tfnRound(rsTemp!prftCount) >= 5 Then
-                tgcEditor.ErrorMessage(nCol) = "Employee may only have hours for five separate profit centers in a single pay period."
-                Exit Function
-            End If
-            
         End If
         
+        nCountPrftCtr = nCountPrftCtr + tfnRound(rsTemp!prftCount)
+        ''''''''''''''''''''''''''
+            
+        If nCountPrftCtr >= 5 Then
+            tgcEditor.ErrorMessage(nCol) = "Employee may only have hours for five separate profit centers in a single pay period."
+            Exit Function
+        End If
     End If
 
     If t_nFormMode = ADD_MODE Then
