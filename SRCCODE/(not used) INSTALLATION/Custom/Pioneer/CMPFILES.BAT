@@ -7,12 +7,16 @@ if "%1" == "" goto parm_missing
 rem CREATE SETUP.BMP AND CHANGE VERSION
 call buildbmp.bat %1
 
-echo Delete z files
-del ..\disk\*.z
-
 echo .
 echo call DISKBILD.BAT
 call buildlog.bat PIONEER %1
+
+echo .
+choice /c:yn /t:y,7 Do you want to CONTINUE the DISK BUILD PROCESS
+if errorlevel 2 goto quitbuild
+
+echo Delete z files
+del ..\disk\*.z
 
 echo .
 echo Compress all files to factbin.z
@@ -49,6 +53,19 @@ echo .
 echo Compress Local Database
 icomp g:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 
+
+goto showinfo
+
+
+:quitbuild
+echo .
+echo DISK BUILD PROCESS has been cancelled
+
+goto finished
+
+
+:showinfo
+
 echo .
 echo Run the PACKCALC and edit the SPLITZ.BAT/SETUP.LST
 echo Z File sequence (FACTBIN.Z, SHARED.Z, FACTDLL.Z, FACTOLE.Z, CUSTCTL.Z
@@ -56,6 +73,11 @@ echo                   , FACTDB.Z, CRYSTAL.Z, RTM.Z)
 
 echo .
 echo Then run the SPLITZ.BAT to split the Z file.
+
+echo .
+choice /c:yn /t:y,7 Do you want to run the splitz.bat.
+
+if errorlevel 2 goto finished
 
 echo .
 call splitz
