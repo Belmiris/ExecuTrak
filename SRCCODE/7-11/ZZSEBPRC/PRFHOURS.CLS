@@ -16,21 +16,18 @@ Option Explicit
 Private m_Form As Form
 Private tbToolbar As Toolbar
 Private ffraStatusbar As FactorFrame
-Private txtEmployeeNumber As Textbox
-Private cmdEmployeeNumber As FactorFrame
-Private txtEmployeeName As Textbox
-Private cmdEmployeeName As FactorFrame
-Private txtSSN As Textbox
-Private cmdSSN As FactorFrame
+Private txtEHPrftCtr As Textbox
+Private cmdEHPrftCtr As FactorFrame
+Private txtEHPrftName As Textbox
+Private cmdEHPrftName As FactorFrame
+Private txtEHDate As Textbox
+Private cmdEHDate As FactorFrame
 Private datComboDropDown As Data
 Private datFloating As Data
 Private tblComboDropdown As TDBGrid
 Private tblTimeCard As TDBGrid
-Private tblProfitCenter As TDBGrid
 Private tblFloating As TDBGrid
 Private cmdFloatingBtn As PictureBox
-Private txtTotalDollars As Textbox
-Private txtTotal As Textbox
 Private cmdAddBtn  As FactorFrame
 Private cmdEditBtn  As FactorFrame
 Private cmdDeleteBtn  As FactorFrame
@@ -39,6 +36,17 @@ Private cmdRefreshSelectBtn As FactorFrame
 Private cmdExitCancelBtn As FactorFrame
 Private cmdExitBtn As FactorFrame
 Private efraBridge As FactorFrame
+'The control for the pay code selection
+Private efraEHPayCode As FactorFrame
+Private txtEHPayCode As Textbox
+Private txtEHPayCodeDesc As Textbox
+Private cmdEHPayCode As FactorFrame
+Private cmdEHPayCodeDesc As FactorFrame
+''''''''
+Private lblEHTotalHours As Label
+Private lblEHTotalPayCode1 As Label
+Private lblEHTotalPayCode2 As Label
+Private lblEHTotalPayCode3 As Label
 
 Private mnuCancel As Menu
 
@@ -88,12 +96,10 @@ Private Const t_szHELP As String = "Help"
 Private s_EmployeeNumber As String
 Private s_EmployeeName As String
 Private s_SNumber As String
+
 Private cValidate As cValidateInput
 Private tgcEditor As clsTGSpreadSheet
-Private tgcEditorPrft As clsTGSpreadSheet
 Private tgcFEditor As clsFloatingDropDown
-Private nsArray() As Variant
-Private nsArrayCenter() As Variant
 Private bNeverDelet As Boolean
 Private sDecimalString As String
 
@@ -103,176 +109,160 @@ Private nDataStatus As Integer
 Private Const DATA_INI = 0
 Private Const DATA_LOADED = 1
 Private Const DATA_CHANGED = 2
-Private Const COL_DATE = 0
-Private Const COL_PRFT = 1
-Private Const COL_CODE = 2
-'Private Const COL_TYPE = 3
-Private Const COL_HOUR = 3
-'Private COL_SOURCE As Integer
+Private Const COL_EMPNO = 0
+Private Const COL_EMPNAME = 1
+Private Const COL_HOUR = 2
+Private Const COL_PAYCODE1 = 3
+Private Const COL_PAYCODE2 = 4
+Private Const COL_PAYCODE3 = 5
+Private Const MAXCols As Integer = 5
+Private Const sDefaultPAYCODE1 As String = "Paycode 1"
+Private Const sDefaultPAYCODE2 As String = "Paycode 2"
+Private Const sDefaultPAYCODE3 As String = "Paycode 3"
+Private Const sHOURLYPAYCODE As String = "7HRP"
+Private g_sOrigPayCode1 As String
+Private g_sOrigPayCode2 As String
+Private g_sOrigPayCode3 As String
 Private bWarned As Boolean 'for warning of Date with glp_status ='W'
 
 Private bTableExists As Boolean
+Private g_lOriginalRowCount As Long
 
-'---------------------------------------------------------------------------------
-'Prft Ctr Validation Changes ------ Made by Weigong Jiang per Magic #370194
-Private aryEmpPCs() As Integer
-Private aryPCCount As Integer
-
-Private Sub subInitPCArry(ByVal lEmp As Long) 'WJ
-        
-    Dim strSQL As String
-    Dim rsPrftCtr As Recordset
-    Dim nCount As Long
-    Dim i As Integer
-    
-    strSQL = "SELECT bh_prft_ctr FROM bonus_hold " _
-        & " WHERE bh_empno = " & lEmp _
-        & " GROUP BY bh_prft_ctr"
-    aryPCCount = GetRecordSet(rsPrftCtr, strSQL)
-    
-    If aryPCCount > 0 Then
-        ReDim aryEmpPCs(aryPCCount - 1)
-        
-        For i = 0 To aryPCCount - 1
-            aryEmpPCs(i) = tfnRound(rsPrftCtr!bh_prft_ctr)
-            rsPrftCtr.MoveNext
-        Next
-    Else
-        ReDim aryEmpPCs(0)
-    End If
-End Sub
-
-Private Function fnCheckPrftCtrCnt() As Integer 'WJ
-    Dim aryPC() As Integer
-    Dim i As Integer
-    Dim j As Integer
-    Dim aryCount As Integer
-    Dim nPC As Integer
-    Dim bFound As Boolean
-    
-    If aryPCCount > 5 Then
-        fnCheckPrftCtrCnt = aryPCCount
-    Else
-        aryCount = aryPCCount
-        If aryCount > 0 Then
-            ReDim aryPC(aryCount - 1)
-        End If
-        For j = 0 To aryCount - 1
-            aryPC(j) = aryEmpPCs(j)
-        Next
-        For i = 0 To tgcEditor.RowCount - 1
-            bFound = False
-            If fnGetField(tgcEditor.CellValue(COL_PRFT, i)) <> szEMPTY Then
-                nPC = tfnRound(tgcEditor.CellValue(COL_PRFT, i))
-                
-                For j = 0 To aryCount - 1
-                    If nPC = aryPC(j) Then
-                        bFound = True
-                        Exit For
-                    End If
-                Next
-            End If
-            If Not bFound Then
-                ReDim Preserve aryPC(aryCount)
-                aryPC(aryCount) = nPC
-                aryCount = aryCount + 1
-                
-            End If
-            If aryCount > 5 Then
-                Exit For
-            End If
-        Next
-        fnCheckPrftCtrCnt = aryCount
-    End If
-    
-End Function
-'----------------------------------------------------------------------------------------------
 '===========================
 'public properties/functions
 '===========================
 Property Set MainForm(frmMain As Form)
     Set m_Form = frmMain
 End Property
+
 Property Set FormToolBar(tb As Toolbar)
     Set tbToolbar = tb
 End Property
+
 Property Set StatusBar(efra As FactorFrame)
     Set ffraStatusbar = efra
 End Property
-Property Set EmpNumTexBox(txtEmpNum As Textbox)
-    Set txtEmployeeNumber = txtEmpNum
+
+Property Set EHPrftCtrTextBox(txtPrftCtr As Textbox)
+    Set txtEHPrftCtr = txtPrftCtr
 End Property
-Property Set EmpNumButton(cmdEmpNum As FactorFrame)
-    Set cmdEmployeeNumber = cmdEmpNum
+
+Property Set EHPrftCtrButton(cmdPrftCtr As FactorFrame)
+    Set cmdEHPrftCtr = cmdPrftCtr
 End Property
-Property Set EmpNameTexBox(txtEmpName As Textbox)
-    Set txtEmployeeName = txtEmpName
+
+Property Set EHPrftNameTextBox(txtPrftName As Textbox)
+    Set txtEHPrftName = txtPrftName
 End Property
-Property Set EmpNameButton(cmdEmpName As FactorFrame)
-    Set cmdEmployeeName = cmdEmpName
+
+Property Set EHPayCodeTextBox(txtBox As Textbox)
+    Set txtEHPayCode = txtBox
 End Property
-Property Set SSNTexBox(SSNTextbox As Textbox)
-    Set txtSSN = SSNTextbox
+
+Property Set EHPayCodeDescTextBox(txtBox As Textbox)
+    Set txtEHPayCodeDesc = txtBox
 End Property
-Property Set SSNButton(SSNButton As FactorFrame)
-    Set cmdSSN = SSNButton
+
+Property Set EHPayCodeFactorFrame(efraFrame As FactorFrame)
+    Set efraEHPayCode = efraFrame
 End Property
+
+Property Set EHPayCodeButton(cmdButton As FactorFrame)
+    Set cmdEHPayCode = cmdButton
+End Property
+
+Property Set EHPayCodeDescButton(cmdButton As FactorFrame)
+    Set cmdEHPayCodeDesc = cmdButton
+End Property
+
+Property Set EHPrftNameButton(cmdPrftName As FactorFrame)
+    Set cmdEHPrftName = cmdPrftName
+End Property
+
+Property Set EHDATETextBox(txtDate As Textbox)
+    Set txtEHDate = txtDate
+End Property
+
+Property Set EHDATEButton(cmdButton As FactorFrame)
+    Set cmdEHDate = cmdButton
+End Property
+
+Property Set EHTotalHoursLabel(lbl As Label)
+    Set lblEHTotalHours = lbl
+End Property
+
+Property Set EHTotalPayCode1(lbl As Label)
+    Set lblEHTotalPayCode1 = lbl
+End Property
+
+Property Set EHTotalPayCode2(lbl As Label)
+    Set lblEHTotalPayCode2 = lbl
+End Property
+
+Property Set EHTotalPayCode3(lbl As Label)
+    Set lblEHTotalPayCode3 = lbl
+End Property
+
 Property Set ComboDropDownData(datGrid As Data)
     Set datComboDropDown = datGrid
 End Property
+
 Property Set FloatingData(datGrid As Data)
     Set datFloating = datGrid
 End Property
+
 Property Set ComboDropdownGrid(tblGrid As TDBGrid)
     Set tblComboDropdown = tblGrid
 End Property
+
 Property Set TimeCardGrid(tblGrid As TDBGrid)
     Set tblTimeCard = tblGrid
 End Property
-Property Set ProfitCenterGrid(tblGrid As TDBGrid)
-    Set tblProfitCenter = tblGrid
-End Property
+
 Property Set FloatingGrid(tblGrid As TDBGrid)
     Set tblFloating = tblGrid
 End Property
+
 Property Set FloatingButton(Pic As PictureBox)
     Set cmdFloatingBtn = Pic
 End Property
-Property Set TotalDollarsTexBox(TotalDollarsTextbox As Textbox)
-    Set txtTotalDollars = TotalDollarsTextbox
-End Property
-Property Set TotalTexBox(TotalTextbox As Textbox)
-    Set txtTotal = TotalTextbox
-End Property
+
 Property Set AddButton(btn As FactorFrame)
     Set cmdAddBtn = btn
 End Property
+
 Property Set EditButton(btn As FactorFrame)
     Set cmdEditBtn = btn
 End Property
+
 Property Set DeleteButton(btn As FactorFrame)
     Set cmdDeleteBtn = btn
 End Property
+
 Property Set UpdateInsertButton(btn As FactorFrame)
     Set cmdUpdateInsertBtn = btn
 End Property
+
 Property Set RefreshSelectButton(btn As FactorFrame)
     Set cmdRefreshSelectBtn = btn
 End Property
+
 Property Set CancelButton(btn As FactorFrame)
     Set cmdExitCancelBtn = btn
 End Property
+
 Property Set CancelMenuButton(btn As Menu)
     Set mnuCancel = btn
 End Property
+
 Property Set ExitButton(btn As FactorFrame)
     Set cmdExitBtn = btn
 End Property
+
 Property Set Bridge(efra As FactorFrame)
     Set efraBridge = efra
 End Property
 '
-
 
 Public Sub Form_Load()
     Dim bCode As Boolean
@@ -288,7 +278,6 @@ Public Sub Form_Load()
      subSetValidtion
      subSetGrid
      subSetFloatingDropDown
-           
     ' ^ ^ ^ ^ ^ ^ ^
     ' | | | | | | |
     '***************************************************
@@ -298,7 +287,7 @@ Public Sub Form_Load()
 End Sub
 
 Public Sub cmdFloatingBtn_Click()
-    subResetFloatingSQL2
+    subResetFloatingSQL
     tgcFEditor.ButtonClick cmdFloatingBtn
 End Sub
 
@@ -314,12 +303,15 @@ Public Sub efraBridge_GotFocus()
     cValidate.GotFocus efraBridge
 End Sub
 
+Public Sub efraBridge_LostFocus()
+    cValidate.LostFocus efraBridge
+End Sub
+
 Public Sub cmdAddBtn_GotFocus()
     tfnSetStatusBarMessage t_szADD
     On Error Resume Next
     DoEvents
     tgcEditor.ClearData
-    tgcEditorPrft.ClearData
 End Sub
 
 Public Sub cmdEditBtn_GotFocus()
@@ -374,16 +366,9 @@ Public Sub cmdAddBtn_Click()
     t_nFormMode = ADD_MODE
     subReSetComboSql
     fnEnableControls True
-    tgcEditor.AllowAddNew = True
-    tgcEditorPrft.AllowAddNew = True
-   
-    tgcEditor.AddEditColumn COL_DATE, "Enter Clock-in Date", szDatePattern
-    tgcEditor.AddEditColumn COL_PRFT, "Enter Profit Center", szIntegerPattern
-    tgcEditor.AddEditColumn COL_CODE, "Enter Pay Code", "^P{1,4}$"
-    
+    subSetEditColumns ADD_MODE
     tblTimeCard.Enabled = False
-    tblProfitCenter.Enabled = False
-    txtEmployeeNumber.SetFocus
+    txtEHPrftCtr.SetFocus
     
 End Sub
 
@@ -391,7 +376,6 @@ Public Sub cmdEditBtn_Click()
     t_bStartupFlag = False
     cmdAddBtn.Enabled = False
     cmdEditBtn.Enabled = False
-    
     cmdUpdateInsertBtn.Caption = t_szCAPTION_UPDATE
     cmdUpdateInsertBtn.Enabled = False
     
@@ -407,33 +391,31 @@ Public Sub cmdEditBtn_Click()
     
     subReSetComboSql
     fnEnableControls True
-    tgcEditor.AllowAddNew = False
-    tgcEditorPrft.AllowAddNew = False
-    'tgcEditor.RemoveEditColumn COL_TYPE '0
-    tgcEditor.RemoveEditColumn COL_DATE
-    tgcEditor.RemoveEditColumn COL_PRFT
-    tgcEditor.RemoveEditColumn COL_CODE
-    
+    subSetEditColumns EDIT_MODE
     tblTimeCard.Enabled = False
-    tblProfitCenter.Enabled = False
-    txtEmployeeNumber.SetFocus
+    txtEHPrftCtr.SetFocus
     
 End Sub
 
 Public Sub cmdDeleteBtn_Click()
     Dim bResponse As Integer
     Dim sStyle As String, sMsg As String
+    Dim lCurRow As Long
     
     sMsg = "Are you sure you want to delete this record?"
     sStyle = vbYesNo + vbQuestion + vbDefaultButton2
     bResponse = MsgBox(sMsg, sStyle)
     
     If bResponse = vbYes Then
+        lCurRow = tgcEditor.GetCurrentRowNumber
         
-        If fnDeleteData() Then
+        If fnDeleteData(lCurRow) Then
+            
+            If lCurRow <= g_lOriginalRowCount Then
+                g_lOriginalRowCount = g_lOriginalRowCount - 1
+            End If
+            
             tgcEditor.DeleteRow
-            fnGetTotalDollars
-            fnFillProfitTable
             bNeverDelet = False
             tfnSetStatusBarCorrect ("The Record was Deleted Successfully.")
             
@@ -526,127 +508,67 @@ Public Sub tblFloating_LostFocus()
     tgcFEditor.LostFocus tblFloating
 End Sub
 
-Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcFEditor.MouseUp Y
+Public Sub tblFloating_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcFEditor.MouseUp y
 End Sub
 
 Public Sub tblFloating_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgcFEditor.RowColChange tblFloating
 End Sub
 
-Public Sub tblProfitCenter_AfterColEdit(ByVal ColIndex As Integer)
-    tgcEditorPrft.AfterColEdit ColIndex
-End Sub
-
-Public Sub tblProfitCenter_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-     tgcEditorPrft.BeforeColEdit ColIndex, KeyAscii, CANCEL
-End Sub
-
-Public Sub tblProfitCenter_Change()
-    
-    If t_bStartupFlag Then
-        Exit Sub
-    End If
-    
-    tgcEditorPrft.Change
-End Sub
-
-Public Sub tblProfitCenter_GotFocus()
-        
-    Screen.MousePointer = vbDefault
-    
-    If t_bStartupFlag Then
-        Exit Sub
-    End If
-    
-    tgcEditorPrft.GotFocus
-End Sub
-
-Public Sub tblProfitCenter_KeyDown(KeyCode As Integer, Shift As Integer)
-    tgcEditorPrft.KeyDown KeyCode, Shift
-End Sub
-
-Public Sub tblProfitCenter_KeyPress(KeyAscii As Integer)
-    tgcEditorPrft.Keypress KeyAscii
-    KeyAscii = 0
-End Sub
-
-Public Sub tblProfitCenter_LostFocus()
-    tgcEditorPrft.LostFocus
-End Sub
-
-Public Sub tblProfitCenter_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-   
-   If t_bStartupFlag Then
-      Exit Sub
-   End If
-   
-   tgcEditorPrft.RowColChange LastRow, LastCol
-End Sub
-
-Public Sub tblProfitCenter_SelChange(CANCEL As Integer)
-    CANCEL = True
-End Sub
-
-Public Sub tblProfitCenter_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
-    
-    If t_bStartupFlag Then
-        Exit Sub
-    End If
-    
-    tgcEditorPrft.ReadData RowBuf, StartLocation, ReadPriorRows
-End Sub
-
 '====
 'Grid
 '====
 Public Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
-    Dim iCurrentRow As Integer
-    
     tgcEditor.AfterColEdit ColIndex
-    iCurrentRow = tgcEditor.GetCurrentRowNumber
-    
-    If ColIndex = 0 Then
-        On Error Resume Next
-        tgcEditor.CellValue(0, iCurrentRow) = tfnFormatDate(tgcEditor.CellValue(0, iCurrentRow))
-    End If
-    
-    If ColIndex = 2 Then
-        On Error Resume Next
-        tgcEditor.CellValue(2, iCurrentRow) = UCase(tgcEditor.CellValue(2, iCurrentRow))
-    End If
-    
-    fnGetTotalDollars
-    
-    If t_nFormMode = EDIT_MODE Then
-        
-        If iCurrentRow = tgcEditor.RowCount - 1 Then
-            fnFillProfitTable
-        End If
-        
-    End If
-    
+    nDataStatus = DATA_CHANGED
+    subCalculateTotal
     subSetFormStatus
- 
 End Sub
 
 Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     tgcEditor.BeforeColEdit ColIndex, KeyAscii, CANCEL
-    cmdUpdateInsertBtn.Enabled = False
+    
+    If ColIndex <= COL_EMPNAME Then
+            
+        If tgcEditor.GetCurrentRowNumber < g_lOriginalRowCount Then
+            CANCEL = True
+            Exit Sub
+        End If
+    
+    Else
+        
+        Select Case ColIndex
+            Case COL_PAYCODE1
+            
+                If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE1 Then
+                    CANCEL = True
+                End If
+                
+            Case COL_PAYCODE2
+                
+                If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE2 Then
+                    CANCEL = True
+                End If
+                
+            Case COL_PAYCODE3
+                
+                If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE3 Then
+                    CANCEL = True
+                End If
+                
+        End Select
+        
+    End If
+
 End Sub
 
 Public Sub tblTimeCard_Change()
     tgcEditor.Change
+    cmdUpdateInsertBtn.Enabled = False
     
-    If tblTimeCard.col = COL_DATE Then
-        tblTimeCard.Columns(COL_PRFT).value = ""
-        tgcEditor.CellValue(COL_PRFT, tgcEditor.GetCurrentRowNumber) = ""
-        tblTimeCard.Columns(COL_CODE).value = ""
-        tgcEditor.CellValue(COL_CODE, tgcEditor.GetCurrentRowNumber) = ""
-    End If
-    
-    If nDataStatus = DATA_LOADED Or t_nFormMode = ADD_MODE Then
-        nDataStatus = DATA_CHANGED
+    If tblTimeCard.col = COL_EMPNO Then
+        tgcEditor.CellValue(COL_EMPNAME, tgcEditor.GetCurrentRowNumber) = ""
     End If
     
 End Sub
@@ -668,25 +590,45 @@ Public Sub tblTimeCard_GotFocus()
     If t_nFormMode = ADD_MODE Then
         
         If tgcFEditor.ValidSelection Then
-            tblTimeCard_AfterColEdit COL_PRFT
-            tblTimeCard_AfterColEdit COL_CODE
+            nDataStatus = DATA_CHANGED
+            subSetFormStatus
         End If
         
     End If
     
-'    If t_nFormMode = EDIT_MODE Then
-'        tgcFEditor.GotFocus
-'
-'        If tgcFEditor.ValidSelection Then
-'            tblTimeCard_AfterColEdit COL_CODE
-'        End If
-'
-'    End If
-'
 End Sub
 
 Public Sub tblTimeCard_KeyDown(KeyCode As Integer, Shift As Integer)
+    '7-11 Required the quick key entered, so the following code are used
+    'to hanlde this situation, but it may cause the validtion not work
+    'correctly.
     
+    Dim bKeyReturnEntered As Boolean
+    
+    If tblTimeCard.col = COL_HOUR Then
+
+        If KeyCode = vbKeyReturn Then
+
+            If t_nFormMode = ADD_MODE Then
+
+                If tgcEditor.GetCurrentRowNumber < g_lOriginalRowCount Then
+                    bKeyReturnEntered = True
+                    KeyCode = 0
+                End If
+
+            Else
+
+                If tgcEditor.GetCurrentRowNumber < tgcEditor.RowCount - 1 Then
+                    bKeyReturnEntered = True
+                    KeyCode = 0
+                End If
+
+            End If
+
+        End If
+
+    End If
+
     tgcFEditor.Keypress tblTimeCard, KeyCode
       
     If tgcFEditor.ValidSelection Then
@@ -694,54 +636,89 @@ Public Sub tblTimeCard_KeyDown(KeyCode As Integer, Shift As Integer)
     End If
     
     tgcEditor.KeyDown KeyCode, Shift
+    
+    If tblTimeCard.col = COL_HOUR Then
 
+        If bKeyReturnEntered Then
+            
+            If t_nFormMode = ADD_MODE And tgcEditor.GetCurrentRowNumber = 0 And g_lOriginalRowCount > 0 Then
+                'force rowcolchange event when in the first row to reset the last column in class tgceditor
+                tgcEditor.RowColChange 0, COL_PAYCODE1
+            End If
+            
+            If t_nFormMode = ADD_MODE Then
+                SendKeys "{right}"
+                DoEvents
+                SendKeys "{left}"
+            End If
+            
+            SendKeys "{down}"
+        End If
+
+    End If
+    
 End Sub
 
 Public Sub tblTimeCard_KeyPress(KeyAscii As Integer)
     
-    If tblTimeCard.col = COL_CODE Then
-        KeyAscii = Asc(UCase(Chr(KeyAscii)))
-    End If
-
     If Not tgcEditor.Keypress(KeyAscii) Then
         KeyAscii = 0
     End If
-    
+        
     tgcFEditor.Keypress tblTimeCard, KeyAscii
-          
+
 End Sub
 
 Public Sub tblTimeCard_LostFocus()
     tgcEditor.LostFocus
     tgcFEditor.LostFocus tblTimeCard
-    'fnGetTotalDollars
-    'subSetFormStatus
 End Sub
 
-Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     
     If tblTimeCard.col = 1 And Button = RIGHT_BUTTON Then
-        frmContext.MouseDown Button, PROFITCENTER_UP
+        frmContext.MouseDown Button, EMP_MST_UP
     End If
     
 End Sub
 
 Public Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    Dim nCurCol As Integer
+    Dim lCurRow As Long
     
     If t_bStartupFlag Then
         Exit Sub
     End If
     
+    lCurRow = tgcEditor.GetCurrentRowNumber
+    
     If tgcFEditor.RowColChange(tblTimeCard) Then
         tgcEditor.RowColChange LastRow, LastCol
     End If
     
-    If LastCol = 3 Or LastCol = 1 Then
-        fnFillProfitTable
+    If t_nFormMode = ADD_MODE Then
+    
+        If tblTimeCard.col <= COL_EMPNAME Then
+                    
+            If lCurRow <= g_lOriginalRowCount Then
+                tgcEditor.GotoNextColumn COL_EMPNO
+            End If
+        
+        End If
+        
+        nCurCol = tblTimeCard.col
+        
+        If tgcEditor.ValidCell(COL_EMPNO, lCurRow) Then
+            
+            If nCurCol = COL_EMPNAME Then
+                tgcEditor.GotoNextColumn LastCol
+            End If
+        
+        End If
+        
     End If
     
-    fnGetTotalDollars
-    'subSetFormStatus
+    
 End Sub
 
 Public Sub tblTimeCard_Scroll(CANCEL As Integer)
@@ -756,52 +733,46 @@ Public Sub tblTimeCard_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation 
     tgcEditor.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
-Public Sub txtEmployeeName_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    frmContext.MouseDown Button, EMP_MST_UP
+Public Sub txtEHPrftName_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+    frmContext.MouseDown Button, PRFTCNTR_UP
 End Sub
 
-Public Sub txtEmployeeNumber_Change()
-    
-    txtEmployeeName.Text = ""
-    txtSSN.Text = ""
-    tgcDropdown.Change txtEmployeeNumber
-    cValidate.Change txtEmployeeNumber
-    'nDataStatus = DATA_CHANGED
-    subSetFormStatus
-            
+Public Sub txtEHPrftCtr_Change()
+    tgcDropdown.Change txtEHPrftCtr
+    cValidate.Change txtEHPrftCtr
 End Sub
 
-Public Sub txtEmployeeNumber_Click()
-    tgcDropdown.Click txtEmployeeNumber
+Public Sub txtEHPrftCtr_Click()
+    tgcDropdown.Click txtEHPrftCtr
 End Sub
 
-Public Sub txtEmployeeNumber_GotFocus()
-
-    subTextSelected
- 
-    tgcDropdown.GotFocus txtEmployeeNumber
-    cValidate.GotFocus txtEmployeeNumber
+Public Sub txtEHPrftCtr_GotFocus()
+    tgcDropdown.GotFocus txtEHPrftCtr
+    cValidate.GotFocus txtEHPrftCtr
     Screen.MousePointer = vbDefault
     
     If tgcDropdown.SingleRecordSelected Then
-        subCheckEmpNum
+        subSetFocus txtEHDate
     End If
     
 End Sub
 
-Public Sub txtEmployeeNumber_KeyPress(KeyAscii As Integer)
+Public Sub txtEHPrftCtr_KeyPress(KeyAscii As Integer)
+
     If KeyAscii = vbKeyReturn Then
         Screen.MousePointer = vbHourglass
     End If
 
-    If tgcDropdown.Keypress(txtEmployeeNumber, KeyAscii) Then
-        cValidate.Keypress txtEmployeeNumber, KeyAscii
-        tfnRegExpControlKeyPress txtEmployeeNumber, KeyAscii, szLongPattern
+    If tgcDropdown.Keypress(txtEHPrftCtr, KeyAscii) Then
+        cValidate.Keypress txtEHPrftCtr, KeyAscii
     Else
+    
         If KeyAscii = vbKeyReturn Then
+        
             If tgcDropdown.SingleRecordSelected Then
-                subCheckEmpNum
+                subSetFocus txtEHDate
             End If
+        
         End If
         
         KeyAscii = 0
@@ -810,69 +781,54 @@ Public Sub txtEmployeeNumber_KeyPress(KeyAscii As Integer)
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeNumber_LostFocus()
-
-   ' tgcDropdown.LostFocus txtEmployeeNumber
+Public Sub txtEHPrftCtr_LostFocus()
    
-    If cValidate.LostFocus(txtEmployeeNumber, cmdEmployeeNumber, _
-        txtEmployeeName, cmdEmployeeName, _
-        txtSSN, cmdSSN, tblComboDropdown) Then
-        
-        If cValidate.ValidInput(txtEmployeeNumber) Then
-            subEnableEmployee False
-            tblTimeCard.Enabled = True
-            subSetFocus tblTimeCard
-            subSetFormStatus
-        End If
-    
+    If cValidate.LostFocus(txtEHPrftCtr, cmdEHPrftCtr, txtEHPrftName, cmdEHPrftName, tblComboDropdown) Then
+        tgcDropdown.LostFocus txtEHPrftCtr
     End If
 
 End Sub
 
-Public Sub cmdEmployeeNumber_Click()
+Public Sub cmdEHPrftCtr_Click()
     Screen.MousePointer = vbHourglass
-    tgcDropdown.Click cmdEmployeeNumber
+    tgcDropdown.Click cmdEHPrftCtr
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeName_Change()
-    txtSSN.Text = ""
-    tgcDropdown.Change txtEmployeeName
-    cValidate.Change txtEmployeeName
+Public Sub txtEHPrftName_Change()
+    tgcDropdown.Change txtEHPrftName
+    cValidate.Change txtEHPrftName
 End Sub
 
-Public Sub txtEmployeeName_Click()
-    tgcDropdown.Click txtEmployeeName
+Public Sub txtEHPrftName_Click()
+    tgcDropdown.Click txtEHPrftName
 End Sub
 
-Public Sub txtEmployeeName_GotFocus()
-
-    subTextSelected
-    tgcDropdown.GotFocus txtEmployeeName
-    cValidate.GotFocus txtEmployeeName
+Public Sub txtEHPrftName_GotFocus()
+    tgcDropdown.GotFocus txtEHPrftName
+    cValidate.GotFocus txtEHPrftName
     Screen.MousePointer = vbDefault
     
     If tgcDropdown.SingleRecordSelected Then
-        subCheckEmpNum
+        subSetFocus txtEHDate
     End If
     
 End Sub
 
-Public Sub txtEmployeeName_KeyPress(KeyAscii As Integer)
+Public Sub txtEHPrftName_KeyPress(KeyAscii As Integer)
     
     If KeyAscii = vbKeyReturn Then
         Screen.MousePointer = vbHourglass
     End If
 
-    If tgcDropdown.Keypress(txtEmployeeName, KeyAscii) Then
-        cValidate.Keypress txtEmployeeName, KeyAscii
-        tfnRegExpControlKeyPress txtEmployeeName, KeyAscii, "^P{1,42}$"
+    If tgcDropdown.Keypress(txtEHPrftName, KeyAscii) Then
+        cValidate.Keypress txtEHPrftName, KeyAscii
     Else
     
         If KeyAscii = vbKeyReturn Then
             
             If tgcDropdown.SingleRecordSelected Then
-                subCheckEmpNum
+                subSetFocus txtEHDate
             End If
         
         End If
@@ -883,74 +839,154 @@ Public Sub txtEmployeeName_KeyPress(KeyAscii As Integer)
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeName_LostFocus()
+Public Sub txtEHPrftName_LostFocus()
     
-    If cValidate.LostFocus(txtEmployeeNumber, cmdEmployeeNumber, _
-        txtEmployeeName, cmdEmployeeName, _
-        txtSSN, cmdSSN, tblComboDropdown) Then
-        
-        If cValidate.ValidInput(txtEmployeeName) Then
-            subEnableEmployee False
-            subSetFocus tblTimeCard
-            subSetFormStatus
-        End If
-    
+    If cValidate.LostFocus(txtEHPrftCtr, cmdEHPrftCtr, txtEHPrftName, cmdEHPrftName, tblComboDropdown) Then
+        tgcDropdown.LostFocus txtEHPrftName
     End If
 
 End Sub
 
-Public Sub cmdEmployeeName_Click()
+Public Sub cmdEHPrftName_Click()
     Screen.MousePointer = vbHourglass
-    tgcDropdown.Click cmdEmployeeName
+    tgcDropdown.Click cmdEHPrftName
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtEmployeeNumber_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub cmdEHDate_Click()
+    Screen.MousePointer = vbHourglass
+    subReSetComboSql
+    tgcDropdown.Click cmdEHDate
+    Screen.MousePointer = vbDefault
+End Sub
+
+Public Sub txtEHPrftCtr_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
-Public Sub txtSSN_Change()
+Public Sub txtEHDate_Change()
+    tgcDropdown.Change txtEHDate
+    cValidate.Change txtEHDate
+    tfnRegExpControlChange txtEHDate, szDatePattern
+End Sub
+
+Public Sub txtEHDate_GotFocus()
+    'subTextSelected
+    tgcDropdown.GotFocus txtEHDate
+    cValidate.GotFocus txtEHDate
     
-    If txtSSN.Text = "" Then
-        txtEmployeeName.Text = ""
+    If tgcDropdown.SingleRecordSelected Then
+  
+        If tblTimeCard.Enabled Then
+            subSetFocus tblTimeCard
+        Else
+            subSetFocus efraBridge
+        End If
+    
     End If
     
-    tgcDropdown.Change txtSSN
-    cValidate.Change txtSSN
-    tfnRegExpControlChange txtSSN, "^###(\-)?##(\-)?####$"
 End Sub
 
-Public Sub txtSSN_Click()
-    tgcDropdown.Click txtSSN
+Public Sub txtEHDate_KeyPress(KeyAscii As Integer)
+
+    tfnRegExpControlKeyPress txtEHDate, KeyAscii, szDatePattern
+
+    If t_nFormMode = EDIT_MODE Then
+        
+        If KeyAscii = vbKeyReturn Then
+            subReSetComboSql
+        End If
+        
+        If tgcDropdown.Keypress(txtEHDate, KeyAscii) Then
+            cValidate.Keypress txtEHDate, KeyAscii
+        Else
+        
+            If KeyAscii = vbKeyReturn Then
+                
+                If tgcDropdown.SingleRecordSelected Then
+                      
+                    If tblTimeCard.Enabled Then
+                        subSetFocus tblTimeCard
+                    Else
+                        subSetFocus efraBridge
+                    End If
+                
+                End If
+            
+            End If
+            
+            KeyAscii = 0
+        End If
+        
+    Else
+    
+        If KeyAscii = vbKeyReturn Then
+            
+            If tblTimeCard.Enabled Then
+                subSetFocus tblTimeCard
+            Else
+                subSetFocus efraBridge
+            End If
+            
+            KeyAscii = 0
+        Else
+            cValidate.Keypress txtEHDate, KeyAscii
+        End If
+        
+    End If
 End Sub
 
-Public Sub txtSSN_GotFocus()
+Public Sub txtEHDate_LostFocus()
 
-    subTextSelected
-    tgcDropdown.GotFocus txtSSN
-    cValidate.GotFocus txtSSN
+    If cValidate.LostFocus(txtEHDate, cmdEHDate, tblComboDropdown) Then
+        tgcDropdown.LostFocus txtEHDate
+        
+        If cValidate.ValidInput(txtEHDate) Then
+            txtEHDate = tfnFormatDate(txtEHDate)
+            
+            If fnFillTimeCard() Then
+                subEnableProfitCtr False
+                tblTimeCard.Enabled = True
+                subSetFocus tblTimeCard
+            End If
+            
+        End If
+        
+    End If
+    
+End Sub
+
+Public Sub txtEHPayCode_Change()
+    tgcDropdown.Change txtEHPayCode
+    cValidate.Change txtEHPayCode
+End Sub
+
+Public Sub txtEHPayCode_GotFocus()
+    
+    tgcDropdown.GotFocus txtEHPayCode
+    cValidate.GotFocus txtEHPayCode
     Screen.MousePointer = vbDefault
     
     If tgcDropdown.SingleRecordSelected Then
-        subCheckEmpNum
+        subSetFocus tblTimeCard
     End If
     
 End Sub
 
-Public Sub txtSSN_KeyPress(KeyAscii As Integer)
+Public Sub txtEHPayCode_KeyPress(KeyAscii As Integer)
+    
     If KeyAscii = vbKeyReturn Then
         Screen.MousePointer = vbHourglass
     End If
 
-    If tgcDropdown.Keypress(txtSSN, KeyAscii) Then
-        cValidate.Keypress txtSSN, KeyAscii
-        tfnRegExpControlKeyPress txtSSN, KeyAscii, "^###(\-)?##(\-)?####$"
+    If tgcDropdown.Keypress(txtEHPayCode, KeyAscii) Then
+        cValidate.Keypress txtEHPayCode, KeyAscii
     Else
-        
+    
         If KeyAscii = vbKeyReturn Then
             
             If tgcDropdown.SingleRecordSelected Then
-                subCheckEmpNum
+                subSetFocus tblTimeCard
             End If
         
         End If
@@ -959,82 +995,164 @@ Public Sub txtSSN_KeyPress(KeyAscii As Integer)
     End If
     
     Screen.MousePointer = vbDefault
-    
 End Sub
 
-Public Sub txtSSN_LostFocus()
-
-    If cValidate.LostFocus(txtEmployeeNumber, cmdEmployeeNumber, _
-        txtEmployeeName, cmdEmployeeName, _
-        txtSSN, cmdSSN, tblComboDropdown) Then
-        
-        If cValidate.ValidInput(txtSSN) Then
-            subEnableEmployee False
-            tblTimeCard.Enabled = True
-            subSetFocus tblTimeCard
-            subSetFormStatus
-        End If
+Public Sub txtEHPayCode_LostFocus()
     
+    If cValidate.LostFocus(txtEHPayCode, cmdEHPayCode, txtEHPayCodeDesc, cmdEHPayCode, tblComboDropdown) Then
+        tgcDropdown.LostFocus txtEHPayCode
+        
+        If cValidate.ValidInput(txtEHPayCode) Then
+            subSetPaycodeToHeader
+        End If
+        
     End If
 
 End Sub
 
-Public Sub cmdSSN_Click()
+Public Sub cmdEHPayCode_Click()
     Screen.MousePointer = vbHourglass
-    tgcDropdown.Click cmdSSN
+    tgcDropdown.Click cmdEHPayCode
     Screen.MousePointer = vbDefault
 End Sub
 
-Public Sub txtSSN_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    frmContext.MouseDown Button, EMP_MST_UP
+Public Sub txtEHPayCodeDesc_Change()
+    tgcDropdown.Change txtEHPayCodeDesc
+    cValidate.Change txtEHPayCodeDesc
+End Sub
+
+Public Sub txtEHPayCodeDesc_GotFocus()
+    tgcDropdown.GotFocus txtEHPayCodeDesc
+    cValidate.GotFocus txtEHPayCodeDesc
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus tblTimeCard
+    End If
+    
+End Sub
+
+Private Sub subSetPaycodeToHeader()
+    Dim nCol As Integer
+    
+    If m_Form.ActiveControl Is cmdEHPayCode Or m_Form.ActiveControl Is cmdEHPayCodeDesc Then
+        Exit Sub
+    End If
+    
+    nCol = tfnRound(txtEHPayCode.Tag)
+    
+    If nCol > COL_HOUR And Trim(txtEHPayCode) <> "" Then
+        tblTimeCard.Columns(nCol).Caption = txtEHPayCode
+        txtEHPayCode = ""
+    End If
+    
+    efraEHPayCode.ZOrder 1
+    efraEHPayCode.Visible = False
+    subSetFocus tblTimeCard
+    
+    If txtEHDate.Tag <> "" Then
+        tblTimeCard.col = txtEHDate.Tag
+    End If
+    
+End Sub
+
+Public Sub tblTimeCard_HeadClick(ByVal ColIndex As Integer)
+    
+    If fnCheckHeaderOK(ColIndex) Then
+        efraEHPayCode.Visible = True
+        efraEHPayCode.ZOrder 0
+        txtEHPayCode.Tag = ColIndex
+        subSetFocus txtEHPayCode
+    End If
+    
+End Sub
+
+Public Sub txtEHPayCodeDesc_KeyPress(KeyAscii As Integer)
+    
+    If KeyAscii = vbKeyReturn Then
+        Screen.MousePointer = vbHourglass
+    End If
+
+    If tgcDropdown.Keypress(txtEHPayCodeDesc, KeyAscii) Then
+        cValidate.Keypress txtEHPayCodeDesc, KeyAscii
+    Else
+    
+        If KeyAscii = vbKeyReturn Then
+            
+            If tgcDropdown.SingleRecordSelected Then
+                subSetFocus tblTimeCard
+            End If
+        
+        End If
+        
+        KeyAscii = 0
+    End If
+    
+    Screen.MousePointer = vbDefault
+End Sub
+
+Public Sub txtEHPayCodeDesc_LostFocus()
+    
+    If cValidate.LostFocus(txtEHPayCode, cmdEHPayCode, txtEHPayCodeDesc, cmdEHPayCode, tblComboDropdown) Then
+        tgcDropdown.LostFocus txtEHPayCodeDesc
+        
+        If cValidate.ValidInput(txtEHPayCode) Then
+            subSetPaycodeToHeader
+        End If
+        
+    End If
+
+End Sub
+
+Public Sub cmdEHPayCodeDesc_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.Click cmdEHPayCodeDesc
+    Screen.MousePointer = vbDefault
 End Sub
 
 Public Function fnValidCellValue(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Long, sText As String) As Boolean
     
     Select Case tgTable.TabIndex
+    
         Case tblTimeCard.TabIndex
             Select Case nCol
-                Case 0
-                    fnValidCellValue = fnValidDate(sText, nRow)
-                Case 1
-                     fnValidCellValue = fnValidProfitCtr(sText, nRow)
-                Case 2
-                     fnValidCellValue = fnValidPayCode(sText)
-                Case 3
-                     fnValidCellValue = fnValidHours(sText)
-'                     fnValidCellValue = True
-'                Case 4
-'                    fnValidCellValue = fnValidHours(sText)
+                Case COL_EMPNO
+                    fnValidCellValue = fnValidEmpNo(sText, nCol, nRow)
+                Case COL_EMPNAME
+                    fnValidCellValue = True
+                Case COL_HOUR, COL_PAYCODE1, COL_PAYCODE2, COL_PAYCODE3
+                    fnValidCellValue = fnValidHours(sText, nCol, nRow)
+                    
             End Select
             
-        Case tblProfitCenter.TabIndex
-            Select Case nCol
-                Case 0
-                     fnValidCellValue = True 'fnValidProfitCenter(sText)
-                Case 1
-                     fnValidCellValue = True 'fnValidHours(sText)
-            End Select
     End Select
+    
 End Function
 
 Public Function fnInValidData(txtBox As Textbox) As Boolean
     
     Select Case txtBox.TabIndex
-         Case txtEmployeeNumber.TabIndex
-                fnInValidData = Not fnValidNumber(txtBox)
-         Case txtEmployeeName.TabIndex
-                fnInValidData = False 'Not fnValidName(txtBox)
-         Case txtSSN.TabIndex
-                fnInValidData = Not fnValidSSN(txtBox)
+        Case txtEHPrftCtr.TabIndex
+            fnInValidData = Not fnValidProfitCtr(txtBox)
+        Case txtEHPrftName.TabIndex
+            fnInValidData = False
+        Case txtEHDate.TabIndex
+            fnInValidData = Not fnValidDate(txtBox)
+        Case txtEHPayCode.TabIndex
+            fnInValidData = Not fnValidPayCode(txtBox)
+        Case txtEHPayCodeDesc.TabIndex
+            fnInValidData = False
     End Select
 End Function
 
 Public Function fnExit() As Boolean
     
     If nDataStatus = DATA_CHANGED Then
+        
         If Not tfnCancelExit(t_szEXIT_MESSAGE) Then
             Exit Function
         End If
+        
     End If
     
     fnExit = True
@@ -1043,226 +1161,280 @@ End Function
 '=================
 'private functions
 '=================
-Private Function fnValidHours(szText As String) As Boolean
+Private Function fnValidHours(szText As String, nCol As Integer, lRow As Long) As Boolean
+    Dim strSQL As String
+    Dim sPayCode As String
     
-    fnValidHours = False
-    
-    If Trim(szText) = "" Then
-        tgcEditor.ErrorMessage(COL_HOUR) _
-            = "You must enter an Hour/Dollar Number"
+    If Trim(szText) = "" Or tfnRound(szText, 2) = 0# Then
+        fnValidHours = True
+        Exit Function
+    End If
+
+    If Not tgcEditor.ValidCell(COL_EMPNO, lRow) Then
+        fnValidHours = False
+        tgcEditor.ErrorMessage(nCol) = "Select Valid Employee first"
         Exit Function
     End If
     
-    fnValidHours = True
+    Select Case nCol
+        Case COL_HOUR
+            sPayCode = sHOURLYPAYCODE
+
+        Case COL_PAYCODE1
+            
+            If tblTimeCard.Columns(nCol).Caption = sDefaultPAYCODE1 Then
+                tgcEditor.ErrorMessage(nCol) = "No Pay Code, can't enter data here"
+                fnValidHours = False
+                Exit Function
+            Else
+                sPayCode = tblTimeCard.Columns(nCol).Caption
+            End If
+            
+        Case COL_PAYCODE2
+            
+            If tblTimeCard.Columns(nCol).Caption = sDefaultPAYCODE2 Then
+                tgcEditor.ErrorMessage(nCol) = "No Pay Code, can't enter data here"
+                fnValidHours = False
+                Exit Function
+            Else
+                sPayCode = tblTimeCard.Columns(nCol).Caption
+            End If
+            
+        Case COL_PAYCODE3
+            
+            If tblTimeCard.Columns(nCol).Caption = sDefaultPAYCODE3 Then
+                tgcEditor.ErrorMessage(nCol) = "No Pay Code, can't enter data here"
+                fnValidHours = False
+                Exit Function
+            Else
+                sPayCode = tblTimeCard.Columns(nCol).Caption
+            End If
+            
+        Case Else
+            fnValidHours = True
+            Exit Function
+    End Select
+    
+    If sPayCode <> "" Then
+        strSQL = "SELECT  * FROM " & sTempPrPay
+        strSQL = strSQL & " WHERE pcode = " & tfnSQLString(sPayCode)
+        strSQL = strSQL & " AND pempno = " & tfnRound(tgcEditor.CellValue(COL_EMPNO, lRow))
+    Else
+        tgcEditor.ErrorMessage(nCol) = "No Pay Code, can't enter data here"
+        fnValidHours = False
+        Exit Function
+    End If
+    
+    If GetRecordCount(strSQL) <= 0 Then
+        tgcEditor.ErrorMessage(nCol) = "Pay Code " & sPayCode & " was not set for this employee, can't enter data here"
+        fnValidHours = False
+    Else
+        'check the prft ctr/date/emploee/code
+        strSQL = "SELECT * FROM bonus_hold WHERE bh_prft_ctr = " & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
+        strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode)
+        strSQL = strSQL & " AND bh_empno = " & tfnRound(tgcEditor.CellValue(COL_EMPNO, lRow))
+    
+        If GetRecordCount(strSQL) > 0 And t_nFormMode = ADD_MODE Then
+            tgcEditor.ErrorMessage(nCol) = "Date/Prft Ctr/Pay Code already exists for this employee, can't enter data."
+        Else
+            fnValidHours = True
+        End If
+        
+    End If
+
 End Function
 
-Private Sub fnGetTotal()
-    Dim Index As Integer
-    Dim recordIndex As Integer
-    Dim recordArray() As Variant
-    Dim toTalRowNumber As Integer
-    Dim dValueofDollar As Double
-    
-    If Trim(txtTotalDollars.Text) = Trim(txtTotal.Text) Then
-        Exit Sub
-    End If
-    
-    toTalRowNumber = tgcEditorPrft.RowCount
-    
-    If toTalRowNumber <= 0 Then
-        Exit Sub
-    End If
-    
-    dValueofDollar = 0
-    
-    For Index = 0 To toTalRowNumber - 1 Step 1
-        tgcEditorPrft.GetRow recordArray(), recordIndex, Index
-        dValueofDollar = dValueofDollar + tfnRound(recordArray(1), 2)
-    Next Index
-    
-    txtTotal.Text = tfnFormatDecimal(dValueofDollar, 2)
-End Sub
-
-Private Sub fnGetTotalDollars()
-    Dim Index As Integer
-    Dim recordIndex As Integer
-    Dim recordArray() As Variant
-    Dim toTalRowNumber As Integer
-    Dim dValueofDollar As Double
-    
-    On Error GoTo errorDollar
-    
-    toTalRowNumber = tgcEditor.RowCount
-        
-    If toTalRowNumber <= 0 Then
-        Exit Sub
-    End If
-    
-    dValueofDollar = 0
-    
-    For Index = 0 To toTalRowNumber - 1 Step 1
-        tgcEditor.GetRow recordArray(), recordIndex, Index
-        dValueofDollar = dValueofDollar + tfnRound(recordArray(COL_HOUR), 2)
-    Next Index
-        
-    txtTotalDollars.Text = tfnFormatDecimal(dValueofDollar, 2)
-    Exit Sub
-errorDollar:
-    Resume Next
-End Sub
-
-Private Sub subCheckEmpNum()
-
-    'comment out if statement, we don't need validate here junsong 03/14/01
-    'If cValidate.FirstInvalidInput < 0 Then
-    subEnableEmployee False
-    tblTimeCard.Enabled = True
-    tblProfitCenter.Enabled = True
-    
-    If t_nFormMode = EDIT_MODE Then
-        Screen.MousePointer = vbHourglass
-        fnFillTimeCard
-        nDataStatus = DATA_LOADED
-        Screen.MousePointer = vbDefault
-    End If
-    
-    'End If
-    
-    subSetFocus tblTimeCard
-End Sub
-
-Private Sub fnFillProfitTable()
-    ' this sub is used to caclulate the sum of different name
-    ' A(n, 1),..... A(n, 9)----> B(n, 1+....9)
-    Dim nCenterName(1, 20) As Variant
-    Dim nCenterList() As Variant
-    Dim Index As Integer
-    Dim inDex2 As Integer
-    Dim toTalRowNumber As Integer
-    Dim toTal2 As Integer
-    Dim recordArray() As Variant
-    Dim recordIndex As Integer
-    Dim NumberCenter As Integer
-    Dim CenterExsit As Boolean
-    Dim sTempInteger As Double
-    
-    On Error GoTo errorFillTable
-'    If Trim(txtTotalDollars.Text) = Trim(txtTotal.Text) And t_nFormMode = EDIT_MODE Then
-'          Exit Sub
-'    End If
-     
-    
-    toTalRowNumber = tgcEditor.RowCount
-    
-    For Index = 0 To 20 Step 1
-          nCenterName(0, Index) = -1
-          nCenterName(1, Index) = 0
-    Next Index
-    
-    NumberCenter = 0
-    
-    For Index = 0 To toTalRowNumber - 1 Step 1
-    'Get a row then check if The profit center exsist or not
-    ' If it exsist, then add amount of hours
-    ' if it does not exsist, then add a new profit center, NumberCenter+
-        CenterExsit = False
-        tgcEditor.GetRow recordArray(), recordIndex, Index
-        
-        For inDex2 = 0 To NumberCenter Step 1
-            
-            If Trim(nCenterName(0, inDex2)) = Trim(recordArray(1)) Then
-                sTempInteger = tfnRound(nCenterName(1, inDex2), 2) + tfnRound(recordArray(COL_HOUR), 2)
-                nCenterName(1, inDex2) = tfnFormatDecimal(sTempInteger, 2)
-                CenterExsit = True
-                Exit For
-            End If
-        
-        Next inDex2
-    
-        If CenterExsit = False Then
-              nCenterName(0, NumberCenter) = Trim(recordArray(1))
-              nCenterName(1, NumberCenter) = tfnRound(recordArray(3), 2)
-              NumberCenter = NumberCenter + 1
-        End If
-    
-    Next Index
-    
-    If NumberCenter <= 0 Then
-        Exit Sub
-    End If
-    
-    ReDim nCenterList(1, NumberCenter - 1)
-    
-    For Index = 0 To NumberCenter - 1 Step 1
-        nCenterList(0, Index) = nCenterName(0, Index)
-        nCenterList(1, Index) = nCenterName(1, Index)
-    Next Index
-    
-    tgcEditorPrft.ClearData
-    tgcEditorPrft.FillWithArray nCenterList
-    toTal2 = tgcEditorPrft.RowCount
-    tgcEditorPrft.GetRow recordArray(), recordIndex, toTal2 - 1
-    
-    If Trim(recordArray(0)) = "" Then
-        tgcEditorPrft.DeleteRow tgcEditorPrft.Bookmark(toTal2 - 1)
-    End If
-    fnGetTotal
-    
-    Exit Sub
-errorFillTable:
-     Resume Next
-End Sub
-
 Private Function fnFillTimeCard() As Boolean
-    Dim sSql As String
+    Dim strSQL As String
+    Dim strLock As String
     Dim rsTemp As Recordset
-    Dim Index As Long
-    Dim n As Integer
-    On Error GoTo errorFilltalble
+    Dim sLockUser As String
+    Dim aryData() As Variant
+    Dim lOldEmpNo As Long
+    Dim sPayCode1 As String
+    Dim sPayCode2 As String
+    Dim sPayCode3 As String
+    Dim i As Long
     
-    sSql = " SELECT bh_date,bh_prft_ctr,bh_pay_code,bh_hours FROM bonus_hold "
-    sSql = sSql & " WHERE bh_empno= " & tfnSQLString(txtEmployeeNumber)
-    sSql = sSql & " AND bh_chk_link = 0 "
-    sSql = sSql & " AND bh_pay_code IN (SELECT DISTINCT pcode FROM " & sTempPrPay
-    sSql = sSql & " WHERE pyear = Year(bh_date) "
-    sSql = sSql & " AND pempno= " & tfnSQLString(txtEmployeeNumber) & ")"
-    sSql = sSql & " ORDER BY bh_date,bh_prft_ctr ,bh_pay_code  "
+    On Error GoTo ErrorHandler
     
-    On Error GoTo errH
-    
-    If tfnLockRow("bonus_hold", "bh_hours", sSql) Then
-        tgcEditor.FillWithSQL t_dbMainDatabase, sSql, , True
+    If m_Form.ActiveControl Is cmdExitBtn Or m_Form.ActiveControl Is cmdExitCancelBtn Then
+        Exit Function
     End If
+    
+    If cValidate.FirstInvalidInput >= 0 Then
+        MsgBox "Please select valid profit center and clock-in date", vbExclamation
+        Exit Function
+    End If
+    
+    g_lOriginalRowCount = -1
+    tfnSetStatusBarCorrect "Loading data, Please wait..."
+    m_Form.MousePointer = vbHourglass
+    
+    If t_nFormMode = ADD_MODE Then
+    strSQL = "SELECT empno, empname, jobclass FROM " & sTempPrMaster
+        strSQL = strSQL & " WHERE prft_ctr1 = " & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND pay_type = 'H'"
+        strSQL = strSQL & " ORDER BY jobclass, empno"
+    Else
+        strSQL = " SELECT jobclass, empno, empname, bh_pay_code, bh_hours FROM bonus_hold,  " & sTempPrMaster
+        strSQL = strSQL & " WHERE bh_prft_ctr = " & tfnRound(txtEHPrftCtr)
+        'strSQL = strSQL & " AND (bh_prft_Ctr = prft_ctr1 OR bh_prft_ctr = prft_ctr2  OR bh_prft_ctr = prft_ctr3 "
+        'strSQL = strSQL & " OR bh_prft_Ctr = prft_ctr4 OR bh_prft_ctr = prft_ctr5)"
+        strSQL = strSQL & " AND bh_chk_link = 0 "
+        strSQL = strSQL & " AND bh_empno = empno "
+        strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
+        strSQL = strSQL & " AND bh_pay_code IN (SELECT DISTINCT pcode FROM " & sTempPrPay
+        strSQL = strSQL & " WHERE pyear = Year(bh_date) "
+        strSQL = strSQL & " AND pempno= empno)"
+        strSQL = strSQL & " ORDER BY jobclass, empno"
+    End If
+        
+    strLock = "bh_prft_ctr = " & tfnRound(txtEHPrftCtr) & " AND bh_date = " & tfnDateString(txtEHDate, True)
+    
+    If Not tfnLockRow("bonus_hold", "bh_hours", strLock, , sLockUser) Then
+        MsgBox "The data was locked by user " & sLockUser, vbExclamation
+        m_Form.MousePointer = vbDefault
+        Exit Function
+    End If
+        
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnFillTimeCard", True) <= 0 Then
+        
+        If t_nFormMode = ADD_MODE Then
+            'STILL DOESN'T WORK
+            'This follwoing code work with the code in the tfnresetScreen, see comment there
+            tblTimeCard.col = COL_EMPNO
+            GoTo SKIPLoadData
+        Else
+            MsgBox "NO record selected.", vbInformation
+            m_Form.MousePointer = vbDefault
+            Exit Function
+        End If
+        
+    End If
+        
+    ReDim aryData(MAXCols, rsTemp.RecordCount - 1)
+    lOldEmpNo = -1
+    i = -1
+    
+    Do Until rsTemp.EOF
+        
+        If t_nFormMode = ADD_MODE Then
+            i = i + 1
+            aryData(COL_EMPNO, i) = fnGetField(rsTemp!EmpNO)
+            aryData(COL_EMPNAME, i) = fnGetField(rsTemp!empName)
+            aryData(COL_HOUR, i) = ""
+            aryData(COL_PAYCODE1, i) = ""
+            aryData(COL_PAYCODE2, i) = ""
+            aryData(COL_PAYCODE3, i) = ""
+        Else
+            'In edit mode only four possible pay code
+            If lOldEmpNo <> tfnRound(rsTemp!EmpNO) Then
+                i = i + 1
+                aryData(COL_EMPNO, i) = fnGetField(rsTemp!EmpNO)
+                aryData(COL_EMPNAME, i) = fnGetField(rsTemp!empName)
+                lOldEmpNo = tfnRound(rsTemp!EmpNO)
+            End If
+            
+            If fnGetField(rsTemp!bh_Hours) <> "" And fnGetField(rsTemp!bh_pay_code) <> "" Then
+            
+                If UCase(fnGetField(rsTemp!bh_pay_code)) = sHOURLYPAYCODE Then
+                    aryData(COL_HOUR, i) = tfnRound(rsTemp!bh_Hours, 2)
+                Else
+                
+                    If UCase(fnGetField(rsTemp!bh_pay_code)) = sPayCode1 Then
+                        aryData(COL_PAYCODE1, i) = tfnRound(rsTemp!bh_Hours, 2)
+                    ElseIf UCase(fnGetField(rsTemp!bh_pay_code)) = sPayCode2 Then
+                        aryData(COL_PAYCODE2, i) = tfnRound(rsTemp!bh_Hours, 2)
+                    ElseIf UCase(fnGetField(rsTemp!bh_pay_code)) = sPayCode3 Then
+                        aryData(COL_PAYCODE3, i) = tfnRound(rsTemp!bh_Hours, 2)
+                    Else
+                        
+                        If sPayCode1 = "" Then
+                            aryData(COL_PAYCODE1, i) = tfnRound(rsTemp!bh_Hours, 2)
+                            sPayCode1 = UCase(fnGetField(rsTemp!bh_pay_code))
+                            tblTimeCard.Columns(COL_PAYCODE1).Caption = fnGetField(rsTemp!bh_pay_code)
+                        ElseIf sPayCode2 = "" Then
+                            aryData(COL_PAYCODE2, i) = tfnRound(rsTemp!bh_Hours, 2)
+                            sPayCode2 = UCase(fnGetField(rsTemp!bh_pay_code))
+                            tblTimeCard.Columns(COL_PAYCODE2).Caption = fnGetField(rsTemp!bh_pay_code)
+                        ElseIf sPayCode3 = "" Then
+                            aryData(COL_PAYCODE3, i) = tfnRound(rsTemp!bh_Hours, 2)
+                            sPayCode3 = UCase(fnGetField(rsTemp!bh_pay_code))
+                            tblTimeCard.Columns(COL_PAYCODE3).Caption = fnGetField(rsTemp!bh_pay_code)
+                        End If
+                    
+                    End If
+                    
+                End If
+                
+            End If
+            
+        End If
+        
+        rsTemp.MoveNext
+    Loop
+    
+    If i >= 0 Then
+        ReDim Preserve aryData(MAXCols, i)
+        tgcEditor.FillWithArray aryData, True, True
+        
+        If sPayCode1 <> "" Then
+            g_sOrigPayCode1 = sPayCode1
+        End If
+        
+        If sPayCode2 <> "" Then
+            g_sOrigPayCode2 = sPayCode2
+        End If
+        
+        If sPayCode3 <> "" Then
+            g_sOrigPayCode3 = sPayCode3
+        End If
+        
+        'tempory fix the problem that the column was not to set to HOUR when the data was loaded
+        If t_nFormMode = ADD_MODE Then
+            tgcEditor.GotoNextColumn COL_EMPNO
+        End If
+        
+        subCalculateTotal
+        g_lOriginalRowCount = i
+    End If
+    
+SKIPLoadData:
     
     fnFillTimeCard = True
-    fnGetTotalDollars
-    fnFillProfitTable
-    fnGetTotal
-    tblTimeCard.SetFocus
+    'tblTimeCard.SetFocus
     
     If tgcEditor.RowCount > 0 Then
         cmdDeleteBtn.Enabled = True
-        'subkeepRecord
     End If
     
-Exit Function
-errorFilltalble:
-    Resume Next
+    m_Form.MousePointer = vbDefault
     Exit Function
-errH:
-    tfnErrHandler "fnFill TimeCard", sSql
+
+ErrorHandler:
+    tfnErrHandler "fnFill TimeCard", strSQL
     
 End Function
 
 Private Sub fnEnableControls(beOff As Boolean)
-    txtEmployeeNumber.Enabled = beOff
-    subEnableSearchbtn cmdEmployeeNumber, beOff
-    txtEmployeeName.Enabled = beOff
-    subEnableSearchbtn cmdEmployeeName, beOff
-    txtSSN.Enabled = beOff
-    subEnableSearchbtn cmdSSN, beOff
+    txtEHPrftCtr.Enabled = beOff
+    subEnableSearchbtn cmdEHPrftCtr, beOff
+    txtEHPrftName.Enabled = beOff
+    subEnableSearchbtn cmdEHPrftName, beOff
+    txtEHDate.Enabled = beOff
+    
+    If t_nFormMode = ADD_MODE Then
+        subEnableSearchButton cmdEHDate, False
+    Else
+        subEnableSearchButton cmdEHDate, beOff
+    End If
+    
     tblTimeCard.Enabled = beOff
-    tblProfitCenter.Enabled = beOff
+    subEnableSearchButton cmdEHPayCode, beOff
+    subEnableSearchButton cmdEHPayCodeDesc, beOff
+    efraEHPayCode.Visible = False
 End Sub
 
 Private Sub subEnableRefresh(bStatus As Boolean)
@@ -1287,24 +1459,33 @@ Public Sub subEnableSearchbtn(cmdButton As Control, bYesNo As Boolean)
 End Sub
 
 Private Sub subSetupCombos()
+    
     If tgcDropdown Is Nothing Then
         Set tgcDropdown = CreateObject(t_szOLECOMBO)
         Set tgcDropdown.DBEngine = t_engFactor
+        
         With tgcDropdown
             Set .Form = m_Form
             Set .DataBase = t_dbMainDatabase
             Set .DataLink = datComboDropDown
             Set .Table = tblComboDropdown
         End With
+    
     End If
     
     With tgcDropdown
         .AddCombo
-        .SQL = "SELECT empno, empname, empssn FROM " & sTempPrMaster
-        .AddComboBox txtEmployeeNumber, cmdEmployeeNumber, "empno", tgcDropdown.SQL_LONG_TYPE
-        .AddComboBox txtEmployeeName, cmdEmployeeName, "empname", tgcDropdown.SQL_STRING_TYPE(42)
-        .AddComboBox txtSSN, cmdSSN, "empssn", tgcDropdown.SQL_STRING_TYPE(11)
+        .AddComboBox txtEHPrftCtr, cmdEHPrftCtr, "prft_ctr", tgcDropdown.SQL_INT_TYPE
+        .AddComboBox txtEHPrftName, cmdEHPrftName, "prft_name", tgcDropdown.SQL_STRING_TYPE(40)
+        
+        .AddCombo
+        .AddComboBox txtEHDate, cmdEHDate, "bh_date", tgcDropdown.SQL_DATE_TYPE
+        
+        .AddCombo
+        .AddComboBox txtEHPayCode, cmdEHPayCode, "pcode", tgcDropdown.SQL_STRING_TYPE(4)
+        .AddComboBox txtEHPayCodeDesc, cmdEHPayCodeDesc, "pdesc", tgcDropdown.SQL_STRING_TYPE(20)
     End With
+    
 End Sub
 
 Private Sub subSetValidtion()
@@ -1312,15 +1493,19 @@ Private Sub subSetValidtion()
     With cValidate
     Set .StatusBar = ffraStatusbar
     Set .Form = m_Form
-    .AddEditBox txtEmployeeNumber, "Enter Employee Number."
-    .AddEditBox txtEmployeeName, "Enter Employee Name."
-    .AddEditBox txtSSN, "Enter Social Security Number."
-    .ESCControl = tblComboDropdown
+    .AddEditBox txtEHPrftCtr, "Enter the Payroll Profit Center."
+    .AddEditBox txtEHPrftName, "Enter the Payroll Profit Center Name."
+    .AddEditBox txtEHDate, "Enter the Clock-In Date."
+    .AddEditBox txtEHPayCode, "Enter Pay Code"
+    .AddEditBox txtEHPayCodeDesc, "Enter Pay Code Description"
+    '.ESCControl = tblComboDropdown
+    .ESCControl = cmdUpdateInsertBtn
+    .ESCControl = cmdExitCancelBtn
     .MinTabIndex = tbToolbar.TabIndex
     .MaxTabIndex = efraBridge.TabIndex + 1
     Set .ControlForFocus = efraBridge
-    Set .LastBox = txtEmployeeNumber
-    .SetFirstControls cmdDeleteBtn, cmdUpdateInsertBtn, cmdExitCancelBtn, cmdExitBtn
+    Set .LastBox = txtEHPayCodeDesc
+    .SetFirstControls cmdDeleteBtn, cmdUpdateInsertBtn
     End With
 End Sub
 
@@ -1331,28 +1516,48 @@ Private Sub subSetGrid()
         Set .Form = m_Form
         Set .StatusBar = ffraStatusbar
         sDecimalString = tfnDecimalPattern(8, 2)
-        .AddEditColumn COL_DATE, "Enter Clock-in Date", szDatePattern
-        .AddEditColumn COL_PRFT, "Enter Profit Center", szIntegerPattern
-        .AddEditColumn COL_CODE, "Enter Pay Code", "^P{1,4}$"
-        '.AddEditColumn COL_TYPE, "Enter Pay Type", "^P{0,2}$"   '***
-        .AddEditColumn COL_HOUR, "Enter Hours or Dollars", sDecimalString
-        'COL_SOURCE = tgcEditor.AddHiddenField("prh_source")
-        .DisplayFormat(COL_PRFT) = "#####"
+        .AddEditColumn COL_EMPNO, "Enter Employee Number", szLongPattern
+        .AddEditColumn COL_EMPNAME, "Enter Employee Name", "^P{1,60}$"
+        .AddEditColumn COL_HOUR, "Enter Hours", sDecimalString
+        .AddEditColumn COL_PAYCODE1, "Enter Hour", sDecimalString
+        .AddEditColumn COL_PAYCODE2, "Enter Hour", sDecimalString
+        .AddEditColumn COL_PAYCODE3, "Enter Hour", sDecimalString
         .DisplayFormat(COL_HOUR) = "###,###,##0.00"
+        .DisplayFormat(COL_PAYCODE1) = "###,###,##0.00"
+        .DisplayFormat(COL_PAYCODE2) = "###,###,##0.00"
+        .DisplayFormat(COL_PAYCODE3) = "###,###,##0.00"
         
+        .AddSortColumn COL_EMPNO, COL_EMPNO, .NUMERIC_TYPE, .ASCENDING, .CASE_INSENSITIVE
+        .AddSortColumn COL_EMPNAME, COL_EMPNAME, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+        .AllowAddNew = False
         .ClearData
     End With
     
-    Set tgcEditorPrft = New clsTGSpreadSheet
-    Set tgcEditorPrft.Table = tblProfitCenter
-    Set tgcEditorPrft.Form = m_Form
-    Set tgcEditorPrft.StatusBar = ffraStatusbar
-    tgcEditorPrft.AddEditColumn 0, "NOT editable at Profit Center Total table", "^#{1,5}$"
-    tgcEditorPrft.AddEditColumn 1, "NOT editable at Profit Center Total table"
-    tgcEditorPrft.DisplayFormat(1) = "###,###,##0.00"
-    tgcEditorPrft.ClearData
-    tgcEditorPrft.RemoveEditColumn 0
-    tgcEditorPrft.RemoveEditColumn 1
+End Sub
+
+Private Sub subSetEditColumns(nFormMode As Integer)
+    
+    With tgcEditor
+        
+        Select Case nFormMode
+            
+            Case ADD_MODE
+                .AddEditColumn COL_EMPNO, "Enter Employee Number", szLongPattern
+                .AddEditColumn COL_EMPNAME, "Enter Employee Name", "^P{1,60}$"
+                .AddEditColumn COL_HOUR, "Enter Hours", sDecimalString
+                .AddEditColumn COL_PAYCODE1, "Enter Hour", sDecimalString
+                .AddEditColumn COL_PAYCODE2, "Enter Hour", sDecimalString
+                .AddEditColumn COL_PAYCODE3, "Enter Hour", sDecimalString
+                .SortByColumn = False
+                .AllowAddNew = True
+            Case EDIT_MODE
+                .RemoveEditColumn COL_EMPNO
+                .RemoveEditColumn COL_EMPNAME
+                .SortByColumn = True
+                .AllowAddNew = False
+        End Select
+    
+    End With
 End Sub
 
 Public Sub Form_Initialize() 'called before Form_Load
@@ -1364,43 +1569,33 @@ Public Sub Form_Initialize() 'called before Form_Load
     t_nFormMode = IDLE_MODE
     
     ' ** change the help file for the application
-    sTempPrMaster = "temp_pr_master" 'tai
-    sTempPrPay = "temp_pr_pay" 'tai
+    sTempPrMaster = "temp_pr_master"
+    sTempPrPay = "temp_pr_pay"
     bWarned = False
     bTableExists = False
 End Sub
 
-Private Function fnDeleteData() As Boolean
+Private Function fnDeleteData(lCurRow As Long) As Boolean
     Dim sSql As String
-    Dim rsTemp As Recordset
-    Dim CurentRow As Integer
+    Dim sPayCodeList As String
+        
+    sPayCodeList = fnGetPayCodeList(True)
     
-    CurentRow = tgcEditor.GetCurrentRowNumber
+    If t_nFormMode = ADD_MODE Then
+        fnDeleteData = True
+    Else
+        sSql = "DELETE FROM bonus_hold  "
+        sSql = sSql & " WHERE bh_prft_ctr = " & tfnRound(txtEHPrftCtr)
+        sSql = sSql & " AND bh_date= " & tfnDateString(txtEHDate, True)
+        sSql = sSql & " AND bh_empno = " & tfnRound(tgcEditor.CellValue(COL_EMPNO, lCurRow))
+        sSql = sSql & " AND bh_pay_code IN " & sPayCodeList
     
-    On Error GoTo ErrorDeleteData
+        fnDeleteData = fnExecuteSQL(sSql, "fnDeleteData")
+    End If
     
-    sSql = "DELETE FROM bonus_hold  "
-    sSql = sSql & " WHERE bh_empno= " & tfnSQLString(txtEmployeeNumber)
-    sSql = sSql & " AND bh_date= " & tfnDateString(tgcEditor.CellValue(0, CurentRow), True)
-    sSql = sSql & " AND bh_prft_ctr = " & tfnRound(tgcEditor.CellValue(1, CurentRow))
-    sSql = sSql & " AND bh_pay_code = " & tfnSQLString(tgcEditor.CellValue(2, CurentRow))
-
-    On Error GoTo ErrorDeleteData
-    
-    t_dbMainDatabase.ExecuteSQL sSql
-    fnDeleteData = True
-    Exit Function
-    
-ErrorDeleteData:
-    tfnErrHandler "fnDeleteData", sSql
-    fnDeleteData = False
 End Function
 
 Private Function fnInsertUpdate() As Boolean
-    
-    If Not fnCheckGridDuplicate Then
-        Exit Function
-    End If
     
     If t_nFormMode = ADD_MODE Then
         fnInsertUpdate = fnInsert
@@ -1452,82 +1647,89 @@ Private Function fnCheckGridDuplicate() As Boolean
 End Function
 
 Private Function fnUpdate() As Boolean
-    Dim Index As Long
-    Dim sSql As String
+    Dim lIndex As Long
+    Dim strSQL As String
+    Dim sPayCode As String
     Dim rsTemp As Recordset
-    Dim toTalRowNumber As Integer
-  
-    toTalRowNumber = tgcEditor.RowCount
+    Dim vData() As Variant
+    Dim nCount As Integer
     
-    If toTalRowNumber <= 0 Then
-        fnUpdate = False
-        Exit Function
-    End If
-    
-    For Index = 0 To toTalRowNumber - 1
+    'Delete all data first
+    For lIndex = 0 To tgcEditor.RowCount - 1
         
-        sSql = "UPDATE bonus_hold SET bh_hours = " & tfnSQLString(tgcEditor.CellValue(COL_HOUR, Index))
-        sSql = sSql & " WHERE bh_empno = " & tfnRound(txtEmployeeNumber)
-        sSql = sSql & " AND bh_date = " & tfnDateString(tgcEditor.CellValue(COL_DATE, Index), True)
-        sSql = sSql & " AND bh_prft_ctr = " & tfnRound(tgcEditor.CellValue(COL_PRFT, Index))
-        sSql = sSql & " AND bh_pay_code = " & tfnSQLString(tgcEditor.CellValue(COL_CODE, Index))
+        If Not fnDeleteData(lIndex) Then
+            Exit Function
+        End If
         
-         On Error GoTo errorUpdate
-         t_dbMainDatabase.ExecuteSQL sSql
     Next
     
-    fnUpdate = True
-    Exit Function
+    'Reinsert All data
+    fnUpdate = fnInsert()
     
-errorUpdate:
-    tfnErrHandler "fnUpdate", sSql
-    fnUpdate = False
 End Function
 
 Private Function fnInsert() As Boolean
-    Dim Index As Integer
-    Dim sSql As String
+    Dim lIndex As Long
+    Dim strSQL As String
+    Dim strSQLHeader As String
+    Dim sPayCode As String
     Dim rsTemp As Recordset
-    Dim recordArray() As Variant
-    Dim recordIndex As Integer
-    Dim toTalRowNumber As Integer
+    Dim vData() As Variant
+    Dim nCount As Integer
     
-    On Error GoTo errorInsert
-    toTalRowNumber = tgcEditor.RowCount - 1
-    
-    For Index = 0 To toTalRowNumber
-        tgcEditor.GetRow recordArray(), recordIndex, Index
+    For lIndex = 0 To tgcEditor.RowCount - 1
+        tgcEditor.GetRow vData(), nCount, lIndex
         
-        sSql = " INSERT INTO bonus_hold(bh_empno, bh_prft_ctr, bh_pay_code, "
-        sSql = sSql & "bh_hours, bh_date, bh_check_amount, bh_override, bh_chk_link) VALUES ("
-        sSql = sSql & tfnSQLString(txtEmployeeNumber) & "," & tfnRound(recordArray(COL_PRFT)) & ","
-        sSql = sSql & tfnSQLString(recordArray(COL_CODE)) & "," & tfnSQLString(recordArray(COL_HOUR)) & ","
-        sSql = sSql & tfnDateString(recordArray(COL_DATE), True) & ",0, 'Y', 0)"
+        strSQLHeader = " INSERT INTO bonus_hold(bh_empno, bh_prft_ctr, bh_date, bh_check_amount,  "
+        strSQLHeader = strSQLHeader & "bh_override, bh_chk_link, bh_pay_code, bh_hours) VALUES ("
+        strSQLHeader = strSQLHeader & tfnRound(vData(COL_EMPNO)) & "," & tfnRound(txtEHPrftCtr) & ","
+        strSQLHeader = strSQLHeader & tfnDateString(txtEHDate, True) & ",0, 'Y', 0,"
+
+        If tfnRound(vData(COL_HOUR), 2) <> 0# Then
+            strSQL = strSQLHeader & tfnSQLString(sHOURLYPAYCODE) & "," & tfnRound(vData(COL_HOUR), 2) & ")"
+            
+            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+                Exit Function
+            End If
+            
+        End If
         
-        t_dbMainDatabase.ExecuteSQL sSql
-    Next Index
+        If tfnRound(vData(COL_PAYCODE1), 2) <> 0# Then
+            sPayCode = tblTimeCard.Columns(COL_PAYCODE1).Caption
+            strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE1), 2) & ")"
+            
+            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+                Exit Function
+            End If
+            
+        End If
+        
+        If tfnRound(vData(COL_PAYCODE2), 2) <> 0# Then
+            sPayCode = tblTimeCard.Columns(COL_PAYCODE2).Caption
+            strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE3), 2) & ")"
+            
+            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+                Exit Function
+            End If
+            
+        End If
+        
+        If tfnRound(vData(COL_PAYCODE3), 2) <> 0# Then
+            sPayCode = tblTimeCard.Columns(COL_PAYCODE3).Caption
+            strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE3), 2) & ")"
+            
+            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+                Exit Function
+            End If
+            
+        End If
+        
+    Next lIndex
     
     fnInsert = True
     Exit Function
-
-errorInsert:
-    tfnErrHandler "fnInsert", sSql
-    fnInsert = False
                  
 End Function
-
-Private Sub subAddEmployee()
-    
-    If tblTimeCard.Enabled Then
-        subSetFocus tblTimeCard
-    ElseIf txtEmployeeNumber.Enabled Then
-        subSetFocus txtEmployeeNumber
-    ElseIf cmdAddBtn.Enabled Then
-        subSetFocus cmdAddBtn
-    Else
-        subSetFocus cmdExitCancelBtn
-    End If
-End Sub
 
 Private Sub subCancel()
 
@@ -1590,11 +1792,9 @@ End Sub
 Private Sub tfnResetScreen()
     
     On Error Resume Next
-    txtEmployeeNumber.Text = ""
-    txtEmployeeName.Text = ""
-    txtSSN.Text = ""
-    txtTotalDollars.Text = ""
-    txtTotal.Text = ""
+    txtEHPrftCtr.Text = ""
+    txtEHPrftName.Text = ""
+    txtEHDate.Text = ""
     
     nDataStatus = DATA_INI
     cmdDeleteBtn.Enabled = False
@@ -1613,13 +1813,17 @@ Private Sub tfnResetScreen()
     cmdExitCancelBtn.Enabled = False
     mnuCancel.Enabled = False
     
+    tblTimeCard.Columns(COL_PAYCODE1).Caption = sDefaultPAYCODE1
+    tblTimeCard.Columns(COL_PAYCODE2).Caption = sDefaultPAYCODE2
+    tblTimeCard.Columns(COL_PAYCODE3).Caption = sDefaultPAYCODE3
     tgcEditor.ClearData
-    tgcEditorPrft.ClearData
+    subCalculateTotal
     
+    g_sOrigPayCode1 = sDefaultPAYCODE1
+    g_sOrigPayCode2 = sDefaultPAYCODE2
+    g_sOrigPayCode3 = sDefaultPAYCODE3
     bNeverDelet = True
-    
     fnEnableControls False
-    DoEvents
     tblTimeCard.Enabled = False
     
     DoEvents
@@ -1638,18 +1842,18 @@ Private Sub subCreateTempTable()
     #End If
     
     On Error GoTo errHanlder
-        
-    sSql = "SELECT DISTINCT prm_empno AS empno, trim(prm_last_name) || ', ' || trim(prm_first_name) " _
-       & "AS empname, prm_ssn AS empssn FROM pr_master,pr_security " _
-       & "WHERE prs_code>=prm_security_code AND prs_name=" & tfnSQLString(tfnGetUserName) _
-       & " AND prm_date_termed IS NULL " _
+                                
+    sSql = "SELECT prm_empno AS empno, trim(prm_last_name) || ', ' || trim(prm_first_name) " _
+       & "AS empname, prm_job_class AS jobclass, prm_prft_ctr1 AS prft_ctr1, prm_prft_ctr2 as prft_ctr2, " _
+       & " prm_prft_ctr3 as prft_ctr3, prm_prft_ctr4 AS prft_ctr4, prm_prft_ctr5 AS prft_ctr5, prm_pay_type as pay_type " _
+       & " FROM pr_master" _
+       & " WHERE prm_date_termed IS NULL " _
        & " INTO TEMP " & sTempPrMaster
-     
+    
     fnExecuteSQL sSql
-                        
-    sSql = "SELECT prpa_pay_code AS pcode, " _
-        & "prpa_desc AS pdesc, prep_year As pyear, prep_empno AS pempno " _
-        & "FROM pr_pay, pr_emp_pay WHERE  prep_pay_code = prpa_pay_code AND prep_active = 'Y'" _
+                                
+    sSql = "SELECT prpa_pay_code AS pcode, prpa_desc AS pdesc, prep_year As pyear, prep_empno AS pempno " _
+        & " FROM pr_pay, pr_emp_pay WHERE  prep_pay_code = prpa_pay_code AND prep_active = 'Y'" _
         & " AND(prpa_type = 'P' AND prpa_calc_method = 'H' OR (prpa_type = 'N' AND prpa_calc_method = 'D'))" _
         & " INTO TEMP " & sTempPrPay
         
@@ -1662,159 +1866,148 @@ errHanlder:
     
 End Sub
 
-Private Function fnValidNumber(txtBox As Textbox)
-        
-    fnValidNumber = False
-    
-    If Trim(txtBox.Text) = "" Then
-        cValidate.SetErrorMessage txtBox, "You must enter an Employee Number"
-        Exit Function
-    End If
-    
-    Dim sSql As String
-    
-    On Error GoTo err
-    
-    sSql = "SELECT empno FROM " & sTempPrMaster _
-        & " WHERE empno = " & CLng(txtBox.Text)
-        
-    If GetRecordCount(sSql) <= 0 Then
-        Exit Function
-    End If
-    
-    sSql = " select * from pr_master where prm_empno = " & tfnSQLString(txtBox)
+Private Function fnValidEmpNo(sText As String, nCol As Integer, lRow As Long) As Boolean
+    Dim strSQL As String
     Dim rsTemp As Recordset
+'    Dim sEmpSecurityId As String
+'    Dim SUserSecurityID As String
+    Dim i As Long
+    Dim sEmpName As String
     
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
+    fnValidEmpNo = False
     
-    If fnGetField(rsTemp!prm_date_termed) <> "" Then
-        cValidate.SetErrorMessage txtBox, "This is a terminated employee! Can't modify the pay hours."
+    If Trim(sText) = "" Then
+        tgcEditor.ErrorMessage(nCol) = "You must enter an Employee Number"
         Exit Function
     End If
     
-    Dim empSecurityId As String
-    
-    empSecurityId = fnGetField(rsTemp!prm_security_code)
-    
-    sSql = "select prs_code from pr_security where prs_name = " & tfnSQLString(tfnGetUserName)
-    
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
-    
-    Dim userSecurityID As String
-    
-    If GetRecordCount(sSql) <= 0 Then
-        MsgBox "The user doesn't have access to any employee records."
-        cValidate.SetErrorMessage txtBox, "The user doesn't have access to any employee records."
-        Exit Function
-    End If
-    
-    userSecurityID = fnGetField(rsTemp!prs_code)
-    'sam on 05/15/00 per bob on 279344
-    
-    If userSecurityID < empSecurityId Then   'sam added
-    ' If userSecurityID <= empSecurityId Then  'sam commented out
-        cValidate.SetErrorMessage txtBox, "The employee has higher security code, can't be edited."
-        Exit Function
-    End If
-    
-    
-    If t_nFormMode = EDIT_MODE Then
-        sSql = "SELECT bh_empno FROM bonus_hold WHERE bh_chk_link = 0 AND bh_empno = " & CLng(txtBox.Text)
-    Else
-        sSql = "SELECT pempno FROM " & sTempPrPay & " WHERE pempno = " & CLng(txtBox.Text)
-    End If
-                
-    If GetRecordCount(sSql) > 0 Then
-        fnValidNumber = True
-    Else
-        cValidate.SetErrorMessage txtBox, "Entered invalid Employee Number"
-    End If
-        
     If t_nFormMode = ADD_MODE Then
-        If fnValidNumber Then
-            subInitPCArry Val(txtBox.Text)
+        strSQL = "SELECT empno, empName FROM " & sTempPrMaster & " WHERE empno = " & tfnRound(sText)
+    Else
+        strSQL = "SELECT bh_empno, empName FROM bonus_hold, " & sTempPrMaster
+        strSQL = strSQL & " WHERE bh_empno = empno AND bh_chk_link = 0 AND bh_empno = " & tfnRound(sText)
+    End If
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNO") <= 0 Then
+        tgcEditor.ErrorMessage(nCol) = "Entered invalid Employee Number"
+        Exit Function
+    Else
+        sEmpName = fnGetField(rsTemp!empName)
+    End If
+    
+    strSQL = "SELECT * FROM pr_master WHERE prm_empno = " & tfnSQLString(sText)
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNO") > 0 Then
+    
+        If fnGetField(rsTemp!prm_date_termed) <> "" Then
+            tgcEditor.ErrorMessage(nCol) = "This is a terminated employee! Can't modify the pay hours."
+            Exit Function
         End If
-    End If
-    Exit Function
-
-err:
-    tfnErrHandler "fnValidNumber", sSql
-
-End Function
-
-Private Function fnValidSSN(txtBox As Textbox)
     
-    fnValidSSN = False
-    
-    If Trim(txtBox.Text) = "" Then
-        cValidate.SetErrorMessage txtBox, "You must enter an Employee SSN"
-        Exit Function
-    End If
-    
-    Dim sSql As String
-    Dim rsTemp As Recordset
-    
-    On Error GoTo err
-    
-    sSql = "SELECT empno, empname, empssn FROM " & sTempPrMaster _
-        & " WHERE empssn = " & tfnSQLString(txtBox.Text)
+'        sEmpSecurityId = fnGetField(rsTemp!prm_security_code)
+'
+'        strSQL = "select prs_code from pr_security where prs_name = " & tfnSQLString(tfnGetUserName)
+'
+'        If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") <= 0 Then
+'            tgcEditor.ErrorMessage(nCol) = "The user doesn't have access to any employee records."
+'            Exit Function
+'        End If
+'
+'        SUserSecurityID = fnGetField(rsTemp!prs_code)
+'
+'        If SUserSecurityID < sEmpSecurityId Then
+'            tgcEditor.ErrorMessage(nCol) = "The employee has higher security code, can't be edited."
+'            Exit Function
+'        End If
         
-    If GetRecordSet(rsTemp, sSql) <= 0 Then
-        Exit Function
+        strSQL = "SELECT count(DISTINCT bh_prft_ctr) as prftCount FROM bonus_hold"
+        strSQL = strSQL & " WHERE bh_chk_link = 0 "
+        'don't care date
+        'strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
+        strSQL = strSQL & " AND bh_prft_ctr <> " & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND bh_empno = " & tfnRound(sText)
+        strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
+        
+         If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEmpNo") <= 0 Then
+            tgcEditor.ErrorMessage(nCol) = "Database Access Error"
+            Exit Function
+        Else
+            
+            If tfnRound(rsTemp!prftCount) >= 5 Then
+                tgcEditor.ErrorMessage(nCol) = "Employee may only have hours for five separate profit centers in a single pay period."
+                Exit Function
+            End If
+            
+        End If
+        
     End If
-    
-    If t_nFormMode = EDIT_MODE Then
-        sSql = "SELECT pempno FROM bonus_hold, " & sTempPrPay & " WHERE pempno = " & rsTemp!empno
-        sSql = sSql & " AND pempno = bh_empno AND bh_chk_link = 0"
-    Else
-        sSql = "SELECT pempno FROM " & sTempPrPay & " WHERE pempno = " & rsTemp!empno
-    End If
-                
-    If GetRecordCount(sSql) > 0 Then
-        fnValidSSN = True
-    Else
-        cValidate.SetErrorMessage txtBox, "Entered invalid Employee SSN"
-    End If
-    
-    Exit Function
 
-err:
-    tfnErrHandler "fnValidSSN", sSql
+    If t_nFormMode = ADD_MODE Then
+        
+        For i = 0 To tgcEditor.RowCount - 1
+            
+            If i <> lRow Then
+                
+                If tfnRound(tgcEditor.CellValue(COL_EMPNO, i)) = tfnRound(sText) Then
+                    tgcEditor.ErrorMessage(nCol) = "Duplicate Employees Entered"
+                    fnValidEmpNo = False
+                    Exit Function
+                End If
+                
+            End If
+        Next
+        
+    End If
     
+    tgcEditor.CellValue(COL_EMPNAME, lRow) = sEmpName
+    fnValidEmpNo = True
 End Function
+
 
 Private Sub subReSetComboSql()
-    
-    Dim sSql As String
+    Dim strSQL As String
+    Dim sPayCodeList As String
+
+    sPayCodeList = fnGetPayCodeList
     
     If t_nFormMode = EDIT_MODE Then
-        sSql = "select distinct empno, empname, empssn FROM " & sTempPrMaster & ",bonus_hold "
-        sSql = sSql & " WHERE empno = bh_empno and bh_chk_link = 0 "
-        sSql = sSql & " AND bh_pay_code IN (SELECT DISTINCT pcode FROM " & sTempPrPay & ")"
+        strSQL = "SELECT DISTINCT prft_ctr, prft_name FROM sys_prft_ctr, bonus_hold"
+        strSQL = strSQL & " WHERE prft_ctr = bh_prft_ctr"
     Else
-        sSql = "select distinct empno, empname, empssn FROM " & sTempPrMaster & "," & sTempPrPay
-        sSql = sSql & " WHERE empno = pempno"
+        strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
     End If
 
-    tgcDropdown.ComboSQL(txtEmployeeNumber) = sSql
-        
+    tgcDropdown.ComboSQL(txtEHPrftCtr) = strSQL
+    
+    
+    strSQL = "SELECT DISTINCT pcode, pdesc FROM " & sTempPrPay
+    strSQL = strSQL & " WHERE pcode NOT IN " & sPayCodeList
+    
+    tgcDropdown.ComboSQL(txtEHPayCode) = strSQL
+    
+    strSQL = "SELECT DISTINCT bh_date FROM bonus_hold WHERE bh_chk_link = 0"
+    
+    
+    If cValidate.ValidInput(txtEHPrftCtr) Then
+        strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(txtEHPrftCtr)
+    End If
+    
+    tgcDropdown.ComboSQL(txtEHDate) = strSQL
 End Sub
 
-Private Sub subEnableEmployee(bFlag As Boolean)
-    txtEmployeeNumber.Enabled = bFlag
-    txtEmployeeName.Enabled = bFlag
-    txtSSN.Enabled = bFlag
-    subEnableSearchButton cmdEmployeeNumber, False
-    subEnableSearchButton cmdEmployeeName, False
-    subEnableSearchButton cmdSSN, False
+Private Sub subEnableProfitCtr(bFlag As Boolean)
+    txtEHPrftCtr.Enabled = bFlag
+    txtEHPrftName.Enabled = bFlag
+    txtEHDate.Enabled = bFlag
+    subEnableSearchButton cmdEHPrftCtr, False
+    subEnableSearchButton cmdEHPrftName, False
+    subEnableSearchButton cmdEHDate, False
 End Sub
 
 Private Sub subSetFormStatus()
     
-    If t_nFormMode = EDIT_MODE _
-        And nDataStatus = DATA_CHANGED Then
-            'subEnableDelete False
-            subEnableRefresh True
+    If t_nFormMode = EDIT_MODE And nDataStatus = DATA_CHANGED Then
+        subEnableRefresh True
     End If
     
     If tgcEditor.ValidData And fnGetField(tgcEditor.CellValue(0, 0)) <> "" And _
@@ -1833,305 +2026,201 @@ Private Sub subSetFormStatus()
                                 
 End Sub
 
-Private Function fnValidDate(ByVal szText As String, _
-                                  ByVal lRow As Long) As Boolean
-            
-    Dim sSql As String
+Private Function fnGetPayCodeList(Optional bDeleting As Boolean = False) As String
+    Dim sPayCodeList As String
+    
+    sPayCodeList = "('" & sHOURLYPAYCODE & "'"
+    
+    If tblTimeCard.Columns(COL_PAYCODE1).Caption <> sDefaultPAYCODE1 Then
+        
+        If bDeleting Then
+            sPayCodeList = sPayCodeList & ",'" & g_sOrigPayCode1 & "'"
+        Else
+            sPayCodeList = sPayCodeList & ",'" & Trim(tblTimeCard.Columns(COL_PAYCODE1).Caption) & "'"
+        End If
+        
+    End If
+    
+    If tblTimeCard.Columns(COL_PAYCODE2).Caption <> sDefaultPAYCODE2 Then
+    
+        If bDeleting Then
+            sPayCodeList = sPayCodeList & ",'" & g_sOrigPayCode2 & "'"
+        Else
+            sPayCodeList = sPayCodeList & ",'" & Trim(tblTimeCard.Columns(COL_PAYCODE2).Caption) & "'"
+        End If
+        
+    End If
+    
+    If tblTimeCard.Columns(COL_PAYCODE3).Caption <> sDefaultPAYCODE3 Then
+        
+        If bDeleting Then
+            sPayCodeList = sPayCodeList & ",'" & g_sOrigPayCode3 & "'"
+        Else
+            sPayCodeList = sPayCodeList & ",'" & Trim(tblTimeCard.Columns(COL_PAYCODE3).Caption) & "'"
+        End If
+        
+    End If
+    
+    sPayCodeList = sPayCodeList & ")"
+
+    fnGetPayCodeList = sPayCodeList
+End Function
+
+Private Function fnValidDate(txtBox As Textbox) As Boolean
+    Dim sDate As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
-    fnValidDate = False
+    sDate = Trim(txtBox.Text)
     
-    If Trim(szText) = "" Then
-        tgcEditor.ErrorMessage(COL_DATE) _
-            = "You must enter a Clock-in Date"
+    If Not IsFactorDate(sDate) Then 'the format of sztext has been changed here
+        cValidate.SetErrorMessage txtEHDate, "Invalid Date entered"
         Exit Function
     End If
-    
-    'see if is a date
-    Dim nError As Integer
-    If Not IsFactorDate(szText, nError) Then 'the format of sztext has been changed here
-        If nError = 1 Then
-            tgcEditor.ErrorMessage(COL_DATE) = "Not a date format"
-        Else
-            tgcEditor.ErrorMessage(COL_DATE) = "Not a valid date"
-        End If
-        Exit Function
-    End If
-    
-    
-    'col_prft is not empty
-            
-    'Check duplication in table
-    On Error GoTo err
     
     'check in table gl_period
-    sSql = "SELECT glp_status" _
-        & " FROM gl_period WHERE glp_end_dt >= " & tfnSQLString(CDate(szText)) _
-        & " AND glp_beg_dt <= " & tfnSQLString(CDate(szText))
-    If GetRecordSet(rsTemp, sSql) > 0 Then
+    strSQL = "SELECT glp_status FROM gl_period "
+    strSQL = strSQL & " WHERE glp_end_dt >= " & tfnDateString(sDate, True)
+    strSQL = strSQL & " AND glp_beg_dt <= " & tfnDateString(sDate, True)
+    
+    If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnvalidDate") > 0 Then
+        
         If rsTemp!glp_status = "O" Then
             fnValidDate = True
         ElseIf rsTemp!glp_status = "W" Then
             fnValidDate = True
+            
             If Not bWarned Then
                 MsgBox "This G/L Period is about to close!", vbExclamation
                 bWarned = True
             Else
                 bWarned = False
             End If
+            
         ElseIf rsTemp!glp_status = "C" Then
-            tgcEditor.ErrorMessage(COL_DATE) _
-                = "This G/L Period is already closed"
+            cValidate.SetErrorMessage txtEHDate, "This G/L Period is already closed"
         Else
-            tgcEditor.ErrorMessage(COL_DATE) _
-                = "Invalid G/L Period Status"
+            cValidate.SetErrorMessage txtEHDate, "Invalid G/L Period Status"
         End If
+        
     Else
-        tgcEditor.ErrorMessage(COL_DATE) _
-            = "There is no valid G/L Period containing this Date"
+        cValidate.SetErrorMessage txtEHDate, "There is no valid G/L Period containing this Date"
     End If
-    
-    'david 02/22/2001
-    If fnValidDate Then
-        
-        If fnGetField(tgcEditor.CellValue(COL_PRFT, lRow)) = "" Then
-            'get default profit center for the employee
-            sSql = "SELECT prm_prft_ctr1"
-            sSql = sSql & " FROM pr_master"
-            sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
-            
-            If GetRecordSet(rsTemp, sSql) > 0 Then
-                tgcEditor.CellValue(COL_PRFT, lRow) = tfnRound(rsTemp!prm_prft_ctr1)
-            End If
-            
-        End If
-        
-    End If
-    
-    Exit Function
-
-err:
-    tfnErrHandler "fnValidDate", sSql
     
 End Function
 
 
-Private Function fnValidProfitCtr(ByVal szText As String, _
-                                  ByVal lRow As Long) As Boolean
-            
-    Dim sDate As Date
+Private Function fnValidProfitCtr(txtBox As Textbox) As Boolean
     Dim sCode As String
-    Dim sSql As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
                 
     fnValidProfitCtr = False
     
-    If Trim(szText) = "" Then
-        tgcEditor.ErrorMessage(COL_PRFT) = "You must enter a Profit Center Number"
+    sCode = Trim(txtBox.Text)
+    
+    If Trim(sCode) = "" Then
+        cValidate.SetErrorMessage txtEHPrftCtr, "You must enter a Profit Center Number"
         Exit Function
+    End If
+                    
+    strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr WHERE prft_ctr = " & tfnRound(sCode)
+    
+    If GetRecordSet(rsTemp, strSQL) <= 0 Then
+        cValidate.SetErrorMessage txtEHPrftCtr, "Invalid Profit Center Number"
+        Exit Function
+    Else
+        tgcDropdown.SetText txtEHPrftCtr, fnGetField(rsTemp!prft_name)
     End If
             
-    If Not IsDate(tgcEditor.CellValue(COL_DATE, lRow)) Then
-        tblTimeCard.col = COL_DATE
-        Exit Function
-    End If
-    
-    On Error GoTo errHandler
-    
-'    sSql = " SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
-'    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
-'    sSql = sSql & " AND prft_ctr = " & tfnRound(szText)
-'    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
-'    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
-'    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
-        
-    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr WHERE prft_ctr = " & tfnRound(szText)
-    If GetRecordCount(sSql) <= 0 Then
-        tgcEditor.ErrorMessage(COL_PRFT) = "Invalid Profit Center Number"
-        Exit Function
-    End If
-            
-    sDate = tfnFormatDate(tgcEditor.CellValue(COL_DATE, lRow))
-    sCode = fnGetField(tgcEditor.CellValue(COL_CODE, lRow))
-            
-    sSql = "SELECT bh_empno FROM bonus_hold " _
-        & " WHERE bh_empno = " & tfnRound(txtEmployeeNumber.Text) _
-        & " AND bh_prft_ctr = " & tfnRound(szText) _
-        & " AND bh_date = " & tfnSQLString(tfnDateString(sDate)) _
-        & " AND bh_pay_code = " & tfnSQLString(sCode)
-
-    If GetRecordCount(sSql) > 0 And t_nFormMode = ADD_MODE Then
-        tgcEditor.ErrorMessage(COL_PRFT) = "Date/Profit Center/Pay Code already exists for this Employee"
-        Exit Function
-    End If
-        
-    Dim nPCCount As Integer
-    
-    If t_nFormMode = ADD_MODE Then
-        nPCCount = fnCheckPrftCtrCnt
-        If nPCCount > 5 Then
-            tgcEditor.ErrorMessage(COL_PRFT) = "Profit Center Count has exceeded 5 for this Employee"
-            Exit Function
-        End If
-    End If
+'    sDate = tfnFormatDate(tgcEditor.CellValue(COL_EMPNO, lRow))
+'    sCode = fnGetField(tgcEditor.CellValue(COL_CODE, lRow))
+'
+'    sSql = "SELECT bh_empno FROM bonus_hold " _
+'        & " WHERE bh_empno = " & tfnRound(txtEHPrftCtr.Text) _
+'        & " AND bh_prft_ctr = " & tfnRound(szText) _
+'        & " AND bh_date = " & tfnSQLString(tfnDateString(sDate)) _
+'        & " AND bh_pay_code = " & tfnSQLString(sCode)
+'
+'    If GetRecordCount(sSql) > 0 And t_nFormMode = ADD_MODE Then
+'        tgcEditor.ErrorMessage(COL_EMPNAME) = "Date/Profit Center/Pay Code already exists for this Employee"
+'        Exit Function
+'    End If
+'
     fnValidProfitCtr = True
-    
-    Exit Function
-
-errHandler:
-    tfnErrHandler "fnValidProfitCtr", sSql
-    
 End Function
 
-Private Function fnValidPayCode(szText As String) As Boolean
-    Dim sSql As String
+Private Function fnValidPayCode(txtBox As Textbox) As Boolean
+    Dim strSQL As String
     Dim lRow As Long
-    Dim nYear As Integer
     Dim sDate As String
     Dim nPrft As Integer
     Dim rsTemp As Recordset
+    Dim szText As String
     
-    fnValidPayCode = False
+    szText = Trim(txtBox.Text)
     
     If Trim(szText) = "" Then
-        tgcEditor.ErrorMessage(COL_CODE) = "You must enter a Pay Code"
+        fnValidPayCode = True
+        Exit Function
+    End If
+      
+    strSQL = " SELECT pcode FROM " & sTempPrPay
+    strSQL = strSQL & " WHERE pcode = " & tfnSQLString(szText)
+    
+    If GetRecordCount(strSQL) <= 0 Then
+        cValidate.SetErrorMessage txtBox, "Pay Code does not exist"
         Exit Function
     End If
     
-    On Error GoTo errHandler
-    
-    lRow = tgcEditor.GetCurrentRowNumber
-    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).value))
-    
-    If nYear <= 0 Then
-        Exit Function
-    End If
-    
-    sSql = " SELECT pcode FROM " & sTempPrPay
-    sSql = sSql & " WHERE pcode = " & tfnSQLString(szText)
-    sSql = sSql & " AND pempno = " & tfnRound(txtEmployeeNumber)
-    sSql = sSql & " AND pyear = " & tfnSQLString(nYear)
-    
-    If GetRecordCount(sSql) <= 0 Then
-        tgcEditor.ErrorMessage(COL_CODE) = "Pay Code does not exist"
-        Exit Function
-    End If
-    
-    sDate = tfnFormatDate(tgcEditor.CellValue(COL_DATE, lRow))
-    nPrft = tfnRound(tgcEditor.CellValue(COL_PRFT, lRow))
+    If txtEHPayCode.Tag <> "" Then
+        
+        If szText = sHOURLYPAYCODE Then
+            cValidate.SetErrorMessage txtBox, "Can't use Pay Code " & sHOURLYPAYCODE
+        Else
+            fnValidPayCode = True
+            
+            Select Case CInt(txtEHPayCode.Tag)
+                Case COL_PAYCODE1
                     
-    sSql = "SELECT bh_empno FROM bonus_hold " _
-        & " WHERE bh_empno = " & tfnRound(txtEmployeeNumber.Text) _
-        & " AND bh_prft_ctr = " & nPrft _
-        & " AND bh_date = " & tfnDateString(sDate, True) _
-        & " AND bh_pay_code = " & tfnSQLString(szText)
-
-    If GetRecordCount(sSql) > 0 And t_nFormMode = ADD_MODE Then
-        tgcEditor.ErrorMessage(COL_CODE) = "Date/Profit Center/Pay Code already exists for this Employee"
-        Exit Function
-    End If
-
-    If fnCheckDuplicate(sDate, nPrft, szText, lRow) Then
-        tgcEditor.ErrorMessage(COL_CODE) = "Date/Profit Center/Pay Code already entered"
-        Exit Function
+                    If szText = tblTimeCard.Columns(COL_PAYCODE2).Caption _
+                        Or szText = tblTimeCard.Columns(COL_PAYCODE3).Caption Then
+                        cValidate.SetErrorMessage txtBox, "This Pay Code was selected."
+                        fnValidPayCode = False
+                    End If
+                    
+                    
+                Case COL_PAYCODE2
+                    
+                    If szText = tblTimeCard.Columns(COL_PAYCODE1).Caption _
+                        Or szText = tblTimeCard.Columns(COL_PAYCODE3).Caption Then
+                        cValidate.SetErrorMessage txtBox, "This Pay Code was selected."
+                        fnValidPayCode = False
+                    End If
+                Case COL_PAYCODE3
+                    
+                    If szText = tblTimeCard.Columns(COL_PAYCODE2).Caption _
+                        Or szText = tblTimeCard.Columns(COL_PAYCODE1).Caption Then
+                        cValidate.SetErrorMessage txtBox, "This Pay Code was selected."
+                        fnValidPayCode = False
+                    End If
+                    
+            End Select
+            
+        End If
+        
     End If
     
-    fnValidPayCode = True
     Exit Function
-
-errHandler:
-    tfnErrHandler "fnValidPayCode", sSql
-            
 End Function
 
-Private Function fnCheckDuplicate(sDate As String, nPrft As Integer, sPayCode As String, lRow As Long) As Boolean
-    ' Check duplication in the grid
-    Dim vData() As Variant
-    Dim lRowCount As Long
-    Dim vData1() As Variant
-    Dim lRowCount1 As Long
-    Dim vData2() As Variant
-    Dim lRowCount2 As Long
-    Dim k As Long
+Private Sub subResetFloatingSQL()
+    Dim strSQL As String
     
-    tgcEditor.GetColumn vData, lRowCount, COL_DATE
-    tgcEditor.GetColumn vData1, lRowCount1, COL_PRFT
-    tgcEditor.GetColumn vData2, lRowCount2, COL_CODE
-
-    If lRowCount1 < lRowCount Then
-        lRowCount = lRowCount1
-    End If
+    'all employee, don't care the profit center
+    strSQL = "SELECT empno, empname FROM " & sTempPrMaster
     
-    If lRowCount2 < lRowCount Then
-        lRowCount = lRowCount2
-    End If
-    
-    If lRowCount > 1 Then
-        
-        For k = 0 To lRowCount - 1
-            
-            If k <> lRow Then
-                
-                If fnGetField(vData1(k)) = fnGetField(nPrft) _
-                   And tfnFormatDate(vData(k)) = sDate _
-                   And fnGetField(vData2(k)) = sPayCode Then
-                   
-                     fnCheckDuplicate = True
-                End If
-                
-            End If
-            
-        Next
-        
-    End If
-
-End Function
-
-Private Sub subResetFloatingSQL2()
-
-    Dim nYear As Integer
-    Dim sSql As String
-    Dim lRow As Long
-    
-    
-    If Not IsNumeric(txtEmployeeNumber.Text) Then
-        Exit Sub
-    End If
-    
-    If Not IsDate(tblTimeCard.Columns(COL_DATE).value) Then
-        tblTimeCard.col = COL_DATE
-        Exit Sub
-    End If
-    
-    On Error GoTo errHandler
-    
-    'sql from profit center
-    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr "
-    
-'    sSql = "SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master "
-'    sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
-'    sSql = sSql & " AND (prft_ctr = prm_prft_ctr1 OR prft_ctr = prm_prft_ctr2 "
-'    sSql = sSql & " OR prft_ctr = prm_prft_ctr3 OR prft_ctr = prm_prft_ctr4 "
-'    sSql = sSql & " OR prft_ctr = prm_prft_ctr5)"
-    
-    tgcFEditor.SetSQL COL_PRFT, sSql
-    
-    nYear = Year(CDate(tblTimeCard.Columns(COL_DATE).value))
-    
-    If nYear <= 0 Then
-        Exit Sub
-    End If
-    
-    'sql for pay code
-
-    sSql = "SELECT pcode, pdesc FROM " & sTempPrPay
-    sSql = sSql & " WHERE pyear = " & tfnSQLString(nYear)
-    sSql = sSql & " AND pempno = " & tfnRound(txtEmployeeNumber)
-    tgcFEditor.SetSQL COL_CODE, sSql
-    Exit Sub
-    
-errHandler:
-    tfnErrHandler "subresetfloatingsql2", sSql
+    tgcFEditor.SetSQL COL_EMPNO, strSQL
 
 End Sub
 
@@ -2152,45 +2241,36 @@ Private Sub subSetFloatingDropDown()
          .DefaultCursorControl = True
          
          .AddDropDown 1
-         'sSql = " SELECT prft_ctr, prft_name FROM  sys_prft_ctr "
-         '.DropDownSQL(1) = sSql
-         '.DropDownType(1) = tgcFEditor.FactorSerachButton
-         .AddColumn COL_PRFT
-         .ColumnCaption(COL_PRFT) = "Profit Center"
-         .ColumnType(COL_PRFT) = tgcFEditor.COLUMN_TYPE_INTEGER
-         .ColumnDataField(COL_PRFT) = "prft_ctr"
-         .AddExtraColumn "Name", "prft_name", 2500
          
-         tgcFEditor.AddDropDown 2
-                  
-         .AddColumn COL_CODE
-         .ColumnCaption(COL_CODE) = "Pay Code"
-         .ColumnType(COL_CODE) = .COLUMN_TYPE_STRING
-         .ColumnDataField(COL_CODE) = "pcode" ',prpa_desc "pcode"
-         .AddExtraColumn "Pay Description", "pdesc", 1850
-    
+         .AddColumn COL_EMPNO
+         .ColumnCaption(COL_EMPNO) = "Employee #"
+         .ColumnType(COL_EMPNO) = tgcFEditor.COLUMN_TYPE_INTEGER
+         .ColumnDataField(COL_EMPNO) = "empno"
+         .SetUnique COL_EMPNO, True
+         
+         .AddColumn COL_EMPNAME
+         .ColumnCaption(COL_EMPNAME) = "Employee Name"
+         .ColumnType(COL_EMPNAME) = tgcFEditor.COLUMN_TYPE_STRING
+         .ColumnDataField(COL_EMPNAME) = "empname"
+         
     End With
+    
 End Sub
 
 Private Sub Class_Terminate()
     Set m_Form = Nothing
     Set tbToolbar = Nothing
     Set ffraStatusbar = Nothing
-    Set txtEmployeeNumber = Nothing
-    Set cmdEmployeeNumber = Nothing
-    Set txtEmployeeName = Nothing
-    Set cmdEmployeeName = Nothing
-    Set txtSSN = Nothing
-    Set cmdSSN = Nothing
+    Set txtEHPrftCtr = Nothing
+    Set cmdEHPrftCtr = Nothing
+    Set txtEHPrftName = Nothing
+    Set cmdEHPrftName = Nothing
+    Set txtEHDate = Nothing
     Set datComboDropDown = Nothing
-    Set datFloating = Nothing
     Set tblComboDropdown = Nothing
     Set tblTimeCard = Nothing
-    Set tblProfitCenter = Nothing
     Set tblFloating = Nothing
     Set cmdFloatingBtn = Nothing
-    Set txtTotalDollars = Nothing
-    Set txtTotal = Nothing
     Set cmdAddBtn = Nothing
     Set cmdEditBtn = Nothing
     Set cmdDeleteBtn = Nothing
@@ -2270,4 +2350,43 @@ Private Sub subEnableSearchButton(ByRef ctrlButton As FactorFrame, _
     
 End Sub
 
+Private Function fnCheckHeaderOK(nCol As Integer) As Boolean
+    Dim i As Long
+    
+    If nCol <= COL_HOUR Then
+        fnCheckHeaderOK = False
+    Else
+        fnCheckHeaderOK = True
+        
+        For i = 0 To tgcEditor.RowCount - 1
+            
+            If tfnRound(tgcEditor.CellValue(nCol, i), 2) > 0 Then
+                fnCheckHeaderOK = False
+                Exit For
+            End If
+            
+        Next
+        
+    End If
+    
+End Function
 
+Private Sub subCalculateTotal()
+    Dim i As Long
+    Dim dTotalHours As Single
+    Dim dTotalPayCode1 As Single
+    Dim dTotalPayCode2 As Single
+    Dim dTotalPayCode3 As Single
+    
+    For i = 0 To tgcEditor.RowCount - 1
+        dTotalHours = dTotalHours + tfnRound(tgcEditor.CellValue(COL_HOUR, i), 2)
+        dTotalPayCode1 = dTotalPayCode1 + tfnRound(tgcEditor.CellValue(COL_PAYCODE1, i), 2)
+        dTotalPayCode2 = dTotalPayCode2 + tfnRound(tgcEditor.CellValue(COL_PAYCODE2, i), 2)
+        dTotalPayCode3 = dTotalPayCode3 + tfnRound(tgcEditor.CellValue(COL_PAYCODE3, i), 2)
+    Next
+    
+    lblEHTotalHours.Caption = CStr(Format(dTotalHours, "#,##0.00"))
+    lblEHTotalPayCode1.Caption = CStr(Format(dTotalPayCode1, "#,##0.00"))
+    lblEHTotalPayCode2.Caption = CStr(Format(dTotalPayCode2, "#,##0.00"))
+    lblEHTotalPayCode3.Caption = CStr(Format(dTotalPayCode3, "#,##0.00"))
+End Sub

@@ -2,17 +2,17 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBPRC 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Process Commission Checks"
    ClientHeight    =   6060
-   ClientLeft      =   1050
-   ClientTop       =   1950
+   ClientLeft      =   1056
+   ClientTop       =   1956
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.75
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -31,7 +31,7 @@ Begin VB.Form frmZZSEBPRC
       Height          =   390
       HelpContextID   =   15
       Left            =   7500
-      TabIndex        =   63
+      TabIndex        =   68
       Top             =   5265
       Width           =   1305
       _Version        =   65536
@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -53,10 +53,9 @@ Begin VB.Form frmZZSEBPRC
       ShowFocusRect   =   -1  'True
       Style           =   3
       BorderWidth     =   4
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.75
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -65,20 +64,20 @@ Begin VB.Form frmZZSEBPRC
       EndProperty
    End
    Begin FACTFRMLib.FactorFrame efraBackground 
-      Height          =   5184
+      Height          =   5208
       Left            =   0
-      TabIndex        =   65
+      TabIndex        =   70
       TabStop         =   0   'False
       Top             =   492
       Width           =   8880
       _Version        =   65536
       _ExtentX        =   15663
-      _ExtentY        =   9144
+      _ExtentY        =   9186
       _StockProps     =   77
       BackColor       =   -2147483633
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   8.26
+         Size            = 8.25 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -87,10 +86,9 @@ Begin VB.Form frmZZSEBPRC
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.75
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -100,7 +98,7 @@ Begin VB.Form frmZZSEBPRC
       Begin FACTTABLib.FactorTab eTabMain 
          Height          =   5040
          Left            =   45
-         TabIndex        =   67
+         TabIndex        =   72
          TabStop         =   0   'False
          Top             =   15
          Width           =   8790
@@ -110,7 +108,7 @@ Begin VB.Form frmZZSEBPRC
          _StockProps     =   68
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.75
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -119,21 +117,21 @@ Begin VB.Form frmZZSEBPRC
          EndProperty
          Caption         =   "Pay En&try|Proce&ss Checks|&View/Approve Checks|View &Details"
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
-            Height          =   4710
+            Height          =   4752
             HelpContextID   =   550
-            Left            =   18225
-            TabIndex        =   72
+            Left            =   14580
+            TabIndex        =   77
             TabStop         =   0   'False
             Top             =   0
-            Width           =   8790
+            Width           =   8784
             _Version        =   65536
-            _ExtentX        =   15505
-            _ExtentY        =   8308
+            _ExtentX        =   15494
+            _ExtentY        =   8382
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -142,10 +140,9 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -155,7 +152,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIDetail 
                Height          =   4152
                Left            =   60
-               TabIndex        =   73
+               TabIndex        =   78
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -165,7 +162,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.74
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -173,10 +170,9 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -189,7 +185,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   555
                   Left            =   72
-                  TabIndex        =   56
+                  TabIndex        =   61
                   Tag             =   "pn_alt"
                   Top             =   924
                   Width           =   1104
@@ -201,7 +197,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   557
                   Left            =   1608
-                  TabIndex        =   58
+                  TabIndex        =   63
                   Tag             =   "pn_name"
                   Top             =   924
                   Width           =   4176
@@ -212,7 +208,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   551
                   Left            =   60
-                  TabIndex        =   52
+                  TabIndex        =   57
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1872
@@ -224,7 +220,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   553
                   Left            =   2364
-                  TabIndex        =   54
+                  TabIndex        =   59
                   Tag             =   "pn_name"
                   Top             =   276
                   Width           =   5868
@@ -234,7 +230,7 @@ Begin VB.Form frmZZSEBPRC
                   HelpContextID   =   559
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":0000
-                  TabIndex        =   60
+                  TabIndex        =   65
                   Top             =   1356
                   Width           =   8556
                End
@@ -242,7 +238,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   552
                   Left            =   1944
-                  TabIndex        =   53
+                  TabIndex        =   58
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -253,7 +249,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -264,10 +260,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":12DE
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -279,7 +274,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   554
                   Left            =   8244
-                  TabIndex        =   55
+                  TabIndex        =   60
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -290,7 +285,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -301,10 +296,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":13F0
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -316,7 +310,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   556
                   Left            =   1188
-                  TabIndex        =   57
+                  TabIndex        =   62
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -327,7 +321,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -338,10 +332,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1502
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -353,7 +346,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   558
                   Left            =   5796
-                  TabIndex        =   59
+                  TabIndex        =   64
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -364,7 +357,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -375,10 +368,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1614
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -406,7 +398,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Number"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   75
+                  TabIndex        =   80
                   Top             =   36
                   Width           =   1836
                End
@@ -414,7 +406,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   2364
-                  TabIndex        =   74
+                  TabIndex        =   79
                   Top             =   36
                   Width           =   1968
                End
@@ -424,7 +416,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   3
                Left            =   5985
-               TabIndex        =   61
+               TabIndex        =   66
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -433,7 +425,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -446,10 +438,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -462,7 +453,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   3
                Left            =   7425
-               TabIndex        =   62
+               TabIndex        =   67
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -471,7 +462,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -484,10 +475,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -497,20 +487,20 @@ Begin VB.Form frmZZSEBPRC
             End
          End
          Begin FACTFRMLib.FactorFrame efraBaseProcess 
-            Height          =   4710
-            Left            =   18075
-            TabIndex        =   69
+            Height          =   4752
+            Left            =   14460
+            TabIndex        =   74
             TabStop         =   0   'False
             Top             =   0
-            Width           =   8790
+            Width           =   8784
             _Version        =   65536
-            _ExtentX        =   15505
-            _ExtentY        =   8308
+            _ExtentX        =   15494
+            _ExtentY        =   8382
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -519,10 +509,9 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -533,7 +522,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   4152
                HelpContextID   =   520
                Left            =   60
-               TabIndex        =   77
+               TabIndex        =   82
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -543,7 +532,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.74
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -552,16 +541,24 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
                BevelOuter      =   5
                Caption         =   " "
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.CheckBox chkHourly 
+                  Caption         =   "Process Hourly employees only (i.e. Non-Manager Gasoline Commissions)"
+                  Enabled         =   0   'False
+                  Height          =   276
+                  Left            =   132
+                  TabIndex        =   46
+                  Top             =   1404
+                  Width           =   7488
+               End
                Begin FACTFRMLib.FactorFrame efraProcessDate 
                   Height          =   1332
                   Left            =   72
@@ -575,7 +572,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.73
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -583,37 +580,36 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   BevelOuter      =   6
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
-                  Begin VB.TextBox txtFrequency 
-                     BackColor       =   &H00FFFFFF&
-                     ForeColor       =   &H00000000&
-                     Height          =   360
-                     HelpContextID   =   523
-                     Left            =   1404
-                     TabIndex        =   31
-                     Tag             =   "pn_alt"
-                     Top             =   252
-                     Width           =   552
-                  End
                   Begin VB.TextBox txtStartDate 
                      BackColor       =   &H00FFFFFF&
                      ForeColor       =   &H00000000&
                      Height          =   360
                      HelpContextID   =   521
                      Left            =   48
-                     TabIndex        =   30
+                     TabIndex        =   34
                      Tag             =   "pn_alt"
                      Top             =   252
                      Width           =   1224
+                  End
+                  Begin VB.TextBox txtFrequency 
+                     BackColor       =   &H00FFFFFF&
+                     ForeColor       =   &H00000000&
+                     Height          =   360
+                     HelpContextID   =   523
+                     Left            =   1404
+                     TabIndex        =   35
+                     Tag             =   "pn_alt"
+                     Top             =   252
+                     Width           =   552
                   End
                   Begin VB.TextBox txtEndDate 
                      BackColor       =   &H00FFFFFF&
@@ -621,7 +617,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   522
                      Left            =   48
-                     TabIndex        =   32
+                     TabIndex        =   36
                      Tag             =   "pn_alt"
                      Top             =   900
                      Width           =   1224
@@ -630,7 +626,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   524
                      Left            =   1968
-                     TabIndex        =   33
+                     TabIndex        =   37
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
                      Top             =   252
@@ -641,7 +637,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -652,10 +648,9 @@ Begin VB.Form frmZZSEBPRC
                      Picture         =   "ZZSEBPRC.frx":1726
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -694,7 +689,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   529
                   Left            =   2508
-                  TabIndex        =   38
+                  TabIndex        =   42
                   Tag             =   "pn_alt"
                   Top             =   960
                   Width           =   1104
@@ -706,7 +701,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   531
                   Left            =   4044
-                  TabIndex        =   40
+                  TabIndex        =   44
                   Tag             =   "pn_name"
                   Top             =   960
                   Width           =   4176
@@ -715,14 +710,15 @@ Begin VB.Form frmZZSEBPRC
                   Appearance      =   0  'Flat
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
-                  Height          =   2352
+                  Height          =   2088
                   HelpContextID   =   533
                   IntegralHeight  =   0   'False
                   ItemData        =   "ZZSEBPRC.frx":1838
                   Left            =   72
                   List            =   "ZZSEBPRC.frx":183A
-                  TabIndex        =   42
-                  Top             =   1404
+                  TabIndex        =   47
+                  TabStop         =   0   'False
+                  Top             =   1680
                   Width           =   8532
                End
                Begin VB.TextBox txtPrftCtrName 
@@ -732,7 +728,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   527
                   Left            =   4044
-                  TabIndex        =   36
+                  TabIndex        =   40
                   Tag             =   "pn_name"
                   Top             =   300
                   Width           =   4176
@@ -743,7 +739,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   525
                   Left            =   2508
-                  TabIndex        =   34
+                  TabIndex        =   38
                   Tag             =   "pn_alt"
                   Top             =   300
                   Width           =   1104
@@ -751,11 +747,11 @@ Begin VB.Form frmZZSEBPRC
                Begin MSComctlLib.ProgressBar pbBarMain 
                   Height          =   312
                   Left            =   72
-                  TabIndex        =   78
+                  TabIndex        =   83
                   Top             =   3780
                   Width           =   8532
-                  _ExtentX        =   15055
-                  _ExtentY        =   556
+                  _ExtentX        =   15050
+                  _ExtentY        =   550
                   _Version        =   393216
                   Appearance      =   1
                End
@@ -763,7 +759,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   526
                   Left            =   3624
-                  TabIndex        =   35
+                  TabIndex        =   39
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   300
@@ -774,7 +770,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -785,10 +781,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":183C
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -800,7 +795,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   528
                   Left            =   8232
-                  TabIndex        =   37
+                  TabIndex        =   41
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   300
@@ -811,7 +806,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -822,10 +817,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":194E
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -837,7 +831,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   530
                   Left            =   3624
-                  TabIndex        =   39
+                  TabIndex        =   43
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   960
@@ -848,7 +842,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -859,10 +853,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1A60
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -874,7 +867,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   532
                   Left            =   8232
-                  TabIndex        =   41
+                  TabIndex        =   45
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   960
@@ -885,7 +878,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -896,10 +889,9 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1B72
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -911,7 +903,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Nbr"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   96
+                  TabIndex        =   98
                   Top             =   720
                   Width           =   1296
                End
@@ -919,7 +911,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   95
+                  TabIndex        =   97
                   Top             =   720
                   Width           =   1956
                End
@@ -927,7 +919,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   80
+                  TabIndex        =   85
                   Top             =   60
                   Width           =   1956
                End
@@ -935,7 +927,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   79
+                  TabIndex        =   84
                   Top             =   60
                   Width           =   1296
                End
@@ -944,7 +936,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   390
                HelpContextID   =   534
                Left            =   5985
-               TabIndex        =   43
+               TabIndex        =   48
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -953,7 +945,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -966,10 +958,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -982,7 +973,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   1
                Left            =   7425
-               TabIndex        =   45
+               TabIndex        =   50
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -991,7 +982,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1004,10 +995,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1020,7 +1010,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   1
                Left            =   45
-               TabIndex        =   44
+               TabIndex        =   49
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -1029,7 +1019,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1042,10 +1032,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1055,21 +1044,21 @@ Begin VB.Form frmZZSEBPRC
             End
          End
          Begin FACTFRMLib.FactorFrame efraBasePayEntry 
-            Height          =   4680
+            Height          =   4728
             HelpContextID   =   500
-            Left            =   15
-            TabIndex        =   68
+            Left            =   12
+            TabIndex        =   73
             TabStop         =   0   'False
-            Top             =   15
+            Top             =   12
             Width           =   8760
             _Version        =   65536
             _ExtentX        =   15452
-            _ExtentY        =   8255
+            _ExtentY        =   8340
             _StockProps     =   77
             BackColor       =   -2147483633
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -1078,10 +1067,9 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -1091,7 +1079,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTTABLib.FactorTab eTabSub 
                Height          =   4716
                Left            =   0
-               TabIndex        =   81
+               TabIndex        =   86
                TabStop         =   0   'False
                Top             =   0
                Width           =   8784
@@ -1101,7 +1089,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   68
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.76
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1109,23 +1097,23 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                Position        =   3
-               TabsPerPage     =   2
-               Caption         =   "Store Sa&les|Employee &Hours"
-               Begin FACTFRMLib.FactorFrame efraBaseHours 
-                  Height          =   4380
-                  Left            =   18075
-                  TabIndex        =   83
+               TabsPerPage     =   3
+               Caption         =   "Store Sa&les|Employee &Hours|O&T Processor"
+               Begin FACTFRMLib.FactorFrame efraBaseOTProcessor 
+                  Height          =   4428
+                  Left            =   14520
+                  TabIndex        =   107
                   TabStop         =   0   'False
                   Top             =   0
-                  Width           =   8790
+                  Width           =   8784
                   _Version        =   65536
-                  _ExtentX        =   15505
-                  _ExtentY        =   7726
+                  _ExtentX        =   15494
+                  _ExtentY        =   7810
                   _StockProps     =   77
                   BackColor       =   8388608
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -1134,10 +1122,311 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  Begin FACTFRMLib.FactorFrame cmdCancel 
+                     Height          =   396
+                     HelpContextID   =   15
+                     Index           =   5
+                     Left            =   7125
+                     TabIndex        =   125
+                     Top             =   4245
+                     Width           =   1308
+                     _Version        =   65536
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     Caption         =   "&Cancel"
+                     CaptionPos      =   4
+                     ShowFocusRect   =   -1  'True
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
+                     Height          =   390
+                     HelpContextID   =   13
+                     Index           =   5
+                     Left            =   5715
+                     TabIndex        =   124
+                     Top             =   4245
+                     Width           =   1305
+                     _Version        =   65536
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     Caption         =   "&Insert"
+                     CaptionPos      =   4
+                     ShowFocusRect   =   -1  'True
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin FACTFRMLib.FactorFrame cmdOTPrint 
+                     Height          =   390
+                     HelpContextID   =   32
+                     Left            =   30
+                     TabIndex        =   123
+                     Top             =   4245
+                     Width           =   1305
+                     _Version        =   65536
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     Caption         =   "&Print"
+                     CaptionPos      =   4
+                     ShowFocusRect   =   -1  'True
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin FACTFRMLib.FactorFrame cmdOtProcess 
+                     Height          =   390
+                     HelpContextID   =   1605
+                     Left            =   4290
+                     TabIndex        =   122
+                     Top             =   4245
+                     Width           =   1305
+                     _Version        =   65536
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     Caption         =   "P&rocess"
+                     CaptionPos      =   4
+                     ShowFocusRect   =   -1  'True
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin FACTFRMLib.FactorFrame efraOTBaseIIProcessor 
+                     Height          =   4152
+                     Left            =   48
+                     TabIndex        =   121
+                     Top             =   48
+                     Width           =   8376
+                     _Version        =   65536
+                     _ExtentX        =   14774
+                     _ExtentY        =   7324
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     BevelOuter      =   5
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     Begin VB.ListBox lstOTLog 
+                        BeginProperty Font 
+                           Name            =   "Courier New"
+                           Size            = 8.25 
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        Height          =   2904
+                        Left            =   84
+                        TabIndex        =   132
+                        TabStop         =   0   'False
+                        Top             =   960
+                        Width           =   8160
+                     End
+                     Begin VB.Frame fraOTWeek2 
+                        Caption         =   "Week 2"
+                        Height          =   876
+                        Left            =   4236
+                        TabIndex        =   112
+                        Top             =   24
+                        Width           =   4020
+                        Begin VB.TextBox txtOTWeek2EndDate 
+                           Height          =   360
+                           HelpContextID   =   1603
+                           Left            =   2412
+                           TabIndex        =   120
+                           Top             =   420
+                           Width           =   1536
+                        End
+                        Begin VB.TextBox txtOTWeek2BeginDate 
+                           Height          =   360
+                           HelpContextID   =   1602
+                           Left            =   816
+                           TabIndex        =   119
+                           Top             =   420
+                           Width           =   1536
+                        End
+                        Begin VB.Label lblOTWeek2EndDate 
+                           Caption         =   "End Date"
+                           Height          =   204
+                           Left            =   2412
+                           TabIndex        =   118
+                           Top             =   180
+                           Width           =   1080
+                        End
+                        Begin VB.Label lblOTWeek2BeginDate 
+                           Caption         =   "Begin Date"
+                           Height          =   300
+                           Left            =   816
+                           TabIndex        =   117
+                           Top             =   180
+                           Width           =   1320
+                        End
+                     End
+                     Begin VB.Frame fraOTWeek1 
+                        Caption         =   "Week 1"
+                        Height          =   876
+                        Left            =   60
+                        TabIndex        =   111
+                        Top             =   24
+                        Width           =   4020
+                        Begin VB.TextBox txtOTWeek1EndDate 
+                           Height          =   360
+                           HelpContextID   =   1601
+                           Left            =   2364
+                           TabIndex        =   116
+                           Top             =   420
+                           Width           =   1536
+                        End
+                        Begin VB.TextBox txtOTWeek1BeginDate 
+                           Height          =   360
+                           HelpContextID   =   1600
+                           Left            =   768
+                           TabIndex        =   115
+                           Top             =   420
+                           Width           =   1536
+                        End
+                        Begin VB.Label lblOTWeek1EndDate 
+                           Caption         =   "End Date"
+                           Height          =   252
+                           Left            =   2388
+                           TabIndex        =   114
+                           Top             =   180
+                           Width           =   960
+                        End
+                        Begin VB.Label lblOTWeek1BeginDate 
+                           Caption         =   "Begin Date"
+                           Height          =   288
+                           Left            =   780
+                           TabIndex        =   113
+                           Top             =   180
+                           Width           =   1284
+                        End
+                     End
+                  End
+               End
+               Begin FACTFRMLib.FactorFrame efraBaseHours 
+                  Height          =   4428
+                  Left            =   14460
+                  TabIndex        =   88
+                  TabStop         =   0   'False
+                  Top             =   0
+                  Width           =   8784
+                  _Version        =   65536
+                  _ExtentX        =   15494
+                  _ExtentY        =   7810
+                  _StockProps     =   77
+                  BackColor       =   8388608
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  BevelOuter      =   0
+                  BorderWidth     =   0
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -1148,7 +1437,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   4152
                      HelpContextID   =   510
                      Left            =   48
-                     TabIndex        =   25
+                     TabIndex        =   29
                      Top             =   48
                      Width           =   8376
                      _Version        =   65536
@@ -1157,7 +1446,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.74
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1165,35 +1454,48 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
-                     Begin VB.TextBox txtTotal 
-                        Alignment       =   1  'Right Justify
-                        Enabled         =   0   'False
-                        Height          =   324
-                        Left            =   7032
-                        MultiLine       =   -1  'True
-                        TabIndex        =   98
-                        Top             =   3780
-                        Width           =   1272
-                     End
-                     Begin VB.TextBox txtTotalDollars 
-                        Alignment       =   1  'Right Justify
-                        Enabled         =   0   'False
-                        Height          =   324
-                        Left            =   4632
-                        MultiLine       =   -1  'True
-                        TabIndex        =   97
-                        Top             =   3780
-                        Width           =   1332
+                     Begin FACTFRMLib.FactorFrame cmdEHDate 
+                        Height          =   360
+                        HelpContextID   =   1505
+                        Left            =   7860
+                        TabIndex        =   22
+                        TabStop         =   0   'False
+                        Top             =   276
+                        Width           =   360
+                        _Version        =   65536
+                        _ExtentX        =   635
+                        _ExtentY        =   635
+                        _StockProps     =   77
+                        BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "Arial"
+                           Size            = 9.75 
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        Picture         =   "ZZSEBPRC.frx":1C84
+                        Style           =   3
+                        BorderWidth     =   4
+                        BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "MS Sans Serif"
+                           Size            = 9.75 
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
                      End
                      Begin VB.PictureBox cmdFloatingBtn 
                         Appearance      =   0  'Flat
@@ -1202,47 +1504,47 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   240
                         HelpContextID   =   22
                         Left            =   96
-                        ScaleHeight     =   210
-                        ScaleWidth      =   225
-                        TabIndex        =   92
+                        ScaleHeight     =   216
+                        ScaleWidth      =   228
+                        TabIndex        =   95
                         Top             =   720
                         Visible         =   0   'False
                         Width           =   255
                      End
-                     Begin VB.TextBox txtEmployeeName 
+                     Begin VB.TextBox txtEHPrftName 
                         BackColor       =   &H00FFFFFF&
                         DataSource      =   "datVendor"
                         ForeColor       =   &H00000000&
                         Height          =   360
-                        HelpContextID   =   513
+                        HelpContextID   =   1502
                         Left            =   2028
                         TabIndex        =   19
                         Tag             =   "pn_name"
                         Top             =   276
                         Width           =   3576
                      End
-                     Begin VB.TextBox txtEmployeeNumber 
+                     Begin VB.TextBox txtEHPrftCtr 
                         BackColor       =   &H00FFFFFF&
                         ForeColor       =   &H00000000&
                         Height          =   360
-                        HelpContextID   =   511
+                        HelpContextID   =   1500
                         Left            =   72
                         TabIndex        =   15
                         Tag             =   "pn_alt"
                         Top             =   276
                         Width           =   1524
                      End
-                     Begin VB.TextBox txtSSN 
+                     Begin VB.TextBox txtEHDate 
                         Height          =   360
-                        HelpContextID   =   515
+                        HelpContextID   =   1504
                         Left            =   6036
                         TabIndex        =   21
                         Top             =   276
-                        Width           =   1896
+                        Width           =   1812
                      End
-                     Begin FACTFRMLib.FactorFrame cmdEmployeeNumber 
+                     Begin FACTFRMLib.FactorFrame cmdEHPrftCtr 
                         Height          =   360
-                        HelpContextID   =   512
+                        HelpContextID   =   1501
                         Left            =   1608
                         TabIndex        =   17
                         TabStop         =   0   'False
@@ -1255,7 +1557,7 @@ Begin VB.Form frmZZSEBPRC
                         _StockProps     =   77
                         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "Arial"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1263,13 +1565,12 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":1C84
+                        Picture         =   "ZZSEBPRC.frx":1D96
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1277,9 +1578,9 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                      End
-                     Begin FACTFRMLib.FactorFrame cmdEmployeeName 
+                     Begin FACTFRMLib.FactorFrame cmdEHPrftName 
                         Height          =   360
-                        HelpContextID   =   514
+                        HelpContextID   =   1503
                         Left            =   5616
                         TabIndex        =   20
                         TabStop         =   0   'False
@@ -1292,44 +1593,7 @@ Begin VB.Form frmZZSEBPRC
                         _StockProps     =   77
                         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "Arial"
-                           Size            =   9.75
-                           Charset         =   0
-                           Weight          =   400
-                           Underline       =   0   'False
-                           Italic          =   0   'False
-                           Strikethrough   =   0   'False
-                        EndProperty
-                        CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":1D96
-                        Style           =   3
-                        BorderWidth     =   4
-                        TitleBarHeight  =   24
-                        BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                           Name            =   "MS Sans Serif"
-                           Size            =   9.75
-                           Charset         =   0
-                           Weight          =   400
-                           Underline       =   0   'False
-                           Italic          =   0   'False
-                           Strikethrough   =   0   'False
-                        EndProperty
-                     End
-                     Begin FACTFRMLib.FactorFrame cmdSSN 
-                        Height          =   360
-                        HelpContextID   =   516
-                        Left            =   7944
-                        TabIndex        =   22
-                        TabStop         =   0   'False
-                        Tag             =   "Run #3"
-                        Top             =   276
-                        Width           =   360
-                        _Version        =   65536
-                        _ExtentX        =   635
-                        _ExtentY        =   635
-                        _StockProps     =   77
-                        BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                           Name            =   "Arial"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1340,10 +1604,9 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1EA8
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1352,65 +1615,228 @@ Begin VB.Form frmZZSEBPRC
                         EndProperty
                      End
                      Begin DBTrueGrid.TDBGrid tblTimeCard 
-                        Height          =   3036
-                        HelpContextID   =   517
+                        Height          =   3120
+                        HelpContextID   =   1506
                         Left            =   72
                         OleObjectBlob   =   "ZZSEBPRC.frx":1FBA
+                        TabIndex        =   28
+                        Top             =   696
+                        Width           =   8172
+                     End
+                     Begin FACTFRMLib.FactorFrame efraEHPayCode 
+                        Height          =   1008
+                        Left            =   2916
                         TabIndex        =   23
-                        Top             =   696
-                        Width           =   5892
-                     End
-                     Begin DBTrueGrid.TDBGrid tblProfitCenter 
-                        Height          =   3036
-                        HelpContextID   =   518
-                        Left            =   6036
-                        OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
-                        TabIndex        =   24
                         TabStop         =   0   'False
-                        Top             =   696
-                        Width           =   2268
+                        Top             =   708
+                        Width           =   5316
+                        _Version        =   65536
+                        _ExtentX        =   9377
+                        _ExtentY        =   1778
+                        _StockProps     =   77
+                        BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "Arial"
+                           Size            = 9.75 
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        BevelOuter      =   5
+                        BorderWidth     =   4
+                        BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "MS Sans Serif"
+                           Size            = 9.75 
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        Begin FACTFRMLib.FactorFrame cmdEHPayCodeDesc 
+                           Height          =   360
+                           Left            =   4920
+                           TabIndex        =   27
+                           TabStop         =   0   'False
+                           Top             =   420
+                           Width           =   360
+                           _Version        =   65536
+                           _ExtentX        =   635
+                           _ExtentY        =   635
+                           _StockProps     =   77
+                           BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                              Name            =   "Arial"
+                              Size            = 9.75 
+                              Charset         =   0
+                              Weight          =   400
+                              Underline       =   0   'False
+                              Italic          =   0   'False
+                              Strikethrough   =   0   'False
+                           EndProperty
+                           Style           =   3
+                           BorderWidth     =   4
+                           BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                              Name            =   "MS Sans Serif"
+                              Size            = 9.75 
+                              Charset         =   0
+                              Weight          =   400
+                              Underline       =   0   'False
+                              Italic          =   0   'False
+                              Strikethrough   =   0   'False
+                           EndProperty
+                        End
+                        Begin FACTFRMLib.FactorFrame cmdEHPayCode 
+                           Height          =   360
+                           Left            =   1248
+                           TabIndex        =   26
+                           TabStop         =   0   'False
+                           Top             =   420
+                           Width           =   360
+                           _Version        =   65536
+                           _ExtentX        =   635
+                           _ExtentY        =   635
+                           _StockProps     =   77
+                           BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                              Name            =   "Arial"
+                              Size            = 9.75 
+                              Charset         =   0
+                              Weight          =   400
+                              Underline       =   0   'False
+                              Italic          =   0   'False
+                              Strikethrough   =   0   'False
+                           EndProperty
+                           Style           =   3
+                           BorderWidth     =   4
+                           BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                              Name            =   "MS Sans Serif"
+                              Size            = 9.75 
+                              Charset         =   0
+                              Weight          =   400
+                              Underline       =   0   'False
+                              Italic          =   0   'False
+                              Strikethrough   =   0   'False
+                           EndProperty
+                        End
+                        Begin VB.TextBox txtEHPayCodeDesc 
+                           Height          =   360
+                           Left            =   1740
+                           TabIndex        =   25
+                           Top             =   420
+                           Width           =   3168
+                        End
+                        Begin VB.TextBox txtEHPayCode 
+                           Height          =   360
+                           Left            =   168
+                           TabIndex        =   24
+                           Top             =   420
+                           Width           =   1068
+                        End
+                        Begin VB.Label lblEHPayDesc 
+                           Caption         =   "Description"
+                           Height          =   264
+                           Left            =   1740
+                           TabIndex        =   108
+                           Top             =   84
+                           Width           =   1440
+                        End
+                        Begin VB.Label lblEHPayCode 
+                           Caption         =   "Pay Code"
+                           Height          =   240
+                           Left            =   180
+                           TabIndex        =   109
+                           Top             =   84
+                           Width           =   936
+                        End
                      End
-                     Begin VB.Label lblTotalHr 
+                     Begin VB.Label lblEHTotalPayCode3 
                         Alignment       =   1  'Right Justify
-                        Caption         =   "Total Hours/Dollars:"
-                        Height          =   252
-                        Left            =   2892
-                        TabIndex        =   90
+                        Appearance      =   0  'Flat
+                        BackColor       =   &H80000005&
+                        BorderStyle     =   1  'Fixed Single
+                        ForeColor       =   &H00FF0000&
+                        Height          =   288
+                        Left            =   7056
+                        TabIndex        =   131
                         Top             =   3828
-                        Width           =   1692
+                        Width           =   1080
                      End
-                     Begin VB.Label lblSSN 
-                        Caption         =   "Social Security Number"
+                     Begin VB.Label lblEHTotalPayCode2 
+                        Alignment       =   1  'Right Justify
+                        Appearance      =   0  'Flat
+                        BackColor       =   &H80000005&
+                        BorderStyle     =   1  'Fixed Single
+                        ForeColor       =   &H00FF0000&
+                        Height          =   288
+                        Left            =   6108
+                        TabIndex        =   130
+                        Top             =   3828
+                        Width           =   960
+                     End
+                     Begin VB.Label lblEHTotalPayCode1 
+                        Alignment       =   1  'Right Justify
+                        Appearance      =   0  'Flat
+                        BackColor       =   &H80000005&
+                        BorderStyle     =   1  'Fixed Single
+                        ForeColor       =   &H00FF0000&
+                        Height          =   288
+                        Left            =   5148
+                        TabIndex        =   129
+                        Top             =   3828
+                        Width           =   972
+                     End
+                     Begin VB.Label lblEHTotalHours 
+                        Alignment       =   1  'Right Justify
+                        Appearance      =   0  'Flat
+                        BackColor       =   &H80000005&
+                        BorderStyle     =   1  'Fixed Single
+                        ForeColor       =   &H00FF0000&
+                        Height          =   288
+                        Left            =   4152
+                        TabIndex        =   128
+                        Top             =   3828
+                        Width           =   1008
+                     End
+                     Begin VB.Label lblEHTotalCaption 
+                        Caption         =   "Total"
+                        BeginProperty Font 
+                           Name            =   "Arial"
+                           Size            = 9.75 
+                           Charset         =   0
+                           Weight          =   700
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        Height          =   228
+                        Left            =   3396
+                        TabIndex        =   127
+                        Top             =   3864
+                        Width           =   1152
+                     End
+                     Begin VB.Label lblEHDate 
+                        Caption         =   "Date"
                         Height          =   252
                         Left            =   6036
-                        TabIndex        =   89
+                        TabIndex        =   93
                         Top             =   24
                         Width           =   2268
                      End
-                     Begin VB.Label lblHEmpName 
-                        Caption         =   "Employee Name"
+                     Begin VB.Label lblEHPrftName 
+                        Caption         =   "Profit Center Name"
                         Height          =   252
                         Left            =   2028
-                        TabIndex        =   88
+                        TabIndex        =   92
                         Top             =   24
                         Width           =   1968
                      End
-                     Begin VB.Label lblEmpNo 
-                        Caption         =   "Employee Number"
+                     Begin VB.Label lblEHPrftCtr 
+                        Caption         =   "Profit Center No"
                         Height          =   252
                         Left            =   72
-                        TabIndex        =   87
+                        TabIndex        =   91
                         Top             =   24
                         Width           =   1848
-                     End
-                     Begin VB.Label lblTotalPC 
-                        Alignment       =   1  'Right Justify
-                        Caption         =   "PC Total:"
-                        Height          =   252
-                        Left            =   6048
-                        TabIndex        =   86
-                        Top             =   3828
-                        Width           =   888
                      End
                   End
                   Begin FACTFRMLib.FactorFrame cmdAddBtn 
@@ -1427,7 +1853,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1440,10 +1866,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1465,7 +1890,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1478,10 +1903,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1494,7 +1918,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   4
                      Left            =   7125
-                     TabIndex        =   27
+                     TabIndex        =   31
                      Top             =   4245
                      Width           =   1305
                      _Version        =   65536
@@ -1503,7 +1927,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1516,10 +1940,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1532,7 +1955,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   4
                      Left            =   5715
-                     TabIndex        =   26
+                     TabIndex        =   30
                      Top             =   4245
                      Width           =   1305
                      _Version        =   65536
@@ -1541,7 +1964,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1554,10 +1977,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1570,7 +1992,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   4
                      Left            =   2865
-                     TabIndex        =   29
+                     TabIndex        =   33
                      Top             =   4245
                      Width           =   1305
                      _Version        =   65536
@@ -1579,7 +2001,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1592,10 +2014,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1608,7 +2029,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   4
                      Left            =   4290
-                     TabIndex        =   28
+                     TabIndex        =   32
                      Top             =   4245
                      Width           =   1305
                      _Version        =   65536
@@ -1617,7 +2038,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1630,10 +2051,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1643,21 +2063,21 @@ Begin VB.Form frmZZSEBPRC
                   End
                End
                Begin FACTFRMLib.FactorFrame efraBaseSales 
-                  Height          =   4680
+                  Height          =   4692
                   HelpContextID   =   501
-                  Left            =   15
-                  TabIndex        =   82
+                  Left            =   12
+                  TabIndex        =   87
                   TabStop         =   0   'False
-                  Top             =   15
-                  Width           =   8430
+                  Top             =   12
+                  Width           =   8472
                   _Version        =   65536
-                  _ExtentX        =   14870
-                  _ExtentY        =   8255
+                  _ExtentX        =   14944
+                  _ExtentY        =   8276
                   _StockProps     =   77
                   BackColor       =   8388608
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -1666,10 +2086,9 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -1688,7 +2107,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.74
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1696,10 +2115,9 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1725,9 +2143,9 @@ Begin VB.Form frmZZSEBPRC
                         HelpContextID   =   22
                         Index           =   0
                         Left            =   72
-                        ScaleHeight     =   210
-                        ScaleWidth      =   225
-                        TabIndex        =   91
+                        ScaleHeight     =   216
+                        ScaleWidth      =   228
+                        TabIndex        =   94
                         Top             =   768
                         Visible         =   0   'False
                         Width           =   255
@@ -1759,7 +2177,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   3348
                         HelpContextID   =   508
                         Left            =   72
-                        OleObjectBlob   =   "ZZSEBPRC.frx":383C
+                        OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
                         TabIndex        =   9
                         Top             =   768
                         Width           =   8244
@@ -1779,7 +2197,7 @@ Begin VB.Form frmZZSEBPRC
                         _StockProps     =   77
                         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "Arial"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1787,13 +2205,12 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":4B18
+                        Picture         =   "ZZSEBPRC.frx":3ED5
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1816,7 +2233,7 @@ Begin VB.Form frmZZSEBPRC
                         _StockProps     =   77
                         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "Arial"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1824,13 +2241,12 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":4C2A
+                        Picture         =   "ZZSEBPRC.frx":3FE7
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1853,7 +2269,7 @@ Begin VB.Form frmZZSEBPRC
                         _StockProps     =   77
                         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "Arial"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1861,13 +2277,12 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":4D3C
+                        Picture         =   "ZZSEBPRC.frx":40F9
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
-                           Size            =   9.75
+                           Size            = 9.75 
                            Charset         =   0
                            Weight          =   400
                            Underline       =   0   'False
@@ -1887,7 +2302,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "From Date"
                         Height          =   252
                         Left            =   4404
-                        TabIndex        =   85
+                        TabIndex        =   90
                         Top             =   84
                         Width           =   1380
                      End
@@ -1895,7 +2310,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "To Date"
                         Height          =   252
                         Left            =   6444
-                        TabIndex        =   84
+                        TabIndex        =   89
                         Top             =   84
                         Width           =   1500
                      End
@@ -1914,7 +2329,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1927,10 +2342,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1952,7 +2366,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1965,10 +2379,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1990,7 +2403,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2003,10 +2416,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2028,7 +2440,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2041,10 +2453,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2066,7 +2477,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2079,10 +2490,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2104,7 +2514,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2117,10 +2527,9 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2132,21 +2541,21 @@ Begin VB.Form frmZZSEBPRC
             End
          End
          Begin FACTFRMLib.FactorFrame efraBaseView 
-            Height          =   4710
+            Height          =   4752
             HelpContextID   =   540
-            Left            =   18150
-            TabIndex        =   71
+            Left            =   14520
+            TabIndex        =   76
             TabStop         =   0   'False
             Top             =   0
-            Width           =   8790
+            Width           =   8784
             _Version        =   65536
-            _ExtentX        =   15505
-            _ExtentY        =   8308
+            _ExtentX        =   15494
+            _ExtentY        =   8382
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -2155,10 +2564,9 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -2168,7 +2576,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIView 
                Height          =   4152
                Left            =   60
-               TabIndex        =   76
+               TabIndex        =   81
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -2178,7 +2586,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.74
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2186,10 +2594,9 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2202,8 +2609,8 @@ Begin VB.Form frmZZSEBPRC
                   ForeColor       =   &H80000008&
                   Height          =   288
                   Left            =   4116
-                  ScaleHeight     =   255
-                  ScaleWidth      =   1485
+                  ScaleHeight     =   264
+                  ScaleWidth      =   1488
                   TabIndex        =   105
                   TabStop         =   0   'False
                   Top             =   384
@@ -2213,8 +2620,8 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   4044
                   HelpContextID   =   541
                   Left            =   60
-                  OleObjectBlob   =   "ZZSEBPRC.frx":4E4E
-                  TabIndex        =   46
+                  OleObjectBlob   =   "ZZSEBPRC.frx":420B
+                  TabIndex        =   51
                   Top             =   60
                   Width           =   8556
                End
@@ -2223,7 +2630,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   390
                HelpContextID   =   16
                Left            =   5985
-               TabIndex        =   49
+               TabIndex        =   54
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -2232,7 +2639,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2245,10 +2652,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2261,7 +2667,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   2
                Left            =   7425
-               TabIndex        =   51
+               TabIndex        =   56
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -2270,7 +2676,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2283,10 +2689,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2298,7 +2703,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   390
                HelpContextID   =   542
                Left            =   45
-               TabIndex        =   47
+               TabIndex        =   52
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -2307,7 +2712,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2320,10 +2725,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2335,7 +2739,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   390
                HelpContextID   =   543
                Left            =   1470
-               TabIndex        =   48
+               TabIndex        =   53
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -2344,7 +2748,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2357,10 +2761,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2373,7 +2776,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   2
                Left            =   2910
-               TabIndex        =   50
+               TabIndex        =   55
                Top             =   4260
                Width           =   1305
                _Version        =   65536
@@ -2382,7 +2785,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2395,10 +2798,9 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2409,11 +2811,11 @@ Begin VB.Form frmZZSEBPRC
          End
       End
       Begin DBTrueGrid.TDBGrid tblComboDropdown 
-         Bindings        =   "ZZSEBPRC.frx":612C
+         Bindings        =   "ZZSEBPRC.frx":54E9
          Height          =   2484
          Left            =   108
-         OleObjectBlob   =   "ZZSEBPRC.frx":614B
-         TabIndex        =   70
+         OleObjectBlob   =   "ZZSEBPRC.frx":5508
+         TabIndex        =   75
          TabStop         =   0   'False
          Top             =   12
          Width           =   3756
@@ -2439,7 +2841,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   64
+      TabIndex        =   69
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -2449,7 +2851,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2459,21 +2861,32 @@ Begin VB.Form frmZZSEBPRC
       Align           =   2
       CaptionPos      =   1
       Style           =   5
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
+      Begin MSComctlLib.ProgressBar pbStatus 
+         Height          =   276
+         Left            =   6912
+         TabIndex        =   126
+         Top             =   36
+         Visible         =   0   'False
+         Width           =   1932
+         _ExtentX        =   3408
+         _ExtentY        =   487
+         _Version        =   393216
+         Appearance      =   1
+      End
    End
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   468
       Left            =   0
-      TabIndex        =   66
+      TabIndex        =   71
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -2483,7 +2896,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2494,10 +2907,9 @@ Begin VB.Form frmZZSEBPRC
       FMName          =   "ZZSEBPRC"
       CaptionPos      =   4
       Style           =   6
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2511,15 +2923,15 @@ Begin VB.Form frmZZSEBPRC
          Top             =   96
       End
       Begin MSComctlLib.Toolbar tbToolbar 
-         Height          =   312
+         Height          =   372
          Left            =   60
          TabIndex        =   0
          Top             =   84
          Width           =   6876
-         _ExtentX        =   12118
-         _ExtentY        =   556
-         ButtonWidth     =   609
-         ButtonHeight    =   582
+         _ExtentX        =   12129
+         _ExtentY        =   656
+         ButtonWidth     =   614
+         ButtonHeight    =   572
          _Version        =   393216
       End
    End
@@ -2541,23 +2953,23 @@ Begin VB.Form frmZZSEBPRC
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":742F
+      Bindings        =   "ZZSEBPRC.frx":67EC
       Height          =   1008
       Index           =   0
       Left            =   168
-      OleObjectBlob   =   "ZZSEBPRC.frx":7449
-      TabIndex        =   93
+      OleObjectBlob   =   "ZZSEBPRC.frx":6806
+      TabIndex        =   96
       Top             =   684
       Width           =   2604
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":872B
+      Bindings        =   "ZZSEBPRC.frx":7AE8
       Height          =   1008
       Index           =   4
-      Left            =   144
-      OleObjectBlob   =   "ZZSEBPRC.frx":8745
-      TabIndex        =   94
-      Top             =   624
+      Left            =   0
+      OleObjectBlob   =   "ZZSEBPRC.frx":7B02
+      TabIndex        =   110
+      Top             =   600
       Width           =   2604
    End
    Begin VB.Menu mnuFile 
@@ -2648,6 +3060,7 @@ Attribute VB_Exposed = False
 '***********************************************************************
 Option Explicit
 
+Private Const NOTCOMPLETE As Boolean = False
 Private t_bStartupFlag As Boolean 'optional startup flag
 Private t_bDataChanged As Boolean 'data changed flag
 Private t_bUpdateTable As Boolean 'update data flag
@@ -2681,11 +3094,28 @@ Private bSalesRecordExist As Boolean
 Private sFreqRegExp As String
 
 Private objHours As clsPRFHOURS
+Private objOTProcessor As clsOTProcessor
 
 Private bLoadingBonusDetail As Boolean
 Private bProcessing As Boolean
 Private bCancelProcess As Boolean
 '
+
+Private Sub chkHourly_GotFocus()
+    tfnSetStatusBarMessage "Check to process hourly employee only"
+End Sub
+
+Private Sub chkHourly_KeyPress(KeyAscii As Integer)
+    
+    If KeyAscii = vbKeyReturn Then
+        
+        If cmdProcess.Enabled Then
+            subSetFocus cmdProcess
+        End If
+        
+    End If
+    
+End Sub
 
 Private Sub cmdApprove_Click()
     Dim lRow As Long
@@ -2702,7 +3132,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -2733,6 +3163,18 @@ Private Sub cmdDropDown_LostFocus(Index As Integer)
     tgfDropdown(Index).LostFocus cmdDropdown(Index)
 End Sub
 
+Private Sub cmdEHDate_Click()
+    objHours.cmdEHDate_Click
+End Sub
+
+Private Sub cmdEHPayCode_Click()
+    objHours.cmdEHPayCode_Click
+End Sub
+
+Private Sub cmdEHPayCodeDesc_Click()
+    objHours.cmdEHPayCodeDesc_Click
+End Sub
+
 Private Sub cmdOK_Click()
     #If PROTOTYPE Then
         Exit Sub
@@ -2742,7 +3184,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2751,8 +3193,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2767,6 +3209,25 @@ Private Sub cmdOK_Click()
     tfnResetScreen TabProcess
     tfnResetScreen TabDetails
     eTabMain.CurrTab = TabProcess
+End Sub
+
+Private Sub cmdOTPrint_Click()
+    objOTProcessor.cmdOTPrint_Click
+End Sub
+
+Private Sub cmdOTPrint_GotFocus()
+    objOTProcessor.cmdOTPrint_GotFocus
+End Sub
+
+Private Sub cmdOTProcess_Click()
+    eTabMain.TabEnabled(TabProcess) = False
+    eTabSub.TabEnabled(TabSales) = False
+    eTabSub.TabEnabled(TabHours) = False
+    objOTProcessor.cmdOTProcess_Click
+End Sub
+
+Private Sub cmdOtProcess_GotFocus()
+    objOTProcessor.cmdOtProcess_GotFocus
 End Sub
 
 Private Sub cmdPrint_Click(Index As Integer)
@@ -2787,6 +3248,7 @@ Private Sub cmdSelectAll_GotFocus()
     tfnSetStatusBarMessage "Select All"
 End Sub
 
+
 Private Sub efraBaseHours_GotFocus()
     subSetFocus cmdAddBtn(nTabHours)
 End Sub
@@ -2803,6 +3265,10 @@ Private Sub efraBaseIIHours_GotFocus()
     If objHours Is Nothing Then Exit Sub
     
     objHours.efraBridge_GotFocus
+End Sub
+
+Private Sub efraBaseIIHours_LostFocus()
+    objHours.efraBridge_LostFocus
 End Sub
 
 Private Sub efraBaseIIProcess_GotFocus()
@@ -2828,8 +3294,22 @@ Private Sub efraBaseIIView_GotFocus()
     subSetFocus tblApprove
 End Sub
 
+
+
+Private Sub efraBaseOTProcessor_GotFocus()
+    subSetFocus txtOTWeek1BeginDate
+End Sub
+
 Private Sub efraBaseSales_GotFocus()
     subSetFocus cmdAddBtn(TabSales)
+End Sub
+
+Private Sub efraOTBaseIIProcessor_GotFocus()
+    objOTProcessor.efraBridge_GotFocus
+End Sub
+
+Private Sub efraOTBaseIIProcessor_LostFocus()
+    objOTProcessor.efraBridge_LostFocus
 End Sub
 
 Private Sub eTabMain_Click()
@@ -2852,10 +3332,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -2879,12 +3359,12 @@ Private Sub eTabMain_Click()
 
 End Sub
 
-Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
     If Not eTabMain.TabEnabled(NewTab) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
-    If Not Cancel Then t_bTabSwitch = True
+    If Not CANCEL Then t_bTabSwitch = True
 End Sub
 
 Private Sub eTabSub_Click()
@@ -2893,16 +3373,18 @@ Private Sub eTabSub_Click()
             subSetFocus efraBaseSales
         Case TabHours
             subSetFocus efraBaseHours
+        Case TabOTProc
+            subSetFocus efraBaseOTProcessor
     End Select
 End Sub
 
-Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+Private Sub eTabSub_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
     If Not eTabSub.TabEnabled(NewTab) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
 
-    If Not Cancel Then
+    If Not CANCEL Then
         t_bTabSwitch = True
     End If
 End Sub
@@ -2924,7 +3406,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -3044,6 +3526,12 @@ Private Sub Form_Load()
         Exit Sub
     End If
     
+    'initialize the OTPROCESSOR class
+    If Not fnInitialOTProcessorClass() Then
+        Unload Me
+        Exit Sub
+    End If
+    
     Screen.MousePointer = vbHourglass
     
     Set objMath = New clsEquation
@@ -3061,8 +3549,9 @@ Private Sub Form_Load()
     subEnablePrint 1, False, True
     tfnResetScreen TabProcess
     tfnResetScreen nTabHours
+    tfnResetScreen nTabOTProc
     tfnResetScreen TabSales
-    
+
     Screen.MousePointer = vbDefault
     
     #If PROTOTYPE Then
@@ -3294,6 +3783,11 @@ Private Sub tfnResetScreen(Index As Integer)
     Screen.MousePointer = vbHourglass
     subSetFocus efraBackground
     
+    'Temporary disable
+    If NOTCOMPLETE Then
+        eTabSub.TabEnabled(TabOTProc) = False
+    End If
+    
     Select Case Index
         Case TabSales
             If nDataStatus = DATA_CHANGED Then
@@ -3319,12 +3813,28 @@ Private Sub tfnResetScreen(Index As Integer)
             cmdEditBtn(Index).Enabled = True
             eTabMain.TabEnabled(TabProcess) = True
             eTabSub.TabEnabled(TabHours) = True
+            
+            If Not NOTCOMPLETE Then
+                eTabSub.TabEnabled(TabOTProc) = True
+            End If
+            
             subSetFocus cmdAddBtn(Index)
             cmdUpdateInsertBtn(Index).Caption = t_szCAPTION_UPDATE
         Case nTabHours
             objHours.mnuCancel_Click
             eTabMain.TabEnabled(TabProcess) = True
             eTabSub.TabEnabled(TabSales) = True
+            
+            If Not NOTCOMPLETE Then
+                eTabSub.TabEnabled(TabOTProc) = True
+            End If
+            
+        Case nTabOTProc
+            objOTProcessor.mnuCancel_Click
+            eTabMain.TabEnabled(TabProcess) = True
+            eTabSub.TabEnabled(TabSales) = True
+            eTabSub.TabEnabled(TabHours) = True
+            subSetFocus txtOTWeek1BeginDate
         Case TabProcess
             nDataStatus = DATA_INIT
             txtStartDate = ""
@@ -3335,7 +3845,8 @@ Private Sub tfnResetScreen(Index As Integer)
             txtEmpProcess = ""
             txtEmpNameProcess = ""
             bLoadingBonusDetail = False
-
+            chkHourly.Enabled = False
+            chkHourly.value = vbUnchecked
             bShowDetail = mnuDetailLog.CHECKED
 
             cValidate.ResetFlags
@@ -3384,10 +3895,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -3425,7 +3936,7 @@ Private Sub tfnResetScreen(Index As Integer)
     mnuCopy.Enabled = False
     mnuPaste.Enabled = False
     
-    If (Index <> nTabHours) Then
+    If (Index <> nTabHours And Index <> nTabOTProc) Then
         cmdRefresh(Index).Enabled = False
         cmdUpdateInsertBtn(Index).Enabled = False
         cmdDelete(Index).Enabled = False
@@ -3443,16 +3954,16 @@ Private Sub tblApprove_AfterColEdit(ByVal ColIndex As Integer)
     tgmApprove.AfterColEdit ColIndex
 End Sub
 
-Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    tgmApprove.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    tgmApprove.BeforeColEdit ColIndex, KeyAscii, CANCEL
     
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOK.Enabled = True
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -3528,9 +4039,9 @@ Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     tgsApprove.RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblApprove_SelChange(Cancel As Integer)
-    tgsApprove.SelChange Cancel
-    Cancel = True
+Private Sub tblApprove_SelChange(CANCEL As Integer)
+    tgsApprove.SelChange CANCEL
+    CANCEL = True
 End Sub
 
 Private Sub tblApprove_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3551,8 +4062,8 @@ Private Sub tblDetails_KeyPress(KeyAscii As Integer)
     End If
 End Sub
 
-Private Sub tblDetails_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDetails_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3561,6 +4072,10 @@ End Sub
 
 Private Sub tblSales_Click()
     tgsSales.Click
+End Sub
+
+Private Sub tblTimeCard_HeadClick(ByVal ColIndex As Integer)
+    objHours.tblTimeCard_HeadClick ColIndex
 End Sub
 
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
@@ -3623,15 +4138,18 @@ End Sub
 Public Sub TBButtonCallBack(ByVal nID As Integer)
     Select Case nID
         Case CANCEL_UP
-            If eTabMain.CurrTab = 0 Then
+            If eTabMain.CurrTab = TabSales Then
                 If eTabSub.CurrTab = TabSales Then
                     subCancel eTabSub.CurrTab
-                Else
+                ElseIf eTabSub.CurrTab = TabHours Then
                     subCancel nTabHours
+                Else
+                    subCancel TabOTProc
                 End If
             Else
                 subCancel eTabMain.CurrTab
             End If
+            
         Case EXIT_UP
             If eTabMain.CurrTab = 0 And eTabSub.CurrTab = TabHours Then
                 If objHours.fnExit() Then
@@ -3792,6 +4310,11 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
+    
+    'added  by junsong 10/16/2002 call #379824-3
+    If chkHourly.value = vbChecked Then
+        strSQL = strSQL & " AND bm_empno IN (SELECT prm_empno FROM pr_master WHERE prm_pay_type = 'H')"
+    End If
     
     If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(txtPrftCtr)
@@ -3968,13 +4491,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
             myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
         Case "tblTimeCard"
-'            myWidth = Array(0.21, 0.21, 0.16, 0.16, 0.26)
-'            myField = Array("prh_date", "prh_prft_ctr", "prh_pay_code", "prh_pay_type", "prh_hours")
-            myWidth = Array(0.25, 0.25, 0.2, 0.3)
-            myField = Array("bh_date", "bh_prft_ctr", "bh_pay_code", "bh_hours")
-        Case "tblProfitCenter"
-            myWidth = Array(0.5, 0.5)
-            myField = Array("", "")
+            myWidth = Array(0.16, 0.36, 0.12, 0.12, 0.12, 0.12)
+            myField = Array("bh_empno", "empname", "bh_hours", "bh_hours", "bh_hours", "bh_hours")
         Case "tblApprove"
             myWidth = Array(0.1, 0.13, 0.22, 0.12, 0.1, 0.1, 0.11, 0.12)
             myField = Array("", "", "", "", "", "", "", "")
@@ -4011,16 +4529,15 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colSToDate).Caption = "To Date"
         Case "tblTimeCard"
             tbl.Caption = "Time Card Entry"
-            tbl.Columns(colHClockIn).Caption = "Clock-In Date"
-            tbl.Columns(colHPrftCtr).Caption = "Profit Center"
-            tbl.Columns(colHPayCode).Caption = "Pay Code"
-            tbl.Columns(colHHrsDol).Caption = "Hours/Dollars"
-            tbl.Columns(colHHrsDol).Alignment = vbRightJustify
-        Case "tblProfitCenter"
-            tbl.Caption = "Profit Center Total"
-            tbl.Columns(colPProfit).Caption = "Profit"
-            tbl.Columns(colPTotal).Caption = "Total"
-            tbl.Columns(colPTotal).Alignment = vbRightJustify
+            tbl.Columns(colEHEmpNo).Caption = "Employee #"
+            tbl.Columns(colEHEmpName).Caption = "Employee Name"
+            tbl.Columns(colEHHOurs).Caption = "Hours"
+            tbl.Columns(colEHPAY1Hours).Caption = "Paycode 1"
+            tbl.Columns(colEHPAY1Hours).Alignment = vbRightJustify
+            tbl.Columns(colEHPAY2Hours).Caption = "Paycode 2"
+            tbl.Columns(colEHPAY2Hours).Alignment = vbRightJustify
+            tbl.Columns(colEHPAY3Hours).Caption = "Paycode 3"
+            tbl.Columns(colEHPAY3Hours).Alignment = vbRightJustify
         Case "tblApprove"
             tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
@@ -4060,7 +4577,7 @@ End Sub
 Private Sub subInitSpreadsheets()
     Dim sDecimalString As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     'Table Sales Class Implementation
     sDecimalString = tfnDecimalPattern(10, 2)
@@ -4090,7 +4607,6 @@ Private Sub subInitSpreadsheets()
     'setup Time Card and Profit Center Grid
     'the class implementation will be done in clsPRFHOURS
     subSetGridWidth tblTimeCard
-    subSetGridWidth tblProfitCenter
     
     'Table Approve Class Implementation
     subSetGridWidth tblApprove
@@ -4154,7 +4670,7 @@ Private Sub subInitSpreadsheets()
     
     Exit Sub
 
-errTrap:
+ErrTrap:
     tfnErrHandler "subInitSpreadsheets"
     'add by junsong 03/16/01
     Unload Me
@@ -4312,8 +4828,10 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
             fnInValidData = Not fnValidEmpProcess(txtBox)
         Case txtEmployee.TabIndex, txtDPrftCtr.TabIndex
             fnInValidData = Not fnValidDetailEmpPrftCtr(txtBox)
-        Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
+        Case txtEHPrftCtr.TabIndex, txtEHPrftName.TabIndex, txtEHDate.TabIndex, txtEHPayCode.TabIndex, txtEHPayCodeDesc.TabIndex
             fnInValidData = objHours.fnInValidData(txtBox)
+        Case txtOTWeek1BeginDate.TabIndex, txtOTWeek1EndDate.TabIndex, txtOTWeek2BeginDate.TabIndex, txtOTWeek2EndDate.TabIndex
+            fnInValidData = objOTProcessor.fnInValidData(txtBox)
         Case Else
             fnInValidData = False
     End Select
@@ -4373,6 +4891,13 @@ Private Function fnValidFrequency(txtBox As Textbox) As Boolean
         
     End If
     
+    If UCase(Trim(txtBox.Text)) = "M" Then
+        chkHourly.Enabled = True
+    Else
+        chkHourly.value = vbUnchecked
+        chkHourly.Enabled = False
+    End If
+    
     fnValidFrequency = True
 End Function
 
@@ -4402,7 +4927,7 @@ Private Sub subBuildFrequencyRegExp()
         Exit Sub
     End If
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     sFreqRegExp = "^([" + fnCstr(rsTemp!bfq_frequency)
     rsTemp.MoveNext
@@ -4416,7 +4941,7 @@ Private Sub subBuildFrequencyRegExp()
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     sFreqRegExp = "^P$"
 End Sub
 
@@ -4573,8 +5098,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(Cancel As Integer)
-    tgcDropdown.SelChange Cancel
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+    tgcDropdown.SelChange CANCEL
 End Sub
 
 Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -4780,6 +5305,110 @@ Private Sub subShowFormulaDetails()
 
 End Sub
 
+Private Sub txtEHPayCode_Change()
+    objHours.txtEHPayCode_Change
+End Sub
+
+Private Sub txtEHPayCode_GotFocus()
+    objHours.txtEHPayCode_GotFocus
+End Sub
+
+Private Sub txtEHPayCode_KeyPress(KeyAscii As Integer)
+    objHours.txtEHPayCode_KeyPress KeyAscii
+End Sub
+
+Private Sub txtEHPayCode_LostFocus()
+    objHours.txtEHPayCode_LostFocus
+End Sub
+
+Private Sub txtEHPayCodeDesc_Change()
+    objHours.txtEHPayCodeDesc_Change
+End Sub
+
+Private Sub txtEHPayCodeDesc_GotFocus()
+    objHours.txtEHPayCodeDesc_GotFocus
+End Sub
+
+Private Sub txtEHPayCodeDesc_KeyPress(KeyAscii As Integer)
+    objHours.txtEHPayCodeDesc_KeyPress KeyAscii
+End Sub
+
+Private Sub txtEHPayCodeDesc_LostFocus()
+    objHours.txtEHPayCodeDesc_LostFocus
+End Sub
+
+Private Sub txtOTWeek1BeginDate_Change()
+    objOTProcessor.txtOTWeek1BeginDate_Change
+End Sub
+
+Private Sub txtOTWeek1BeginDate_GotFocus()
+    objOTProcessor.txtOTWeek1BeginDate_GotFocus
+End Sub
+
+Private Sub txtOTWeek1BeginDate_KeyPress(KeyAscii As Integer)
+    objOTProcessor.txtOTWeek1BeginDate_KeyPress KeyAscii
+End Sub
+
+Private Sub txtOTWeek1BeginDate_LostFocus()
+    
+    If eTabMain.CurrTab = TabSales And eTabSub.CurrTab = TabOTProc Then
+        objOTProcessor.txtOTWeek1BeginDate_LostFocus
+    End If
+    
+End Sub
+
+Private Sub txtOTWeek1EndDate_Change()
+    objOTProcessor.txtOTWeek1EndDate_Change
+End Sub
+
+Private Sub txtOTWeek1EndDate_GotFocus()
+    objOTProcessor.txtOTWeek1EndDate_GotFocus
+End Sub
+
+Private Sub txtOTWeek1EndDate_KeyPress(KeyAscii As Integer)
+    objOTProcessor.txtOTWeek1EndDate_KeyPress KeyAscii
+End Sub
+
+Private Sub txtOTWeek1EndDate_LostFocus()
+    
+    If eTabMain.CurrTab = TabSales And eTabSub.CurrTab = TabOTProc Then
+        objOTProcessor.txtOTWeek1EndDate_LostFocus
+    End If
+    
+End Sub
+
+Private Sub txtOTWeek2BeginDate_Change()
+    objOTProcessor.txtOTWeek2BeginDate_Change
+End Sub
+
+Private Sub txtOTWeek2BeginDate_GotFocus()
+    objOTProcessor.txtOTWeek2BeginDate_GotFocus
+End Sub
+
+Private Sub txtOTWeek2BeginDate_KeyPress(KeyAscii As Integer)
+    objOTProcessor.txtOTWeek2BeginDate_KeyPress KeyAscii
+End Sub
+
+Private Sub txtOTWeek2BeginDate_LostFocus()
+    objOTProcessor.txtOTWeek2BeginDate_LostFocus
+End Sub
+
+Private Sub txtOTWeek2EndDate_Change()
+    objOTProcessor.txtOTWeek2EndDate_Change
+End Sub
+
+Private Sub txtOTWeek2EndDate_GotFocus()
+    objOTProcessor.txtOTWeek2EndDate_GotFocus
+End Sub
+
+Private Sub txtOTWeek2EndDate_KeyPress(KeyAscii As Integer)
+    objOTProcessor.txtOTWeek2EndDate_KeyPress KeyAscii
+End Sub
+
+Private Sub txtOTWeek2EndDate_LostFocus()
+    objOTProcessor.txtOTWeek2EndDate_LostFocus
+End Sub
+
 Private Sub txtStartDate_Change()
     cmdProcess.Enabled = False
     cValidate.Change txtStartDate
@@ -4849,6 +5478,8 @@ Private Sub txtFrequency_Change()
     cValidate.Change txtFrequency
     tgcDropdown.Change txtFrequency
     cmdProcess.Enabled = False
+    chkHourly.Enabled = False
+    chkHourly.value = vbUnchecked
 End Sub
 
 Private Sub txtFrequency_GotFocus()
@@ -5000,9 +5631,11 @@ Private Sub txtPrftCtrName_LostFocus()
     tgcDropdown.LostFocus txtPrftCtrName
     If cValidate.LostFocus(txtPrftCtr, cmdPrftCtr, txtPrftCtrName, cmdPrftCtrName) Then
         cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
-        If ActiveControl Is cmdCancel(TabProcess) Then
-            subSetFocus cmdProcess
-        End If
+        
+        'If ActiveControl Is cmdCancel(TabProcess) Then
+        '    subSetFocus cmdProcess
+        'End If
+        
     End If
 End Sub
 
@@ -5030,9 +5663,13 @@ Private Sub txtEmpProcess_GotFocus()
     
     If tgcDropdown.SingleRecordSelected Then
         cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
-        If cmdProcess.Enabled Then
+        
+        If chkHourly.Enabled Then
+            subSetFocus chkHourly
+        ElseIf cmdProcess.Enabled Then
             subSetFocus cmdProcess
         End If
+        
         Screen.MousePointer = vbDefault
     End If
     
@@ -5053,13 +5690,19 @@ Private Sub txtEmpProcess_KeyPress(KeyAscii As Integer)
        If KeyAscii = vbKeyReturn Then
           If tgcDropdown.SingleRecordSelected Then
                 cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
-                If cmdProcess.Enabled Then
+                
+                If chkHourly.Enabled Then
+                    subSetFocus chkHourly
+                ElseIf cmdProcess.Enabled Then
                     subSetFocus cmdProcess
                 End If
+                
                 Screen.MousePointer = vbDefault
           End If
+          
           KeyAscii = 0
        End If
+       
     Else
         cValidate.Keypress txtEmpProcess, KeyAscii
     End If
@@ -5068,9 +5711,11 @@ End Sub
 
 Private Sub txtEmpProcess_LostFocus()
     tgcDropdown.LostFocus txtEmpProcess
+    
     If cValidate.LostFocus(txtEmpProcess, cmdEmpProcess, txtEmpNameProcess, cmdEmpName) Then
         cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
     End If
+    
     Screen.MousePointer = vbDefault
 End Sub
 
@@ -5085,9 +5730,13 @@ Private Sub txtEmpNameProcess_GotFocus()
     
     If tgcDropdown.SingleRecordSelected Then
         cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
-        If cmdProcess.Enabled Then
+        
+        If chkHourly.Enabled Then
+            subSetFocus chkHourly
+        ElseIf cmdProcess.Enabled Then
             subSetFocus cmdProcess
         End If
+        
         Screen.MousePointer = vbDefault
     End If
 End Sub
@@ -5107,14 +5756,21 @@ Private Sub txtEmpNameProcess_KeyPress(KeyAscii As Integer)
         If KeyAscii = vbKeyReturn Then
             If tgcDropdown.SingleRecordSelected Then
                 cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
-                If cmdProcess.Enabled Then
+                
+                If chkHourly.Enabled Then
+                    subSetFocus chkHourly
+                ElseIf cmdProcess.Enabled Then
                     subSetFocus cmdProcess
                 End If
+                
                 Screen.MousePointer = vbDefault
             End If
-        KeyAscii = 0
+            
+            KeyAscii = 0
         End If
+        
     End If
+    
 End Sub
 
 Private Sub txtEmpNameProcess_LostFocus()
@@ -5122,11 +5778,11 @@ Private Sub txtEmpNameProcess_LostFocus()
     If cValidate.LostFocus(txtEmpProcess, cmdEmpProcess, txtEmpNameProcess, cmdEmpName) Then
         cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
         If lstProcess.ListCount = 0 Then
-            If cmdProcess.Enabled Then
-                subSetFocus cmdProcess
-            Else
-                subSetFocus cmdCancel(TabProcess)
-            End If
+'            If cmdProcess.Enabled Then
+'                subSetFocus cmdProcess
+'            Else
+'                subSetFocus cmdCancel(TabProcess)
+'            End If
         End If
     End If
     Screen.MousePointer = vbDefault
@@ -5299,8 +5955,6 @@ Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, _
             End Select
         Case tblTimeCard.TabIndex
             fnValidCellValue = objHours.fnValidCellValue(Table, nCol, lRow, sText)
-        Case tblProfitCenter.TabIndex
-            fnValidCellValue = True
         Case tblApprove.TabIndex
             fnValidCellValue = True
     End Select
@@ -5330,10 +5984,12 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         tgcDropdown.ComboOn(txtToDate) = False
         
         eTabSub.TabEnabled(TabHours) = False
+        eTabSub.TabEnabled(TabOTProc) = False
         eTabMain.TabEnabled(TabProcess) = False
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
+        eTabSub.TabEnabled(TabOTProc) = False
         objHours.cmdAddBtn_Click
     End If
     
@@ -5454,10 +6110,12 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         tgcDropdown.ComboOn(txtToDate) = True
         
         eTabSub.TabEnabled(TabHours) = False
+        eTabSub.TabEnabled(TabOTProc) = False
         eTabMain.TabEnabled(TabProcess) = False
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
+        eTabSub.TabEnabled(TabOTProc) = False
         objHours.cmdEditBtn_Click
     End If
     
@@ -5517,6 +6175,16 @@ Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
             objHours.cmdUpdateInsertBtn_Click
             eTabMain.TabEnabled(TabProcess) = True
             eTabSub.TabEnabled(TabSales) = True
+            
+            If Not NOTCOMPLETE Then
+                eTabSub.TabEnabled(TabOTProc) = True
+            End If
+            
+        Case nTabOTProc
+            objOTProcessor.cmdUpdateInsertBtn_Click
+            eTabMain.TabEnabled(TabProcess) = True
+            eTabSub.TabEnabled(TabSales) = True
+            eTabSub.TabEnabled(TabHours) = True
     End Select
 End Sub
 
@@ -5537,6 +6205,12 @@ Private Sub cmdRefresh_GotFocus(Index As Integer)
 End Sub
 
 Private Sub cmdUpdateInsertBtn_GotFocus(Index As Integer)
+    
+    If Index = nTabOTProc Then
+        objOTProcessor.cmdUpdateInsertBtn_GotFocus
+        Exit Sub
+    End If
+    
     If t_nFormMode = ADD_MODE Then
         tfnSetStatusBarMessage ("Insert")
     Else
@@ -5600,35 +6274,43 @@ Private Sub tblDropDown_Click(Index As Integer)
 End Sub
 
 Private Sub tblDropDown_KeyPress(Index As Integer, KeyAscii As Integer)
+    
     If Index = nTabHours Then
         objHours.tblFloating_KeyPress KeyAscii
     Else
         tgfDropdown(Index).Keypress tblDropDown(Index), KeyAscii
     End If
+    
 End Sub
 
 Private Sub tblDropDown_LostFocus(Index As Integer)
+    
     If Index = nTabHours Then
         objHours.tblFloating_LostFocus
     Else
         tgfDropdown(Index).LostFocus tblDropDown(Index)
     End If
+    
 End Sub
 
 Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+    
     If Index = nTabHours Then
         objHours.tblFloating_MouseUp Button, Shift, x, y
     Else
         tgfDropdown(Index).MouseUp y
     End If
+    
 End Sub
 
 Private Sub tblDropDown_RowColChange(Index As Integer, LastRow As Variant, ByVal LastCol As Integer)
+    
     If Index = nTabHours Then
         objHours.tblFloating_RowColChange LastRow, LastCol
     Else
         tgfDropdown(Index).RowColChange tblDropDown(Index)
     End If
+    
 End Sub
 
 Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
@@ -6188,11 +6870,11 @@ Private Sub tblSales_AfterColEdit(ByVal ColIndex As Integer)
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     If ColIndex = colSPrftCtr Then
         tgmSales.CellValue(colSPrftName, tgmSales.GetCurrentRowNumber) = ""
     End If
-    tgmSales.BeforeColEdit ColIndex, KeyAscii, Cancel
+    tgmSales.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
 Private Sub tblSales_Change()
@@ -6300,9 +6982,9 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 End Sub
 
-Private Sub tblSales_SelChange(Cancel As Integer)
-    tgsSales.SelChange Cancel
-    Cancel = True
+Private Sub tblSales_SelChange(CANCEL As Integer)
+    tgsSales.SelChange CANCEL
+    CANCEL = True
 End Sub
 
 Private Sub tblSales_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -6891,72 +7573,68 @@ End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Private Sub txtEmployeeNumber_Change()
-    objHours.txtEmployeeNumber_Change
+Private Sub txtEHPrftCtr_Change()
+    objHours.txtEHPrftCtr_Change
 End Sub
 
-Private Sub txtEmployeeNumber_GotFocus()
-    objHours.txtEmployeeNumber_GotFocus
+Private Sub txtEHPrftCtr_GotFocus()
+    objHours.txtEHPrftCtr_GotFocus
 End Sub
 
-Private Sub txtEmployeeNumber_KeyPress(KeyAscii As Integer)
-    objHours.txtEmployeeNumber_KeyPress KeyAscii
+Private Sub txtEHPrftCtr_KeyPress(KeyAscii As Integer)
+    objHours.txtEHPrftCtr_KeyPress KeyAscii
 End Sub
 
-Private Sub txtEmployeeNumber_LostFocus()
-    objHours.txtEmployeeNumber_LostFocus
+Private Sub txtEHPrftCtr_LostFocus()
+    objHours.txtEHPrftCtr_LostFocus
 End Sub
 
-Private Sub txtEmployeeName_Change()
-    objHours.txtEmployeeName_Change
+Private Sub txtEHPrftName_Change()
+    objHours.txtEHPrftName_Change
 End Sub
 
-Private Sub txtEmployeeName_GotFocus()
-    objHours.txtEmployeeName_GotFocus
+Private Sub txtEHPrftName_GotFocus()
+    objHours.txtEHPrftName_GotFocus
 End Sub
 
-Private Sub txtEmployeeName_KeyPress(KeyAscii As Integer)
-    objHours.txtEmployeeName_KeyPress KeyAscii
+Private Sub txtEHPrftName_KeyPress(KeyAscii As Integer)
+    objHours.txtEHPrftName_KeyPress KeyAscii
 End Sub
 
-Private Sub txtEmployeeName_LostFocus()
-    objHours.txtEmployeeName_LostFocus
+Private Sub txtEHPrftName_LostFocus()
+    objHours.txtEHPrftName_LostFocus
 End Sub
 
-Private Sub cmdEmployeeNumber_Click()
-    objHours.cmdEmployeeNumber_Click
+Private Sub cmdEHPrftCtr_Click()
+    objHours.cmdEHPrftCtr_Click
 End Sub
 
-Private Sub cmdEmployeeName_Click()
-    objHours.cmdEmployeeName_Click
+Private Sub cmdEHPrftName_Click()
+    objHours.cmdEHPrftName_Click
 End Sub
 
-Private Sub txtSSN_Change()
-    objHours.txtSSN_Change
+Private Sub txtEHDate_Change()
+    objHours.txtEHDate_Change
 End Sub
 
-Private Sub txtSSN_GotFocus()
-    objHours.txtSSN_GotFocus
+Private Sub txtEHDate_GotFocus()
+    objHours.txtEHDate_GotFocus
 End Sub
 
-Private Sub txtSSN_KeyPress(KeyAscii As Integer)
-    objHours.txtSSN_KeyPress KeyAscii
+Private Sub txtEHDate_KeyPress(KeyAscii As Integer)
+    objHours.txtEHDate_KeyPress KeyAscii
 End Sub
 
-Private Sub txtSSN_LostFocus()
-    objHours.txtSSN_LostFocus
-End Sub
-
-Private Sub cmdSSN_Click()
-    objHours.cmdSSN_Click
+Private Sub txtEHDate_LostFocus()
+    objHours.txtEHDate_LostFocus
 End Sub
 
 Private Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
     objHours.tblTimeCard_AfterColEdit ColIndex
 End Sub
 
-Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    objHours.tblTimeCard_BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
 Private Sub tblTimeCard_Change()
@@ -6995,16 +7673,12 @@ Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     objHours.tblTimeCard_RowColChange LastRow, LastCol
 End Sub
 
-Private Sub tblTimeCard_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblTimeCard_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblTimeCard_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     objHours.tblTimeCard_UnboundReadData RowBuf, StartLocation, ReadPriorRows
-End Sub
-
-Private Sub tblProfitCenter_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
-    objHours.tblProfitCenter_UnboundReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
 Private Sub cmdFloatingBtn_Click()
@@ -7019,30 +7693,73 @@ Private Sub cmdFloatingBtn_LostFocus()
     objHours.cmdFloatingBtn_LostFocus
 End Sub
 
+Private Function fnInitialOTProcessorClass() As Boolean
+    
+    On Error GoTo ErrTrap
+    
+    Set objOTProcessor = New clsOTProcessor
+    
+    With objOTProcessor
+        Set .MainForm = Me
+        Set .FormToolBar = tbToolbar
+        Set .StatusBar = ffraStatusbar
+        Set .myProgressBar = pbStatus
+        Set .OTPrintButton = cmdOTPrint
+        Set .OTProcessButton = cmdOtProcess
+        Set .OTWeek1BeginDate = txtOTWeek1BeginDate
+        Set .OTWeek1EndDate = txtOTWeek1EndDate
+        Set .OTWeek2BeginDate = txtOTWeek2BeginDate
+        Set .OTWeek2EndDate = txtOTWeek2EndDate
+        Set .OTProcessLog = lstOTLog
+        Set .UpdateInsertButton = cmdUpdateInsertBtn(nTabOTProc)
+        Set .CancelButton = cmdCancel(nTabOTProc)
+        Set .CancelMenuButton = mnuCancel
+        Set .ExitButton = cmdExitCancelBtn
+        Set .Bridge = efraOTBaseIIProcessor
+    
+        .Form_Initialize
+        .Form_Load
+    
+    End With
+    
+    fnInitialOTProcessorClass = True
+    
+    Exit Function
+    
+ErrTrap:
+    tfnErrHandler "fnInitialOTProcessorClass"
+End Function
+
 Private Function fnInitialPRFHOURSclass() As Boolean
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     Set objHours = New clsPRFHOURS
     
     Set objHours.MainForm = Me
     Set objHours.FormToolBar = tbToolbar
     Set objHours.StatusBar = ffraStatusbar
-    Set objHours.EmpNumTexBox = txtEmployeeNumber
-    Set objHours.EmpNumButton = cmdEmployeeNumber
-    Set objHours.EmpNameTexBox = txtEmployeeName
-    Set objHours.EmpNameButton = cmdEmployeeName
-    Set objHours.SSNTexBox = txtSSN
-    Set objHours.SSNButton = cmdSSN
+    Set objHours.EHPrftCtrTextBox = txtEHPrftCtr
+    Set objHours.EHPrftCtrButton = cmdEHPrftCtr
+    Set objHours.EHPrftNameTextBox = txtEHPrftName
+    Set objHours.EHPrftNameButton = cmdEHPrftName
+    Set objHours.EHDATETextBox = txtEHDate
+    Set objHours.EHDATEButton = cmdEHDate
+    Set objHours.EHPayCodeFactorFrame = efraEHPayCode
+    Set objHours.EHPayCodeTextBox = txtEHPayCode
+    Set objHours.EHPayCodeDescTextBox = txtEHPayCodeDesc
+    Set objHours.EHPayCodeButton = cmdEHPayCode
+    Set objHours.EHPayCodeDescButton = cmdEHPayCodeDesc
+    Set objHours.EHTotalHoursLabel = lblEHTotalHours
+    Set objHours.EHTotalPayCode1 = lblEHTotalPayCode1
+    Set objHours.EHTotalPayCode2 = lblEHTotalPayCode2
+    Set objHours.EHTotalPayCode3 = lblEHTotalPayCode3
     Set objHours.ComboDropDownData = datComboDropDown
     Set objHours.FloatingData = datDropDown
     Set objHours.ComboDropdownGrid = tblComboDropdown
     Set objHours.TimeCardGrid = tblTimeCard
-    Set objHours.ProfitCenterGrid = tblProfitCenter
     Set objHours.FloatingGrid = tblDropDown(nTabHours)
     Set objHours.FloatingButton = cmdFloatingBtn
-    Set objHours.TotalDollarsTexBox = txtTotalDollars
-    Set objHours.TotalTexBox = txtTotal
     Set objHours.AddButton = cmdAddBtn(nTabHours)
     Set objHours.EditButton = cmdEditBtn(nTabHours)
     Set objHours.DeleteButton = cmdDelete(nTabHours)
@@ -7060,7 +7777,7 @@ Private Function fnInitialPRFHOURSclass() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnErrHandler "fnInitialPRFHOURSclass"
 End Function
 

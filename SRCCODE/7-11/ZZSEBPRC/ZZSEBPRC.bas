@@ -23,11 +23,12 @@ Public tgmDetail As clsTGSpreadSheet
 
 Public Const TabSales As Integer = 0
 Public Const TabHours As Integer = 1
+Public Const TabOTProc As Integer = 2
 Public Const TabProcess As Integer = 1
 Public Const TabApprove As Integer = 2
 Public Const TabDetails As Integer = 3
 Public Const nTabHours As Integer = 4
-
+Public Const nTabOTProc As Integer = 5
 'Sales Grid Column Names
 Public Const colSPrftCtr As Integer = 0
 Public Const colSPrftName As Integer = 1
@@ -37,15 +38,12 @@ Public Const colSToDate As Integer = 4
 Public ColxSOldPrftCtr As Integer
 
 'Time Card Grid Column Names
-Public Const colHClockIn As Integer = 0
-Public Const colHPrftCtr As Integer = 1
-Public Const colHPayCode As Integer = 2
-Public Const colHHrsDol As Integer = 3
-Public ColHHdnSource As Integer
-
-'Profit Center Grid Column Names
-Public Const colPProfit As Integer = 0
-Public Const colPTotal As Integer = 1
+Public Const colEHEmpNo As Integer = 0
+Public Const colEHEmpName As Integer = 1
+Public Const colEHHOurs As Integer = 2
+Public Const colEHPAY1Hours As Integer = 3
+Public Const colEHPAY2Hours As Integer = 4
+Public Const colEHPAY3Hours As Integer = 5
 
 'Approve value
 Public Const sColAppYes As String = "Y"
@@ -184,7 +182,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Dim x As Long
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If bClear Then
         frmZZSEBPRC!lstProcess.Clear
@@ -238,7 +236,7 @@ Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     'error
 End Sub
 
@@ -2479,7 +2477,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     Dim aryValues As Variant
     Dim objEvaluate As clsEquation
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sFormula = LCase(Trim(sFormula))
     
@@ -2510,7 +2508,7 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckFormula"
     fnCheckFormula = "Failed to validate Formula"
 
@@ -2524,7 +2522,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     Dim aryValues As Variant
     Dim objCondition As clsCondition
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sCond = LCase(Trim(sCond))
     
@@ -2555,7 +2553,7 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckCondition"
     fnCheckCondition = "Failed to validate Condition"
 
@@ -3135,7 +3133,7 @@ Public Function fnDateDiff(sInterval As String, _
     Dim lDaysInMonths As Long
     Dim lDiff As Long
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sInterval = LCase(sInterval)
     
@@ -3166,14 +3164,14 @@ Public Function fnDateDiff(sInterval As String, _
             '   7110009     01/02/1997      02/07/01-02/20/2001     3               3
             '   7110010     12/31/1995      02/07/01-02/20/2001     5               4
              
-            If Left(sDate1, 5) <> "01/01" Then
+            If Month(CDate(sDate1)) <> 1 Or Day(CDate(sDate1)) <> 1 Then
                 fnDateDiff = lYears - 1
             Else
                 fnDateDiff = lYears
             End If
             
-            If lYears < 0 Then
-                lYears = 0
+            If fnDateDiff < 0 Then
+                fnDateDiff = 0
             End If
             
 '            If lYears = 0 Then
@@ -3213,7 +3211,7 @@ Public Function fnDateDiff(sInterval As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnErrHandler "fnDateDiff"
 End Function
 
