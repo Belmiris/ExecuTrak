@@ -50,6 +50,7 @@ Global Const szHelpCMSystem As String = "CMS.HLP"
 Global Const szHelpPO As String = "PO.HLP" ' Wenstrong, For Purchase Order
 Global Const szHelpProfitTrak As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
 Global Const szHelpAPPALACH As String = "APPALACH.HLP" 'help file name for APPALACHIAN
+Global Const szHelpReadyMix As String = "RM.HLP" 'help file name for Ready Mix
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
@@ -521,7 +522,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -571,12 +572,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -604,7 +605,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -614,7 +615,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -698,12 +699,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Integer
+        Dim I As Integer
         
         sTable = LCase(Trim(vTable))
-        For i = 0 To nHandleCount
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -718,7 +719,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next i
+        Next I
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -910,7 +911,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -961,7 +962,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -969,8 +970,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1281,6 +1282,7 @@ Public Sub tfnWaitSeconds(nSecondsToWait As Integer)
     lStartTime = Timer
     
     Do While Timer < lStartTime + nSecondsToWait + 1
+        
         DoEvents
     Loop
 
@@ -1810,31 +1812,41 @@ End Function
 '
 ' This function is used to run a stand alone program
 '
-Public Function tfnRun(szExeName As String, Optional vWindowStyle) As Boolean
-    
-    #If FACTOR_MENU < 0 Then
-        Const gszBINROOT As String = ".\bin\"
-    #Else
-        Const gszBINROOT As String = "i:\program\factmenu\bin\"
-    #End If
+Public Function tfnRun(szExeName As String, _
+                       Optional vWindowStyle As Integer = SW_SHOWNORMAL, _
+                       Optional bHandShake As Boolean = True, _
+                       Optional sParms As String = "") As Boolean
 
-    Const SHELL_OK As Long = 32
-    
     Dim szCmd As String
     Dim hTempInstance As Long
     
+    If InStr(szExeName, "\") <= 0 Then
+        #If FACTOR_MENU < 0 Then
+            Const gszBINROOT As String = ".\bin\"
+        #Else
+            Const gszBINROOT As String = "g:\program\factmenu\bin\"
+        #End If
+    
+        szExeName = LCase(Trim(szExeName))
+        szCmd = gszBINROOT & szExeName & IIf(InStr(szExeName, ".") = 0, ".exe", "")
+    Else
+        szCmd = szExeName
+    End If
+
+    Const SHELL_OK As Long = 32
+    
     On Error GoTo ErrorRun
-    
-    If IsMissing(vWindowStyle) Then vWindowStyle = SW_SHOWNORMAL
-    
-    szExeName = LCase(Trim(szExeName))
-   
-    szCmd = gszBINROOT & szExeName & IIf(InStr(szExeName, ".") = 0, ".exe", "")
     
     'check further for the EXE that is in BIN
     If Dir(szCmd) <> "" Then
         'append hand sake string
-        szCmd = szCmd & " " & t_szHandShake
+        If bHandShake Then
+            szCmd = szCmd & " " & t_szHandShake
+        End If
+        
+        If Trim(sParms) <> "" Then
+            szCmd = szCmd & " " & Trim(sParms)
+        End If
         
         hTempInstance = shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
         If hTempInstance > SHELL_OK Or hTempInstance < 0 Then 'if hInstance greater than 32 application is running
