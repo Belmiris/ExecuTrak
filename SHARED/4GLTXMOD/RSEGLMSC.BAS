@@ -23,8 +23,13 @@ Public Sub fuel_gl()
     initialize_tax_buffers
     
     Debug.Print "Preparing G/L & Tax Information"
-    'david 06/15/2001
-    subShowStatusMsg "Preparing G/L & Tax Information"
+    
+    'david 11/05/2001
+    #If Not ZZEMMASU Then
+        'david 06/15/2001
+        subShowStatusMsg "Preparing G/L & Tax Information"
+    #End If
+    ''''''''''''''''''''
     
     Set pr_ar_class = far_class("PRFTC", t_dbMainDatabase)
     initialize_gl
@@ -44,9 +49,13 @@ Public Sub fuel_gl()
     'got everything in aryComp, so do this
     Dim ivh_product As String
     
-    'david 06/15/2001
-    subShowStatusMsg "Collecting Blend Info"
-    
+    'david 11/05/2001
+    #If Not ZZEMMASU Then
+        'david 06/15/2001
+        subShowStatusMsg "Collecting Blend Info"
+    #End If
+    ''''''''''''''''''''
+        
     For j = 0 To UBound(aryComp)
         ivh_product = aryComp(j).sProduct
         ivh_product = Left$(ivh_product, InStr(ivh_product, ",") - 1)
@@ -63,8 +72,12 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
             Set pr_inv_master = finv_master(aryComp(j).lProductLink, lProfitCenter, t_dbMainDatabase)
             Set pr_inv_header = fproduct(aryComp(j).lProductLink, t_dbMainDatabase)
             
-            'david 06/15/2001
-            subShowStatusMsg "Calculating Fuel Taxes - " & ivh_product
+            'david 11/05/2001
+            #If Not ZZEMMASU Then
+                'david 06/15/2001
+                subShowStatusMsg "Calculating Fuel Taxes - " & ivh_product
+            #End If
+            ''''''''''''''''''''
             
             tax_only = compute_fuel_taxes(j) 'pass
             
@@ -95,9 +108,13 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
             fuel_only = aryComp(j).dfCompDollars
             fuel_only = fuel_only - tax_only
     
-            'david 06/15/2001
-            subShowStatusMsg "Preparing G/L (1) - " & lProfitCenter & ", " & _
-                ivh_product & ", " & sProfitUseGroup
+            'david 11/05/2001
+            #If Not ZZEMMASU Then
+                'david 06/15/2001
+                subShowStatusMsg "Preparing G/L (1) - " & lProfitCenter & ", " & _
+                    ivh_product & ", " & sProfitUseGroup
+            #End If
+            ''''''''''''''''''''
     
             intrn_bl_gl lProfitCenter, ivh_product, sProfitUseGroup, _
                                      aryComp(j).dfCompUnits, _
@@ -166,9 +183,13 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 End If
             Next
     
-            'david 06/15/2001
-            subShowStatusMsg "Preparing G/L (2) - " & lProfitCenter & ", " & _
-                ivh_product & ", " & aryComp(j).sUseGroup
+            'david 11/05/2001
+            #If Not ZZEMMASU Then
+                'david 06/15/2001
+                subShowStatusMsg "Preparing G/L (2) - " & lProfitCenter & ", " & _
+                    ivh_product & ", " & aryComp(j).sUseGroup
+            #End If
+            ''''''''''''''''''''
                 
             extrn_del_gl lProfitCenter, ivh_product, _
                              aryComp(j).sUseGroup, aryComp(j).dfCompUnits, _
@@ -241,8 +262,12 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
     Debug.Print "Collecting Summary"
     Dim gl_tmp As gl_type, meter_gl_amt As Double
     
-    'david 06/15/2001
-    subShowStatusMsg "Collecting Summary"
+    'david 11/05/2001
+    #If Not ZZEMMASU Then
+        'david 06/15/2001
+        subShowStatusMsg "Collecting Summary"
+    #End If
+    ''''''''''''''''''''
     
     j = gl_count()
     
