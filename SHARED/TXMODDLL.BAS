@@ -204,7 +204,51 @@ End Type
     Private nInfoCount As Integer
     Private fLadingTypeATax As Double
     Private lInternalFuel As Long
-'
+    Private m_Disable_A_Taxes As Boolean
+    
+Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
+    
+    Dim i As Long
+    Dim tmpTaxes() As CApplicableTaxes
+    Dim lCount As Long
+    Dim bFindTexasLoadingFee As Boolean
+    
+    'This function is added by WJ on 10/05/2001 per Magic #338055
+    
+    #If FACTOR_MENU Then
+    On Error Resume Next
+    #End If
+    
+    If Not m_Disable_A_Taxes Then
+        'If not disable A Taxes, typically called from fuel movement
+        'we do not need to do anything.
+        Exit Sub
+    End If
+    
+    If lRecords <= 1 Then
+        Exit Sub
+    End If
+    
+    'This routine will be used in all but fule movement programs
+    'It will disable the taxes with Basis= "A" (loading fees)
+    
+    lCount = -1
+    For i = 0 To lRecords - 1
+        If Taxes(i).m_cBasis <> vbKeyA Then
+            lCount = lCount + 1
+            ReDim Preserve tmpTaxes(lCount) As CApplicableTaxes
+            tmpTaxes(lCount) = Taxes(i)
+        End If
+    Next
+    
+    If lCount >= 0 Then
+        lRecords = lCount + 1
+        ReDim Taxes(lRecords - 1) As CApplicableTaxes
+        For i = 0 To lRecords - 1
+          Taxes(i) = tmpTaxes(i)
+        Next
+    End If
+End Sub
 Public Function fnCalculateTaxes(sProduct As String, _
                                   sTaxUseGroup As String, _
                                   dGross As Double, _
@@ -271,6 +315,8 @@ Public Function fnCalculateTaxes(sProduct As String, _
         fnCalculateTaxes = False
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
         subApplyLimit Taxes, nRecords
@@ -463,6 +509,33 @@ Public Sub subFixTypeATaxForInfo()
         ' And they should be equal to lFuelAmount.
         ' If they are not equal. There is a problem and need to know how to canculate.
         ' Rgiht now, we assume that they are equal
+        
+'        If nTaxItems > 0 Then
+'            lTaxableAmount = lFuelAmount
+'            If bTexasLDFee Then
+'                'For Texas only
+'                If lGasAmount = lFuelAmount Then
+'                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
+'                        lTaxableAmount = 8000
+'                    End If
+'                End If
+'            End If
+'            fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
+'            For i = 0 To nTaxItems - 1
+'                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
+'                    fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
+'                    Exit For
+'                End If
+'            Next i
+'            lDelFuelAmount(nDel) = lFuelAmount
+'            lTotalFuel = lTotalFuel + lFuelAmount
+'        Else
+'            fTypeATaxes(nDel) = 0
+'        End If
+        
+        '---------------------Start of Special Codes for texas loading fees  WJ 10/08/01 ------------------
+        'The codes (above) commented out are the old ones
+        Dim m As Integer
         If nTaxItems > 0 Then
             lTaxableAmount = lFuelAmount
             If bTexasLDFee Then
@@ -472,19 +545,46 @@ Public Sub subFixTypeATaxForInfo()
                         lTaxableAmount = 8000
                     End If
                 End If
-            End If
-            fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
-            For i = 0 To nTaxItems - 1
-                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
-                    fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
-                    Exit For
+                If lTaxableAmount <= 0 Then
+                   fTypeATaxes(nDel) = 0#
+                ElseIf lTaxableAmount < 2500 Then
+                   fTypeATaxes(nDel) = 12.5
+                ElseIf lTaxableAmount < 5000 Then
+                   fTypeATaxes(nDel) = 25#
+                ElseIf lTaxableAmount < 8000 Then
+                   fTypeATaxes(nDel) = 37.5
+                ElseIf lTaxableAmount < 10000 Then
+                   fTypeATaxes(nDel) = 50#
+                Else
+                   m = 3
+                   Do While True
+                   
+                      If lTaxableAmount < m * 5000 Then
+                         fTypeATaxes(nDel) = m * 25#
+                         Exit Do
+                      Else
+                         m = m + 1
+                      End If
+                   Loop
                 End If
-            Next i
+            Else
+                fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
+                
+                For i = 0 To nTaxItems - 1
+                    If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
+                        fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
+                        Exit For
+                    End If
+                Next i
+            End If
+            '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
+        
             lDelFuelAmount(nDel) = lFuelAmount
             lTotalFuel = lTotalFuel + lFuelAmount
         Else
             fTypeATaxes(nDel) = 0
         End If
+
     Next nDel
     fTaxes = 0
     For nDel = 0 To nDelCount - 1
@@ -511,6 +611,9 @@ Public Sub subFixTypeATaxForInfo()
             fTypeATaxes(0) = fTypeATaxes(0) - fTaxRate
         End If
     End If
+    
+    Dim bApplied As Boolean
+    
     If fTaxes <> 0 Then
         'Now Need to redistribute to the individual line amount
         For nDel = 0 To nDelCount - 1
@@ -523,12 +626,33 @@ Public Sub subFixTypeATaxForInfo()
                 For nIdx = 0 To nInfoCount - 1
                     With aryTaxInfo(nIdx)
                         If .m_lInvoice = ldelnumbers(nDel) Then
+                            
+                            bApplied = False
+                            
                             For i = 0 To .m_nRecord - 1
                                 If .m_Taxes(i).m_cCharge = vbKeyY Then
                                     If .m_Taxes(i).m_cBasis = vbKeyA Then
-                                        If .m_Taxes(i).m_dAmount <> 0 Then
-                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+        '--------------------- Start of Special Codes for texas loading fees WJ 10/08/01 ------------------
+                                        
+                                        If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
+                                            If bApplied Then
+                                              .m_Taxes(i).m_dAmount = 0
+                                            Else
+                                              .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                              '.m_Taxes(i).m_fRate = .m_Taxes(i).m_dAmount
+                                              bApplied = True
+                                            End If
+                                        Else
+                                             If .m_Taxes(i).m_dAmount <> 0 Then
+                                               .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                             End If
                                         End If
+                                        'The codes (below) commented out are the old ones
+         '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
+    
+'                                        If .m_Taxes(i).m_dAmount <> 0 Then
+'                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+'                                        End If
                                     End If
                                 End If
                             Next i
@@ -827,6 +951,8 @@ Public Function fnGetTaxAmount(szProduct As String, _
         Exit Function
     End If
     
+    subDealWithATaxes Taxes, nRecords
+    
     If bApplyLimit Then
         subApplyLimit Taxes, nRecords
     End If
@@ -929,6 +1055,8 @@ Public Function fnGetTaxAmount1(szProduct As String, _
         subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
         subApplyLimit Taxes, nRecords
@@ -1060,7 +1188,8 @@ Public Sub subResetTaxes(Optional vTwoD As Variant, _
     lInternalFuel = 0
 End Sub
 Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
-                              Optional sErrMsg As String = "")
+                              Optional sErrMsg As String = "", _
+                              Optional bDisableATax As Boolean = False)
     Const SUB_NAME = "fnLoadTaxMods"
     
     Static nTaxModLoaded As Integer
@@ -1101,6 +1230,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
         End If
     Else
         nTaxModLoaded = TAXMOD_LOADED
+        m_Disable_A_Taxes = bDisableATax
         fnLoadTaxMods = True
     End If
     subResetTaxes
@@ -1178,6 +1308,9 @@ Public Function fnTaxInformation(sProduct As String, _
         fnTaxInformation = False
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
+    
     If bApplyLimit Then
         subApplyLimit Taxes, nRecords
     End If
@@ -1261,6 +1394,9 @@ Public Function fnTaxInformation1(sProduct As String, _
         fnTaxInformation1 = False
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
+    
     If bApplyLimit Then
         subApplyLimit Taxes, nRecords
     End If
@@ -1342,6 +1478,9 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
+    
     For nIdx = 0 To nInfoCount - 1
         If aryTaxInfo(nIdx).m_lInvoice = lInv Then
             If aryTaxInfo(nIdx).m_nLine = nLine Then
@@ -1454,6 +1593,8 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
+    
+    subDealWithATaxes Taxes, nRecords
     
     aryTaxInfo(nIdx).m_nRecord = nRecords
     aryTaxInfo(nIdx).m_lInvoice = lInv
