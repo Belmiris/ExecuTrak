@@ -66,6 +66,7 @@ Private m_ErrorMessage As String
 
 'Vijaya on 05/20/03 Magic#401028-7 hide error popup form
 'by default it will show the popup.
+Private m_SummarySection As String
 Private m_bShowError As Boolean
 '
 
@@ -142,6 +143,10 @@ Property Get ErrorMessage() As String
 End Property
 
 'Vijaya on 05/20/03 Magic#401028-7
+Property Let SummarySection(sParm As String)
+    m_SummarySection = sParm
+End Property
+
 Property Let ShowErrorPopup(bParm As Boolean)
     m_bShowError = bParm
 End Property
@@ -550,6 +555,12 @@ Private Function fnBuildParm() As String
     If m_RunMode <> "" Then
         sParm = sParm + "RunMode=" + m_RunMode + ","
     End If
+    
+    'Vijaya on 05/22/03 Magic#401028-7
+    If m_SummarySection <> "" Then
+        sParm = sParm + "SummarySection=" + m_SummarySection + ","
+    End If
+    'end of Vijaya
     
     If sParm <> "" Then
         sParm = Left(sParm, Len(sParm) - 1)
