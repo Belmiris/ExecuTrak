@@ -1,0 +1,3 @@
+DIR=G:\program\release\exectrak\sm MASK=*.*
+DIR=G:\program\release\exectrak\local_db MASK=*.MDB
+
