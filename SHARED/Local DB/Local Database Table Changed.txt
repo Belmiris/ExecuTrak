@@ -1,3 +1,8 @@
+version: 3.25.12
+Date: 09/19/2001
+Description: 
+	Change version number from 3.25.11 to 3.25.12.
+
 version: 3.25.11
 Date: 09/17/2001
 Description: 
