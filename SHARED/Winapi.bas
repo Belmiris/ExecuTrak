@@ -107,7 +107,7 @@ Public Const SC_HOTKEY = &HF150
         
     Declare Function ReleaseDC Lib "user32" ( _
         ByVal hwnd As Long, _
-        ByVal hdc As Long) As Long
+        ByVal hDC As Long) As Long
         
     Declare Function ExtractIcon Lib "shell32.dll" Alias "ExtractIconA" ( _
         ByVal hInst As Long, _
@@ -115,7 +115,7 @@ Public Const SC_HOTKEY = &HF150
         ByVal nIconIndex As Long) As Long
         
     Declare Function DrawIcon Lib "user32" ( _
-        ByVal hdc As Long, _
+        ByVal hDC As Long, _
         ByVal x As Long, _
         ByVal y As Long, _
         ByVal hIcon As Long) As Long
@@ -227,6 +227,57 @@ Public Const SC_HOTKEY = &HF150
         
     Declare Function GetLastActivePopup Lib "user32" ( _
         ByVal hwndOwnder As Long) As Long
+
+    'david 10/27/00
+    Public Const MF_BYCOMMAND = &H0
+    Public Const MF_GRAYED = &H1
+    
+    'SetMenuItemInfo fMask constants.
+    Public Const MIIM_STATE     As Long = &H1&
+    Public Const MIIM_ID        As Long = &H2&
+    Public Const MIIM_SIZE     As Long = &H3&
+    
+    'SetMenuItemInfo fState constants.
+    Public Const MFS_GRAYED     As Long = &H3&
+    Public Const MFS_DISABLED  As Long = &H2&
+    Public Const MFS_CHECKED    As Long = &H8&
+    
+    'SendMessage constants.
+    Public Const WM_NCACTIVATE  As Long = &H86
+    
+    'User-defined Types.
+    Public Type MENUITEMINFO
+        cbSize        As Long
+        fMask         As Long
+        fType         As Long
+        fState        As Long
+        wID           As Long
+        hSubMenu      As Long
+        hbmpChecked   As Long
+        hbmpUnchecked As Long
+        dwItemData    As Long
+        dwTypeData    As String
+        cch           As Long
+    End Type
+    
+    Declare Function GetMenuItemInfo Lib "user32" Alias "GetMenuItemInfoA" ( _
+        ByVal hMenu As Long, _
+        ByVal un As Long, _
+        ByVal b As Boolean, _
+        lpMenuItemInfo As MENUITEMINFO) As Long
+    
+    Declare Function SetMenuItemInfo Lib "user32" Alias "SetMenuItemInfoA" ( _
+        ByVal hMenu As Long, _
+        ByVal un As Long, _
+        ByVal bool As Boolean, _
+        lpcMenuItemInfo As MENUITEMINFO) As Long
+    
+    Declare Function SendMessage Lib "user32" Alias "SendMessageA" ( _
+        ByVal hwnd As Long, _
+        ByVal wMsg As Long, _
+        ByVal wParam As Long, _
+        lParam As Any) As Long
+    
 #Else
     Type POINTAPI 'Point structure
         x As Integer
@@ -257,7 +308,7 @@ Public Const SC_HOTKEY = &HF150
     
     Declare Sub ReleaseDC Lib "USER" ( _
         ByVal hwnd As Integer, _
-        ByVal hdc As Integer)
+        ByVal hDC As Integer)
     
     Declare Function ExtractIcon Lib "shell" ( _
         ByVal hInstance As Integer, _
@@ -266,7 +317,7 @@ Public Const SC_HOTKEY = &HF150
         As Integer
     
     Declare Function DrawIcon Lib "USER" ( _
-        ByVal hdc As Integer, _
+        ByVal hDC As Integer, _
         ByVal x As Integer, _
         ByVal y As Integer, _
         ByVal hIcon As Integer) _

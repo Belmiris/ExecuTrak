@@ -1753,6 +1753,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     #Else
         Dim nCode As Integer
     #End If
+    
     Dim bCloseSize As Boolean
     
     If IsMissing(vCloseSize) Then
@@ -1760,8 +1761,15 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     Else
         bCloseSize = vCloseSize
     End If
+    
     nCode = GetSystemMenu(frmForm.hwnd, False)
-    Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
+    
+    'david 10/27/00
+    'the following does not work in windows2000
+    'Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
+    subDisableSystemClose frmForm
+    
+    'the following work in windows98 ONLY! It does not work in windows2000
     If bCloseSize Then
         Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
         Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
@@ -1769,6 +1777,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     
     'david 10/26/00
     tfnFixBackColor frmForm
+    
 End Sub
 
 ' tfnEnableTBButton
@@ -1971,3 +1980,27 @@ Public Sub tfnFixBackColor(ByRef frmMain As Form)
     Next
 End Sub
 
+'david 10/27/00
+Private Sub subDisableSystemClose(frmMain As Form)
+    
+    Dim hMenu As Long
+    Dim Ret  As Long
+    Dim MII As MENUITEMINFO
+    
+    hMenu = GetSystemMenu(frmMain.hwnd, 0)
+    MII.cbSize = Len(MII)
+    MII.dwTypeData = String(80, 0)
+    MII.cch = Len(MII.dwTypeData)
+    MII.fMask = MIIM_STATE
+    MII.wID = SC_CLOSE
+    Ret = GetMenuItemInfo(hMenu, MII.wID, False, MII)
+
+    If MII.fState <> (MII.fState Or MFS_GRAYED) Then
+        MII.fState = (MII.fState Or MFS_GRAYED)
+    End If
+
+    MII.fMask = MIIM_STATE
+    Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
+    Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
+    
+End Sub
