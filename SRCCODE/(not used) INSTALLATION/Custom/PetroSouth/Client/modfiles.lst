@@ -1,0 +1,3 @@
+DIR=G:\PROGRAM\RELEASE\CUSTOM\PETROSOUTH\BIN MASK=*.*
+DIR=G:\program\release\exectrak\common MASK=cpylocal.exe
+DIR=G:\program\release\exectrak\local_db MASK=*.MDB
