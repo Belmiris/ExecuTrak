@@ -399,6 +399,23 @@ Public Const CUST_ACCESS_UP = 13750
 Public Const SALESMAN_UP = 13800
 Public Const DISPATCH_ZONE_UP = 13850
 
+'''
+'note: these button does not launch EXE program
+'require callback when add button
+Public Const DRIVER_DIRECTION_UP = 13900
+Public Const CUST_NOTE_UP = 13950
+Public Const ORDER_STAT_UP = 14000
+Public Const VIEW_DETAIL_UP = 14050
+Public Const TOGGLE_TRUCK_UP = 14100
+'''
+
+Public Const TRUCK_UP = 14150
+Public Const DRIVER_UP = 14200
+
+'''
+'generic buttons for toolbar button that requires new bitmap
+'note: these button does not launch EXE program
+'require callback when add button
 Public Const GENERIC1_UP = 32701
 Public Const GENERIC2_UP = 32702
 Public Const GENERIC3_UP = 32703
@@ -406,6 +423,7 @@ Public Const GENERIC4_UP = 32704
 Public Const GENERIC5_UP = 32705
 Public Const GENERIC6_UP = 32706
 Public Const GENERIC7_UP = 32707
+'''
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
