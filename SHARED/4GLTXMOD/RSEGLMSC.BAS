@@ -220,15 +220,28 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
     Next
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Debug.Print "Collecting Summary"
-    Dim gl_tmp As gl_type
+    Dim gl_tmp As gl_type, meter_gl_amt As Double
+    
     j = gl_count()
+    
+    meter_acct = 0
+    meter_gl_amt = -1#
+    
+    meter_gl = 0#
+    
     For i = 1 To j
 '        get_a_gl i, pc, acct, dc_flag, amt
         gl_tmp = get_a_gl(i)
         With gl_tmp
             If .dc_flag = "C" Then
                 meter_gl = meter_gl + .gl_amount
-                meter_acct = .account
+                If .gl_amount >= 0 Then
+                    If .gl_amount > meter_gl_amt Then
+                        meter_acct = .account
+                        meter_gl_amt = .gl_amount
+                    End If
+                End If
+                
                 .gl_amount = .gl_amount * -1
             End If
             If .account <> pr_ar_class!arc_glm Then
