@@ -662,7 +662,8 @@ Public Sub subSetSysParm1055(sTemp As String)
 End Sub
 
 
-Public Sub subUnloadTaxMods()
+Public Sub subUnloadTaxMods(Optional bShowMsgBox As Boolean = True, _
+                            Optional sErrMsg As String = "")
     'Unload the tax mods
     If nTaxModLoaded = TAXMOD_LOADED Then
         Dim i As Integer
@@ -671,13 +672,22 @@ Public Sub subUnloadTaxMods()
             DoEvents
         Loop Until i <> TXMOD_TASKBLOCKED
         If i <> TXMOD_OK Then
-            MsgBox "There is a problem detaching from tax module"
+            If bShowMsgBox Then
+                MsgBox "There is a problem detaching from tax module", vbCritical
+            Else
+                sErrMsg = "There is a problem detaching from tax module"
+            End If
         End If
     End If
 End Sub
-Private Sub subTaxModErrors(ByVal nMsgNo As Long)
-    Static nLastError As Integer
+
+Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
+                            Optional bShowMsgBox As Boolean = True, _
+                            Optional sErrMsg As String = "")
     
+    Static nLastError As Integer
+    Dim sMsg As String
+        
     If nLastError = nMsgNo Then
         Exit Sub
     End If
@@ -688,26 +698,32 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long)
     Select Case nMsgNo
         Case TXMOD_LINETAX_OK = 0           ' All's well
         Case TXMOD_LINETAX_NOMEM         ' Out of memory
-            MsgBox "Out of memory for tax calculation", nButtons
+            sMsg = "Out of memory for tax calculation"
         Case TXMOD_LINETAX_NODBASE       ' No database available
-            MsgBox "No database availble for tax calculation", nButtons
+            sMsg = "No database availble for tax calculation"
         Case TXMOD_LINETAX_NOTAXRECS     ' No tax records in the dbase
-            MsgBox "No tax records for the customer/product", nButtons
+            sMsg = "No tax records for the customer/product"
         Case TXMOD_LINETAX_NOINVHEAD     ' No inventory header record
-            MsgBox "No inventory header record available", nButtons
+            sMsg = "No inventory header record available"
         Case TXMOD_LINETAX_NOINVCLASS    ' No inventory class record
-            MsgBox "No inventory class record available", nButtons
+            sMsg = "No inventory class record available"
         Case TXMOD_LINETAX_BADSQL        ' SQL statement error
-            MsgBox "An error exists in the SQL statement for tax calculations", nButtons
+            sMsg = "An error exists in the SQL statement for tax calculations"
         Case TXMOD_LINETAX_BADBASIS      ' Bad basis flag
-            MsgBox "Bad basis flag from tax mods", nButtons
+            sMsg = "Bad basis flag from tax mods"
         Case TXMOD_LINETAX_BADBILLED     ' Bad billed units flag
-            MsgBox "Bad billed units flag", nButtons
+            sMsg = "Bad billed units flag"
         Case TXMOD_LINETAX_BADLTYPE      ' Bad line type (int/ext bl/del)
-            MsgBox "Bad line type", nButtons
+            sMsg = "Bad line type"
         Case TXMOD_LINETAX_BADPARMS     ' Bad parameters passed
-            MsgBox "Bad parameters for tax calculation", nButtons
+            sMsg = "Bad parameters for tax calculation"
     End Select
+
+    If bShowMsgBox Then
+        MsgBox sMsg + ".", , nButtons
+    Else
+        sErrMsg = sMsg + "."
+    End If
 
 End Sub
 
@@ -1027,7 +1043,8 @@ Public Sub subResetTaxes(Optional vTwoD As Variant, _
     End If
     lInternalFuel = 0
 End Sub
-Public Function fnLoadTaxMods()
+Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
+                              Optional sErrMsg As String = "")
     Const SUB_NAME = "fnLoadTaxMods"
     
     Static nTaxModLoaded As Integer
@@ -1061,7 +1078,11 @@ Public Function fnLoadTaxMods()
         End If
     Loop Until (i <> TXMOD_TASKBLOCKED)
     If i <> TXMOD_OK Then
-        MsgBox "Cannot load tax module. Taxes will not be displayed"
+        If bShowMsgBox Then
+            MsgBox "Cannot load tax module. Taxes will not be displayed.", vbCritical
+        Else
+            sErrMsg = "Cannot load tax module. Taxes will not be displayed."
+        End If
     Else
         nTaxModLoaded = TAXMOD_LOADED
         fnLoadTaxMods = True

@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -888,7 +888,14 @@ End Function
 'Variables: none
 'Return   : database handle
 '
-Public Function tfnOpenDatabase() As Boolean
+'david 02/09/00
+'changed function to handle background processing
+'if no parameter is supplied, this function will show error message box
+'other for backgroud process, these two parameters are actually REQUIRED.
+'Pass a False to bShowMsgBox to suppress the error message box, in turn,
+'return the error message to the calling function.
+Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "") As Boolean
     Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
@@ -922,17 +929,24 @@ Public Function tfnOpenDatabase() As Boolean
 
 ERROR_CONNECTING:
     If t_oleObject Is Nothing Then
-        subShowODBCError
+        If bShowMsgBox Then
+            MsgBox fnShowODBCError(), vbCritical
+        Else
+            sErrMsg = fnShowODBCError()
+        End If
     Else
-        MsgBox Err.Description, vbOKOnly + vbCritical, szCONNECTION_ERROR
+        If bShowMsgBox Then
+            MsgBox Err.Description, vbOKOnly + vbCritical, szCONNECTION_ERROR
+        Else
+            sErrMsg = Err.Description
+        End If
     End If
 
     tfnOpenDatabase = False
 
 End Function
 
-
-Private Sub subShowODBCError()
+Private Function fnShowODBCError() As String
     Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
@@ -957,13 +971,10 @@ Private Sub subShowODBCError()
         sODBCErrors = Err.Description
     End If
 
-    Dim sMsg As String
-    
-    sMsg = sODBCErrors
-    MsgBox sMsg, vbOKOnly + vbCritical
+    fnShowODBCError = sODBCErrors
     Err.Clear
 
-End Sub
+End Function
 
 Public Function tfnRound(vTemp As Variant, _
                          Optional vPrec As Variant) As Variant
@@ -1008,7 +1019,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
