@@ -97,7 +97,7 @@ Private Const INTERNET_OPEN_TYPE_PROXY = 3
 Private Const INTERNET_INVALID_PORT_NUMBER = 0
 
 Private Const FTP_TRANSFER_TYPE_ASCII = &H1
-Private Const FTP_TRANSFER_TYPE_BINARY = &H1
+Private Const FTP_TRANSFER_TYPE_BINARY = &H0
 Private Const INTERNET_FLAG_PASSIVE = &H8000000
 
 ' Opens a HTTP session for a given site.
