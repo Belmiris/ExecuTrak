@@ -52,7 +52,7 @@ Private bBook_dest As Boolean
 Private bBook_city As Boolean
 Private bBook_term As Boolean
 
-Private m_OverWriteFlag_YN As String 'Add per magic 312713-48
+Private m_OverRideFlag_YN As String 'Add per magic 312713-48
 
 Public Function product_price( _
                                 DEST_FLAG As String, _
@@ -147,7 +147,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         Debug.Print "function sp_price called"
     #End If
     
-    m_OverWriteFlag_YN = "N"
+    m_OverRideFlag_YN = "N"
     
     dfPrice = 0#   'set DEFAULT value (floating zero)
     sErrMsg = ""
@@ -211,7 +211,7 @@ Private Function sp_price(ByVal sProductLink As String, _
     If pr_inv_master Is Nothing Then
         Set pr_inv_master = finv_master(pr_inv_header!ivh_link, CInt(lProfitCenter), t_dbMainDatabase)
     Else
-        m_OverWriteFlag_YN = "Y"
+        m_OverRideFlag_YN = "Y"
     End If
     '--------- end magic 312713-48 ------------------------------
     
@@ -848,11 +848,11 @@ Private Function fnFirstCharU(sParm As String) As String
     fnFirstCharU = UCase(Left(LTrim(sParm), 1)) 'return uppercase of leftmost char of a string
 End Function    'fnFirstCharU
 
-Public Function fnGetOverWriteFlag() As String
-    If m_OverWriteFlag_YN = "Y" Then
-        fnGetOverWriteFlag = "Y"
+Public Function fnGetOverRideFlag() As String
+    If m_OverRideFlag_YN = "Y" Then
+        fnGetOverRideFlag = "Y"
     Else
-        fnGetOverWriteFlag = "N"
+        fnGetOverRideFlag = "N"
     End If
 End Function
 #If cMAIN Then
