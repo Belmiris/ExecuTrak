@@ -1,0 +1,379 @@
+//***************************************************************************
+//
+// FACTOR software CD Installation
+//
+//***************************************************************************
+
+//includes
+#include "winapi.h"
+
+//constants
+#define PRODUCT_VERSION         "3.00"
+#define COMPANY_NAME		"FACTOR"
+#define PRODUCT_NAME            "FACTOR Software"
+#define PRODUCT_KEY             "CDinstallation"
+
+#define WELCOME_TITLE           "FACTOR Software CD Installation"
+#define SETUP_FILE            	"FACTOR.INF"
+
+//global variables
+
+
+declare
+
+#include "sddialog.h"
+
+        //log setup variables and write log function prototype
+        NUMBER nvFileIn, nvFileOut;
+        NUMBER nResult, nFailApp;
+        STRING szPath, szAppName, szExeName, szSetupIns;
+        STRING szLineText, szComponents, szSubDir, szLaunch, szVersion;
+        STRING szMsg, szMsg1, szMsg2, szTitle, szID, szTemp;
+        STRING szFolder, szSCIcon, szSCExe, szSCWork;
+
+        LIST    ListApp, ListExe, ListFail;
+
+        BOOL bTemp1, bTemp2, bInstalled, bRun, bRun00, bIsBaseInstall, bContinue;
+        BOOL bBaseInstallFailed;
+
+        //function prototypes
+
+	prototype subReadModuleList();
+        prototype fnChangeExtension(STRING);
+        prototype fnRunSetup(STRING);
+
+
+program
+
+
+StartHere:
+
+	// set title for all dialog boxes
+        SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE + " Options");
+	SetDialogTitle(DLG_ASK_TEXT, WELCOME_TITLE);
+	SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_SEVERE, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_WARNING, WELCOME_TITLE);
+	SetDialogTitle(DLG_USER_CAPTION, WELCOME_TITLE);
+
+        //set installation header
+        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+                SetTitle(PRODUCT_NAME, 24, WHITE );
+        else
+                SetTitle( "FACTOR" + "™" + " Software CD Installation", 24, WHITE );
+        endif; 
+
+        RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+        //set installation information
+        InstallationInfo(COMPANY_NAME, PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_KEY);
+
+
+SayWelcome:
+
+	Disable(BACKBUTTON);
+
+	bRun00 = TRUE;
+	
+        	if (CMDLINE = "2") then
+		bRun00 = FALSE;
+
+                	szFolder = "Startup";
+                	DeleteFolderIcon(szFolder, "CDINSTALL");
+	endif;
+
+	if bRun00 then
+		Welcome(WELCOME_TITLE, 0);
+	else
+		SdShowMsg("Continue " + WELCOME_TITLE + "...",TRUE);
+                    	Delay(1);
+		SdShowMsg("",FALSE);
+	endif;
+
+        	subReadModuleList();
+	 
+	if bRun00 then
+	        	szMsg = "The following modules will be installed.";
+	
+		Enable(BACKBUTTON);
+		
+		szTitle = "Installation Module List";
+		szMsg = "The following modules will be installed into your system.";
+	
+		if (SdShowInfoList(szTitle, szMsg, ListApp) = BACK) then
+			goto SayWelcome;
+		endif;
+	endif;
+
+	nResult = ListGetFirstString(ListExe, szExeName);
+	ListGetFirstString(ListApp, szAppName);
+
+	szExeName = SRCDIR ^ szExeName;
+
+	bInstalled = FALSE;
+	bBaseInstallFailed = FALSE;
+	nFailApp = 0;
+
+	ListFail = ListCreate(STRINGLIST);
+
+        	Disable (BACKBUTTON);
+
+	bContinue = TRUE;
+
+	while (nResult != END_OF_LIST && bContinue)
+
+               bRun = TRUE;
+
+	StrToUpper(szTemp, szAppName); 
+               if (StrFind(szTemp, "EXECUTRAK BASE SYSTEM") >= 0) then
+		bIsBaseInstall = TRUE;
+	else
+		bIsBaseInstall = FALSE;
+	endif;
+
+	if (bRun00 || ((!bRun00) && (!bIsBaseInstall))) then
+	                szMsg = "Do you want to install " + szAppName + "?";
+	
+	                szComponents = "Installation";
+	                ComponentAddItem(szComponents, "&Yes", 1024, TRUE);
+	                ComponentAddItem(szComponents, "N&o", 2000, FALSE);
+	
+	                ComponentSelectItem (szComponents, "&Yes", TRUE);
+	                ComponentSelectItem (szComponents, "N&o", FALSE);
+	
+	                szTemp = "";
+	                SdAskOptions("FACTOR Software Installation", szMsg,
+	                        "Click on the Back or Next button to continue.", szTemp, szComponents, EXCLUSIVE);
+	        
+	                if (ComponentIsItemSelected(szComponents,"N&o")) then
+	                        bRun = FALSE;
+	                endif;
+	else
+                        bRun = FALSE;
+	endif;
+
+               if (bRun) then
+                        Enable (HOURGLASS);
+
+                        //store result into szSetupIns variable
+                        fnChangeExtension(szExeName);
+
+                        	if (fnRunSetup(szSetupIns)) then
+			bInstalled = TRUE;
+		else
+			if (bIsBaseInstall) then
+				bBaseInstallFailed = TRUE;
+			endif;
+
+			MessageBox("Fail to launchApp " + szAppName, WARNING);
+
+                                	Enable (HOURGLASS);
+
+			if (ListAddString(ListFail, szAppName, AFTER) < 0) then
+				MessageBox("Fail to add module item list.", WARNING);
+			endif;
+			
+			nFailApp = nFailApp + 1;
+		endif;
+
+	else
+		if ((!bRun00) && bIsBaseInstall) then
+			//do nothing
+		else
+	                	if (ListAddString(ListFail, szAppName, AFTER) < 0) then
+				MessageBox("Fail to add module item list.", WARNING);
+			endif;
+
+			nFailApp = nFailApp + 1;
+		endif;
+	endif;
+
+        	Disable (HOURGLASS);
+
+	nResult = ListGetNextString(ListExe, szExeName);
+	ListGetNextString(ListApp, szAppName);
+
+	szExeName = SRCDIR ^ szExeName;
+
+	if ((bRun00 && bIsBaseInstall && bRun) || (bBaseInstallFailed)) then
+		bContinue = FALSE;
+	endif;
+
+	endwhile;
+
+	if (bBaseInstallFailed) then
+		MessageBox("ExecurTrak Base System Installation Failed.\n\n" +
+			"All other modules were not installed into your system.", SEVERE);
+	else
+		if (bContinue) then
+			if (nFailApp > 0) then
+				Disable(BACKBUTTON);
+				SdShowInfoList("Unsuccessful Installation Module List", "The following modules were not installed into your system.", ListFail);
+			endif;
+		
+			if (bInstalled = TRUE) then
+			       SdFinish(WELCOME_TITLE + " Completed",
+			                 WELCOME_TITLE + " has finished installing files to your system.",
+			                 "Click Finish to end " + WELCOME_TITLE,
+			                 "", "", bTemp1, bTemp2);
+			else
+			       SdFinish(WELCOME_TITLE + " Incompleted",
+			                 WELCOME_TITLE + " has not finished installing any modules to your system.",
+			                 "Click Finish to end setup " + WELCOME_TITLE,
+			                 "", "", bTemp1, bTemp2);
+		
+			endif;
+		else
+		      //add shortcut to startup group for re-run after base system installation reboot!
+	                    szFolder = "Startup";
+	                    szSCIcon = "";
+	                    szSCWork = SRCDIR;
+	                    szSCExe = szSCWork ^ "SETUP.EXE";
+	                    szSCExe = szSCExe + " 2";
+	                
+	                    AddFolderIcon(szFolder, "CDINSTALL",
+	                      szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+		    //force reboot system
+	                  System(SYS_BOOTMACHINE);
+		endif;
+	endif;
+
+	exit;
+
+
+//------------------ End of Main Program ---------------------------
+
+
+function subReadModuleList()
+
+        NUMBER nvFileNum, nFlag;
+        NUMBER nListIndex, nReturn, nStrLen;
+        STRING szLineText, szFile;
+	STRING szItem;	    
+
+begin
+
+        szFile = SETUP_FILE;
+
+	OpenFileMode (FILE_MODE_NORMAL);
+	
+        if (OpenFile(nvFileNum, SRCDIR, szFile) >= 0) then
+                                              
+		ListApp = ListCreate(STRINGLIST);
+		
+		if (ListApp = LIST_NULL) then
+			MessageBox("Unable to create module item list.", SEVERE);
+			exit;
+		endif;
+
+		ListExe = ListCreate(STRINGLIST);
+
+		if (ListExe = LIST_NULL) then
+			MessageBox("Unable to create Exe list.", SEVERE);
+			exit;
+		endif;
+
+		while (nFlag = 0)
+			szLineText = "";
+			szItem ="";
+			nFlag = GetLine (nvFileNum, szLineText);
+
+                        if (StrFind(szLineText, "[") >= 0) then
+//Item
+                                szItem = " ";
+
+                                StrSub(szItem, szLineText, 1, StrLength(szLineText) - 1);
+                                StrSub(szItem, szItem, 0, StrLength(szItem) - 1);
+ 
+                                if (ListAddString(ListApp, szItem, AFTER) < 0) then
+					MessageBox("Fail to add module item list.", SEVERE);
+				endif;
+			elseif (szLineText != "") then
+//Exe      
+                                if (ListAddString(ListExe, szLineText, AFTER) < 0) then
+					MessageBox("Fail to add Exe list.", SEVERE);
+				endif;
+
+			endif;
+
+		endwhile;
+
+		CloseFile(nvFileNum);
+
+	endif;
+ 
+end;
+
+
+//change the .EXE to .INS for Factor Software Setup ONLY
+function fnChangeExtension(szIn)
+
+        NUMBER nLen;
+        STRING szMod_Name, szOut;
+begin
+
+        StrToUpper(szIn, szIn);
+
+        //if it is THIRD PARTY SOFTWARE use .EXE
+        szSetupIns = szIn;
+
+        szMod_Name = "IQ";
+
+        StrToUpper(szMod_Name, szMod_Name);
+
+        if (StrFind(szIn, szMod_Name) >= 0) then
+                return TRUE;
+        endif;
+
+        //        :
+        //        :
+        //        :
+
+
+        //take care FACTOR Software
+        nLen = StrLength(szIn);
+
+        StrSub(szOut, szIn, 0, nLen - 3);
+        szOut = szOut + "INS";
+
+        szSetupIns = szOut;
+
+        return TRUE;
+
+end;
+
+
+function fnRunSetup(szSetup)
+
+        NUMBER nLen;
+        STRING szExtension;
+begin
+
+        nLen = StrLength(szSetup);
+
+        StrSub(szExtension, szSetup, nLen - 3, 3);
+
+        StrToUpper (szExtension, szExtension);
+
+        if (szExtension = "EXE") then
+                if (LaunchAppAndWait(szSetupIns, "", WAIT) > 0) then
+                        return TRUE;
+                else
+                        return FALSE;
+                endif;
+        else
+                if (DoInstall(szSetupIns, "", WAIT) > 0) then
+                        return TRUE;
+                else
+                        return FALSE;
+                endif;
+        endif;
+
+end;
+
+
+#include "sddialog.rul"
+
+
