@@ -25,8 +25,7 @@ IconForm="frmZZEININV"
 Startup="frmZZEININV"
 HelpFile="FACTOR.HLP"
 Title="ZZEININV"
-ExeName32="TEMPLATE.EXE"
-Path32="I:\Program\Factmenu\Bin"
+ExeName32="ZZEININV.EXE"
 Command32=""
 Name="zzeininv"
 HelpContextID="0"
@@ -43,7 +42,7 @@ VersionFileDescription="TEMPLATE.EXE"
 VersionLegalCopyright="Copyright (c) 1999 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = -1"
+CondComp="FACTOR_MENU = 0 : DEVELOP = -1 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

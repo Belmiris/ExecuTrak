@@ -146,7 +146,7 @@ Begin VB.Form frmZZFINVMT
             BackColor       =   &H00FFFFFF&
             ForeColor       =   &H00000000&
             Height          =   4128
-            HelpContextID   =   504
+            HelpContextID   =   802
             ItemData        =   "ZZFINVMT.frx":0000
             Left            =   48
             List            =   "ZZFINVMT.frx":0002
@@ -166,7 +166,7 @@ Begin VB.Form frmZZFINVMT
       End
       Begin FACTFRMLib.FactorFrame cmdProcess 
          Height          =   396
-         HelpContextID   =   502
+         HelpContextID   =   800
          Left            =   4548
          TabIndex        =   9
          Top             =   4692
@@ -238,6 +238,7 @@ Begin VB.Form frmZZFINVMT
       End
       Begin FACTFRMLib.FactorFrame cmdPrintReport 
          Height          =   396
+         HelpContextID   =   801
          Left            =   6036
          TabIndex        =   10
          Top             =   4692
@@ -284,7 +285,7 @@ Begin VB.Form frmZZFINVMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -297,7 +298,7 @@ Begin VB.Form frmZZFINVMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -541,7 +542,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     CRLF = Chr(10) + Chr(13)
 
     ' ** change the help file for the application
-    App.HelpFile = szHelpFileName
+    App.HelpFile = szHelp7_11
 End Sub
 
 Private Sub Form_Unload(CANCEL As Integer)
@@ -575,8 +576,7 @@ End Sub
 
 Private Sub Form_Load()
 
-    #If Not PROTOTYPE Then
-        
+#If Not PROTOTYPE Then
         If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
             Unload Me
             Exit Sub
@@ -595,15 +595,11 @@ Private Sub Form_Load()
             Unload Me
             Exit Sub
         End If
-    
-    #End If
-    
-    subInitErrorHandler   ' Setup Error Control
-     
-    #If Not PROTOTYPE Then
+        
+        subInitErrorHandler   ' Setup Error Control
         tfnUpdateVersion
-    #End If
-    
+#End If
+        
     tfnDisableFormSystemClose Me
     subSetupToolBar
     tmrKeyBoard.Enabled = False
@@ -811,14 +807,20 @@ Private Sub tfnResetScreen()
     On Error Resume Next
     
     subSetExitCancelBtn "EXIT"
-    'frmContext.ButtonEnabled(PRINT_UP) = False
     frmContext.ButtonEnabled(COPY_UP) = False
     mnuExit.Enabled = True
-    'mnuPrint.Enabled = False
     mnuCopy.Enabled = False
     mnuPaste.Enabled = False
+#If PROTOTYPE Then
+    cmdProcess.Enabled = False
+    mnuProcess.Enabled = False
+    cmdPrintReport.Enabled = False
+    mnuPrint.Enabled = False
+    frmContext.ButtonEnabled(PRINT_UP) = False
+#Else
     cmdProcess.Enabled = True
     mnuProcess.Enabled = True
+#End If
     PbProgressBar.Visible = False
 End Sub
 

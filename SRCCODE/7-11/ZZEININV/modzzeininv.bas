@@ -342,9 +342,9 @@ Public Function fnGetPayGLAccount(sPayType As String) As Long
     End Select
     
     strSQL = "SELECT parm_nbr, parm_field FROM sys_parm" _
-           & " WHERE parm_nbr = " & tfnSQLString(sPayType)
+           & " WHERE parm_nbr = " & tfnSQLString(sParm)
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetGLAccount") > 0 Then
-        fnGetGLAccount = tfnRound(rsTemp!parm_field)
+        fnGetPayGLAccount = tfnRound(rsTemp!parm_field)
     Else
         Exit Function
     End If
@@ -356,7 +356,7 @@ Public Function fnCheckGLStatus(dtRptDate As Date) As String
     Dim rsTemp As Recordset
     Const FUNC_NAME As String = "fnCheckGLStatus"
     
-    strSQL = "SELECT glp_status FROM gl_period WHERE " & tfnDateString(dtRptDate) & " BETWEEN glp_beg_dt AND glp_end_dt"
+    strSQL = "SELECT glp_status FROM gl_period WHERE " & tfnDateString(dtRptDate, True) & " BETWEEN glp_beg_dt AND glp_end_dt"
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) > 0 Then
         If rsTemp!glp_status = "C" Or rsTemp!glp_status = "G" Then

@@ -149,7 +149,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdDetailCancel 
                Height          =   396
                Left            =   7488
-               TabIndex        =   52
+               TabIndex        =   51
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -183,7 +183,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdOk 
                Height          =   396
                Left            =   6000
-               TabIndex        =   51
+               TabIndex        =   50
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -217,7 +217,7 @@ Begin VB.Form frmZZEININV
             Begin FACTFRMLib.FactorFrame cmdDetailDelete 
                Height          =   396
                Left            =   4524
-               TabIndex        =   50
+               TabIndex        =   52
                Top             =   3864
                Width           =   1308
                _Version        =   65536
@@ -342,6 +342,19 @@ Begin VB.Form frmZZEININV
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
+                  Begin VB.PictureBox picFullDetailText 
+                     Appearance      =   0  'Flat
+                     BackColor       =   &H80000005&
+                     ForeColor       =   &H80000008&
+                     Height          =   444
+                     Left            =   336
+                     ScaleHeight     =   420
+                     ScaleWidth      =   1452
+                     TabIndex        =   58
+                     Top             =   1644
+                     Visible         =   0   'False
+                     Width           =   1476
+                  End
                   Begin DBTrueGrid.TDBGrid tblDetail 
                      Height          =   2616
                      Left            =   48
@@ -699,6 +712,19 @@ Begin VB.Form frmZZEININV
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
+                  Begin VB.PictureBox picFullHeaderText 
+                     Appearance      =   0  'Flat
+                     BackColor       =   &H80000005&
+                     ForeColor       =   &H80000008&
+                     Height          =   396
+                     Left            =   840
+                     ScaleHeight     =   372
+                     ScaleWidth      =   1284
+                     TabIndex        =   57
+                     Top             =   1068
+                     Visible         =   0   'False
+                     Width           =   1308
+                  End
                   Begin DBTrueGrid.TDBGrid tblHeader 
                      Height          =   1752
                      Left            =   0
@@ -965,7 +991,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -999,7 +1025,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1033,7 +1059,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1070,7 +1096,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1106,7 +1132,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1395,6 +1421,9 @@ Private cValidate As cValidateInput
 Private tgmHeader As clsTGSpreadSheet
 Private tgmDetail As clsTGSpreadSheet
 Private tgfDropdown As clsFloatingDropDown
+Private objFullHeaderText As clsColumnExtension
+Private objFullDetailText As clsColumnExtension
+
 Private g_bDetailDataChanged As Boolean
 Private g_bExceptionsClicked As Boolean
 Private g_vHoldDetailData() As Variant
@@ -1505,7 +1534,7 @@ Private Function fnValidUOM(szText As String, nCurrCol As Integer, lCurrDetailRo
     Dim rsTemp As Recordset
     Dim lVendor As Long
     Dim lInvoice As Long
-    Dim nPrftCtr As Integer
+    Dim nPrftctr As Integer
     Dim dtInvDate As Date
     Dim lCurHeaderRow As Long
     Dim dCost As Double
@@ -1515,8 +1544,8 @@ Private Function fnValidUOM(szText As String, nCurrCol As Integer, lCurrDetailRo
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
-    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
-    dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    dtInvDate = tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow))
     
     If Trim(szText) = "" Then
         tgmDetail.ErrorMessage(ColDetailUOM) = " The Unit of Measure can't be empty."
@@ -1538,7 +1567,7 @@ Private Function fnValidUOM(szText As String, nCurrCol As Integer, lCurrDetailRo
         
             If UCase(Trim(rsTemp!rsbi_stock_unit & "")) = UCase(Trim(szText)) Then
                 
-                If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dCost, dRetailPrice) Then
+                If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftctr, dtInvDate, dCost, dRetailPrice) Then
                     fnValidUOM = False
                     tgmDetail.ErrorMessage(nCurrCol) = "No Price book available for this item"
                     Exit Function
@@ -1555,9 +1584,9 @@ Private Function fnValidUOM(szText As String, nCurrCol As Integer, lCurrDetailRo
             End If
             
             tgmDetail.CellValue(ColDetailCost, lCurrDetailRow) = tfnRound(dCost, 3)
-            tgmDetail.CellValue(ColDetailPBCost, lCurrDetailRow) = tfnRound(dCost, 3)
+            'tgmDetail.CellValue(ColDetailPBCost, lCurrDetailRow) = tfnRound(dCost, 3)
             tgmDetail.CellValue(ColDetailRetail, lCurrDetailRow) = tfnRound(dRetailPrice, 3)
-            tgmDetail.CellValue(colHdnDetailFlag, lCurrDetailRow) = "Y"
+            'tgmDetail.CellValue(colHdnDetailFlag, lCurrDetailRow) = "Y"
             fnValidUOM = True
             
         End If
@@ -1781,6 +1810,30 @@ Private Sub subSetupDropDown()
     
 End Sub
 
+Private Sub subInitFullText()
+   Set objFullHeaderText = New clsColumnExtension
+   
+   With objFullHeaderText
+        Set .Form = Me
+        Set .PictureBox = picFullHeaderText
+        Set .StatusBar = ffraStatusbar
+        Set .Table = tblHeader
+        .AddColumn ColHeaderPrftDesc, "Profit Cntr. Name"
+        .AddColumn ColHeaderVendorName, "Vendor Name"
+    End With
+    
+    Set objFullDetailText = New clsColumnExtension
+    
+    With objFullDetailText
+        Set .Form = Me
+        Set .PictureBox = picFullDetailText
+        Set .StatusBar = ffraStatusbar
+        Set .Table = tblDetail
+        .AddColumn ColDetailItemDesc, "Item Description"
+    End With
+    
+End Sub
+
 Private Sub chkAllInvoice_GotFocus()
     tfnSetStatusBarMessage "Check to select all Invoice including processed."
 End Sub
@@ -1800,10 +1853,11 @@ Private Sub cmdDetailCancel_Click()
         If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
             Exit Sub
         End If
-        
+                
     End If
     
     g_bDetailDataChanged = False
+    subResetExceptions
     
     If fnLoadDetailData(tgmHeader.GetCurrentRowNumber) Then
     End If
@@ -1825,7 +1879,7 @@ Private Sub cmdDetailDelete_Click()
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     lCurDetailRow = tgmDetail.GetCurrentRowNumber
-    lLineNo = tgmDetail.CellValue(ColDetailLine, lCurDetailRow)
+    lLineNo = tfnRound(tgmDetail.CellValue(ColDetailLine, lCurDetailRow))
         
     If lLineNo = 0 Then
         Exit Sub
@@ -1849,6 +1903,7 @@ Private Sub cmdDetailDelete_Click()
             
         End If
                                   
+        subResetExceptions
     End If
 
     If tgmDetail.RowCount < 1 Then
@@ -1861,6 +1916,7 @@ Private Sub cmdDetailDelete_Click()
         End If
         
         If fnDeleteData(lVendor, lInvoice) Then
+            subUnlockHeader
             etabMain.CurrTab = 0
             etabMain.TabEnabled(1) = False
             tgmHeader.DeleteRow
@@ -1917,16 +1973,16 @@ Private Sub cmdHeaderDelete_Click()
     Dim lCurHeaderRow As Long
     Dim lVendor As Long
     Dim lInvoice As Long
-    Dim nPrftCtr As Integer
+    Dim nPrftctr As Integer
     Dim dtRptDate As Date
     Dim lShiftNum As Long
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
-    nPrftCtr = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
-    lShiftNum = tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow)
+    lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
         
     If tgmHeader.RowCount > 0 Then
         
@@ -1936,7 +1992,7 @@ Private Sub cmdHeaderDelete_Click()
             
         If fnDeleteData(lVendor, lInvoice) Then
             
-            If nPrftCtr = g_nHoldSelectedPrftCtr And dtRptDate = g_dtHoldRptDate And lShiftNum = g_lHoldShiftNum Then
+            If nPrftctr = g_nHoldSelectedPrftCtr And dtRptDate = g_dtHoldRptDate And lShiftNum = g_lHoldShiftNum Then
                 subUnlockHeader
             End If
             
@@ -1955,33 +2011,36 @@ Private Sub cmdHeaderDelete_Click()
 
 End Sub
 
+Private Sub cmdHeaderDelete_GotFocus()
+    tfnSetStatusBarMessage "Delete"
+End Sub
+
 Private Sub cmdHeaderSelect_Click()
     Dim lCurHeaderRow As Long
-    Dim nPrftCtr As Integer
+    Dim nPrftctr As Integer
     Dim dtRptDate As Date
     Dim lShiftNum As Long
 
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
-    nPrftCtr = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
-    lShiftNum = tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow)
+    lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
 
     subShowHourGlass
     tfnSetStatusBarCorrect "Polulating Data, Please wait..."
     
-    If nPrftCtr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
+    If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
         subUnlockHeader
     End If
     
-    ReDim g_vHoldDetailData(0, 0) As Variant
-    g_bExceptionsClicked = False
+    subResetExceptions
     
     If fnLoadDetailData(lCurHeaderRow) Then
         
         If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "N" Then
             tgmDetail.Locked = False
             
-            If Not fnlockHeader(nPrftCtr, dtRptDate, lShiftNum) Then
+            If Not fnlockHeader(nPrftctr, dtRptDate, lShiftNum) Then
                 etabMain.TabEnabled(1) = False
                 etabMain.CurrTab = 0
                 tgmDetail.ClearData
@@ -1991,13 +2050,13 @@ Private Sub cmdHeaderSelect_Click()
             
         Else
             subEnableDetailOKBtn False
-            MsgBox "The data has already been processed, if you want to change something, go to module rsepurch0", vbInformation
+            MsgBox "The data has already been processed, if you want to change something, go to Retail Sales Purchases Entry.", vbInformation
             tgmDetail.Locked = True
         End If
         
         etabMain.TabEnabled(1) = True
         etabMain.CurrTab = 1
-        subSetTabDetailCaption nPrftCtr, lCurHeaderRow
+        subSetTabDetailCaption nPrftctr, lCurHeaderRow
         subEnableDetailCancelBtn False
         subEnableDetailDeleteBtn True
         subSetFocus tblDetail
@@ -2006,11 +2065,15 @@ Private Sub cmdHeaderSelect_Click()
     End If
     
 EXITHERE:
-    g_nHoldSelectedPrftCtr = nPrftCtr
+    g_nHoldSelectedPrftCtr = nPrftctr
     g_dtHoldRptDate = dtRptDate
     g_lHoldShiftNum = lShiftNum
     subHideHourGlass
     
+End Sub
+
+Private Sub cmdHeaderSelect_GotFocus()
+    tfnSetStatusBarMessage "Select"
 End Sub
 
 Private Sub cmdOK_Click()
@@ -2026,6 +2089,7 @@ Private Sub cmdOK_Click()
         subEnableUpdateBtn False
     End If
     
+    subResetExceptions
 End Sub
 
 Private Sub cmdOk_GotFocus()
@@ -2048,6 +2112,10 @@ Private Sub cmdQuery_Click()
     subHideHourGlass
 End Sub
 
+
+Private Sub cmdQuery_GotFocus()
+    tfnSetStatusBarMessage "Query"
+End Sub
 
 Private Sub cmdSearch_Click()
     Dim lCurHeaderRow As Long
@@ -2075,6 +2143,26 @@ Private Sub cmdToPrftName_Click()
     tgcDropdown.ComboSQL(txtToPrftName) = fnSetPrftComboSQL(txtToPrftCtr)
     tgcDropdown.Click cmdToPrftName
     subHideHourGlass
+End Sub
+
+Private Sub etabMain_GotFocus()
+    
+    Select Case etabMain.CurrTab
+        Case 0
+            
+            If efraProfitCtr.Enabled Then
+                subSetFocus txtFromPrftCtr
+            ElseIf tblHeader.Enabled Then
+                subSetFocus tblHeader
+            End If
+            
+        Case 1
+            If tblDetail.Enabled Then
+                subSetFocus tblDetail
+            End If
+            
+    End Select
+
 End Sub
 
 Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
@@ -2182,7 +2270,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     CRLF = Chr(10) + Chr(13)
 
     ' ** change the help file for the application
-    App.HelpFile = szHelpFileName
+    App.HelpFile = szHelp7_11
 End Sub
 
 Private Sub Form_Unload(CANCEL As Integer)
@@ -2197,6 +2285,8 @@ Private Sub Form_Unload(CANCEL As Integer)
     Set objCurrTabControl = Nothing
     Set tgmDetail = Nothing
     Set tgmHeader = Nothing
+    Set objFullDetailText = Nothing
+    Set objFullHeaderText = Nothing
     
     Unload frmContext
     Unload frmAbout
@@ -2220,6 +2310,7 @@ Private Sub Form_Unload(CANCEL As Integer)
 End Sub
 
 Private Sub Form_Load()
+#If Not PROTOTYPE Then
     If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
         Unload Me
         Exit Sub
@@ -2241,7 +2332,7 @@ Private Sub Form_Load()
     subInitErrorHandler   ' Setup Error Control
      
     tfnUpdateVersion
-
+#End If
     ' disable system menu Close and Close icon on form
     tfnDisableFormSystemClose Me
     
@@ -2266,6 +2357,7 @@ Private Sub Form_Load()
     subInitValidation  'set up validation object
     subInitializeSpreadSheet
     subSetupDropDown
+    subInitFullText
     Screen.MousePointer = vbHourglass
     
     ' ^ ^ ^ ^ ^ ^ ^
@@ -2323,9 +2415,13 @@ End Sub
 Private Sub cmdUpdateInsertBtn_Click()
     
     If fnProcessData() Then
+        subUnlockHeader
         cmdUpdateInsertBtn.Enabled = False
-        t_bDataChanged = False
-        tfnResetScreen
+        etabMain.CurrTab = 0
+        etabMain.TabEnabled(1) = False
+        tfnSetStatusBarCorrect "Data have been inserted successfully"
+    Else
+        tfnSetStatusBarError "Unable to insert data"
     End If
     
 End Sub
@@ -2475,7 +2571,19 @@ Private Sub tfnResetScreen()
     mnuPaste.Enabled = False
     
     etabMain.CurrTab = 0
+#If Not PROTOTYPE Then
     etabMain.TabEnabled(1) = False
+#Else
+    efraProfitCtr.Enabled = False
+    efraHeader.Enabled = False
+    efraDetail.Enabled = False
+    subEnableHeaderButtons False
+    cmdQuery.Enabled = False
+    subEnableDetailExceptions False
+    subEnableDetailCancelBtn False
+    subEnableDetailDeleteBtn False
+    subEnableDetailOKBtn False
+#End If
     txtFromPrftCtr.Text = ""
     txtFromPrftName.Text = ""
     txtToPrftCtr.Text = ""
@@ -2628,6 +2736,13 @@ End Sub
 
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
+    
+    If etabMain.CurrTab = 0 Then
+        objFullHeaderText.ShowColumnExt
+    ElseIf etabMain.CurrTab = 1 Then
+        objFullDetailText.ShowColumnExt
+    End If
+    
 End Sub
 
 Private Sub subInitErrorHandler()
@@ -3056,7 +3171,7 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
     Dim lVendor As Long
     Dim lInvoice As Long
     Dim sItemCode As String
-    Dim nPrftCtr As Integer
+    Dim nPrftctr As Integer
     Dim dtInvDate As Date
     Dim sItemUOM As String
     Dim vArray() As Variant
@@ -3066,7 +3181,7 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
     
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
-    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
     
     strSQL = "SELECT rsphd_line_nbr, rsphd_code, rsbi_desc, rsbi_stock_unit, rsphd_qty, rsphd_cost"
@@ -3101,17 +3216,17 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
         vArray(ColDetailUOM, i) = Trim(rsDetail!rsphd_stock_unit & "")
         sItemUOM = Trim$(rsDetail!rsbi_stock_unit & "")
         
-        If sItemUOM = CStr(vArray(ColDetailUOM, i)) Then
+        'If sItemUOM = CStr(vArray(ColDetailUOM, i)) Then
            
-            If fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dPBCost, dPBRetail) Then
+            If fnGetPriceBookCost(sItemCode, lVendor, nPrftctr, dtInvDate, dPBCost, dPBRetail) Then
                 vArray(ColDetailPBCost, i) = dPBCost
             Else
                 vArray(ColDetailPBCost, i) = 0
             End If
             
-        Else
-            vArray(ColDetailPBCost, i) = vArray(ColDetailCost, i)
-        End If
+       ' Else
+       '     vArray(ColDetailPBCost, i) = vArray(ColDetailCost, i)
+       ' End If
         
         If vArray(ColDetailCost, i) <> vArray(ColDetailPBCost, i) Then
             vArray(colHdnDetailFlag, i) = "N"
@@ -3136,8 +3251,11 @@ End Function
 
 Private Function fnIsAmountBalance(dTotalCost As Double) As Boolean
     Dim fAmount As Double
+    Dim dAmount  As Double
     
-    fAmount = tfnRound(lblAmount.Caption, 3) - dTotalCost
+    dAmount = tgmHeader.CellValue(ColHeaderInvAmount, tgmHeader.GetCurrentRowNumber)
+    
+    fAmount = dAmount - dTotalCost
     
     If Abs(fAmount) < 0.005 Then
         eLblStatus.ForeColor = &HFFFFFF
@@ -3154,7 +3272,7 @@ Private Function fnIsAmountBalance(dTotalCost As Double) As Boolean
 End Function
 
 Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
-            nPrftCtr As Integer, dtInvDate As Date, dPBCost As Double, dRetailPrice As Double) As Boolean
+            nPrftctr As Integer, dtInvDate As Date, dPBCost As Double, dRetailPrice As Double) As Boolean
     Dim lBook As Long
     Dim lSubBook As Long
     Dim strSQL As String
@@ -3174,7 +3292,7 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
     
     strSQL = "SELECT rsbs_book, rsbs_subbook FROM rs_b_store"
     strSQL = strSQL & " WHERE rsbs_vendor = " & lVendor
-    strSQL = strSQL & " AND  rsbs_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND  rsbs_prft_ctr = " & nPrftctr
 
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
         lBook = IIf(IsNull(rsTemp!rsbs_book), -1, rsTemp!rsbs_book)
@@ -3271,7 +3389,7 @@ End Function
 Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUOM As String, sItemDesc As String)
     Dim vData(nMaxDetailCol) As Variant
     Dim lInvoice As Long
-    Dim nPrftCtr As Integer
+    Dim nPrftctr As Integer
     Dim dtInvDate As Date
     Dim lCurHeaderRow As Long
     Dim lCurDetailRow As Long
@@ -3280,10 +3398,10 @@ Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUOM As 
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
-    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
     
-    If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate, dCost, dRetailPrice) Then
+    If Not fnGetPriceBookCost(sItemCode, lVendor, nPrftctr, dtInvDate, dCost, dRetailPrice) Then
         '
     End If
     
@@ -3317,51 +3435,101 @@ Private Sub subLoadDataNoException(bYesNo As Boolean)
     Dim vAllData() As Variant
     Dim nCol As Integer
     Dim lFilter As Long
+    Dim lNoFilter As Long
     Dim i As Long
     Dim j As Integer
     
     If Not bYesNo Then
-        ReDim g_vHoldDetailData(nMaxDetailCol, tgmDetail.RowCount - 1)
         
         For i = 0 To tgmDetail.RowCount - 1
             tgmDetail.GetRow vData, nCol, i
             
-            If vData(colHdnDetailFlag) = "Y" Then
+            If vData(colHdnDetailFlag) = "N" Then
                 ReDim Preserve vAllData(nMaxDetailCol, lFilter)
                 
-                vAllData(ColDetailLine, lFilter) = vData(ColDetailLine)
-                vAllData(ColDetailItemCode, lFilter) = vData(ColDetailItemCode)
-                vAllData(ColDetailItemDesc, lFilter) = vData(ColDetailItemDesc)
-                vAllData(ColDetailUOM, lFilter) = vData(ColDetailUOM)
-                vAllData(ColDetailQty, lFilter) = vData(ColDetailQty)
-                vAllData(ColDetailCost, lFilter) = vData(ColDetailCost)
-                vAllData(ColDetailExtCost, lFilter) = vData(ColDetailExtCost)
-                vAllData(ColDetailPBCost, lFilter) = vData(ColDetailPBCost)
-                vAllData(ColDetailExtPBCost, lFilter) = vData(ColDetailExtPBCost)
-                vAllData(ColDetailRetail, lFilter) = vData(ColDetailRetail)
-                vAllData(ColDetailExtRetail, lFilter) = vData(ColDetailExtRetail)
-                vAllData(colHdnDetailFlag, lFilter) = vData(colHdnDetailFlag)
+                For j = 0 To nMaxDetailCol
+                    vAllData(j, lFilter) = vData(j)
+                Next
+                
                 lFilter = lFilter + 1
+            Else
+                ReDim Preserve g_vHoldDetailData(nMaxDetailCol, lNoFilter)
+                
+                For j = 0 To nMaxDetailCol
+                    g_vHoldDetailData(j, lNoFilter) = vData(j)
+                Next
+                
+                lNoFilter = lNoFilter + 1
             End If
-            
-            For j = 0 To nMaxDetailCol
-                g_vHoldDetailData(j, i) = vData(j)
-            Next
-            
+                        
         Next
         
         tgmDetail.FillWithArray vAllData(), True, True
         g_bExceptionsClicked = True
     Else
-        'On Error Resume Next
+            
+        For i = 0 To tgmDetail.RowCount - 1
+            tgmDetail.GetRow vData, nCol, i
+            subReOrderDetailData vData
+        Next
+        
         tgmDetail.FillWithArray g_vHoldDetailData(), True, True
-        g_bExceptionsClicked = False
+        subResetExceptions
+        
+    End If
+    
+End Sub
+
+Private Sub subReOrderDetailData(vData As Variant)
+    Dim i As Long
+    Dim j As Long
+    Dim m As Long
+    Dim bInsert As Boolean
+    
+    'This array may be empty first time
+    If CStr(g_vHoldDetailData(0, 0)) <> "" Then
+        ReDim Preserve g_vHoldDetailData(nMaxDetailCol, UBound(g_vHoldDetailData, 2) + 1)
+    End If
+    
+    For i = 0 To UBound(g_vHoldDetailData, 2) - 1
+        
+        If g_vHoldDetailData(0, i) > vData(0) Then
+            
+            For j = UBound(g_vHoldDetailData, 2) To i + 1 Step -1
+                
+                For m = 0 To nMaxDetailCol
+                    g_vHoldDetailData(m, j) = g_vHoldDetailData(m, j - 1)
+                Next
+                    
+            Next
+            
+            For m = 0 To nMaxDetailCol
+                g_vHoldDetailData(m, i) = vData(m)
+            Next
+                    
+            bInsert = True
+            Exit For
+        End If
+        
+    Next
+    
+    If Not bInsert Then
+        
+        For m = 0 To nMaxDetailCol
+            g_vHoldDetailData(m, UBound(g_vHoldDetailData, 2)) = vData(m)
+        Next
+    
     End If
     
 End Sub
 
 Private Function fnDeleteDetailData(lVendor As Long, lInvoice As Long, lLineNo As Long) As Boolean
     Dim strSQL As String
+    
+    'update first because we may add more than one line, if you delete and repopulate data, all lines will gone.
+    If Not fnUpdateDetail() Then
+        Exit Function
+    End If
     
     strSQL = "DELETE FROM rs_p_hold_detail WHERE rsphd_vendor = " & lVendor
     strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
@@ -3384,12 +3552,15 @@ End Function
 
 Private Sub subCheckButtonStatus()
     Dim dTotalCost As Double
+    Dim sStatus As String
+    
+    sStatus = tgmHeader.CellValue(ColHeaderStatus, tgmHeader.GetCurrentRowNumber)
     
     dTotalCost = fnGetToTalCost
 
     If fnIsAmountBalance(dTotalCost) Then
         
-        If tgmDetail.ValidData Then
+        If tgmDetail.ValidData And sStatus = "N" Then
             subEnableDetailOKBtn True
         Else
             subEnableDetailOKBtn False
@@ -3475,20 +3646,20 @@ Private Sub subUnlockHeader()
         End If
         
         g_nHoldSelectedPrftCtr = 0
-        g_dtHoldRptDate = #1/1/1800#
+        g_dtHoldRptDate = #12/31/1899#
         g_lHoldShiftNum = 0
     End If
     
 End Sub
 
-Private Function fnlockHeader(nPrftCtr As Integer, dtRptDate As Date, lShiftNum As Long)
+Private Function fnlockHeader(nPrftctr As Integer, dtRptDate As Date, lShiftNum As Long)
     Dim sMsg As String
     Dim sUser As String
     
     fnlockHeader = True
     
-    If nPrftCtr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
-        g_lHoldShiftLink = fnLockShiftReport(nPrftCtr, lShiftNum, dtRptDate, sUser)
+    If nPrftctr <> g_nHoldSelectedPrftCtr Or dtRptDate <> g_dtHoldRptDate Or lShiftNum <> g_lHoldShiftNum Then
+        g_lHoldShiftLink = fnLockShiftReport(nPrftctr, lShiftNum, dtRptDate, sUser)
     End If
     
     If g_lHoldShiftLink < 0 Then
@@ -3500,9 +3671,9 @@ Private Function fnlockHeader(nPrftCtr As Integer, dtRptDate As Date, lShiftNum 
         ElseIf g_lHoldShiftLink = -1 Then
             
             If sUser <> "" Then
-                sMsg = "Profit center " & CStr(nPrftCtr) & " is being used by " & sUser
+                sMsg = "Profit center " & CStr(nPrftctr) & " is being used by " & sUser
             Else
-                sMsg = "Profit center " & CStr(nPrftCtr) & " is locked."
+                sMsg = "Profit center " & CStr(nPrftctr) & " is locked."
             End If
             
         End If
@@ -3513,13 +3684,17 @@ Private Function fnlockHeader(nPrftCtr As Integer, dtRptDate As Date, lShiftNum 
         
 End Function
 
+Private Sub subResetExceptions()
+    ReDim g_vHoldDetailData(nMaxDetailCol, 0) As Variant
+    g_bExceptionsClicked = False
+End Sub
 'I think no data already in the the rs_shifthold for this shift link.
 Private Function fnProcessData() As Boolean
     Dim lCurHeaderRow As Long
     Dim dtRptDate As Date
     Dim sPayType As String
     Dim sMsg As String
-    Dim lGlAccount
+    Dim lGlAccount As Long
     Dim bOk As Boolean
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
@@ -3564,9 +3739,12 @@ Private Function fnProcessData() As Boolean
     End If
     
     If Not bOk Then
-        fnCleanShiftHoldData
+        bOk = fnCleanShiftHoldData
+    Else
+        bOk = fnUpdateInvHeader
     End If
     
+    fnProcessData = bOk
     subHideHourGlass
     Exit Function
     
@@ -3579,7 +3757,7 @@ Private Function fnCleanShiftHoldData() As Boolean
     Dim strSQL As String
     Const FUNC_NAME As String = "fnCleanShiftHoldData"
     
-    strSQL = "DELETE FROM rs_shift_hold WHERE rssh_shl = " & g_lHoldShiftLink
+    strSQL = "DELETE FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
     strSQL = strSQL & " AND rssh_type IN ('V', 'G', 'C', 'Y') "
     
     If fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
@@ -3602,12 +3780,12 @@ Private Function fnInsertVendorInvoice() As Boolean
     Const FUNC_NAME As String = "fnInsertVendorInvoice"
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
-    lVendor = tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow)
-    lInvoice = tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow)
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     sTerm = tgmHeader.CellValue(ColHdnHeaderTerm, lCurHeaderRow)
     dAmount = tfnRound(tgmHeader.CellValue(ColHeaderInvAmount, lCurHeaderRow), 2)
     sPayType = tgmHeader.CellValue(ColHdnHeaderType, lCurHeaderRow)
-    lDraftNbr = tgmHeader.CellValue(ColHdnHeaderDraft, lCurHeaderRow)
+    lDraftNbr = tfnRound(tgmHeader.CellValue(ColHdnHeaderDraft, lCurHeaderRow))
     dtInvDate = tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow))
     
     If sPayType = "M" Or sPayType = "D" Then
@@ -3666,7 +3844,7 @@ Private Function fnValidDraftNbr(lDraftNbr As Long) As Boolean
         Exit Function
     End If
     
-    fnValidDraft = True
+    fnValidDraftNbr = True
 
 End Function
 
@@ -3675,7 +3853,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
     Dim strSQL As String
     Dim lVendor As Long
     Dim lInvoice As Long
-    Dim nPrftCtr As String
+    Dim nPrftctr As Integer
     Dim dtInvDate As Date
     Dim lCurHeaderRow As Long
     Dim sItemCode As String
@@ -3690,9 +3868,9 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
     Const FUNC_NAME As String = "fnInsertPriceBookInvDetail"
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
-    lVendor = tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow)
-    nPrftCtr = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
-    lInvoice = tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow)
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     dtInvDate = tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow))
     
     For i = 0 To tgmDetail.RowCount - 1
@@ -3701,8 +3879,8 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         dRetail = tfnRound(tgmDetail.CellValue(ColDetailRetail, i), 2)
         dExtCost = tfnRound(tgmDetail.CellValue(ColDetailExtCost, i), 2)
         dExtRetail = tfnRound(tgmDetail.CellValue(ColDetailExtRetail, i), 2)
-        dQty = tgmDetail.CellValue(ColDetailCost, i)
-        lPriceBookLnk = fnGetPriceBookLink(sItemCode, lVendor, nPrftCtr)
+        dQty = tfnRound(tgmDetail.CellValue(ColDetailCost, i), 3)
+        lPriceBookLnk = fnGetPriceBookLink(sItemCode, lVendor, nPrftctr)
         
         If lPriceBookLnk <= 0 Then
             MsgBox "No Price book link found", vbInformation
@@ -3721,10 +3899,10 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         
     Next
     
-    fnInsertVendorInvoice = True
+    fnInsertPriceBookInvDetail = True
 End Function
 
-Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftCtr As Integer) As Long
+Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftctr As Integer) As Long
     Dim lBook As Long
     Dim lSubBook As Long
     Dim strSQL As String
@@ -3744,7 +3922,7 @@ Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftC
     
     strSQL = "SELECT rsbb_bk_lnk FROM rs_b_store, rs_b_book"
     strSQL = strSQL & " WHERE rsbs_vendor = " & lVendor
-    strSQL = strSQL & " AND  rsbs_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND  rsbs_prft_ctr = " & nPrftctr
     strSQL = strSQL & " AND rsbb_book = rsbs_book AND rsbb_subbook = rsbs_subbook "
     strSQL = strSQL & " AND rsbb_vendor = rsbs_vendor AND rsbb_ic_lnk = " & lIcLink
 
@@ -3768,45 +3946,63 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
     Dim dCatTotalCost() As Double
     Dim dCatTotalRetail() As Double
     Dim sCostAccount As String
+    Dim dTotalCredit As Double
+    Dim dTotalDebit As Double
     Dim i As Long
     Const FUNC_NAME As String = "fnInsertCategoryAndGLInfo"
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
-    lVendor = tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow)
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    dTotalCredit = tfnRound(tgmHeader.CellValue(ColHeaderInvAmount, lCurHeaderRow), 2)
     
     ReDim sCat(0) As String
     ReDim dCatTotalCost(0) As Double
     ReDim dCatTotalRetail(0) As Double
+    
     For i = 0 To tgmDetail.RowCount - 1
         sItemCode = tgmDetail.CellValue(ColDetailItemCode, i)
-        dExtCost = tgmDetail.CellValue(ColDetailExtCost, i)
-        dExtRetail = tgmDetail.CellValue(ColDetailExtRetail, i)
+        dExtCost = tfnRound(tgmDetail.CellValue(ColDetailExtCost, i), 3)
+        dExtRetail = tfnRound(tgmDetail.CellValue(ColDetailExtRetail, i), 3)
         sCategory = fnGetItemCategory(lVendor, sItemCode)
         subFiterCategory sCategory, dExtCost, dExtRetail, sCat(), dCatTotalCost(), dCatTotalRetail(), i
     Next
     
-    For i = 0 To UBound(sCat)
-        strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
-        strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
-        strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
-        strSQL = strSQL & "NULL, NULL, NULL," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
-        strSQL = strSQL & "NULL, NULL, NULL, " & i + 1 & ")"
+    If sCat(0) <> "" Then
         
-        If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+        For i = 0 To UBound(sCat)
+            strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
+            strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+            strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
+            strSQL = strSQL & "NULL, NULL, NULL," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
+            strSQL = strSQL & "NULL, NULL, NULL, " & i + 1 & ")"
+            
+            If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+                Exit Function
+            End If
+            
+            sCostAccount = fnGetCostGLAccount(sCat(i))
+            
+            If sCostAccount = "" Then
+                Exit Function
+            ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), i, False) Then
+                Exit Function
+            End If
+               
+            dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+        Next
+        
+        If dTotalDebit <> dTotalCredit Then
+            'MsgBox " The account is not balance", vbInformation
+            Exit Function
+        ElseIf Not fnInsertGlInfo(CStr(lGlAccount), dTotalCredit, UBound(sCat) + 1, True) Then
             Exit Function
         End If
+            
+        fnInsertCategoryAndGLInfo = True
+    Else
+        fnInsertCategoryAndGLInfo = False
+    End If
         
-        sCostAccount = fnGetCostGLAccount(sCat(i))
-        
-        If sCostAccount = "" Then
-            Exit Function
-        ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), dCatTotalRetail(i), i) Then
-            Exit Function
-        End If
-        
-    Next
-    
-    fnInsertCategoryAndGLInfo = True
 End Function
 
 Private Function fnGetItemCategory(lVendor As Long, sItemCode As String) As String
@@ -3823,7 +4019,7 @@ Private Function fnGetItemCategory(lVendor As Long, sItemCode As String) As Stri
 End Function
 
 Private Sub subFiterCategory(sCategory As String, dExtCost As Double, dExtRetail As Double, _
-                            sCat() As String, dCatTotalCost() As String, dCatTotalRetail() As String, lTimes As Long)
+                            sCat() As String, dCatTotalCost() As Double, dCatTotalRetail() As Double, lTimes As Long)
     Dim i As Long
     Dim bFound As Boolean
     
@@ -3851,8 +4047,9 @@ Private Sub subFiterCategory(sCategory As String, dExtCost As Double, dExtRetail
                 ReDim Preserve sCat(UBound(sCat) + 1)
                 ReDim Preserve dCatTotalCost(UBound(dCatTotalCost) + 1)
                 ReDim Preserve dCatTotalRetail(UBound(dCatTotalRetail) + 1)
-                dCatTotalCost(UBound(dCatTotalRetail) + 1) = dExtCost
-                dCatTotalRetail(UBound(dCatTotalRetail) + 1) = dExtRetail
+                sCat(UBound(sCat)) = sCategory
+                dCatTotalCost(UBound(dCatTotalRetail)) = dExtCost
+                dCatTotalRetail(UBound(dCatTotalRetail)) = dExtRetail
             End If
     
         
@@ -3872,3 +4069,63 @@ Private Function fnGetCostGLAccount(sCat As String) As String
         fnGetCostGLAccount = rsTemp!rsct_gl_cogs & ""
     End If
 End Function
+
+Private Function fnInsertGlInfo(sCostAccount As String, dExtCost As Double, lSeq As Long, bTotal As Boolean) As Boolean
+    Dim strSQL As String
+    Dim strHeader As String
+    
+    If lSeq Mod 2 = 0 Then
+        strHeader = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
+        strHeader = strHeader & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+        strHeader = strHeader & " rssh_seq)VALUES"
+            
+        If bTotal Then
+            strSQL = strHeader & "(" & g_lHoldShiftLink & ",'G', NULL, " & tfnRound(sCostAccount) & ","
+            strSQL = strSQL & " NULL, " & tfnRound(dExtCost, 2) & ", NULL, NULL, NULL, NULL, NULL, " & lSeq \ 2 + 1 & ")"
+        Else
+            strSQL = strHeader & "(" & g_lHoldShiftLink & ",'G', NULL, " & tfnRound(sCostAccount) & ","
+            strSQL = strSQL & tfnRound(dExtCost, 2) & ", NULL,NULL, NULL, NULL, NULL, NULL, " & lSeq \ 2 + 1 & ")"
+        End If
+    Else
+    
+        If bTotal Then
+            strSQL = "UPDATE rs_shifthold SET(rssh_4, rssh_6) = (" & tfnRound(sCostAccount) & "," & tfnRound(dExtCost, 2)
+            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq
+        Else
+            strSQL = "UPDATE rs_shifthold SET(rssh_4, rssh_5) = (" & tfnRound(sCostAccount) & "," & tfnRound(dExtCost, 2)
+            strSQL = strSQL & ") WHERE rssh_shl = " & g_lHoldShiftLink & " AND rssh_type = 'G' AND rssh_seq = " & lSeq
+        End If
+    
+    End If
+    
+    If fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertGlInfo") Then
+        fnInsertGlInfo = True
+    End If
+
+End Function
+
+Private Function fnUpdateInvHeader() As Boolean
+    Dim strSQL As String
+    Dim lCurHeaderRow As Long
+    Dim nPrftctr As Integer
+    Dim dtRptDate As Date
+    Dim lShiftNum As Long
+    
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    
+    nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
+    lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
+    
+    strSQL = "UPDATE rs_p_hold_header SET rsphh_status = 'Y' WHERE "
+    strSQL = strSQL & " rsphh_prft_ctr = " & nPrftctr
+    strSQL = strSQL & " AND rsphh_rpt_date = " & tfnDateString(dtRptDate, True)
+    strSQL = strSQL & " AND rsphh_shift = " & lShiftNum
+    
+    If fnExecuteSQL(strSQL, nDB_REMOTE, "fnUpdateInvHeader") Then
+        tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y"
+        fnUpdateInvHeader = True
+    End If
+    
+End Function
+

@@ -228,11 +228,11 @@ End Function
 
 Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
     Dim strSQL As String
+    Dim rsTemp As Recordset
     
     subWriteDetailProcLog udtInvHeader, udtInvDetail
     
     If fnValidData(udtInvHeader, udtInvDetail) Then
-        
         
         'insert header data
         If g_bNeedWriteHeader Then
@@ -256,13 +256,19 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
                 Exit Function
             End If
             
-            strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
-            strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
-        
-            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
-                Exit Function
-            End If
+            strSQL = "SELECT * FROM rs_p_hold_header WHERE rsphh_vendor = " & udtInvHeader.lVendor
+            strSQL = strSQL & " AND rsphh_invoice = " & udtInvHeader.lInvNum
             
+            If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnInsertData") = 0 Then
+                strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
+                strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
+                
+                If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
+                    Exit Function
+                End If
+    
+            End If
+                   
         End If
         
         strSQL = "INSERT INTO rs_p_hold_detail(rsphd_vendor, rsphd_invoice, rsphd_line_nbr, rsphd_type, "
@@ -839,17 +845,28 @@ Private Function fnValidInvNum(lVendor As Long, lInvNum As Long) As String
     Dim strSQL As String
     Dim rsTemp As Recordset
     
-    strSQL = "SELECT * FROM p_nbr WHERE pno_vendor = " & lVendor
-    strSQL = strSQL & " AND pno_invoice = " & tfnSQLString(lInvNum)
+    'check data in holding table already
+    strSQL = "SELECT * FROM rs_p_hold_header WHERE rsphh_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphh_invoice = " & tfnSQLString(lInvNum)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidInvNum") < 0 Then
         fnValidInvNum = "Database Access Error."
     ElseIf rsTemp.RecordCount > 0 Then
-        fnValidInvNum = "This invoice number has already been used."
-    Else
         fnValidInvNum = ""
+    Else
+        strSQL = "SELECT * FROM p_nbr WHERE pno_vendor = " & lVendor
+        strSQL = strSQL & " AND pno_invoice = " & tfnSQLString(lInvNum)
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidInvNum") < 0 Then
+            fnValidInvNum = "Database Access Error."
+        ElseIf rsTemp.RecordCount > 0 Then
+            fnValidInvNum = "This invoice number has already been used."
+        Else
+            fnValidInvNum = ""
+        End If
+        
     End If
-
+    
 End Function
 
 Private Function fnValidInvDate(dtInvdate As Date, dtReportDate As Date) As String
