@@ -1104,6 +1104,8 @@ Public Sub Keypress(tgTable As Object, KeyAscii As Integer)
             ElseIf (KeyAscii >= 32 And KeyAscii <= 47) Or (KeyAscii >= 58 And KeyAscii <= 127) Then
                 tgMain.SetFocus
                 SendKeys "{" & UCase(Chr(KeyAscii)) & "}", True
+            ElseIf KeyAscii = vbKeyReturn Then
+                SendKeys "{ENTER}"
             End If
         Else
             KeyDown tgTable, KeyAscii
