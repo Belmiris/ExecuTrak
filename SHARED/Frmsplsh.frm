@@ -798,7 +798,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As TextBox) As Boolean
+Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -807,7 +807,7 @@ Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As TextBox)
+Private Sub subSelectText(txtBox As Textbox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -1297,4 +1297,11 @@ Public Sub GetODBCINIPath(lODBCKey As Long, _
     End If
 End Sub
 
+Public Function DBConnect(sDSN As String, sUID As String, sPWD As String, Optional sHost As String = "") As String
+    
+    m_sUID = sUID
+    m_sPWD = sPWD
+    
+    DBConnect = fnConnectString(sDSN)
+End Function
 
