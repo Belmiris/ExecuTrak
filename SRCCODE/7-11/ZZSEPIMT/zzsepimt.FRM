@@ -2671,11 +2671,11 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
             vData(COL_NEW_RATE, i) = rsTemp!new_rate
             vData(COL_DIFF, i) = rsTemp!rate_diff
             
-            If (fnRSToString(rsTemp!fname) = "") And (fnRSToString(rsTemp!mname) = "") Then
-                strTemp = fnRSToString(rsTemp!lname)
+            If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
+                strTemp = Trim(fnRSToString(rsTemp!lname))
                 vData(COL_NAME, i) = strTemp
             Else
-                strTemp = fnRSToString(rsTemp!lname) & ", " & fnRSToString(rsTemp!fname) & " " & fnRSToString(rsTemp!mname)
+                strTemp = Trim(fnRSToString(rsTemp!lname)) & ", " & Trim(fnRSToString(rsTemp!fname)) & " " & Trim(fnRSToString(rsTemp!mname))
                 vData(COL_NAME, i) = strTemp
             End If
             rsTemp.MoveNext
