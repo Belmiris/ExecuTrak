@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP			FALSE
 
-#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.03"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak302"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.02"
+#define DEINSTALL_KEY           "ExecuTrak303"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.03"
 
 #define SIZE_REQ_SERVER         15
 

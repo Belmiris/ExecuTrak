@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP                 FALSE
 
-#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.03"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak302"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.02"
+#define DEINSTALL_KEY           "ExecuTrak303"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.03"
 
 #define SIZE_REQ_LOCAL          15
 #define SIZE_REQ_REMOTE         1
@@ -90,7 +90,7 @@ declare
 	prototype CreateClientID(STRING, BYREF LIST, BYREF LIST, BYREF NUMBER);
 	prototype RunModClientInstallation();
 	prototype UpdateServicePack(STRING, STRING);
-	prototype DecompressZfile(STRING, STRING, NUMBER);
+	prototype DecompressZfile(STRING, STRING, STRING, NUMBER);
 	prototype CreateModShortcut(STRING, STRING);
 
 	prototype DecompressServicePack(STRING, LIST);
@@ -2062,43 +2062,44 @@ function RunModClientInstallation()
 	STRING szClientPath, szPath, szID, szName;
 
 begin
-        Disable(INDVFILESTATUS);
-        StatusUpdate(ON, 0);
-        Enable(STATUS);
 
+        	Disable(INDVFILESTATUS);
+        	StatusUpdate(OFF, 0);
+        	Enable(STATUS);
+
+	szClientPath = szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR;
 	szPath = szBaseDirectory ^ PRODUCT_SUBDIR;
-	szClientPath = szBaseDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR;
 
-        if (szForceInstall = "1 ") then
-                nvDecompressParm = (COMP_NORMAL | INCLUDE_SUBDIR);
-        else
-                nvDecompressParm = (COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
+        	if (szForceInstall = "1 ") then
+                	nvDecompressParm = (COMP_NORMAL | INCLUDE_SUBDIR);
+        	else
+               	nvDecompressParm = (COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
 	endif;
 
 	nvCount = 0;
-        nReturn = ListSetIndex (lstClientName, LISTFIRST);
+        	nReturn = ListSetIndex (lstClientName, LISTFIRST);
 	ListSetIndex (lstClientID, LISTFIRST);
 
-        while ((nReturn != END_OF_LIST))
-                ListCurrentString(lstClientName, szName);
-                ListCurrentString(lstClientID, szID);
+        	while ((nReturn != END_OF_LIST))
+                	ListCurrentString(lstClientName, szName);
+                	ListCurrentString(lstClientID, szID);
 
 		if fnFindFile(szClientPath, szID) then
 			if bRunLocal then
 				//decompress XXBin.z
-				DecompressZfile(szPath, szID, nvDecompressParm);
+				DecompressZfile(szClientPath, szPath, szID, nvDecompressParm);
 			endif;
 	
 			//create help file shortcut
 			CreateModShortcut(szID, szName);
 		endif;
 
-                nReturn = ListSetIndex (lstClientName, LISTNEXT);
+                	nReturn = ListSetIndex (lstClientName, LISTNEXT);
 		ListSetIndex (lstClientID, LISTNEXT);
 
 		nvCount = nvCount + 1;
-        	SetStatusWindow(nvCount / nvClientCount * 100, "Installing " + szName + " files...");
-        endwhile;
+        		SetStatusWindow(nvCount / nvClientCount * 100, "Installing " + szName + " files...");
+        	endwhile;
 
 
 	SetStatusWindow(100, "Finished Installing Modules' Client files...");
@@ -2184,18 +2185,19 @@ function DecompressServicePack(szSrcDir, lstName)
 begin
 
 	//decompress SERV???.Z
+        	nReturn = ListSetIndex (lstName, LISTFIRST);
 
-        nReturn = ListSetIndex (lstName, LISTFIRST);
+        	while (nReturn != END_OF_LIST)
+                	ListCurrentString(lstName, szName);
 
-        while (nReturn != END_OF_LIST)
-                ListCurrentString(lstName, szName);
+		szPath = WINDIR ^ "TEMP" ^ szName + "DIR";
 
-		if !DecompressZfile(szSrcDir, szName, COMP_NORMAL) then
+		if !DecompressZfile(szSrcDir, szPath, szName, COMP_NORMAL) then
 			return FALSE;
 		endif;
 
-                nReturn = ListSetIndex (lstName, LISTNEXT);
-        endwhile;
+               	nReturn = ListSetIndex (lstName, LISTNEXT);
+        	endwhile;
 
 	return TRUE;
 
@@ -2388,23 +2390,23 @@ begin
 end;
 
 
-function DecompressZfile(szPath, szID, nvDecompressParm)
+function DecompressZfile(szPath, szTargetPath, szID, nvDecompressParm)
 
 	NUMBER nReturn;
 begin
 
-        TARGETDIR = WINDIR ^ "TEMP" ^ szID + "DIR";
+        	TARGETDIR = szTargetPath;
 	SRCDIR = szPath;
 
 	// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
-        if (szForceInstall = "1 ") then
-                LOGMSG="START FORCED COPY OF " + szID + " FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-        else
+        	if (szForceInstall = "1 ") then
+               	LOGMSG="START FORCED COPY OF " + szID + " FILES IN " + TARGETDIR;
+                	LOGWRITE(LOGMSG);
+        	else
 		// ************************* Normal install
-                LOGMSG="START NORMAL COPY OF factbin FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-        endif;
+                	LOGMSG="START NORMAL COPY OF factbin FILES IN " + TARGETDIR;
+                	LOGWRITE(LOGMSG);
+        	endif;
 
 	nReturn = CompressGet(szID, "*.*", nvDecompressParm);
 
