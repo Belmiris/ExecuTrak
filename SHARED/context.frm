@@ -260,6 +260,10 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
 
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
+    
+    sngMainFormHeight = frmMainForm.Height
+    sngMainFormWidth = frmMainForm.Width
+    
     On Error GoTo errSetup1
     Set objToolbar = CreateObject(t_szOLETBKit)
     With objToolbar
@@ -399,6 +403,11 @@ Public Sub ShowSBRight(sMsg As String)
 End Sub
 
 Public Sub FormResize()
+    On Error Resume Next
+    
+    frmMainForm.Height = sngMainFormHeight
+    frmMainForm.Width = sngMainFormWidth
+    
     If Not objToolbar Is Nothing Then
         objToolbar.Resize
     End If
@@ -451,7 +460,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
                 Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
             mnuContextItems(i + 1).Tag = sTag
@@ -533,7 +542,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If Val(App.Minor) < 20 Then
+    If val(App.Minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH

@@ -408,6 +408,10 @@ Public Const SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','
 Private Const Log10 = 2.30258509299405
 Private SYS_PARM_14000 As String
 
+'david 10/27/00
+Public sngMainFormHeight As Single
+Public sngMainFormWidth As Single
+
 Public Function tfnIS_RM() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1770,10 +1774,10 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     subDisableSystemClose frmForm
     
     'the following work in windows98 ONLY! It does not work in windows2000
-    If bCloseSize Then
-        Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
-        Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
-    End If
+'    If bCloseSize Then
+'        Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
+'        Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
+'    End If
     
     'david 10/26/00
     tfnFixBackColor frmForm
@@ -1982,25 +1986,60 @@ End Sub
 
 'david 10/27/00
 Private Sub subDisableSystemClose(frmMain As Form)
-    
-    Dim hMenu As Long
-    Dim Ret  As Long
-    Dim MII As MENUITEMINFO
-    
-    hMenu = GetSystemMenu(frmMain.hwnd, 0)
-    MII.cbSize = Len(MII)
-    MII.dwTypeData = String(80, 0)
-    MII.cch = Len(MII.dwTypeData)
-    MII.fMask = MIIM_STATE
-    MII.wID = SC_CLOSE
-    Ret = GetMenuItemInfo(hMenu, MII.wID, False, MII)
+        Dim Ret As Long
 
-    If MII.fState <> (MII.fState Or MFS_GRAYED) Then
-        MII.fState = (MII.fState Or MFS_GRAYED)
-    End If
+          hMenu = GetSystemMenu(frmMain.hwnd, 0)
+          MII.cbSize = Len(MII)
+          MII.dwTypeData = String(80, 0)
+          MII.cch = Len(MII.dwTypeData)
+          MII.fMask = MIIM_STATE
+          MII.wID = SC_CLOSE
+          Ret = GetMenuItemInfo(hMenu, MII.wID, False, MII)
+        
+        
+        Ret = SetId(SwapID)
+        If Ret <> 0 Then
 
-    MII.fMask = MIIM_STATE
-    Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
-    Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
-    
+            If MII.fState = (MII.fState Or MFS_GRAYED) Then
+                MII.fState = MII.fState - MFS_GRAYED
+            Else
+                MII.fState = (MII.fState Or MFS_GRAYED)
+            End If
+
+            MII.fMask = MIIM_STATE
+            Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
+            If Ret = 0 Then
+                Ret = SetId(ResetID)
+            End If
+
+            Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
+        End If
 End Sub
+
+      Public Function SetId(Action As Long) As Long
+          Dim MenuID As Long
+          Dim Ret As Long
+
+          MenuID = MII.wID
+          If MII.fState = (MII.fState Or MFS_GRAYED) Then
+              If Action = SwapID Then
+                  MII.wID = SC_CLOSE
+              Else
+                  MII.wID = xSC_CLOSE
+              End If
+          Else
+              If Action = SwapID Then
+                  MII.wID = xSC_CLOSE
+              Else
+                  MII.wID = SC_CLOSE
+              End If
+          End If
+
+          MII.fMask = MIIM_ID
+          Ret = SetMenuItemInfo(hMenu, MenuID, False, MII)
+          If Ret = 0 Then
+              MII.wID = MenuID
+          End If
+          SetId = Ret
+      End Function
+

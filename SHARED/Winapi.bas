@@ -73,6 +73,7 @@ Public Const SC_MAXIMIZE = &HF030
 Public Const SC_NEXTWINDOW = &HF040
 Public Const SC_PREVWINDOW = &HF050
 Public Const SC_CLOSE = &HF060
+Public Const xSC_CLOSE  As Long = -10
 Public Const SC_VSCROLL = &HF070
 Public Const SC_HSCROLL = &HF080
 Public Const SC_MOUSEMENU = &HF090
@@ -229,6 +230,9 @@ Public Const SC_HOTKEY = &HF150
         ByVal hwndOwnder As Long) As Long
 
     'david 10/27/00
+    Public Const SwapID As Long = 1
+    Public Const ResetID As Long = 2
+    
     Public Const MF_BYCOMMAND = &H0
     Public Const MF_GRAYED = &H1
     
@@ -278,6 +282,9 @@ Public Const SC_HOTKEY = &HF150
         ByVal wParam As Long, _
         lParam As Any) As Long
     
+    Public MII As MENUITEMINFO
+    Public hMenu As Long
+
 #Else
     Type POINTAPI 'Point structure
         x As Integer
