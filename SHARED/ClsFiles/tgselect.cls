@@ -61,7 +61,6 @@ Option Explicit
     
 Private Const MODE_KEY_CONTROL = 1
 Private Const MODE_NO_KEY_CONTROL = 2
-Private Const MyShiftMask = -&H1000
 
 Private Const szROW_STYLE As String = "RowStyle"
 Private Const szCURRENT_CELL_STYLE As String = "CurrCellStyle"
@@ -224,7 +223,7 @@ Public Sub Click()
                         End If
                     End If
                 End If
-                m_tgTable.col = m_nIdleColumn
+                m_tgTable.Col = m_nIdleColumn
             End If
         End If
     End If
@@ -248,43 +247,114 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
     Dim nEnd As Integer
     Dim i As Integer
 
+    Dim bShiftDown As Boolean
+    Dim bAltDown As Boolean
+    Dim bCtrlDown As Boolean
+    
+    bShiftDown = (Shift And vbShiftMask) > 0
+    bAltDown = (Shift And vbAltMask) > 0
+    bCtrlDown = (Shift And vbCtrlMask) > 0
+     
     nRow = m_tgcEditor.GetCurrentRowNumber
-    If KeyCode = vbKeyDown Then
-        If nRow >= m_tgcEditor.RowCount Then
-            Exit Function
-        End If
-        nRow = nRow + 1
-    ElseIf KeyCode = vbKeyUp Then
-        If nRow <= 0 Then
-            Exit Function
-        End If
-        nRow = nRow - 1
-    ElseIf KeyCode = vbKeyPageUp Then
-        If nRow <= 0 Then
-            Exit Function
-        End If
-        nRow = nRow - m_tgTable.VisibleRows + 1
-        If nRow < 0 Then
+
+    'david 12/10/2002
+    'new codes
+    If bShiftDown And bCtrlDown And bAltDown Then
+        'do nothing
+    ElseIf bShiftDown And bAltDown Then
+        'do nothing
+    ElseIf bShiftDown And bCtrlDown Then
+        If KeyCode = vbKeyHome Or KeyCode = vbKeyPageUp Then
             nRow = 0
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+        ElseIf KeyCode = vbKeyEnd Or KeyCode = vbKeyPageDown Then
+            nRow = m_tgcEditor.RowCount - 1
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
         End If
-    ElseIf KeyCode = vbKeyPageDown Then
-        If nRow >= m_tgcEditor.RowCount Then
+    ElseIf bCtrlDown And bAltDown Then
+        'do nothing
+    ElseIf bShiftDown Or (bShiftDown = 0 And (Not bCtrlDown)) Then
+        If KeyCode = vbKeyDown Then
+            If nRow < m_tgcEditor.RowCount - 1 Then
+                nRow = nRow + 1
+            Else
+                nRow = m_tgcEditor.RowCount - 1
+            End If
+        ElseIf KeyCode = vbKeyUp Then
+            If nRow > 0 Then
+                nRow = nRow - 1
+            Else
+                nRow = 0
+            End If
+        ElseIf KeyCode = vbKeyPageUp Then
+            If nRow <= 0 Then
+                Exit Function
+            End If
+            
+            nRow = nRow - m_tgTable.VisibleRows + 1
+            
+            If nRow < 0 Then
+                nRow = 0
+            End If
+        ElseIf KeyCode = vbKeyPageDown Then
+            If nRow >= m_tgcEditor.RowCount Then
+                Exit Function
+            End If
+            
+            nRow = nRow + m_tgTable.VisibleRows - 1
+            
+            If nRow >= m_tgcEditor.RowCount Then
+                nRow = m_tgcEditor.RowCount - 1
+            End If
+        
+        'david 12/10/2002
+        'fixed the highlighting problem
+        'when focus is in last editable cell and right arrow key is pressed
+        'or when focus is in first editable cell and left arrow key is pressed
+        ElseIf KeyCode = vbKeyLeft And m_tgTable.Col = m_tgcEditor.FirstEditableCol Then
+            If nRow <= 0 Then
+                Exit Function
+            End If
+            
+            nRow = nRow - 1
+        ElseIf KeyCode = vbKeyRight And m_tgTable.Col = m_tgcEditor.LastEditableCol Then
+            If nRow >= m_tgcEditor.RowCount Then
+                Exit Function
+            End If
+            
+            nRow = nRow + 1
+        '''''''''''''''''
+        Else
+            fnMarkCurrent = -1
             Exit Function
         End If
-        nRow = nRow + m_tgTable.VisibleRows - 1
-        If nRow >= m_tgcEditor.RowCount Then
+    ElseIf bCtrlDown Then
+        If KeyCode = vbKeyHome Then
+            nRow = 0
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            
+            If m_tgcEditor.FirstEditableCol >= 0 Then
+                m_tgTable.Col = m_tgcEditor.FirstEditableCol
+            End If
+        ElseIf KeyCode = vbKeyEnd Then
             nRow = m_tgcEditor.RowCount - 1
+            m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
+            
+            If m_tgcEditor.LastEditableCol >= 0 Then
+                m_tgTable.Col = m_tgcEditor.LastEditableCol
+            End If
         End If
-    Else
-        fnMarkCurrent = -1
-        Exit Function
+    ElseIf bAltDown Then
+        'do nothing
     End If
+    
     If nRow < m_tgcEditor.RowCount Then
         vCurrent = m_tgcEditor.MakeBookmark(nRow)
-    '        If Shift = MyShiftMask Then
-        If Shift = vbShiftMask Then
+        
+        If bShiftDown Or (bShiftDown And bCtrlDown) Then
             nCurrent = fnRowSelected(vCurrent)
             nLast = fnRowSelected(m_vLastRow)
+            
             If nLast >= 0 Then
                 If nCurrent >= 0 Then
                     If nCurrent < nLast Then
@@ -370,35 +440,90 @@ Property Let IdleColumn(nTemp As Integer)
 End Property
 
 Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
+    Dim i As Integer
     
+    Dim bShiftDown As Boolean
+    Dim bAltDown As Boolean
+    Dim bCtrlDown As Boolean
+    
+    bShiftDown = (Shift And vbShiftMask) > 0
+    bAltDown = (Shift And vbAltMask) > 0
+    bCtrlDown = (Shift And vbCtrlMask) > 0
+     
     If m_nSelectMode = MODE_NO_KEY_CONTROL Then
         If KeyCode = vbKeyReturn Then
             m_nShiftControl = Shift
             subMarkSelected m_vLastRow
         End If
     ElseIf m_nSelectMode = MODE_KEY_CONTROL Then
-        m_nShiftControl = Shift  'MyShiftMask
-        If Shift = vbShiftMask Then
-            If m_bSelectCurrRow Then
-                If Count > 0 Then
-                    fnMarkCurrent KeyCode, m_nShiftControl
-                End If
-            Else
-                If Count = 0 Then
-                    If m_tgcEditor.GetCurrentRowNumber >= 0 Then
-                        m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
-                    End If
-                Else
-                    fnMarkCurrent KeyCode, m_nShiftControl
+        m_nShiftControl = Shift
+        
+        If bShiftDown And bCtrlDown And bAltDown Then
+            'do nothing
+        ElseIf bShiftDown And bAltDown Then
+            'do nothing
+        ElseIf bShiftDown And bCtrlDown Then
+            'david 12/10/2002
+            'add shift-ctrl-home, shift-ctrl-pageup, shift-ctrl-end, shift-ctrl-pagedown feature
+            If Not m_tgTable.EditActive Then
+                If KeyCode = vbKeyHome Or KeyCode = vbKeyPageUp Or _
+                   KeyCode = vbKeyEnd Or KeyCode = vbKeyPageDown Then
+                    m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
+                    '''''''''''''''''
+                    Shift = 0
+                    KeyCode = 0
+                    Exit Sub
                 End If
             End If
-            'subSetCurrentRow
-        Else
+        ElseIf bCtrlDown And bAltDown Then
+            'do nothing
+        ElseIf bShiftDown Then
+            If Not m_tgTable.EditActive Then
+                If m_bSelectCurrRow Then
+                    If Count > 0 Then
+                        fnMarkCurrent KeyCode, m_nShiftControl
+                    End If
+                Else
+                    If Count = 0 Then
+                        If m_tgcEditor.GetCurrentRowNumber >= 0 Then
+                            m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
+                        End If
+                    Else
+                        fnMarkCurrent KeyCode, m_nShiftControl
+                    End If
+                End If
+            End If
+        ElseIf bCtrlDown Then
+            If Not m_tgTable.EditActive Then
+                If KeyCode = vbKeyA Then
+                    SelectAll
+                    Shift = 0
+                    KeyCode = 0
+                    Exit Sub
+                ElseIf KeyCode = vbKeyHome Or KeyCode = vbKeyEnd Then
+                    'david 10/19/2001
+                    If m_tgTable.SelBookmarks.Count > 1 Then
+                        For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
+                            m_tgTable.SelBookmarks.Remove i
+                        Next i
+                    'david 01/22/2002
+                    ElseIf m_tgTable.SelBookmarks.Count = 1 Then
+                        m_tgTable.SelBookmarks.Remove 0
+                    End If
+                    
+                    m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
+                    '''''''''''''''''
+                    Shift = 0
+                    KeyCode = 0
+                    Exit Sub
+                End If
+            End If
+        ElseIf bAltDown Then
+            'do nothing
+        ElseIf bShiftDown = 0 Then  'no special key is pressed
             'david 02/01/2001
             'david 03/11/2002 add 'And KeyCode <> vbKeyTab'
-            If Shift = 0 And KeyCode <> 0 And KeyCode <> vbKeyTab Then
-                Dim i As Integer
-                
+            If KeyCode <> 0 And KeyCode <> vbKeyTab Then
                 'david 10/19/2001
                 If m_tgTable.SelBookmarks.Count > 1 Then
                     For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
@@ -411,17 +536,12 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
                 
                 m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
                 '''''''''''''''''
-            ElseIf (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) And (Not m_tgTable.EditActive) Then
-                SelectAll
-                Shift = 0
-                KeyCode = 0
-                
-                Exit Sub
             Else
                 m_nLastClickedRow = fnMarkCurrent(KeyCode, Shift)
             End If
         End If
     End If
+    
     If KeyCode = vbKeyDown Then
         If Not m_tgcEditor Is Nothing Then
             If m_tgcEditor.GetCurrentRowNumber >= m_tgcEditor.RowCount - 1 Then
