@@ -229,61 +229,19 @@ Public Const SC_HOTKEY = &HF150
     Declare Function GetLastActivePopup Lib "user32" ( _
         ByVal hwndOwnder As Long) As Long
 
-    'david 10/27/00
-    Public Const SwapID As Long = 1
-    Public Const ResetID As Long = 2
+    'rajneesh & david 10/30/00
+    Public Const MF_BYPOSITION = &H400&
+    Public Const MF_REMOVE = &H1000&
     
-    Public Const MF_BYCOMMAND = &H0
-    Public Const MF_GRAYED = &H1
-    
-    'SetMenuItemInfo fMask constants.
-    Public Const MIIM_STATE     As Long = &H1&
-    Public Const MIIM_ID        As Long = &H2&
-    Public Const MIIM_SIZE     As Long = &H3&
-    
-    'SetMenuItemInfo fState constants.
-    Public Const MFS_GRAYED     As Long = &H3&
-    Public Const MFS_DISABLED  As Long = &H2&
-    Public Const MFS_CHECKED    As Long = &H8&
-    
-    'SendMessage constants.
-    Public Const WM_NCACTIVATE  As Long = &H86
-    
-    'User-defined Types.
-    Public Type MENUITEMINFO
-        cbSize        As Long
-        fMask         As Long
-        fType         As Long
-        fState        As Long
-        wID           As Long
-        hSubMenu      As Long
-        hbmpChecked   As Long
-        hbmpUnchecked As Long
-        dwItemData    As Long
-        dwTypeData    As String
-        cch           As Long
-    End Type
-    
-    Declare Function GetMenuItemInfo Lib "user32" Alias "GetMenuItemInfoA" ( _
-        ByVal hMenu As Long, _
-        ByVal un As Long, _
-        ByVal b As Boolean, _
-        lpMenuItemInfo As MENUITEMINFO) As Long
-    
-    Declare Function SetMenuItemInfo Lib "user32" Alias "SetMenuItemInfoA" ( _
-        ByVal hMenu As Long, _
-        ByVal un As Long, _
-        ByVal bool As Boolean, _
-        lpcMenuItemInfo As MENUITEMINFO) As Long
-    
-    Declare Function SendMessage Lib "user32" Alias "SendMessageA" ( _
-        ByVal hwnd As Long, _
-        ByVal wMsg As Long, _
-        ByVal wParam As Long, _
-        lParam As Any) As Long
-    
-    Public MII As MENUITEMINFO
-    Public hMenu As Long
+    Public Declare Function GetMenuItemCount Lib "user32" _
+        (ByVal hMenu As Long) As Long
+
+    Public Declare Function DrawMenuBar Lib "user32" _
+        (ByVal hMenu As Long) As Long
+
+    Public Declare Function RemoveMenu Lib "user32" _
+        (ByVal hMenu As Long, ByVal nPosition As Long, _
+        ByVal wFlags As Long) As Long
 
 #Else
     Type POINTAPI 'Point structure

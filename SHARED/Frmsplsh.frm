@@ -1,4 +1,5 @@
 VERSION 5.00
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Begin VB.Form frmSplash 
    Appearance      =   0  'Flat
    BackColor       =   &H00800000&
@@ -25,195 +26,246 @@ Begin VB.Form frmSplash
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   2832
    ScaleWidth      =   7536
-   Begin VB.CommandButton btnHelp 
-      Caption         =   "&Help"
-      BeginProperty Font 
+   Begin FACTFRMLib.FactorFrame FactorFrame1 
+      Height          =   2844
+      Left            =   0
+      TabIndex        =   8
+      Top             =   0
+      Width           =   7548
+      _Version        =   65536
+      _ExtentX        =   13314
+      _ExtentY        =   5016
+      _StockProps     =   77
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   10.2
+         Size            =   10.8
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   396
-      Left            =   6096
-      TabIndex        =   13
-      Top             =   1968
-      Width           =   1308
-   End
-   Begin VB.CommandButton btnCancel 
-      Caption         =   "&Cancel"
-      BeginProperty Font 
-         Name            =   "Arial"
-         Size            =   10.2
+      BevelOuter      =   0
+      BorderWidth     =   0
+      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "MS Sans Serif"
+         Size            =   12
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   396
-      Left            =   6096
-      TabIndex        =   12
-      Top             =   1224
-      Width           =   1308
-   End
-   Begin VB.CommandButton btnOK 
-      Caption         =   "O&K"
-      BeginProperty Font 
-         Name            =   "Arial"
-         Size            =   10.2
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   396
-      Left            =   6096
-      TabIndex        =   11
-      Top             =   504
-      Width           =   1308
-   End
-   Begin VB.PictureBox picMain 
-      Height          =   2604
-      Left            =   144
-      ScaleHeight     =   2556
-      ScaleWidth      =   5676
-      TabIndex        =   0
-      Top             =   108
-      Width           =   5724
-      Begin VB.TextBox txtPassword 
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   336
-         IMEMode         =   3  'DISABLE
-         Left            =   1860
-         PasswordChar    =   "*"
-         TabIndex        =   5
-         Top             =   1896
-         Width           =   1995
-      End
-      Begin VB.TextBox txtUserName 
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   336
-         Left            =   1860
-         TabIndex        =   4
-         Top             =   1476
-         Width           =   1995
-      End
-      Begin VB.TextBox txtHost 
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   336
-         Left            =   1860
-         TabIndex        =   3
-         Top             =   1056
-         Width           =   1995
-      End
-      Begin VB.TextBox txtDatabase 
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   336
-         Left            =   1860
-         TabIndex        =   2
-         Top             =   636
-         Width           =   1995
-      End
-      Begin VB.ComboBox cmbDataSet 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   324
-         Left            =   1860
-         TabIndex        =   1
-         Top             =   180
-         Width           =   1992
-      End
-      Begin VB.Label lblStatic 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         Caption         =   "Database Name :"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         ForeColor       =   &H80000008&
-         Height          =   312
-         Index           =   2
-         Left            =   144
-         TabIndex        =   10
-         Top             =   672
-         Width           =   1704
-      End
-      Begin VB.Label lblStatic 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         Caption         =   "Host Name :"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         ForeColor       =   &H80000008&
-         Height          =   312
-         Index           =   3
-         Left            =   144
+      Begin VB.PictureBox picMain 
+         Height          =   2604
+         Left            =   132
+         ScaleHeight     =   2556
+         ScaleWidth      =   5676
          TabIndex        =   9
-         Top             =   1092
-         Width           =   1416
+         Top             =   120
+         Width           =   5724
+         Begin VB.ComboBox cmbDataSet 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   324
+            Left            =   1860
+            TabIndex        =   0
+            Top             =   180
+            Width           =   1992
+         End
+         Begin VB.TextBox txtDatabase 
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   336
+            Left            =   1860
+            TabIndex        =   1
+            Top             =   636
+            Width           =   1995
+         End
+         Begin VB.TextBox txtHost 
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   336
+            Left            =   1860
+            TabIndex        =   2
+            Top             =   1056
+            Width           =   1995
+         End
+         Begin VB.TextBox txtUserName 
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   336
+            Left            =   1860
+            TabIndex        =   3
+            Top             =   1476
+            Width           =   1995
+         End
+         Begin VB.TextBox txtPassword 
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   336
+            IMEMode         =   3  'DISABLE
+            Left            =   1860
+            PasswordChar    =   "*"
+            TabIndex        =   4
+            Top             =   1896
+            Width           =   1995
+         End
+         Begin VB.Image Image1 
+            Appearance      =   0  'Flat
+            BorderStyle     =   1  'Fixed Single
+            Height          =   1932
+            Left            =   4188
+            Picture         =   "Frmsplsh.frx":030A
+            Stretch         =   -1  'True
+            Top             =   252
+            Width           =   1404
+         End
+         Begin VB.Label lblStatic 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            Caption         =   "Data Set Name :"
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            ForeColor       =   &H80000008&
+            Height          =   312
+            Index           =   0
+            Left            =   144
+            TabIndex        =   14
+            Top             =   228
+            Width           =   1776
+         End
+         Begin VB.Label lblStatic 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            Caption         =   "Password :"
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            ForeColor       =   &H80000008&
+            Height          =   312
+            Index           =   1
+            Left            =   156
+            TabIndex        =   13
+            Top             =   1956
+            Width           =   1308
+         End
+         Begin VB.Label lblStatic 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            Caption         =   "User Name :"
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            ForeColor       =   &H80000008&
+            Height          =   312
+            Index           =   4
+            Left            =   144
+            TabIndex        =   12
+            Top             =   1524
+            Width           =   1428
+         End
+         Begin VB.Label lblStatic 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            Caption         =   "Host Name :"
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            ForeColor       =   &H80000008&
+            Height          =   312
+            Index           =   3
+            Left            =   144
+            TabIndex        =   11
+            Top             =   1092
+            Width           =   1416
+         End
+         Begin VB.Label lblStatic 
+            Appearance      =   0  'Flat
+            BackColor       =   &H00C0C0C0&
+            Caption         =   "Database Name :"
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            ForeColor       =   &H80000008&
+            Height          =   312
+            Index           =   2
+            Left            =   144
+            TabIndex        =   10
+            Top             =   672
+            Width           =   1704
+         End
       End
-      Begin VB.Label lblStatic 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         Caption         =   "User Name :"
+      Begin VB.CommandButton btnOK 
+         Caption         =   "O&K"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   10.2
@@ -223,39 +275,14 @@ Begin VB.Form frmSplash
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         ForeColor       =   &H80000008&
-         Height          =   312
-         Index           =   4
-         Left            =   144
-         TabIndex        =   8
-         Top             =   1524
-         Width           =   1428
-      End
-      Begin VB.Label lblStatic 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         Caption         =   "Password :"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   10.2
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         ForeColor       =   &H80000008&
-         Height          =   312
-         Index           =   1
-         Left            =   156
-         TabIndex        =   7
-         Top             =   1956
+         Height          =   396
+         Left            =   6084
+         TabIndex        =   5
+         Top             =   516
          Width           =   1308
       End
-      Begin VB.Label lblStatic 
-         Appearance      =   0  'Flat
-         BackColor       =   &H00C0C0C0&
-         Caption         =   "Data Set Name :"
+      Begin VB.CommandButton btnCancel 
+         Caption         =   "&Cancel"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   10.2
@@ -265,23 +292,28 @@ Begin VB.Form frmSplash
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         ForeColor       =   &H80000008&
-         Height          =   312
-         Index           =   0
-         Left            =   144
+         Height          =   396
+         Left            =   6084
          TabIndex        =   6
-         Top             =   228
-         Width           =   1776
+         Top             =   1236
+         Width           =   1308
       End
-      Begin VB.Image Image1 
-         Appearance      =   0  'Flat
-         BorderStyle     =   1  'Fixed Single
-         Height          =   1932
-         Left            =   4188
-         Picture         =   "Frmsplsh.frx":030A
-         Stretch         =   -1  'True
-         Top             =   252
-         Width           =   1404
+      Begin VB.CommandButton btnHelp 
+         Caption         =   "&Help"
+         BeginProperty Font 
+            Name            =   "Arial"
+            Size            =   10.2
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   396
+         Left            =   6084
+         TabIndex        =   7
+         Top             =   1980
+         Width           =   1308
       End
    End
 End
@@ -488,7 +520,6 @@ Private Function fnUserID(lODBCKey As Long, _
     fnUserID = QueryValue(lODBCKey, sODBCPath, PARM_USERID)
 End Function
 
-
 Private Function fnHost(lODBCKey As Long, _
                         sODBCPath As String) As String
     
@@ -589,7 +620,6 @@ errNotFile:
     #End If
 End Function
 
-
 Private Function fnPreparePath(sOrigPath As String) As Boolean
 
     Dim sDirs() As String
@@ -623,7 +653,6 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
     Next I
     fnPreparePath = True
 End Function
-
 
 Private Function RegSetValue(ByVal lKey As Long, _
                             sKeyName As String, _
@@ -692,8 +721,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-
-Private Function fnNeedFocus(txtBox As Textbox) As Boolean
+Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -750,7 +778,7 @@ Private Sub subLoadDSSection(aryDS() As String, _
     End If
 End Sub
 
-Private Sub subSelectText(txtBox As Textbox)
+Private Sub subSelectText(txtBox As TextBox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -784,8 +812,6 @@ Private Sub subSetToNextBox(txtBox As Control)
     End Select
     
 End Sub
-
-
 
 Private Sub subSetFocus(cntlTemp As Control, ParamArray arryControls() As Variant)
     'Set focus to a textbox or a command button control
@@ -877,7 +903,6 @@ Private Sub subLoadDataSources()
     End If
 End Sub
 
-
 Public Function DBConnect(sDSN As String, _
                              sUID As String, _
                              sPWD As String, _
@@ -928,7 +953,6 @@ Public Function DBConnect(sDSN As String, _
     
     DBConnect = sConnect
 End Function
-
 
 Public Sub GetODBCINIPath(lODBCKey As Long, _
                            sODBCPath As String, _
@@ -1009,7 +1033,6 @@ Private Sub subParseString(sParam() As String, _
     End If
 End Sub
 
-
 Private Function QueryValueEx(ByVal lhKey As Long, _
                       ByVal szValueName As String, _
                       vValue As Variant) As Long
@@ -1051,7 +1074,6 @@ QueryValueExExit:
 QueryValueExError:
     Resume QueryValueExExit
 End Function
-
 
 Private Function fnSZStr2Str(szStr As String) As String
 
@@ -1113,7 +1135,6 @@ Private Sub cmbDataSet_Click()
     
 End Sub
 
-
 Private Sub cmbDataSet_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then
         subSetToNextBox cmbDataSet
@@ -1121,18 +1142,16 @@ Private Sub cmbDataSet_KeyPress(KeyAscii As Integer)
     End If
 End Sub
 
-
 Private Sub Form_Activate()
     On Error Resume Next
     cmbDataSet.SetFocus
 End Sub
 
 Private Sub Form_Load()
+    tfnDisableFormSystemClose Me
     tfnCenterForm Me
     subLoadDataSources
 End Sub
-
-
 
 Private Sub picMain_Paint()
     subMakeVSLookFrame picMain
@@ -1149,7 +1168,6 @@ Private Sub txtDatabase_KeyPress(KeyAscii As Integer)
         KeyAscii = 0
     End If
 End Sub
-
 
 Private Sub txtHost_GotFocus()
     subSelectText txtHost
@@ -1176,7 +1194,6 @@ Private Sub txtPassword_KeyPress(KeyAscii As Integer)
 
 End Sub
 
-
 Private Sub txtUserName_GotFocus()
     subSelectText txtUserName
 End Sub
@@ -1187,7 +1204,6 @@ Private Sub txtUserName_KeyPress(KeyAscii As Integer)
         KeyAscii = 0
     End If
 End Sub
-
 
 Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     

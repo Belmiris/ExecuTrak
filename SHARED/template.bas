@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -408,10 +408,6 @@ Public Const SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','
 Private Const Log10 = 2.30258509299405
 Private SYS_PARM_14000 As String
 
-'david 10/27/00
-Public sngMainFormHeight As Single
-Public sngMainFormWidth As Single
-
 Public Function tfnIS_RM() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -546,7 +542,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -596,12 +592,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -629,7 +625,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -639,7 +635,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -723,12 +719,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Integer
+        Dim I As Integer
         
         sTable = LCase(Trim(vTable))
-        For i = 0 To nHandleCount
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -743,7 +739,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next i
+        Next I
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -935,7 +931,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -986,7 +982,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -994,8 +990,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1042,14 +1038,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1059,7 +1055,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1157,7 +1153,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1766,7 +1762,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    'nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -1774,10 +1770,12 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     subDisableSystemClose frmForm
     
     'the following work in windows98 ONLY! It does not work in windows2000
-'    If bCloseSize Then
-'        Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
-'        Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
-'    End If
+    If bCloseSize Then
+        Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
+        Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
+    End If
+    
+    'for
     
     'david 10/26/00
     tfnFixBackColor frmForm
@@ -1986,18 +1984,17 @@ End Sub
 
 'david 10/27/00
 Public Sub subDisableSystemClose(frmMain As Form)
-    Dim Ret As Long
+    Dim hSysMenu As Long
+    Dim nCnt As Long
     
-    hMenu = GetSystemMenu(frmMain.hwnd, 0)
-    MII.cbSize = Len(MII)
-    MII.dwTypeData = String(80, 0)
-    MII.cch = Len(MII.dwTypeData)
-    MII.fMask = MIIM_STATE
-    MII.wID = SC_CLOSE
-    MII.fState = MFS_GRAYED
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
-    MII.fMask = MIIM_STATE
-    Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
-
-    Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
+    If hSysMenu Then
+        nCnt = GetMenuItemCount(hSysMenu)
+        If nCnt Then
+            RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
+            RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
+            DrawMenuBar frmMain.hwnd
+        End If
+    End If
 End Sub

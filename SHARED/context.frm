@@ -129,6 +129,11 @@ Option Explicit
 
     Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
 
+
+    'david 10/30/00
+    Private sngMainFormHeight As Single
+    Private sngMainFormWidth As Single
+
 '
 'Function : ShowPopup - shows a context menu
 'Variables: pointer to the form, submenu index
@@ -201,7 +206,7 @@ End Sub
 
 Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
                                 ParamArray objControls())
-    Dim i As Integer
+    Dim I As Integer
     Dim bInitSet As Boolean
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
@@ -218,20 +223,20 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
         #Else
             .FactorMenu = False
         #End If
-        For i = 0 To UBound(objControls)
-            If Not IsMissing(objControls(i)) Then
-                Select Case i
+        For I = 0 To UBound(objControls)
+            If Not IsMissing(objControls(I)) Then
+                Select Case I
                     Case CONTROL_TB
-                        Set objToolbar.tbToolbar = objControls(i)
+                        Set objToolbar.tbToolbar = objControls(I)
                     Case CONTROL_TB_FRAME
-                        Set objToolbar.fraToolbar = objControls(i)
+                        Set objToolbar.fraToolbar = objControls(I)
                     Case CONTROL_TB_RIGHT
-                        Set objToolbar.fraToolbarRight = objControls(i)
+                        Set objToolbar.fraToolbarRight = objControls(I)
                     Case CONTROL_TB_PANEL
-                        Set objToolbar.fraPanel = objControls(i)
+                        Set objToolbar.fraPanel = objControls(I)
                 End Select
             End If
-        Next i
+        Next I
         If objToolbar.tbToolbar Is Nothing Then
             Set objToolbar.tbToolbar = frmTemp.tbToolbar
         End If
@@ -256,7 +261,7 @@ End Sub
 
 Public Sub BeginSetupToolbar(frmTemp As Form, _
                              ParamArray objControls())
-    Dim i As Integer
+    Dim I As Integer
 
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
@@ -275,20 +280,20 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
         #Else
             .FactorMenu = False
         #End If
-        For i = 0 To UBound(objControls)
-            If Not IsMissing(objControls(i)) Then
-                Select Case i
+        For I = 0 To UBound(objControls)
+            If Not IsMissing(objControls(I)) Then
+                Select Case I
                     Case CONTROL_TB
-                        Set objToolbar.tbToolbar = objControls(i)
+                        Set objToolbar.tbToolbar = objControls(I)
                     Case CONTROL_TB_FRAME
-                        Set objToolbar.fraToolbar = objControls(i)
+                        Set objToolbar.fraToolbar = objControls(I)
                     Case CONTROL_TB_RIGHT
-                        Set objToolbar.fraToolbarRight = objControls(i)
+                        Set objToolbar.fraToolbarRight = objControls(I)
                     Case CONTROL_TB_PANEL
-                        Set objToolbar.fraPanel = objControls(i)
+                        Set objToolbar.fraPanel = objControls(I)
                 End Select
             End If
-        Next i
+        Next I
         If objToolbar.fraToolbar Is Nothing Then
             Set objToolbar.fraToolbar = frmTemp.efraToolBar
         End If
@@ -446,7 +451,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
     Dim sCap As String
     Dim sTag As String
     Dim bEnabled As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     objToolbar.GetMenuInfo sCap, sTag, bEnabled, nKey
     mnuContextItems(DEFAULT_MENU).Caption = sCap
@@ -454,19 +459,19 @@ Public Sub MouseDown(ByVal Button As Integer, _
     mnuContextItems(DEFAULT_MENU).Enabled = bEnabled
     mnuContextItems(ADDITIONAL_MENU).Visible = False
     If Not IsMissing(vExKeys) Then
-        For i = 0 To UBound(vExKeys)
-        If IsNumeric(vExKeys(i)) Then
-            If i + 1 > m_nMenuItems Then
-                Load mnuContextItems(i + 1)
+        For I = 0 To UBound(vExKeys)
+        If IsNumeric(vExKeys(I)) Then
+            If I + 1 > m_nMenuItems Then
+                Load mnuContextItems(I + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
-            mnuContextItems(i + 1).Caption = sCap
-            mnuContextItems(i + 1).Visible = True
-            mnuContextItems(i + 1).Tag = sTag
-            mnuContextItems(i + 1).Enabled = bEnabled
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(I))
+            mnuContextItems(I + 1).Caption = sCap
+            mnuContextItems(I + 1).Visible = True
+            mnuContextItems(I + 1).Tag = sTag
+            mnuContextItems(I + 1).Enabled = bEnabled
         End If
-        Next i
+        Next I
     End If
 
     fnShowPopup
@@ -542,7 +547,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If val(App.Minor) < 20 Then
+    If Val(App.Minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
