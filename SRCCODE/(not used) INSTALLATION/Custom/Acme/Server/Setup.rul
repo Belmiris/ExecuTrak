@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "AM301"
-#define UNINSTALL_NAME          "Acme Custom Programs Version 3.01"
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "AM302"
+#define UNINSTALL_NAME          "Acme Custom Programs Version 3.02"
 
 
 #define SIZE_REQ_SERVER         9
