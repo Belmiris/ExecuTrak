@@ -1,0 +1,4 @@
+DIR=G:\program\release\exectrak\ec-beta MASK=*.*
+DIR=G:\program\release\exectrak\local_db MASK=*.MDB
+DIR=G:\program\release\exectrak\common MASK=cpylocal.exe
+
