@@ -1273,21 +1273,24 @@ Private Function fnFillTimeCard() As Boolean
     m_Form.MousePointer = vbHourglass
     
     If t_nFormMode = ADD_MODE Then
-    strSQL = "SELECT empno, empname, jobclass FROM " & sTempPrMaster
+        strSQL = "SELECT empno, empname, jobclass FROM " & sTempPrMaster
         strSQL = strSQL & " WHERE prft_ctr1 = " & tfnRound(txtEHPrftCtr)
         strSQL = strSQL & " AND pay_type = 'H'"
         strSQL = strSQL & " ORDER BY jobclass, empno"
     Else
-        strSQL = " SELECT jobclass, empno, empname, bh_pay_code, bh_hours FROM bonus_hold,  " & sTempPrMaster
+        strSQL = " SELECT DISTINCT jobclass, empno, empname, bh_pay_code, bh_hours FROM bonus_hold,  " & sTempPrMaster & "," & sTempPrPay
         strSQL = strSQL & " WHERE bh_prft_ctr = " & tfnRound(txtEHPrftCtr)
         'strSQL = strSQL & " AND (bh_prft_Ctr = prft_ctr1 OR bh_prft_ctr = prft_ctr2  OR bh_prft_ctr = prft_ctr3 "
         'strSQL = strSQL & " OR bh_prft_Ctr = prft_ctr4 OR bh_prft_ctr = prft_ctr5)"
         strSQL = strSQL & " AND bh_chk_link = 0 "
         strSQL = strSQL & " AND bh_empno = empno "
         strSQL = strSQL & " AND bh_date = " & tfnDateString(txtEHDate, True)
-        strSQL = strSQL & " AND bh_pay_code IN (SELECT DISTINCT pcode FROM " & sTempPrPay
-        strSQL = strSQL & " WHERE pyear = Year(bh_date) "
-        strSQL = strSQL & " AND pempno= empno)"
+        strSQL = strSQL & " AND bh_pay_code = pcode "
+        strSQL = strSQL & " AND pyear = Year(bh_date) "
+        strSQL = strSQL & " AND pempno= empno"
+        'strSQL = strSQL & " AND bh_pay_code IN (SELECT DISTINCT pcode FROM " & sTempPrPay
+        'strSQL = strSQL & " WHERE pyear = Year(bh_date) "
+        'strSQL = strSQL & " AND pempno= empno)"
         strSQL = strSQL & " ORDER BY jobclass, empno"
     End If
         
@@ -1706,7 +1709,7 @@ Private Function fnInsert() As Boolean
         
         If tfnRound(vData(COL_PAYCODE2), 2) <> 0# Then
             sPayCode = tblTimeCard.Columns(COL_PAYCODE2).Caption
-            strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE3), 2) & ")"
+            strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE2), 2) & ")"
             
             If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
                 Exit Function

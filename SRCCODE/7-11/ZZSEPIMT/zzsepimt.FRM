@@ -62,7 +62,7 @@ Begin VB.Form frmZZSEPIMT
          Height          =   390
          HelpContextID   =   15
          Left            =   7524
-         TabIndex        =   49
+         TabIndex        =   50
          Top             =   4716
          Width           =   1260
          _Version        =   65536
@@ -98,7 +98,7 @@ Begin VB.Form frmZZSEPIMT
          Height          =   4860
          HelpContextID   =   201
          Left            =   96
-         TabIndex        =   33
+         TabIndex        =   34
          TabStop         =   0   'False
          Top             =   84
          Width           =   8892
@@ -120,7 +120,7 @@ Begin VB.Form frmZZSEPIMT
          Begin FACTFRMLib.FactorFrame efraTabBack4 
             Height          =   4572
             Left            =   14580
-            TabIndex        =   45
+            TabIndex        =   46
             TabStop         =   0   'False
             Top             =   0
             Width           =   8892
@@ -153,7 +153,7 @@ Begin VB.Form frmZZSEPIMT
                HelpContextID   =   16
                Index           =   3
                Left            =   5916
-               TabIndex        =   31
+               TabIndex        =   32
                Top             =   4008
                Width           =   1308
                _Version        =   65536
@@ -162,7 +162,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -188,7 +188,7 @@ Begin VB.Form frmZZSEPIMT
             Begin FACTFRMLib.FactorFrame efraTabFrame4 
                Height          =   3852
                Left            =   72
-               TabIndex        =   46
+               TabIndex        =   47
                TabStop         =   0   'False
                Top             =   96
                Width           =   8652
@@ -198,7 +198,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -215,13 +215,20 @@ Begin VB.Form frmZZSEPIMT
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.TextBox txtProcessDate 
+                  Height          =   360
+                  Left            =   4188
+                  TabIndex        =   28
+                  Top             =   120
+                  Width           =   2136
+               End
                Begin DBTrueGrid.TDBGrid tblGrid 
-                  Height          =   3540
+                  Height          =   3264
                   HelpContextID   =   1408
                   Left            =   36
                   OleObjectBlob   =   "zzsepimt.frx":0000
-                  TabIndex        =   29
-                  Top             =   156
+                  TabIndex        =   30
+                  Top             =   528
                   Width           =   8544
                End
                Begin VB.PictureBox picText 
@@ -229,12 +236,20 @@ Begin VB.Form frmZZSEPIMT
                   BackColor       =   &H80000005&
                   ForeColor       =   &H80000008&
                   Height          =   324
-                  Left            =   0
+                  Left            =   108
                   ScaleHeight     =   300
                   ScaleWidth      =   1020
-                  TabIndex        =   47
-                  Top             =   0
+                  TabIndex        =   48
+                  Top             =   456
                   Width           =   1044
+               End
+               Begin VB.Label Label1 
+                  Caption         =   "Enter the date for calculating the pay increase"
+                  Height          =   264
+                  Left            =   84
+                  TabIndex        =   53
+                  Top             =   156
+                  Width           =   4176
                End
             End
             Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
@@ -242,7 +257,7 @@ Begin VB.Form frmZZSEPIMT
                HelpContextID   =   15
                Index           =   3
                Left            =   7380
-               TabIndex        =   32
+               TabIndex        =   33
                Top             =   4008
                Width           =   1308
                _Version        =   65536
@@ -251,7 +266,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -279,7 +294,7 @@ Begin VB.Form frmZZSEPIMT
                HelpContextID   =   1410
                Index           =   3
                Left            =   4452
-               TabIndex        =   30
+               TabIndex        =   31
                Top             =   4008
                Width           =   1308
                _Version        =   65536
@@ -288,7 +303,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -316,7 +331,7 @@ Begin VB.Form frmZZSEPIMT
                HelpContextID   =   1409
                Index           =   3
                Left            =   2988
-               TabIndex        =   28
+               TabIndex        =   29
                Top             =   4008
                Width           =   1308
                _Version        =   65536
@@ -325,7 +340,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75 
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -352,7 +367,7 @@ Begin VB.Form frmZZSEPIMT
          Begin FACTFRMLib.FactorFrame efraTabBack3 
             Height          =   4572
             Left            =   14520
-            TabIndex        =   40
+            TabIndex        =   41
             TabStop         =   0   'False
             Top             =   0
             Width           =   8892
@@ -420,7 +435,7 @@ Begin VB.Form frmZZSEPIMT
             Begin FACTFRMLib.FactorFrame efraTabFrame3 
                Height          =   3852
                Left            =   72
-               TabIndex        =   41
+               TabIndex        =   42
                TabStop         =   0   'False
                Top             =   96
                Width           =   8652
@@ -459,7 +474,7 @@ Begin VB.Form frmZZSEPIMT
                Begin FACTFRMLib.FactorFrame efraTop 
                   Height          =   1068
                   Left            =   132
-                  TabIndex        =   42
+                  TabIndex        =   43
                   TabStop         =   0   'False
                   Top             =   156
                   Width           =   8412
@@ -582,7 +597,7 @@ Begin VB.Form frmZZSEPIMT
                      Caption         =   "Employee Level"
                      Height          =   276
                      Left            =   528
-                     TabIndex        =   44
+                     TabIndex        =   45
                      Top             =   168
                      Width           =   2088
                   End
@@ -590,7 +605,7 @@ Begin VB.Form frmZZSEPIMT
                      Caption         =   "Employee Level Description"
                      Height          =   348
                      Left            =   3984
-                     TabIndex        =   43
+                     TabIndex        =   44
                      Top             =   132
                      Width           =   3420
                   End
@@ -785,7 +800,7 @@ Begin VB.Form frmZZSEPIMT
          Begin FACTFRMLib.FactorFrame efraTabBack1 
             Height          =   4548
             Left            =   12
-            TabIndex        =   34
+            TabIndex        =   35
             TabStop         =   0   'False
             Top             =   12
             Width           =   8868
@@ -1079,7 +1094,7 @@ Begin VB.Form frmZZSEPIMT
          Begin FACTFRMLib.FactorFrame efraTabBack2 
             Height          =   4572
             Left            =   14460
-            TabIndex        =   35
+            TabIndex        =   36
             TabStop         =   0   'False
             Top             =   0
             Width           =   8892
@@ -1147,7 +1162,7 @@ Begin VB.Form frmZZSEPIMT
             Begin FACTFRMLib.FactorFrame efraTabFrame2 
                Height          =   3852
                Left            =   72
-               TabIndex        =   48
+               TabIndex        =   49
                TabStop         =   0   'False
                Top             =   96
                Width           =   8652
@@ -1178,7 +1193,7 @@ Begin VB.Form frmZZSEPIMT
                   Height          =   360
                   HelpContextID   =   1602
                   Left            =   3552
-                  TabIndex        =   51
+                  TabIndex        =   52
                   TabStop         =   0   'False
                   Top             =   2052
                   Width           =   360
@@ -1477,7 +1492,7 @@ Begin VB.Form frmZZSEPIMT
       Height          =   2484
       Left            =   408
       OleObjectBlob   =   "zzsepimt.frx":6D87
-      TabIndex        =   39
+      TabIndex        =   40
       TabStop         =   0   'False
       Top             =   684
       Width           =   3756
@@ -1485,7 +1500,7 @@ Begin VB.Form frmZZSEPIMT
    Begin SQAOTestObjectsCtl.SQAOTest SQAOTest1 
       Height          =   456
       Left            =   10896
-      TabIndex        =   38
+      TabIndex        =   39
       TabStop         =   0   'False
       Top             =   96
       Width           =   456
@@ -1495,7 +1510,7 @@ Begin VB.Form frmZZSEPIMT
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   465
       Left            =   0
-      TabIndex        =   36
+      TabIndex        =   37
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -1534,7 +1549,7 @@ Begin VB.Form frmZZSEPIMT
       Begin MSComctlLib.Toolbar tbToolbar 
          Height          =   372
          Left            =   60
-         TabIndex        =   37
+         TabIndex        =   38
          Top             =   84
          Width           =   6876
          _ExtentX        =   12129
@@ -1549,7 +1564,7 @@ Begin VB.Form frmZZSEPIMT
       Height          =   3180
       Left            =   0
       OleObjectBlob   =   "zzsepimt.frx":8087
-      TabIndex        =   50
+      TabIndex        =   51
       Top             =   0
       Width           =   4812
    End
@@ -1982,6 +1997,13 @@ End Sub
 
 Private Sub cmdProcess_Click(Index As Integer)
     Dim rsTemp As Recordset
+    
+    If Not IsFactorDate(txtProcessDate) Then
+        MsgBox "Please enter the date for calculating the pay increase", vbExclamation + vbOKOnly
+        subSetFocus txtProcessDate
+        Exit Sub
+    End If
+    
     tblGrid.Enabled = True
     #If PROTOTYPE Then
         Exit Sub
@@ -1991,10 +2013,13 @@ Private Sub cmdProcess_Click(Index As Integer)
     etabMain.TabEnabled(TAB_3) = False
     subEnableCancelBtn True
     cmdProcess(3).Enabled = False
+    txtProcessDate.Enabled = False
     subEnableUpdateBtn False
+    
     If Not fnCheckPayCode Then
         Exit Sub
     End If
+    
     If Not fnCheckJobClass Then
         Exit Sub
     End If
@@ -2100,8 +2125,10 @@ Private Sub etabMain_Click()
     ElseIf etabMain.CurrTab = TAB_3 Then
         subSetFocus cmdAddBtn(2)
     Else
+        txtProcessDate.Enabled = True
         cmdProcess(3).Enabled = True
-        cmdProcess(3).SetFocus
+        txtProcessDate.SetFocus
+        'cmdProcess(3).SetFocus
     End If
     If t_bTabSwitch Then
     
@@ -2152,6 +2179,7 @@ Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Inte
             subEnableRefreshBtn False, 2
             
          Case TAB_4
+            txtProcessDate.Enabled = True
             cmdProcess(3).Enabled = True
             subEnableCancelBtn False, 3
             
@@ -2596,6 +2624,8 @@ Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
                 tfnResetScreen
             End If
     End Select
+    
+    txtProcessDate.Enabled = True
     cmdProcess(3).Enabled = True
     subEnableCancelBtn False, Index
     cmdUpdateInsertBtn(Index).Enabled = False
@@ -2662,8 +2692,9 @@ Private Sub cmdTBCancel_Click()
      Case TAB_3
         cmdAddBtn(etabMain.CurrTab).SetFocus
      Case TAB_4
+        txtProcessDate.Enabled = True
         cmdProcess(3).Enabled = True
-        cmdProcess(3).SetFocus
+        subSetFocus txtProcessDate
     End Select
 End Sub
 
@@ -2869,8 +2900,10 @@ Private Sub tfnResetScreen(Optional vInitial)
     ElseIf etabMain.CurrTab = TAB_2 Then
         subSetFocus cmdAddBtn(2)
     Else
+        txtProcessDate.Enabled = True
         cmdProcess(3).Enabled = True
-        cmdProcess(3).SetFocus
+        'cmdProcess(3).SetFocus
+        subSetFocus txtProcessDate
         tfnSetStatusBarMessage "Find employees who need pay raises"
         Exit Sub
     End If
@@ -3343,7 +3376,7 @@ Private Sub subClearAll()
 
     txtLevel.Text = ""
     txtDesc.Text = ""
-    
+    txtProcessDate = ""
     tgmJobClass.ClearData
     tgmJobClass.ResetFlags
     tgmPayCode.ClearData
@@ -3875,7 +3908,8 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     strSQL = strSQL & " zzse_job_class, zzse_pay_code"
     strSQL = strSQL & " WHERE prm_job_class= zzsej_job_class AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
     strSQL = strSQL & " AND prm_empno=prep_empno AND zzsep_code = prep_pay_code"
-    strSQL = strSQL & " AND Today-prm_date_hired >0 "
+'    strSQL = strSQL & " AND Today-prm_date_hired >0 "
+    strSQL = strSQL & " AND prm_date_hired < " & tfnDateString(txtProcessDate, True)
     strSQL = strSQL & " AND (zzsepi_pay * zzsep_factor)-prep_amount>0 "
     strSQL = strSQL & " AND prep_year = ("
     strSQL = strSQL & " SELECT MAX(t2.prep_year) FROM pr_emp_pay t2 "
@@ -3884,11 +3918,15 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     t_dbMainDatabase.ExecuteSQL strSQL
         
     strSQL = "SELECT DISTINCT empno, lname,fname, mname, job_class,emp_level,emp_level_desc, date_hired,  "
-    strSQL = strSQL & " (Today - date_hired) days_worked "
-    strSQL = strSQL & ", pay_code,old_rate"
+    'strSQL = strSQL & " (Today - date_hired) days_worked "
+    'strSQL = strSQL & ", pay_code,old_rate"
+    strSQL = strSQL & "  pay_code,old_rate"
     strSQL = strSQL & ", zzsepi_pay, conv_factor,prep_year "
     strSQL = strSQL & " FROM tmpTableReport AS a, zzse_pay_code"
-    strSQL = strSQL & " WHERE a.zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE a.emp_level = b.emp_level AND a.empno = b.empno  AND b.zzsepi_days <= (Today - b.date_hired))"
+    strSQL = strSQL & " WHERE a.zzsepi_days = (SELECT MAX(b.zzsepi_days) "
+    strSQL = strSQL & " FROM tmpTableReport AS b WHERE a.emp_level = b.emp_level "
+    'strSQL = strSQL & " AND a.empno = b.empno  AND b.zzsepi_days <= (Today - b.date_hired))"
+    strSQL = strSQL & " AND a.empno = b.empno  AND (b.zzsepi_days + b.date_hired) <= " & tfnDateString(txtProcessDate, True) & ")"
     'AND (b.zzsepi_pay * b.conv_factor)-b.prep_amount>0)"
     strSQL = strSQL & " ORDER BY a.empno,a.emp_level"
     
@@ -3924,7 +3962,8 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
                 vData(COL_LEVEL, i) = fnGetField(rsTemp!emp_level)
                 vData(COL_DESC, i) = fnGetField(rsTemp!emp_level_desc)
                 vData(COL_HIRE_DATE, i) = rsTemp!date_hired
-                vData(COL_DAYS_WORKED, i) = fnGetField(rsTemp!days_worked)
+                'vData(COL_DAYS_WORKED, i) = fnGetField(rsTemp!days_worked)
+                vData(COL_DAYS_WORKED, i) = CDate(txtProcessDate) - CDate(fnGetField(rsTemp!date_hired))
                 vData(COL_PCODE, i) = fnGetField(rsTemp!pay_code)
                 vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
                ' vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
@@ -4437,3 +4476,46 @@ End Sub
 Private Sub tblFDropDown2_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgfDropDown2.RowColChange tblFDropdown2
 End Sub
+
+Private Sub txtProcessDate_GotFocus()
+    tfnRegExpControlGotFocus txtProcessDate, szDatePattern
+    tfnSetStatusBarMessage "Enter the date to use for calculating the pay increase"
+    txtProcessDate.SelStart = 0
+    txtProcessDate.SelLength = Len(txtProcessDate)
+End Sub
+
+Private Sub txtProcessDate_KeyPress(KeyAscii As Integer)
+    tfnRegExpControlDateKeyPress txtProcessDate, KeyAscii
+    
+    If KeyAscii = vbKeyReturn Then
+        subSetFocus cmdProcess(3)
+        KeyAscii = 0
+    End If
+    
+End Sub
+
+Private Sub txtProcessDate_LostFocus()
+    
+    If IsFactorDate(txtProcessDate) Then
+        txtProcessDate = tfnFormatDate(txtProcessDate)
+    End If
+    
+End Sub
+
+Private Function IsFactorDate(ByVal sDate As String) As Boolean
+   
+    If SRegExpMatch(szDatePattern, sDate) = 0 Then
+        sDate = tfnDateString(tfnFormatDate(sDate))
+      
+        If IsDate(sDate) Then
+            IsFactorDate = True
+        Else
+            IsFactorDate = False
+        End If
+        
+    Else
+        IsFactorDate = False
+    End If
+   
+End Function
+
