@@ -357,11 +357,20 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     fnPRPrintCheck = fnExecute4GE(sCmd)
 End Function
 
+'david 03/17/2004
+'make doevents optional, and default to no doevents
+'because it will mess up the keystroke in the grid
 Private Function fnRunRCmd(sHost As String, _
                            sLocalUID As String, _
                            sRemoteUID As String, _
-                           sCmd As String, Optional rtn_ori_str As Boolean = False) As String
+                           sCmd As String, _
+                           Optional rtn_ori_str As Boolean = False, _
+                           Optional bDoEvents As Boolean = False) As String
+    
     Const SUB_NAME = "fnRunRCmd"
+    
+    'maximum time to execute a unix command
+    Const MAX_CALL_TIME As Long = 1800  '3 hours
     
     Dim sErrMsg As String
     Dim nCode As Integer
@@ -397,6 +406,11 @@ Private Function fnRunRCmd(sHost As String, _
             fnRunRCmd = "Cannot logon to the server to execute server program" & vbCrLf & "Connection String: " & sConnect_Used
         End If
     Else
+        'david 03/17/2004
+        'put a time out here
+        Dim sngTimer As Single
+        sngTimer = Timer
+        
         sErrMsg = ""
         Do
             nOutput = RCmdReadByte(nCode)
@@ -404,9 +418,24 @@ Private Function fnRunRCmd(sHost As String, _
                 sErrMsg = sErrMsg & Chr(nOutput)
             End If
             
-            DoEvents
+            If bDoEvents Then
+                DoEvents
+            End If
+            
+            If Timer - sngTimer > MAX_CALL_TIME Then
+                If MsgBox("RCMD time out. Do you want to continue to wait (30 minutes)" _
+                   + " for the program to finished?", vbQuestion + vbYesNo) = vbYes Then
+                    sngTimer = Timer
+                Else
+                    fnRunRCmd = "RCMD time out"
+                    Exit Function
+                End If
+            End If
         Loop Until nOutput <= 1
+        ''''''''''''''''''''
+        
         RCmdClose nCode
+        
         If sErrMsg <> "" Then
             If Not rtn_ori_str Then
                 sErrMsg = "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
