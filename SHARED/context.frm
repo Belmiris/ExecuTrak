@@ -146,11 +146,16 @@ Private Sub fnShowPopup()
     ' This is where to put menu
     Dim nWhereX, nWhereY As Single
     
+    'changed by junsong 02/03/2003 integer to long
+    'Get run time error 6 in win 2000
+    
     'Top Level Menu
-    Dim hMenu As Integer
+    'Dim hMenu As Integer
+    Dim hMenu As Long
     
     'Sub Menu to popup
-    Dim hSubMenu As Integer
+    'Dim hSubMenu As Integer
+    Dim hSubMenu As Long
     
     'Window rectangle to show popup in
     Dim rctMainWindow As RECT
@@ -159,7 +164,8 @@ Private Sub fnShowPopup()
     Dim pntPosition As POINTAPI
     
     'A TEmp variable to hold the return value from TrackPopup
-    Dim nTemp As Integer
+    'Dim nTemp As Integer
+    Dim nTemp As Long
     
     'Get the Mouse pointer position
     Call GetCursorPos(pntPosition)
@@ -206,7 +212,7 @@ End Sub
 
 Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
                                 ParamArray objControls())
-    Dim I As Integer
+    Dim i As Integer
     Dim bInitSet As Boolean
 
     sngMainFormHeight = frmTemp.Height
@@ -227,20 +233,20 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
         #Else
             .FactorMenu = False
         #End If
-        For I = 0 To UBound(objControls)
-            If Not IsMissing(objControls(I)) Then
-                Select Case I
+        For i = 0 To UBound(objControls)
+            If Not IsMissing(objControls(i)) Then
+                Select Case i
                     Case CONTROL_TB
-                        Set objToolbar.tbToolbar = objControls(I)
+                        Set objToolbar.tbToolbar = objControls(i)
                     Case CONTROL_TB_FRAME
-                        Set objToolbar.fraToolbar = objControls(I)
+                        Set objToolbar.fraToolbar = objControls(i)
                     Case CONTROL_TB_RIGHT
-                        Set objToolbar.fraToolbarRight = objControls(I)
+                        Set objToolbar.fraToolbarRight = objControls(i)
                     Case CONTROL_TB_PANEL
-                        Set objToolbar.fraPanel = objControls(I)
+                        Set objToolbar.fraPanel = objControls(i)
                 End Select
             End If
-        Next I
+        Next i
         If objToolbar.tbToolbar Is Nothing Then
             Set objToolbar.tbToolbar = frmTemp.tbToolbar
         End If
@@ -265,7 +271,7 @@ End Sub
 
 Public Sub BeginSetupToolbar(frmTemp As Form, _
                              ParamArray objControls())
-    Dim I As Integer
+    Dim i As Integer
 
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
@@ -284,20 +290,20 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
         #Else
             .FactorMenu = False
         #End If
-        For I = 0 To UBound(objControls)
-            If Not IsMissing(objControls(I)) Then
-                Select Case I
+        For i = 0 To UBound(objControls)
+            If Not IsMissing(objControls(i)) Then
+                Select Case i
                     Case CONTROL_TB
-                        Set objToolbar.tbToolbar = objControls(I)
+                        Set objToolbar.tbToolbar = objControls(i)
                     Case CONTROL_TB_FRAME
-                        Set objToolbar.fraToolbar = objControls(I)
+                        Set objToolbar.fraToolbar = objControls(i)
                     Case CONTROL_TB_RIGHT
-                        Set objToolbar.fraToolbarRight = objControls(I)
+                        Set objToolbar.fraToolbarRight = objControls(i)
                     Case CONTROL_TB_PANEL
-                        Set objToolbar.fraPanel = objControls(I)
+                        Set objToolbar.fraPanel = objControls(i)
                 End Select
             End If
-        Next I
+        Next i
         If objToolbar.fraToolbar Is Nothing Then
             Set objToolbar.fraToolbar = frmTemp.efraToolBar
         End If
@@ -457,7 +463,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
     Dim sCap As String
     Dim sTag As String
     Dim bEnabled As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     objToolbar.GetMenuInfo sCap, sTag, bEnabled, nKey
     mnuContextItems(DEFAULT_MENU).Caption = sCap
@@ -465,19 +471,19 @@ Public Sub MouseDown(ByVal Button As Integer, _
     mnuContextItems(DEFAULT_MENU).Enabled = bEnabled
     mnuContextItems(ADDITIONAL_MENU).Visible = False
     If Not IsMissing(vExKeys) Then
-        For I = 0 To UBound(vExKeys)
-        If IsNumeric(vExKeys(I)) Then
-            If I + 1 > m_nMenuItems Then
-                Load mnuContextItems(I + 1)
+        For i = 0 To UBound(vExKeys)
+        If IsNumeric(vExKeys(i)) Then
+            If i + 1 > m_nMenuItems Then
+                Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(I))
-            mnuContextItems(I + 1).Caption = sCap
-            mnuContextItems(I + 1).Visible = True
-            mnuContextItems(I + 1).Tag = sTag
-            mnuContextItems(I + 1).Enabled = bEnabled
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
+            mnuContextItems(i + 1).Caption = sCap
+            mnuContextItems(i + 1).Visible = True
+            mnuContextItems(i + 1).Tag = sTag
+            mnuContextItems(i + 1).Enabled = bEnabled
         End If
-        Next I
+        Next i
     End If
 
     fnShowPopup
