@@ -108,7 +108,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmzzseitmt
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1508,7 +1508,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -2017,8 +2017,8 @@ Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub subSetupCombos()
@@ -2114,7 +2114,7 @@ Private Function fnValidEffectiveDate(sDate As String, lCurRow As Long, nCurCol 
                 strSQL = "SELECT * FROM item_cost_maint WHERE icm_vendor = " & tfnRound(txtVendor)
                 strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
                 strSQL = strSQL & " AND icm_eff_date = " & tfnDateString(sDate, True)
-                strSQL = strSQL & " AND icm_uom = " & tfnSQLString(tgmDetail.CellValue(ColUOM, lCurRow))
+                strSQL = strSQL & " AND icm_uom = " & tfnSQLString(Trim$(tgmDetail.CellValue(ColUOM, lCurRow)))
                 
                 If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEffectiveDate") > 0 Then
                     tgmDetail.ErrorMessage(nCurCol) = "The record is already in the system"
@@ -2132,10 +2132,12 @@ Private Function fnValidEffectiveDate(sDate As String, lCurRow As Long, nCurCol 
             If i <> lCurRow Then
                 
                 If CStr(tgmDetail.CellValue(ColEffDate, i)) = sTemp _
-                     And CStr(tgmDetail.CellValue(ColUOM, i)) = CStr(tgmDetail.CellValue(ColUOM, lCurRow)) Then
+                     And Trim$(CStr(tgmDetail.CellValue(ColUOM, i))) = Trim$(CStr(tgmDetail.CellValue(ColUOM, lCurRow))) Then
                      
                     tgmDetail.ErrorMessage(nCurCol) = "The record is duplicate in the grid"
                     Exit Function
+                Else
+                    tgmDetail.Revalidate ColEffDate, i
                 End If
         
             End If
