@@ -741,6 +741,8 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
 '        t_dbMainDatabase.ExecuteSQL strSQL
 '    End If
     If lBatch = 0 Then 'Generate Batch Number
+        tfn_Unlock_GL_Batch_Nbr
+        
         strSQL = "SELECT Max(glj_batch) HighBatch FROM gl_journal"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount > 0 Then
@@ -760,9 +762,6 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
                 strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
                 strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
                 t_dbMainDatabase.ExecuteSQL strSQL
-                
-                tfn_Unlock_GL_Batch_Nbr
-                
                 m_Saved_GL_Batch = lValue
                 tfn_Get_GL_Batch_Nbr = lValue
                 Exit Function
@@ -776,6 +775,8 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
             tfn_Get_GL_Batch_Nbr = lBatch
             Exit Function
         End If
+        tfn_Unlock_GL_Batch_Nbr
+        
         lValue = lBatch
         strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
@@ -783,9 +784,6 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
             strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
             strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
             t_dbMainDatabase.ExecuteSQL strSQL
-            
-            tfn_Unlock_GL_Batch_Nbr
-            
             m_Saved_GL_Batch = lValue
             tfn_Get_GL_Batch_Nbr = lValue
             Exit Function
