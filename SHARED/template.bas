@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -1224,7 +1224,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2388,7 +2388,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2632,7 +2632,7 @@ Public Function fnRemoveChr0(vText) As String
                 End If
             Next i
         
-            sTemp = RTrim(sText)
+            sTemp = RTrim(sTemp)
         Else
             sTemp = sText
         End If
@@ -3313,9 +3313,9 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFilename As String, _
+Public Function tfn_Read_SYS_INI(sFileName As String, _
                               sUserID As String, _
-                              sSECTION As String, _
+                              sSection As String, _
                               sField As String, _
                               Optional bShowError As Boolean = True) As String
                               
@@ -3328,8 +3328,8 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     'ini_file_name,ini_user_id may be null
     
-    If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFilename))
+    If sFileName <> "" Then
+        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFileName))
     Else
         strSQL = strSQL & " ini_file_name is Null"
     End If
@@ -3340,7 +3340,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
         strSQL = strSQL & " AND (ini_user_id is Null OR ini_user_id = '')"
     End If
     
-    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSection))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
     On Error GoTo errTrap
@@ -3374,9 +3374,9 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFilename As String, _
+Public Function tfn_Write_SYS_INI(sFileName As String, _
                               sUserID As String, _
-                              sSECTION As String, _
+                              sSection As String, _
                               sField As String, _
                               sValue As String, _
                               Optional bShowError As Boolean = True) As Boolean
@@ -3389,22 +3389,22 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSection, sField)
     
     On Error GoTo errTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
-        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSection))
         strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sUserID)) + ","
-        strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sSection)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
         strSQL = strSQL + tfnSQLString(sValue) + ")"
     End If
