@@ -262,7 +262,9 @@ Public Function LaunchEDIPROC() As String
     subAddLog sMsg
     
     If Not m_frmParent Is Nothing Then
-        m_frmParent.Enabled = False
+        If UCase(m_RunMode) = "BACK" Then
+            m_frmParent.Enabled = False
+        End If
     End If
     Screen.MousePointer = vbHourglass
     
@@ -278,12 +280,17 @@ Public Function LaunchEDIPROC() As String
             Exit Function
         End If
         
+        Screen.MousePointer = vbHourglass
+        
         Wait 20
     Loop While fnExeIsRunning(sExeFile)
     
     Screen.MousePointer = vbDefault
     If Not m_frmParent Is Nothing Then
-        m_frmParent.Enabled = True
+        If Not m_frmParent.Enabled Then
+            m_frmParent.Enabled = True
+            m_frmParent.Show
+        End If
     End If
     
     sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
