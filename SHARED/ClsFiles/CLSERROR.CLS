@@ -83,25 +83,29 @@ Public Function ErrorHandler(sProcName As String, _
     Dim bShowMessage As Boolean, sErrorMsg As String, bDefinedError As Boolean
     Dim bExecProcError As Boolean
     
-    If m_frmParent Is Nothing Then
-        MsgBox "Form not set.  Error Handler function calls failed.", vbCritical
+    #If FACTOR_MENU = 1 Then
+        Exit Function
+    #End If
+    
+    If m_sLogFilePath = "" Then
+        MsgBox "clsErrorHandler class is not being initialize properly." + vbCrLf + vbCrLf _
+            + "One of the following function must be called during class initialization:" _
+            + vbCrLf + vbCrLf + "   1. ProgramInfo" + vbCrLf + "   2. Set FormParent = Me" _
+            + vbCrLf + vbCrLf + "Error Handler function calls failed.", vbCritical
         Exit Function
     End If
+
+'    If m_frmParent Is Nothing Then
+'        MsgBox "Form not set.  Error Handler function calls failed.", vbCritical
+'        Exit Function
+'    End If
     
-    #If FACTOR_MENU <> 1 Then
     If m_UseDBEngin Then
         If m_engFactor Is Nothing Then
             MsgBox "DatabaseEngine not set.  Error Handler function calls failed.", vbCritical
             Exit Function
         End If
     End If
-    #End If
-'    #If DEVELOP Then
-'        If m_dbLocal Is Nothing Then
-'                MsgBox "Local Database not set.  Error Handler function calls failed.", vbCritical
-'                Exit Function
-'        End If
-'    #End If
     
     sProcName = Trim(sProcName)
     If sProcName = "" Then sProcName = "unknown"
@@ -114,28 +118,32 @@ Public Function ErrorHandler(sProcName As String, _
             If InStr(UCase(vExecProcMessage), "EXCEPTION") > 0 Then
                 #If Not DEVELOP Then
                     'store the snapshot of the App screen
-                    Set m_frmParent.Picture = CaptureForm(m_frmParent)
-                    Clipboard.SetData m_frmParent.Picture, vbCFBitmap
-                    SavePicture m_frmParent.Picture, m_sErrScrnPath
-                    Set m_frmParent.Picture = Nothing
+                    If Not m_frmParent Is Nothing Then
+                        Set m_frmParent.Picture = CaptureForm(m_frmParent)
+                        Clipboard.SetData m_frmParent.Picture, vbCFBitmap
+                        SavePicture m_frmParent.Picture, m_sErrScrnPath
+                        Set m_frmParent.Picture = Nothing
+                    End If
                 #End If
             End If
         End If
     Else
         #If Not DEVELOP Then
             'store the snapshot of the App screen when vSQL does not contain "drop table"
-            If Not IsMissing(vSQL) Then
-                If InStr(LCase(vSQL), "drop table") = 0 Then
+            If Not m_frmParent Is Nothing Then
+                If Not IsMissing(vSQL) Then
+                    If InStr(LCase(vSQL), "drop table") = 0 Then
+                        Set m_frmParent.Picture = CaptureForm(m_frmParent)
+                        Clipboard.SetData m_frmParent.Picture, vbCFBitmap
+                        SavePicture m_frmParent.Picture, m_sErrScrnPath
+                        Set m_frmParent.Picture = Nothing
+                    End If
+                Else
                     Set m_frmParent.Picture = CaptureForm(m_frmParent)
                     Clipboard.SetData m_frmParent.Picture, vbCFBitmap
                     SavePicture m_frmParent.Picture, m_sErrScrnPath
                     Set m_frmParent.Picture = Nothing
                 End If
-            Else
-                Set m_frmParent.Picture = CaptureForm(m_frmParent)
-                Clipboard.SetData m_frmParent.Picture, vbCFBitmap
-                SavePicture m_frmParent.Picture, m_sErrScrnPath
-                Set m_frmParent.Picture = Nothing
             End If
         #End If
     End If
@@ -254,19 +262,65 @@ End Property
 
 Public Property Set FormParent(frmForm As Object)
     Dim sVerInfo As String
+    Dim sMajor As String
+    Dim sMinor As String
+    Dim sRevision As String
     
     Set m_frmParent = frmForm
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
-    sVerInfo = " (Version " & App.Major & "." & App.Minor & "." & Format(App.Revision, "0000") & ")"
+    
+    If Val(App.Minor) >= 20 Then
+        sMajor = Format(App.Major, "#0")
+        sMinor = Format(App.Minor, "00")
+        sRevision = Format(App.Revision, "0000")
+    Else
+        sMajor = CStr(App.Major)
+        sMinor = CStr(App.Minor)
+        sRevision = CStr(App.Revision)
+    End If
+    
+    sVerInfo = " (Version " + sMajor + "." + sMinor + "." + sRevision + ")"
+    
     On Error GoTo ErrorSetName
     m_sAppName = App.EXEName & sVerInfo
+    
     Exit Property
     
 ErrorSetName:
-    'MsgBox "Exe File not found, use form name instead", vbInformation
     m_sAppName = Trim(frmForm.Name) & sVerInfo
 End Property
+
+'david 02/20/2001
+Public Sub ProgramInfo()
+    Dim sVerInfo As String
+    Dim sMajor As String
+    Dim sMinor As String
+    Dim sRevision As String
+    
+    m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
+    m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
+    
+    If Val(App.Minor) >= 20 Then
+        sMajor = Format(App.Major, "#0")
+        sMinor = Format(App.Minor, "00")
+        sRevision = Format(App.Revision, "0000")
+    Else
+        sMajor = CStr(App.Major)
+        sMinor = CStr(App.Minor)
+        sRevision = CStr(App.Revision)
+    End If
+    
+    sVerInfo = " (Version " + sMajor + "." + sMinor + "." + sRevision + ")"
+    
+    On Error GoTo ErrorSetName
+    m_sAppName = App.EXEName & sVerInfo
+    
+    Exit Sub
+    
+ErrorSetName:
+    m_sAppName = Trim(App.Title) & sVerInfo
+End Sub
 
 Public Property Set DatabaseEngine(dbEngTmp As DBEngine)
     Set m_engFactor = dbEngTmp
@@ -476,7 +530,9 @@ Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
         sMsg = sMsg & vbCrLf & vbCrLf & "Error Code = " & m_vErrorCode & vbCrLf & "Error Desc: " & m_sErrorDesc & vbCrLf
     Else
         If nErrorType = ODBC_CALL_FAIL Then
-            m_sOdbcErrorDesc = fnGetOdbcErrorDesc()
+            If m_UseDBEngin Then
+                m_sOdbcErrorDesc = fnGetOdbcErrorDesc()
+            End If
             sMsg = sMsg & vbCrLf & "Error Code = " & m_vErrorCode & vbCrLf & "Error Desc: " & m_sOdbcErrorDesc & vbCrLf
         End If
     End If
@@ -489,11 +545,8 @@ End Function
 Public Function fnGetOdbcErrorDesc() As String
     Dim n As Integer
     
-    If Not m_UseDBEngin Then
-        Exit Function
-    End If
-    
     fnGetOdbcErrorDesc = ""
+    
     For n = 0 To m_engFactor.Errors.Count - 1
         If m_vErrorCode = ODBC_CALL_FAIL Then
             If m_engFactor.Errors(n).Number <> ODBC_CALL_FAIL Then
