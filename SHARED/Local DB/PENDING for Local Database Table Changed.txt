@@ -1,4 +1,11 @@
+version: 3.26.0011????
+Date: 06/12/2002
+#370621-9
 
+Description: 
+	Custom Contract Selection Interface (CFN Processor modification).
+
+	alter table zzpc_sih_inv_line add idph_product char(16);
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ''''''''''''''''' DONE - 3.26.0011 - 06/24/2002 ''''''''''''''''''''''''
