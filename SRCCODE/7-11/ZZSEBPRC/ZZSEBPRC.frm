@@ -2635,7 +2635,6 @@ Private Sub cmdApprove_Click()
     End If
     
     tgmApprove.Rebind
-    cmdOk.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2781,7 +2780,7 @@ Private Sub eTabMain_Click()
             frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
                 
-            cmdOk.Enabled = fnHasApprove()
+            cmdOk.Enabled = tgmApprove.RowCount > 0
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
             #If PROTOTYPE Then
@@ -3268,7 +3267,17 @@ Private Sub tfnResetScreen(Index As Integer)
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
-                        cmdOk.Enabled = fnHasApprove()
+                        
+                        On Error Resume Next
+                        If tgmApprove.RowCount > 1 Then
+                            tblApprove.Row = 1
+                            tblApprove.Row = 0
+                        Else
+                            tblApprove.col = 2
+                            tblApprove.col = 0
+                        End If
+                        
+                        cmdOk.Enabled = tgmApprove.RowCount > 0
                     End If
                 End If
             End If
@@ -3323,20 +3332,13 @@ End Sub
 
 Private Sub tblApprove_Click()
     If tblApprove.col = colAApprove Then
-'        If tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppNo Then
-'            tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppYes
-'        Else
-'            tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppNo
-'        End If
         tblApprove.col = 1
         tblApprove.col = 0
-        'cmdOk.Enabled = fnHasApprove()
     End If
     tgsApprove.Click
 End Sub
 
 Private Sub tblApprove_DblClick()
-    'cmdOk.Enabled = fnHasApprove()
     bLoadingBonusDetail = False
     subEnterBonusPhaseII
 End Sub
@@ -3714,7 +3716,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    cmdOk.Enabled = fnHasApprove()
+    cmdOk.Enabled = tgmApprove.RowCount > 0
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
