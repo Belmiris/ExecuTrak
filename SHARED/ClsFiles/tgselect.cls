@@ -76,6 +76,7 @@ Option Explicit
     Private m_nShiftControl As Integer
     Private m_nLastClickedRow As Integer
     Private m_bRowHilighted As Boolean
+    Private m_bAvoidBeep As Boolean
 Property Let AllowMultipleSelect(bTemp As Boolean)
 
     If bTemp Then
@@ -84,6 +85,10 @@ Property Let AllowMultipleSelect(bTemp As Boolean)
         m_nSelectMode = MODE_NO_KEY_CONTROL
     End If
     
+End Property
+
+Property Let AvoidBeep(ByVal bTemp As Boolean)
+    m_bAvoidBeep = bTemp
 End Property
 
 Public Sub Clear()
@@ -194,21 +199,23 @@ Public Sub Click()
         Else
             m_bTableClicked = True
         End If
-        If m_nIdleColumn >= 0 Then
-            If m_nIdleColumn >= m_tgTable.Columns.Count Then
-                m_nIdleColumn = m_tgTable.Columns.Count - 1
-            End If
-            If m_tgTable.Columns(m_nIdleColumn).Visible Then
-                If m_tgTable.Columns.Count > 0 Then
+        If m_bAvoidBeep Then
+            If m_nIdleColumn >= 0 Then
+                If m_nIdleColumn >= m_tgTable.Columns.Count Then
                     m_nIdleColumn = m_tgTable.Columns.Count - 1
-                    If m_tgTable.Columns(m_nIdleColumn).Visible Then
-                        m_nIdleColumn = m_nIdleColumn + 1
-                        m_tgTable.Columns.Add m_nIdleColumn
-                        m_tgTable.Columns(m_nIdleColumn).Width = 50
+                End If
+                If m_tgTable.Columns(m_nIdleColumn).Visible Then
+                    If m_tgTable.Columns.Count > 0 Then
+                        m_nIdleColumn = m_tgTable.Columns.Count - 1
+                        If m_tgTable.Columns(m_nIdleColumn).Visible Then
+                            m_nIdleColumn = m_nIdleColumn + 1
+                            m_tgTable.Columns.Add m_nIdleColumn
+                            m_tgTable.Columns(m_nIdleColumn).Width = 50
+                        End If
                     End If
                 End If
+                m_tgTable.col = m_nIdleColumn
             End If
-            m_tgTable.col = m_nIdleColumn
         End If
         'subSetCurrentRow
     End If
@@ -438,8 +445,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
 End Property
 
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If
@@ -581,13 +588,15 @@ End Sub
 
 Property Set Table(objTemp As Object)
     Set m_tgTable = objTemp
-    With m_tgTable.Columns
-        If .Item(.Count - 1).Visible Then
-            m_nIdleColumn = .Count
-            .Add .Count
-            .Item(m_nIdleColumn).Width = 50
-        End If
-    End With
+    If m_bAvoidBeep Then
+        With m_tgTable.Columns
+            If .Item(.Count - 1).Visible Then
+                m_nIdleColumn = .Count
+                .Add .Count
+                .Item(m_nIdleColumn).Width = 50
+            End If
+        End With
+    End If
 End Property
 
 
@@ -600,6 +609,7 @@ Private Sub Class_Initialize()
     m_bTableGotFocus = True
     m_nLastClickedRow = -1
     m_nIdleColumn = -1
+    m_bAvoidBeep = True
 End Sub
 
 Private Sub Class_Terminate()
