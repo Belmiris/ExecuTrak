@@ -499,6 +499,9 @@ Public Const FOEBXFER_UP = 15410    'FOEBXFER.EXE
 Public Const DSP_SCH_MAINT_UP = 15420  'SMFDSPSC.EXE
 Public Const DSP_SCH_ENTRY_UP = 15430  'no program (SMEDSPSC popup window)
 
+'#434264
+Public Const NOTICE_GROUP_UP = 15440  'FMFNTGRP.EXE
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -581,8 +584,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -613,7 +616,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -645,7 +648,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -668,7 +671,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -783,7 +786,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1222,12 +1225,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1358,7 +1361,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2506,7 +2509,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2528,7 +2531,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -2931,7 +2934,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3148,7 +3151,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3284,7 +3287,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-errTrap:
+ErrTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3386,7 +3389,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3394,7 +3397,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3434,7 +3437,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
@@ -3456,7 +3459,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     tfn_Write_SYS_INI = True
     Exit Function
 
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
