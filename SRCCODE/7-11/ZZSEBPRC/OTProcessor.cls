@@ -557,6 +557,10 @@ Public Sub cmdOTProcess_Click()
 EXITSUB:
     subSetProgress 0
     
+    If Not bOverTimePayCodeSet Then
+        MsgBox "One or more errors were encountered." + vbCrLf + "Please review the Overtime Processing Report.", vbInformation
+    End If
+    
     If Not g_bOverTimeRecordFound Then
         If Not bOverTimePayCodeSet Then
             cmdOTPrintBtn.Enabled = True
@@ -623,7 +627,8 @@ Private Function fnParseOneEmployee(lEmpNo As Long) As Boolean
     fnParseOneEmployee = Not bError
     
     If sMsg <> "" Then
-        subWriteLog sMsg
+        'write the log inside fnValidOtPaycode() function
+        'subWriteLog sMsg
         bOverTimePayCodeSet = False
         Exit Function
     End If
@@ -1606,8 +1611,20 @@ Private Sub tfnSetStatusBarCorrect(szCorrectMessage As String)
 End Sub
 
 Private Sub subWriteLog(sMsg As String)
+    Static bAlreadyShow As Boolean
+    
+    On Error GoTo errTrap
+    
     lstOTLog.AddItem sMsg
     lstOTLog.Refresh
+    
+    Exit Sub
+    
+errTrap:
+    If Not bAlreadyShow Then
+        bAlreadyShow = True
+        tfnErrHandler "subWriteLog", False
+    End If
 End Sub
 
 Private Sub subSetProgress(sngPercent As Single)
@@ -1756,7 +1773,10 @@ End Function
 'david 03/11/2003  #403275
 'validate ot paycode for the employee
 'return error message
+'bError will be set to True if critical error (database access error) occurred
 Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bError As Boolean) As String
+    Static bAreadyShowError As Boolean
+    
     Dim strSQL As String
     Dim aryPayCodes() As String
     Dim i As Integer
@@ -1765,6 +1785,8 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
     Dim lCount As Long
     Dim sInvalidOtPayCode As String
     Dim nYear(4) As Integer
+    
+    Dim sErrMsg As String
     
     'get the year
     On Error Resume Next
@@ -1815,7 +1837,9 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
                         lCount = GetRecordCount(strSQL)
                         
                         If lCount < 0 Then
-                            fnValidOtPaycode = "Failed to access database when checking overtime paycode."
+                            sErrMsg = "Failed to access database when checking overtime paycode."
+                            subWriteLogWithBox sErrMsg
+                            fnValidOtPaycode = sErrMsg
                             bError = True
                             Exit Function
                         ElseIf lCount = 0 Then
@@ -1832,13 +1856,39 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
     Next i
 
     If sInvalidOtPayCode <> "" Then
-        fnValidOtPaycode = "Pay Code (" & sInvalidOtPayCode & ") not set for employee #" & lEmpNo
+        sErrMsg = "Pay Code (" & sInvalidOtPayCode & ") not set for employee #" & lEmpNo
+        subWriteLogWithBox sErrMsg & ",", "OT not processed for this employee."
+        fnValidOtPaycode = sErrMsg
     End If
     
     Exit Function
     
 errTrap:
-    fnValidOtPaycode = Err.Number & " - " & Err.Description
-    tfnErrHandler "", False
+    If Not bAreadyShowError Then
+        bAreadyShowError = True
+        sErrMsg = Err.Number & " - " & Err.Description
+        tfnErrHandler "fnValidOtPaycode", False
+        subWriteLogWithBox sErrMsg
+    End If
     bError = True
 End Function
+
+'david 03/11/2003  #403275
+Private Sub subWriteLogWithBox(sMsg As String, Optional sMsg2 As String = "")
+    Dim lLen As Long
+    Dim lLen2 As Long
+    
+    lLen = Len(sMsg) + 6
+    lLen2 = Len(sMsg2) + 6
+    
+    If lLen < lLen2 Then
+        lLen = lLen2
+    End If
+    
+    subWriteLog String(lLen, "*")
+    subWriteLog "** " + sMsg + String(lLen - Len(sMsg) - 6, " ") + " **"
+    If sMsg2 <> "" Then
+        subWriteLog "** " + sMsg2 + String(lLen - Len(sMsg2) - 6, " ") + " **"
+    End If
+    subWriteLog String(lLen, "*")
+End Sub
