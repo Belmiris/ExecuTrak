@@ -440,54 +440,54 @@ StartCopy:
 
 	endif;
 
-        //extract the local database into WINDOWS\TEMP directory
-        TARGETDIR = WINDIR ^ "TEMP";
-
-        LOGMSG="START FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
-
-        if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
-                MessageBox("FACTDB.Z could not be decompressed", SEVERE);
-                goto ZFAILURE;
-        endif;
-
-        LOGMSG="END FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);                       
-
+	//extract the local database into WINDOWS\TEMP directory
+	TARGETDIR = WINDIR ^ "TEMP";
+	
+	LOGMSG="START FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+	
+	if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
+	        MessageBox("FACTDB.Z could not be decompressed", SEVERE);
+	        goto ZFAILURE;
+	endif;
+	
+	LOGMSG="END FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);                       
+	
 	FileSetEndDefine("All Files");
 	
 	nReturn = FileSetPerformEz("All Files", 0);
 
-        //  write file problem to log
-        if (nReturn != FS_DONE) then
-                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
-                LOGWRITE(LOGMSG);
-        endif;
-
-        switch(nReturn)
-                case FS_CREATEDIR:
-                        MessageBox("Failed to Create target directory", SEVERE);
+	//  write file problem to log
+	if (nReturn != FS_DONE) then
+	        LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+	        LOGWRITE(LOGMSG);
+	endif;
+	
+	switch(nReturn)
+	        case FS_CREATEDIR:
+	                MessageBox("Failed to Create target directory", SEVERE);
 			LOGMSG="Failed to Create target directory";
 			LOGWRITE(LOGMSG);
 	                goto ZFAILURE;
-                case FS_PACKAGING:
-                        MessageBox("Unable to find file in package list", SEVERE);
-       			LOGMSG="Unable to find file in package list";
+	        case FS_PACKAGING:
+	                MessageBox("Unable to find file in package list", SEVERE);
+			LOGMSG="Unable to find file in package list";
 			LOGWRITE(LOGMSG);
 	                goto ZFAILURE;
-                case FS_FILENOTINLIB:
-                        MessageBox("Unable to find target file in compressed lib", INFORMATION);
-       			LOGMSG="Unable to find target file in compressed lib";
+	        case FS_FILENOTINLIB:
+	                MessageBox("Unable to find target file in compressed lib", INFORMATION);
+			LOGMSG="Unable to find target file in compressed lib";
 			LOGWRITE(LOGMSG);
-                        goto ZFAILURE;
-                case FS_DONE:
-                        // do nothing
-                default:
-                        MessageBox("General file copy failure", SEVERE);
+	                goto ZFAILURE;
+	        case FS_DONE:
+	                // do nothing
+	        default:
+	                MessageBox("General file copy failure", SEVERE);
 			LOGMSG="General file copy failure";
 			LOGWRITE(LOGMSG);
-                        goto ZFAILURE;
-        endswitch;
+	                goto ZFAILURE;
+	endswitch;
 
         	//registering DLLs and OCXs
         
@@ -536,35 +536,28 @@ StartCopy:
 	LOGMSG="ADDING REGISTRY INFORMATION";
 	LOGWRITE(LOGMSG);
 
-        RegDBSetKeyValueEx(KEY_ROOT, "STORE_AUDIT", REGDB_STRING, szBaseDirectory, -1);
+	RegDBSetKeyValueEx(KEY_ROOT, "STORE_AUDIT", REGDB_STRING, szBaseDirectory, -1);
 
-        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
-
-        Delay( 1 );
+	SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+	
+	Delay( 1 );
 	Disable(STATUS);
 	Disable(FEEDBACK_FULL);
-
+	
 	// finished - reboot system
 	if (BATCH_INSTALL) then
 		CopyLocalDB("First");    
-	        	LOGMSG="MUST REBOOT BEFORE RUNNING";
-	        	LOGWRITE(LOGMSG);
-	
-	        	Disable(BACKBUTTON);
-	        	fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-	               		"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-	               		"your computer.");
-
 	else
 		CopyLocalDB("");
-//		SdFinish(WELCOME_TITLE + " Complete",
-//			WELCOME_TITLE + " has finished copying files to your computer.",
-//			"Click Finish to complete " + WELCOME_TITLE,
-//			"", "", bTemp1, bTemp2);
-	        	fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-	               		"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-	               		"your computer.");
 	endif;   
+
+        	LOGMSG="MUST REBOOT BEFORE RUNNING";
+        	LOGWRITE(LOGMSG);
+
+        	Disable(BACKBUTTON);
+        	fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+               		"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+               		"your computer.");
 
 	exit;
 
