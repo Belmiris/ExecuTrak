@@ -906,6 +906,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     
     szQuery = szQuery & sGroupByClause & " ORDER BY " & sTemp
     
+    Screen.MousePointer = vbHourglass
     'Get the records
     If Not fnGetRecord(rsTemp, szQuery, nDatabase) Then
         Screen.MousePointer = vbDefault
@@ -917,6 +918,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     End If
 
     'Check there is something for us to display before we show the results
+    Screen.MousePointer = vbHourglass
     If rsTemp.RecordCount > 0 Then
         ' Set load the data table
         Set datLink.Recordset = rsTemp
@@ -1326,7 +1328,7 @@ Public Sub AddColumn(nIndex As Integer, _
     
     'david 10/25/2001
     If sOrderByFields <> "" Then
-        AddOrderByFields sField, sOrderByFields
+        AddOrderByFields "", sOrderByFields, , nIndex
     End If
     '''''''''''''''''
     
@@ -2224,7 +2226,8 @@ End Sub
 'david 10/25/2001
 Public Sub AddOrderByFields(ByVal sDataField As String, _
                             ByVal sOrderByString As String, _
-                            Optional nDropDown As Variant)
+                            Optional nDropDown As Variant, _
+                            Optional nColIndex As Integer = -1)
     Dim i As Integer
     Dim nIndex As Integer
     Dim stCol As New clsColumns
@@ -2248,12 +2251,16 @@ Public Sub AddOrderByFields(ByVal sDataField As String, _
     nIndex = -1
     sDataField = LCase(sDataField)
     
-    For Each stCol In colTemp
-        If LCase(stCol.DataField) = sDataField Then
-            nIndex = stCol.ColumnIndex
-            Exit For
-        End If
-    Next
+    If nColIndex >= 0 Then
+        nIndex = nColIndex
+    ElseIf sDataField <> "" Then
+        For Each stCol In colTemp
+            If LCase(stCol.DataField) = sDataField Then
+                nIndex = stCol.ColumnIndex
+                Exit For
+            End If
+        Next
+    End If
     
     If nIndex < 0 Then
         MsgBox "DropDown Data Field not found.", vbCritical

@@ -2434,6 +2434,8 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
     End If
     
     'david 01/28/2002
+    Screen.MousePointer = vbHourglass
+    
     If bCalledByHeaderClick Then
         Dim sTemp As String
         
@@ -2481,6 +2483,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
         Exit Function
     End If
     
+    Screen.MousePointer = vbHourglass
     If tgDropDown.DataMode = dbgUnbound Then
         If rsTemp.RecordCount > 0 Then
             ReDim sGridData(rsTemp.Fields.Count - 1, rsTemp.RecordCount - 1)
@@ -2500,6 +2503,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
     End If
     
     'Check there is something for us to display before we show the results
+    Screen.MousePointer = vbHourglass
     If rsTemp.RecordCount > 0 Then
         ' Set the return values
         If rsTemp.RecordCount = 1 Then
@@ -4044,5 +4048,4 @@ Private Function fnFixSortOrder(ByVal sOrder As String, bDescending As Boolean) 
 
     fnFixSortOrder = sTemp + sOthers
 End Function
-
 
