@@ -2235,10 +2235,10 @@ Private Sub etabMain_GotFocus()
 
 End Sub
 
-Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
     
     If Not etabMain.TabEnabled(NewTab) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     
@@ -2280,7 +2280,7 @@ Private Sub tblDetail_FirstRowChange()
     tgfDropdown.FirstRowChange
 End Sub
 
-Private Sub tblDetail_Scroll(Cancel As Integer)
+Private Sub tblDetail_Scroll(CANCEL As Integer)
     tgfDropdown.Scroll
 End Sub
 
@@ -2304,8 +2304,8 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDropDown_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -2332,8 +2332,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(Cancel As Integer)
-    tgcDropdown.SelChange Cancel
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+    tgcDropdown.SelChange CANCEL
 End Sub
 
 
@@ -2353,7 +2353,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -2668,7 +2668,7 @@ Private Sub tfnResetScreen()
     txtFromPrftName.Text = ""
     txtToPrftCtr.Text = ""
     txtToPrftName.Text = ""
-    chkAllInvoice.Value = vbUnchecked
+    chkAllInvoice.value = vbUnchecked
     tgmHeader.ClearData
     tgmDetail.ClearData
     cValidate.ResetFlags
@@ -2715,16 +2715,16 @@ Private Sub tblHeader_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     Dim lCurHeaderRow As Long
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
     If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y" Then
-        Cancel = True
+        CANCEL = True
     End If
     
-    tgmHeader.BeforeColEdit ColIndex, KeyAscii, Cancel
+    tgmHeader.BeforeColEdit ColIndex, KeyAscii, CANCEL
     
 End Sub
 
@@ -2773,8 +2773,8 @@ Private Sub tblHeader_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblHeader_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblHeader_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2805,8 +2805,8 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
     subEnableDetailOKBtn False
 End Sub
 
@@ -2878,8 +2878,8 @@ Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblDetail_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDetail_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3301,7 +3301,7 @@ Private Function fnLoadHeaderData() As Boolean
     strSQL = strSQL & " FROM rs_p_hold_header, sys_prft_ctr, p_altname "
     strSQL = strSQL & " WHERE rsphh_prft_ctr = prft_ctr AND rsphh_vendor = pn_alt "
     
-    If chkAllInvoice.Value <> vbChecked Then
+    If chkAllInvoice.value <> vbChecked Then
         strSQL = strSQL & " AND rsphh_status = 'N' "
     End If
     
@@ -3932,7 +3932,7 @@ Private Function fnProcessData() As Boolean
     End If
     
     If bOk Then
-        bOk = fnInsertCategoryAndGLInfo(lGlAccount)
+        bOk = fnInsertCategoryAndGLInfo(lGlAccount, sPayType)
     End If
     
     If Not bOk Then
@@ -4149,7 +4149,7 @@ Private Function fnGetPriceBookLink(sItemCode As String, lVendor As Long, nPrftc
     
 End Function
 
-Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
+Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long, sPayType As String) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim lVendor As Long
@@ -4187,97 +4187,178 @@ Private Function fnInsertCategoryAndGLInfo(lGlAccount As Long) As Boolean
         subFiterCategory sCategory, dExtCost, dExtRetail, sCat(), dCatTotalCost(), dCatTotalRetail(), i
     Next
     
-    If sCat(0) <> "" Then
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Added this P type by junsong 11/25/2002,
+    'P type is account Payable, need write 'W'  as GL Record
+    'I Don't want to touch anything about other type. And Add If Condition and leave all other thing untouched
+    If sPayType = "P" Then
         
-        lMaxCatSeq = fnGetMaxSeqNum("C")
-        lMaxGLSeq = fnGetMaxSeqNum("G")
-
-        For i = 0 To UBound(sCat)
-            strSQL = "SELECT rssh_seq FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
-            strSQL = strSQL & " AND rssh_type = 'C' AND rssh_code = " & tfnSQLString(sCat(i))
+        If sCat(0) <> "" Then
             
-            If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
+            lMaxCatSeq = fnGetMaxSeqNum("C")
+            lMaxGLSeq = fnGetMaxSeqNum("W")
+    
+            For i = 0 To UBound(sCat)
+                strSQL = "SELECT rssh_seq FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
+                strSQL = strSQL & " AND rssh_type = 'C' AND rssh_code = " & tfnSQLString(sCat(i))
+                
+                If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
+                    Exit Function
+                ElseIf rsTemp.RecordCount = 0 Then
+                    
+                    strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
+                    strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+                    strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
+                    strSQL = strSQL & "0, 0, 0," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
+                    strSQL = strSQL & "0, 0, NULL, " & lMaxCatSeq + 1 & ")"
+                
+                    If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+                        Exit Function
+                    End If
+                
+                    sCostAccount = fnGetCostGLAccount(sCat(i))
+                
+                    If sCostAccount = "" Then
+                        Exit Function
+                    ElseIf Not fnInsertPayableGLInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq + 1, False) Then
+                        Exit Function
+                    End If
+                   
+                    lMaxCatSeq = lMaxCatSeq + 1
+                    lMaxGLSeq = lMaxGLSeq + 1
+                    dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                    
+                Else
+                    lCurCatSeq = tfnRound(rsTemp!rssh_seq)
+                    
+                    If Not fnUpdateCategory(dCatTotalCost(i), dCatTotalRetail(i), lCurCatSeq) Then
+                        Exit Function
+                    End If
+                    
+                    sCostAccount = fnGetCostGLAccount(sCat(i))
+                
+                    If sCostAccount = "" Then
+                        Exit Function
+                    ElseIf Not fnInsertPayableGLInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq + 1, False) Then
+                        Exit Function
+                    End If
+                   
+                    dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                    lMaxGLSeq = lMaxGLSeq + 1
+                End If
+                
+            Next
+            
+            If dTotalDebit <> dTotalCredit Then
+                'MsgBox " The account is not balance", vbInformation
                 Exit Function
-            ElseIf rsTemp.RecordCount = 0 Then
-                
-                strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
-                strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
-                strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
-                strSQL = strSQL & "0, 0, 0," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
-                strSQL = strSQL & "0, 0, NULL, " & lMaxCatSeq + 1 & ")"
-            
-                If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
-                    Exit Function
-                End If
-            
-                sCostAccount = fnGetCostGLAccount(sCat(i))
-            
-                If sCostAccount = "" Then
-                    Exit Function
-                ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
-                    Exit Function
-                End If
-               
-                lMaxCatSeq = lMaxCatSeq + 1
-                lMaxGLSeq = lMaxGLSeq + 1
-                dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
-                
             Else
-                lCurCatSeq = tfnRound(rsTemp!rssh_seq)
                 
-                If Not fnUpdateCatory(dCatTotalCost(i), dCatTotalRetail(i), lCurCatSeq) Then
+                If Not fnInsertPayableGLInfo(CStr(lGlAccount), dTotalCredit, lMaxGLSeq + 1, True) Then
                     Exit Function
                 End If
-                
-                sCostAccount = fnGetCostGLAccount(sCat(i))
-            
-                If sCostAccount = "" Then
-                    Exit Function
-                ElseIf Not fnUpdateGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
-                    Exit Function
-                End If
-               
-                bUpdate = True
-                dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
-             
+                        
             End If
-            
-        Next
-        
-        If dTotalDebit <> dTotalCredit Then
-            'MsgBox " The account is not balance", vbInformation
-            Exit Function
+                
+            fnInsertCategoryAndGLInfo = True
         Else
-            If bUpdate Then
+            fnInsertCategoryAndGLInfo = False
+        End If
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Else
+        If sCat(0) <> "" Then
+            
+            lMaxCatSeq = fnGetMaxSeqNum("C")
+            lMaxGLSeq = fnGetMaxSeqNum("G")
+    
+            For i = 0 To UBound(sCat)
+                strSQL = "SELECT rssh_seq FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
+                strSQL = strSQL & " AND rssh_type = 'C' AND rssh_code = " & tfnSQLString(sCat(i))
                 
-                If Not fnUpdateGlInfo(CStr(lGlAccount), dTotalCredit, lMaxGLSeq, True) Then
+                If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) < 0 Then
                     Exit Function
+                ElseIf rsTemp.RecordCount = 0 Then
+                    
+                    strSQL = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, rssh_code, "
+                    strSQL = strSQL & " rssh_1, rssh_2, rssh_3, rssh_4, rssh_5, rssh_6, rssh_7, rssh_8,"
+                    strSQL = strSQL & " rssh_seq)VALUES(" & g_lHoldShiftLink & ",'C', " & tfnSQLString(sCat(i)) & ","
+                    strSQL = strSQL & "0, 0, 0," & tfnRound(dCatTotalCost(i), 2) & "," & tfnRound(dCatTotalRetail(i), 2) & ","
+                    strSQL = strSQL & "0, 0, NULL, " & lMaxCatSeq + 1 & ")"
+                
+                    If Not fnExecuteSQL(strSQL, nDB_REMOTE, FUNC_NAME) Then
+                        Exit Function
+                    End If
+                
+                    sCostAccount = fnGetCostGLAccount(sCat(i))
+                
+                    If sCostAccount = "" Then
+                        Exit Function
+                    ElseIf Not fnInsertGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
+                        Exit Function
+                    End If
+                   
+                    lMaxCatSeq = lMaxCatSeq + 1
+                    lMaxGLSeq = lMaxGLSeq + 1
+                    dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                    
+                Else
+                    lCurCatSeq = tfnRound(rsTemp!rssh_seq)
+                    
+                    If Not fnUpdateCategory(dCatTotalCost(i), dCatTotalRetail(i), lCurCatSeq) Then
+                        Exit Function
+                    End If
+                    
+                    sCostAccount = fnGetCostGLAccount(sCat(i))
+                
+                    If sCostAccount = "" Then
+                        Exit Function
+                    ElseIf Not fnUpdateGlInfo(sCostAccount, dCatTotalCost(i), lMaxGLSeq, False) Then
+                        Exit Function
+                    End If
+                   
+                    bUpdate = True
+                    dTotalDebit = dTotalDebit + tfnRound(dCatTotalCost(i), 2)
+                 
                 End If
                 
+            Next
+            
+            If dTotalDebit <> dTotalCredit Then
+                'MsgBox " The account is not balance", vbInformation
+                Exit Function
             Else
-            
-                If Not fnInsertGlInfo(CStr(lGlAccount), dTotalCredit, UBound(sCat) + 1, True) Then
-                    Exit Function
+                If bUpdate Then
+                    
+                    If Not fnUpdateGlInfo(CStr(lGlAccount), dTotalCredit, lMaxGLSeq, True) Then
+                        Exit Function
+                    End If
+                    
+                Else
+                
+                    If Not fnInsertGlInfo(CStr(lGlAccount), dTotalCredit, UBound(sCat) + 1, True) Then
+                        Exit Function
+                    End If
+                
                 End If
-            
+                
+                
             End If
-            
-            
+                
+            fnInsertCategoryAndGLInfo = True
+        Else
+            fnInsertCategoryAndGLInfo = False
         End If
             
-        fnInsertCategoryAndGLInfo = True
-    Else
-        fnInsertCategoryAndGLInfo = False
     End If
-        
 End Function
 
-Private Function fnUpdateCatory(ByVal dCatTotalCost As Double, ByVal dCatTotalRetail As Double, ByVal lSeq As Long) As Boolean
+Private Function fnUpdateCategory(ByVal dCatTotalCost As Double, ByVal dCatTotalRetail As Double, ByVal lSeq As Long) As Boolean
     Dim dOrgCost As Double
     Dim dOrgRetail As Double
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Const FUNC_NAME As String = "fnUpdateCatory"
+    Const FUNC_NAME As String = "fnUpdateCategory"
     
     strSQL = "SELECT rssh_4, rssh_5 FROM rs_shifthold WHERE rssh_shl = " & g_lHoldShiftLink
     strSQL = strSQL & " AND rssh_type = 'C' and rssh_seq = " & lSeq
@@ -4301,7 +4382,7 @@ Private Function fnUpdateCatory(ByVal dCatTotalCost As Double, ByVal dCatTotalRe
         Exit Function
     End If
 
-    fnUpdateCatory = True
+    fnUpdateCategory = True
 End Function
 
 Private Function fnGetItemCategory(lVendor As Long, sItemCode As String) As String
@@ -4367,6 +4448,7 @@ Private Function fnGetCostGLAccount(sCat As String) As String
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetCostGLAccount") > 0 Then
         fnGetCostGLAccount = rsTemp!rsct_gl_cogs & ""
     End If
+    
 End Function
 
 Private Function fnInsertGlInfo(sCostAccount As String, dExtCost As Double, lSeq As Long, bTotal As Boolean) As Boolean
@@ -4471,6 +4553,39 @@ Private Function fnUpdateGlInfo(ByVal sCostAccount As String, ByVal dExtCost As 
     End If
 
     fnUpdateGlInfo = True
+End Function
+
+
+Private Function fnInsertPayableGLInfo(sCostAccount As String, dExtCost As Double, lSeq As Long, bTotal As Boolean) As Boolean
+    Dim strSQL As String
+    Dim strHeader As String
+    Dim lCurHeaderRow As Long
+    Dim lVendor As Long
+    Dim lInvoice As Long
+    
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    
+    strHeader = "INSERT INTO rs_shifthold(rssh_shl, rssh_type, "
+    strHeader = strHeader & " rssh_1, rssh_2, rssh_3,  rssh_7, rssh_8,"
+    strHeader = strHeader & " rssh_seq)VALUES ("
+    
+    'For the credit
+    If bTotal Then
+        strSQL = strHeader & g_lHoldShiftLink & ", 'W', " & tfnRound(sCostAccount) & ","
+        strSQL = strSQL & "0," & tfnRound(dExtCost, 2) & "," & lVendor & "," & lInvoice & "," & lSeq & ")"
+    Else
+        'for debit
+        strSQL = strHeader & g_lHoldShiftLink & ", 'W', " & tfnRound(sCostAccount) & ","
+        strSQL = strSQL & tfnRound(dExtCost, 2) & ",0," & lVendor & "," & lInvoice & "," & lSeq & ")"
+    End If
+    
+    
+    If fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertPayableGLInfo") Then
+        fnInsertPayableGLInfo = True
+    End If
+
 End Function
 
 Private Function fnUpdateInvHeader() As Boolean

@@ -71,7 +71,7 @@ Begin VB.Form frmZZSEPIMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -162,7 +162,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -198,7 +198,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -266,7 +266,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -303,7 +303,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -340,7 +340,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1772,7 +1772,6 @@ Private tgfDropDown2 As clsFloatingDropDown
 Private nFDropDown1 As Integer
 Private nFDropDown2 As Integer
 
-
 Public Sub subEnableSearchbtn(cmdButton As Control, bYesNo As Boolean)
     #If Win16 Then
         If bYesNo Then
@@ -2229,7 +2228,6 @@ Private Sub Form_Load()
     subInitErrorHandler   ' Setup Error Control
     
     tfnUpdateVersion
-    
  #End If
  
     ' disable system menu Close and Close icon on form
@@ -2244,7 +2242,7 @@ Private Sub Form_Load()
     tfnSetInitializingMessage
     Me.Enabled = False
     DoEvents
-
+    
     '***************************************************
     ' INSERT YOUR FORM LOAD CODE HERE
     ' | | | | | | |
@@ -3798,49 +3796,65 @@ Private Function fnUpdateInsert4() As Boolean
     Dim vData() As Variant
     Dim lRowCount As Long
     Dim nColCount As Integer
+    Dim sOldEmp As String
     Dim i As Long
+    Dim bRateChanged As Boolean
     
     Screen.MousePointer = vbHourglass
 
     'lRowCount = tgmGrid.GetChangedRowCount
     
     lRowCount = tgmGrid.RowCount
+    
+    sOldEmp = fnGetField(tgmGrid.CellValue(COL_EMPNO, 0))
+    
     'insert true grid sceen data into database
     For i = 0 To lRowCount - 1
         'tgmGrid.GetChangedRow vData, nColCount, i
         tgmGrid.GetRow vData, nColCount, i
+        
         If fnGetField(vData(COL_EMPNO)) <> "" Then
-'        Dim l As Long
-'        l = vData(nCOL_CONVT_FACTOR)
-
-'            strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-'               & vData(COL_NEW_RATE)
-'            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
-'            strSQL = strSQL & " AND prep_pay_code='" & strHourCode & "'"
-'            If Not fnExecuteSQL(strSQL, SUB_NAME) Then
-'                Screen.MousePointer = vbDefault
-'                Exit Function
-'            End If
-'            strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-'               & tfnFormatDecimal(vData(COL_NEW_RATE) * 1.5, 2)
-'            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
-'            strSQL = strSQL & " AND prep_pay_code='" & strOverCode & "'"
-'            If Not fnExecuteSQL(strSQL, SUB_NAME) Then
-'                Screen.MousePointer = vbDefault
-'                Exit Function
-'            End If
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
               & tfnFormatDecimal(vData(COL_NEW_RATE), 2) ' * vData(nCOL_CONVT_FACTOR), 2)
             strSQL = strSQL & " WHERE prep_empno=" & tfnRound(vData(COL_EMPNO))
             strSQL = strSQL & " AND prep_pay_code= " & tfnSQLString(vData(COL_PCODE))
             strSQL = strSQL & " AND prep_year = " & tfnRound(vData(nCOL_PREP_YEAR))
+            
             If Not fnExecuteSQL(strSQL, SUB_NAME) Then
                 Screen.MousePointer = vbDefault
                 Exit Function
             End If
+        
         End If
+        
+        'Added by junsong 12/05/2002
+        'This program is for 7_Eleven only, if Not, Check the sys_parm 30853
+        'After updating the pr_emp_pay, we need to update pr_master also, to the
+        'Pr_history and pr_pay_history can link together
+        
+        If fnGetField(vData(COL_EMPNO)) <> sOldEmp And bRateChanged Then
+            strSQL = "UPDATE pr_master SET prm_emp_level = prm_emp_level"
+            strSQL = strSQL & " WHERE prm_empno = " & tfnRound(sOldEmp)
+            
+            fnExecuteSQL strSQL, SUB_NAME
+            sOldEmp = fnGetField(vData(COL_EMPNO))
+            bRateChanged = False
+        Else
+        
+            If tfnRound(vData(COL_NEW_RATE), 2) <> tfnRound(vData(COL_OLD_RATE), 2) Then
+                bRateChanged = True
+            End If
+            
+        End If
+        
     Next
         
+    If sOldEmp <> "" And bRateChanged Then
+        strSQL = "UPDATE pr_master SET prm_emp_level = prm_emp_level"
+        strSQL = strSQL & " WHERE prm_empno = " & tfnRound(sOldEmp)
+        fnExecuteSQL strSQL, SUB_NAME
+    End If
+    
     fnUpdateInsert4 = True
     Screen.MousePointer = vbDefault
 End Function
@@ -4069,6 +4083,7 @@ ErrorWriteFile:
         Close #nFilePtr
     End If
 End Function
+
 Private Function fnGetPayCode() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
