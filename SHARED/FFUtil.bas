@@ -61,6 +61,8 @@ Option Explicit
     Public Const PV_TRUE = "TRUE"
     Public Const PV_FALSE = "FALSE"
     
+    Public dbLocal As Database
+    
     Public Type tpFileInfo
         m_sPath As String
         m_sFile As String
@@ -733,16 +735,36 @@ Private Sub subInitialize()
     udtBackupInfo.m_sType = DATA_BACKUP_EXTN
     subReadINIParms
     
-    #If FACTOR_MENU Then
-        If Command = t_szHandShake Then
-            If tfnOpenDatabase Then
-                subInitErrorHandler
-                tfnUpdateVersion
-            End If
-        End If
-    #End If
+    If fnAllowStandalone Then
+        subCheckRunMethod Command
+    End If
+    
+    If Not tfnAuthorizeExecute(Command) Then 'Check for handshake if not in the development mode
+        End
+    End If
+    
+    If tfnOpenDatabase Then
+        Set dbLocal = tfnOpenLocalDatabase
+        subInitErrorHandler
+        tfnUpdateVersion
+    Else
+        Unload LogForm
+        End
+    End If
     
 End Sub
+
+Private Sub subCheckRunMethod(sCommand As String)
+    
+    If sCommand = t_szHandShake Then
+        Load LogForm
+    Else
+        frmSplash.Caption = "Select Data Sources"
+        frmSplash.Show vbModal
+    End If
+
+End Sub
+
 
 Private Sub subInitErrorHandler()
     If objErrHandler Is Nothing Then
@@ -750,7 +772,7 @@ Private Sub subInitErrorHandler()
         With objErrHandler
             Set .FormParent = LogForm
             Set .DatabaseEngine = t_engFactor
-            Set .LocalDatabase = tfnOpenLocalDatabase
+            Set .LocalDatabase = dbLocal
         End With
     End If
 End Sub
@@ -1021,6 +1043,11 @@ Public Sub subParseString(sParam() As String, _
             ReDim Preserve sParam(k - 1)
         End If
     End If
+End Sub
+
+Public Sub subShowMainForm()
+    LogForm.Show
+    Screen.MousePointer = vbDefault
 End Sub
 
 Public Sub subWriteInOut()
