@@ -1843,7 +1843,11 @@ End Sub
 Private Function fnValidDate(ByVal szText As String, _
                                   ByVal lRow As Long) As Boolean
             
+    Dim sSql As String
+    Dim rsTemp As Recordset
+    
     fnValidDate = False
+    
     If Trim(szText) = "" Then
         tgcEditor.ErrorMessage(COL_DATE) _
             = "You must enter a Clock-in Date"
@@ -1863,9 +1867,6 @@ Private Function fnValidDate(ByVal szText As String, _
     
     
     'col_prft is not empty
-    
-    Dim sSql As String
-    Dim rsTemp As Recordset
             
     'Check duplication in table
     On Error GoTo err
@@ -1897,10 +1898,23 @@ Private Function fnValidDate(ByVal szText As String, _
             = "There is no valid G/L Period containing this Date"
     End If
     
+    'david 02/22/2001
+    If fnValidDate Then
+        If fnGetField(tgcEditor.CellValue(COL_PRFT, lRow)) = "" Then
+            'get default profit center for the employee
+            sSql = "SELECT prm_prft_ctr1"
+            sSql = sSql & " FROM pr_master"
+            sSql = sSql & " WHERE prm_empno = " & tfnRound(txtEmployeeNumber)
+            If GetRecordSet(rsTemp, sSql) > 0 Then
+                tgcEditor.CellValue(COL_PRFT, lRow) = tfnRound(rsTemp!prm_prft_ctr1)
+            End If
+        End If
+    End If
+    
     Exit Function
 
 err:
-    tfnErrHandler "fnvaliddate", sSql
+    tfnErrHandler "fnValidDate", sSql
     
 End Function
 
@@ -1968,7 +1982,7 @@ Private Function fnValidProfitCtr(ByVal szText As String, _
     Exit Function
 
 err:
-    tfnErrHandler "fnvalidprofitctr", sSql
+    tfnErrHandler "fnValidProfitCtr", sSql
     
 End Function
 
@@ -2104,7 +2118,7 @@ Private Function fnValidPayCode(szText As String) As Boolean
     Exit Function
 
 err:
-    tfnErrHandler "fnvalidpaycode", sSql
+    tfnErrHandler "fnValidPayCode", sSql
             
 End Function
 
