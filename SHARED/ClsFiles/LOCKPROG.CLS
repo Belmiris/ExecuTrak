@@ -43,6 +43,9 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
     
+    Dim sErrMsg As String
+    Dim i As Integer
+    
     Dim lHWnd As Long
     Dim sUser As String
     Dim sCriteria As String
@@ -63,8 +66,15 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
         Exit Function
     End If
     
+    sErrMsg = "N/A"
+    
     lHWnd = m_frmFormMain.hwnd
     sUser = UserName()
+    
+    If Len(sUser) > 12 Then
+        sUser = Left(sUser, 12)
+    End If
+    
     sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
     
     'get/check the lock
@@ -73,8 +83,11 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
     strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
     
     If fnGetRecord(rsTemp, strSQL, SUB_NAME, False) < 0 Then
+        sErrMsg = "Failed to select from the lock table."
         GoTo errTrap
     End If
+    
+    sErrMsg = "N/A"
     
     If rsTemp.RecordCount > 0 Then
         strSQL = "UPDATE sys_row_lock SET srl_table = " + tfnSQLString(lHWnd)
@@ -82,6 +95,7 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
         strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
 
         If Not fnExecuteSQL(strSQL, SUB_NAME, False) Then
+            sErrMsg = "Failed to update to the lock table."
             GoTo errTrap
         End If
         
@@ -97,6 +111,7 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
         strSQL = strSQL + "0" + ")"
 
         If Not fnExecuteSQL(strSQL, SUB_NAME, False) Then
+            sErrMsg = "Failed to insert into the lock table."
             GoTo errTrap
         End If
     
@@ -104,18 +119,34 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
         strSQL = "SELECT * FROM sys_row_lock"
         strSQL = strSQL + " WHERE srl_criteria = " + tfnSQLString(sCriteria)
         strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
-        strSQL = strSQL + " ORDER BY srl_nbr"
+        'strSQL = strSQL + " ORDER BY srl_nbr"
         
-        If fnGetRecord(rsTemp, strSQL, SUB_NAME, False) < 0 Then
+        'david 01/26/2005  #472512
+        'timing issue
+        'let's try 5 times to retrieve the lock entry,
+        'wait 1 second between tries.
+        For i = 1 To 5
+            sErrMsg = "N/A"
+            
+            If fnGetRecord(rsTemp, strSQL, SUB_NAME) < 0 Then
+                sErrMsg = "Failed to select again from the lock table."
+                GoTo errTrap
+            End If
+            
+            If rsTemp.RecordCount > 0 Then
+                'inserted lock entries found
+                LockProgram = True
+                Exit For
+            Else
+                'SOMETHING WRONG???!!!
+                'try again, loops
+                tfnWaitSeconds 1
+            End If
+        Next i
+        
+        If i > 5 Then
+            sErrMsg = "lock entry not found."
             GoTo errTrap
-        End If
-        
-        If rsTemp.RecordCount = 0 Then
-            'SOMETHING WRONG???!!!
-            MsgBox "Failed to lock the Program." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
-            Exit Function
-        Else
-            LockProgram = True
         End If
     End If
     
@@ -123,7 +154,9 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
     
 errTrap:
     'SOMETHING WRONG???!!!
-    MsgBox "Failed to lock the Program." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
+    MsgBox "Failed to lock the Program." + vbCrLf _
+        + "ErrDesc: " + sErrMsg + vbCrLf + vbCrLf _
+        + "Please report this message to Support.", vbCritical
 End Function
 
 Public Sub UnLockProgram(Optional sProgramID As String = "")
@@ -147,6 +180,11 @@ Public Sub UnLockProgram(Optional sProgramID As String = "")
     End If
     
     sUser = UserName()
+    
+    If Len(sUser) > 12 Then
+        sUser = Left(sUser, 12)
+    End If
+    
     sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
     
     'delete the program lock
@@ -188,6 +226,11 @@ Public Function IsProgramLocked(sProgramID As String, _
     End If
     
     sUser = UserName()
+    
+    If Len(sUser) > 12 Then
+        sUser = Left(sUser, 12)
+    End If
+    
     sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
 
     'get/check the program lock
@@ -228,6 +271,11 @@ Private Sub subDeleteOldLocks()
     End If
     
     sUser = UserName()
+    
+    If Len(sUser) > 12 Then
+        sUser = Left(sUser, 12)
+    End If
+    
     sCriteria = "LOCKPROG-" + UCase(m_sFormID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
     
     'delete the old lock
@@ -235,7 +283,9 @@ Private Sub subDeleteOldLocks()
     strSQL = strSQL + " WHERE srl_criteria = " + tfnSQLString(sCriteria)
     strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
     
-    fnExecuteSQL strSQL, SUB_NAME, False
+    If Not fnExecuteSQL(strSQL, SUB_NAME, False) Then
+        MsgBox "Failed to delete old lock.", vbExclamation
+    End If
 End Sub
 
 Private Function fnGetRecord(rsTemp As Recordset, strSQL As String, _
