@@ -452,69 +452,70 @@ End Function
 Public Function fnInsertHoldBonus() As String
     Const SUB_NAME As String = "fnInsertHoldBonus"
     
-    Dim strSQL As String
+    Dim strSQLinsert As String
     Dim strSQL1 As String
-    Dim i As Long
     Dim lRow As Long
     Dim lEmpNo As Long
     Dim nPrftCtr As Integer
+    Dim sPayCode As String
     Dim sEndDate  As String
     Dim sErrMsg As String
     
-    strSQL = "INSERT INTO bonus_hold (bh_empno, bh_prft_ctr, bh_pay_code, bh_check_amount,"
-    strSQL = strSQL & " bh_hours, bh_date, bh_override, bh_chk_link) VALUES ("
+    strSQLinsert = "INSERT INTO bonus_hold (bh_empno, bh_prft_ctr, bh_pay_code, bh_check_amount,"
+    strSQLinsert = strSQLinsert & " bh_hours, bh_date, bh_override, bh_chk_link) VALUES ("
     
-    For i = 0 To tgmApprove.RowCount - 1
-        lEmpNo = tfnRound(tgmApprove.CellValue(colAEmpNo, lRow))
-        nPrftCtr = tfnRound(tgmApprove.CellValue(colAPrftCtr, lRow))
-        sEndDate = tgmApprove.CellValue(colADate, lRow)
-        
-        If Not fnChkLinkIsZero(lEmpNo, nPrftCtr, sEndDate, sErrMsg) Then
-            If sErrMsg <> "" Then
-                fnInsertHoldBonus = sErrMsg
-                Exit Function
-            Else
-                Exit For
-            End If
-        End If
-        
-        'delete the old data in bonus_hold first
-        strSQL1 = "DELETE FROM bonus_hold WHERE bh_empno = " & lEmpNo
-        strSQL1 = strSQL1 & " AND bh_prft_ctr = " & nPrftCtr
-        strSQL1 = strSQL1 & " AND bh_date = " & tfnDateString(sEndDate)
-        'strSQL1 = strSQL1 & " AND bh_chk_link = 0"
-
-        If Not fnExecuteSQL(strSQL1, , SUB_NAME) Then
-            fnInsertHoldBonus = "Failed to delete Old Commission Data"
-            Exit Function
-        End If
-        
-        For lRow = 0 To tgmApprove.RowCount - 1
-            strSQL1 = lEmpNo & ", "
-            strSQL1 = strSQL1 & nPrftCtr & ", "
-            strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAPayCode, lRow)) & ", "
-            strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colABonusAmt, lRow), 2) & ", "
-            If fnGetField(tgmApprove.CellValue(colAPayHours, lRow)) = "" Then
-                strSQL1 = strSQL1 & "NULL, "
-            Else
-                strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colAPayHours, lRow), 2) & ", "
-            End If
-            strSQL1 = strSQL1 & tfnDateString(sEndDate, True) & ", "
-            strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAHdsOverride, lRow)) & ", "
-            strSQL1 = strSQL1 & "0"  'per weigong insert 0 for bh_chk_link
+    For lRow = 0 To tgmApprove.RowCount - 1
+        If tgmApprove.CellValue(colAApprove, lRow) = colAppYes Then
+            lEmpNo = tfnRound(tgmApprove.CellValue(colAEmpNo, lRow))
+            nPrftCtr = tfnRound(tgmApprove.CellValue(colAPrftCtr, lRow))
+            sPayCode = fnGetField(tgmApprove.CellValue(colAPayCode, lRow))
+            sEndDate = fnGetField(tgmApprove.CellValue(colADate, lRow))
             
-            If Not fnExecuteSQL(strSQL + strSQL1 + ")", , SUB_NAME) Then
-                fnInsertHoldBonus = "Failed to insert Commission Data"
-                Exit Function
+            If fnChkLinkIsZero(lEmpNo, nPrftCtr, sPayCode, sEndDate, sErrMsg) Then
+                'delete the old data in bonus_hold first
+                strSQL1 = "DELETE FROM bonus_hold WHERE bh_empno = " & lEmpNo
+                strSQL1 = strSQL1 & " AND bh_prft_ctr = " & nPrftCtr
+                strSQL1 = strSQL1 & " AND bh_pay_code = " & tfnSQLString(sPayCode)
+                strSQL1 = strSQL1 & " AND bh_date = " & tfnDateString(sEndDate, True)
+                strSQL1 = strSQL1 & " AND bh_chk_link = 0"
+                
+                If Not fnExecuteSQL(strSQL1, , SUB_NAME) Then
+                    fnInsertHoldBonus = "Failed to delete Old Commission Data"
+                    Exit Function
+                End If
+                
+                strSQL1 = lEmpNo & ", "
+                strSQL1 = strSQL1 & nPrftCtr & ", "
+                strSQL1 = strSQL1 & tfnSQLString(sPayCode) & ", "
+                strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colABonusAmt, lRow), 2) & ", "
+                If fnGetField(tgmApprove.CellValue(colAPayHours, lRow)) = "" Then
+                    strSQL1 = strSQL1 & "NULL, "
+                Else
+                    strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colAPayHours, lRow), 2) & ", "
+                End If
+                strSQL1 = strSQL1 & tfnDateString(sEndDate, True) & ", "
+                strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAHdsOverride, lRow)) & ", "
+                strSQL1 = strSQL1 & "0"  'per weigong insert 0 for bh_chk_link
+                
+                If Not fnExecuteSQL(strSQLinsert + strSQL1 + ")", , SUB_NAME) Then
+                    fnInsertHoldBonus = "Failed to insert Commission Data"
+                    Exit Function
+                End If
+            Else
+                If sErrMsg <> "" Then
+                    fnInsertHoldBonus = sErrMsg
+                    Exit Function
+                End If
             End If
-        Next lRow
-    Next i
+        End If
+    Next lRow
     
     fnInsertHoldBonus = ""
 End Function
 
 Private Function fnChkLinkIsZero(lEmpNo As Long, _
                                 nPrftCtr As Integer, _
+                                sPayCode As String, _
                                 sEndDate As String, _
                                 sErrMsg As String) As Boolean
     
@@ -527,7 +528,8 @@ Private Function fnChkLinkIsZero(lEmpNo As Long, _
     strSQL = strSQL & " WHERE bh_chk_link <> 0"
     strSQL = strSQL & " AND bh_empno = " & lEmpNo
     strSQL = strSQL & " AND bh_prft_ctr = " & nPrftCtr
-    strSQL = strSQL & " AND bh_date = " & tfnDateString(sEndDate)
+    strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode)
+    strSQL = strSQL & " AND bh_date = " & tfnDateString(sEndDate, True)
 
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         sErrMsg = "Failed to access database"
@@ -759,19 +761,25 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     End If
     
     'Get real values...
-    V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
-    If sErrMsg <> "" Then
-        subLogErrMsg sErrMsg
+    If sV1 <> "" Then
+        V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg
+        End If
     End If
     
-    V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
-    If sErrMsg <> "" Then
-        subLogErrMsg sErrMsg
+    If sV2 <> "" Then
+        V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg
+        End If
     End If
     
-    V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
-    If sErrMsg <> "" Then
-        subLogErrMsg sErrMsg
+    If sV3 <> "" Then
+        V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg
+        End If
     End If
     
     'set the variables value for condition

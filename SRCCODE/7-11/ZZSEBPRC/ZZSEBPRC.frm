@@ -2652,7 +2652,7 @@ Private Sub cmdApprove_Click()
     End If
     
     tgmApprove.Rebind
-    'cmdOk.Enabled = fnHasApprove()
+    cmdOK.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2704,6 +2704,7 @@ Private Sub cmdOK_Click()
     Me.Enabled = True
     
     nDataStatus = DATA_INIT
+    tgmApprove.ClearData
     
     tfnResetScreen TabApprove
     tfnResetScreen TabProcess
@@ -3918,6 +3919,8 @@ Private Sub subInitSpreadsheets()
         colAHdnPrftName = .AddHiddenField("HiddenPrftName")
         colAHdsBonusDesc = .AddHiddenField("HiddenBonusDesc")
         colAHdnBAmtLvls = .AddHiddenField("HiddenLevels")
+        
+        .SortByColumn = True
         
         .AddSortColumn colAEmpNo, colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
