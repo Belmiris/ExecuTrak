@@ -9,7 +9,7 @@ move ..\disk\cmclient.1 ..\disk\disk1
 move ..\disk\cmclient.2 ..\disk\disk2
 
 echo  split shared.z
-call fsplit ..\disk\shared.z ..\disk 170
+call fsplit ..\disk\shared.z ..\disk 70
 move ..\disk\shared.1 ..\disk\disk2
 move ..\disk\shared.2 ..\disk\disk3
 
@@ -20,12 +20,12 @@ echo NO split factole.z
 copy ..\disk\factole.z ..\disk\disk3
 
 echo  split custctl.z
-call fsplit ..\disk\custctl.z ..\disk 890
+call fsplit ..\disk\custctl.z ..\disk 750
 move ..\disk\custctl.1 ..\disk\disk3
 move ..\disk\custctl.2 ..\disk\disk4
 
 echo split rtm.z
-call fsplit ..\disk\rtm.z ..\disk 300
+call fsplit ..\disk\rtm.z ..\disk 170
 move ..\disk\rtm.1 ..\disk\disk4
 move ..\disk\rtm.2 ..\disk\disk5
 move ..\disk\rtm.3 ..\disk\disk6

@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "CM302"
-#define UNINSTALL_NAME          "Credit Management System Version 3.02"
+#define PRODUCT_VERSION         "3.09.09"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "CM309.09"
+#define UNINSTALL_NAME          "Credit Management System Version 3.09.09"
 
 
 #define SIZE_REQ_SERVER         9
