@@ -579,22 +579,25 @@ Public Sub subFixTypeATaxForInfo()
                         End If
                     End If
                     
+                    'Vijaya on 08/18/03 Magic#417233
+                    'Coming sept 1st2003, The Tx Loading Fee rates are changing.
+                    
                     If lTaxableAmount = 0 Then
                        fTypeATaxes(nDel) = 0#
                     ElseIf lTaxableAmount < 2500 Then
-                       fTypeATaxes(nDel) = 12.5 * nSign
+                       fTypeATaxes(nDel) = 10# * nSign
                     ElseIf lTaxableAmount < 5000 Then
-                       fTypeATaxes(nDel) = 25# * nSign
+                       fTypeATaxes(nDel) = 20# * nSign
                     ElseIf lTaxableAmount < 8000 Then
-                       fTypeATaxes(nDel) = 37.5 * nSign
+                       fTypeATaxes(nDel) = 30# * nSign
                     ElseIf lTaxableAmount < 10000 Then
-                       fTypeATaxes(nDel) = 50# * nSign
+                       fTypeATaxes(nDel) = 40# * nSign
                     Else
                        m = 3
                        
                        Do While True
                           If lTaxableAmount < m * 5000 Then
-                             fTypeATaxes(nDel) = m * 25# * nSign
+                             fTypeATaxes(nDel) = m * 20# * nSign
                              Exit Do
                           Else
                              m = m + 1
