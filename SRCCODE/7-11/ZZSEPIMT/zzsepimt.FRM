@@ -13,7 +13,7 @@ Begin VB.Form frmZZSEPIMT
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.6
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -30,7 +30,7 @@ Begin VB.Form frmZZSEPIMT
    Begin FACTFRMLib.FactorFrame efraBackground 
       Height          =   5184
       Left            =   0
-      TabIndex        =   1
+      TabIndex        =   16
       TabStop         =   0   'False
       Top             =   516
       Width           =   8880
@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEPIMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -51,7 +51,7 @@ Begin VB.Form frmZZSEPIMT
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -59,11 +59,11 @@ Begin VB.Form frmZZSEPIMT
          Strikethrough   =   0   'False
       EndProperty
       Begin FACTFRMLib.FactorFrame cmdExit 
-         Height          =   396
+         Height          =   390
          HelpContextID   =   15
-         Left            =   7470
-         TabIndex        =   8
-         Top             =   4620
+         Left            =   7524
+         TabIndex        =   49
+         Top             =   4716
          Width           =   1260
          _Version        =   65536
          _ExtentX        =   2222
@@ -71,7 +71,7 @@ Begin VB.Form frmZZSEPIMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -86,7 +86,7 @@ Begin VB.Form frmZZSEPIMT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -97,463 +97,30 @@ Begin VB.Form frmZZSEPIMT
       Begin FACTTABLib.FactorTab etabMain 
          Height          =   4860
          HelpContextID   =   201
-         Left            =   0
-         TabIndex        =   2
+         Left            =   96
+         TabIndex        =   33
          TabStop         =   0   'False
-         Top             =   0
-         Width           =   8895
+         Top             =   84
+         Width           =   8892
          _Version        =   65536
          _ExtentX        =   15690
          _ExtentY        =   8572
          _StockProps     =   68
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         TabsPerPage     =   4
-         Caption         =   "Pay Increase &Maint.|Pay &Increase Report"
-         Begin FACTFRMLib.FactorFrame efraTabBack1 
-            Height          =   4548
-            Left            =   12
-            TabIndex        =   10
-            TabStop         =   0   'False
-            Top             =   12
-            Width           =   8868
-            _Version        =   65536
-            _ExtentX        =   15642
-            _ExtentY        =   8022
-            _StockProps     =   77
-            BackColor       =   8388608
-            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "Arial"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            BevelOuter      =   0
-            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "MS Sans Serif"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            Begin FACTFRMLib.FactorFrame efraTabFrame1 
-               Height          =   3852
-               Left            =   96
-               TabIndex        =   11
-               TabStop         =   0   'False
-               Top             =   96
-               Width           =   8652
-               _Version        =   65536
-               _ExtentX        =   15266
-               _ExtentY        =   6800
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               BevelOuter      =   5
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Begin DBTrueGrid.TDBGrid tblSpreadsheet 
-                  Height          =   2028
-                  HelpContextID   =   1402
-                  Left            =   636
-                  OleObjectBlob   =   "zzsepimt.frx":0000
-                  TabIndex        =   16
-                  Top             =   1584
-                  Width           =   7380
-               End
-               Begin FACTFRMLib.FactorFrame efraTop 
-                  Height          =   1068
-                  Left            =   132
-                  TabIndex        =   12
-                  TabStop         =   0   'False
-                  Top             =   156
-                  Width           =   8412
-                  _Version        =   65536
-                  _ExtentX        =   14838
-                  _ExtentY        =   1884
-                  _StockProps     =   77
-                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                     Name            =   "Arial"
-                     Size            =   9.6
-                     Charset         =   0
-                     Weight          =   400
-                     Underline       =   0   'False
-                     Italic          =   0   'False
-                     Strikethrough   =   0   'False
-                  EndProperty
-                  BevelOuter      =   6
-                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                     Name            =   "MS Sans Serif"
-                     Size            =   9.6
-                     Charset         =   0
-                     Weight          =   400
-                     Underline       =   0   'False
-                     Italic          =   0   'False
-                     Strikethrough   =   0   'False
-                  EndProperty
-                  Begin VB.TextBox txtDesc 
-                     Height          =   360
-                     HelpContextID   =   1401
-                     Left            =   3972
-                     MaxLength       =   20
-                     TabIndex        =   14
-                     Top             =   480
-                     Width           =   3495
-                  End
-                  Begin VB.TextBox txtLevel 
-                     Height          =   360
-                     HelpContextID   =   1400
-                     Left            =   504
-                     MaxLength       =   1
-                     TabIndex        =   13
-                     Top             =   480
-                     Width           =   2205
-                  End
-                  Begin FACTFRMLib.FactorFrame cmdLevel 
-                     CausesValidation=   0   'False
-                     Height          =   360
-                     HelpContextID   =   2901
-                     Left            =   2724
-                     TabIndex        =   18
-                     TabStop         =   0   'False
-                     Tag             =   "Run #3"
-                     Top             =   480
-                     Width           =   360
-                     _Version        =   65536
-                     _ExtentX        =   635
-                     _ExtentY        =   635
-                     _StockProps     =   77
-                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                        Name            =   "Arial"
-                        Size            =   9.6
-                        Charset         =   0
-                        Weight          =   400
-                        Underline       =   0   'False
-                        Italic          =   0   'False
-                        Strikethrough   =   0   'False
-                     EndProperty
-                     CaptionPos      =   4
-                     Picture         =   "zzsepimt.frx":1326
-                     Style           =   3
-                     BorderWidth     =   4
-                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                        Name            =   "MS Sans Serif"
-                        Size            =   9.6
-                        Charset         =   0
-                        Weight          =   400
-                        Underline       =   0   'False
-                        Italic          =   0   'False
-                        Strikethrough   =   0   'False
-                     EndProperty
-                  End
-                  Begin FACTFRMLib.FactorFrame cmdDesc 
-                     CausesValidation=   0   'False
-                     Height          =   360
-                     HelpContextID   =   2901
-                     Left            =   7482
-                     TabIndex        =   19
-                     TabStop         =   0   'False
-                     Tag             =   "Run #3"
-                     Top             =   480
-                     Width           =   360
-                     _Version        =   65536
-                     _ExtentX        =   635
-                     _ExtentY        =   635
-                     _StockProps     =   77
-                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                        Name            =   "Arial"
-                        Size            =   9.6
-                        Charset         =   0
-                        Weight          =   400
-                        Underline       =   0   'False
-                        Italic          =   0   'False
-                        Strikethrough   =   0   'False
-                     EndProperty
-                     CaptionPos      =   4
-                     Picture         =   "zzsepimt.frx":1438
-                     Style           =   3
-                     BorderWidth     =   4
-                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                        Name            =   "MS Sans Serif"
-                        Size            =   9.6
-                        Charset         =   0
-                        Weight          =   400
-                        Underline       =   0   'False
-                        Italic          =   0   'False
-                        Strikethrough   =   0   'False
-                     EndProperty
-                  End
-                  Begin VB.Label Label3 
-                     Caption         =   "Employee Level Description"
-                     Height          =   348
-                     Left            =   3984
-                     TabIndex        =   21
-                     Top             =   132
-                     Width           =   3420
-                  End
-                  Begin VB.Label Label2 
-                     Caption         =   "Employee Level"
-                     Height          =   276
-                     Left            =   528
-                     TabIndex        =   20
-                     Top             =   168
-                     Width           =   2088
-                  End
-               End
-            End
-            Begin FACTFRMLib.FactorFrame cmdDeleteBtn 
-               Height          =   396
-               HelpContextID   =   12
-               Index           =   0
-               Left            =   3036
-               TabIndex        =   9
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "&Delete"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin FACTFRMLib.FactorFrame cmdEditBtn 
-               Height          =   396
-               HelpContextID   =   11
-               Index           =   0
-               Left            =   1560
-               TabIndex        =   4
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "&Edit"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin FACTFRMLib.FactorFrame cmdAddBtn 
-               Height          =   396
-               HelpContextID   =   10
-               Index           =   0
-               Left            =   96
-               TabIndex        =   3
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "&Add"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin FACTFRMLib.FactorFrame cmdRefreshSelectBtn 
-               Height          =   396
-               HelpContextID   =   14
-               Index           =   0
-               Left            =   4500
-               TabIndex        =   6
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2307
-               _ExtentY        =   698
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "&Refresh"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
-               Height          =   396
-               HelpContextID   =   15
-               Index           =   0
-               Left            =   7428
-               TabIndex        =   7
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "Ca&ncel"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
-               Height          =   396
-               HelpContextID   =   16
-               Index           =   0
-               Left            =   5964
-               TabIndex        =   5
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "&Update"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-         End
-         Begin FACTFRMLib.FactorFrame efraTabBack2 
+         TabsPerPage     =   5
+         Caption         =   "&Job Class|Pay &Code|Pay Incr &Maint.|Pay &Incr Report"
+         Begin FACTFRMLib.FactorFrame efraTabBack4 
             Height          =   4572
-            Left            =   14460
-            TabIndex        =   15
+            Left            =   14580
+            TabIndex        =   45
             TabStop         =   0   'False
             Top             =   0
             Width           =   8892
@@ -564,120 +131,30 @@ Begin VB.Form frmZZSEPIMT
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
                Italic          =   0   'False
                Strikethrough   =   0   'False
             EndProperty
-            BevelOuter      =   0
+            BevelOuter      =   5
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
                Italic          =   0   'False
                Strikethrough   =   0   'False
             EndProperty
-            Begin FACTFRMLib.FactorFrame efraTabFrame2 
-               Height          =   3855
-               Left            =   90
-               TabIndex        =   17
-               TabStop         =   0   'False
-               Top             =   75
-               Width           =   8655
-               _Version        =   65536
-               _ExtentX        =   15266
-               _ExtentY        =   6800
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               BevelOuter      =   5
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Begin VB.PictureBox picText 
-                  Appearance      =   0  'Flat
-                  BackColor       =   &H80000005&
-                  ForeColor       =   &H80000008&
-                  Height          =   324
-                  Left            =   0
-                  ScaleHeight     =   300
-                  ScaleWidth      =   1020
-                  TabIndex        =   31
-                  Top             =   0
-                  Width           =   1044
-               End
-               Begin DBTrueGrid.TDBGrid tblGrid 
-                  Height          =   3480
-                  HelpContextID   =   1403
-                  Left            =   96
-                  OleObjectBlob   =   "zzsepimt.frx":154A
-                  TabIndex        =   24
-                  TabStop         =   0   'False
-                  Top             =   168
-                  Width           =   8472
-               End
-            End
-            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
-               Height          =   396
-               HelpContextID   =   15
-               Index           =   1
-               Left            =   7440
-               TabIndex        =   30
-               Top             =   4080
-               Width           =   1308
-               _Version        =   65536
-               _ExtentX        =   2302
-               _ExtentY        =   688
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               Caption         =   "Ca&ncel"
-               CaptionPos      =   4
-               PicturePos      =   3
-               ShowFocusRect   =   -1  'True
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
             Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   16
-               Index           =   1
-               Left            =   6024
-               TabIndex        =   29
-               Top             =   4080
+               Index           =   3
+               Left            =   5916
+               TabIndex        =   31
+               Top             =   4008
                Width           =   1308
                _Version        =   65536
                _ExtentX        =   2307
@@ -685,7 +162,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -700,7 +177,96 @@ Begin VB.Form frmZZSEPIMT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame efraTabFrame4 
+               Height          =   3852
+               Left            =   72
+               TabIndex        =   46
+               TabStop         =   0   'False
+               Top             =   96
+               Width           =   8652
+               _Version        =   65536
+               _ExtentX        =   15266
+               _ExtentY        =   6800
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               BevelOuter      =   5
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Begin DBTrueGrid.TDBGrid tblGrid 
+                  Height          =   3540
+                  HelpContextID   =   1408
+                  Left            =   36
+                  OleObjectBlob   =   "zzsepimt.frx":0000
+                  TabIndex        =   29
+                  Top             =   156
+                  Width           =   8544
+               End
+               Begin VB.PictureBox picText 
+                  Appearance      =   0  'Flat
+                  BackColor       =   &H80000005&
+                  ForeColor       =   &H80000008&
+                  Height          =   324
+                  Left            =   0
+                  ScaleHeight     =   300
+                  ScaleWidth      =   1020
+                  TabIndex        =   47
+                  Top             =   0
+                  Width           =   1044
+               End
+            End
+            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
+               Height          =   390
+               HelpContextID   =   15
+               Index           =   3
+               Left            =   7380
+               TabIndex        =   32
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "Ca&ncel"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -709,20 +275,20 @@ Begin VB.Form frmZZSEPIMT
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdPrint 
-               Height          =   396
-               HelpContextID   =   1405
-               Index           =   1
-               Left            =   4464
-               TabIndex        =   27
-               Top             =   4080
-               Width           =   1428
+               Height          =   390
+               HelpContextID   =   1410
+               Index           =   3
+               Left            =   4452
+               TabIndex        =   30
+               Top             =   4008
+               Width           =   1308
                _Version        =   65536
-               _ExtentX        =   2514
-               _ExtentY        =   688
+               _ExtentX        =   2307
+               _ExtentY        =   698
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -737,7 +303,7 @@ Begin VB.Form frmZZSEPIMT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -746,12 +312,12 @@ Begin VB.Form frmZZSEPIMT
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdProcess 
-               Height          =   396
-               HelpContextID   =   1404
-               Index           =   1
-               Left            =   3036
-               TabIndex        =   25
-               Top             =   4080
+               Height          =   390
+               HelpContextID   =   1409
+               Index           =   3
+               Left            =   2988
+               TabIndex        =   28
+               Top             =   4008
                Width           =   1308
                _Version        =   65536
                _ExtentX        =   2302
@@ -759,7 +325,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -774,7 +340,1078 @@ Begin VB.Form frmZZSEPIMT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+         End
+         Begin FACTFRMLib.FactorFrame efraTabBack3 
+            Height          =   4572
+            Left            =   14520
+            TabIndex        =   40
+            TabStop         =   0   'False
+            Top             =   0
+            Width           =   8892
+            _Version        =   65536
+            _ExtentX        =   15684
+            _ExtentY        =   8064
+            _StockProps     =   77
+            BackColor       =   8388608
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            BevelOuter      =   5
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Begin FACTFRMLib.FactorFrame cmdRefreshSelectBtn 
+               Height          =   390
+               HelpContextID   =   14
+               Index           =   2
+               Left            =   5916
+               TabIndex        =   25
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2307
+               _ExtentY        =   698
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Refresh"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame efraTabFrame3 
+               Height          =   3852
+               Left            =   72
+               TabIndex        =   41
+               TabStop         =   0   'False
+               Top             =   96
+               Width           =   8652
+               _Version        =   65536
+               _ExtentX        =   15266
+               _ExtentY        =   6800
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               BevelOuter      =   5
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Begin DBTrueGrid.TDBGrid tblSpreadsheet 
+                  Height          =   2028
+                  HelpContextID   =   1407
+                  Left            =   636
+                  OleObjectBlob   =   "zzsepimt.frx":30CF
+                  TabIndex        =   23
+                  Top             =   1584
+                  Width           =   7380
+               End
+               Begin FACTFRMLib.FactorFrame efraTop 
+                  Height          =   1068
+                  Left            =   132
+                  TabIndex        =   42
+                  TabStop         =   0   'False
+                  Top             =   156
+                  Width           =   8412
+                  _Version        =   65536
+                  _ExtentX        =   14838
+                  _ExtentY        =   1884
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  BevelOuter      =   6
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  Begin VB.TextBox txtLevel 
+                     Height          =   360
+                     HelpContextID   =   1403
+                     Left            =   504
+                     MaxLength       =   1
+                     TabIndex        =   19
+                     Top             =   480
+                     Width           =   2205
+                  End
+                  Begin VB.TextBox txtDesc 
+                     Height          =   360
+                     HelpContextID   =   1405
+                     Left            =   3972
+                     MaxLength       =   20
+                     TabIndex        =   21
+                     Top             =   480
+                     Width           =   3495
+                  End
+                  Begin FACTFRMLib.FactorFrame cmdLevel 
+                     CausesValidation=   0   'False
+                     Height          =   360
+                     HelpContextID   =   1404
+                     Left            =   2724
+                     TabIndex        =   20
+                     TabStop         =   0   'False
+                     Tag             =   "Run #3"
+                     Top             =   480
+                     Width           =   360
+                     _Version        =   65536
+                     _ExtentX        =   635
+                     _ExtentY        =   635
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     CaptionPos      =   4
+                     Picture         =   "zzsepimt.frx":43F5
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin FACTFRMLib.FactorFrame cmdDesc 
+                     CausesValidation=   0   'False
+                     Height          =   360
+                     HelpContextID   =   1406
+                     Left            =   7482
+                     TabIndex        =   22
+                     TabStop         =   0   'False
+                     Tag             =   "Run #3"
+                     Top             =   480
+                     Width           =   360
+                     _Version        =   65536
+                     _ExtentX        =   635
+                     _ExtentY        =   635
+                     _StockProps     =   77
+                     BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "Arial"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                     CaptionPos      =   4
+                     Picture         =   "zzsepimt.frx":4507
+                     Style           =   3
+                     BorderWidth     =   4
+                     BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                        Name            =   "MS Sans Serif"
+                        Size            = 9.75 
+                        Charset         =   0
+                        Weight          =   400
+                        Underline       =   0   'False
+                        Italic          =   0   'False
+                        Strikethrough   =   0   'False
+                     EndProperty
+                  End
+                  Begin VB.Label Label2 
+                     Caption         =   "Employee Level"
+                     Height          =   276
+                     Left            =   528
+                     TabIndex        =   44
+                     Top             =   168
+                     Width           =   2088
+                  End
+                  Begin VB.Label Label3 
+                     Caption         =   "Employee Level Description"
+                     Height          =   348
+                     Left            =   3984
+                     TabIndex        =   43
+                     Top             =   132
+                     Width           =   3420
+                  End
+               End
+            End
+            Begin FACTFRMLib.FactorFrame cmdDeleteBtn 
+               Height          =   390
+               HelpContextID   =   12
+               Index           =   2
+               Left            =   2988
+               TabIndex        =   27
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Delete"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdEditBtn 
+               Height          =   390
+               HelpContextID   =   11
+               Index           =   2
+               Left            =   1512
+               TabIndex        =   18
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Edit"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdAddBtn 
+               Height          =   390
+               HelpContextID   =   10
+               Index           =   2
+               Left            =   72
+               TabIndex        =   17
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Add"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
+               Height          =   390
+               HelpContextID   =   15
+               Index           =   2
+               Left            =   7380
+               TabIndex        =   26
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "Ca&ncel"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
+               Height          =   390
+               HelpContextID   =   16
+               Index           =   2
+               Left            =   4452
+               TabIndex        =   24
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Update"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+         End
+         Begin FACTFRMLib.FactorFrame efraTabBack1 
+            Height          =   4548
+            Left            =   12
+            TabIndex        =   34
+            TabStop         =   0   'False
+            Top             =   12
+            Width           =   8868
+            _Version        =   65536
+            _ExtentX        =   15642
+            _ExtentY        =   8022
+            _StockProps     =   77
+            BackColor       =   8388608
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            BevelOuter      =   0
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Begin FACTFRMLib.FactorFrame efraTabFrame1 
+               Height          =   3852
+               Left            =   72
+               TabIndex        =   7
+               TabStop         =   0   'False
+               Top             =   96
+               Width           =   8652
+               _Version        =   65536
+               _ExtentX        =   15266
+               _ExtentY        =   6800
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               BevelOuter      =   5
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Begin DBTrueGrid.TDBGrid tblJobClass 
+                  Height          =   3456
+                  HelpContextID   =   1401
+                  Left            =   636
+                  OleObjectBlob   =   "zzsepimt.frx":4619
+                  TabIndex        =   2
+                  Top             =   192
+                  Width           =   7380
+               End
+            End
+            Begin FACTFRMLib.FactorFrame cmdDeleteBtn 
+               Height          =   390
+               HelpContextID   =   12
+               Index           =   0
+               Left            =   2988
+               TabIndex        =   6
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Delete"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdEditBtn 
+               Height          =   390
+               HelpContextID   =   11
+               Index           =   0
+               Left            =   1512
+               TabIndex        =   1
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Edit"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdAddBtn 
+               Height          =   390
+               HelpContextID   =   10
+               Index           =   0
+               Left            =   72
+               TabIndex        =   0
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Add"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
+               Height          =   390
+               HelpContextID   =   14
+               Index           =   0
+               Left            =   4452
+               TabIndex        =   3
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2307
+               _ExtentY        =   698
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Update"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
+               Height          =   390
+               HelpContextID   =   15
+               Index           =   0
+               Left            =   7380
+               TabIndex        =   5
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "Ca&ncel"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdRefreshSelectBtn 
+               Height          =   390
+               HelpContextID   =   16
+               Index           =   0
+               Left            =   5916
+               TabIndex        =   4
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75  
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Refresh"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+         End
+         Begin FACTFRMLib.FactorFrame efraTabBack2 
+            Height          =   4572
+            Left            =   14460
+            TabIndex        =   35
+            TabStop         =   0   'False
+            Top             =   0
+            Width           =   8892
+            _Version        =   65536
+            _ExtentX        =   15684
+            _ExtentY        =   8064
+            _StockProps     =   77
+            BackColor       =   8388608
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            BevelOuter      =   0
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            = 9.75 
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Begin FACTFRMLib.FactorFrame cmdRefreshSelectBtn 
+               Height          =   390
+               HelpContextID   =   14
+               Index           =   1
+               Left            =   5916
+               TabIndex        =   12
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2307
+               _ExtentY        =   698
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Refresh"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame efraTabFrame2 
+               Height          =   3852
+               Left            =   72
+               TabIndex        =   48
+               TabStop         =   0   'False
+               Top             =   96
+               Width           =   8652
+               _Version        =   65536
+               _ExtentX        =   15266
+               _ExtentY        =   6800
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               BevelOuter      =   5
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Begin FACTFRMLib.FactorFrame cmdFDropDown2 
+                  Height          =   360
+                  HelpContextID   =   1602
+                  Left            =   3552
+                  TabIndex        =   51
+                  TabStop         =   0   'False
+                  Top             =   2052
+                  Width           =   360
+                  _Version        =   65536
+                  _ExtentX        =   635
+                  _ExtentY        =   635
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  Picture         =   "zzsepimt.frx":5940
+                  Style           =   3
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            = 9.75 
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+               End
+               Begin VB.Data datFDropDown2 
+                  Caption         =   "Data1"
+                  Connect         =   "Access"
+                  DatabaseName    =   ""
+                  DefaultCursorType=   0  'DefaultCursor
+                  DefaultType     =   2  'UseODBC
+                  Exclusive       =   0   'False
+                  Height          =   588
+                  Left            =   1260
+                  Options         =   0
+                  ReadOnly        =   0   'False
+                  RecordsetType   =   1  'Dynaset
+                  RecordSource    =   ""
+                  Top             =   2100
+                  Visible         =   0   'False
+                  Width           =   1404
+               End
+               Begin DBTrueGrid.TDBGrid tblPayCode 
+                  Height          =   3456
+                  HelpContextID   =   1402
+                  Left            =   636
+                  OleObjectBlob   =   "zzsepimt.frx":5A52
+                  TabIndex        =   10
+                  Top             =   192
+                  Width           =   7380
+               End
+            End
+            Begin FACTFRMLib.FactorFrame cmdDeleteBtn 
+               Height          =   390
+               HelpContextID   =   12
+               Index           =   1
+               Left            =   2988
+               TabIndex        =   14
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Delete"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdEditBtn 
+               Height          =   390
+               HelpContextID   =   11
+               Index           =   1
+               Left            =   1512
+               TabIndex        =   9
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Edit"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdAddBtn 
+               Height          =   390
+               HelpContextID   =   10
+               Index           =   1
+               Left            =   72
+               TabIndex        =   8
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Add"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
+               Height          =   390
+               HelpContextID   =   15
+               Index           =   1
+               Left            =   7380
+               TabIndex        =   13
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "Ca&ncel"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
+            Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
+               Height          =   390
+               HelpContextID   =   16
+               Index           =   1
+               Left            =   4452
+               TabIndex        =   11
+               Top             =   4008
+               Width           =   1308
+               _Version        =   65536
+               _ExtentX        =   2302
+               _ExtentY        =   688
+               _StockProps     =   77
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            = 9.75 
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "&Update"
+               CaptionPos      =   4
+               PicturePos      =   3
+               ShowFocusRect   =   -1  'True
+               Style           =   3
+               BorderWidth     =   4
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -788,7 +1425,7 @@ Begin VB.Form frmZZSEPIMT
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   0
+      TabIndex        =   15
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -798,7 +1435,7 @@ Begin VB.Form frmZZSEPIMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -810,7 +1447,7 @@ Begin VB.Form frmZZSEPIMT
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -836,11 +1473,11 @@ Begin VB.Form frmZZSEPIMT
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblComboDropdown 
-      Bindings        =   "zzsepimt.frx":42BD
+      Bindings        =   "zzsepimt.frx":6D68
       Height          =   2484
       Left            =   408
-      OleObjectBlob   =   "zzsepimt.frx":42DC
-      TabIndex        =   28
+      OleObjectBlob   =   "zzsepimt.frx":6D87
+      TabIndex        =   39
       TabStop         =   0   'False
       Top             =   684
       Width           =   3756
@@ -848,7 +1485,7 @@ Begin VB.Form frmZZSEPIMT
    Begin SQAOTestObjectsCtl.SQAOTest SQAOTest1 
       Height          =   456
       Left            =   10896
-      TabIndex        =   26
+      TabIndex        =   38
       TabStop         =   0   'False
       Top             =   96
       Width           =   456
@@ -858,7 +1495,7 @@ Begin VB.Form frmZZSEPIMT
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   465
       Left            =   0
-      TabIndex        =   22
+      TabIndex        =   36
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -868,7 +1505,7 @@ Begin VB.Form frmZZSEPIMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -881,7 +1518,7 @@ Begin VB.Form frmZZSEPIMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -897,7 +1534,7 @@ Begin VB.Form frmZZSEPIMT
       Begin MSComctlLib.Toolbar tbToolbar 
          Height          =   372
          Left            =   60
-         TabIndex        =   23
+         TabIndex        =   37
          Top             =   84
          Width           =   6876
          _ExtentX        =   12129
@@ -906,6 +1543,15 @@ Begin VB.Form frmZZSEPIMT
          ButtonHeight    =   572
          _Version        =   393216
       End
+   End
+   Begin DBTrueGrid.TDBGrid tblFDropdown2 
+      Bindings        =   "zzsepimt.frx":806B
+      Height          =   3180
+      Left            =   0
+      OleObjectBlob   =   "zzsepimt.frx":8087
+      TabIndex        =   50
+      Top             =   0
+      Width           =   4812
    End
    Begin VB.Menu mnuFile 
       Caption         =   "&File"
@@ -1066,6 +1712,8 @@ Private Const DATA_CHANGED = 2
 Private cValidate As cValidateInput
 Private tgmSpreadsheet As clsTGSpreadSheet
 Public tgmGrid As clsTGSpreadSheet
+Private tgmJobClass As clsTGSpreadSheet
+Private tgmPayCode As clsTGSpreadSheet
 Private strHourCode As String
 Private strOverCode As String
 Private objText As clsColumnExtension
@@ -1076,27 +1724,107 @@ Private Const COL_DAYS = 0
 Private Const COL_RATE = 1
 Private nComboForAdd As Integer
 Private nComboForEdit As Integer
+'===============================
+'Job Class Grid
+'===============================
+Private Const COL_JOBCLASS = 0
+Private Const COL_JOBDESC = 1
+'===============================
+'Pay Code Grid
+'===============================
+Private Const COL_PAYCODE = 0
+Private Const COL_CONVFACTOR = 1
 'tblGrid
 Private Const COL_EMPNO = 0
 Private Const COL_NAME = 1
-Private Const COL_LEVEL = 2
-Private Const COL_DESC = 3
-Private Const COL_HIRE_DATE = 4
-Private Const COL_DAYS_WORKED = 5
-Private Const COL_OLD_RATE = 6
-Private Const COL_NEW_RATE = 7
-Private Const COL_DIFF = 9
+Private Const COL_JCLASS = 2
+Private Const COL_LEVEL = 3
+Private Const COL_DESC = 4
+Private Const COL_HIRE_DATE = 5
+Private Const COL_DAYS_WORKED = 6
+Private Const COL_PCODE = 7
+Private Const COL_OLD_RATE = 8
+Private Const COL_NEW_RATE = 9
+Private Const COL_DIFF = 10
+Private nCOL_CONVT_FACTOR As Integer
+Private nCOL_PREP_YEAR As Integer
+
 Public rsReport As Recordset
 
 Private Const DB_ERR_READ = "Read database error. Contact Factor."
+Private tgfDropDown1 As clsFloatingDropDown
+Private tgfDropDown2 As clsFloatingDropDown
+Private nFDropDown1 As Integer
+Private nFDropDown2 As Integer
 
+
+Public Sub subEnableSearchbtn(cmdButton As Control, bYesNo As Boolean)
+    #If Win16 Then
+        If bYesNo Then
+            cmdButton.Picture = LoadResPicture(SEARCH_UP, vbResBitmap)
+        Else
+            cmdButton.Picture = LoadResPicture(SEARCH_DOWN, vbResBitmap)
+        End If
+        
+     #Else
+        If bYesNo Then
+            cmdButton.Picture = frmContext.LoadPicture(SEARCH_UP)
+        Else
+            cmdButton.Picture = frmContext.LoadPicture(SEARCH_DOWN)
+        End If
+     #End If
+     
+     cmdButton.Enabled = bYesNo
+End Sub
+Private Sub subInitFloatingDropdowns()
+    
+    Dim strSQL As String
+    
+    ' floating dropdown for Tab_1
+'    subEnableSearchbtn cmdFDropDown1, True
+'
+'    Set tgfDropDown1 = New clsFloatingDropDown
+'    Set tgfDropDown1.DataBase = t_dbMainDatabase
+'    Set tgfDropDown1.Form = Me
+'    Set tgfDropDown1.SearchButton = cmdFDropDown1 ' a new search button
+'    Set tgfDropDown1.DropDownTable = tblFDropdown1 ' the true Grid f dropdown
+'    Set tgfDropDown1.MainTable = tblJobClass   ' the main true grid
+'    Set tgfDropDown1.DataLink = datFDropDown1    ' name of data control for F-dropdown
+'    Set tgfDropDown1.EditClass = tgmJobClass
+'    tgfDropDown1.DefaultCursorControl = True
+'
+'    'nFDropDown1 = tgfDropDown1.AddDropDown(, strSQL)
+'    tgfDropDown1.AddDropDown 1, "SELECT DISTINCT prm_job_class FROM pr_master "
+'    tgfDropDown1.AddColumn 0, "prm_job_class", tgfDropDown1.COLUMN_TYPE_STRING
+'
+'    tgfDropDown1.SetUnique 0, True
+    
+    ' floating dropdown for Tab_2
+    subEnableSearchbtn cmdFDropDown2, True
+    
+    Set tgfDropDown2 = New clsFloatingDropDown
+    Set tgfDropDown2.DataBase = t_dbMainDatabase
+    Set tgfDropDown2.Form = Me
+    Set tgfDropDown2.SearchButton = cmdFDropDown2 ' a new search button
+    Set tgfDropDown2.DropDownTable = tblFDropdown2 ' the true Grid f dropdown
+    Set tgfDropDown2.MainTable = tblPayCode  ' the main true grid
+    Set tgfDropDown2.DataLink = datFDropDown2    ' name of data control for F-dropdown
+    Set tgfDropDown2.EditClass = tgmPayCode
+    tgfDropDown2.DefaultCursorControl = True
+    
+    'nFDropDown2 = tgfDropDown2.AddDropDown(, strSQL)
+    tgfDropDown2.AddDropDown 1, "SELECT prpa_pay_code,prpa_desc FROM pr_pay "
+    tgfDropDown2.AddColumn COL_PAYCODE, "prpa_pay_code", tgfDropDown2.COLUMN_TYPE_STRING
+    tgfDropDown2.AddExtraColumn "Pay Description", "prpa_desc", 3000, tgfDropDown2.COLUMN_TYPE_STRING
+    tgfDropDown2.SetUnique COL_PAYCODE, True
+End Sub
 
 Private Sub subSetupCombos()
 
     Set tgcDropdown = CreateObject(t_szOLECOMBO)
     Set tgcDropdown.DBEngine = t_engFactor
     Set tgcDropdown.Form = Me
-    Set tgcDropdown.Database = t_dbMainDatabase
+    Set tgcDropdown.DataBase = t_dbMainDatabase
     Set tgcDropdown.DataLink = datComboDropDown
     Set tgcDropdown.Table = tblComboDropdown
     'Setup the combos
@@ -1116,8 +1844,11 @@ Private Sub subSetupCombos()
 End Sub
 Private Sub subInitializeSpreadSheet()
     Dim szDecPattern As String
+    Dim szDecPatternConvtFactor As String
     szDecPattern = tfnDecimalPattern(8, 2, False, False)
-
+    szDecPatternConvtFactor = tfnDecimalPattern(10, 6, False, True)
+    Dim myWidth As Long
+    
     Set tgmSpreadsheet = New clsTGSpreadSheet
     Set tgmSpreadsheet.Table = tblSpreadsheet
     Set tgmSpreadsheet.StatusBar = ffraStatusbar
@@ -1129,17 +1860,43 @@ Private Sub subInitializeSpreadSheet()
     tgmSpreadsheet.AddEditColumn COL_RATE, "Enter Hourly Pay Rate", szDecPattern, "#,###,##0.00"
 
 '    tgmSpreadsheet.ColumnForNewRow = 0
-
-
     With tblSpreadsheet.Columns(COL_DAYS)
         .DataField = "zzsepi_days"
     End With
     With tblSpreadsheet.Columns(COL_RATE)
         .DataField = "zzsepi_pay"
     End With
-
     'tblSpreadsheet.EditDropDown = True
 
+    Set tgmJobClass = New clsTGSpreadSheet
+    Set tgmJobClass.Table = tblJobClass
+    Set tgmJobClass.StatusBar = ffraStatusbar
+    Set tgmJobClass.Form = Me
+
+    tgmJobClass.AddEditColumn COL_JOBCLASS, "Enter a Job Class", "^P{0,2}$"
+    tgmJobClass.AddEditColumn COL_JOBDESC, "Enter a Job Description", "^P{0,30}$"
+    myWidth = tblJobClass.Width - 250
+    With tblJobClass
+        .Columns(COL_JOBCLASS).DataField = "zzsej_job_class"
+        .Columns(COL_JOBDESC).DataField = "zzsej_job_desc"
+        .Columns(COL_JOBCLASS).Width = 0.2 * myWidth
+        .Columns(COL_JOBDESC).Width = 0.1 * myWidth
+    End With
+    
+    Set tgmPayCode = New clsTGSpreadSheet
+    Set tgmPayCode.Table = tblPayCode
+    Set tgmPayCode.StatusBar = ffraStatusbar
+    Set tgmPayCode.Form = Me
+
+    tgmPayCode.AddEditColumn COL_PAYCODE, "Enter a Pay Code", "^P{0,4}$"
+    tgmPayCode.AddEditColumn COL_CONVFACTOR, "Enter a Pay Code Conversion Factor", szDecPatternConvtFactor
+    myWidth = tblPayCode.Width - 250
+    With tblPayCode
+        .Columns(COL_PAYCODE).DataField = "prpa_pay_code"
+        .Columns(COL_CONVFACTOR).DataField = "zzsep_factor"
+        .Columns(COL_PAYCODE).Width = 0.2 * myWidth
+        .Columns(COL_CONVFACTOR).Width = 0.1 * myWidth
+    End With
 End Sub
 Private Sub subSetupMousePointer()
     Set objCursor = New clsCursor
@@ -1174,7 +1931,7 @@ Private Sub subInitValidation()
     Set cValidate.LastBox = txtLevel
     efraTabFrame1.TabIndex = txtDesc.TabIndex + 1
     efraTabFrame1.TabStop = True
-    cValidate.SetFirstControls cmdAddBtn(0), cmdEditBtn(0), cmdDeleteBtn(0), cmdRefreshSelectBtn(0), cmdUpdateInsertBtn(0), cmdExitCancelBtn(0)
+    cValidate.SetFirstControls cmdAddBtn(0), cmdEditBtn(0), cmdDeleteBtn(0), cmdRefreshSelectBtn(0), cmdUpdateInsertBtn(2), cmdExitCancelBtn(0)
 End Sub
 
 Public Function fnInvalidData(txtBox As Textbox) As Boolean
@@ -1200,6 +1957,14 @@ Private Sub cmdExit_GotFocus()
     tfnSetStatusBarMessage "Exit program"
 End Sub
 
+Private Sub cmdFDropDown2_Click()
+    tgfDropDown2.ButtonClick
+End Sub
+
+Private Sub cmdFDropDown2_LostFocus()
+    tgfDropDown2.LostFocus cmdFDropDown2
+End Sub
+
 Private Sub cmdLevel_Click()
     tgcDropdown.Click cmdLevel
 End Sub
@@ -1222,17 +1987,26 @@ Private Sub cmdProcess_Click(Index As Integer)
         Exit Sub
     #End If
     etabMain.TabEnabled(TAB_1) = False
+    etabMain.TabEnabled(TAB_2) = False
+    etabMain.TabEnabled(TAB_3) = False
     subEnableCancelBtn True
-    cmdProcess(1).Enabled = False
+    cmdProcess(3).Enabled = False
     subEnableUpdateBtn False
-    
+    If Not fnCheckPayCode Then
+        Exit Sub
+    End If
+    If Not fnCheckJobClass Then
+        Exit Sub
+    End If
+    tfnSetStatusBarMessage "Processing...Please wait..."
+    subShowHourGlass
     If fnProcess(rsReport) Then
         subEnableUpdateBtn True
-        cmdPrint(1).Enabled = True
-        cmdPrint(1).SetFocus
+        cmdPrint(3).Enabled = True
+        cmdPrint(3).SetFocus
         subEnablePrint True
     End If
-    
+    subHideHourGlass
 End Sub
 
 Private Sub cmdProcess_GotFocus(Index As Integer)
@@ -1321,9 +2095,13 @@ Private Sub etabMain_Click()
     DoEvents
     If etabMain.CurrTab = TAB_1 Then
         subSetFocus cmdAddBtn(0)
+    ElseIf etabMain.CurrTab = TAB_2 Then
+        subSetFocus cmdAddBtn(1)
+    ElseIf etabMain.CurrTab = TAB_3 Then
+        subSetFocus cmdAddBtn(2)
     Else
-        cmdProcess(1).Enabled = True
-        cmdProcess(1).SetFocus
+        cmdProcess(3).Enabled = True
+        cmdProcess(3).SetFocus
     End If
     If t_bTabSwitch Then
     
@@ -1353,20 +2131,29 @@ Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Inte
     If Not CANCEL Then
         t_bTabSwitch = True
     End If
-    cmdPrint(1).Enabled = False
+    cmdPrint(3).Enabled = False
     subEnablePrint False
     subEnableUpdateBtn False
-    subEnableCancelBtn True, 0
-    subEnableCancelBtn True, 1
+    subEnableCancelBtn False, 0
+    subEnableCancelBtn False, 1
+    subEnableCancelBtn False, 2
     Select Case NewTab
          Case TAB_1
             subEnableDeleteBtn False, 0
             
             subEnableRefreshBtn False, 0
-            
          Case TAB_2
-            cmdProcess(1).Enabled = True
-            subEnableCancelBtn True
+            subEnableDeleteBtn False, 1
+            
+            subEnableRefreshBtn False, 1
+         Case TAB_3
+            subEnableDeleteBtn False, 2
+            
+            subEnableRefreshBtn False, 2
+            
+         Case TAB_4
+            cmdProcess(3).Enabled = True
+            subEnableCancelBtn False, 3
             
     End Select
 End Sub
@@ -1436,16 +2223,17 @@ Private Sub Form_Load()
     ' v v v v v v v
     
     Screen.MousePointer = vbHourglass
-#If Not PROTOTYPE Then
-    If Not fnGetPayCode Then
-        MsgBox "System Error: Unable to access system parameter, Program will be terminated", vbExclamation
-        Unload Me
-        Exit Sub
-    End If
-#End If
+'#If Not PROTOTYPE Then
+'    If Not fnGetPayCode Then
+'        MsgBox "System Error: Unable to access system parameter, Program will be terminated", vbExclamation
+'        Unload Me
+'        Exit Sub
+'    End If
+'#End If
     subSetupCombos  'Set up the combo dropdowns
     subInitializeSpreadSheet 'set up true grid
     subInitGrid
+    subInitFloatingDropdowns
     subInitText     'tooltips
     subInitValidation  'set up validation object
     Screen.MousePointer = vbHourglass
@@ -1528,55 +2316,154 @@ Private Sub cmdAddBtn_Click(Index As Integer)
     #If PROTOTYPE Then
         Exit Sub
     #End If
-    
-    etabMain.TabEnabled(TAB_2) = False
-    efraTabFrame1.Enabled = True
-    
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        efraTabFrame1.Enabled = True
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_3) = False
+        etabMain.TabEnabled(TAB_4) = False
+        cmdUpdateInsertBtn(0).Caption = t_szCAPTION_INSERT
+        tgmJobClass.AddEditColumn COL_JOBCLASS, "Enter a Job Class", "^P{0,2}$"
+        tgmJobClass.AllowAddNew = True
+        tgmJobClass.ClearData
+        tblJobClass.Enabled = True
+        subSetFocus tblJobClass
+    Case TAB_2
+        efraTabFrame2.Enabled = True
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_3) = False
+        etabMain.TabEnabled(TAB_4) = False
+        cmdUpdateInsertBtn(1).Caption = t_szCAPTION_INSERT
+        tgmPayCode.AddEditColumn COL_PAYCODE, "Enter a Pay Code", "^P{0,4}$"
+        'tgmPayCode.AddEditColumn COL_CONVFACTOR
+        tgmPayCode.AllowAddNew = True
+        tgmPayCode.ClearData
+        tblPayCode.Enabled = True
+        subSetFocus tblPayCode
+    Case TAB_3
+        efraTabFrame3.Enabled = True
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_4) = False
+        tgcDropdown.ComboActive(nComboForAdd) = True
+        tgcDropdown.ComboActive(nComboForEdit) = False
+        tgmSpreadsheet.AllowAddNew = True
+        tgmSpreadsheet.ClearData
+        subEnableTop True
+        cmdUpdateInsertBtn(2).Caption = t_szCAPTION_INSERT
+        cValidate.ResetFlags
+        txtLevel.SetFocus
+    Case TAB_4
+        efraTabFrame4.Enabled = True
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_3) = False
+        tgmGrid.ClearData
+    End Select
     subEnableAddBtn False
     subEnableEditBtn False
     subEnableCancelBtn True
-    
-    cmdUpdateInsertBtn(0).Caption = t_szCAPTION_INSERT
     mnuUpdateInsert.Caption = t_szCAPTION_INSERT
-    
     t_nFormMode = ADD_MODE
-    'enable combo dropdown
-    tgcDropdown.ComboActive(nComboForAdd) = True
-    tgcDropdown.ComboActive(nComboForEdit) = False
-    tgmSpreadsheet.AllowAddNew = True
-    tgmSpreadsheet.ClearData
-    
-    subEnableTop True
-    
-    cValidate.ResetFlags
-    txtLevel.SetFocus
-
 End Sub
 
 Private Sub cmdEditBtn_Click(Index As Integer)
     #If PROTOTYPE Then
         Exit Sub
     #End If
-
-    etabMain.TabEnabled(TAB_2) = False
+    t_nFormMode = EDIT_MODE
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_3) = False
+        etabMain.TabEnabled(TAB_4) = False
+        tgmJobClass.RemoveEditColumn COL_JOBCLASS
+        tgmJobClass.ClearData
+        tgmJobClass.AllowAddNew = False
+        tblJobClass.Enabled = True
+        subLoadJobClass
+        subSetFocus tblJobClass
+    Case TAB_2
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_3) = False
+        etabMain.TabEnabled(TAB_4) = False
+        tgmPayCode.RemoveEditColumn COL_PAYCODE
+        tgmPayCode.ClearData
+        tblPayCode.Enabled = True
+        subLoadPayCode
+        tgmPayCode.AllowAddNew = False
+        subSetFocus tblPayCode
+    Case TAB_3
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_4) = False
+        tgmSpreadsheet.AllowAddNew = False
+        tgmSpreadsheet.ClearData
+        tgcDropdown.ComboActive(nComboForAdd) = False
+        tgcDropdown.ComboActive(nComboForEdit) = True
+        subEnableTop True
+        cValidate.ResetFlags
+        txtLevel.SetFocus
+    Case TAB_4
+        etabMain.TabEnabled(TAB_1) = False
+        etabMain.TabEnabled(TAB_2) = False
+        etabMain.TabEnabled(TAB_3) = False
+        tgmGrid.ClearData
+    End Select
     subEnableAddBtn False
     subEnableEditBtn False
     subEnableCancelBtn True
     cmdUpdateInsertBtn(etabMain.CurrTab).Caption = t_szCAPTION_UPDATE
     mnuUpdateInsert.Caption = t_szCAPTION_UPDATE
-    tgmSpreadsheet.AllowAddNew = False
-    tgmSpreadsheet.ClearData
-    t_nFormMode = EDIT_MODE
-    'enable combo dropdown
-    tgcDropdown.ComboActive(nComboForAdd) = False
-    tgcDropdown.ComboActive(nComboForEdit) = True
-    
-    subEnableTop True
-    cValidate.ResetFlags
-    txtLevel.SetFocus
-    
 End Sub
-
+Private Sub subLoadJobClass()
+    Dim strSQL As String
+    Dim nCount As Long
+    Dim rsTemp As Recordset
+    
+    If nDataStatus = DATA_LOADED Then
+        Exit Sub
+    End If
+    strSQL = "SELECT * FROM zzse_job_class ORDER BY zzsej_job_class"
+    nCount = GetRecordSet(rsTemp, strSQL)
+        If nCount <= 0 Then
+            MsgBox "No record(s) found for editing for the given criteria"
+            Exit Sub
+        End If
+    tgmJobClass.FillWithSQL t_dbMainDatabase, strSQL
+    
+    nDataStatus = DATA_LOADED
+    subSetFocus tblJobClass
+End Sub
+Private Sub subLoadPayCode()
+    Dim strSQL As String
+    Dim nCount As Long
+    Dim rsTemp As Recordset
+    Dim aryPayCode() As Variant
+    Dim i As Long
+    
+    If nDataStatus = DATA_LOADED Then
+        Exit Sub
+    End If
+    strSQL = "SELECT * FROM zzse_pay_code ORDER BY zzsep_code"
+    nCount = GetRecordSet(rsTemp, strSQL)
+    If nCount <= 0 Then
+        MsgBox "No record(s) found for editing for the given criteria"
+        Exit Sub
+    End If
+    ReDim aryPayCode(1, nCount - 1)
+    i = 0
+    While Not rsTemp.EOF
+        aryPayCode(COL_PAYCODE, i) = fnGetField(rsTemp!zzsep_code)
+        aryPayCode(COL_CONVFACTOR, i) = fnGetField(rsTemp!zzsep_factor)
+        i = i + 1
+    rsTemp.MoveNext
+    Wend
+    tgmPayCode.FillWithArray aryPayCode
+    'tgmPayCode.FillWithSQL t_dbMainDatabase, strSQL
+    
+    nDataStatus = DATA_LOADED
+End Sub
 Private Sub cmdDeleteBtn_Click(Index As Integer)
     Dim strSQL As String
     Dim sMsg As String
@@ -1589,37 +2476,86 @@ Private Sub cmdDeleteBtn_Click(Index As Integer)
     If Not tfnConfirm(sMsg, vbDefaultButton2) Then
         Exit Sub
     End If
-    
-    lRow = tgmSpreadsheet.GetCurrentRowNumber
-    sCode = fnGetField(tgmSpreadsheet.CellValue(COL_DAYS, lRow))
-    
-    If sCode = "" Then
-        Exit Sub
-    End If
-    If t_nFormMode = EDIT_MODE Then
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        lRow = tgmJobClass.GetCurrentRowNumber
+        If t_nFormMode = EDIT_MODE Then
+            If fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, lRow)) <> szEMPTY Then
+                strSQL = " DELETE FROM zzse_job_class WHERE "
+                strSQL = strSQL & " zzsej_job_class = " & tfnSQLString(fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, lRow)))
+                If Not fnExecuteSQL(strSQL, "cmdDeleteBtn_Click") Then
+                    tfnSetStatusBarError "Error while deleting record."
+                    Exit Sub
+                End If
+            End If
+        End If
+        tgmJobClass.DeleteRow
+        tgmJobClass.Bookmark (lRow)
+        subSetFocus tblJobClass
+
+        If t_nFormMode = EDIT_MODE Then
+            If tgmJobClass.RowCount < 1 Then
+                tfnResetScreen
+                Exit Sub
+            End If
+        Else
+           subSetButtonStatus
+        End If
+    Case TAB_2
+        lRow = tgmPayCode.GetCurrentRowNumber
+        If t_nFormMode = EDIT_MODE Then
+            If fnGetField(tgmPayCode.CellValue(COL_PAYCODE, lRow)) <> szEMPTY Then
+                strSQL = " DELETE FROM zzse_pay_code WHERE "
+                strSQL = strSQL & " zzsep_code = " & tfnSQLString(fnGetField(tgmPayCode.CellValue(COL_PAYCODE, lRow)))
+                If Not fnExecuteSQL(strSQL, "cmdDeleteBtn_Click") Then
+                    tfnSetStatusBarError "Error while deleting record."
+                    Exit Sub
+                End If
+            End If
+        End If
+        tgmPayCode.DeleteRow
+        tgmPayCode.Bookmark (lRow)
+        subSetFocus tblPayCode
+
+        If t_nFormMode = EDIT_MODE Then
+            If tgmPayCode.RowCount < 1 Then
+                tfnResetScreen
+                Exit Sub
+            End If
+        Else
+           subSetButtonStatus
+        End If
+    Case TAB_3
+        lRow = tgmSpreadsheet.GetCurrentRowNumber
+        sCode = fnGetField(tgmSpreadsheet.CellValue(COL_DAYS, lRow))
         
-        strSQL = "DELETE FROM zzse_pay_increase "
-        strSQL = strSQL & " WHERE zzsepi_emp_level = " & Val(txtLevel.Text) _
-                       & " AND zzsepi_days= " & sCode & ""
-        If Not fnExecuteSQL(strSQL, "Delete_Click") Then
+        If sCode = "" Then
             Exit Sub
         End If
-        If tgmSpreadsheet.RowCount = 1 Then
-            tfnResetScreen
+        If t_nFormMode = EDIT_MODE Then
+            
+            strSQL = "DELETE FROM zzse_pay_increase "
+            strSQL = strSQL & " WHERE zzsepi_emp_level = " & Val(txtLevel.Text) _
+                           & " AND zzsepi_days= " & sCode & ""
+            If Not fnExecuteSQL(strSQL, "Delete_Click") Then
+                Exit Sub
+            End If
+            If tgmSpreadsheet.RowCount = 1 Then
+                tfnResetScreen
+            Else
+                tgmSpreadsheet.DeleteRow tgmSpreadsheet.Bookmark(lRow)
+            End If
         Else
             tgmSpreadsheet.DeleteRow tgmSpreadsheet.Bookmark(lRow)
         End If
-    Else
-        tgmSpreadsheet.DeleteRow tgmSpreadsheet.Bookmark(lRow)
-    End If
-    
+    End Select
     subEnableDeleteBtn False
 End Sub
 
 'Private Sub cmdOKBtn_Click(Index As Integer)
 '    Select Case Index
-'    Case TAB_1
-'    Case TAB_2
+'    Case TAB_3
+'    Case TAB_4
 '    Case TAB_3
 '    Case TAB_4
 '    End Select
@@ -1650,9 +2586,18 @@ Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
             If fnUpdateInsert2 Then
                 tfnResetScreen
             End If
+        Case TAB_3
+            If fnUpdateInsert3 Then
+                tfnResetScreen
+            End If
+        
+        Case TAB_4
+            If fnUpdateInsert4 Then
+                tfnResetScreen
+            End If
     End Select
-    cmdProcess(1).Enabled = True
-    subEnableCancelBtn True, Index
+    cmdProcess(3).Enabled = True
+    subEnableCancelBtn False, Index
     cmdUpdateInsertBtn(Index).Enabled = False
 End Sub
 
@@ -1666,7 +2611,15 @@ Private Sub cmdRefreshSelectBtn_Click(Index As Integer)
     subEnableRefreshBtn False
     
     nDataStatus = DATA_INIT
-    subLoadData
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        subLoadJobClass
+    Case TAB_2
+        subLoadPayCode
+    Case TAB_3
+        subLoadPayIncrease
+    End Select
+    
 End Sub
 
 Private Sub cmdExitCancelBtn_Click(Index As Integer)
@@ -1704,9 +2657,13 @@ Private Sub cmdTBCancel_Click()
     Select Case etabMain
      Case TAB_1
         cmdAddBtn(etabMain.CurrTab).SetFocus
-     Case TAB_2
-        cmdProcess(1).Enabled = True
-        cmdProcess(1).SetFocus
+    Case TAB_2
+        cmdAddBtn(etabMain.CurrTab).SetFocus
+     Case TAB_3
+        cmdAddBtn(etabMain.CurrTab).SetFocus
+     Case TAB_4
+        cmdProcess(3).Enabled = True
+        cmdProcess(3).SetFocus
     End Select
 End Sub
 
@@ -1883,9 +2840,11 @@ Private Sub tfnResetScreen(Optional vInitial)
     subEnableUpdateBtn False
     subEnableCancelBtn False
     subEnableOKBtn False
-    cmdPrint(1).Enabled = False
+    cmdPrint(3).Enabled = False
     subEnablePrint False
   
+    tblJobClass.Enabled = False
+    tblPayCode.Enabled = False
     tblGrid.Enabled = False
     tblSpreadsheet.Enabled = False
     txtLevel.Enabled = False
@@ -1893,7 +2852,7 @@ Private Sub tfnResetScreen(Optional vInitial)
     subEnableSearchButton cmdLevel, False
     subEnableSearchButton cmdDesc, False
     
-    cmdUpdateInsertBtn(0) = t_szCAPTION_UPDATE
+    cmdUpdateInsertBtn(etabMain.CurrTab) = t_szCAPTION_UPDATE
     mnuUpdateInsert.Caption = t_szCAPTION_UPDATE
     
     frmContext.ButtonEnabled(PRINT_UP) = False
@@ -1905,14 +2864,24 @@ Private Sub tfnResetScreen(Optional vInitial)
     nDataStatus = DATA_INIT
     If etabMain.CurrTab = TAB_1 Then
         subSetFocus cmdAddBtn(0)
-        tfnSetStatusBarMessage t_szADD
+    ElseIf etabMain.CurrTab = TAB_2 Then
+        subSetFocus cmdAddBtn(1)
+    ElseIf etabMain.CurrTab = TAB_2 Then
+        subSetFocus cmdAddBtn(2)
     Else
-        cmdProcess(1).Enabled = True
-        cmdProcess(1).SetFocus
+        cmdProcess(3).Enabled = True
+        cmdProcess(3).SetFocus
         tfnSetStatusBarMessage "Find employees who need pay raises"
+        Exit Sub
     End If
+    tfnSetStatusBarMessage t_szADD
+
 End Sub
 
+
+Private Sub tblFDropdown1_Click()
+
+End Sub
 
 Private Sub tblGrid_FirstRowChange()
     tgmGrid.FirstRowChange
@@ -1928,6 +2897,14 @@ End Sub
 
 Private Sub tblGrid_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmGrid.ReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+Private Sub tblPayCode_Click()
+    tgfDropDown2.TableClick tblPayCode
+End Sub
+
+Private Sub tblPayCode_Scroll(CANCEL As Integer)
+    tgfDropDown2.Scroll
 End Sub
 
 Private Sub tblSpreadsheet_AfterColEdit(ByVal ColIndex As Integer)
@@ -2050,6 +3027,8 @@ Private Sub subEnableDeleteBtn(bOnOff As Boolean, Optional vTab)
     Dim nTab As Integer
     
     cmdDeleteBtn(0).Enabled = bOnOff
+    cmdDeleteBtn(1).Enabled = bOnOff
+    cmdDeleteBtn(2).Enabled = bOnOff
     mnuDelete.Enabled = bOnOff
 End Sub
 
@@ -2067,8 +3046,10 @@ Private Sub subEnableRefreshBtn(bOnOff As Boolean, Optional vTab)
 End Sub
 
 Private Sub subEnableUpdateBtn(bOnOff As Boolean)
-    cmdUpdateInsertBtn(0).Enabled = bOnOff
+     cmdUpdateInsertBtn(0).Enabled = bOnOff
     cmdUpdateInsertBtn(1).Enabled = bOnOff
+    cmdUpdateInsertBtn(2).Enabled = bOnOff
+    cmdUpdateInsertBtn(3).Enabled = bOnOff
     mnuUpdateInsert.Enabled = bOnOff
 End Sub
 
@@ -2209,7 +3190,7 @@ Private Sub txtDesc_GotFocus()
     cValidate.GotFocus txtDesc
 
     If tgcDropdown.SingleRecordSelected Then
-        subLoadData
+        subLoadPayIncrease
     End If
 End Sub
 
@@ -2218,7 +3199,7 @@ Private Sub txtDesc_KeyPress(KeyAscii As Integer)
 '    If t_nFormMode = EDIT_MODE Then
         If KeyAscii = vbKeyReturn Then
             If tgcDropdown.SingleRecordSelected Then
-                subLoadData
+                subLoadPayIncrease
             End If
         End If
 '    Else
@@ -2237,7 +3218,7 @@ Private Sub txtDesc_LostFocus()
         If cValidate.LostFocus(txtLevel, cmdLevel, txtDesc, cmdDesc, tblComboDropdown) Then
             If cValidate.ValidInput(txtLevel) Then
                 tgcDropdown.LostFocus txtLevel
-                subLoadData
+                subLoadPayIncrease
             End If
         End If
 
@@ -2268,7 +3249,7 @@ Private Sub txtLevel_GotFocus()
     cValidate.GotFocus txtLevel
 
     If tgcDropdown.SingleRecordSelected Then
-        subLoadData
+        subLoadPayIncrease
     End If
 
 End Sub
@@ -2289,7 +3270,7 @@ Private Sub txtLevel_KeyPress(KeyAscii As Integer)
     If Not bCode Then
         If KeyAscii = vbKeyReturn Then
             If tgcDropdown.SingleRecordSelected Then
-                subLoadData
+                subLoadPayIncrease
             End If
         End If
         KeyAscii = 0
@@ -2304,11 +3285,11 @@ Private Sub txtLevel_LostFocus()
     If cValidate.LostFocus(txtLevel, cmdLevel, txtDesc, cmdDesc, tblComboDropdown) Then
         If cValidate.ValidInput(txtLevel) Then
             tgcDropdown.LostFocus txtLevel
-            subLoadData
+            subLoadPayIncrease
         End If
     End If
 End Sub
-Private Sub subLoadData()
+Private Sub subLoadPayIncrease()
     Dim strSQL As String
     Dim rsTemp As Recordset
     If nDataStatus >= DATA_LOADED Then
@@ -2363,6 +3344,10 @@ Private Sub subClearAll()
     txtLevel.Text = ""
     txtDesc.Text = ""
     
+    tgmJobClass.ClearData
+    tgmJobClass.ResetFlags
+    tgmPayCode.ClearData
+    tgmPayCode.ResetFlags
     tgmGrid.ClearData
     tgmGrid.ResetFlags
     tgmSpreadsheet.ClearData
@@ -2372,42 +3357,89 @@ End Sub
 Private Sub subSetButtonStatus()
     Dim bStatus As Boolean
     
-    bStatus = (tgmSpreadsheet.ValidData And (tgmSpreadsheet.RowCount > 0))
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        bStatus = (tgmJobClass.ValidData And (tgmJobClass.RowCount > 0))
+    Case TAB_2
+        bStatus = (tgmPayCode.ValidData And (tgmPayCode.RowCount > 0))
+    Case TAB_3
+        bStatus = (tgmSpreadsheet.ValidData And (tgmSpreadsheet.RowCount > 0))
+    End Select
+    
     
     If t_nFormMode = EDIT_MODE Then
         subEnableRefreshBtn True
-        'subEnableDelete False
     End If
         
     subEnableUpdateBtn bStatus
 End Sub
 Private Sub subCheckDelete()
     Dim lRow As Long
-    
-    If tblSpreadsheet.Row < 0 Then
-        subEnableDeleteBtn False
-    Else
-        lRow = tgmSpreadsheet.GetCurrentRowNumber
-        If lRow < 0 Then
+    Select Case etabMain.CurrTab
+    Case TAB_1
+        If tblJobClass.Row < 0 Then
             subEnableDeleteBtn False
         Else
-            If fnGetField(tgmSpreadsheet.CellValue(COL_DAYS, lRow)) <> "" Then
-                subEnableDeleteBtn True
-            Else
+            lRow = tgmJobClass.GetCurrentRowNumber
+            If lRow < 0 Then
                 subEnableDeleteBtn False
+            Else
+                If fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, lRow)) <> "" Then
+                    subEnableDeleteBtn True
+                Else
+                    subEnableDeleteBtn False
+                End If
             End If
         End If
-    End If
+    Case TAB_2
+        If tblPayCode.Row < 0 Then
+            subEnableDeleteBtn False
+        Else
+            lRow = tgmPayCode.GetCurrentRowNumber
+            If lRow < 0 Then
+                subEnableDeleteBtn False
+            Else
+                If fnGetField(tgmPayCode.CellValue(COL_PAYCODE, lRow)) <> "" Then
+                    subEnableDeleteBtn True
+                Else
+                    subEnableDeleteBtn False
+                End If
+            End If
+        End If
+    Case TAB_3
+        If tblSpreadsheet.Row < 0 Then
+            subEnableDeleteBtn False
+        Else
+            lRow = tgmSpreadsheet.GetCurrentRowNumber
+            If lRow < 0 Then
+                subEnableDeleteBtn False
+            Else
+                If fnGetField(tgmSpreadsheet.CellValue(COL_DAYS, lRow)) <> "" Then
+                    subEnableDeleteBtn True
+                Else
+                    subEnableDeleteBtn False
+                End If
+            End If
+        End If
+    End Select
 End Sub
 Public Sub subEnableAllControls(bStatus As Boolean)
 
     efraTabFrame1.Enabled = bStatus
     efraTabFrame2.Enabled = bStatus
+    efraTabFrame3.Enabled = bStatus
+    efraTabFrame4.Enabled = bStatus
     efraTabBack1.Enabled = bStatus
     efraTabBack2.Enabled = bStatus
-    etabMain.TabEnabled(TAB_2) = bStatus
+    efraTabBack3.Enabled = bStatus
+    efraTabBack4.Enabled = bStatus
     etabMain.TabEnabled(TAB_1) = bStatus
+    etabMain.TabEnabled(TAB_2) = bStatus
+    etabMain.TabEnabled(TAB_3) = bStatus
+    etabMain.TabEnabled(TAB_4) = bStatus
     efraTop.Enabled = bStatus
+    tgmJobClass.Locked = Not bStatus
+    tgmPayCode.Locked = Not bStatus
     tgmSpreadsheet.Locked = Not bStatus
 End Sub
 Private Function fnGetField(x As Variant) As String
@@ -2419,22 +3451,144 @@ Private Function fnGetField(x As Variant) As String
 End Function
 Public Function fnValidCellValue(tgTable As Object, ByVal nCurrCol As Integer, ByVal lCurrRow As Long, szText As String) As Boolean
 
-    fnValidCellValue = True
-    Select Case nCurrCol
+
+Select Case tgTable.TabIndex
+    Case tblJobClass.TabIndex
+        fnValidCellValue = fnVerifyingJobClass(tgTable, nCurrCol, lCurrRow, szText)
+    Case tblPayCode.TabIndex
+        fnValidCellValue = fnVerifyingPayCode(tgTable, nCurrCol, lCurrRow, szText)
+    Case tblSpreadsheet.TabIndex
+        fnValidCellValue = fnVerifyingSpreadsheet(tgTable, nCurrCol, lCurrRow, szText)
+End Select
+End Function
+Public Function fnVerifyingSpreadsheet(Table As TDBGrid, _
+                                 ByVal nCol As Integer, _
+                                 ByVal lRow As Long, _
+                                 sText As String) As Boolean
+    
+    Const SUB_NAME As String = "fnVerifyingSpreadsheet"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sProdDesc As String
+    Dim nRet As Integer
+    Dim i As Long
+
+    fnVerifyingSpreadsheet = True
+    Select Case nCol
         Case COL_DAYS
-            fnValidCellValue = fnValidNumberForAdd(szText, lCurrRow)
+            fnVerifyingSpreadsheet = fnValidNumberForAdd(sText, lRow)
         Case COL_RATE
-            If IsNumeric(szText) Then
-                fnValidCellValue = True
-            ElseIf Trim(szText) = "" Then
-                tgmSpreadsheet.ErrorMessage(nCurrCol) = "Hourly Par Rate cannot be blank"
-                fnValidCellValue = False
-            ElseIf Trim(szText) = "" Then
-                tgmSpreadsheet.ErrorMessage(nCurrCol) = "Hourly Par Rate must be numeric"
-                fnValidCellValue = False
+            If IsNumeric(sText) Then
+                fnVerifyingSpreadsheet = True
+            ElseIf Trim(sText) = "" Then
+                tgmSpreadsheet.ErrorMessage(nCol) = "Hourly Par Rate cannot be blank"
+                fnVerifyingSpreadsheet = False
+            ElseIf Trim(sText) = "" Then
+                tgmSpreadsheet.ErrorMessage(nCol) = "Hourly Par Rate must be numeric"
+                fnVerifyingSpreadsheet = False
             End If
     End Select
 End Function
+Public Function fnVerifyingJobClass(Table As TDBGrid, _
+                                 ByVal nCol As Integer, _
+                                 ByVal lRow As Long, _
+                                 sText As String) As Boolean
+    
+    Const SUB_NAME As String = "fnVerifyingJobClass"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sProdDesc As String
+    Dim nRet As Integer
+    Dim i As Long
+
+    fnVerifyingJobClass = True
+    If t_nFormMode = EDIT_MODE Then
+        Exit Function
+    End If
+    If nCol = COL_JOBCLASS Then
+        If sText = "" Then
+            tgmJobClass.ErrorMessage(nCol) = "You must enter a Job Class"
+            fnVerifyingJobClass = False
+        Else
+            For i = 0 To tgmJobClass.RowCount - 1
+                If i <> lRow Then
+                    If fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, i)) = fnGetField(sText) Then
+                             tgmJobClass.ErrorMessage(nCol) = "Duplicate row(s) found on the screen"
+                             fnVerifyingJobClass = False
+                             Exit Function
+                    End If
+                End If
+            Next
+            strSQL = " SELECT prm_job_class FROM pr_master WHERE prm_job_class=" & tfnSQLString(sText)
+            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+                fnVerifyingJobClass = False
+                tgmJobClass.ErrorMessage(0) = "This Job Class does not exist in the Payroll Master!"
+                Exit Function
+            End If
+                
+                strSQL = " SELECT prm_job_class FROM pr_master WHERE prm_job_class IN (SELECT zzsej_job_class FROM zzse_job_class"
+                strSQL = strSQL & " WHERE  zzsej_job_class = " & tfnSQLString(sText) & ")"
+                
+                If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
+                    fnVerifyingJobClass = False
+                    tgmJobClass.ErrorMessage(0) = "This Job Class has already been set up!"
+                    Exit Function
+                End If
+        End If
+    End If
+End Function
+Public Function fnVerifyingPayCode(Table As TDBGrid, _
+                                 ByVal nCol As Integer, _
+                                 ByVal lRow As Long, _
+                                 sText As String) As Boolean
+    
+    Const SUB_NAME As String = "fnVerifyingPayCode"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sProdDesc As String
+    Dim nRet As Integer
+    Dim i As Long
+
+    fnVerifyingPayCode = True
+    If nCol = COL_PAYCODE Then
+        If sText = "" Then
+            tgmPayCode.ErrorMessage(nCol) = "You must enter a Pay Code"
+            fnVerifyingPayCode = False
+        Else
+            strSQL = " SELECT prpa_pay_code FROM pr_pay"
+                strSQL = strSQL & " WHERE  prpa_pay_code = " & tfnSQLString(sText)
+                If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+                    fnVerifyingPayCode = False
+                    tgmPayCode.ErrorMessage(0) = "This Pay Code is not set up in the Payroll System!"
+                    Exit Function
+                End If
+            If t_nFormMode = ADD_MODE Then
+                strSQL = " SELECT prpa_pay_code FROM pr_pay WHERE prpa_pay_code IN (SELECT zzsep_code FROM zzse_pay_code"
+                strSQL = strSQL & " WHERE  zzsep_code = " & tfnSQLString(sText) & ")"
+                If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
+                    fnVerifyingPayCode = False
+                    tgmPayCode.ErrorMessage(0) = "This Pay Code has already been set up!"
+                    Exit Function
+                End If
+            End If
+            For i = 0 To tgmPayCode.RowCount - 1
+                If i <> lRow Then
+                    If fnGetField(tgmPayCode.CellValue(COL_PAYCODE, i)) = fnGetField(sText) Then
+                             tgmPayCode.ErrorMessage(nCol) = "Duplicate row(s) found on the screen"
+                             fnVerifyingPayCode = False
+                             Exit Function
+                    End If
+                End If
+            Next
+        End If
+    ElseIf nCol = COL_CONVFACTOR Then
+        If sText = "" Then
+            tgmPayCode.ErrorMessage(nCol) = "You must enter a Pay Code Conversion Factor."
+            fnVerifyingPayCode = False
+        End If
+    End If
+End Function
+
 Private Function fnValidNumberForAdd(sText As String, ByVal lCurrRow As Long) As Boolean
     Const SUB_NAME = "fnValidNumberForAdd"
     Dim sCode As String
@@ -2501,9 +3655,68 @@ SQLError:
     tfnErrHandler "GetRecordSet," & szCalledFrom, szSQL, bShowErrow
     On Error GoTo 0
 End Function
-
 Private Function fnUpdateInsert1() As Boolean
-    Const SUB_NAME = "fnUpdateInsert1"
+     Dim strSQL As String
+     Dim lRowCount As Long
+     Dim i As Long
+     Dim sType As String
+     
+     lRowCount = tgmJobClass.RowCount
+     
+     For i = 0 To lRowCount - 1
+        If t_nFormMode = ADD_MODE Then
+            If fnGetField(tgmJobClass.CellValue(0, i)) <> "" Then
+               strSQL = "INSERT INTO zzse_job_class(zzsej_job_class,zzsej_job_desc) VALUES "
+               strSQL = strSQL & "(" & tfnSQLString(fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, i)))
+               strSQL = strSQL & "," & tfnSQLString(fnGetField(tgmJobClass.CellValue(COL_CONVFACTOR, i))) & ")"
+                If Not fnExecuteSQL(strSQL, "fnUpdateInsert1") Then
+                    Exit Function
+                End If
+            End If
+        ElseIf t_nFormMode = EDIT_MODE Then
+            If fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, i)) <> "" Then 'unneccesary
+                strSQL = "UPDATE zzse_job_class SET zzsej_job_desc = " & tfnSQLString(fnGetField(tgmJobClass.CellValue(COL_CONVFACTOR, i)))
+                strSQL = strSQL & " WHERE zzsej_job_class = " & tfnSQLString(fnGetField(tgmJobClass.CellValue(COL_JOBCLASS, i)))
+                If Not fnExecuteSQL(strSQL, "fnUpdateInsert1") Then
+                    Exit Function
+                End If
+            End If
+        End If
+     Next
+     fnUpdateInsert1 = True
+End Function
+Private Function fnUpdateInsert2() As Boolean
+     Dim strSQL As String
+     Dim lRowCount As Long
+     Dim i As Long
+     Dim sType As String
+     
+     lRowCount = tgmPayCode.RowCount
+     
+     For i = 0 To lRowCount - 1
+        If t_nFormMode = ADD_MODE Then
+            If fnGetField(tgmPayCode.CellValue(0, i)) <> "" Then
+               strSQL = "INSERT INTO zzse_pay_code(zzsep_code,zzsep_factor) VALUES "
+               strSQL = strSQL & "(" & tfnSQLString(fnGetField(tgmPayCode.CellValue(COL_PAYCODE, i)))
+               strSQL = strSQL & "," & tfnRound(tgmPayCode.CellValue(COL_CONVFACTOR, i), DEFAULT_DECIMALS) & ")"
+                If Not fnExecuteSQL(strSQL, , "fnUpdateInsert2") Then
+                    Exit Function
+                End If
+            End If
+        ElseIf t_nFormMode = EDIT_MODE Then
+            If fnGetField(tgmPayCode.CellValue(COL_PAYCODE, i)) <> "" Then 'unneccesary
+                strSQL = "UPDATE zzse_pay_code SET zzsep_factor = " & tfnRound(tgmPayCode.CellValue(COL_CONVFACTOR, i), DEFAULT_DECIMALS)
+                strSQL = strSQL & " WHERE zzsep_code = " & tfnSQLString(fnGetField(tgmPayCode.CellValue(COL_PAYCODE, i)))
+                If Not fnExecuteSQL(strSQL, , "fnUpdateInsert2") Then
+                    Exit Function
+                End If
+            End If
+        End If
+     Next
+     fnUpdateInsert2 = True
+End Function
+Private Function fnUpdateInsert3() As Boolean
+    Const SUB_NAME = "fnUpdateInsert3"
     Dim strSQL As String
     Dim vData() As Variant
     Dim lRowCount As Long
@@ -2543,11 +3756,11 @@ Private Function fnUpdateInsert1() As Boolean
         End If
     Next
         
-    fnUpdateInsert1 = True
+    fnUpdateInsert3 = True
     Screen.MousePointer = vbDefault
 End Function
-Private Function fnUpdateInsert2() As Boolean
-    Const SUB_NAME = "fnUpdateInsert2"
+Private Function fnUpdateInsert4() As Boolean
+    Const SUB_NAME = "fnUpdateInsert4"
     Dim strSQL As String
     Dim vData() As Variant
     Dim lRowCount As Long
@@ -2564,19 +3777,30 @@ Private Function fnUpdateInsert2() As Boolean
         'tgmGrid.GetChangedRow vData, nColCount, i
         tgmGrid.GetRow vData, nColCount, i
         If fnGetField(vData(COL_EMPNO)) <> "" Then
+'        Dim l As Long
+'        l = vData(nCOL_CONVT_FACTOR)
 
+'            strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
+'               & vData(COL_NEW_RATE)
+'            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
+'            strSQL = strSQL & " AND prep_pay_code='" & strHourCode & "'"
+'            If Not fnExecuteSQL(strSQL, SUB_NAME) Then
+'                Screen.MousePointer = vbDefault
+'                Exit Function
+'            End If
+'            strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
+'               & tfnFormatDecimal(vData(COL_NEW_RATE) * 1.5, 2)
+'            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
+'            strSQL = strSQL & " AND prep_pay_code='" & strOverCode & "'"
+'            If Not fnExecuteSQL(strSQL, SUB_NAME) Then
+'                Screen.MousePointer = vbDefault
+'                Exit Function
+'            End If
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-               & vData(COL_NEW_RATE)
-            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
-            strSQL = strSQL & " AND prep_pay_code='" & strHourCode & "'"
-            If Not fnExecuteSQL(strSQL, SUB_NAME) Then
-                Screen.MousePointer = vbDefault
-                Exit Function
-            End If
-            strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-               & tfnFormatDecimal(vData(COL_NEW_RATE) * 1.5, 2)
-            strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
-            strSQL = strSQL & " AND prep_pay_code='" & strOverCode & "'"
+              & tfnFormatDecimal(vData(COL_NEW_RATE), 2) ' * vData(nCOL_CONVT_FACTOR), 2)
+            strSQL = strSQL & " WHERE prep_empno=" & tfnRound(vData(COL_EMPNO))
+            strSQL = strSQL & " AND prep_pay_code= " & tfnSQLString(vData(COL_PCODE))
+            strSQL = strSQL & " AND prep_year = " & tfnRound(vData(nCOL_PREP_YEAR))
             If Not fnExecuteSQL(strSQL, SUB_NAME) Then
                 Screen.MousePointer = vbDefault
                 Exit Function
@@ -2584,7 +3808,7 @@ Private Function fnUpdateInsert2() As Boolean
         End If
     Next
         
-    fnUpdateInsert2 = True
+    fnUpdateInsert4 = True
     Screen.MousePointer = vbDefault
 End Function
 Private Function fnExecuteSQL(szSQL As String, _
@@ -2621,25 +3845,51 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
 '    On Error GoTo err_handler
     
     
-    strSQL = "SELECT DISTINCT prm_empno empno, prm_last_name lname,prm_first_name fname,prm_middle_name mname, prm_emp_level emp_level,zzsepi_lvl_desc emp_level_desc,prm_date_hired date_hired, "
-    strSQL = strSQL & " prep_amount old_rate, zzsepi_pay new_rate, zzsepi_days zzsepi_days"
-    strSQL = strSQL & " FROM pr_master,pr_emp_pay,zzse_pay_increase "
-    strSQL = strSQL & " WHERE prm_job_class='CS' AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
-    strSQL = strSQL & " AND prm_empno=prep_empno AND prep_pay_code='" & strHourCode & "'"
+'    strSQL = "SELECT DISTINCT prm_empno empno, prm_last_name lname,prm_first_name fname,prm_middle_name mname, prm_emp_level emp_level,zzsepi_lvl_desc emp_level_desc,prm_date_hired date_hired, "
+'    strSQL = strSQL & " prep_amount old_rate, zzsepi_pay new_rate, zzsepi_days zzsepi_days"
+'    strSQL = strSQL & " FROM pr_master,pr_emp_pay,zzse_pay_increase "
+'    strSQL = strSQL & " WHERE prm_job_class='CS' AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
+'    strSQL = strSQL & " AND prm_empno=prep_empno AND prep_pay_code='" & strHourCode & "'"
+'    strSQL = strSQL & " AND Today-prm_date_hired >0 "
+'    strSQL = strSQL & " AND zzsepi_pay-prep_amount>0 "
+'    strSQL = strSQL & " INTO TEMP tmpTableReport"
+'
+'    t_dbMainDatabase.ExecuteSQL strSQL
+'
+'    strSQL = "SELECT DISTINCT empno, lname,fname, mname, emp_level,emp_level_desc, date_hired,  "
+'    strSQL = strSQL & " Today - date_hired days_worked "
+'    strSQL = strSQL & ", old_rate, new_rate"
+'    strSQL = strSQL & ", new_rate-old_rate rate_diff "
+'    strSQL = strSQL & " FROM tmpTableReport "
+'    strSQL = strSQL & " WHERE zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE emp_level = b.emp_level AND empno = b.empno  AND b.zzsepi_days <= (Today - date_hired))"
+'    strSQL = strSQL & " ORDER BY empno,emp_level"
+
+    strSQL = "SELECT DISTINCT prm_empno empno, prm_last_name lname,prm_first_name fname,prm_middle_name mname,"
+    strSQL = strSQL & " prm_job_class job_class,prm_emp_level emp_level,"
+    strSQL = strSQL & " zzsepi_lvl_desc emp_level_desc,prm_date_hired date_hired, "
+    strSQL = strSQL & " prep_amount old_rate, zzsepi_pay new_rate, zzsepi_days zzsepi_days,"
+    strSQL = strSQL & " prep_pay_code pay_code, zzsep_factor conv_factor, prep_year prep_year"
+    strSQL = strSQL & " FROM pr_master,pr_emp_pay,zzse_pay_increase, "
+    strSQL = strSQL & " zzse_job_class, zzse_pay_code"
+    strSQL = strSQL & " WHERE prm_job_class= zzsej_job_class AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
+    strSQL = strSQL & " AND prm_empno=prep_empno AND zzsep_code = prep_pay_code"
     strSQL = strSQL & " AND Today-prm_date_hired >0 "
     strSQL = strSQL & " AND zzsepi_pay-prep_amount>0 "
+    strSQL = strSQL & " AND prep_year = ("
+    strSQL = strSQL & " SELECT MAX(t2.prep_year) FROM pr_emp_pay t2 "
+    strSQL = strSQL & " WHERE prep_empno = t2.prep_empno AND prep_pay_code = t2.prep_pay_code)"
     strSQL = strSQL & " INTO TEMP tmpTableReport"
-    
     t_dbMainDatabase.ExecuteSQL strSQL
         
-    strSQL = "SELECT DISTINCT empno, lname,fname, mname, emp_level,emp_level_desc, date_hired,  "
-    strSQL = strSQL & " Today - date_hired days_worked "
-    strSQL = strSQL & ", old_rate, new_rate"
-    strSQL = strSQL & ", new_rate-old_rate rate_diff "
-    strSQL = strSQL & " FROM tmpTableReport "
-    strSQL = strSQL & " WHERE zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE emp_level = b.emp_level AND empno = b.empno  AND b.zzsepi_days <= (Today - date_hired))"
-    strSQL = strSQL & " ORDER BY empno,emp_level"
+    strSQL = "SELECT DISTINCT empno, lname,fname, mname, job_class,emp_level,emp_level_desc, date_hired,  "
+    strSQL = strSQL & " (Today - date_hired) days_worked "
+    strSQL = strSQL & ", pay_code,old_rate, new_rate"
+    strSQL = strSQL & ", new_rate-old_rate rate_diff, conv_factor,prep_year "
+    strSQL = strSQL & " FROM tmpTableReport AS a, zzse_pay_code"
+    strSQL = strSQL & " WHERE a.zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE a.emp_level = b.emp_level AND a.empno = b.empno  AND b.zzsepi_days <= (Today - b.date_hired))"
+    strSQL = strSQL & " ORDER BY a.empno,a.emp_level"
     
+
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database to get records", vbCritical
         Exit Function
@@ -2651,34 +3901,50 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     Dim strTemp As String
     'Dim vData() As Variant
     Dim nRowCount As Long
-    Const GRID_COL_COUNT = 10
+    Const GRID_COL_COUNT = 12
     Dim i As Long
-    i = -1
+    Dim prev_empno As Long
+    Dim new_empno As Long
     
+    i = -1
+    'prev_empno = -999
     If rsTemp.RecordCount > 0 Then
         nRowCount = rsTemp.RecordCount
+        'new_empno = fnGetField(rsTemp!empno)
         ReDim vData(GRID_COL_COUNT, nRowCount - 1)
         rsTemp.MoveFirst
         Do
-            i = i + 1
-            vData(COL_EMPNO, i) = rsTemp!empno
-
-            vData(COL_LEVEL, i) = rsTemp!emp_level
-            vData(COL_DESC, i) = rsTemp!emp_level_desc
-            vData(COL_HIRE_DATE, i) = rsTemp!date_hired
-            vData(COL_DAYS_WORKED, i) = rsTemp!days_worked
-            vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
-            vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
-            vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
-            
-            If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
-                strTemp = Trim(fnRSToString(rsTemp!lname))
-                vData(COL_NAME, i) = strTemp
-            Else
-                strTemp = Trim(fnRSToString(rsTemp!lname)) & ", " & Trim(fnRSToString(rsTemp!fname)) & " " & Trim(fnRSToString(rsTemp!mname))
-                vData(COL_NAME, i) = strTemp
-            End If
+            'If new_empno <> prev_empno Then
+                i = i + 1
+                vData(COL_EMPNO, i) = fnGetField(rsTemp!empno)
+                vData(COL_JCLASS, i) = fnGetField(rsTemp!job_class)
+                vData(COL_LEVEL, i) = fnGetField(rsTemp!emp_level)
+                vData(COL_DESC, i) = fnGetField(rsTemp!emp_level_desc)
+                vData(COL_HIRE_DATE, i) = rsTemp!date_hired
+                vData(COL_DAYS_WORKED, i) = fnGetField(rsTemp!days_worked)
+                vData(COL_PCODE, i) = fnGetField(rsTemp!pay_code)
+                vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
+               ' vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
+                vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
+                
+                If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
+                    strTemp = Trim(fnRSToString(rsTemp!lname))
+                    vData(COL_NAME, i) = strTemp
+                Else
+                    strTemp = Trim(fnRSToString(rsTemp!lname)) & ", " & Trim(fnRSToString(rsTemp!fname)) & " " & Trim(fnRSToString(rsTemp!mname))
+                    vData(COL_NAME, i) = strTemp
+                End If
+                vData(nCOL_CONVT_FACTOR, i) = tfnFormatDecimal(rsTemp!conv_factor, 2)
+                vData(nCOL_PREP_YEAR, i) = tfnRound(rsTemp!prep_year)
+                vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2) * tfnFormatDecimal(rsTemp!conv_factor, 2)
+'            Else
+'                vData(COL_PCODE, i) = fnGetField(rsTemp!pay_code)
+'                vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
+'                vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
+'                vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
+'            End If
             rsTemp.MoveNext
+            
         Loop Until rsTemp.EOF
     
     
@@ -2765,6 +4031,44 @@ Private Function fnGetPayCode() As Boolean
     
     fnGetPayCode = True
 End Function
+Private Function fnCheckPayCode() As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Const SUB_NAME As String = "fnCheckPayCode"
+    
+    fnCheckPayCode = False
+    
+    strSQL = "SELECT * FROM zzse_pay_code"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database to get records", vbCritical
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        MsgBox "No Pay Codes have been set up in the Automatic Pay Increase program.", vbExclamation
+        Exit Function
+    End If
+    
+    fnCheckPayCode = True
+End Function
+Private Function fnCheckJobClass() As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Const SUB_NAME As String = "fnCheckJobClass"
+    
+    fnCheckJobClass = False
+    
+    strSQL = "SELECT * FROM zzse_job_class"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database to get records", vbCritical
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        MsgBox "No Job Class have been set up in the Automatic Pay Increase program.", vbExclamation
+        Exit Function
+    End If
+    
+    fnCheckJobClass = True
+End Function
 Private Sub subInitGrid()
     Dim sPtnAmount As String
     Dim sFmtAmount As String
@@ -2780,44 +4084,53 @@ Private Sub subInitGrid()
     Set tgmGrid.StatusBar = ffraStatusbar
     Set tgmGrid.Form = Me
     
-
+    nCOL_CONVT_FACTOR = tgmGrid.AddHiddenField("zzsep_factor")
+    nCOL_PREP_YEAR = tgmGrid.AddHiddenField("prep_year")
     nWidth = tblGrid.Width
-    With tblGrid.Columns(COL_EMPNO)
-        .Width = 0.08 * nWidth
-        .DataField = "empno"
-    End With
-    With tblGrid.Columns(COL_NAME)
-        .Width = 0.12 * nWidth
-        .DataField = "lname"
-    End With
-    With tblGrid.Columns(COL_LEVEL)
-        .Width = 0.06 * nWidth
-        .DataField = "emp_level"
-    End With
-    With tblGrid.Columns(COL_DESC)
-        .Width = 0.14 * nWidth
-        .DataField = "emp_level_desc"
-    End With
-    With tblGrid.Columns(COL_HIRE_DATE)
-        .Width = 0.13 * nWidth
-        .DataField = "date_hired"
-    End With
-    With tblGrid.Columns(COL_DAYS_WORKED)
-        .Width = 0.16 * nWidth
-        .DataField = "days_worked"
-    End With
-    With tblGrid.Columns(COL_OLD_RATE)
-        .Width = 0.11 * nWidth
-        .DataField = "old_rate"
-    End With
-    With tblGrid.Columns(COL_NEW_RATE)
-        .Width = 0.11 * nWidth
-        .DataField = "new_rate"
-    End With
-    With tblGrid.Columns(COL_DIFF)
-        .Width = 0.09 * nWidth
-        .DataField = "rate_diff"
-    End With
+'    With tblGrid.Columns(COL_EMPNO)
+'        .Width = 0.12 * nWidth
+'        .DataField = "empno"
+'    End With
+'    With tblGrid.Columns(COL_NAME)
+'        .Width = 0.12 * nWidth
+'        .DataField = "lname"
+'    End With
+'    With tblGrid.Columns(COL_JOBCLASS)
+'        .Width = 0.03 * nWidth
+'        .DataField = "job_class"
+'    End With
+'    With tblGrid.Columns(COL_LEVEL)
+'        .Width = 0.05 * nWidth
+'        .DataField = "emp_level"
+'    End With
+'    With tblGrid.Columns(COL_DESC)
+'        .Width = 0.14 * nWidth
+'        .DataField = "emp_level_desc"
+'    End With
+'    With tblGrid.Columns(COL_HIRE_DATE)
+'        .Width = 0.13 * nWidth
+'        .DataField = "date_hired"
+'    End With
+'    With tblGrid.Columns(COL_DAYS_WORKED)
+'        .Width = 0.08 * nWidth
+'        .DataField = "days_worked"
+'    End With
+'    With tblGrid.Columns(COL_PAYCODE)
+'        .Width = 0.06 * nWidth
+'        .DataField = "pay_code"
+'    End With
+'    With tblGrid.Columns(COL_OLD_RATE)
+'        .Width = 0.07 * nWidth
+'        .DataField = "old_rate"
+'    End With
+'    With tblGrid.Columns(COL_NEW_RATE)
+'        .Width = 0.07 * nWidth
+'        .DataField = "new_rate"
+'    End With
+'    With tblGrid.Columns(COL_DIFF)
+'        .Width = 0.01 * nWidth
+'        .DataField = "rate_diff"
+'    End With
     tgmGrid.DisplayFormat(COL_OLD_RATE) = sFmtAmount
     tgmGrid.DisplayFormat(COL_NEW_RATE) = sFmtAmount
     tgmGrid.DisplayFormat(COL_DIFF) = sFmtAmount
@@ -2857,11 +4170,13 @@ Public Sub subPrintRpt()
     sRptTitle = "7-Eleven Automatic Pay Increase Processing Log"
     
     sLineHeader = fnTranc("Emp#", 10, LEFT_JUSTIFY) & _
-                  fnTranc("Name", 30, LEFT_JUSTIFY) & _
+                  fnTranc("Name", 26, LEFT_JUSTIFY) & _
+                  fnTranc("JCls", 5, LEFT_JUSTIFY) & _
                   fnTranc("Level", 6, LEFT_JUSTIFY) & _
                   fnTranc("Description", 21, LEFT_JUSTIFY) & _
                   fnTranc("Hire Date", 15, LEFT_JUSTIFY) & _
-                  fnTranc("Days Worked", 12, RIGHT_JUSTIFY) & _
+                  fnTranc("Days Wkd", 10, RIGHT_JUSTIFY) & _
+                  fnTranc("PCode", 6, RIGHT_JUSTIFY) & _
                   fnTranc("Old Rate", 12, RIGHT_JUSTIFY) & _
                   fnTranc("New Rate", 12, RIGHT_JUSTIFY) & _
                   fnTranc("Rate Diff", 12, RIGHT_JUSTIFY)
@@ -2879,11 +4194,13 @@ Public Sub subPrintRpt()
     For i = 0 To lCount - 1
         With tgmGrid
            sLine = fnTranc(.CellValue(COL_EMPNO, i), 10, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NAME, i), 30, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NAME, i), 26, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_JCLASS, i), 5, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_LEVEL, i), 6, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_DESC, i), 21, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_HIRE_DATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DAYS_WORKED, i), 12, RIGHT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DAYS_WORKED, i), 10, RIGHT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_PCODE, i), 6, RIGHT_JUSTIFY) & _
               fnTranc(.CellValue(COL_OLD_RATE, i), 12, RIGHT_JUSTIFY) & _
               fnTranc(.CellValue(COL_NEW_RATE, i), 12, RIGHT_JUSTIFY) & _
               fnTranc(.CellValue(COL_DIFF, i), 12, RIGHT_JUSTIFY)
@@ -2921,3 +4238,177 @@ Private Function fnValidNumer() As Boolean
         
     fnValidNumer = True
 End Function
+Private Sub tbljobclass_AfterColEdit(ByVal ColIndex As Integer)
+    tgmJobClass.AfterColEdit ColIndex
+    nDataStatus = DATA_CHANGED
+    t_bDataChanged = True
+    subSetButtonStatus
+End Sub
+
+Private Sub tbljobclass_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    subEnableUpdateBtn False
+    tgmJobClass.BeforeColEdit ColIndex, KeyAscii, CANCEL
+End Sub
+
+Private Sub tbljobclass_Change()
+    tgmJobClass.Change
+End Sub
+
+Private Sub tbljobclass_FirstRowChange()
+    tgmJobClass.FirstRowChange
+    'tgfDropDown1.FirstRowChange
+    subCheckDelete
+End Sub
+
+Private Sub tbljobclass_GotFocus()
+    tgmJobClass.GotFocus
+    'tgfDropDown1.GotFocus
+End Sub
+
+Private Sub tbljobclass_KeyDown(KeyCode As Integer, Shift As Integer)
+    tgmJobClass.KeyDown KeyCode, Shift
+End Sub
+
+Private Sub tbljobclass_KeyPress(KeyAscii As Integer)
+    If Not tgmJobClass.Keypress(KeyAscii) Then
+        KeyAscii = 0
+    End If
+    If tblJobClass.col = COL_JOBCLASS Then
+        KeyAscii = Asc(UCase(Chr(KeyAscii)))
+    End If
+'    If KeyAscii <> vbKeyReturn Then
+'        If tbljobclass.col = COL_DAYS Then
+'            tgmjobclass.CellValue(COL_RATE, tgmjobclass.GetCurrentRowNumber) = ""
+'
+'        End If
+'    End If
+End Sub
+
+Private Sub tbljobclass_LostFocus()
+    tgmJobClass.LostFocus
+     'tgfDropDown1.LostFocus tblJobClass
+End Sub
+
+Private Sub tbljobclass_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    'If tgfDropDown1 Is Nothing Then
+     '   Exit Sub
+    'End If
+    'If tgfDropDown1.RowColChange(tblJobClass) Then
+        tgmJobClass.RowColChange LastRow, LastCol
+    'End If
+    
+    subCheckDelete
+End Sub
+
+Private Sub tbljobclass_SelChange(CANCEL As Integer)
+     CANCEL = True
+End Sub
+
+Private Sub tbljobclass_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+    tgmJobClass.ReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+Private Sub tblpaycode_AfterColEdit(ByVal ColIndex As Integer)
+    tgmPayCode.AfterColEdit ColIndex
+    nDataStatus = DATA_CHANGED
+    t_bDataChanged = True
+    subSetButtonStatus
+End Sub
+
+Private Sub tblpaycode_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    subEnableUpdateBtn False
+    tgmPayCode.BeforeColEdit ColIndex, KeyAscii, CANCEL
+End Sub
+
+Private Sub tblpaycode_Change()
+    tgmPayCode.Change
+End Sub
+
+Private Sub tblpaycode_FirstRowChange()
+    tgmPayCode.FirstRowChange
+    tgfDropDown2.FirstRowChange
+    subCheckDelete
+End Sub
+
+Private Sub tblpaycode_GotFocus()
+    tgfDropDown2.GotFocus
+    tgmPayCode.GotFocus
+    
+    If tgfDropDown2.ValidSelection Then
+         subSetButtonStatus
+    End If
+    
+End Sub
+
+Private Sub tblpaycode_KeyDown(KeyCode As Integer, Shift As Integer)
+    tgmPayCode.KeyDown KeyCode, Shift
+End Sub
+
+Private Sub tblpaycode_KeyPress(KeyAscii As Integer)
+    If Not tgmPayCode.Keypress(KeyAscii) Then
+        KeyAscii = 0
+    End If
+    If tblPayCode.col = COL_PAYCODE Then
+        KeyAscii = Asc(UCase(Chr(KeyAscii)))
+    End If
+    tgfDropDown2.Keypress tblPayCode, KeyAscii
+'    If KeyAscii <> vbKeyReturn Then
+'        If tblpaycode.col = COL_DAYS Then
+'            tgmpaycode.CellValue(COL_RATE, tgmpaycode.GetCurrentRowNumber) = ""
+'
+'        End If
+'    End If
+End Sub
+
+Private Sub tblpaycode_LostFocus()
+    tgmPayCode.LostFocus
+    'tblpaycode_AfterColEdit COL_PAYCODE
+     tgfDropDown2.LostFocus tblPayCode
+     
+End Sub
+
+Private Sub tblpaycode_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    If tgfDropDown2 Is Nothing Then
+        Exit Sub
+    End If
+    If tgfDropDown2.RowColChange(tblPayCode) Then
+        tgmPayCode.RowColChange LastRow, LastCol
+    End If
+'    If tgmPayCode.ValidCell(COL_PAYCODE, tgmGrid.GetCurrentRowNumber) Then
+'    End If
+    subCheckDelete
+End Sub
+
+Private Sub tblpaycode_SelChange(CANCEL As Integer)
+     CANCEL = True
+End Sub
+
+Private Sub tblpaycode_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+    tgmPayCode.ReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+
+Private Sub tblFDropDown2_Click()
+    tgfDropDown2.TableClick tblFDropdown2
+End Sub
+
+Private Sub tblFDropDown2_KeyPress(KeyAscii As Integer)
+    tgfDropDown2.Keypress tblFDropdown2, KeyAscii
+End Sub
+
+'***********************************************************************
+Private Sub tblFDropDown2_Keydown(KeyCode As Integer, Shift As Integer)
+    tgfDropDown2.KeyDown tblFDropdown2, KeyCode
+End Sub
+'***********************************************************************
+Private Sub tblFDropDown2_LostFocus()
+    tgfDropDown2.LostFocus tblFDropdown2
+End Sub
+
+Private Sub tblFDropDown2_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgfDropDown2.MouseUp y
+End Sub
+
+Private Sub tblFDropDown2_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    tgfDropDown2.RowColChange tblFDropdown2
+End Sub
