@@ -53,24 +53,25 @@ declare
         NUMBER nTemp, i;
         STRING szBaseDirectory;
         STRING szDestMsg, svUninstLogFile;
-        STRING szMsg, szNumber, szTemp, szFolder;
+        STRING szMsg, szNumber, szTemp, szFolder, szDisk;
         STRING szSCIcon, szSCExe, szSCWork, szAppDir;
         STRING szOldRunValue, szNewRunValue;
         STRING szDBFrom, szDBTo, szForceInstall;
 
-        BOOL bZFailure, bExist16BitCstormnt;
+        BOOL bZFailure;
 	BOOL bTemp, bTemp1, bTemp2;
 
         LIST    listInfo;
 
         // function prototypes
         prototype CheckDiskSpace(NUMBER);
-        prototype UnInstallCstormnt16();
 
         prototype CopySetup();
 	prototype CopyLocalDB(STRING);
 	prototype fnFindFile(STRING, STRING);
 	prototype fnFinishReboot(STRING);
+        prototype DeleteOldOleDir(STRING);
+
 
 // the script starts here
 program
@@ -81,37 +82,36 @@ StartHere:
 	// the script starts here
 	StrSub(szTemp, CMDLINE, 0, 8);
 	if szTemp = "CPYLOCAL" then
-        	CopyLocalDB("Second");
-
-        	exit;
+	        	CopyLocalDB("Second");
+	        	exit;
 	endif;
 	
-        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
+	INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
 
-        //set installation header
-        szMsg = "Installing " + PRODUCT_NAME;
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-                szMsg = szMsg + "\nForced Installation";
-        endif;
-        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
-        SetTitle(szMsg , 24, WHITE);
+	//set installation header
+	szMsg = "Installing " + PRODUCT_NAME;
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+	        szMsg = szMsg + "\nForced Installation";
+	endif;
+	szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+	SetTitle(szMsg , 24, WHITE);
 
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
-		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
-                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
-                szForceInstall = "1 ";
-        else
-                szForceInstall = "0 ";
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+	        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+			MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+	                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+	                szForceInstall = "1 ";
+	else
+                	szForceInstall = "0 ";
 	endif;
 
-        if( CreateFile( nvFileOut, WINSYSDIR, SETUP_LOG ) < 0 ) then
+        	if( CreateFile( nvFileOut, WINSYSDIR, SETUP_LOG ) < 0 ) then
 
     		MessageBeep( 0 );
-                MessageBox( SETUP_LOG + " could not be opened", SEVERE );
-            abort;
+                	MessageBox( SETUP_LOG + " could not be opened", SEVERE );
+            		abort;
 	else
-                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+                	LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
 		LOGWRITE(LOGMSG);
 	endif;   
 
@@ -179,30 +179,23 @@ GetTargetPath:
         szTemp = szBaseDirectory ^ "";
         StrToLower(szTemp, szTemp);
 
-        ParsePath(szFolder, szBaseDirectory, DISK);
-        StrToLower(szFolder, szFolder);
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        StrToLower(szDisk, szDisk);
 
-        nTemp = StrFind(szTemp, szFolder ^ "factor");
+        nTemp = StrFind(szTemp, szDisk ^ "factor");
 
-        StrToUpper(szFolder, szFolder);
+        StrToUpper(szDisk, szDisk);
 
         if (nTemp < 0) then   //incorrect directory
                 szMsg = PRODUCT_NAME + " Program Directory '" +
                     szBaseDirectory + "\\' is not valid.\n\n";
                 szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
-                    szFolder ^ APP_BASE_PATH + "' directory.";
+                    szDisk ^ APP_BASE_PATH + "' directory.";
 
                 MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
         endif;
 
-        szBaseDirectory = szFolder ^ APP_BASE_PATH;
-
-        //check 16-bit cstormnt directory
-//        if (ExistsDir(szBaseDirectory ^ EPB_DIR) = EXISTS) then
-//                bExist16BitCstormnt = TRUE;
-//        else
-//                bExist16BitCstormnt = FALSE;
-//        endif;
+        szBaseDirectory = szDisk ^ APP_BASE_PATH;
 
 
 Check_Disk_Space:
@@ -226,11 +219,6 @@ ConfirmCopy:
                 ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
         endif;
         ListAddString(listInfo, "", AFTER);
-        if (bExist16BitCstormnt) then
-                ListAddString(listInfo, "Uninstall C-Store Auditing 16-bit Program:", AFTER);
-                ListAddString(listInfo, "        YES", AFTER);
-                ListAddString(listInfo, "", AFTER);
-        endif;
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
         ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
@@ -255,11 +243,26 @@ SetupRegAndUninstall:
 		
 
 StartCopy:
-        UnInstallCstormnt16();
         CopySetup();
 
-//        szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
-	szBaseDirectory = "C:" ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+       	//delete the LOCAL \FACTOR\EXECTRAK\OLE
+	//All Factor OLE SERVER files will be install in local \Factor\OLE directory.
+	szFolder = szDisk ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
+	if (!DeleteOldOleDir(szFolder)) then
+	        	LOGMSG="DELETE LOCAL OLE DIRECTORY FAILED";
+	        	LOGWRITE(LOGMSG);
+		MessageBox("Installation failed to delete the Local OLE directory '" + szFolder + "'.", SEVERE);
+		if AskYesNo("Do you want to proceed with the Installation?", YES) = NO then
+		        	LOGMSG="INSTALLATION ABORTED";
+		        	LOGWRITE(LOGMSG);
+			abort;
+		endif;
+	else
+	        	LOGMSG="DELETE LOCAL OLE DIRECTORY SUCCESS";
+	        	LOGWRITE(LOGMSG);
+	endif;
+
+	szBaseDirectory = szDisk ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
 
 	LOGMSG="INSTALLING IN : " + szBaseDirectory;
 	LOGWRITE(LOGMSG);
@@ -665,56 +668,6 @@ begin
 end;
 
 
-function UnInstallCstormnt16()
-
-        STRING szFolder, szTemp, szResult;
-
-        STRING szFolderName, szItemName, svCmdLine, svWrkDir, svIconPath;
-        STRING svShortCutKey, svGroupPath, szTitle, szMsg, szInfo, svMinFlag;
-        STRING svMinimizeFlag;
-        NUMBER nvIconIndex, nvMinimizeFlag, nResult, nvMinFlag, nTemp;
-
-begin
-        szMsg = "Setup is uninstalling " + PRODUCT_NAME + " 16-bit programs. Please wait...";
-        Enable(HOURGLASS);
-        SdShowMsg (szMsg, TRUE);
-
-        VarSave(SRCTARGETDIR);
-
-        //get the uninstall shortcut property
-        szFolderName = WINDIR ^ "START MENU\\PROGRAMS" ^ COMPANY_NAME ^ PRODUCT_NAME;
-        szItemName = "Uninstall " + PRODUCT_NAME;
-
-        nResult = QueryProgItem (szFolderName, szItemName, svCmdLine, svWrkDir,
-                 svIconPath, nvIconIndex, svShortCutKey, nvMinimizeFlag);
-
-        if (nResult >= 0) then
-                if (nResult = IS_ITEM) then
-                        // svCmdLine will have the value
-                        // C:\\WINDOWS\\uninst.exe -f"C:\\Factor\\Cstormnt\\DeIsL1.isu"
-
-                        StrToLower(svCmdLine, svCmdLine);
-
-                        nTemp = StrFind(svCmdLine, " ");
-
-                        if (nTemp >= 0) then
-                                StrSub(szTemp,svCmdLine,0,nTemp);
-                                szResult = szTemp + "Factor16";
-                                StrSub(szResult,svCmdLine,nTemp + 1,StrLength(svCmdLine) - nTemp + 1);
-
-                                LaunchAppAndWait(szTemp, szResult, WAIT);
-                        endif;
-                endif;
-        endif;
-
-
-        SdShowMsg(szMsg, FALSE);
-        Disable(HOURGLASS);
-
-        VarRestore(SRCTARGETDIR);
-end;
-
-
 // write log function
 function LOGWRITE(logline)
 
@@ -723,6 +676,7 @@ begin
 	WriteLine( nvFileOut, logline);
 	return;
 end;
+
 
 function CopySetup()
  
@@ -887,5 +841,24 @@ begin
         System(SYS_BOOTMACHINE);
 
 end;
+
+
+//David 11/16/99
+//Delete the \Factor\ExecTrak\Ole directory in Old Installation
+//All Factor OLE SERVER files will be install in local \Factor\OLE directory.
+function DeleteOldOleDir(szDir)
+
+begin
+	
+	if (ExistsDir(szDir) = EXISTS) then
+		if (DeleteDir(szFolder, ALLCONTENTS) < 0) then
+			return FALSE;
+		endif;
+	endif;
+    
+    	return TRUE;
+
+end;
+
 
 #include "sddialog.rul"
