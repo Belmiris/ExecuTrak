@@ -1707,6 +1707,10 @@ Private Sub tblEditSelect_DblClick()
     End If
 End Sub
 
+Private Sub tblEditSelect_HeadClick(ByVal ColIndex As Integer)
+    tgmEditSelect.HeadClick ColIndex
+End Sub
+
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
 End Sub
@@ -2645,6 +2649,7 @@ Private Sub txtVariable1_Change()
     
     If Not ActiveControl Is txtVariable1 Then Exit Sub
     
+    subEnableUpdateBtn False
     t_bDataChanged = True
     subEnableRefreshBtn True
 End Sub
@@ -2694,7 +2699,9 @@ End Sub
 Private Sub txtVariable1_LostFocus()
     tgcDropdown.LostFocus txtVariable1
     cValidate.LostFocus txtVariable1, cmdVariable1
-    'cValidate.ResetFlags
+    If cValidate.FirstInvalidInput < 0 Then
+        subEnableUpdateBtn True
+    End If
 End Sub
 
 Private Sub txtVariable2_Change()
@@ -2703,6 +2710,7 @@ Private Sub txtVariable2_Change()
     
     If Not ActiveControl Is txtVariable2 Then Exit Sub
 
+    subEnableUpdateBtn False
     t_bDataChanged = True
     subEnableRefreshBtn True
 End Sub
@@ -2752,6 +2760,9 @@ End Sub
 Private Sub txtVariable2_LostFocus()
     tgcDropdown.LostFocus txtVariable2
     cValidate.LostFocus txtVariable2, cmdVariable2
+    If cValidate.FirstInvalidInput < 0 Then
+        subEnableUpdateBtn True
+    End If
 End Sub
 
 Private Sub txtVariable3_Change()
@@ -2760,6 +2771,7 @@ Private Sub txtVariable3_Change()
     
     If Not ActiveControl Is txtVariable3 Then Exit Sub
     
+    subEnableUpdateBtn False
     t_bDataChanged = True
     subEnableRefreshBtn True
 End Sub
@@ -2771,7 +2783,6 @@ Private Sub txtVariable3_GotFocus()
     If tgcDropdown.SingleRecordSelected Then
         subSetFocus txtFormula
     End If
-    
 End Sub
 
 Private Sub txtVariable3_KeyPress(KeyAscii As Integer)
@@ -2795,12 +2806,14 @@ Private Sub txtVariable3_KeyPress(KeyAscii As Integer)
     Else
         cValidate.Keypress txtVariable3, KeyAscii
     End If
-
 End Sub
 
 Private Sub txtVariable3_LostFocus()
     tgcDropdown.LostFocus txtVariable3
     cValidate.LostFocus txtVariable3, cmdVariable3
+    If cValidate.FirstInvalidInput < 0 Then
+        subEnableUpdateBtn True
+    End If
 End Sub
 
 Private Sub txtFormula_Change()
@@ -2814,6 +2827,13 @@ Private Sub txtFormula_Change()
 End Sub
 
 Private Sub txtFormula_GotFocus()
+    If txtAdjCond.Enabled Then
+        Set cValidate.LastBox = txtAdjCond
+    ElseIf txtLevel.Enabled Then
+        Set cValidate.LastBox = txtLevel
+    Else
+        Set cValidate.LastBox = txtBonusCode
+    End If
     SelectIt txtFormula
     cValidate.GotFocus txtFormula
 End Sub
@@ -2926,7 +2946,8 @@ Private Sub txtAdjCond_KeyPress(KeyAscii As Integer)
         If cmdUpdateInsertBtn.Enabled Then
             subSetFocus cmdUpdateInsertBtn
         Else
-            subSetFocus cmdExitCancelBtn
+            'subSetFocus cmdExitCancelBtn
+            SendKeys "{TAB}", True
         End If
         KeyAscii = 0
     Else
@@ -3227,12 +3248,26 @@ Private Sub subInitSpreadsheets()
     subSetGridWidth
     
     Set tgmEditSelect = New clsTGSpreadSheet
-    Set tgmEditSelect.Table = tblEditSelect
-    Set tgmEditSelect.StatusBar = ffraStatusbar ' message bar name
-    Set tgmEditSelect.Form = Me
-    Set tgmEditSelect.engFactor = t_engFactor
-    tgmEditSelect.AllowAddNew = False
-    tgmEditSelect.SetupTable True
+    
+    With tgmEditSelect
+        Set .Table = tblEditSelect
+        Set .StatusBar = ffraStatusbar ' message bar name
+        Set .Form = Me
+        Set .engFactor = t_engFactor
+        .AllowAddNew = False
+        .SetupTable True
+        
+        .SortByColumn = True
+        
+        .AddSortColumn nColCode, nColCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            nColLevel, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
+            
+        .AddSortColumn nColType, nColType, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            nColCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            nColLevel, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
+        
+    End With
+    
     'Implement the selector class
     Set tgsEditSelect = New clsTGSelector
     tgsEditSelect.AvoidBeep = False
@@ -3240,7 +3275,6 @@ Private Sub subInitSpreadsheets()
     tgsEditSelect.SelectCurrRow = True
     tgsEditSelect.RowHighLighted = True
     tgsEditSelect.AllowMultipleSelect = False
-    
 End Sub
 
 Private Function fnLoadEditSelectGrid()
