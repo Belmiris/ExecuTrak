@@ -1,7 +1,7 @@
 Attribute VB_Name = "modTXMODDLL"
 Option Explicit
 #Const DEBUGGING = False
-
+#Const HARD_CODED_TX_LD_FEE = False
     Private Const ERROR_LOADING1 = 1201
     Private Const ERROR_LOADING2 = 1202
     Private Const MOD_DLL_NAME = "TxMod32.dll"
@@ -222,10 +222,6 @@ Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Lon
     If Not m_Disable_A_Taxes Then
         'If not disable A Taxes, typically called from fuel movement
         'we do not need to do anything.
-        Exit Sub
-    End If
-    
-    If lRecords <= 1 Then
         Exit Sub
     End If
     
@@ -509,30 +505,30 @@ Public Sub subFixTypeATaxForInfo()
         ' And they should be equal to lFuelAmount.
         ' If they are not equal. There is a problem and need to know how to canculate.
         ' Rgiht now, we assume that they are equal
-        
-'        If nTaxItems > 0 Then
-'            lTaxableAmount = lFuelAmount
-'            If bTexasLDFee Then
-'                'For Texas only
-'                If lGasAmount = lFuelAmount Then
-'                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
-'                        lTaxableAmount = 8000
-'                    End If
-'                End If
-'            End If
-'            fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
-'            For i = 0 To nTaxItems - 1
-'                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
-'                    fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
-'                    Exit For
-'                End If
-'            Next i
-'            lDelFuelAmount(nDel) = lFuelAmount
-'            lTotalFuel = lTotalFuel + lFuelAmount
-'        Else
-'            fTypeATaxes(nDel) = 0
-'        End If
-        
+        #If Not HARD_CODED_TX_LD_FEE Then
+        If nTaxItems > 0 Then
+            lTaxableAmount = lFuelAmount
+            If bTexasLDFee Then
+                'For Texas only
+                If lGasAmount = lFuelAmount Then
+                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
+                        lTaxableAmount = 8000
+                    End If
+                End If
+            End If
+            fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
+            For i = 0 To nTaxItems - 1
+                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
+                    fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
+                    Exit For
+                End If
+            Next i
+            lDelFuelAmount(nDel) = lFuelAmount
+            lTotalFuel = lTotalFuel + lFuelAmount
+        Else
+            fTypeATaxes(nDel) = 0
+        End If
+        #Else
         '---------------------Start of Special Codes for texas loading fees  WJ 10/08/01 ------------------
         'The codes (above) commented out are the old ones
         Dim m As Integer
@@ -577,14 +573,14 @@ Public Sub subFixTypeATaxForInfo()
                     End If
                 Next i
             End If
-            '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
         
             lDelFuelAmount(nDel) = lFuelAmount
             lTotalFuel = lTotalFuel + lFuelAmount
         Else
             fTypeATaxes(nDel) = 0
         End If
-
+        '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
+        #End If
     Next nDel
     fTaxes = 0
     For nDel = 0 To nDelCount - 1
@@ -632,6 +628,7 @@ Public Sub subFixTypeATaxForInfo()
                             For i = 0 To .m_nRecord - 1
                                 If .m_Taxes(i).m_cCharge = vbKeyY Then
                                     If .m_Taxes(i).m_cBasis = vbKeyA Then
+                                        #If HARD_CODED_TX_LD_FEE Then
         '--------------------- Start of Special Codes for texas loading fees WJ 10/08/01 ------------------
                                         
                                         If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
@@ -649,10 +646,11 @@ Public Sub subFixTypeATaxForInfo()
                                         End If
                                         'The codes (below) commented out are the old ones
          '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
-    
-'                                        If .m_Taxes(i).m_dAmount <> 0 Then
-'                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
-'                                        End If
+                                        #Else
+                                        If .m_Taxes(i).m_dAmount <> 0 Then
+                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                        End If
+                                        #End If
                                     End If
                                 End If
                             Next i
