@@ -81,20 +81,20 @@ End Function
 Private Function fnDBPath() As String
     Dim sDBPath As String
     Dim sStatus As String
-    Dim i As Integer
+    Dim I As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
-    i = Len(sDBPath)
+    I = Len(sDBPath)
     sStatus = " "
-    While i > 0 And sStatus <> "/"
-        sStatus = Mid(sDBPath, i, 1)
-        i = i - 1
+    While I > 0 And sStatus <> "/"
+        sStatus = Mid(sDBPath, I, 1)
+        I = I - 1
     Wend
-    If i > 0 Then
-        fnDBPath = Left(sDBPath, i)
+    If I > 0 Then
+        fnDBPath = Left(sDBPath, I)
     Else
         fnDBPath = sDBPath
     End If
@@ -282,11 +282,6 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     Dim nCode As Integer
     Dim sCmd As String
     
-    'Added for input pay period or other message which will show on the 4th line of pay stub per #369533 --Weiping 07/25/02
-    Dim sMsg As String
-    Dim i As Integer
-    Dim sTmp1 As String
-    
     #If DEVELOP Then
         sHost = "ether5"
         sUserID = "ssfactor"
@@ -299,29 +294,63 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
         sDBPath = fnDBPath
     #End If
     
-    '##Provide a message box for user input the pay period or other message per #369533 --Weiping 07/25/02
-    sMsg = InputBox("Please enter pay period or any other message you want to appear on Pay Stub Line #4: ")
+    'david 08/30/2002  #369533
+    'Added for input pay period or other message which will show on the 4th line of pay stub
+    Dim sMsg As String
+    Dim sTmp As String
+    Dim I As Integer
+    Dim bDone As Boolean
     
-    '##Make sure replace quote marks and carriage return with space in the message user entered per #369533 --Weiping 07/25/02
-    sMsg = Trim(sMsg)
+    '##Provide a message box for user input the pay period or other message
+    bDone = False
     
-    For i = 1 To Len(sMsg)
-       sTmp1 = Mid(sMsg, i, 1)
-       If sTmp1 = Chr(10) Or sTmp1 = Chr(13) _
-            Or sTmp1 = Chr(34) Or sTmp1 = Chr(39) Then
-            sMsg = Replace(sMsg, sTmp1, " ")
-       End If
-    Next
-
-    '##Valid the length of the message which is no more than 40 characters per #369533 --Weiping 07/25/02
-    sMsg = Left(Trim(sMsg), 40)
+    Do While Not bDone
+        sMsg = InputBox("Enter the pay period or any other message that will be printed" _
+            + " on Check Stub Line#4 (Optional, max. 40 characters): ", "Message for Check Stub Line# 4", sMsg)
+        sMsg = Trim(sMsg)
+        
+        bDone = True
+        
+        If Len(sMsg) > 40 Then
+            MsgBox "The length of the message must is over 40 characters.", vbExclamation
+            bDone = False
+        ElseIf Len(sMsg) > 0 Then
+            For I = 1 To Len(sMsg)
+                sTmp = Mid(sMsg, I, 1)
+                
+                If sTmp = Chr(10) Or sTmp = Chr(13) Or sTmp = Chr(34) Or sTmp = Chr(39) Then
+                    If MsgBox("Single quote ('), double quote ("") or 'Line Feed' is not allowed in the message," _
+                       + " and will be replaced with SPACE. Are you sure you want to continue?" + vbCrLf + vbCrLf _
+                       + "Choose No to re-enter the message.", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+                        'go back to enter message again
+                        bDone = False
+                    End If
+                End If
+            Next
+        End If
+    Loop
     
-    '##Add sMsg as the last arguments to past to prvprint.4ge per #369533 --Weiping 07/25/02
-    sCmd = "prvprint.4ge " & sPrinter & " " & sUserID & " " & sCDFlag & " " & CStr(lStart) & " " _
-         & sCheckDate & " " & sEffcDate & " " & sPrintGroup & " " & CStr(nSortBy) & " " & "'" & sMsg & "'"
+    '##replace quote marks and carriage return with space in the message
+    sTmp = Chr(13)  'vbCr
+    sMsg = Replace(sMsg, sTmp, " ")
+    sTmp = Chr(10)  'vbLf
+    sMsg = Replace(sMsg, sTmp, " ")
+    sTmp = Chr(34)  'double quote
+    sMsg = Replace(sMsg, sTmp, " ")
+    sTmp = Chr(39)  'single quote
+    sMsg = Replace(sMsg, sTmp, " ")
+    
+    'david 08/30/2002  #369533
+    '##if sMsg is not empty, add it to the last arguments when passing to prvprint.4ge
+    If sMsg <> "" Then
+        sCmd = "prvprint.4ge " & sPrinter & " " & sUserID & " " & sCDFlag & " " & CStr(lStart) & " " _
+             & sCheckDate & " " & sEffcDate & " " & sPrintGroup & " " & CStr(nSortBy) & " " & "'" & sMsg & "'"
+    Else
+        sCmd = "prvprint.4ge " & sPrinter & " " & sUserID & " " & sCDFlag & " " & CStr(lStart) & " " _
+             & sCheckDate & " " & sEffcDate & " " & sPrintGroup & " " & CStr(nSortBy)
+    End If
     
     fnPRPrintCheck = fnExecute4GE(sCmd)
-
 End Function
 
 Private Function fnRunRCmd(sHost As String, _
