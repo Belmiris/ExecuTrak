@@ -815,6 +815,104 @@ Public Function fnGetTaxAmount(szProduct As String, _
     
 End Function
 
+'// Calculates and returns the taxes
+Public Function fnGetTaxAmount1(szProduct As String, _
+                               ByVal lNet As Long, _
+                               ByVal lGross As Long, _
+                               ByVal fDollarBase As Double, _
+                               ByVal fFreight As Double, _
+                               szTaxUseGroup As String, _
+                               szBillingFlag As String, _
+                               ByVal bExternal As Boolean, _
+                               ByVal bLading As Boolean) As Double
+
+    Dim fQuantity As Double
+    'Calculate taxes by calling the tax mods
+    Dim myStruct As CMovementLineItem
+    Dim Taxes() As CApplicableTaxes
+    Dim nRet As Long
+    Dim nRecords As Long
+    Dim dSum As Double
+    Dim i As Integer
+    Dim nLineType As Long
+    Dim nTries As Integer
+
+    fnGetTaxAmount1 = 0
+    'if the tax mods are not loaded, load them
+    If Not fnLoadTaxMods Then
+        Exit Function
+    End If
+
+    If bLading Then
+        If bExternal Then
+            nLineType = TXMOD_EXTBOL   ' External bill of lading
+        Else
+            nLineType = TXMOD_INTBOL  ' Internal bill of lading
+        End If
+    Else
+        If bExternal Then
+            nLineType = TXMOD_EXTDEL   ' External delivery
+        Else
+            nLineType = TXMOD_INTDEL   ' Internal delivery
+        End If
+    End If
+
+    ' assign initial values to the input structure
+    With myStruct
+        .m_sProduct = szProduct
+        .m_sUseGroup = szTaxUseGroup
+        .m_dDollarBase = Abs(fDollarBase)
+        .m_dFreight = Abs(fFreight)                     'Freight amount
+        .m_dNetUnits = Abs(lNet)
+        .m_dGrossUnits = Abs(lGross)
+        .m_cBilledUnitsFlag = Asc(szBillingFlag)
+        .m_tLineType = nLineType
+    End With
+    
+    'Determine the number of items in the record
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet
+        Exit Function
+    End If
+
+    ' Calculate the taxes
+    ReDim Taxes(nRecords - 1)
+    
+    Do
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet
+        Exit Function
+    End If
+    
+    subApplyLimit Taxes, nRecords
+    
+    'Calculate the sum of the taxes
+    dSum = 0
+    For i = 0 To nRecords - 1
+        If Taxes(i).m_cCharge = vbKeyY Then
+            dSum = dSum + tfnRound(Taxes(i).m_dAmount, 2)
+        End If
+    Next i
+    fnGetTaxAmount1 = dSum
+    
+End Function
+
 Public Sub subAddTaxItem(szProduct As String, _
                           ByVal lNet As Long, _
                           ByVal lGross As Long, _
@@ -1043,6 +1141,85 @@ Public Function fnTaxInformation(sProduct As String, _
     subApplyLimit Taxes, nRecords
     fnTaxInformation = True
 End Function
+
+Public Function fnTaxInformation1(sProduct As String, _
+                                 sTaxUseGroup As String, _
+                                 fDollarBase As Double, _
+                                 fFreight As Double, _
+                                 fGross As Double, _
+                                 fNet As Double, _
+                                 sBillFlag As String, _
+                                 bExternal As Boolean, _
+                                 bBOLFlag As Boolean, _
+                                 ByRef Taxes() As CApplicableTaxes, _
+                                 ByRef nRecords As Long) As Boolean
+    'Get the tax information array
+    Dim myStruct As CMovementLineItem
+    Dim nRet As Long
+    Dim i As Integer
+    Dim nTries As Integer
+
+    fnTaxInformation1 = False
+    If Not fnLoadTaxMods Then
+        Exit Function
+    End If
+
+    With myStruct
+        .m_sProduct = sProduct
+        .m_sUseGroup = sTaxUseGroup
+        .m_dDollarBase = fDollarBase
+        .m_dFreight = 0
+        .m_dNetUnits = fNet
+        .m_dGrossUnits = fGross
+        .m_dFreight = fFreight
+        .m_cBilledUnitsFlag = Asc(sBillFlag)
+        If bExternal Then
+            If bBOLFlag Then
+                .m_tLineType = TXMOD_EXTBOL
+            Else
+                .m_tLineType = TXMOD_EXTDEL
+            End If
+        Else
+            If bBOLFlag Then
+                .m_tLineType = TXMOD_INTBOL
+            Else
+                .m_tLineType = TXMOD_INTDEL
+            End If
+        End If
+    End With
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet
+        fnTaxInformation1 = False
+        Exit Function
+    End If
+        
+    ReDim Taxes(nRecords - 1)
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet
+        fnTaxInformation1 = False
+        Exit Function
+    End If
+    subApplyLimit Taxes, nRecords
+    fnTaxInformation1 = True
+End Function
+
 
 Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
                                  ByVal nLine As Integer, _
@@ -1279,7 +1456,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = val(lLimit)
+                .m_lLimit = Val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
