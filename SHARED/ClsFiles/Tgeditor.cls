@@ -4465,7 +4465,11 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
 
 End Sub
 
-Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer) As Boolean
+'david 04/06/2004
+'add optional argument to do the last row validation check
+'instead of the second last row validation check being done currently
+Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
+                             Optional bCheckLastRow As Boolean = False) As Boolean
     
     On Error GoTo errRowChanging
     
@@ -4526,7 +4530,11 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer) As B
     End If
     If LastRow < tgTable.Row Then
         'Row changed
-        If GetCurrentRowNumber >= RowCount - 1 And bAllowAddNew Then
+        'david 04/06/2004
+        'add optional argument to do the last row validation check
+        'instead of the second last row validation check being done currently
+        If GetCurrentRowNumber >= (RowCount - IIf(bCheckLastRow, 0, 1)) And bAllowAddNew Then
+        '''''''''''''''''
             'The last row
             Dim i As Integer
             For i = nColumnCount - 1 To 0 Step -1
