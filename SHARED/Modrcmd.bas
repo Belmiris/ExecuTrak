@@ -176,7 +176,9 @@ Public Function fnExecute4GE(sCmdLine As String, _
             fnExecute4GE = True
         Else
             fnExecute4GE = False
-            
+            'Vijaya on 10/25/02 Magic#387222 we need to show the password as **** characters.
+            sTemp = Replace(sTemp, tfnGetNamedString(sTemp, "PWD"), String(Len(tfnGetNamedString(sTemp, "PWD")), "*"))
+            'end of Vijaya Code
             'david 01/18/2002
             If bShowMsgBox Then
                 tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, sTemp
