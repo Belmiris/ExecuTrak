@@ -78,7 +78,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -134,7 +133,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -169,7 +167,6 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":00F2
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -270,7 +267,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -307,7 +303,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -345,7 +340,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -382,7 +376,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -419,7 +412,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -453,7 +445,6 @@ Begin VB.Form clsCRITERIA
          Strikethrough   =   0   'False
       EndProperty
       BevelOuter      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -489,7 +480,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -527,7 +517,6 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -559,7 +548,6 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "System"
             Size            =   9.75
@@ -1291,6 +1279,7 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
     Dim sColumnName As String
     Dim sOperator As String
     Dim sValue As String
+    Dim sTemp As String
     
     sRetCriteria = ""
     sRetOrderBy = ""
@@ -1300,6 +1289,7 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
     For i = 0 To tgmCriteria.RowCount - 1
         If nRow < 0 Or (nRow >= 0 And nRow = i) Then
             sColumnName = fnCStr(tgmCriteria.CellValue(nCol_FieldName, i))
+            sTemp = ""
             
             If fnCStr(tgmCriteria.CellValue(nCol_Filter, i)) <> "" Then
                 aryTemp = Split(fnCStr(tgmCriteria.CellValue(nCol_Filter, i)), ";")
@@ -1314,43 +1304,30 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
                         sValue = Mid(sValue, 2)
                     End If
                     
-                    Select Case sOperator
-                    Case "=", "<>"
-                        If InStr(sValue, ",") > 0 Then
-                            If sCriteria <> "" Then
-                                sCriteria = sCriteria & " AND "
+                    aryTemp2 = Split(sValue, ",")
+                    
+                    For k = 0 To UBound(aryTemp2)
+                        If fnCStr(aryTemp2(k)) <> "" Then
+                            If sTemp <> "" Then
+                                sTemp = sTemp & " OR "
                             End If
                             
-                            sCriteria = sCriteria & sColumnName & IIf(sOperator = "=", "", " NOT") & " IN (" & sValue & ")"
-                        Else
-                            If sValue = "NULL" Then
-                                If sCriteria <> "" Then
-                                    sCriteria = sCriteria & " AND "
-                                End If
-                                
-                                sCriteria = sCriteria & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
+                            If UCase(aryTemp2(k)) = "NULL" Then
+                                sTemp = sTemp & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
                             Else
-                                If sCriteria <> "" Then
-                                    sCriteria = sCriteria & " AND "
-                                End If
-                                
-                                sCriteria = sCriteria & sColumnName & " " & sOperator & " " & sValue
+                                sTemp = sTemp & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
                             End If
                         End If
-                    Case Else
-                        aryTemp2 = Split(sValue, ",")
-                        
-                        For k = 0 To UBound(aryTemp2)
-                            If fnCStr(aryTemp2(k)) <> "" Then
-                                If sCriteria <> "" Then
-                                    sCriteria = sCriteria & " AND "
-                                End If
-                                
-                                sCriteria = sCriteria & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
-                            End If
-                        Next k
-                    End Select
+                    Next k
                 Next j
+            End If
+            
+            If sTemp <> "" Then
+                If sCriteria <> "" Then
+                    sCriteria = sCriteria & " AND "
+                End If
+                
+                sCriteria = sCriteria + "(" + sTemp + ")"
             End If
             
             If nRow >= 0 Then
@@ -2180,9 +2157,11 @@ Private Function fnValidFilter() As String
                             sTemp = fnAddBeginEndQuotes(sTemp)
                         End If
                     Case TYPE_DECIMAL, TYPE_INT, TYPE_LONG
-                        If Not IsNumeric(sTemp) Then
-                            fnValidFilter = "Value entered is not in numeric format"
-                            Exit Function
+                        If sTemp <> "NULL" Then
+                            If Not IsNumeric(sTemp) Then
+                                fnValidFilter = "Value entered is not in numeric format"
+                                Exit Function
+                            End If
                         End If
                     End Select
                 
