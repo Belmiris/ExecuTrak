@@ -162,7 +162,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -198,7 +198,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -251,7 +251,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -325,7 +325,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            = 9.75  
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -3835,6 +3835,7 @@ SQLError:
       On Error GoTo 0
 End Function
 
+
 Private Function fnProcess(rsTemp As Recordset) As Boolean
     Dim strSQL As String
     Dim vData() As Variant
@@ -3867,14 +3868,14 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     strSQL = "SELECT DISTINCT prm_empno empno, prm_last_name lname,prm_first_name fname,prm_middle_name mname,"
     strSQL = strSQL & " prm_job_class job_class,prm_emp_level emp_level,"
     strSQL = strSQL & " zzsepi_lvl_desc emp_level_desc,prm_date_hired date_hired, "
-    strSQL = strSQL & " prep_amount old_rate, zzsepi_pay new_rate, zzsepi_days zzsepi_days,"
+    strSQL = strSQL & " prep_amount old_rate, zzsepi_pay zzsepi_pay, zzsepi_days zzsepi_days,"
     strSQL = strSQL & " prep_pay_code pay_code, zzsep_factor conv_factor, prep_year prep_year"
     strSQL = strSQL & " FROM pr_master,pr_emp_pay,zzse_pay_increase, "
     strSQL = strSQL & " zzse_job_class, zzse_pay_code"
     strSQL = strSQL & " WHERE prm_job_class= zzsej_job_class AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
     strSQL = strSQL & " AND prm_empno=prep_empno AND zzsep_code = prep_pay_code"
     strSQL = strSQL & " AND Today-prm_date_hired >0 "
-    strSQL = strSQL & " AND zzsepi_pay-prep_amount>0 "
+    strSQL = strSQL & " AND (zzsepi_pay * zzsep_factor)-prep_amount>0 "
     strSQL = strSQL & " AND prep_year = ("
     strSQL = strSQL & " SELECT MAX(t2.prep_year) FROM pr_emp_pay t2 "
     strSQL = strSQL & " WHERE prep_empno = t2.prep_empno AND prep_pay_code = t2.prep_pay_code)"
@@ -3883,8 +3884,8 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
         
     strSQL = "SELECT DISTINCT empno, lname,fname, mname, job_class,emp_level,emp_level_desc, date_hired,  "
     strSQL = strSQL & " (Today - date_hired) days_worked "
-    strSQL = strSQL & ", pay_code,old_rate, new_rate"
-    strSQL = strSQL & ", new_rate-old_rate rate_diff, conv_factor,prep_year "
+    strSQL = strSQL & ", pay_code,old_rate"
+    strSQL = strSQL & ", zzsepi_pay, conv_factor,prep_year "
     strSQL = strSQL & " FROM tmpTableReport AS a, zzse_pay_code"
     strSQL = strSQL & " WHERE a.zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE a.emp_level = b.emp_level AND a.empno = b.empno  AND b.zzsepi_days <= (Today - b.date_hired))"
     strSQL = strSQL & " ORDER BY a.empno,a.emp_level"
@@ -3925,7 +3926,7 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
                 vData(COL_PCODE, i) = fnGetField(rsTemp!pay_code)
                 vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
                ' vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
-                vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
+               ' vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
                 
                 If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
                     strTemp = Trim(fnRSToString(rsTemp!lname))
@@ -3936,7 +3937,8 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
                 End If
                 vData(nCOL_CONVT_FACTOR, i) = tfnFormatDecimal(rsTemp!conv_factor, 2)
                 vData(nCOL_PREP_YEAR, i) = tfnRound(rsTemp!prep_year)
-                vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2) * tfnFormatDecimal(rsTemp!conv_factor, 2)
+                vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!zzsepi_pay, 2) * tfnFormatDecimal(rsTemp!conv_factor, 2)
+                vData(COL_DIFF, i) = vData(COL_NEW_RATE, i) - vData(COL_OLD_RATE, i)
 '            Else
 '                vData(COL_PCODE, i) = fnGetField(rsTemp!pay_code)
 '                vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
@@ -4202,8 +4204,8 @@ Public Sub subPrintRpt()
               fnTranc(.CellValue(COL_DAYS_WORKED, i), 10, RIGHT_JUSTIFY) & _
               fnTranc(.CellValue(COL_PCODE, i), 6, RIGHT_JUSTIFY) & _
               fnTranc(.CellValue(COL_OLD_RATE, i), 12, RIGHT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NEW_RATE, i), 12, RIGHT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DIFF, i), 12, RIGHT_JUSTIFY)
+              fnTranc(tfnFormatDecimal(.CellValue(COL_NEW_RATE, i), 2), 12, RIGHT_JUSTIFY) & _
+              fnTranc(tfnFormatDecimal(.CellValue(COL_DIFF, i), 2), 12, RIGHT_JUSTIFY)
           'put in the array report
           subLineFeed sLine
        End With
