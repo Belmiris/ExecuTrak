@@ -1308,6 +1308,7 @@ begin
                 nvCopyLocalDone = nvCopyLocalDone + 1;
         else
             if bCopyLocal then
+            	if bRunLocal then
                     //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
                     szDBFrom = "\"" + SRCDIR + "\"";
                     TARGETDIR = szProgDir;
@@ -1318,7 +1319,8 @@ begin
 
                     LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
                             szDBFrom + " " + szDBTo, WAIT);
-
+                             
+                endif;
                     nvCopyLocalDone = nvCopyLocalDone + 1;
             else
                     szFolder = "Startup";
@@ -1358,7 +1360,7 @@ begin
             
                     LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
                             szDBFrom + " " + szDBTo, WAIT);
-
+                          
                     nvCopyLocalDone = nvCopyLocalDone + 1;
             else
                     szFolder = "Startup";
