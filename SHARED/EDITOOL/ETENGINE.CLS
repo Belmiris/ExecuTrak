@@ -365,20 +365,23 @@ Property Let FileName(sTemp As String)
     m_sFileName = sTemp
 End Property
 
-Private Function fnConvertFEDID(sID As String) As String
+Private Function fnConvertFEDID(sID As Variant) As String
     Dim sTemp As String
     Dim I As Integer
     Dim sChar As String
     
     sTemp = ""
-    For I = 1 To Len(sID)
-        sChar = Mid(sID, I, 1)
-        If sChar <> "-" And sChar <> " " Then
-            sTemp = sTemp & sChar
-        End If
-    Next
-    fnConvertFEDID = sTemp
     
+    If Not IsNull(sID) Then
+        For I = 1 To Len(sID)
+            sChar = Mid(sID, I, 1)
+            If sChar <> "-" And sChar <> " " Then
+                sTemp = sTemp & sChar
+            End If
+        Next
+    End If
+    
+    fnConvertFEDID = sTemp
 End Function
 
 Private Function fnBuildEDIFMTaxItem(ciTemp As ETFMTaxRecord) As String
@@ -583,6 +586,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     fnExecuteSQL strSQL, SUB_NAME
     strSQL = "DROP TABLE fm_temp2"
     fnExecuteSQL strSQL, SUB_NAME
+    strSQL = "DROP TABLE fm_temp3"
+    fnExecuteSQL strSQL, SUB_NAME
     
     If m_sEDIType = EDI_TYPE_R Then
         sType = "B"
@@ -654,7 +659,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Else
         sType = "I"
         
-        strSQL = "SELECT fmm_movement, fmm_carrier, fmd_invoice, fmd_dest_code," _
+        strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmd_invoice, fmd_dest_code," _
             & " fmd_dest_flag, fmd_prft_ctr, fmd_date" _
             & " FROM fm_delivery, fm_movement WHERE fmd_date" _
             & " BETWEEN " & tfnDateString(m_sStartDate, True) & " AND " _
@@ -688,7 +693,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         'for Others Schedule DO IT, becuase it work before
         'david 08/27/99
         'david 03/24/00
-        If nTypeCode = "7" Or nTypeCode = "10A" Or nTypeCode = "5J" Then
+        'also for 10A and 5J
+        'david 03/29/00
+        'If nTypeCode = "7" Then
             strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, " _
                 & " fmd_invoice, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
                 & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
@@ -697,7 +704,12 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " AND fmldt_ulink = tul_link"
                 strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
                 & ") INTO TEMP fm_temp2"
-        Else
+        
+            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
+                m_nErrorNumber = EC_CREATE_TT2_D
+                Exit Function
+            End If
+        'Else
             strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line," _
                 & " fmldt_trn, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
                 & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
@@ -707,20 +719,22 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " AND fmldt_ulink = tul_link" _
                 & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
                 & ") AND fmldt_type = '" & sType & "'" _
-                & " INTO TEMP fm_temp2"
-        End If
-        
-        If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
-            m_nErrorNumber = EC_CREATE_TT2_D
-            Exit Function
-        End If
+                & " INTO TEMP fm_temp3"
+            
+            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
+                m_nErrorNumber = EC_CREATE_TT3_D
+                Exit Function
+            End If
+        'End If
         
         If fnCheckExitCancel Then
             Exit Function
         End If
         
-        If nTypeCode = "7" Or nTypeCode = "10A" Or nTypeCode = "5J" Then
-            strSQL = "SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
+        'david 03/28/00
+        ' Or nTypeCode = "10A" Or nTypeCode = "5J"
+'        If nTypeCode = "7" Then
+            strSQL = "(SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
                 & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
@@ -730,26 +744,30 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " AND fml_bl_nbr = fmmb_bl_nbr" _
                 & " AND fml_movement = fmmb_movement" _
                 & " AND fmmb_dv_prodlnk = ivh_link" _
-                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-        Else
-            strSQL = "SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
+                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & "))"
+'            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+'        Else
+            strSQL = strSQL & " UNION "
+            
+            strSQL = strSQL & "(SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
                 & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
-                & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
+                & " FROM fm_temp3, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
                 & " AND fmldt_bl_nbr = fmmb_dv_nbr" _
                 & " AND fmldt_line = fmmb_dv_line"
             strSQL = strSQL & " AND fml_bl_nbr = fmmb_bl_nbr" _
                 & " AND fml_movement = fmmb_movement" _
                 & " AND fmmb_dv_prodlnk = ivh_link" _
-                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-        End If
+                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & "))"
+'            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+'        End If
         
-        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         m_nErrorNumber = EC_GET_RECORD_R
     End If
     
     Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
     If rsTemp Is Nothing Then
         Exit Function
     End If
@@ -764,7 +782,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         If .RecordCount > 0 Then
             Set colTemp = New Collection
             
-            '.MoveFirst
             While Not .EOF
                 Set ciTemp = New ETFMTaxRecord
                 ciTemp.TaxScheduleCode = sSchedule
@@ -1508,7 +1525,20 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
             End If
         End If
     Else
-        aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnGetSysParm(9008))
+        'david 03/28/00
+        'get the fein from tx_term
+        strSQL = "SELECT txtm_fein FROM tx_term" _
+               & " WHERE txtm_code = " & CStr(lCustomer) _
+               & " AND txtm_type = 'P'"
+        
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+        If Not rsTemp Is Nothing Then
+            If rsTemp.RecordCount > 0 Then
+                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(rsTemp!txtm_fein)
+            Else
+                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnGetSysParm(9008))
+            End If
+        End If
     End If
     
     fnCustomerTaxID = aryCustomerTaxID(nCTaxIDCount).m_sTaxID

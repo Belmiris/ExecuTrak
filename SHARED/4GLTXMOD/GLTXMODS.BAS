@@ -297,6 +297,15 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
             found_error = True: error_found = 1
             Exit Sub
         End If
+    Else
+        Dim rsTemp As Recordset
+        
+        If fnCStr(pr_inv_header!ivh_stocking) <> "S" Then
+            If fnCheckNonStkMstr(rsTemp, pr_inv_header!ivh_link, this_pc) Then
+                bUseNonStkMstr = True
+                Set pr_inv_master = rsTemp
+            End If
+        End If
     End If
     
     If Not bUseNonStkMstr Then
