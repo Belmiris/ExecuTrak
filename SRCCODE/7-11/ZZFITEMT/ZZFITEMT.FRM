@@ -30,7 +30,7 @@ Begin VB.Form frmZZFITEMT
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   17
+      TabIndex        =   18
       TabStop         =   0   'False
       Top             =   5988
       Width           =   8964
@@ -65,7 +65,7 @@ Begin VB.Form frmZZFITEMT
    Begin FACTFRMLib.FactorFrame efraBackground 
       Height          =   5472
       Left            =   0
-      TabIndex        =   11
+      TabIndex        =   12
       TabStop         =   0   'False
       Top             =   504
       Width           =   8940
@@ -171,7 +171,7 @@ Begin VB.Form frmZZFITEMT
          Height          =   396
          HelpContextID   =   12
          Left            =   3084
-         TabIndex        =   16
+         TabIndex        =   17
          Top             =   4920
          Width           =   1308
          _Version        =   65536
@@ -207,7 +207,7 @@ Begin VB.Form frmZZFITEMT
          Height          =   396
          HelpContextID   =   13
          Left            =   4560
-         TabIndex        =   13
+         TabIndex        =   14
          Top             =   4920
          Width           =   1308
          _Version        =   65536
@@ -243,7 +243,7 @@ Begin VB.Form frmZZFITEMT
          Height          =   396
          HelpContextID   =   14
          Left            =   6036
-         TabIndex        =   14
+         TabIndex        =   15
          Top             =   4920
          Width           =   1308
          _Version        =   65536
@@ -279,7 +279,7 @@ Begin VB.Form frmZZFITEMT
          Height          =   396
          HelpContextID   =   15
          Left            =   7500
-         TabIndex        =   15
+         TabIndex        =   16
          Top             =   4920
          Width           =   1308
          _Version        =   65536
@@ -314,7 +314,7 @@ Begin VB.Form frmZZFITEMT
       Begin FACTFRMLib.FactorFrame efraOuterFrame 
          Height          =   4608
          Left            =   132
-         TabIndex        =   19
+         TabIndex        =   20
          TabStop         =   0   'False
          Top             =   144
          Width           =   8676
@@ -344,17 +344,17 @@ Begin VB.Form frmZZFITEMT
          EndProperty
          Begin DBTrueGrid.TDBGrid tblDetail 
             Height          =   2880
-            HelpContextID   =   604
+            HelpContextID   =   708
             Left            =   84
             OleObjectBlob   =   "ZZFITEMT.frx":0000
-            TabIndex        =   12
+            TabIndex        =   13
             Top             =   1644
             Width           =   8520
          End
          Begin FACTFRMLib.FactorFrame efraHeader 
             Height          =   1512
             Left            =   84
-            TabIndex        =   21
+            TabIndex        =   11
             Top             =   120
             Width           =   8520
             _Version        =   65536
@@ -382,6 +382,7 @@ Begin VB.Form frmZZFITEMT
             EndProperty
             Begin VB.TextBox txtItemDesc 
                Height          =   360
+               HelpContextID   =   706
                Left            =   2616
                TabIndex        =   9
                Top             =   1056
@@ -392,7 +393,7 @@ Begin VB.Form frmZZFITEMT
                DataSource      =   "datVendor"
                ForeColor       =   &H00000000&
                Height          =   360
-               HelpContextID   =   602
+               HelpContextID   =   702
                Left            =   2616
                TabIndex        =   5
                Tag             =   "pn_name"
@@ -401,6 +402,7 @@ Begin VB.Form frmZZFITEMT
             End
             Begin FACTFRMLib.FactorFrame cmdItemDesc 
                Height          =   360
+               HelpContextID   =   707
                Left            =   8064
                TabIndex        =   10
                TabStop         =   0   'False
@@ -434,6 +436,7 @@ Begin VB.Form frmZZFITEMT
             End
             Begin FACTFRMLib.FactorFrame cmdItemCode 
                Height          =   360
+               HelpContextID   =   705
                Left            =   2196
                TabIndex        =   8
                TabStop         =   0   'False
@@ -467,6 +470,7 @@ Begin VB.Form frmZZFITEMT
             End
             Begin VB.TextBox txtItemCode 
                Height          =   360
+               HelpContextID   =   704
                Left            =   84
                TabIndex        =   7
                Top             =   1056
@@ -476,7 +480,7 @@ Begin VB.Form frmZZFITEMT
                BackColor       =   &H00FFFFFF&
                ForeColor       =   &H00000000&
                Height          =   360
-               HelpContextID   =   600
+               HelpContextID   =   700
                Left            =   84
                TabIndex        =   3
                Tag             =   "pn_alt"
@@ -485,7 +489,7 @@ Begin VB.Form frmZZFITEMT
             End
             Begin FACTFRMLib.FactorFrame cmdVendorDesc 
                Height          =   360
-               HelpContextID   =   603
+               HelpContextID   =   703
                Left            =   8064
                TabIndex        =   6
                TabStop         =   0   'False
@@ -521,7 +525,7 @@ Begin VB.Form frmZZFITEMT
             End
             Begin FACTFRMLib.FactorFrame cmdVendor 
                Height          =   360
-               HelpContextID   =   601
+               HelpContextID   =   701
                Left            =   2196
                TabIndex        =   4
                TabStop         =   0   'False
@@ -593,7 +597,7 @@ Begin VB.Form frmZZFITEMT
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   468
       Left            =   0
-      TabIndex        =   18
+      TabIndex        =   19
       TabStop         =   0   'False
       Top             =   0
       Width           =   8964
@@ -664,7 +668,7 @@ Begin VB.Form frmZZFITEMT
       Height          =   2484
       Left            =   36
       OleObjectBlob   =   "ZZFITEMT.frx":1534
-      TabIndex        =   20
+      TabIndex        =   21
       TabStop         =   0   'False
       Top             =   660
       Width           =   3756
@@ -1814,7 +1818,7 @@ Private Sub subInitValidation()
     Set cValidate.ControlForFocus = efraHeader
     Set cValidate.LastBox = txtItemCode
     cValidate.ESCControl = tblDetail
-    
+    cValidate.ESCControl = cmdExitCancelBtn
 End Sub
 
 Private Function fnSetVendorComboSQL() As String
@@ -2068,6 +2072,8 @@ End Sub
 Private Function fnValidEffectiveDate(sDate As String, lCurRow As Long, nCurCol As Integer) As Boolean
     Dim nCode As Integer
     Dim sTemp As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
     Dim i As Long
     
     fnValidEffectiveDate = False
@@ -2083,6 +2089,15 @@ Private Function fnValidEffectiveDate(sDate As String, lCurRow As Long, nCurCol 
         sTemp = tfnDateString(tfnFormatDate(sDate))
         
         If IsDate(sTemp) Then
+            strSQL = "SELECT * FROM item_cost_maint WHERE icm_vendor = " & tfnRound(txtVendor)
+            strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
+            strSQL = strSQL & " AND icm_eff_date = " & tfnDateString(sDate, True)
+            
+            If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnValidEffectiveDate") > 0 Then
+                tgmDetail.ErrorMessage(nCurCol) = "The effective date exists in the system already."
+                Exit Function
+            End If
+            
             For i = 0 To tgmDetail.RowCount - 1
             
                 If i <> lCurRow Then

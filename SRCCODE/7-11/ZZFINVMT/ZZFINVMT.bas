@@ -8,7 +8,7 @@ Private Type RSINV_Header
     nShiftNum As Integer
     lVendor As Long
     lInvNum As Long
-    dtInvDate As Date
+    dtInvdate As Date
     sTerm As String
     sPayType As String
     sDraftNum As String 'may be blank
@@ -139,7 +139,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
         If udtInvDetail.sRecId = "DET" Then
             
             If Not fnInsertData(udtInvHeader, udtInvDetail) Then
-                sErrMsg = "Error occurs when inserting data."
+                sErrMsg = "Error occurs when inserting data in line " & nLineCount
                 GoTo EXITHERE
             End If
             
@@ -187,7 +187,7 @@ Private Function fnProcessHeaderLine(sLine As String, udtInvHeader As RSINV_Head
         .nShiftNum = CInt(Mid$(sLine, 19, 5))
         .lVendor = CLng(Mid$(sLine, 24, 10))
         .lInvNum = CLng(Mid$(sLine, 34, 10))
-        .dtInvDate = CDate(Mid$(sLine, 44, 10))
+        .dtInvdate = CDate(Mid$(sLine, 44, 10))
         .sTerm = Trim$(Mid$(sLine, 54, 5))
         .sPayType = Trim$(Mid$(sLine, 59, 1))
         .sDraftNum = Trim$(Mid$(sLine, 60, 10))
@@ -245,7 +245,7 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt)"
             strSQL = strSQL & " VALUES(" & udtInvHeader.nProfctr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
             strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
-            strSQL = strSQL & tfnDateString(udtInvHeader.dtInvDate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
+            strSQL = strSQL & tfnDateString(udtInvHeader.dtInvdate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
             strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
             strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ")"
             
@@ -360,7 +360,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
         
-        sErrMsg = fnValidInvDate(udtInvHeader.dtInvDate, udtInvHeader.dtReportDate)
+        sErrMsg = fnValidInvDate(udtInvHeader.dtInvdate, udtInvHeader.dtReportDate)
         
         If sErrMsg <> "" Then
             fnValidData = False
@@ -428,7 +428,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
         
-        sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nProfctr, udtInvHeader.dtReportDate)
+        sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nProfctr, udtInvHeader.dtInvdate)
             
         If sErrMsg <> "" Then
             fnValidData = False
@@ -843,9 +843,9 @@ Private Function fnValidInvNum(lVendor As Long, lInvNum As Long) As String
 
 End Function
 
-Private Function fnValidInvDate(dtInvDate As Date, dtReportDate As Date) As String
+Private Function fnValidInvDate(dtInvdate As Date, dtReportDate As Date) As String
 
-    If dtInvDate > dtReportDate Then
+    If dtInvdate > dtReportDate Then
         fnValidInvDate = "The Invoice date is later than report date."
     Else
         fnValidInvDate = ""
@@ -920,7 +920,7 @@ Private Function fnValidUOM(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_
         strSQL = strSQL & " (SELECT MAX(icm_eff_date) FROM item_cost_maint "
         strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(udtInvHeader.lVendor)
         strSQL = strSQL & " AND icm_code = " & tfnSQLString(udtInvDetail.sItemCode)
-        strSQL = strSQL & " AND icm_eff_date <= " & tfnDateString(udtInvHeader.dtInvDate, True)
+        strSQL = strSQL & " AND icm_eff_date <= " & tfnDateString(udtInvHeader.dtInvdate, True)
         strSQL = strSQL & ")"
         
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidUOM") < 0 Then
@@ -949,7 +949,7 @@ Private Function fnValidPurchaseCost(dAmount As Double) As String
 End Function
 
 Private Function fnValidRetailPrice(sRetail As String, sItemCode As String, _
-                    lVendor As Long, nPrftCtr As Integer, dtReportDate As Date) As String
+                    lVendor As Long, nPrftCtr As Integer, dtInvdate As Date) As String
     Dim dRetailPrice As Double
     
     If Trim(sRetail) <> "" Then
@@ -959,7 +959,7 @@ Private Function fnValidRetailPrice(sRetail As String, sItemCode As String, _
         End If
         
     Else
-        If fnGetRetailPrice(sItemCode, lVendor, nPrftCtr, dtReportDate, dRetailPrice) Then
+        If fnGetRetailPrice(sItemCode, lVendor, nPrftCtr, dtInvdate, dRetailPrice) Then
             sRetail = CStr(dRetailPrice)
             fnValidRetailPrice = ""
         Else
@@ -971,7 +971,7 @@ Private Function fnValidRetailPrice(sRetail As String, sItemCode As String, _
 End Function
 
 Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
-            nPrftCtr As Integer, dtReportDate As Date, dRetailPrice As Double) As Boolean
+            nPrftCtr As Integer, dtInvdate As Date, dRetailPrice As Double) As Boolean
     Dim lBook As Long
     Dim lSubBook As Long
     Dim strSQL As String
@@ -999,7 +999,7 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
     End If
     
     strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
-    strSQL = strSQL & " AND " & tfnDateString(dtReportDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+    strSQL = strSQL & " AND " & tfnDateString(dtInvdate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
     strSQL = strSQL & " AND rsbp_bk_lnk = "
     strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
     strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -1012,7 +1012,7 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
         fnGetRetailPrice = True
     Else
         strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
-        strSQL = strSQL & " AND " & tfnDateString(dtReportDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+        strSQL = strSQL & " AND " & tfnDateString(dtInvdate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
         strSQL = strSQL & " AND rsbp_bk_lnk = "
         strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
         strSQL = strSQL & " AND rsbb_book = " & lBook
