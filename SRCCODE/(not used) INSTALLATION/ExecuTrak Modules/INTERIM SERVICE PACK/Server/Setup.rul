@@ -896,7 +896,15 @@ begin
 						if fnFindFile(szDest, szModID) then
 							bGoCopy = TRUE;
 						else
-							bGoCopy = FALSE;
+							if (szName = "AREPAYCC.EXE") then
+								if fnFindFile(szDest, "EC*.EXE") then
+									bGoCopy = TRUE;
+								else
+									bGoCopy = FALSE;
+								endif;
+							else
+								bGoCopy = FALSE;
+							endif;
 						endif;
 					endif;
 				endif;

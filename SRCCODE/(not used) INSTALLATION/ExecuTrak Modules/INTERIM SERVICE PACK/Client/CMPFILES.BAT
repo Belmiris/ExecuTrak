@@ -13,6 +13,10 @@ echo Compress updated application files
 icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\BIN\*.* ..\disk\disk1\servbin.z 
 
 echo .
+echo Compress updated application files
+icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\servbin.z 
+
+echo .
 echo Compress updated custctl files
 icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\custctl\*.* ..\disk\disk1\servctl.z 
 
