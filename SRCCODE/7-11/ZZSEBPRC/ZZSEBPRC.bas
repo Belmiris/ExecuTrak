@@ -45,16 +45,18 @@ Public ColHHdnSource As Integer
 Public Const colPProfit As Integer = 0
 Public Const colPTotal As Integer = 1
 
-'Approve Grid Column Names
-Public Const colAApprove As Integer = 0
+'Approve value
 Public Const colAppYes As Integer = 0
 Public Const colAppNo As Integer = 1
-Public Const colAPrftCtr As Integer = 1
-Public Const colAEmpNo As Integer = 2
-Public Const colAEmpName As Integer = 3
-Public Const colAPayCode As Integer = 4
-Public Const colAPayHours As Integer = 5
-Public Const colADate As Integer = 6
+
+'Approve Grid Column Names
+Public Const colAApprove As Integer = 0
+Public Const colAEmpNo As Integer = 1
+Public Const colAEmpName As Integer = 2
+Public Const colADate As Integer = 3
+Public Const colAPrftCtr As Integer = 4
+Public Const colAPayCode As Integer = 5
+Public Const colAPayHours As Integer = 6
 Public Const colABonusAmt As Integer = 7
 Public colAHdnBAmtLvls As Integer
 
@@ -357,20 +359,39 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
     Dim rsTemp As Recordset
     Dim i As Integer
     Dim lEmployeeNo As Long
+    Dim nPrftCtr As Integer
     Dim sBType As String
-    Dim sBGrade As String
     Dim sBCode As String
+    Dim sBGrade As String
     Dim nLevel As Integer
-                                 
+    Dim sErrMsg As String
+    
     lEmployeeNo = tfnRound(rsBonus!bm_empno)
+    nPrftCtr = tfnRound(rsBonus!bm_eligible_pc)
+    sBCode = fnGetField(rsBonus!bc_bonus_code)
     sBType = fnGetField(rsBonus!bc_type)
     sBGrade = fnGetField(rsBonus!bc_grade)
-    sBCode = fnGetField(rsBonus!bc_bonus_code)
     nLevel = tfnRound(rsBonus!bf_level)
     
     fnGetBonusAmount = 0#
     
     If sBCode = "" Or sBType = "" Then
+        subLogErrMsg Space(7) & "Commission Code is NULL"
+        Exit Function
+    End If
+    If sBType = "" Then
+        subLogErrMsg Space(7) & "Commission Code Type is NULL"
+        Exit Function
+    End If
+    If sBGrade = "" Then
+        subLogErrMsg Space(7) & "Commission Code Type is NULL"
+        Exit Function
+    End If
+    
+    sErrMsg = fnValidEmployee(lEmployeeNo, nPrftCtr, sBGrade)
+    
+    If sErrMsg <> "" Then
+        subLogErrMsg Space(7) & sErrMsg
         Exit Function
     End If
     
@@ -382,12 +403,20 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         Exit Function
     End If
     
-    fnGetBonusAmount = fnCalculateBonus(rsTemp!bf_percent, rsTemp!bf_dollar, _
-        rsTemp!bf_amount1, rsTemp!bf_amount2, rsTemp!bf_variable1, _
-        rsTemp!bf_variable2, rsTemp!bf_variable3, rsTemp!bf_max_total, _
-        rsTemp!bf_formula, fnGetField(rsTemp!bf_condition), _
+    fnGetBonusAmount = fnCalculateBonus(nPrftCtr, _
+        tfnRound(rsTemp!bf_percent, DEFAULT_DECIMALS), _
+        tfnRound(rsTemp!bf_dollar, 2), _
+        tfnRound(rsTemp!bf_amount1, 2), _
+        tfnRound(rsTemp!bf_amount2, 2), _
+        fnGetField(rsTemp!bf_variable1), _
+        fnGetField(rsTemp!bf_variable2), _
+        fnGetField(rsTemp!bf_variable3), _
+        tfnRound(rsTemp!bf_max_total), _
+        fnGetField(rsTemp!bf_formula), _
+        fnGetField(rsTemp!bf_condition), _
         fnGetField(rsTemp!bf_adj_formula), _
-        fnGetField(rsTemp!bf_adj_condition), sBType)
+        fnGetField(rsTemp!bf_adj_condition), _
+        sBType)
                 
 End Function
 
@@ -416,25 +445,89 @@ Public Function fnInsertHoldBonus(lEmpNo As Long, sPayCode As String, dChkAmt As
 End Function
 
 'This function will calculate the amount for 1 Employee, 1 BCode and 1 Level at a time
-Private Function fnCalculateBonus(PCT As Double, DOL As Double, AMT1 As Double, AMT2 As Double, _
-                                  sV1 As String, sV2 As String, sV3 As String, MXT As Double, _
-                                  sFmla As String, sCond As String, sAFmla As String, _
-                                  sACond As String, sBType As String) As Double
+Private Function fnCalculateBonus(nPrftCtr As Integer, _
+                                  PCT As Double, _
+                                  DOL As Double, _
+                                  AMT1 As Double, _
+                                  AMT2 As Double, _
+                                  sV1 As String, _
+                                  sV2 As String, _
+                                  sV3 As String, _
+                                  MXT As Double, _
+                                  sFmla As String, _
+                                  sCond As String, _
+                                  sAFmla As String, _
+                                  sACond As String, _
+                                  sBType As String) As Double
+    
     Const SUB_NAME As String = "fnCalculateBonus"
-    Dim strSQL As String, rsTemp As Recordset
-    Dim sErrMsg As String, i As Integer
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sErrMsg As String
+    Dim i As Integer
     Dim V1 As Double, V2 As Double, V3 As Double
-    Dim p1 As Integer, sActualVal As String, arVal() As String
+    Dim bConditionOK As Boolean
     Dim dBonusAmt As Double
     
     fnCalculateBonus = 0#
     
-    sFmla = Trim(sFmla): sCond = Trim(sCond): sACond = Trim(sACond): sAFmla = Trim(sAFmla)
-    sV1 = Trim(sV1): sV2 = Trim(sV2): sV3 = Trim(sV3)
-    PCT = tfnRound(PCT, DEFAULT_DECIMALS): DOL = tfnRound(DOL, DEFAULT_DECIMALS)
+    sFmla = fnGetField(sFmla)
+    sCond = fnGetField(sCond)
+    sACond = fnGetField(sACond)
+    sAFmla = fnGetField(sAFmla)
+    sV1 = Trim(sV1)
+    sV2 = Trim(sV2)
+    sV3 = Trim(sV3)
+    PCT = tfnRound(PCT, DEFAULT_DECIMALS)
+    DOL = tfnRound(DOL, DEFAULT_DECIMALS)
+    
+    'check formula
+    If sFmla = "" Then
+        sErrMsg = "Formula not supply"
+    Else
+        sErrMsg = fnCheckFormula(sFmla, sBType)
+    End If
+    
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
+        Exit Function
+    End If
+    
+    'check condition
+    If sCond = "" Then
+        bConditionOK = True
+    Else
+        sErrMsg = fnCheckCondition(sCond, sBType)
+    End If
+    
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
+        Exit Function
+    End If
+    
+    'check adj formula
+    If sAFmla <> "" Then
+        sErrMsg = fnCheckFormula(sAFmla, sBType)
+    End If
+    
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
+        Exit Function
+    End If
+    
+    'check adj. condition
+    If sACond <> "" Then
+        sErrMsg = fnCheckCondition(sACond, sBType)
+    End If
+    
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
+        Exit Function
+    End If
     
     'Get real values...
-    V1 = fnGetVarValue(sV1, sErrMsg)
+    V1 = fnGetVarValue(nPrftCtr, sV1, sErrMsg)
     V2 = fnGetVarValue(sV2, sErrMsg)
     V3 = fnGetVarValue(sV3, sErrMsg)
     
@@ -443,90 +536,232 @@ Private Function fnCalculateBonus(PCT As Double, DOL As Double, AMT1 As Double, 
         Exit Function
     End If
     
-    If sFmla = "" Then Exit Function
-    arVal = Split(sFmla, " ")
-    For i = 0 To UBound(arVal)
-        Select Case arVal(i)
-            Case "v1"
-                sActualVal = sActualVal & CStr(V1)
-            Case "v2"
-                sActualVal = sActualVal & CStr(V2)
-            Case "v3"
-                sActualVal = sActualVal & CStr(V3)
-            Case "amt1"
-                sActualVal = sActualVal & CStr(AMT1)
-            Case "amt2"
-                sActualVal = sActualVal & CStr(AMT2)
-            Case "pct"
-                sActualVal = sActualVal & CStr(PCT / 100)
-            Case "dol"
-                sActualVal = sActualVal & CStr(DOL)
-            Case "mxt"
-                sActualVal = sActualVal & CStr(MXT)
-            Case Else
-                sActualVal = sActualVal & arVal(i)
-        End Select
-    Next i
+    'set the variables value for condition
+    objCond.Var("pct") = PCT
+    objCond.Var("dol") = DOL
+    objCond.Var("amt1") = AMT1
+    objCond.Var("amt2") = AMT2
+    objCond.Var("mxt") = MXT
+    objCond.Var("v1") = V1
+    objCond.Var("v2") = V2
+    objCond.Var("v3") = V3
     
-    'Get the bonus amount based on the formula...
-    dBonusAmt = tfnRound(objMath.Calculate(sActualVal, sErrMsg), DEFAULT_DECIMALS)
-    If sErrMsg <> "" Then
-        subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
-        Exit Function
-    End If
+    'set the variables value for formula
+    objMath.Var("pct") = PCT
+    objMath.Var("dol") = DOL
+    objMath.Var("amt1") = AMT1
+    objMath.Var("amt2") = AMT2
+    objMath.Var("mxt") = MXT
+    objMath.Var("v1") = V1
+    objMath.Var("v2") = V2
+    objMath.Var("v3") = V3
     
-    'Apply the condition Now...
     If sCond <> "" Then
-        
-    End If
-    
-    fnCalculateBonus = dBonusAmt
-
-End Function
-
-Private Function fnGetVarValue(sVariable As String, sErrMsg As String) As Double
-    Const SUB_NAME As String = "fnGetVarValue"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim szAltSQL As String
-    Dim dDebitAmt As Double, dCreditAmt As Double
-    Dim nVarUsed As Integer
-    Dim i As Integer
-    
-    fnGetVarValue = 0: sErrMsg = ""
-    
-    If frmZZSEBPRC.txtPrftCtr <> "" Then
-        szAltSQL = " AND rssl_prft_ctr = " & frmZZSEBPRC.txtPrftCtr
-        If frmZZSEBPRC.txtStartDate <> "" Then
-            szAltSQL = szAltSQL & " AND rssl_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-        Else
-            szAltSQL = szAltSQL & " AND rssl_date = " & tfnDateString(Date, True)
+        bConditionOK = objCond.CheckCondition(sCond, sErrMsg)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sCond & ")"
+            Exit Function
         End If
     End If
     
-    Select Case LCase(sVariable)
-        Case "inside_sales"
-            strSQL = "SELECT SUM (rsc_retail) as var_value FROM rs_scat, rs_shiftlink, rs_cat"
-            strSQL = strSQL & " WHERE rsc_shl = rssl_shl"
-            strSQL = strSQL & " AND rsc_catagory = rsct_catagory"
-            strSQL = strSQL & " AND rsct_catagory IN('M','N','D')" & szAltSQL
-        Case "gallons_gas"
-            strSQL = "SELECT SUM (rsd_gal) as var_value FROM rs_daily, rs_shiftlink"
-            strSQL = strSQL & " WHERE rsd_shl = rssl_shl" & szAltSQL
-        Case "day_off_slip_days"
-            strSQL = "SELECT COUNT (bd_shl) as var_value FROM bonus_day_off_slip, rs_shiftlink"
-            strSQL = strSQL & " WHERE bd_shl = rssl_shl" & szAltSQL
-        Case "total_pay"
-            strSQL = "SELECT SUM (prci_total) as var_value FROM pr_check_item, pr_check, pr_pay"
-            strSQL = strSQL & " WHERE prc_lnk = prci_lnk"
+    If bConditionOK Then
+        dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
+        If sErrMsg <> "" Then
+            subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
+            Exit Function
+        End If
+    Else
+        dBonusAmt = 0#
+    End If
+    
+    'reset the v1, v2, or v3 if they are "check_amount"
+    If sV1 = "check_amount" Then
+        V1 = dBonusAmt
+        objMath.Var("v1") = V1
+    End If
+    If sV2 = "check_amount" Then
+        V2 = dBonusAmt
+        objMath.Var("v2") = V2
+    End If
+    If sV3 = "check_amount" Then
+        V3 = dBonusAmt
+        objMath.Var("v3") = V3
+    End If
+    
+    'Adj. condition and formula
+    If sAFmla <> "" Then
+        If sCond = "" Then
+            bConditionOK = True
+        Else
+            bConditionOK = objCond.CheckCondition(sACond, sErrMsg)
+            If sErrMsg <> "" Then
+                subLogErrMsg sErrMsg & ", Invalid Condition Clause (" & sACond & ")"
+                Exit Function
+            End If
+        End If
+    
+        If bConditionOK Then
+            dBonusAmt = tfnRound(objMath.Calculate(sAFmla, sErrMsg), DEFAULT_DECIMALS)
+            If sErrMsg <> "" Then
+                subLogErrMsg sErrMsg & ", Invalid Formula (" & sAFmla & ")"
+                Exit Function
+            End If
+        End If
+    End If
+    
+    fnCalculateBonus = dBonusAmt
+End Function
+
+Private Function fnGetVarValue(lEmpNo As Long, _
+                               nPrftCtr As Integer, _
+                               ByVal sVariable As String, _
+                               sErrMsg As String) As Double
+                               
+    Const SUB_NAME As String = "fnGetVarValue"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lSysParm3004  As Long
+    Dim nEmpLevel As Integer
+    Dim sDateHired As String
+    Dim sDateTerminated As String
+    Dim sDateStart As String
+    Dim sDateEnd As String
+    Dim lDiff As Long
+    Dim dDebitAmt As Double
+    Dim dCreditAmt As Double
+    Dim i As Long
+    Dim sarrVariable()
+    
+    'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
+    sarrVariable = Array("inside_sales", _
+                         "gallons_sold", _
+                         "day_off_slip_day", _
+                         "total_pay", _
+                         "months_in_grade", _
+                         "months_as_manager", _
+                         "years_as_manager", _
+                         "months_employed", _
+                         "shortage_amount", _
+                         "check_amount", _
+                         "pay_hours", _
+                         "not used")
+    
+    fnGetVarValue = 0#
+    sErrMsg = ""
+    
+    sVariable = LCase(sVariable)
+    
+    Select Case sVariable
+        Case sarrVariable(0)  'inside sales
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(frmZZSEBPRC.txtFrequency)
+        
+        Case sarrVariable(1)  'gallons sold
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
+        
+        Case sarrVariable(2)  'day off slip days
+            strSQL = "SELECT COUNT (bd_shl) AS var_value "
+            strSQL = strSQL & " FROM bonus_day_off_slip, rs_shiftlink"
+            strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
+            strSQL = strSQL & " AND bd_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bd_slip_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bd_prft_ctr = rssl_prft_ctr"
+            strSQL = strSQL & " AND bd_slip_date = rssl_date"
+            strSQL = strSQL & " AND bd_shift = rssl_shift"
+        
+        Case sarrVariable(3)  'total pay
+            strSQL = "SELECT SUM (prci_total) AS var_value"
+            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
+            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
+            strSQL = strSQL & " AND prc_lnk = prci_lnk"
             strSQL = strSQL & " AND prc_check_paid <> 'V'"
             strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-            strSQL = strSQL & " AND prpa_pay_code = 'P'"
-            'strSQL = strSQL & " AND prc_chk_date IN()"
-        Case "months_in_grade"
-        Case "years_as_manager"
-        Case "months_employed"
-            strSQL = "SELECT prm_date_hired, prhs_date_termed FROM pr_master, pr_history"
+            strSQL = strSQL & " AND prpa_pay_type = 'P'"
+            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            
+        Case sarrVariable(4)  'months in grade
+            strSQL = "SELECT prm_emp_level, prm_date_hired, prm_date_termed"
+            strSQL = strSQL & " FROM pr_master"
+            strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+                sErrMsg = "Failed to access the database to get " & sVariable
+                Exit Function
+            End If
+            If rsTemp.RecordCount = 0 Then
+                sErrMsg = "Employee record not found for " & sVariable
+                Exit Function
+            End If
+            If IsNull(rsTemp!prm_emp_level) Then
+                sErrMsg = "Employee level is NULL for " & sVariable
+                Exit Function
+            End If
+            
+            nEmpLevel = tfnRound(rsTemp!prm_emp_level)
+            sDateHired = tfnFormatDate(fnGetField(rsTemp!prm_date_hired))
+            sDateTerminated = tfnFormatDate(fnGetField(rsTemp!prm_date_termed))
+            
+            strSQL = "SELECT prhs_effect_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
+            strSQL = strSQL & " FROM pr_history"
+            strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+            strSQL = strSQL & " ORDER BY prhs_effect_dt"
+            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+                sErrMsg = "Failed to access the database to get " & sVariable
+                Exit Function
+            End If
+            If rsTemp.RecordCount = 0 Then
+                sErrMsg = "Employee history record not found for " & sVariable
+                
+                If IsValidDate(sDateHired) Then
+                    If IsValidDate(sDateTerminated) Then
+                        lDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+                    Else
+                        lDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(Date)))
+                    End If
+                End If
+                
+                fnGetVarValue = lDiff
+                Exit Function
+            End If
+            
+            If rsTemp.RecordCount = 1 Then
+                If tfnRound(rsTemp!prhs_emp_level) = nEmpLevel Then
+                    sDateStart = tfnFormatDate(rsTemp!prhs_effective_dt)
+                    sDateEnd = tfnFormatDate(Date)
+                    lDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                End If
+            Else
+                For i = 1 To rsTemp.RecordCount
+                    If tfnRound(rsTemp!prhs_emp_level) = nEmpLevel Then
+                        sDateStart = tfnFormatDate(rsTemp!prhs_effective_dt)
+                        If i <= rsTemp.RecordCount - 1 Then
+                            
+                        End If
+                    Else
+                        sDateStart = ""
+                    End If
+                    rsTemp.MoveNext
+                Next i
+            End If
+            
+            Exit Function
+            
+        Case sarrVariable(5)  'months as manager
+        Case sarrVariable(6)  'years as manager
+        Case sarrVariable(7)  'months employed
+            strSQL = "SELECT prm_date_hired, prhs_date_termed"
+            strSQL = strSQL & " FROM pr_master, pr_history"
             strSQL = strSQL & " WHERE prm_empno = prhs_empno"
             If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
                 sErrMsg = "Failed to access the database to get " & sVariable
@@ -539,46 +774,81 @@ Private Function fnGetVarValue(sVariable As String, sErrMsg As String) As Double
             If fnGetField(rsTemp!prhs_date_termed) <> "" Then
                 fnGetVarValue = DateDiff("m", rsTemp!prm_date_hired, rsTemp!prhs_date_termed)
             End If
+            
             Exit Function
-        Case "shortage_amount"
-            strSQL = "SELECT SUM (gljrs_amount) as var_value, gljrs_flag "
-            strSQL = strSQL & " FROM gl_jrnl_rs, rs_shiftlink"
-            strSQL = strSQL & " WHERE gljrs_shl = rssl_shl" & szAltSQL
-            strSQL = strSQL & " AND gljrs_account IN (SELECT parm_field FROM sys_parm WHERE parm_nbr = 3004)"
-            strSQL = strSQL & " GROUP BY gljrs_flag"
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
-                rsTemp.MoveFirst
-                For i = 1 To rsTemp.RecordCount
-                    If fnGetField(rsTemp!gljrs_flag) = "D" Then
-                        dDebitAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
-                    Else
-                        dCreditAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
-                    End If
-                Next i
-                fnGetVarValue = dDebitAmt - dCreditAmt
+            
+        Case sarrVariable(8)  'shortage amount
+            strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 3004"
+            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+                sErrMsg = "Failed to access the database to get " & tfnSQLString(sVariable)
                 Exit Function
             End If
-        Case "check_amount"
-        Case "pay_hours"
-            strSQL = "SELECT SUM (prci_input_amt) as var_value "
-            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
-            strSQL = strSQL & " WHERE prc_lnk = prci_lnk"
-            strSQL = strSQL & " AND prc_check_paid <> 'V' "
-            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
-            strSQL = strSQL & " AND prpa_pay_code = 'P'"
-            strSQL = strSQL & " AND prpa_calc_method = 'H'"
-            'strSQL = strSQL & " AND prc_chk_date IN()"
-        Case "min_pay"
-            strSQL = ""
-            strSQL = strSQL & ""
-        Case Else
+            
+            If rsTemp.RecordCount = 0 Then
+                sErrMsg = "SysParm#3004 not found for " & sVariable
+                Exit Function
+            End If
+                
+            lSysParm3004 = tfnRound(rsTemp!parm_field)
+            
+            strSQL = "SELECT SUM (gljrs_amount) AS var_value, gljrs_flag "
+            strSQL = strSQL & " FROM gl_jrnl_rs, rs_shiftlink"
+            strSQL = strSQL & " WHERE gljrs_shl = rssl_shl"
+            strSQL = strSQL & " AND gljrs_account = " & lSysParm3004
+            strSQL = strSQL & " AND rssl_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND rssl_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " GROUP BY gljrs_flag"
+            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+                sErrMsg = "Failed to access the database to get " & tfnSQLString(sVariable)
+                Exit Function
+            End If
+            
+            If rsTemp.RecordCount = 0 Then
+                sErrMsg = "No record found for " & sVariable
+                Exit Function
+            End If
+            
+            rsTemp.MoveFirst
+            For i = 1 To rsTemp.RecordCount
+                If fnGetField(rsTemp!gljrs_flag) = "D" Then
+                    dDebitAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+                Else
+                    dCreditAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+                End If
+            Next i
+            
+            fnGetVarValue = dDebitAmt - dCreditAmt
+            
             Exit Function
+            
+        Case sarrVariable(9)  'check_amount
+            'the value will be obtained from the formula evaluation
+            Exit Function
+            
+        Case sarrVariable(10)  'pay hours
+            strSQL = "SELECT SUM (prci_input_amt) AS var_value"
+            strSQL = strSQL & " FROM pr_check_item, pr_check, pr_pay"
+            strSQL = strSQL & " WHERE prc_empno = " & lEmpNo
+            strSQL = strSQL & " AND prc_lnk = prci_lnk"
+            strSQL = strSQL & " AND prc_check_paid <> 'V'"
+            strSQL = strSQL & " AND prci_pay_code = prpa_pay_code"
+            strSQL = strSQL & " AND prpa_pay_type = 'P'"
+            strSQL = strSQL & " AND prpa_calc_method = 'H'"
+            strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            
+        Case sarrVariable(11)  'not used
+            Exit Function
+        
+        Case Else
+            sErrMsg = "Variable " + tfnSQLString(sVariable) + " is not defined"
+            Exit Function
+    
     End Select
     
-    If strSQL = "" Then Exit Function
-    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        sErrMsg = "Failed to access the database to get " & sVariable
+        sErrMsg = "Failed to access the database to get " & tfnSQLString(sVariable)
         Exit Function
     End If
     
@@ -587,10 +857,135 @@ Private Function fnGetVarValue(sVariable As String, sErrMsg As String) As Double
         Exit Function
     End If
     
-    If rsTemp.RecordCount = 1 Then
+    If rsTemp.RecordCount > 0 Then
         fnGetVarValue = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
     End If
     
+End Function
+
+'return error message if any
+Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As String) As String
+    Dim i As Integer
+    Dim sErrMsg As String
+    Dim aryVariables As Variant
+    Dim aryValues As Variant
+    Dim objEvaluate As clsEquation
+    
+    On Error GoTo errTrap
+    
+    sFormula = LCase(Trim(sFormula))
+    
+    'check formula using bonus type
+    sErrMsg = fnCheckVarAllowed(sFormula, sBonusType)
+    
+    If sErrMsg <> "" Then
+        fnCheckFormula = sErrMsg
+        Exit Function
+    End If
+    
+    'start formula evaluation
+    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
+    aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
+
+    
+    Set objEvaluate = New clsEquation
+    
+    For i = 0 To UBound(aryVariables)
+        objEvaluate.Var(CStr(aryVariables(i))) = aryValues(i)
+    Next i
+    
+    objEvaluate.Equation = sFormula
+    
+    fnCheckFormula = objEvaluate.Solve()
+    
+    Set objEvaluate = Nothing
+    
+    Exit Function
+    
+errTrap:
+    tfnErrHandler "fnCheckFormula"
+    fnCheckFormula = "Failed to validate Formula"
+
+End Function
+
+'return error message if any
+Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As String) As String
+    Dim i As Integer
+    Dim sErrMsg As String
+    Dim aryVariables As Variant
+    Dim aryValues As Variant
+    Dim objCondition As clsCondition
+    
+    On Error GoTo errTrap
+    
+    sCond = LCase(Trim(sCond))
+    
+    'check condition using bonus type
+    sErrMsg = fnCheckVarAllowed(sCond, sBonusType)
+    
+    If sErrMsg <> "" Then
+        fnCheckCondition = sErrMsg
+        Exit Function
+    End If
+    
+    'start formula evaluation
+    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
+    aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
+
+    
+    Set objCondition = New clsCondition
+    
+    For i = 0 To UBound(aryVariables)
+        objCondition.Var(CStr(aryVariables(i))) = aryValues(i)
+    Next i
+    
+    objCondition.Equation = sCond
+    
+    fnCheckCondition = objCondition.Solve()
+    
+    Set objCondition = Nothing
+    
+    Exit Function
+    
+errTrap:
+    tfnErrHandler "fnCheckCondition"
+    fnCheckCondition = "Failed to validate Condition"
+
+End Function
+
+Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As String
+    Dim sInvalidVar As String
+    Dim aryInvalidVar() As String
+    Dim i As Integer
+    
+    'check formula using bonus type
+    'vaid bonus type format: T[123][ECX]
+    If Len(sBonusType) = 3 Then
+        Select Case tfnRound(Mid(sBonusType, 2, 1))
+        Case 1
+            sInvalidVar = sInvalidVar + "v2,v3"
+        Case 2
+            sInvalidVar = sInvalidVar + "v3"
+        End Select
+    
+        If UCase(Right(sBonusType, 1)) <> "E" Then
+            sInvalidVar = sInvalidVar + ",mxt"
+        End If
+    End If
+    
+    aryInvalidVar = Split(sInvalidVar, ",")
+    
+    For i = 0 To UBound(aryInvalidVar)
+        If aryInvalidVar(i) <> "" Then
+            If InStr(sFormula, aryInvalidVar(i)) > 0 Then
+                fnCheckVarAllowed = tfnSQLString(aryInvalidVar(i)) + _
+                    " is not valid for Bonus Type " + tfnSQLString(sBonusType)
+                Exit Function
+            End If
+        End If
+    Next i
+
+    fnCheckVarAllowed = ""
 End Function
 
 Private Function fnGetBFormula(sBCode As String, nBLevel As Integer) As String
@@ -740,36 +1135,28 @@ Public Function fnDeleteSales(sSType As String, sOldPrftCtr As String, sToDt As 
     fnDeleteSales = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
 
-Public Function fnCreateTempTableVar() As Boolean
-    Const SUB_NAME As String = "fnCreateTempTableVar"
-    
-    Dim strSQL As String
-    Dim sarrVariable() As Variant
-    Dim i As Integer
-    
-    'predefined variables
-    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
-        "months_in_grade", "months_as_manager", "years_as_manager", "months_employed", _
-        "shortage_amount", "check_amount", "pay_hours")
-    
-    On Error GoTo Continue
-    strSQL = "DROP TABLE tmpvariable"
-    t_dbMainDatabase.ExecuteSQL strSQL
-    
-Continue:
-    strSQL = "CREATE TEMP TABLE tmpVariable (Variable char(20))"
-    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+Private Function fnValidEmployee(lEmployeeNo As Long, _
+                                 nPrftCtr As Integer, _
+                                 sBGrade As String) As String
+
+
+End Function
+
+Public Function IsValidDate(ByVal sDate As String) As Boolean
+    If sDate = "" Then
         Exit Function
     End If
     
-    For i = 0 To UBound(sarrVariable)
-        strSQL = "INSERT INTO tmpvariable VALUES(" & tfnSQLString(sarrVariable(i)) & ")"
-        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
-            Exit Function
-        End If
-    Next
+    sDate = tfnFormatDate(sDate)
     
-    fnCreateTempTableVar = True
+    If SRegExpMatch(szDatePattern, sDate) <> 0 Then
+        Exit Function
+    End If
+    
+    If Not IsDate(tfnDateString(sDate)) Then
+        Exit Function
+    End If
+    
+    IsValidDate = True
 End Function
-
 

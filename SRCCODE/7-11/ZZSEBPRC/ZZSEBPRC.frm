@@ -2835,14 +2835,6 @@ Private Sub Form_Load()
             Unload Me
             Exit Sub
         End If
-    
-        If Not fnCreateTempTableVar() Then
-            sErrorMessage = "Failed to create temporary Variable Table. Program terminates"
-            subLogErrMsg "**System Error: " + sErrorMessage
-            MsgBox sErrorMessage + ".", vbCritical
-            Unload Me
-            Exit Sub
-        End If
     #End If
     
     tfnSetInitializingMessage
@@ -3162,7 +3154,7 @@ Private Sub tfnResetScreen(Index As Integer)
                 If tfnCancelExit(t_szCANCEL_MESSAGE) Then
                     tgmApprove.ClearData
                     nDataStatus = DATA_INIT
-                    fnFillApproveTab vArrBonus
+                    tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
                     End If
@@ -3458,6 +3450,7 @@ Private Sub cmdProcess_Click()
     Dim sAmtAllLevels As String, sAmtAllBCodes As String
     Dim nSize As Integer: nSize = -1
     Dim i As Integer
+    Dim bError As Boolean: bError = False
     
     #If PROTOTYPE Then
         Exit Sub
@@ -3480,7 +3473,8 @@ Private Sub cmdProcess_Click()
     subLogErrMsg "Started processing commission formulas..."
     subLogErrMsg " "
     
-    strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bm_sequence, bf_level"
+    strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bf_level, "
+    strSQL = strSQL & " bm_eligible_pc, bm_sequence"
     strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula"
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
@@ -3494,24 +3488,28 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
 '    strSQL = strSQL & " AND " & tfnDateString(Date, True)
 '    strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
-    strSQL = strSQL & " ORDER BY bm_empno, bc_bonus_code, bm_sequence, bf_level"
+    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bf_level"
     
     Screen.MousePointer = vbHourglass
     nCount = GetRecordSet(rsTemp, strSQL, , SUB_NAME)
     If nCount < 0 Then
         subLogErrMsg "Failed to access the database"
+        bError = True
         GoTo TERMINATE_PROCESS
     End If
     
     If nCount = 0 Then
         subLogErrMsg "No record found to process"
+        bError = True
         GoTo TERMINATE_PROCESS
     End If
     
     rsTemp.MoveFirst
     For i = 1 To nCount
         DoEvents
-        If bCancelProcess Then GoTo TERMINATE_PROCESS
+        If bCancelProcess Then
+            GoTo TERMINATE_PROCESS
+        End If
         subSetProgress i * (100 / nCount)
         Screen.MousePointer = vbHourglass
         subLogErrMsg "Calculating commission for employee " & tfnSQLString(rsTemp!bm_empno) _
@@ -3524,6 +3522,7 @@ Private Sub cmdProcess_Click()
                 vArrBonus(colAEmpNo, nSize) = Trim(sEmpNo)
                 vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
                 vArrBonus(colADate, nSize) = txtEndDate
+                vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
                 vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
                 vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
             End If
@@ -3548,28 +3547,36 @@ Private Sub cmdProcess_Click()
             vArrBonus(colAEmpNo, nSize) = Trim(sEmpNo)
             vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
             vArrBonus(colADate, nSize) = txtEndDate
+            vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
             vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
             vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
         End If
         rsTemp.MoveNext
     Next i
     
-    If fnFillApproveTab(vArrBonus) Then
-        eTabMain.TabEnabled(TabApprove) = True
-        'eTabMain.CurrTab = TabApprove
-        subSetFocus tblApprove
-    End If
+    tgmApprove.FillWithArray vArrBonus
+    eTabMain.TabEnabled(TabApprove) = True
+    eTabMain.CurrTab = TabApprove
+    subSetFocus tblApprove
     
 TERMINATE_PROCESS:
+    
     subLogErrMsg " "
-    If bCancelProcess Then subLogErrMsg "Processing terminated on user's request"
+    
+    If bCancelProcess Then
+        subLogErrMsg "Processing terminated on user's request"
+    End If
+    
     subLogErrMsg "*Finished Processing*"
     Screen.MousePointer = vbDefault
-    'tfnSetStatusBarMessage "Finished Processing"
+    
     subSetProgress 0
     cmdProcess.Enabled = True
     subEnablePrint TabProcess, True
-    subSetFocus cmdProcess
+    
+    If bError Then
+        subSetFocus cmdProcess
+    End If
 End Sub
 
 Private Sub cmdProcess_GotFocus()
@@ -3594,9 +3601,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             myWidth = Array(0.5, 0.5)
             myField = Array("", "")
         Case "tblApprove"
-            'myWidth = Array(0.1, 0.13, 0.32, 0.1, 0.11, 0.12, 0.12)
-            'myField = Array("", "", "", "", "", "", "")
-            myWidth = Array(0.1, 0.1, 0.13, 0.22, 0.1, 0.11, 0.12, 0.12)
+            myWidth = Array(0.1, 0.13, 0.22, 0.12, 0.1, 0.1, 0.11, 0.12)
             myField = Array("", "", "", "", "", "", "", "")
         Case "tblDetails"
             myWidth = Array(0.07, 0.4, 0.07, 0.07, 0.11, 0.13, 0.15)
@@ -3650,13 +3655,14 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             vitems.Translate = True
             vitems.DefaultItem = colAppNo
             tbl.Caption = "Commission Approval"
+            tbl.HeadLines = 2
             tbl.Columns(colAApprove).Caption = "Approve"
-            tbl.Columns(colAPrftCtr).Caption = "Profit Ctr"
-            tbl.Columns(colAEmpNo).Caption = "Employee No."
+            tbl.Columns(colAEmpNo).Caption = "Employee Number"
             tbl.Columns(colAEmpName).Caption = "Employee Name"
+            tbl.Columns(colADate).Caption = "Date"
+            tbl.Columns(colAPrftCtr).Caption = "Profit Center"
             tbl.Columns(colAPayCode).Caption = "Pay Code"
             tbl.Columns(colAPayHours).Caption = "Pay Hours"
-            tbl.Columns(colADate).Caption = "Date"
             tbl.Columns(colABonusAmt).Caption = "Amount"
             tbl.Columns(colABonusAmt).Alignment = vbRightJustify
         Case "tblDetails"
@@ -4694,25 +4700,6 @@ Private Sub subSetAction(nCol As Integer)
     
 End Sub
 
-Private Function fnFillApproveTab(sArray As Variant) As Boolean
-    Dim i As Integer
-    
-    fnFillApproveTab = False
-    
-    If UBound(vArrBonus) <= 0 Then
-        Exit Function
-    End If
-    
-    tgmApprove.FillWithArray vArrBonus
-    For i = 0 To UBound(vArrBonus)
-        ''
-    Next i
-    
-    subEnablePrint TabApprove, True
-    fnFillApproveTab = True
-
-End Function
-
 Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, _
                                  ByVal lRow As Long, sText As String) As Boolean
     #If PROTOTYPE Then
@@ -5250,6 +5237,13 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
         Exit Function
     End If
     
+    sErrMsg = fnCheckFrequency(txtFromDate, txtToDate, fnGetSalesType())
+    If sErrMsg <> "" Then
+        cValidSls.SetErrorMessage txtFromDate, sErrMsg
+        cValidSls.SetErrorMessage txtToDate, sErrMsg
+        Exit Function
+    End If
+    
     If t_nFormMode = ADD_MODE Then
         sErrMsg = fnCheckSales()
         If sErrMsg <> "" Then
@@ -5776,24 +5770,6 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
     End Select
     fnGetSalesSQL = strSQL
     
-End Function
-
-Private Function IsValidDate(ByVal sDate As String) As Boolean
-    If sDate = "" Then
-        Exit Function
-    End If
-    
-    sDate = tfnFormatDate(sDate)
-    
-    If SRegExpMatch(szDatePattern, sDate) <> 0 Then
-        Exit Function
-    End If
-    
-    If Not IsDate(tfnDateString(sDate)) Then
-        Exit Function
-    End If
-    
-    IsValidDate = True
 End Function
 
 Private Sub subSetFocusoptType()
