@@ -842,12 +842,15 @@ ffm_frgt_cdRedim:
     
 End Function    ''ffm_frgt_cd
 
+'Vijaya on 01/07/04 Magic#420344 Make same as 4gl Fucntion
+'added Optional sParm4 As String = "" That is Carrier
+'Changed the SQL added fmfc_vendor
 Public Function ffm_frgt_cd2( _
                                 sParm1 As String, _
                                 sParm2 As String, _
                                 sParm3 As Date, _
-                                db As DataBase _
-                                ) As Recordset
+                                db As DataBase, _
+                                Optional sParm4 As String = "") As Recordset
     Const SUB_NAME = "ffm_frgt_cd2"
     
     'returning pr_fm_frgt_cd As Recordset
@@ -860,21 +863,28 @@ Public Function ffm_frgt_cd2( _
     On Error GoTo ffm_frgt_cd2Redim
     iIndex = 1
     Do While Not (rsArray(iIndex) Is Nothing)
-        If rsArray(iIndex)!fmfc_code = sParm1 And _
-           rsArray(iIndex)!fmfc_prod_class = sParm2 And _
-           rsArray(iIndex)!fmfc_date_start <= sParm3 And _
-           rsArray(iIndex)!fmfc_date_end >= sParm3 Then
-            Set ffm_frgt_cd2 = rsArray(iIndex)
-            Exit Function   'return now with this "buffered" recordset
+        If Trim(rsArray(iIndex)!fmfc_code & "") = sParm1 And _
+           Trim(rsArray(iIndex)!fmfc_prod_class & "") = sParm2 And _
+           CDate(rsArray(iIndex)!fmfc_date_start) <= CDate(sParm3) And _
+           CDate(rsArray(iIndex)!fmfc_date_end) >= CDate(sParm3) And _
+           Trim(rsArray(iIndex)!fmfc_vendor & "") = sParm4 Then
+           Set ffm_frgt_cd2 = rsArray(iIndex)
+           Exit Function   'return now with this "buffered" recordset
         End If
         iIndex = iIndex + 1
         If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
     Loop 'While
     
-    sSql = " SELECT * from fm_frgt_cd " & _
-           " WHERE fmfc_code = " & QStr(sParm1) & _
-           " AND fmfc_prod_class = " & QStr(sParm2) & _
-           " AND " & QStr(sParm3) & " between fmfc_date_start and fmfc_date_end"
+    sSql = " SELECT * from fm_frgt_cd "
+    sSql = sSql & " WHERE fmfc_code = " & QStr(sParm1)
+    sSql = sSql & " AND fmfc_prod_class = " & QStr(sParm2)
+    sSql = sSql & " AND " & QStr(sParm3) & " BETWEEN fmfc_date_start AND fmfc_date_end"
+    If sParm4 = "" Then
+        sSql = sSql & " AND fmfc_vendor IS NULL"
+    Else
+        sSql = sSql & " AND fmfc_vendor = " & QStr(sParm4)
+    End If
+
     Set rs = fnMainmodsOpenRecordset(sSql, SUB_NAME, db)
     If rs Is Nothing Then
         Exit Function
