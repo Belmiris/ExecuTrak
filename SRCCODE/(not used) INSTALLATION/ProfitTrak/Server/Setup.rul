@@ -650,14 +650,14 @@ StartCopy:
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
-	TARGETDIR = szDisk ^ APP_BASE_PATH ^ "Execuvision";
+	TARGETDIR = szDisk ^ APP_BASE_PATH ^ "ExecVisn";
 	
 	if (CMDLINE = "-A" || CMDLINE = "-a") then
 				
                 LOGMSG="START FORCED COPY OF ptmodels FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                // These go into the FACTOR\Execuvision directory
+                // These go into the FACTOR\Execvisn directory
                 if (CompressGet("ptmodels.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR) < 0) then
                         MessageBox("ptmodels.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
@@ -670,7 +670,7 @@ StartCopy:
                 LOGMSG="START Normal COPY OF ptmodels FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                // These go into the FACTOR\Execuvision directory
+                // These go into the FACTOR\Execvisn directory
                 if (CompressGet("ptmodels.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
 	      COMP_UPDATE_SAME  | INCLUDE_SUBDIR) < 0) then
                         MessageBox("ptmodels.Z could not be decompressed", SEVERE);
