@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -492,6 +492,9 @@ Public Const AR_PAYMENT_UP = 15390  'AREPAYMT.EXE
 Public Const MISC_BANK_DEPOSIT_UP = 15400  'GLEBNKDP.EXE
 '''''''''''''''''
 
+'446322
+Public Const FOEBXFER_UP = 15410    'FOEBXFER.EXE
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -563,11 +566,11 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwAvailPageFile: Indicates the number of bytes available in the paging file.
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
-    Dim sMSG As String
-    sMSG = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMSG = sMSG & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
-    sMSG = sMSG & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
-    fnMemoryString = sMSG
+    Dim sMsg As String
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
+    fnMemoryString = sMsg
 End Function
 Public Sub checkMemory()
 'this sub is called from a timer
@@ -576,7 +579,7 @@ Public Sub checkMemory()
 'if certain memory thresholds are met, the information is logged to the error log
 'and a message is displayed to the user.
     Dim psLogMemoryStatus As LOG_MEMORY_STATUS 'structure to hold mem values
-    Dim sMSG As String, sIniValue As String
+    Dim sMsg As String, sIniValue As String
     Static bolQueriedINI As Boolean
     Static iInterval As Single
     Static iMemTime As Single
@@ -597,16 +600,16 @@ Public Sub checkMemory()
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
         If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
-            sMSG = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
+            sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
-                    Err.Description = sMSG 'need to do this so msg will get written in the error log
-                    tfnErrHandler "checkMemory", sMSG, False 'write to the error log
+                    Err.Description = sMsg 'need to do this so msg will get written in the error log
+                    tfnErrHandler "checkMemory", sMsg, False 'write to the error log
                     Err.Clear 'clear the workaround
                 End If
             #End If
             MsgBox "Please save your work, close ExecuTrak for Windows, and restart ExecuTrak." & _
-            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMSG, vbExclamation, "SYSTEM MEMORY IS LOW"
+            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMsg, vbExclamation, "SYSTEM MEMORY IS LOW"
         End If
 
     End If
@@ -1220,7 +1223,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2384,7 +2387,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2884,7 +2887,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3101,7 +3104,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3309,7 +3312,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFileName As String, _
+Public Function tfn_Read_SYS_INI(sFilename As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3324,8 +3327,8 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     
     'ini_file_name,ini_user_id may be null
     
-    If sFileName <> "" Then
-        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFileName))
+    If sFilename <> "" Then
+        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFilename))
     Else
         strSQL = strSQL & " ini_file_name is Null"
     End If
@@ -3370,7 +3373,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFileName As String, _
+Public Function tfn_Write_SYS_INI(sFilename As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3385,20 +3388,20 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
     
     On Error GoTo errTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFileName))
+        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFilename))
         strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sUserID)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
