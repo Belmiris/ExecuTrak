@@ -1,5 +1,215 @@
 Attribute VB_Name = "ModPricing"
 Attribute VB_Description = "PRICING.4GL translation 1.23@(#) Last Delta: 11/6/91"
+Option Explicit
+#Const USE_4GL_PRICING_MODULE = True
+
+
+#If USE_4GL_PRICING_MODULE Then
+'***************************************************************************************
+'
+' Copyright (c) 2002 FACTOR, A Division of W.R.Hess Company
+'
+' Module name   : PRICING.BAS
+'
+' Here are the public functions:
+' Public functions:
+'  (1) set_wrk_date       -- If you do not set this date, it will be today's date
+'                         (Inherited from preious VB routine)
+'
+'  (2) product_price      -- Entry point (Inherited from preious VB routine)
+'  (3) Fuel_price         -- Entry point (Inherited from preious VB routine)
+'  (4) prod_price         -- Entry point (Inherited from preious VB routine)
+'
+'  (5) fnGetOverRideFlag  -- Return a Y/N flag (Inherited from preious VB routine)
+'  (6) fnGetPricingStatus -- New. Return 0 if successul; positive int if not.
+'                            You may also get error messages.
+'  Date: 06/12/2002
+'  Programmer: Weigong Jiang
+'**************************************************************************************
+
+Private wrk_date As Date
+Public Const PRC_ERR_NO_TABLEREC = -1  'inherited from old public variable
+Private m_status As Integer
+Private m_rtn_msg As String
+Private m_OverRideFlag_YN As String
+
+Public Function product_price( _
+                                DEST_FLAG As String, _
+                                sProductLink As String, _
+                                ByVal lProfitCenter As Long, _
+                                ByVal lCustomer As Long, _
+                                dfQuantity As Double, _
+                                dfCost As Double, _
+                                lOrigin As Long, _
+                                t_dbMainDatabase As DataBase, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As String = "" _
+                             ) As Double
+    ' dest_flag is I or E:
+    'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+    product_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+    
+End Function ' product_price
+
+'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+Public Function Fuel_price( _
+                                DEST_FLAG As String, _
+                                sProductLink As String, _
+                                ByVal lProfitCenter As Long, _
+                                ByVal lCustomer As Long, _
+                                dfQuantity As Double, _
+                                dfCost As Double, _
+                                dfDiscountedCost As Double, _
+                                lOrigin As Long, _
+                                t_dbMainDatabase As DataBase, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As String = "" _
+                             ) As Double
+                        
+    ' dest_flag is I or E:
+    Fuel_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
+                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+    
+    
+End Function ' product_price
+
+Public Function prod_price( _
+                                sProductLink As String, _
+                                lProfitCenter As Long, _
+                                lCustomer As Long, _
+                                dfQuantity As Double, _
+                                dfCost As Double, _
+                                lOrigin As Long, _
+                                t_dbMainDatabase As DataBase, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As String = "" _
+                            ) As Double
+    ' dest_flag is always I:
+    'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+    prod_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+End Function ' prod_price
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
+    wrk_date = dDate
+End Sub
+
+Private Function sp_price(ByVal sProductLink As String, _
+                            ByVal lProfitCenter As Long, _
+                            ByVal lCustomer As Long, _
+                            ByVal dfQuantity As Double, _
+                            ByVal dfCost As Double, _
+                            ByVal dfDiscountedCost As Double, _
+                            ByVal vLevel As Variant, _
+                            ByVal lOrigin As Long, _
+                            ByVal DEST_FLAG As String, _
+                            t_dbMainDatabase As DataBase, _
+                            Optional lSite As Long = -1, _
+                            Optional sInvoiceDate As String = "", _
+                            Optional sErrMsg As String = "", _
+                            Optional zzerc_contract_nbr As String = "" _
+                            ) As Double
+                            
+        Dim i As Integer
+        Dim arg_val(14) As String
+        Dim sRunCmd As String
+        Dim sOutPutstr As String
+        Static sta_cnt As Long
+        
+        arg_val(0) = "syvprice.4ge"
+        arg_val(1) = tfnGetUserName
+        arg_val(2) = Trim(sProductLink)
+        arg_val(3) = CStr(lProfitCenter)
+        arg_val(4) = CStr(lCustomer)
+        arg_val(5) = CStr(dfQuantity)
+        arg_val(6) = CStr(dfCost)
+        arg_val(7) = CStr(dfDiscountedCost)
+        arg_val(8) = tfnSQLString(vLevel)
+        arg_val(9) = CStr(lOrigin)
+        arg_val(10) = tfnSQLString(DEST_FLAG)
+        
+        If wrk_date = CDate("12:00:00 AM") Then
+           wrk_date = Date
+        End If
+        arg_val(11) = tfnFormatDate(wrk_date)
+        arg_val(12) = tfnRound(lSite)
+        If Not IsDate(sInvoiceDate) Then
+            sInvoiceDate = CStr(Date)
+        End If
+        arg_val(13) = tfnFormatDate(sInvoiceDate)
+        If Trim(zzerc_contract_nbr) = szEMPTY Then
+            arg_val(14) = "' '"
+        Else
+            arg_val(14) = tfnSQLString(Trim(zzerc_contract_nbr))
+        End If
+        
+        sRunCmd = arg_val(0)
+        
+        For i = 1 To 14
+           sRunCmd = sRunCmd & Space(1) & arg_val(i)
+        Next
+        
+        sOutPutstr = fnRun4GLPricing(sRunCmd)
+        
+        Dim ary_out As Variant
+        Dim nPos As Integer
+        
+        nPos = InStr(sOutPutstr, "syvprice~")
+        If nPos > 0 Then
+            If nPos > 1 Then 'should be ob 1st pos
+                 sOutPutstr = Right(sOutPutstr, Len(sOutPutstr) - nPos + 1)
+            End If
+            ary_out = Split(sOutPutstr, "~")
+            If UBound(ary_out) >= 7 Then
+                m_status = tfnRound(ary_out(2))
+                sp_price = tfnRound(ary_out(3), 8)
+                m_OverRideFlag_YN = ary_out(4)
+                m_rtn_msg = ary_out(7)
+                If InStr(m_rtn_msg, "Unknown") = 0 Then
+                    m_rtn_msg = "Cannot retrieve data from file " & m_rtn_msg & ". Error Code = " & m_status
+                End If
+            Else
+                GoTo Handle_Error
+            End If
+        Else
+             GoTo Handle_Error
+        End If
+        Exit Function
+        
+Handle_Error:
+        sta_cnt = sta_cnt + 1
+        m_status = -1
+        m_OverRideFlag_YN = "N"
+        m_rtn_msg = "Error in launaching 4GE"
+        If sta_cnt < 10 Then
+            sOutPutstr = "A message has been returned from the server:" & vbCrLf & sOutPutstr & vbCrLf & vbCrLf & "Command sent to server:" & vbCrLf & sRunCmd
+            tfnErrHandler "sp_price", "401", sOutPutstr
+        End If
+        sp_price = 0
+
+End Function
+
+Public Function fnGetOverRideFlag() As String
+    fnGetOverRideFlag = m_OverRideFlag_YN
+End Function
+Public Function fnGetPricingStatus(Optional sMsg As String) As Integer
+    If Not IsMissing(sMsg) Then
+        sMsg = m_rtn_msg
+    End If
+    fnGetPricingStatus = m_status
+    
+End Function
+
+#Else
 '***********************************************************************************
 '
 ' Copyright (c) 1996 FACTOR, A Division of W.R.Hess Company
@@ -26,8 +236,6 @@ Attribute VB_Description = "PRICING.4GL translation 1.23@(#) Last Delta: 11/6/91
 '                   main            - for testing if cMain = 1
 '                   fnFirstCharU    - internal
 '***********************************************************************************
-
-Option Explicit
                         ' 1: Main sub is included FOR TESTING ONLY
 #Const cMAIN = 0        ' 0:   "   "   " skipped by #If directive
 
@@ -1128,6 +1336,6 @@ Sub Main()          'include for testing
 End Sub 'Main mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 #End If 'cMAIN
 
-
+#End If
 
 

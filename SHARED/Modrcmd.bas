@@ -304,7 +304,7 @@ End Function
 Private Function fnRunRCmd(sHost As String, _
                            sLocalUID As String, _
                            sRemoteUID As String, _
-                           sCmd As String) As String
+                           sCmd As String, Optional rtn_ori_str As Boolean = False) As String
     Const SUB_NAME = "fnRunRCmd"
     
     Dim sErrMsg As String
@@ -351,9 +351,9 @@ Private Function fnRunRCmd(sHost As String, _
         Loop Until nOutput <= 1
         RCmdClose nCode
         If sErrMsg <> "" Then
-            'tfnErrHandler SUB_NAME, ERR_MSG_RETURNED, "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
-            'add following statement by junsong 11/30/00 to return error message
-            sErrMsg = "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
+            If Not rtn_ori_str Then
+                sErrMsg = "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
+            End If
             fnRunRCmd = sErrMsg
         End If
     End If
@@ -535,5 +535,48 @@ errRunShell:
     
     
 End Function
+
+Public Function fnRun4GLPricing(sCmdLine As String) As String
+    
+    Dim sHost As String
+    Dim sUserID As String
+    Dim sPassWD As String
+    Dim sDBPath As String
+    Dim nCode As Integer
+    Dim sCmd As String
+    Dim sTemp As String
+    Dim sEnviron As String
+    
+    If Not t_dbMainDatabase Is Nothing Then
+        sHost = tfnGetHostName
+        sDBPath = fnDBPath
+        sUserID = tfnGetUserName
+        sPassWD = tfnGetPassword
+    End If
+    If Trim(sHost) = "" Then
+        If Not t_dbMainDatabase Is Nothing Then
+            sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST2)
+        End If
+    End If
+    
+    If Trim(sHost) = "" Then
+        If Not t_oleObject Is Nothing Then
+            sHost = t_oleObject.ConnectHost
+        End If
+    End If
+    
+    If Trim(sPassWD) = "" Then
+        If Not t_oleObject Is Nothing Then
+            sPassWD = t_oleObject.Password
+        End If
+    End If
+    
+    sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" _
+             & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+    fnRun4GLPricing = fnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
+    
+End Function
+
+
 
 
