@@ -1404,7 +1404,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         sLevel = ""
         sWHERE = ""
         
-        Set pr_table = ftx_table(trn_arry(I).trn, t_dbMainDatabase)
+        'Set pr_table = ftx_table(trn_arry(I).trn, t_dbMainDatabase)
         '#This was wrong. Should use trn. WJ, 4/01/2003,Magic 404131
         Set pr_table = ftx_table(trn, t_dbMainDatabase)
         
