@@ -137,7 +137,7 @@ Public Sub Copy(Optional vSelIndex As Variant)
             i = Val(vSelIndex)
             If i >= 0 And i < nRows Then
                 ReDim vData(nColCount - 1, 0)
-                m_tgcEditor.GetRow vBuffer, nCol, j
+                m_tgcEditor.GetRow vBuffer, nCol, i
                 For j = 0 To nColCount - 1
                     If j <> m_nIdleColumn Then
                         vData(j, 0) = vBuffer(j)
