@@ -230,10 +230,12 @@ Private Const HTTP_ADDREQ_FLAG_REPLACE = &H80000000
 '
 
 Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String, _
-                                bPassive As Boolean, bBinary As Boolean, _
                                 sRemotePathAndFile As String, _
                                 sLocalPath As String, sRetErrMsg As String, _
-                                Optional bShowError As Boolean = True) As Boolean
+                                Optional bShowError As Boolean = True, _
+                                Optional bDeleteSourceFile As Boolean = False, _
+                                Optional bPassive As Boolean = True, _
+                                Optional bBinary As Boolean = True) As Boolean
     
     Dim hOpen As Long, hConnection As Long, hFind As Long
     Dim lBinAscii As Long, lActPassive As Long
@@ -281,7 +283,6 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String,
         subShowError bShowError, sRetErrMsg, vbExclamation
         GoTo CloseHandle
     End If
-    
     subAddSlash sLocalPath
     
     'Set the current directory path...
@@ -337,6 +338,13 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String,
             fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
             GoTo CloseHandle
         End If
+        If bDeleteSourceFile Then
+            bFlag = FtpDeleteFile(hConnection, sArrFile(i))
+            If bFlag = False Then
+                fnErrorOut Err.LastDllError, "FtpDeleteFile", bShowError, sRetErrMsg
+                GoTo CloseHandle
+            End If
+        End If
     Next i
     
     InternetCloseHandle hConnection
@@ -388,6 +396,8 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
             sErrorMsg = "Failed to get the file from the server"
         Case "FtpGetFile"
             sErrorMsg = "Failed to transfer the file"
+        Case "FtpDeleteFile"
+            sErrorMsg = "Failed to delete the source file"
     End Select
     
     subShowError bShowError, sErrorMsg, vbCritical
