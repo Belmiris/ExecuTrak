@@ -845,6 +845,9 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
     Dim dTotalEmpHours As Single
     Dim lCount As Long
     Dim i As Long
+    Dim nOldEmpNo As Long
+    Dim dEmpRegHours As Double
+    Dim dEmpOTHours As Double
     
     'Build array for week 1
     tfnSetStatusBarCorrect "Building the employee hours information for week 1..."
@@ -874,9 +877,16 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
         subSetProgress 0.001
         
         ReDim g_ArrayHours(rsTemp.RecordCount - 1)
+        nOldEmpNo = -1
+        dEmpOTHours = 0#
+        dEmpRegHours = 0#
         
         Do Until rsTemp.EOF
             
+            If nOldEmpNo <> tfnRound(rsTemp!bh_empno) Then
+                nOldEmpNo = tfnRound(rsTemp!bh_empno)
+            End If
+                
             With g_ArrayHours(lCount)
                 .EmpNO = tfnRound(rsTemp!bh_empno)
                 .nWeek = 1
@@ -893,8 +903,20 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
                     .RegHours = .OrigHours
                     .OTHOurs = 0
                 Else
-                    .RegHours = tfnRound(MAXWEEKHOURS * (.OrigHours / dTotalEmpHours), 2)
-                    .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS) * (.OrigHours / dTotalEmpHours), 2)
+                    'If this is last record for this employee, make the total regular hours equal to the MAxWEEKHOURS
+                    'Junsong 12/06/2002 call 391714
+                    If fnIsLastRecordForEmployee(rsTemp, nOldEmpNo) Then
+                        .RegHours = tfnRound(MAXWEEKHOURS - dEmpRegHours, 2)
+                        .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS - dEmpOTHours), 2)
+                        dEmpOTHours = 0#
+                        dEmpRegHours = 0#
+                    Else
+                        .RegHours = tfnRound(MAXWEEKHOURS * (.OrigHours / dTotalEmpHours), 2)
+                        .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS) * (.OrigHours / dTotalEmpHours), 2)
+                        dEmpOTHours = tfnRound(dEmpOTHours + .OTHOurs, 2)
+                        dEmpRegHours = tfnRound(dEmpRegHours + .RegHours, 2)
+                    End If
+                    
                 End If
                 
             End With
@@ -938,7 +960,15 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
             End If
             
             i = 0
+            nOldEmpNo = -1
+            dEmpOTHours = 0#
+            dEmpRegHours = 0#
+        
             Do Until rsTemp.EOF
+                    
+                If nOldEmpNo <> tfnRound(rsTemp!bh_empno) Then
+                    nOldEmpNo = tfnRound(rsTemp!bh_empno)
+                End If
 
                 With g_ArrayHours(lCount)
                     .EmpNO = tfnRound(rsTemp!bh_empno)
@@ -955,8 +985,20 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
                         .RegHours = .OrigHours
                         .OTHOurs = 0
                     Else
-                        .RegHours = tfnRound(MAXWEEKHOURS * (.OrigHours / dTotalEmpHours), 2)
-                        .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS) * (.OrigHours / dTotalEmpHours), 2)
+                        'If this is last record for this employee, make the total regular hours equal to the MAxWEEKHOURS
+                        'Junsong 12/06/2002 call 391714
+                        If fnIsLastRecordForEmployee(rsTemp, nOldEmpNo) Then
+                            .RegHours = tfnRound(MAXWEEKHOURS - dEmpRegHours, 2)
+                            .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS - dEmpOTHours), 2)
+                            dEmpOTHours = 0#
+                            dEmpRegHours = 0#
+                        Else
+                            .RegHours = tfnRound(MAXWEEKHOURS * (.OrigHours / dTotalEmpHours), 2)
+                            .OTHOurs = tfnRound((dTotalEmpHours - MAXWEEKHOURS) * (.OrigHours / dTotalEmpHours), 2)
+                            dEmpOTHours = tfnRound(dEmpOTHours + .OTHOurs, 2)
+                            dEmpRegHours = tfnRound(dEmpRegHours + .RegHours, 2)
+                        End If
+                    
                     End If
                     
                 End With
@@ -994,6 +1036,32 @@ Private Function fnGetTotalHoursForEmployee(lEmpNo As Long, nWeek As Integer) As
     
     If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnGetTotalHoursForEmployee") >= 0 Then
         fnGetTotalHoursForEmployee = tfnRound(rsTemp!Hours, 2)
+    End If
+    
+End Function
+
+Private Function fnIsLastRecordForEmployee(rsTemp As Recordset, nOldEmpNo As Long) As Boolean
+    'On Error Resume Next
+    
+    If rsTemp.EOF Then
+        fnIsLastRecordForEmployee = True
+    Else
+        rsTemp.MoveNext
+            
+        If rsTemp.EOF Then
+            fnIsLastRecordForEmployee = True
+        Else
+        
+            If tfnRound(rsTemp!bh_empno) = nOldEmpNo Then
+                fnIsLastRecordForEmployee = False
+            Else
+                fnIsLastRecordForEmployee = True
+            End If
+            
+        End If
+        
+        rsTemp.MovePrevious
+    
     End If
     
 End Function
