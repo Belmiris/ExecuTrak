@@ -1776,7 +1776,7 @@ Private Function fnInsert() As Boolean
         If tfnRound(vData(COL_HOUR), 2) <> 0# Then
             strSQL = strSQLHeader & tfnSQLString(sHOURLYPAYCODE) & "," & tfnRound(vData(COL_HOUR), 2) & ")"
             
-            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+            If Not fnExecuteSQL(strSQL, "fnInsert") Then
                 Exit Function
             End If
             
@@ -1786,7 +1786,7 @@ Private Function fnInsert() As Boolean
             sPayCode = tblTimeCard.Columns(COL_PAYCODE1).Caption
             strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE1), 2) & ")"
             
-            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+            If Not fnExecuteSQL(strSQL, "fnInsert") Then
                 Exit Function
             End If
             
@@ -1796,7 +1796,7 @@ Private Function fnInsert() As Boolean
             sPayCode = tblTimeCard.Columns(COL_PAYCODE2).Caption
             strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE2), 2) & ")"
             
-            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+            If Not fnExecuteSQL(strSQL, "fnInsert") Then
                 Exit Function
             End If
             
@@ -1806,7 +1806,7 @@ Private Function fnInsert() As Boolean
             sPayCode = tblTimeCard.Columns(COL_PAYCODE3).Caption
             strSQL = strSQLHeader & tfnSQLString(sPayCode) & "," & tfnRound(vData(COL_PAYCODE3), 2) & ")"
             
-            If fnExecuteSQL(strSQL, "fnInsert") < 0 Then
+            If Not fnExecuteSQL(strSQL, "fnInsert") Then
                 Exit Function
             End If
             
@@ -2456,10 +2456,13 @@ Private Sub subTextSelected()
 End Sub
 
 ' A generally used utility function, execute SQL and take care of errors
+'Vijaya on 12/30/03 Magic#433653 Changed from Integer to Boolean
+'Because if the Integer value exceds and give the run time error
+'fix all the placess to check boolean not integer
 Private Function fnExecuteSQL(strSQL As String, _
                              Optional vCaller As Variant, _
                              Optional vMsg As Variant, _
-                             Optional vDB As Variant) As Integer
+                             Optional vDB As Variant) As Boolean
 
     Dim objDB As DataBase
     
@@ -2471,13 +2474,12 @@ Private Function fnExecuteSQL(strSQL As String, _
     
     On Error GoTo errExecute
     If objDB Is t_dbMainDatabase Then
-        fnExecuteSQL = objDB.ExecuteSQL(strSQL)
+        objDB.ExecuteSQL strSQL
     Else
         objDB.Execute strSQL
-        fnExecuteSQL = 0
     End If
 
-    On Error GoTo 0
+    fnExecuteSQL = True
     Exit Function
 
 errExecute:
@@ -2493,8 +2495,8 @@ errExecute:
             tfnErrHandler "fnExecuteSQL\vCaller", strSQL, , bShow
         End If
     #End If
-    fnExecuteSQL = -1
     
+    fnExecuteSQL = False
 End Function
 
 Private Sub subEnableSearchButton(ByRef ctrlButton As FactorFrame, _
@@ -2647,7 +2649,7 @@ Public Function fnInsertzzse_manager_hour() As Boolean
         strSQL = "DELETE FROM zzse_manager_hour"
         strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
         strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
-        If fnExecuteSQL(strSQL, FUNC_NAME) < 0 Then
+        If Not fnExecuteSQL(strSQL, FUNC_NAME) Then
             Exit Function
         End If
     End If
@@ -2679,7 +2681,7 @@ Public Function fnInsertzzse_manager_hour() As Boolean
         strSQL = strSQL & "," & Format(txtEHMgrHours, "0.00") & ")"
     End If
     
-    If fnExecuteSQL(strSQL, FUNC_NAME) < 0 Then
+    If Not fnExecuteSQL(strSQL, FUNC_NAME) Then
         Exit Function
     End If
     
