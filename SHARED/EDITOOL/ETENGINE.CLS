@@ -749,15 +749,15 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 ciTemp.CarrierCode = sTemp
                 ciTemp.CarrierName = sInfo1
                 ciTemp.CarrierFedID = fnConvertFEDID(sInfo2)
-                If nTypeCode = "5J" Or nTypeCode = "10A" Then
-                    If rsTemp!fml_int_ext = "E" Then
-                        sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
-                    Else
-                        sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
-                    End If
-                Else
+                'If nTypeCode = "5J" Or nTypeCode = "10A" Then
+                '    If rsTemp!fml_int_ext = "E" Then
+                '        sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
+                '    Else
+                '        sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
+                '    End If
+                'Else
                     sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
-                End If
+                'End If
                 subGetCityInfo sInfo1, sInfo2, sTemp
                 ciTemp.OriginCity = sInfo1
                 ciTemp.OriginState = sInfo2
