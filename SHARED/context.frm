@@ -93,6 +93,7 @@ Option Explicit
     Private Const CONTROL_TB_FRAME = 1
     Private Const CONTROL_TB_RIGHT = 2
     Private Const CONTROL_TB_PANEL = 3
+    Private Const DELAY_FOR_START = 10
     
     Private objToolbar As Object
     Private frmMainForm As Form
@@ -316,6 +317,7 @@ Public Sub ButtonClick(Button As Button)
     If Not objToolbar Is Nothing Then
         subShowBusyState True, Button.Key
         objToolbar.ButtonClick Button.Key
+        tfnWaitSeconds DELAY_FOR_START
         subShowBusyState False, Button.Key
         subCheckError
     End If
@@ -379,7 +381,7 @@ End Property
 Public Sub ShowSBMessage(sMsg As String)
     On Error Resume Next
     frmMainForm.ffraStatusbar.ForeColor = STANDARD_TEXT_COLOR
-    frmMainForm.ffraStatusbar.Font.Bold = False
+    frmMainForm.ffraStatusbar.Font.bOld = False
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
 End Sub
@@ -387,14 +389,14 @@ End Sub
 Public Sub ShowSBError(sMsg As String)
     On Error Resume Next
     frmMainForm.ffraStatusbar.ForeColor = ERROR_TEXT_COLOR
-    frmMainForm.ffraStatusbar.Font.Bold = True
+    frmMainForm.ffraStatusbar.Font.bOld = True
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
 End Sub
 
 Public Sub ShowSBRight(sMsg As String)
     On Error Resume Next
-    frmMainForm.ffraStatusbar.Font.Bold = False
+    frmMainForm.ffraStatusbar.Font.bOld = False
     frmMainForm.ffraStatusbar.ForeColor = &H8000&  'Green text
     frmMainForm.ffraStatusbar.Caption = sMsg
     frmMainForm.ffraStatusbar.Refresh
@@ -416,6 +418,7 @@ Public Sub MenuClick(ByVal nIdx As Integer)
     If Not objToolbar Is Nothing Then
         subShowBusyState True, nIdx
         objToolbar.MenuClick nIdx
+        tfnWaitSeconds DELAY_FOR_START
         subShowBusyState False, nIdx
         subCheckError
     End If
@@ -485,6 +488,7 @@ Public Function RunProgram(sProgram As String) As Boolean
         If Not t_oleObject Is Nothing Then
             subShowBusyState True, VENDOR_UP
             RunProgram = t_oleObject.RunExe(sProgram)
+            tfnWaitSeconds DELAY_FOR_START
             subShowBusyState False, VENDOR_UP
             subCheckError
         End If
@@ -542,7 +546,7 @@ Public Sub TBMouseMove()
     End If
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     Set objToolbar = Nothing
     Set frmMainForm = Nothing
 End Sub
