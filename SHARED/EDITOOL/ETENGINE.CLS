@@ -208,36 +208,41 @@ Private m_nTPTCount As Integer
 Private sFMTaxLineBuffer As String * EDI_FMTAX_RECORD_LENGGH
 '
 
-Public Sub AddEDIRecords(sSchedule As String, _
+'david 01/25/00
+'this function will return #of tax record for the schedule
+Public Function AddEDIRecords(sSchedule As String, _
                          nTypeCode As String, _
                          sTaxClass As String, _
                          nProdRefCode As String, _
-                         Optional vExtractFrom)
+                         Optional vExtractFrom) As Long
 
     Dim ciTemp As ETFMTaxRecord
     Dim colItems As Collection
     Dim sEDIItem As String
+    Dim lTaxRecords As Long
     
     If m_nErrorNumber <> ErrorFree Then
-        Exit Sub
+        Exit Function
     End If
     
     m_nTypeCode = nTypeCode
     m_nProductRefCode = nProdRefCode
     
+    lTaxRecords = 0
+    
     Set colItems = fnOpenFMTaxRecord(sSchedule, nTypeCode, sTaxClass, nProdRefCode, vExtractFrom)
     If m_nErrorNumber <> EC_INITIAL Then
-        Exit Sub
+        Exit Function
     End If
     
     If fnCheckExitCancel Then
-        Exit Sub
+        Exit Function
     End If
     
     If Not colItems Is Nothing Then
         subCheckFEIN colItems
         If m_nErrorNumber <> EC_INITIAL Then
-            Exit Sub
+            Exit Function
         End If
     End If
     
@@ -246,11 +251,14 @@ Public Sub AddEDIRecords(sSchedule As String, _
             m_lTotalGallons = m_lTotalGallons + ciTemp.Quantity
             sEDIItem = fnBuildEDIFMTaxItem(ciTemp)
             If Not fnWriteLine(sEDIItem) Then
-                Exit Sub
+                Exit Function
             End If
+            lTaxRecords = lTaxRecords + 1
         Next ciTemp
     End If
-End Sub
+    
+    AddEDIRecords = lTaxRecords
+End Function
 
 Public Sub BeginDetail()
     m_lTotalGallons = 0
@@ -303,7 +311,7 @@ Property Get EDITypeD() As String
 End Property
 
 Property Let EndDate(sTemp As String)
-    m_sEndDate = sTemp
+    m_sEndDate = tfnFormatDate(sTemp)
 End Property
 
 Property Let Carrier_Name(sTemp As String)
@@ -581,10 +589,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         
         strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal," _
             & " fml_int_ext, fml_date FROM fm_lading, fm_movement WHERE fml_date" _
-            & " BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
-            & " AND fmm_dispatch_flag = 'C'" _
-            & " AND fml_movement = fmm_movement" _
-            & " INTO TEMP fm_temp1"
+            & " BETWEEN " & tfnDateString(m_sStartDate, True) & " AND " _
+            & tfnDateString(m_sEndDate, True) & " AND fmm_dispatch_flag = 'C'" _
+            & " AND fml_movement = fmm_movement" & " INTO TEMP fm_temp1"
         
         If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
             m_nErrorNumber = EC_CREATE_TT1_R
@@ -629,9 +636,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
     
-        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor, fml_terminal," _
-            & " fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn, fmd_dest_code," _
-            & " fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount" _
+        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
+            & " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn," _
+            & " fmd_dest_code, fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount" _
             & " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
         strSQL = strSQL & " WHERE fmldt_line = fmmb_bl_line" _
             & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
@@ -647,10 +654,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Else
         sType = "I"
         
-        strSQL = "SELECT fmm_movement, fmm_carrier, fmd_invoice, fmd_dest_code, fmd_dest_flag," _
-            & " fmd_prft_ctr, fmd_date" _
+        strSQL = "SELECT fmm_movement, fmm_carrier, fmd_invoice, fmd_dest_code," _
+            & " fmd_dest_flag, fmd_prft_ctr, fmd_date" _
             & " FROM fm_delivery, fm_movement WHERE fmd_date" _
-            & " BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
+            & " BETWEEN " & tfnDateString(m_sStartDate, True) & " AND " _
+            & tfnDateString(m_sEndDate, True) _
             & " AND fmm_dispatch_flag = 'C'" _
             & " AND fmd_movement = fmm_movement"
         
@@ -676,8 +684,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         'for Others Schedule DO IT, becuase it work before
         'david 08/27/99
         If nTypeCode <> "7" Then
-            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn," _
-                & " fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
+            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line," _
+                & " fmldt_trn, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
                 & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
                 & " WHERE fmldt_movement = fmm_movement" _
                 & " AND fmldt_bl_nbr = fmd_invoice" _
@@ -807,7 +815,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                         End If
                     End If
                     
-                    ciTemp.LadingDate = fnCStr(!fml_date)
+                    ciTemp.LadingDate = tfnFormatDate(!fml_date)
                 Else  'EDI_TYPE_D
                     'Delivery, get customer info
                     sTemp = fnCStr(!fmd_dest_code)
@@ -816,7 +824,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     ciTemp.BuySellName = sInfo1
                     ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!fmldt_trn), _
                         fnCStr(!fmd_dest_flag))
-                    ciTemp.LadingDate = fnCStr(!fmd_date)
+                    ciTemp.LadingDate = tfnFormatDate(!fmd_date)
                 End If
                 ciTemp.DetailType = m_sEDIType
                 ciTemp.LadingNumber = tfnRound(!fmldt_bl_nbr)
@@ -841,12 +849,12 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = "DROP TABLE fm_temp2"
         fnExecuteSQL strSQL, SUB_NAME
         
-        strSQL = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, ih_ship_date, idp_seq_nbr, idp_prodlnk" _
-               & " FROM si_invoice, si_inv_line, inv_header WHERE" _
+        strSQL = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, ih_ship_date, idp_seq_nbr," _
+               & " idp_prodlnk FROM si_invoice, si_inv_line, inv_header WHERE" _
                & " ih_nbr = idp_nbr AND idp_prodlnk = ivh_link" _
                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")" _
-               & " AND ih_ship_date BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
-               & " INTO TEMP fm_temp1"
+               & " AND ih_ship_date BETWEEN " & tfnDateString(m_sStartDate, True) _
+               & " AND " & tfnDateString(m_sEndDate, True) & " INTO TEMP fm_temp1"
         
         If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
             m_nErrorNumber = EC_CREATE_TT1_D
@@ -921,7 +929,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     If ciTemp.BuySellFedID = "" Then
                         ciTemp.BuySellFedID = m_sCarrier_FEIN  '"000000000"
                     End If
-                    ciTemp.LadingDate = fnCStr(!ih_ship_date)
+                    ciTemp.LadingDate = tfnFormatDate(!ih_ship_date)
                     
                     ciTemp.DetailType = m_sEDIType
                     ciTemp.LadingNumber = tfnRound(!ih_nbr)
@@ -974,7 +982,7 @@ Public Sub Reset()
 End Sub
 
 Property Let StartDate(sTemp As String)
-    m_sStartDate = sTemp
+    m_sStartDate = tfnFormatDate(sTemp)
 End Property
 
 Private Sub subCheckRequiredFields()
