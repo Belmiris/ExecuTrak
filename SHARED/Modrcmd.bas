@@ -305,26 +305,28 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     bDone = False
     
     Do While Not bDone
-        sMsg = InputBox("Enter the pay period or any other message that will be printed" _
-            + " on Check Stub Line#4 (Optional, max. 40 characters): ", "Message for Check Stub Line# 4", sMsg)
+        sMsg = InputBox("Optional - You may enter the pay period or any other message, up to 40 characters," _
+            + " that will be printed on the Check Stub: ", "Message for Check Stub", sMsg)
         sMsg = Trim(sMsg)
         
         bDone = True
         
         If Len(sMsg) > 40 Then
-            MsgBox "The length of the message must is over 40 characters.", vbExclamation
+            MsgBox "The length of the message cannot be over 40 characters.", vbExclamation
             bDone = False
         ElseIf Len(sMsg) > 0 Then
             For I = 1 To Len(sMsg)
                 sTmp = Mid(sMsg, I, 1)
                 
                 If sTmp = Chr(10) Or sTmp = Chr(13) Or sTmp = Chr(34) Or sTmp = Chr(39) Then
-                    If MsgBox("Single quote ('), double quote ("") or 'Line Feed' is not allowed in the message," _
+                    If MsgBox("Single quote ('), double quote ("") or 'Line Feed' are not allowed in the message," _
                        + " and will be replaced with SPACE. Are you sure you want to continue?" + vbCrLf + vbCrLf _
                        + "Choose No to re-enter the message.", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
                         'go back to enter message again
                         bDone = False
                     End If
+                
+                    Exit For
                 End If
             Next
         End If
