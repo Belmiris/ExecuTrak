@@ -1213,6 +1213,23 @@ Private Sub cmdEditBtn_Click()
 End Sub
 
 Private Sub cmdUpdateInsertBtn_Click()
+    Dim sBonusCode As String
+    Dim lRow1 As Long
+    Dim lRow2 As Long
+    Dim sMsg As String
+    
+    If Not fnCheckDateOverlapping(sBonusCode, lRow1, lRow2) Then
+        sMsg = "Elig. Date and Stop Date overlapping found for " + tfnSQLString(sBonusCode)
+        sMsg = sMsg + " in row " & lRow1 + 1 & " and " & lRow2 + 1
+        If MsgBox(sMsg + ". Are you sure you want to continue?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+            tblBonus.Bookmark = tgmBonus.Bookmark(lRow2)
+            subSetFocus tblBonus
+            DoEvents
+            tfnSetStatusBarError sMsg
+            Exit Sub
+        End If
+    End If
+    
     If cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT Then
         If Not fnInsertBonusCode() Then
             tfnSetStatusBarError "Failed to insert the record"
@@ -3191,3 +3208,55 @@ Private Function IsValidDate(ByVal sDate As String) As Boolean
     IsValidDate = True
 End Function
 
+Private Function fnCheckDateOverlapping(sBonusCode As String, _
+                                        lRow1 As Long, _
+                                        lRow2 As Long) As Boolean
+    
+    For lRow1 = 0 To tgmBonus.RowCount - 1
+        sBonusCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow1))
+        For lRow2 = lRow1 + 1 To tgmBonus.RowCount - 1
+            If sBonusCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow2)) Then
+                If fnDateOverlap(fnGetField(tgmBonus.CellValue(ColElgDate, lRow1)), _
+                   fnGetField(tgmBonus.CellValue(ColStopDate, lRow1)), _
+                   fnGetField(tgmBonus.CellValue(ColElgDate, lRow2)), _
+                   fnGetField(tgmBonus.CellValue(ColStopDate, lRow2))) Then
+                    'date overlap found!
+                    Exit Function
+                End If
+            End If
+        Next lRow2
+    Next lRow1
+    
+    sBonusCode = ""
+    fnCheckDateOverlapping = True
+End Function
+
+Private Function fnDateOverlap(sDateStart1 As String, _
+                               sDateEnd1 As String, _
+                               sDateStart2 As String, _
+                               sDateEnd2 As String) As Boolean
+
+    fnDateOverlap = True
+
+    On Error GoTo errTrap
+    
+    If CDate(sDateStart1) >= CDate(sDateStart2) And CDate(sDateStart1) <= CDate(sDateEnd2) Then
+        Exit Function
+    End If
+    If CDate(sDateEnd1) >= CDate(sDateStart2) And CDate(sDateEnd1) <= CDate(sDateEnd2) Then
+        Exit Function
+    End If
+    If CDate(sDateStart2) >= CDate(sDateStart1) And CDate(sDateStart2) <= CDate(sDateEnd1) Then
+        Exit Function
+    End If
+    If CDate(sDateEnd2) >= CDate(sDateStart1) And CDate(sDateEnd2) <= CDate(sDateEnd1) Then
+        Exit Function
+    End If
+
+    fnDateOverlap = False
+    
+    Exit Function
+
+errTrap:
+    'do nothing
+End Function
