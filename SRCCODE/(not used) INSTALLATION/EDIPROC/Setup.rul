@@ -465,16 +465,16 @@ StartCopy:
         SetStatusWindow(96, "Create " + PRODUCT_NAME + " Default Directories...");
 
 	// create default directory
-	szTemp = szBaseDirectory ^ "EDI";
-	szFolder = szBaseDirectory ^ "EDI_DATA";
-
-	if (ExistsDir(szTemp) = EXISTS && ExistsDir(szFolder) = NOTEXISTS) then
-        	VarSave(SRCTARGETDIR);
-		TARGETDIR = szBaseDirectory;
-		SRCDIR = TARGETDIR;
-		RenameFile("EDI", "EDI_DATA");
-        	VarRestore(SRCTARGETDIR);
-	endif;
+//	szTemp = szBaseDirectory ^ "EDI";
+//	szFolder = szBaseDirectory ^ "EDI_DATA";
+//
+//	if (ExistsDir(szTemp) = EXISTS && ExistsDir(szFolder) = NOTEXISTS) then
+//        	VarSave(SRCTARGETDIR);
+//		TARGETDIR = szBaseDirectory;
+//		SRCDIR = TARGETDIR;
+//		RenameFile("EDI", "EDI_DATA");
+//        	VarRestore(SRCTARGETDIR);
+//	endif;
 
 	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "INCOMING" ^ "INPUT";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
