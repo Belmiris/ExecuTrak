@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "CM301"
-#define UNINSTALL_NAME          "Credit Management System Version 3.01"
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "CM302"
+#define UNINSTALL_NAME          "Credit Management System Version 3.02"
 
 
 #define SIZE_REQ_SERVER         9
@@ -516,6 +516,8 @@ StartCopy:
 	                 goto ZFAILURE;
 	endswitch; 
 	
+	Do(SELFREGISTRATIONPROCESS);
+	
 	//set Source directory to Target directory
 	
 	SRCDIR = szSource;
@@ -604,10 +606,7 @@ DecompressError:
 DecompressSuccessful:
 
 	SetStatusWindow(95, "Registering DLLs and Ocxes...");
-	
-	
-	Do(SELFREGISTRATIONPROCESS);
-	        
+		        
 
       	if (!bFactMenuExist) then
 		LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
@@ -672,7 +671,7 @@ DecompressSuccessful:
 		SRCDIR = WINDIR ^ "TEMP";
 		XCopyFile(KEY_DEFAULT + "bin.z", KEY_DEFAULT + "bin.z", COMP_NORMAL);
  		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
- 		CopyFile("localdb.z", "factdb.z");
+ 		//CopyFile("localdb.z", "factdb.z");
 		
 		LOGMSG="NO FOLDER SHORTCUTS NEEDED FOR SERVER INSTALLATION";
 		LOGWRITE(LOGMSG);
@@ -862,11 +861,11 @@ function CopyLocalDB(szSetup)
 begin
         
 	if szSetup = "" then
-		szProgDir = szBaseDirectory ^ "BIN";
+		szProgDir = szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN";
                 szForceNormal = szForceInstall;
         elseif szSetup = "First" then
 
-		szProgDir = szBaseDirectory ^ "BIN";
+		szProgDir = szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN";
 		szFolder = "Startup";
                 szSCIcon = "";
                 szSCWork = WINDIR ^ "TEMP_SETUP";
@@ -887,7 +886,7 @@ begin
             		nvPosi = StrFind(szTemp, " ");
 
             		if nvPosi < 0 then
-                			return;
+                		return;
             		endif;
 
             		//skip CPYLOCAL
@@ -907,7 +906,9 @@ begin
                         StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
 
             		//get cpylocal.exe program directory
-            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+            		StrSub(szProgDir, szTemp, 0, StrLength(szTemp));
+            	else
+            		return;
         	endif;
 	endif;
 
@@ -936,6 +937,27 @@ begin
                 LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
                       szDBFrom + " " + szDBTo, WAIT);             
         endif;
+        
+        if !fnFindFile(szProgDir, "FACTOR.MDB") then
+                TARGETDIR = szProgDir;
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                    TARGETDIR + "'. Please wait...", TRUE);
+
+                CopyFile("FACTOR.MDB", "FACTOR.MDB");
+
+        else          
+                //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
+                szDBFrom = "\"" + SRCDIR + "\"";
+                TARGETDIR = szProgDir;
+                szDBTo = "\"" + TARGETDIR + "\"";
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                TARGETDIR + "'. Please wait...", TRUE);
+
+                LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
+                    szDBFrom + " " + szDBTo, WAIT);
+	endif;
 
         SdShowMsg("", FALSE);
 

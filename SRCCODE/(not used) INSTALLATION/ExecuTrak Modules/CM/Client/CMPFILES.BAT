@@ -11,7 +11,7 @@ call buildlog %1 %2
 echo .
 echo Compress Application files
 icomp G:\program\release\exectrak\cm\*.* ..\disk\disk1\cmbin.z -i
-icomp g:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\cmbin.z BIN
+icomp g:\program\release\exectrak\common\*.* ..\disk\disk1\cmbin.z BIN
 
 echo .
 echo Compress Local Database

@@ -90,8 +90,7 @@ icomp ..\..\%2client\disk\disk1\*.* ..\disk\%2client.z
 
 echo .
 echo Compress all files in Ole directory to factole.z
-icomp G:\program\release\exectrak\ole\tbkit.dll ..\disk\factole.z
-icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
+icomp G:\program\release\exectrak\ole\*.* ..\disk\factole.z
 
 echo .
 echo Compress all files in Custctl directory to custctl.z
