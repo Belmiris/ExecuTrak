@@ -2,6 +2,7 @@ Attribute VB_Name = "modTXMODDLL"
 Option Explicit
 #Const DEBUGGING = False
 #Const HARD_CODED_TX_LD_FEE = False
+
     Private Const ERROR_LOADING1 = 1201
     Private Const ERROR_LOADING2 = 1202
     Private Const MOD_DLL_NAME = "TxMod32.dll"
@@ -413,7 +414,6 @@ Public Sub subFixTypeATax()
     subFixTypeATaxForInfo
 End Sub
 
-
 Public Sub subFixTypeATaxForInfo()
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
 
@@ -434,9 +434,15 @@ Public Sub subFixTypeATaxForInfo()
     Dim bTexasLDFee As Boolean
     
     Dim nArrayIndex(50) As Integer
+    
+    'david 12/04/2001
+    Dim nSign As Integer
+    '''''''''''''''''
+    
     If nInfoCount <= 0 Then
         Exit Sub
     End If
+    
     ReDim ldelnumbers(nInfoCount - 1) As Long
     ReDim lDelFuelAmount(nInfoCount - 1) As Long
     ReDim fTypeATaxes(nInfoCount - 1) As Double
@@ -457,10 +463,12 @@ Public Sub subFixTypeATaxForInfo()
     
     sParm1055 = "NONE"
     lTotalFuel = lInternalFuel
+    
     For nDel = 0 To nDelCount - 1
         nTaxItems = 0
         lFuelAmount = 0
         lGasAmount = 0
+        
         For nIdx = 0 To nInfoCount - 1
             With aryTaxInfo(nIdx)
                 If .m_lInvoice = ldelnumbers(nDel) Then
@@ -493,99 +501,132 @@ Public Sub subFixTypeATaxForInfo()
                             End If
                         End If
                     Next i
+                    
                     sTaxGroup = fnGetTaxGroup(.m_InputParms.m_sProduct)
+                    
                     If sTaxGroup <> sParm1055 Then
                         lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
                     End If
+                    
                     lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
                 End If
             End With
         Next nIdx
+        
         'When we are here. We should have the same amount for all arryTaxSums.m_lGallons
         ' And they should be equal to lFuelAmount.
-        ' If they are not equal. There is a problem and need to know how to canculate.
+        ' If they are not equal. There is a problem and need to know how to calculate.
         ' Rgiht now, we assume that they are equal
+        
         #If Not HARD_CODED_TX_LD_FEE Then
-        If nTaxItems > 0 Then
-            lTaxableAmount = lFuelAmount
-            If bTexasLDFee Then
-                'For Texas only
-                If lGasAmount = lFuelAmount Then
-                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
-                        lTaxableAmount = 8000
+            If nTaxItems > 0 Then
+                'david 12/03/2001
+                nSign = 1
+                If lFuelAmount < 0 Then
+                    nSign = -1
+                    lFuelAmount = Abs(lFuelAmount)
+                    lGasAmount = Abs(lGasAmount)
+                End If
+                '''''''''''''''''
+                
+                lTaxableAmount = lFuelAmount
+                
+                If bTexasLDFee Then
+                    'For Texas only
+                    If lGasAmount = lFuelAmount Then
+                        If lGasAmount >= 7000 And lGasAmount < 8000 Then
+                            lTaxableAmount = 8000
+                        End If
                     End If
                 End If
-            End If
-            fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
-            For i = 0 To nTaxItems - 1
-                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
-                    fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
-                    Exit For
-                End If
-            Next i
-            lDelFuelAmount(nDel) = lFuelAmount
-            lTotalFuel = lTotalFuel + lFuelAmount
-        Else
-            fTypeATaxes(nDel) = 0
-        End If
-        #Else
-        '---------------------Start of Special Codes for texas loading fees  WJ 10/08/01 ------------------
-        'The codes (above) commented out are the old ones
-        Dim m As Integer
-        If nTaxItems > 0 Then
-            lTaxableAmount = lFuelAmount
-            If bTexasLDFee Then
-                'For Texas only
-                If lGasAmount = lFuelAmount Then
-                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
-                        lTaxableAmount = 8000
-                    End If
-                End If
-                If lTaxableAmount <= 0 Then
-                   fTypeATaxes(nDel) = 0#
-                ElseIf lTaxableAmount < 2500 Then
-                   fTypeATaxes(nDel) = 12.5
-                ElseIf lTaxableAmount < 5000 Then
-                   fTypeATaxes(nDel) = 25#
-                ElseIf lTaxableAmount < 8000 Then
-                   fTypeATaxes(nDel) = 37.5
-                ElseIf lTaxableAmount < 10000 Then
-                   fTypeATaxes(nDel) = 50#
-                Else
-                   m = 3
-                   Do While True
-                   
-                      If lTaxableAmount < m * 5000 Then
-                         fTypeATaxes(nDel) = m * 25#
-                         Exit Do
-                      Else
-                         m = m + 1
-                      End If
-                   Loop
-                End If
-            Else
+                
                 fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
                 
                 For i = 0 To nTaxItems - 1
                     If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
-                        fTypeATaxes(nDel) = arryTaxSums(i).m_fRate
+                        fTypeATaxes(nDel) = arryTaxSums(i).m_fRate * nSign
                         Exit For
                     End If
                 Next i
+                
+                lDelFuelAmount(nDel) = lFuelAmount * nSign
+                lTotalFuel = lTotalFuel + lFuelAmount * nSign
+            Else
+                fTypeATaxes(nDel) = 0
             End If
-        
-            lDelFuelAmount(nDel) = lFuelAmount
-            lTotalFuel = lTotalFuel + lFuelAmount
-        Else
-            fTypeATaxes(nDel) = 0
-        End If
-        '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
+        #Else
+        '---------------------Start of Special Codes for texas loading fees  WJ 10/08/01 ------------------
+            'The codes (above) commented out are the old ones
+            Dim m As Integer
+            
+            If nTaxItems > 0 Then
+                'david 12/03/2001
+                nSign = 1
+                If lFuelAmount < 0 Then
+                    nSign = -1
+                    lFuelAmount = Abs(lFuelAmount)
+                    lGasAmount = Abs(lGasAmount)
+                End If
+                '''''''''''''''''
+                
+                lTaxableAmount = lFuelAmount
+                
+                If bTexasLDFee Then
+                    'For Texas only
+                    If lGasAmount = lFuelAmount Then
+                        If lGasAmount >= 7000 And lGasAmount < 8000 Then
+                            lTaxableAmount = 8000
+                        End If
+                    End If
+                    
+                    If lTaxableAmount = 0 Then
+                       fTypeATaxes(nDel) = 0#
+                    ElseIf lTaxableAmount < 2500 Then
+                       fTypeATaxes(nDel) = 12.5 * nSign
+                    ElseIf lTaxableAmount < 5000 Then
+                       fTypeATaxes(nDel) = 25# * nSign
+                    ElseIf lTaxableAmount < 8000 Then
+                       fTypeATaxes(nDel) = 37.5 * nSign
+                    ElseIf lTaxableAmount < 10000 Then
+                       fTypeATaxes(nDel) = 50# * nSign
+                    Else
+                       m = 3
+                       
+                       Do While True
+                          If lTaxableAmount < m * 5000 Then
+                             fTypeATaxes(nDel) = m * 25# * nSign
+                             Exit Do
+                          Else
+                             m = m + 1
+                          End If
+                       Loop
+                    End If
+                Else
+                    fTypeATaxes(nDel) = arryTaxSums(nTaxItems - 1).m_lLimit
+                    
+                    For i = 0 To nTaxItems - 1
+                        If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
+                            fTypeATaxes(nDel) = arryTaxSums(i).m_fRate * nSign
+                            Exit For
+                        End If
+                    Next i
+                End If
+            
+                lDelFuelAmount(nDel) = lFuelAmount * nSign
+                lTotalFuel = lTotalFuel + lFuelAmount * nSign
+            Else
+                fTypeATaxes(nDel) = 0
+            End If
+            '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
         #End If
     Next nDel
+    
     fTaxes = 0
+    
     For nDel = 0 To nDelCount - 1
         fTaxes = fTaxes + tfnRound(fTypeATaxes(nDel), 2)
     Next nDel
+    
     If fTaxes > fLadingTypeATax Then
         fTaxes = fLadingTypeATax
         'Need to redistribute among the delivery items
@@ -630,26 +671,25 @@ Public Sub subFixTypeATaxForInfo()
                                     If .m_Taxes(i).m_cBasis = vbKeyA Then
                                         #If HARD_CODED_TX_LD_FEE Then
         '--------------------- Start of Special Codes for texas loading fees WJ 10/08/01 ------------------
-                                        
-                                        If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
-                                            If bApplied Then
-                                              .m_Taxes(i).m_dAmount = 0
+                                            If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
+                                                If bApplied Then
+                                                  .m_Taxes(i).m_dAmount = 0
+                                                Else
+                                                  .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                  '.m_Taxes(i).m_fRate = .m_Taxes(i).m_dAmount
+                                                  bApplied = True
+                                                End If
                                             Else
-                                              .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
-                                              '.m_Taxes(i).m_fRate = .m_Taxes(i).m_dAmount
-                                              bApplied = True
+                                                 If .m_Taxes(i).m_dAmount <> 0 Then
+                                                   .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                 End If
                                             End If
-                                        Else
-                                             If .m_Taxes(i).m_dAmount <> 0 Then
-                                               .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
-                                             End If
-                                        End If
                                         'The codes (below) commented out are the old ones
          '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
                                         #Else
-                                        If .m_Taxes(i).m_dAmount <> 0 Then
-                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
-                                        End If
+                                            If .m_Taxes(i).m_dAmount <> 0 Then
+                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                            End If
                                         #End If
                                     End If
                                 End If
@@ -661,8 +701,6 @@ Public Sub subFixTypeATaxForInfo()
         Next nDel
     End If
 End Sub
-
-
 
 Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
                               ByRef nRecords As Long, _
@@ -685,6 +723,7 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
     Else
         bSum = vSumTypeA
     End If
+    
     If lInvoice >= 0 Then
         For i = 0 To nInfoCount - 1
             If lInvoice = aryTaxInfo(i).m_lInvoice Then
@@ -694,6 +733,7 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
                 End If
             End If
         Next i
+        
         If i >= nInfoCount Then
             nLine = -1
         End If
@@ -701,14 +741,17 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
     
     If nLine >= 0 And nLine < nInfoCount Then
         nRecords = aryTaxInfo(nLine).m_nRecord
+        
         If nRecords > 0 Then
             ReDim Taxes(nRecords - 1)
             For i = 0 To nRecords - 1
                 Taxes(i) = aryTaxInfo(nLine).m_Taxes(i)
             Next i
         End If
+        
         If bSum Then
             nIdxLine = -1
+            
             For i = 0 To nInfoCount - 1
                 If aryTaxInfo(i).m_lInvoice = lInvoice Then
                     For j = 0 To aryTaxInfo(i).m_nRecord - 1
@@ -726,6 +769,7 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
                     Exit For
                 End If
             Next i
+            
             If nIdxLine = nLine Then
                 'Sum Type A Amount
                 For i = 0 To nRecords - 1
@@ -736,11 +780,14 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
                         End If
                     End If
                 Next i
+                
                 lBaseAmount = aryTaxInfo(nLine).m_InputParms.m_dGrossUnits
+                
                 For i = 0 To nInfoCount - 1
                     If aryTaxInfo(i).m_lInvoice = lInvoice Then
                         If i <> nLine Then
                             bFlag = False
+                            
                             For j = 0 To aryTaxInfo(i).m_nRecord - 1
                                 If aryTaxInfo(i).m_Taxes(j).m_cCharge = vbKeyY Then
                                     If aryTaxInfo(i).m_Taxes(j).m_cBasis = vbKeyA Then
@@ -751,6 +798,7 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
                                     End If
                                 End If
                             Next j
+                            
                             If bFlag Then
                                 lBaseAmount = lBaseAmount + aryTaxInfo(i).m_InputParms.m_dGrossUnits
                             End If
@@ -770,7 +818,6 @@ Public Sub subRetrieveTaxInfo(Taxes() As CApplicableTaxes, _
     Else
         nRecords = 0
     End If
-    
 End Sub
 
 Public Sub subSetLadingTypeATax(fTemp As Double)
@@ -787,7 +834,6 @@ Public Sub subSetSysParm1055(sTemp As String)
     ReDim aryTaxGroup(ARRAY_SIZE_INC)
     nTaxGroupCount = 0
 End Sub
-
 
 Public Sub subUnloadTaxMods(Optional bShowMsgBox As Boolean = True, _
                             Optional sErrMsg As String = "")
