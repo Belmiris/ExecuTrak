@@ -90,7 +90,8 @@ Public Sub BuildInternetReport(frmMain As Form, _
                                     Optional bPrintIt As Boolean = True, _
                                     Optional sReportID As String = "", _
                                     Optional nOrientation As Integer = vbPRORPortrait, _
-                                    Optional bCompressed As Boolean = False)
+                                    Optional bCompressed As Boolean = False, _
+                                    Optional bDoubleSpace As Boolean = False)
     
     Dim sHeaderLine As String
     
@@ -199,6 +200,15 @@ Public Sub BuildInternetReport(frmMain As Form, _
         sHeaderLine = aryBody(i)
         Print #m_nFileNum, sHeaderLine
         lLineNum = lLineNum + 1
+        
+        'double spacing
+        If bDoubleSpace Then
+            'skip a blank line
+            sHeaderLine = ""
+            Print #m_nFileNum, sHeaderLine
+            lLineNum = lLineNum + 1
+        End If
+        
         Screen.MousePointer = vbHourglass
     Next
 
