@@ -686,6 +686,38 @@ Public Function tfnIsSysTranCode(ByVal sARTranCode As String) As Boolean 'WJ 4/1
     sARTranCode = "'" & UCase(sARTranCode) & "'"
     tfnIsSysTranCode = (InStr(SYSTEM_AR_TRAN_CODES, sARTranCode) > 0)
 End Function
+
+'#wj110304 - New budget conversion indicator
+Public Function tfnIsARBudgetConverted() As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Static staSysParm901 As String
+    
+    On Error GoTo ErrTrap
+    If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
+        strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If rsTemp.RecordCount > 0 Then
+            staSysParm901 = Trim(rsTemp!parm_field & "")
+        End If
+        If staSysParm901 <> "Y" Then
+            staSysParm901 = "N"
+        End If
+    End If
+    If staSysParm901 = "Y" Then
+        tfnIsARBudgetConverted = True
+    Else
+        tfnIsARBudgetConverted = False
+    End If
+    
+    Exit Function
+ErrTrap:
+    tfnIsARBudgetConverted = False
+    #If Not NO_ERROR_HANDLER Then
+    tfnErrHandler "tfnIsARBudgetConverted", strSQL
+    #End If
+End Function
+
 Public Sub tfnClearLog(szFilename)
 
     On Error Resume Next
