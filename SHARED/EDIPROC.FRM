@@ -304,9 +304,8 @@ Public Function LaunchEDIPROC() As String
 
 errEdiProcError:
     
-    m_ErrorMessage = "Error: " + sMsg + " has occurred during EDI Translation." _
-        + vbCrLf + vbCrLf + "EDI Translation terminates." + vbCrLf + vbCrLf _
-        + "Report this message to Support."
+    m_ErrorMessage = "Error(s) has occurred during EDI Translation." _
+        + vbCrLf + vbCrLf + sMsg
 
     LaunchEDIPROC = m_ErrorMessage
 End Function
@@ -358,10 +357,6 @@ Private Function fnCheckEdiProcError() As String
         End If
         rsTemp.MoveNext
     Wend
-    
-    If Len(sErrMsg) > 2 Then
-        sErrMsg = Left(sErrMsg, Len(sErrMsg) - 2)
-    End If
     
     rsTemp.Close
     Set rsTemp = Nothing
