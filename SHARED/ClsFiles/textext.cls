@@ -110,7 +110,10 @@ Option Explicit
     Private m_fLastTimeShow As Single
     Private m_bUseEditorRow As Boolean
     Private m_fShowDelay As Single
-
+    Private m_fEditDelay As Single
+    Private m_bClicked As Boolean
+    Private m_lLastFirstRow As Long
+    
     #If Win32 Then
         Private Declare Function ScreenToClient Lib "user32" _
                 (ByVal hwnd As Long, _
@@ -164,12 +167,26 @@ Public Sub Click(objCtrl As Object)
     If objCtrl Is picTextFrame Then
         y = objCtrl.Top + objCtrl.Height / 2
         nRow = fnCurrentRow(y)
+'        m_fLastTimeShow = Timer + m_fEditDelay
+        m_bClicked = True
+        'On Error Resume Next
+        tgTable.SetFocus
         If nRow >= 0 Then
             tgTable.Row = nRow
         End If
+        y = objCtrl.Left + objCtrl.Width / 2
+        nRow = fnCurrentColumn(y)
+        If nRow >= 0 Then
+            tgTable.col = nRow
+        End If
+        picTextFrame.Visible = False
     End If
 End Sub
 
+
+Property Let EditDelay(ByVal fDelay As Single)
+    m_fEditDelay = fDelay
+End Property
 
 Private Function fnColWidth(nCol As Integer) As Integer
     Dim i As Integer
@@ -268,7 +285,9 @@ Public Sub ShowColumnExt()
     Dim lpPoint As POINTAPI
     Dim x As Single
     Dim y As Single
-
+    Dim nRow As Integer
+    Dim lFirstRow As Long
+    
     GetCursorPos lpPoint
     ScreenToClient tgTable.hwnd, lpPoint
     x = lpPoint.x * Screen.TwipsPerPixelX
@@ -285,7 +304,31 @@ Public Sub ShowColumnExt()
             Exit Sub
         End If
     End With
+    If Not IsNull(tgTable.FirstRow) Then
+        lFirstRow = Val(tgTable.FirstRow)
+    End If
+    If lFirstRow <> m_lLastFirstRow Then
+        m_lLastFirstRow = lFirstRow
+        picTextFrame.Visible = False
+        Exit Sub
+    End If
+    nRow = fnCurrentRow(y)
+    If nRow < 0 Then
+        picTextFrame.Visible = False
+        Exit Sub
+    End If
+    If m_bClicked Then
+        If nRow = nLastRow Then
+            Exit Sub
+        Else
+            m_bClicked = False
+        End If
+    End If
+    
     If Timer - m_fLastTimeShow < m_fShowDelay Then
+        If nRow <> nLastRow Then
+            picTextFrame.Visible = False
+        End If
         Exit Sub
     End If
 
@@ -299,7 +342,7 @@ Public Sub ShowColumnExt()
     End If
     
     If nCol >= 0 Then
-        fnShowText nCol, y
+        fnShowText nCol, nRow
         m_lOriginalRow = y
         m_lOriginalCol = x
     Else
@@ -307,6 +350,8 @@ Public Sub ShowColumnExt()
     End If
     
 End Sub
+
+
 Property Let ShowDelay(ByVal fDelay As Single)
     m_fShowDelay = fDelay
 End Property
@@ -374,7 +419,7 @@ Exit Function
 
 End Function
 
-Private Sub fnShowText(ByVal nCol As Integer, ByVal nY As Integer)
+Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
     
     If IsNull(tgTable.Row) Then
         Exit Sub
@@ -389,16 +434,11 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nY As Integer)
     Dim nTop As Integer
     Dim nColWidth As Integer
     Dim nHeight As Integer
-    Dim nRow As Integer
+    
     Dim nColT As Integer
     Dim vMsg As Variant
     Dim lRow As Long
 
-    nRow = fnCurrentRow(nY)
-    If nRow < 0 Then
-        picTextFrame.Visible = False
-        Exit Sub
-    End If
     If IsNull(tgTable.RowBookmark(nRow)) Then
         picTextFrame.Visible = False
         Exit Sub
@@ -706,11 +746,13 @@ Private Sub Class_Initialize()
     nPositionDefault = POS_LEFT
     nStyleDefault = STYLE_CELLTEXT
     m_fShowDelay = SHOW_DELAY
+    m_fEditDelay = SHOW_DELAY_INITIAL
+    m_bClicked = False
+    m_lLastFirstRow = 0
     m_bExternalPrompt = True
     m_bUseEditorRow = False
     m_nMode = MODE_TIMER
 End Sub
-
 
 Private Sub Class_Terminate()
     Set frmParent = Nothing
