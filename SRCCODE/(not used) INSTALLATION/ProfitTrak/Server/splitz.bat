@@ -7,11 +7,10 @@ echo  split ptclient.z
 call fsplit ..\disk\ptclient.z ..\disk 700
 move ..\disk\ptclient.1 ..\disk\disk1
 move ..\disk\ptclient.2 ..\disk\disk2
+move ..\disk\ptclient.3 ..\disk\disk3
 
-echo  split shared.z
-call fsplit ..\disk\shared.z ..\disk 170
-move ..\disk\shared.1 ..\disk\disk2
-move ..\disk\shared.2 ..\disk\disk3
+echo  no split shared.z
+copy ..\disk\shared.z ..\disk\disk3
 
 echo No split factdll.z
 copy ..\disk\factdll.z ..\disk\disk3
@@ -20,19 +19,22 @@ echo NO split factole.z
 copy ..\disk\factole.z ..\disk\disk3
 
 echo  split custctl.z
-call fsplit ..\disk\custctl.z ..\disk 890
+call fsplit ..\disk\custctl.z ..\disk 390
 move ..\disk\custctl.1 ..\disk\disk3
 move ..\disk\custctl.2 ..\disk\disk4
+move ..\disk\custctl.3 ..\disk\disk5
 
 echo split rtm.z
-call fsplit ..\disk\rtm.z ..\disk 300
-move ..\disk\rtm.1 ..\disk\disk4
-move ..\disk\rtm.2 ..\disk\disk5
-move ..\disk\rtm.3 ..\disk\disk6
-move ..\disk\rtm.4 ..\disk\disk7
+call fsplit ..\disk\rtm.z ..\disk 1150
+move ..\disk\rtm.1 ..\disk\disk5
+move ..\disk\rtm.2 ..\disk\disk6
+move ..\disk\rtm.3 ..\disk\disk7
 
-echo NO split crystal.z
-copy ..\disk\crystal.z ..\disk\disk7
+echo split crystal.z
+call fsplit ..\disk\crystal.z ..\disk 580
+move ..\disk\crystal.1 ..\disk\disk7
+move ..\disk\crystal.2 ..\disk\disk8
+move ..\disk\crystal.3 ..\disk\disk9
 
 echo .
 echo split .z files is finished.  Run makedisk.bat to copy distribution disk.

@@ -567,7 +567,7 @@ StartCopy:
 		
 		LOGMSG="END FORCED COPY OF ptbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);   
-		
+			
 	else     
 // ************************* Normal install
 
@@ -585,6 +585,38 @@ StartCopy:
 		
 	endif;
 
+// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
+
+	TARGETDIR = WINDIR;
+	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+				
+                LOGMSG="START FORCED COPY OF ptini FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the window directory
+                if (CompressGet("ptini.z", "*.*", COMP_NORMAL) < 0) then
+                        MessageBox("PTINI.Z could not be decompressed", SEVERE);
+                        goto ZFAILURE;
+                endif;
+                LOGMSG="END FORCED COPY OF ptini FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);	
+	else     
+// ************************* Normal install
+
+                LOGMSG="START Normal COPY OF ptini FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the window directory
+                if (CompressGet("ptini.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME ) < 0) then
+                        MessageBox("PTINI.Z could not be decompressed", SEVERE);
+                        goto ZFAILURE;
+                endif;
+                LOGMSG="END Normal COPY OF ptini FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+	endif;
+	
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
 	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
@@ -616,6 +648,37 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 	endif;
 
+// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
+
+	TARGETDIR = szDisk ^ APP_BASE_PATH ^ "Execuvision";
+	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+				
+                LOGMSG="START FORCED COPY OF ptmodels FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the FACTOR\Execuvision directory
+                if (CompressGet("ptmodels.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR) < 0) then
+                        MessageBox("ptmodels.Z could not be decompressed", SEVERE);
+                        goto ZFAILURE;
+                endif;
+                LOGMSG="END FORCED COPY OF ptmodels FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+	else     
+// ************************* Normal install
+
+                LOGMSG="START Normal COPY OF ptmodels FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the FACTOR\Execuvision directory
+                if (CompressGet("ptmodels.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME  | INCLUDE_SUBDIR) < 0) then
+                        MessageBox("ptmodels.Z could not be decompressed", SEVERE);
+                        goto ZFAILURE;
+                endif;
+                LOGMSG="END Normal COPY OF ptmodels FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+	endif;
         
 DecompressError:
 	if (nReturn < 0) then 

@@ -20,7 +20,7 @@ goto finished
 :begin
 
 echo .
-call buildbmp.bat %3
+
 copy setup.bmp ..\..\%2client\setup
 
 cd 

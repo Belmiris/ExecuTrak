@@ -1,14 +1,14 @@
 1;
 ..\disk\ptclient.z
 2;
-..\disk\shared.z
 3;
+..\disk\shared.z
 ..\disk\factdll.z
 ..\disk\factole.z
 ..\disk\custctl.z
 4;
-..\disk\rtm.z
 5;
+..\disk\rtm.z
 6;
 7;
 ..\disk\crystal.z
