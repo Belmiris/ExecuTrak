@@ -12,7 +12,7 @@ Class=cValidateInput; ..\..\..\Shared\ClsFiles\CVALID.CLS
 Class=clsCursor; ..\..\..\Shared\ClsFiles\cursor.cls
 Form=..\..\..\SHARED\ABOUT.FRM
 Form=..\..\..\SHARED\context.frm
-Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\SYSTEM\stdole2.tlb#Standard OLE Types
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#c:\WINDOWS\SYSTEM\STDOLE2.TLB#Standard OLE Types
 Reference=*\G{00025E04-0000-0000-C000-000000000046}#3.5#0#C:\PROGRAM FILES\COMMON FILES\MICROSOFT SHARED\DAO\dao2535.tlb#Microsoft DAO 2.5 Object Library
 Object={C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0; FACTFRM.OCX
 Object={3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0; FACTTAB.OCX
@@ -46,7 +46,7 @@ VersionFileDescription="ZZSEPIMT.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
