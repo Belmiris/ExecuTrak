@@ -5,9 +5,6 @@ if "%1" == "" goto parm_missing
 rem CREATE SETUP.BMP AND CHANGE VERSION
 call buildbmp.bat %1
 
-echo Delete z files
-del ..\disk\*.z
-
 echo .
 echo call DISKBILD.BAT
 call buildlog.bat RPPCA %1
@@ -15,6 +12,9 @@ call buildlog.bat RPPCA %1
 echo .
 choice /c:yn /t:y,7 Do you want to CONTINUE the DISK BUILD PROCESS
 if errorlevel 2 goto quitbuild
+
+echo Delete z files
+del ..\disk\*.z
 
 echo .
 echo Compress all files in g:\program\release\execlink
@@ -46,6 +46,9 @@ icomp g:\program\release\exectrak\shared\*.* ..\disk\shared.z
 echo .
 echo Compress Local Database
 icomp g:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
+
+goto showinfo
+
 
 :quitbuild
 echo .
