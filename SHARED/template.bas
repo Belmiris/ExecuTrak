@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -464,6 +464,8 @@ Public tgcDropdown As Object
 Public Const SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') " 'Hard coded sys ar tran codes WJ 4/14/99
 Private Const Log10 = 2.30258509299405
 Private SYS_PARM_14000 As String
+Private SYS_PARM_6005 As String
+
 Public Const CUST_ON_HOLD_STATS = " ('BH','OH') " 'WJ 04/18/2001
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
@@ -618,7 +620,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -705,7 +707,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -755,12 +757,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -793,7 +795,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -803,7 +805,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -887,12 +889,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Integer
+        Dim i As Integer
         
         sTable = LCase(Trim(vTable))
-        For I = 0 To nHandleCount
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -907,7 +909,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next I
+        Next i
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -1099,7 +1101,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1150,7 +1152,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1158,8 +1160,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1206,14 +1208,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1223,7 +1225,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1321,7 +1323,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2173,7 +2175,7 @@ Public Sub subDisableSystemClose(frmMain As Form)
     End If
 End Sub
 
-Public Function fnCopyFactorMDB(dbLocalDataBase As DataBase, _
+Public Function fnCopyFactorMDB(dbLocalDataBase As Database, _
                                 Optional bShowError As Boolean = True, _
                                 Optional sErrMsg As String = "") As Boolean
 
@@ -2255,4 +2257,84 @@ errCloseDatabase:
     End If
 End Function
 
+''''''''''''''''''''Sam Zheng on 08/24/2001 ''''''''''''''''''''''''''''''
+' for inv cross reference:
+'step 1: call subCreateTemp_inv_header in form_load( before setup combos;
+'step 2: in each setup combos' SQL, replace inv_header by tmpx_inv_header;
+'step 3: in product code validate function, call fnInv_xref_check(sCode)
+'        just after the empty( if stext = "" then ... end if) checking.
+
+Public Sub subCreateTemp_inv_header()
+    Dim strSQL As String
+    
+    On Error Resume Next
+    strSQL = "drop table tmpx_header"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    strSQL = " select * from inv_header into temp tmpx_inv_header "
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    If Not tfnNeed_inv_xref Then
+       Exit Sub
+    End If
+    
+    strSQL = " insert into tmpx_inv_header " _
+           & " select ivx_old_nbr, ivh_link,ivh_prodtcl,ivh_print,ivh_xref," _
+           & " ivh_desc,ivh_class,ivh_spec_part,ivh_uom_stock,ivh_uom_sales," _
+           & " ivh_uom_pricing,ivh_brand,ivh_uom_purch,ivh_assoc_prodlnk," _
+           & " ivh_fet_amt,ivh_rpt_factor,ivh_active,ivh_stocking " _
+           & " from inv_header, inv_xref " _
+           & " where ivx_new_nbr = ivh_product"
+    t_dbMainDatabase.ExecuteSQL strSQL
+End Sub
+
+Public Function fnInv_xref_check(ByVal sCode As String) As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    fnInv_xref_check = Trim(sCode)
+    If Not tfnNeed_inv_xref Then
+        Exit Function
+    End If
+    
+    strSQL = "select ivx_new_nbr from inv_xref where ivx_old_nbr= " _
+           & tfnSQLString(sCode)
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+    If Not rsTemp.EOF Then
+        If Not IsNull(rsTemp!ivx_new_nbr) Then
+            fnInv_xref_check = Trim$(rsTemp!ivx_new_nbr)
+        End If
+    End If
+    rsTemp.Close
+End Function
+
+Public Function tfnNeed_inv_xref() As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    On Error GoTo errTrap
+    
+    If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
+        SYS_PARM_6005 = "N"
+        strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 6005"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If Not rsTemp.EOF Then
+            If Not IsNull(rsTemp!parm_field) And UCase(Trim$("" & rsTemp!parm_field)) = "Y" Then
+                SYS_PARM_6005 = "Y"
+            End If
+        End If
+        rsTemp.Close
+    End If
+    
+    If SYS_PARM_6005 = "Y" Then
+        tfnNeed_inv_xref = True
+    Else
+        tfnNeed_inv_xref = False
+    End If
+    
+    Exit Function
+    
+errTrap:
+    tfnNeed_inv_xref = False
+
+End Function
 
