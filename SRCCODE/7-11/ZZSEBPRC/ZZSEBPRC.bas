@@ -13,8 +13,7 @@ Public Const EDIT_MODE As Integer = 2
 
 Public sLogFilePath As String
 Public tgmSales As clsTGSpreadSheet
-Public tgmHours As clsTGSpreadSheet
-Public tgmPrftCtr As clsTGSpreadSheet
+Public tgsSales As clsTGSelector
 Public tgmApprove As clsTGSpreadSheet
 Public tgsApprove As clsTGSelector
 Public tgmDetail As clsTGSpreadSheet
@@ -72,6 +71,69 @@ Public objMath As clsEquation
 Public objCond As clsCondition
 '
 
+Public Sub Main()
+    Dim sCommand As String
+    
+    #If PROTOTYPE Then
+        frmZZSEBPRC.Show
+        Exit Sub
+    #End If
+    
+    sCommand = Trim(Command)
+    sLogFilePath = fnAddBkSlash(App.Path) & "ZZSEBPRC.LOG"
+    
+    subDeleteErrLog 'Delete the old log file if any...
+    
+    If sCommand = t_szHandShake Then
+        frmZZSEBPRC.Show
+    Else
+        If Len(sCommand) = 0 Then
+            frmSplash.Show
+        End If
+    End If
+    
+End Sub
+
+Public Sub subShowMainForm()
+    frmZZSEBPRC.Show
+End Sub
+
+Private Function fnExecuteSQL(szSQL As String, _
+                              Optional nDB As Variant, _
+                              Optional szCalledFrom As Variant, _
+                              Optional bShowError As Variant) As Boolean
+                
+      Dim szMsg As String
+      
+      On Error GoTo SQLError
+      
+      If IsMissing(nDB) Then
+       nDB = nDB_REMOTE
+      End If
+    
+      Select Case nDB
+        
+        Case nDB_LOCAL
+           dbLocal.Execute szSQL
+        Case nDB_REMOTE
+           t_dbMainDatabase.ExecuteSQL szSQL
+      End Select
+      
+      fnExecuteSQL = True
+      Exit Function
+      
+SQLError:
+      fnExecuteSQL = False
+      If IsMissing(szCalledFrom) Then
+         szCalledFrom = ""
+      End If
+      If IsMissing(bShowError) Then
+         bShowError = True
+      End If
+      tfnErrHandler "fnExecuteSQL, " & szCalledFrom, szSQL, bShowError
+      On Error GoTo 0
+End Function
+
 Public Function fnConCat(MyPath As String, MyName As String) As String
     fnConCat = IIf(Right(MyPath, 1) = "\", MyPath, MyPath + "\") + MyName
 End Function
@@ -118,33 +180,6 @@ Public Sub subLogErrMsg(sErrorMessage As String)
     
     DoEvents
     
-End Sub
-
-Public Sub Main()
-    Dim sCommand As String
-    
-    #If PROTOTYPE Then
-        frmZZSEBPRC.Show
-        Exit Sub
-    #End If
-    
-    sCommand = Trim(Command)
-    sLogFilePath = fnAddBkSlash(App.Path) & "ZZSEBPRC.LOG"
-    
-    subDeleteErrLog 'Delete the old log file if any...
-    
-    If sCommand = t_szHandShake Then
-        frmZZSEBPRC.Show
-    Else
-        If Len(sCommand) = 0 Then
-            frmSplash.Show
-        End If
-    End If
-    
-End Sub
-
-Public Sub subShowMainForm()
-    frmZZSEBPRC.Show
 End Sub
 
 Private Sub subDeleteErrLog()
@@ -367,40 +402,6 @@ Public Function fnInsertHoldBonus(lEmpNo As Long, sPayCode As String, dChkAmt As
     
     fnInsertHoldBonus = True
     
-End Function
-
-Private Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
-                Optional szCalledFrom As Variant, Optional bShowError As Variant) As Boolean
-                
-      Dim szMsg As String
-      
-      On Error GoTo SQLError
-      
-      If IsMissing(nDB) Then
-       nDB = nDB_REMOTE
-      End If
-    
-      Select Case nDB
-        
-        Case nDB_LOCAL
-           dbLocal.Execute szSQL
-        Case nDB_REMOTE
-           t_dbMainDatabase.ExecuteSQL szSQL
-      End Select
-      
-      fnExecuteSQL = True
-      Exit Function
-      
-SQLError:
-      fnExecuteSQL = False
-      If IsMissing(szCalledFrom) Then
-         szCalledFrom = ""
-      End If
-      If IsMissing(bShowError) Then
-         bShowError = True
-      End If
-      tfnErrHandler "fnExecuteSQL, " & szCalledFrom, szSQL, bShowError
-      On Error GoTo 0
 End Function
 
 'This function will calculate the amount for 1 Employee, 1 BCode and 1 Level at a time
@@ -713,14 +714,17 @@ Public Function fnDeleteSales(sSType As String, nPrftCtr As Integer, sToDt As St
 
 End Function
 
-
 Public Function fnCreateTempTableVar() As Boolean
     Const SUB_NAME As String = "fnCreateTempTableVar"
+    
     Dim strSQL As String
     Dim sarrVariable() As Variant
     Dim i As Integer
     
-    fnCreateTempTableVar = False
+    'predefined variables
+    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
+        "months_in_grade", "months_as_manager", "years_as_manager", "months_employed", _
+        "shortage_amount", "check_amount", "pay_hours")
     
     On Error GoTo Continue
     strSQL = "DROP TABLE tmpvariable"
@@ -728,14 +732,9 @@ Public Function fnCreateTempTableVar() As Boolean
     
 Continue:
     strSQL = "CREATE TEMP TABLE tmpVariable (Variable char(20))"
-    
     If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
         Exit Function
     End If
-    
-    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
-        "months_as_manager", "years_as_manager", "months_employed", "shortage_amount", _
-        "check_amount", "pay_hours")
     
     For i = 0 To UBound(sarrVariable)
         strSQL = "INSERT INTO tmpvariable VALUES(" & tfnSQLString(sarrVariable(i)) & ")"

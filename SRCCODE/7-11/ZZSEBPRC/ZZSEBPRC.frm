@@ -2775,7 +2775,7 @@ Private Sub Form_Load()
         Screen.MousePointer = vbHourglass
     
         If Not fnCreateSearchTable("prm_empno", "prm_empname") Then
-            sErrorMessage = "Failed to create temporary Employee Table"
+            sErrorMessage = "Failed to create temporary Employee Table. Program terminates"
             subLogErrMsg "**System Error: " + sErrorMessage
             MsgBox sErrorMessage + ".", vbCritical
             Unload Me
@@ -2783,7 +2783,7 @@ Private Sub Form_Load()
         End If
     
         If Not fnCreateTempTableVar() Then
-            sErrorMessage = "Failed to create temporary Variable Table, Program terminates"
+            sErrorMessage = "Failed to create temporary Variable Table. Program terminates"
             subLogErrMsg "**System Error: " + sErrorMessage
             MsgBox sErrorMessage + ".", vbCritical
             Unload Me
@@ -3239,6 +3239,10 @@ Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, Sta
     tgmDetail.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
+Private Sub tblSales_Click()
+    tgsSales.Click
+End Sub
+
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
 End Sub
@@ -3622,47 +3626,27 @@ Private Sub subInitSpreadsheets()
     Set tgmSales.StatusBar = ffraStatusbar ' message bar name
     Set tgmSales.Form = Me
     Set tgmSales.engFactor = t_engFactor
-    With tgmSales
-        .AddEditColumn colSPrftCtr, "Enter Profit Center", szIntegerPattern
-        .AddEditColumn colSPrftName, "Enter Profit Center Name", "^P{1,40}"
-        .AddEditColumn colSAmount, "Enter Amount", sDecimalString
-        '.AddEditColumn colSFromDate, "Enter From Date", szDatePattern
-        '.AddEditColumn colSToDate, "Enter To Date", szDatePattern
-        .DisplayFormat(colSAmount) = "###,###,##0.00"
-        .RemoveEditColumn colSPrftCtr
-        .RemoveEditColumn colSPrftName
-    End With
+    tgmSales.AddEditColumn colSPrftCtr, "Enter Profit Center", szIntegerPattern
+    tgmSales.AddEditColumn colSPrftName, "Enter Profit Center Name", "^P{1,40}"
+    tgmSales.AddEditColumn colSAmount, "Enter Amount", sDecimalString
+    'tgmSales.AddEditColumn colSFromDate, "Enter From Date", szDatePattern
+    'tgmSales.AddEditColumn colSToDate, "Enter To Date", szDatePattern
+    tgmSales.DisplayFormat(colSAmount) = "###,###,##0.00"
+    tgmSales.RemoveEditColumn colSPrftCtr
+    tgmSales.RemoveEditColumn colSPrftName
     
-    'Table Time Card Class Implementation
-    sDecimalString = tfnDecimalPattern(8, 2)
+    'Implement the selector class
+    Set tgsSales = New clsTGSelector
+    tgsSales.AvoidBeep = False
+    Set tgsSales.EditorClass = tgmSales
+    tgsSales.SelectCurrRow = False
+    tgsSales.AllowMultipleSelect = True
+    tgsSales.RowHighLighted = True
+    
+    'setup Time Card and Profit Center Grid
+    'the class implementation will be done in clsPRFHOURS
     subSetGridWidth tblTimeCard
-    Set tgmHours = New clsTGSpreadSheet
-    Set tgmHours.Table = tblTimeCard
-    Set tgmHours.StatusBar = ffraStatusbar ' message bar name
-    Set tgmHours.Form = Me
-    Set tgmHours.engFactor = t_engFactor
-    With tgmHours
-        .AddEditColumn colHClockIn, "Enter Clock In Date", szDatePattern
-        .AddEditColumn colHPrftCtr, "Enter Profit Center", szIntegerPattern
-        .AddEditColumn colHPayCode, "Enter Pay Code", "^P{1,4}$"
-        '.AddEditColumn colHPayType, "Enter Pay Type", ""
-        .AddEditColumn colHHrsDol, "Enter Hours/Dollars", sDecimalString
-        .DisplayFormat(colHHrsDol) = "###,###,##0.00"
-        .ColumnForNewRow = 0
-        ColHHdnSource = .AddHiddenField("prh_source")
-    End With
-    
-    'Table Sales Class Implementation
     subSetGridWidth tblProfitCenter
-    Set tgmPrftCtr = New clsTGSpreadSheet
-    Set tgmPrftCtr.Table = tblProfitCenter
-    Set tgmPrftCtr.StatusBar = ffraStatusbar ' message bar name
-    Set tgmPrftCtr.Form = Me
-    Set tgmPrftCtr.engFactor = t_engFactor
-    tgmPrftCtr.SetupTable True
-    tgmPrftCtr.ClearData
-    tgmPrftCtr.DisplayFormat(colPTotal) = "###,###,##0.00"
-    tgmPrftCtr.AllowAddNew = False
     
     'Table Approve Class Implementation
     subSetGridWidth tblApprove
@@ -3674,6 +3658,7 @@ Private Sub subInitSpreadsheets()
     tgmApprove.AddEditColumn colAApprove, "Select Yes, No"
     tgmApprove.AllowAddNew = False
     colAHdnBAmtLvls = tgmApprove.AddHiddenField("HiddenLevels")
+    
     'Implement the selector class
     Set tgsApprove = New clsTGSelector
     tgsApprove.AvoidBeep = False
@@ -4018,9 +4003,11 @@ Private Sub subSetupCombos()
         
         .AddCombo
         .AddComboBox txtFromDate, cmdFromDate, "bs_from_date", .SQL_DATE_TYPE
-        
+        .SetOrderingDescent txtFromDate
+
         .AddCombo
         .AddComboBox txtToDate, cmdToDate, "bs_to_date", .SQL_DATE_TYPE
+        .SetOrderingDescent txtToDate
      End With
 End Sub
 
@@ -4659,29 +4646,86 @@ Private Sub cmdAddBtn_Click(Index As Integer)
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
-'        tgmHours.AllowAddNew = True
-'        subSetFocus txtEmployeeNumber
         objHours.cmdAddBtn_Click
     End If
     
 End Sub
 
 Private Sub cmdDelete_Click(Index As Integer)
-    Dim nRow As Integer
+    Dim i As Long
+    Dim lCount As Long
+    Dim lTemp() As Long
+    Dim sMsg As String
     Dim nPrftCtr As Integer
+    Dim nAryPrftCtr() As Integer
     
     Select Case Index
         Case TabSales
             If tgmSales.RowCount < 1 Then
                 Exit Sub
             End If
+            
+            If tgsSales.Count > 0 Then
+                If tgsSales.Count = tgmSales.RowCount Then
+                    If t_nFormMode = EDIT_MODE Then
+                        sMsg = "Are you sure you want to delete all the records for the From Date and To Date?"
+                    Else
+                        sMsg = "Are you sure you want to delete all the rows from the Grid"
+                    End If
+                Else
+                    If t_nFormMode = EDIT_MODE Then
+                        sMsg = "Are you sure you want to delete the " & IIf(tgsSales.Count > 1, tgsSales.Count & " ", "") & "selected records for the From Date and To Date?"
+                    Else
+                        sMsg = "Are you sure you want to delete the " & IIf(tgsSales.Count > 1, tgsSales.Count & " ", "") & "selected rows from the Grid"
+                    End If
+                End If
+                If Not tfnCancelExit(sMsg) Then
+                    Exit Sub
+                End If
+                
+                tgsSales.GetSelected lTemp, lCount
+                
+                If lCount > 0 Then
+                    ReDim nAryPrftCtr(lCount - 1)
+                    For i = 0 To lCount - 1
+                        nAryPrftCtr(i) = tfnRound(tgmSales.CellValue(colSPrftCtr, _
+                            lTemp(i)))
+                    Next i
+                    
+                    For i = lCount - 1 To 0 Step -1
+                        Screen.MousePointer = vbHourglass
+                        If Not fnDeleteSales(fnGetSalesType(), nAryPrftCtr(i), txtToDate, txtFromDate) Then
+                            tfnSetStatusBarError "Failed to delete the sales record"
+                            Screen.MousePointer = vbDefault
+                            Exit Sub
+                        End If
+                    Next i
+                    
+                    tgsSales.Delete
+                    
+                    If tgsSales.Count = tgmSales.RowCount Then
+                        If t_nFormMode = EDIT_MODE Then
+                            tfnResetScreen Index
+                        Else
+                            tgmSales.ClearData
+                            tblSales.SetFocus
+                        End If
+                    Else
+                        'tblSales.SetFocus
+                    End If
+                    Screen.MousePointer = vbDefault
+                End If
+                
+                Exit Sub
+            End If
+            
             If t_nFormMode = EDIT_MODE Then
                 If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
                     Exit Sub
                 End If
                 nPrftCtr = tfnRound(tgmSales.CellValue(colSPrftCtr, tgmSales.GetCurrentRowNumber))
-                If Not fnDeleteSales(fnGetSalesType, nPrftCtr, txtToDate, txtFromDate) Then
-                    MsgBox "Failed to delete the sales record", vbExclamation
+                If Not fnDeleteSales(fnGetSalesType(), nPrftCtr, txtToDate, txtFromDate) Then
+                    tfnSetStatusBarError "Failed to delete the sales record"
                     Exit Sub
                 End If
             End If
@@ -4729,8 +4773,6 @@ Private Sub cmdEditBtn_Click(Index As Integer)
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
-'        tgmHours.AllowAddNew = False
-'        subSetFocus txtEmployeeNumber
         objHours.cmdEditBtn_Click
     End If
     
@@ -4867,12 +4909,16 @@ End Sub
 
 Private Sub subSetFloatingSQL(Index As Integer)
     Dim strSQL As String
+    Dim sPrftCtrList As String
     
     Select Case Index
         Case TabSales
             strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
             strSQL = strSQL + " WHERE prft_type IN ('R', 'B')"
-            
+            sPrftCtrList = fnBuildPrftCtrList()
+            If sPrftCtrList <> "" Then
+                strSQL = strSQL + " AND prft_ctr NOT IN (" + sPrftCtrList + ")"
+            End If
             tgfDropdown(Index).SetSQL colSPrftCtr, strSQL
     End Select
     
@@ -4928,7 +4974,14 @@ Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
         End If
     End If
 
+    subSetFocus efraBackground
+    
     Screen.MousePointer = vbHourglass
+    
+    If Not txtFromDate.Enabled Then
+        Exit Sub
+    End If
+    
     subEnableFirstLineSlsOrHrs Index, False
     
     If Index = TabSales Then
@@ -5010,11 +5063,7 @@ Private Function fnValidGridPrftCtr(sText As String, nCol As Integer, lRow As Lo
         tgmSales.CellValue(colSToDate, lRow) = txtToDate
     End If
     
-    If ActiveControl Is tblDropDown(TabSales) Then
-        tblSales.col = colSPrftName
-    Else
-        tblSales.col = colSAmount
-    End If
+    tblSales.col = colSPrftName
     
     fnValidGridPrftCtr = True
     
@@ -5253,7 +5302,7 @@ Private Sub tblSales_FirstRowChange()
     tgmSales.FirstRowChange
     tgfDropdown(TabSales).FirstRowChange
     
-    If tblSales.Row = -1 Then
+    If tblSales.Row = -1 And tgsSales.Count = 0 Then
         SubEnableDeleteBtn False, TabSales
     End If
     
@@ -5261,11 +5310,13 @@ End Sub
 
 Private Sub tblSales_GotFocus()
     tfnSetStatusBarMessage "Store Sales"
+    tgsSales.GotFocus
     tgmSales.GotFocus
     tgfDropdown(TabSales).GotFocus
 End Sub
 
 Private Sub tblSales_KeyDown(KeyCode As Integer, Shift As Integer)
+    tgsSales.KeyDown KeyCode, Shift
     tgmSales.KeyDown KeyCode, Shift
     tgfDropdown(TabSales).KeyDown tblSales, KeyCode
 End Sub
@@ -5302,8 +5353,8 @@ Private Sub tblSales_LostFocus()
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    'frmContext.MouseDown Button, EMP_MST_UP
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsSales.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -5329,44 +5380,20 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
         End If
     End If
     
+    tgsSales.RowColChange LastRow, LastCol
+    
     subSetStdBtn TabSales, tgmSales
 
 End Sub
 
 Private Sub tblSales_SelChange(CANCEL As Integer)
+    tgsSales.SelChange CANCEL
     CANCEL = True
 End Sub
 
 Private Sub tblSales_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmSales.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
-
-'This function will return all the values already used in the grid.
-Private Function fnCheckDubInHrsGrid(lCurrRow As Long) As String
-    Dim lRowCount As Long
-    Dim k As Integer
-    Dim sTemp As String
-    
-    fnCheckDubInHrsGrid = ""
-    
-    lRowCount = tgmHours.RowCount
-    sTemp = ""
-    
-    If lRowCount > 0 Then
-        For k = 0 To lRowCount - 1
-            If k <> lCurrRow Then
-                If sTemp = "" Then
-                    sTemp = tgmHours.CellValue(colHClockIn, k) & "~" & tgmHours.CellValue(colHPrftCtr, k) & "~" & tgmHours.CellValue(colHPayCode, k)
-                Else
-                    sTemp = sTemp & "," & tgmHours.CellValue(colHClockIn, k) & "~" & tgmHours.CellValue(colHPrftCtr, k) & "~" & tgmHours.CellValue(colHPayCode, k)
-                End If
-            End If
-        Next
-    End If
-    
-    fnCheckDubInHrsGrid = sTemp
-
-End Function
 
 Private Sub subSetStdBtn(Index As Integer, tgmEditor As clsTGSpreadSheet)
     
@@ -5693,6 +5720,28 @@ Private Function fnCstr(v) As String
     End If
 End Function
 
+Private Function fnBuildPrftCtrList() As String
+    Dim sTemp As String
+    Dim i As Long
+    
+    If tgmSales.RowCount <= 1 Then
+        Exit Function
+    End If
+    
+    For i = 0 To tgmSales.RowCount - 1
+        If i <> tgmSales.GetCurrentRowNumber Then
+            If tgmSales.ValidCell(colSPrftCtr, i) Then
+                sTemp = sTemp & tfnRound(tgmSales.CellValue(colSPrftCtr, i)) & ","
+            End If
+        End If
+    Next i
+    
+    If sTemp <> "" Then
+        fnBuildPrftCtrList = Left(sTemp, Len(sTemp) - 1)
+    End If
+End Function
+
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Private Sub txtEmployeeNumber_Change()
@@ -5863,3 +5912,4 @@ Private Function fnInitialPRFHOURSclass() As Boolean
 errTrap:
     tfnErrHandler "fnInitialPRFHOURSclass"
 End Function
+
