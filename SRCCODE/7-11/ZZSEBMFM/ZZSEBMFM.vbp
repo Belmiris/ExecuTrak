@@ -19,6 +19,7 @@ Class=clsFloatingDropDown; ..\..\..\Shared\ClsFiles\Fltdrpdn.cls
 Class=clsColumns; ..\..\..\Shared\ClsFiles\COLUMN.CLS
 Module=modWJBASIC; ..\..\..\Shared\WJBASIC.bas
 Class=cValidateInput; ..\..\..\Shared\ClsFiles\Cvalid.cls
+Class=clsColumnExtension; ..\..\..\SHARED\ClsFiles\textext.cls
 IconForm="frmZZSEBMFM"
 Startup="frmZZSEBMFM"
 HelpFile="FACTOR.HLP"

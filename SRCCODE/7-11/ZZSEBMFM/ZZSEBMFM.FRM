@@ -341,6 +341,19 @@ Begin VB.Form frmZZSEBMFM
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
+         Begin VB.PictureBox picTextExtension 
+            Appearance      =   0  'Flat
+            BackColor       =   &H80000005&
+            ForeColor       =   &H80000008&
+            Height          =   288
+            Left            =   324
+            ScaleHeight     =   264
+            ScaleWidth      =   1488
+            TabIndex        =   25
+            TabStop         =   0   'False
+            Top             =   1968
+            Width           =   1512
+         End
          Begin DBTrueGrid.TDBGrid tblBonus 
             Height          =   3660
             HelpContextID   =   404
@@ -809,6 +822,7 @@ Private nDataStatus As Integer
 Private tgmBonus As clsTGSpreadSheet
 Private cvalidate As cValidateInput
 Private tgfDropdown As clsFloatingDropDown
+Private tgcExtension As clsColumnExtension
 
 Private Const ColPrftCtr As Integer = 0
 Private Const ColBCode As Integer = 1
@@ -820,14 +834,15 @@ Private Const ColOverride As Integer = 6
 Private Const ColElgClass As Integer = 7
 
 'hidden column
-Private nxOldPrftCtr As Integer
-Private nxOldBonusCode As Integer
+Private nxColPrftName As Integer
+Private nxColOldPrftCtr As Integer
+Private nxColOldBonusCode As Integer
 Private nxColPrftCtrValid As Integer
 Private nxColBonusCodeValid As Integer
 Private nxColSeqValid As Integer
-Private nxOldValidPrftCtr As Integer
-Private nxOldValidBonusCode As Integer
-Private nxOldValidSeq As Integer
+Private nxColOldValidPrftCtr As Integer
+Private nxColOldValidBonusCode As Integer
+Private nxColOldValidSeq As Integer
 Private nxColBGDuplPrftCtrSeq As Integer
 Private nxColBGDuplPrftCtrBonusCode As Integer
 
@@ -1104,9 +1119,9 @@ Private Sub cmdAddBtn_Click()
     cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH
     mnuRefreshSelect.Caption = t_szCAPTION_REFRESH
     
-    tgmBonus.AddEditColumn ColPrftCtr, "Enter Profit Center", szIntegerPattern
-    tgmBonus.AddEditColumn ColBCode, "Enter Bonus Code", "^P{1,4}$"
-    tgmBonus.AddEditColumn ColBCDesc, "Enter Bonus Code Description", "^P{1,40}"
+'    tgmBonus.AddEditColumn ColPrftCtr, "Enter Profit Center", szIntegerPattern
+'    tgmBonus.AddEditColumn ColBCode, "Enter Bonus Code", "^P{1,4}$"
+'    tgmBonus.AddEditColumn ColBCDesc, "Enter Bonus Code Description", "^P{1,40}"
     
     subSetFocus txtEmployee
     
@@ -1149,24 +1164,19 @@ Private Sub cmdEditBtn_Click()
 End Sub
 
 Private Sub cmdUpdateInsertBtn_Click()
-    Dim i As Long
-    
-    For i = 0 To tgmBonus.RowCount - 1
-        If cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT Then
-            If Not fnInsertBonusCode(i) Then
-                MsgBox "Failed to insert the record", vbCritical
-                Exit Sub
-            End If
-        Else
-            If Not fnUpdateBonusCode(i) Then
-                MsgBox "Failed to update the record", vbCritical
-                Exit Sub
-            End If
+    If cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT Then
+        If Not fnInsertBonusCode() Then
+            tfnSetStatusBarError "Failed to insert the record"
+            Exit Sub
         End If
-    Next i
+    Else
+        If Not fnUpdateBonusCode() Then
+            tfnSetStatusBarError "Failed to update the record"
+            Exit Sub
+        End If
+    End If
         
     tfnResetScreen
-    
 End Sub
 
 Private Sub cmdExitCancelBtn_Click()
@@ -1574,6 +1584,7 @@ End Sub
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
     objCursor.SetMousePointer
+    tgcExtension.ShowColumnExt
 End Sub
 
 Private Sub subInitErrorHandler()
@@ -1727,14 +1738,15 @@ Private Sub subInitSpreadsheets()
         .AddEditColumn ColOverride, "Override the amount of this pay code in payroll (Y or N)", "^[YNyn]$"
         .AddEditColumn ColElgClass, "Enter Eligible Class", "^P{1,2}$"
         .ColumnForNewRow = 0
-        nxOldPrftCtr = .AddHiddenField("bm_eligible_pc")
-        nxOldBonusCode = .AddHiddenField("bm_bonus_code")
+        nxColPrftName = .AddHiddenField("prft_name")
+        nxColOldPrftCtr = .AddHiddenField("bm_eligible_pc")
+        nxColOldBonusCode = .AddHiddenField("bm_bonus_code")
         nxColPrftCtrValid = .AddHiddenField("prft_ctr_valid")
         nxColBonusCodeValid = .AddHiddenField("bonus_code_valid")
         nxColSeqValid = .AddHiddenField("seq_valid")
-        nxOldValidPrftCtr = .AddHiddenField("valid_prft_ctr")
-        nxOldValidBonusCode = .AddHiddenField("valid_bonus_code")
-        nxOldValidSeq = .AddHiddenField("valid_seq")
+        nxColOldValidPrftCtr = .AddHiddenField("valid_prft_ctr")
+        nxColOldValidBonusCode = .AddHiddenField("valid_bonus_code")
+        nxColOldValidSeq = .AddHiddenField("valid_seq")
         nxColBGDuplPrftCtrBonusCode = .AddHiddenField("dup_prft_bonus_code")
         nxColBGDuplPrftCtrSeq = .AddHiddenField("dup_prft_seq")
         
@@ -1753,6 +1765,8 @@ Private Sub subInitSpreadsheets()
     
     tgmBonus.AllowAddNew = False
     
+    'setup the text extension
+    subSetupExetension
 End Sub
 
 Private Sub subSetFloatingDropDown()
@@ -1913,17 +1927,19 @@ Private Function fnInsertBonusCode() As Boolean
     
     For lRow = 0 To tgmBonus.RowCount - 1
         If tgmBonus.ValidCell(ColBCode, lRow) Then
-            strSQL = "INSERT INTO bonus_master(bm_empno, bm_bonus_code, bm_sequence, bm_eligible_date,"
-            strSQL = strSQL & " bm_eligible_class, bm_eligible_pc, bm_stop_date, bm_entry_id, bm_entry_date)"
-            strSQL = strSQL & "VALUES(" & tfnRound(txtEmployee) & ", "
-            strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ", "
+            strSQL = "INSERT INTO bonus_master (bm_empno, bm_bonus_code, bm_sequence, bm_eligible_date,"
+            strSQL = strSQL & " bm_eligible_class, bm_eligible_pc, bm_stop_date, bm_entry_id, bm_entry_date, bm_override)"
+            strSQL = strSQL & " VALUES (" & tfnRound(txtEmployee) & ", "
+            strSQL = strSQL & tfnSQLString(tgmBonus.CellValue(ColBCode, lRow)) & ", "
             strSQL = strSQL & tfnRound(tgmBonus.CellValue(ColSequence, lRow)) & ", "
-            strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ", "
-            strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ", "
+            strSQL = strSQL & tfnDateString(tgmBonus.CellValue(ColElgDate, lRow), True) & ", "
+            strSQL = strSQL & tfnSQLString(tgmBonus.CellValue(ColElgClass, lRow)) & ", "
             strSQL = strSQL & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow)) & ", "
-            strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ", "
-            strSQL = strSQL & tfnSQLString(Trim(tfnGetUserName)) & ", "
-            strSQL = strSQL & tfnDateString(Trim(Date), True) & ")"
+            strSQL = strSQL & tfnDateString(tgmBonus.CellValue(ColStopDate, lRow), True) & ", "
+            strSQL = strSQL & tfnSQLString(tfnGetUserName()) & ", "
+            strSQL = strSQL & tfnDateString(tfnFormatDate(Date), True) & ", "
+            strSQL = strSQL & tfnSQLString(tgmBonus.CellValue(ColOverride, lRow))
+            strSQL = strSQL & ")"
             
             If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
                 Exit Function
@@ -1934,43 +1950,100 @@ Private Function fnInsertBonusCode() As Boolean
     fnInsertBonusCode = True
 End Function
 
-Private Function fnLoadData() As Boolean
+'return error message if any
+Private Function fnLoadData() As String
     Const SUB_NAME As String = "fnLoadData"
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sLockedUser As String
-    
-    fnLoadData = False
+    Dim lRow As Long
     
     tfnSetStatusBarMessage "Loading Data. Please wait ..."
     
     'Lock the whole table.
     strSQL = "bm_empno = " & tfnRound(txtEmployee)
     If Not tfnLockRow("ZZSEBMFM", "bonus_master", strSQL, , sLockedUser) Then
-        tfnSetStatusBarError "Commission record for the employee is locked by " + sLockedUser
+        fnLoadData = "Commission record for the employee is locked by " + sLockedUser
         Exit Function
     End If
     
-    strSQL = "SELECT * FROM bonus_master, bonus_codes"
-    strSQL = strSQL & " WHERE bc_bonus_code = bm_bonus_code"
-    strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
-    strSQL = strSQL & " ORDER BY bm_eligible_pc, bm_bonus_code, bm_sequence"
+    If t_nFormMode = ADD_MODE Then
+        If sEmpPrftCtrList = "" Then
+            fnLoadData = "Employee/Profit Center is not valid"
+            tfnUnlockRow
+            Exit Function
+        End If
+        
+        'check grade
+        strSQL = "SELECT bg_emp_level FROM bonus_grades"
+        strSQL = strSQL & " WHERE  bg_emp_level = " & tfnRound(txtGrade)
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            fnLoadData = "Failed to access database to get records"
+            tfnUnlockRow
+            Exit Function
+        End If
+        
+        If rsTemp.RecordCount = 0 Then
+            fnLoadData = "No Commission Code available due to the Grade of the employee"
+            tfnUnlockRow
+            Exit Function
+        End If
+        
+        If Not fnCreateTempBonusMaster() Then
+            fnLoadData = "Failed to access database to get records"
+            tfnUnlockRow
+            Exit Function
+        End If
+        strSQL = "SELECT * FROM t_bonus_mstr, bonus_codes, sys_prft_ctr"
+        strSQL = strSQL & " WHERE bc_bonus_code = bm_bonus_code"
+        strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
+    Else
+        strSQL = "SELECT * FROM bonus_master, bonus_codes, sys_prft_ctr"
+        strSQL = strSQL & " WHERE bc_bonus_code = bm_bonus_code"
+        strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
+        strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
+        strSQL = strSQL & " ORDER BY bm_eligible_pc, bm_bonus_code, bm_sequence"
+    End If
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        MsgBox "Failed to access database to get records", vbCritical
-        tfnSetStatusBarError "Failed to access database to get records"
+        fnLoadData = "Failed to access database to get records"
+        tfnUnlockRow
         Exit Function
     End If
     
     If rsTemp.RecordCount = 0 Then
-        MsgBox "No Commission record found for the employee", vbExclamation
-        tfnSetStatusBarError "No record available for Edit"
+        If t_nFormMode = ADD_MODE Then
+            fnLoadData = "No Commission Code available to Add"
+        Else
+            fnLoadData = "No Commission record available to Edit"
+        End If
+        tfnUnlockRow
         Exit Function
     End If
 
-    tgmBonus.FillWithRecordset rsTemp
+'    If t_nFormMode = ADD_MODE Then
+'        tgmBonus.AllowAddNew = True
+'    Else
+'        tgmBonus.AllowAddNew = False
+'    End If
+
+    tgmBonus.AllowAddNew = False
+    tgmBonus.FillWithRecordset rsTemp, , True
     
-    fnLoadData = True
+    'set valid flag in hidden column
+    For lRow = 0 To tgmBonus.RowCount - 1
+        If tblBonus.Columns(ColPrftCtr).Locked Then
+            tgmBonus.CellValue(nxColPrftCtrValid, lRow) = True
+        End If
+        If tblBonus.Columns(ColBCode).Locked Then
+            tgmBonus.CellValue(nxColBonusCodeValid, lRow) = True
+        End If
+        If tblBonus.Columns(ColSequence).Locked Then
+            tgmBonus.CellValue(nxColSeqValid, lRow) = True
+        End If
+    Next lRow
+    
+    fnLoadData = ""
         
 End Function
 
@@ -1987,24 +2060,32 @@ Private Function fnUpdateBonusCode() As Boolean
     For lRow = 0 To tgmBonus.RowCount - 1
         strSQL = "UPDATE bonus_master SET"
     '    strSQL = strSQL & " bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ","
-        strSQL = strSQL & " bm_sequence = " & tfnRound(tgmBonus.CellValue(ColSequence, lRow)) & ","
+        strSQL = strSQL & " bm_sequence = " & tfnRound(tgmBonus.CellValue(ColSequence, lRow)) * -1 & ","
     '    strSQL = strSQL & " bm_eligible_pc = " & Trim(tgmBonus.CellValue(ColPrftCtr, lRow)) & ","
-        strSQL = strSQL & " bm_eligible_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ","
         strSQL = strSQL & " bm_eligible_class = " & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ","
+        strSQL = strSQL & " bm_eligible_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ","
         strSQL = strSQL & " bm_stop_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ","
         strSQL = strSQL & " bm_entry_id = " & tfnSQLString(Trim(tfnGetUserName)) & ","
         strSQL = strSQL & " bm_entry_date = " & tfnDateString(Trim(Date), True) & ","
         strSQL = strSQL & " bm_override = " & tfnSQLString(tgmBonus.CellValue(ColOverride, lRow))
-        strSQL = strSQL & " WHERE bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(nxOldBonusCode, lRow)))
-        strSQL = strSQL & " AND bm_prft_ctr = " & tfnSQLString(Trim(tgmBonus.CellValue(nxOldPrftCtr, lRow)))
+        strSQL = strSQL & " WHERE bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(nxColOldBonusCode, lRow)))
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnSQLString(Trim(tgmBonus.CellValue(nxColOldPrftCtr, lRow)))
         strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
         
-        If fnExecuteSQL(strSQL, , SUB_NAME) Then
+        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
             Exit Function
         End If
     Next lRow
     
     'fix seq
+    strSQL = "UPDATE bonus_master SET"
+    strSQL = strSQL & " bm_sequence = bm_sequence * -1"
+    strSQL = strSQL & " WHERE bm_empno = " & tfnRound(txtEmployee)
+    strSQL = strSQL & " AND bm_sequence < 0"
+        
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
     
     fnUpdateBonusCode = True
 End Function
@@ -2332,7 +2413,8 @@ Private Sub subSetupCombos()
 End Sub
 
 Private Sub subEnterPhaseTwo()
-
+    Dim sErrMsg As String
+    
     Screen.MousePointer = vbHourglass
 
     If Not cvalidate.ValidInput(txtEmployee) Then
@@ -2346,18 +2428,21 @@ Private Sub subEnterPhaseTwo()
     Screen.MousePointer = vbHourglass
     subEnableEmployee False
     
-    tblBonus.Enabled = True
+    sErrMsg = fnLoadData()
     
-    If t_nFormMode = ADD_MODE Then
-        tgmBonus.AllowAddNew = True
-    Else
-        tgmBonus.AllowAddNew = False
-        If Not fnLoadData Then
-            cmdTBCancel_Click
-        End If
+    If sErrMsg <> "" Then
+        Screen.MousePointer = vbDefault
+        subSetFocus cmdExitCancelBtn
+        DoEvents
+        tfnSetStatusBarError sErrMsg
+        Exit Sub
+    End If
+    
+    If t_nFormMode = EDIT_MODE Then
         nDataStatus = DATA_LOADED
     End If
     
+    tblBonus.Enabled = True
     subSetFocus tblBonus
     Screen.MousePointer = vbDefault
     
@@ -2473,14 +2558,14 @@ Private Function fnValidPrftCtrBonusCode(nColIndex As Integer, lRow As Long, szT
     
     If nColIndex = ColPrftCtr Then
         nPrftCtr = tfnRound(szText)
-        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxOldValidPrftCtr, lRow))
+        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxColOldValidPrftCtr, lRow))
         sBonusCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
-        tgmBonus.CellValue(nxOldValidPrftCtr, lRow) = nPrftCtr
+        tgmBonus.CellValue(nxColOldValidPrftCtr, lRow) = nPrftCtr
     Else  'ColBCode
         sBonusCode = szText
-        sOldBonusCode = fnGetField(tgmBonus.CellValue(nxOldValidBonusCode, lRow))
+        sOldBonusCode = fnGetField(tgmBonus.CellValue(nxColOldValidBonusCode, lRow))
         nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
-        tgmBonus.CellValue(nxOldValidBonusCode, lRow) = sBonusCode
+        tgmBonus.CellValue(nxColOldValidBonusCode, lRow) = sBonusCode
     End If
 
     'check for duplication
@@ -2564,14 +2649,14 @@ Private Function fnValidPrftCtrSequence(nColIndex As Integer, lRow As Long, szTe
     
     If nColIndex = ColPrftCtr Then
         nPrftCtr = tfnRound(szText)
-        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxOldValidPrftCtr, lRow))
+        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxColOldValidPrftCtr, lRow))
         nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
-        tgmBonus.CellValue(nxOldValidPrftCtr, lRow) = nPrftCtr
+        tgmBonus.CellValue(nxColOldValidPrftCtr, lRow) = nPrftCtr
     Else  'ColSequence
         nSeq = szText
-        nOldSeq = tfnRound(tgmBonus.CellValue(nxOldValidSeq, lRow))
+        nOldSeq = tfnRound(tgmBonus.CellValue(nxColOldValidSeq, lRow))
         nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
-        tgmBonus.CellValue(nxOldValidSeq, lRow) = nSeq
+        tgmBonus.CellValue(nxColOldValidSeq, lRow) = nSeq
     End If
 
     'check for duplication
@@ -2883,3 +2968,89 @@ errTrap:
     'error
     
 End Function
+
+Private Function fnCreateTempBonusMaster() As Boolean
+    Const SUB_NAME As String = "fnCreateTempBonusMaster"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim aryEmpPrftCtr() As String
+    Dim i As Integer
+    
+    'Drop temp table first
+    strSQL = " DROP TABLE t_bonus_mstr"
+    
+    On Error GoTo ErrorDropTable
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    On Error GoTo errTrap
+    
+    'Create a temp table
+    strSQL = "SELECT * FROM bonus_master WHERE 1 <> 1 INTO TEMP t_bonus_mstr"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+    'insert data
+    strSQL = ""
+    aryEmpPrftCtr = Split(sEmpPrftCtrList, ",")
+    
+    For i = 0 To UBound(aryEmpPrftCtr)
+        strSQL = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_grades WHERE 1 = 1"
+        strSQL = strSQL & " AND bc_grade = bg_grade"
+        strSQL = strSQL & " AND bg_emp_level = " & tfnRound(txtGrade)
+        strSQL = strSQL & " AND bc_bonus_code NOT IN (SELECT bm_bonus_code FROM bonus_master"
+        strSQL = strSQL & " WHERE bm_empno = " & tfnRound(txtEmployee)
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(aryEmpPrftCtr(i))
+        strSQL = strSQL & ")"
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            Exit Function
+        End If
+    
+        While Not rsTemp.EOF
+            strSQL = " INSERT INTO t_bonus_mstr (bm_bonus_code, bm_eligible_pc,"
+            strSQL = strSQL + " bm_eligible_date, bm_override) VALUES ("
+            strSQL = strSQL + tfnSQLString(rsTemp!bc_bonus_code) + ", " & aryEmpPrftCtr(i) & ","
+            strSQL = strSQL + tfnDateString(tfnFormatDate(Date), True) + ", 'N'"
+            strSQL = strSQL + ")"
+            t_dbMainDatabase.ExecuteSQL strSQL
+    
+            rsTemp.MoveNext
+        Wend
+    Next i
+    
+    fnCreateTempBonusMaster = True
+    
+    Exit Function
+
+ErrorDropTable:
+    Resume Next
+    
+errTrap:
+    If strSQL = "" Then
+        tfnErrHandler SUB_NAME
+    Else
+        tfnErrHandler SUB_NAME, strSQL
+    End If
+    Exit Function
+End Function
+
+Private Sub subSetupExetension()
+    Set tgcExtension = New clsColumnExtension
+    Set tgcExtension.Form = Me
+    Set tgcExtension.PictureBox = picTextExtension
+    Set tgcExtension.Table = tblBonus
+    
+    tgcExtension.AddColumn ColPrftCtr
+    tgcExtension.Style(ColPrftCtr) = 3
+End Sub
+
+Public Function fnGetText(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Integer) As String
+    fnGetText = tgmBonus.CellValue(nxColPrftName, nRow)
+End Function
+
+'put all codes in tmrKeyboard_Timer()
+'Private Sub tmrExtension_Timer()
+'    If Not tgcExtension Is Nothing Then
+'        tgcExtension.ShowColumnExt
+'    End If
+'End Sub
+
