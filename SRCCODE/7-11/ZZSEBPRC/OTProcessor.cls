@@ -1832,7 +1832,7 @@ Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bE
     Next i
 
     If sInvalidOtPayCode <> "" Then
-        fnValidOtPaycode = "Pay Code (" & sInvalidOtPayCode & ") not set for employee#" & lEmpNo
+        fnValidOtPaycode = "Pay Code (" & sInvalidOtPayCode & ") not set for employee #" & lEmpNo
     End If
     
     Exit Function
