@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -353,6 +353,12 @@ Public Const ADJUST_UP = 11700
 Public Const CC_MASTER_UP = 11750
 
 Public Const WHL_RECVER_UP = 11800
+
+Public Const IMPORT_UP = 11850
+Public Const IMPORT_DOWN = 11900
+Public Const EXPORT_UP = 11950
+Public Const EXPORT_DOWN = 12000
+
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
@@ -964,7 +970,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
