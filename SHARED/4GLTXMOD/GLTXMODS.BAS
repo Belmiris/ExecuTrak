@@ -893,7 +893,7 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
             '#Magic #400088.
             '# Calculate re_tax_amount - used to balance detax routine
             If trn_arry(i).charge = "Y" Then
-                 re_tax_amount = re_tax_amount + tfnRound(trn_arry(i).extn, 2)
+                 re_tax_amount = re_tax_amount + trn_arry(i).extn
             End If
             '------------------------------------------------------------------
         Next
