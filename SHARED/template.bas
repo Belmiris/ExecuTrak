@@ -554,6 +554,64 @@ Public t_tax_date As String     'pass the value into this variable if You have d
 'Added compile-time flag NO_DST to turn off or on Date Sensitive Taxes.  If it
 'exists, will compile without date sensitivity, otherwise compiles with.
 
+
+Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
+'dwMemoryLoad: Specifies a number between 0 and 100 that gives a general idea of current memory utilization, in which 0 indicates no memory use and 100 indicates full memory use.
+'dwTotalPhys: Indicates the total number of bytes of physical memory.
+'dwAvailPhys: Indicates the number of bytes of physical memory available.
+'dwTotalPageFile: Indicates the total number of bytes that can be stored in the paging file. Note that this number does not represent the actual physical size of the paging file on disk.
+'dwAvailPageFile: Indicates the number of bytes available in the paging file.
+'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
+'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
+    Dim sMsg As String
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
+    fnMemoryString = sMsg
+End Function
+Public Sub checkMemory()
+'this sub is called from a timer
+'it looks up a record from the sys_ini to see how frequently to check memory status
+'if no rec is found in sys_ini it does not check memory
+'if certain memory thresholds are met, the information is logged to the error log
+'and a message is displayed to the user.
+    Dim psLogMemoryStatus As LOG_MEMORY_STATUS 'structure to hold mem values
+    Dim sMsg As String, sIniValue As String
+    Static bolQueriedINI As Boolean
+    Static iInterval As Single
+    Static iMemTime As Single
+    
+    If bolQueriedINI = False Then  'have not queried the sys_ini table yet
+        bolQueriedINI = True 'set to true so we only query once
+        sIniValue = tfn_Read_SYS_INI("FACTOR", "", "SUPPORT", "MEMCHECK", False)
+        If IsNumeric(sIniValue) Then
+            iInterval = CLng(sIniValue) 'store the interval value in a static
+        Else
+            Exit Sub 'exit this sub, nothing found in sys_ini table
+        End If
+    End If
+
+    If iInterval = 0 Then Exit Sub 'no sys_ini entry for this functionality
+
+    If Timer >= iMemTime + iInterval Then
+        iMemTime = Timer
+        GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
+        If (Right(Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2), 2) < 2) And (Right(Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2), 2) < 2) _
+        Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+            sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
+            #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
+                If Not objErrHandler Is Nothing Then
+                    Err.Description = sMsg 'need to do this so msg will get written in the error log
+                    tfnErrHandler "checkMemory", sMsg, False 'write to the error log
+                    Err.Clear 'clear the workaround
+                End If
+            #End If
+            MsgBox "Please save your work, close ExecuTrak for Windows, and restart ExecuTrak." & _
+            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMsg, vbExclamation, "SYSTEM MEMORY IS LOW"
+        End If
+
+    End If
+End Sub
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
     
@@ -609,10 +667,10 @@ Public Function tfnIsSysTranCode(ByVal sARTranCode As String) As Boolean 'WJ 4/1
     sARTranCode = "'" & UCase(sARTranCode) & "'"
     tfnIsSysTranCode = (InStr(SYSTEM_AR_TRAN_CODES, sARTranCode) > 0)
 End Function
-Public Sub tfnClearLog(szFileName)
+Public Sub tfnClearLog(szFilename)
 
     On Error Resume Next
-    Kill szFileName
+    Kill szFilename
     
 End Sub
 
@@ -972,6 +1030,15 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
         frmForm.ffraStatusbar.PanelCaption(1) = szEMPTY
     End If
 End Sub
+'==========================
+'This sub receives a recordset, closes it and sets it to nothing
+'the resume next is in case the rs was passed in already closed or unopened or nothing already
+'===========================
+Public Sub CleanUp(ByRef inRS As Recordset)
+On Error Resume Next
+    inRS.Close
+    Set inRS = Nothing
+End Sub
 
 '===========================
 'oleObject Support Functions
@@ -1012,7 +1079,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1071,7 +1138,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1079,8 +1146,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1216,7 +1283,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.TITLE 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1270,7 +1337,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.TITLE) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1394,7 +1461,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.TITLE) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -1413,7 +1480,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1421,7 +1488,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1447,19 +1514,19 @@ End Sub
 'Passed Variables: string to save in file, optional name of file to save data
 'Returns         : true for yes, false for no
 '
-Public Sub tfnLog(szLogEntry As String, Optional szFileName As String = "")
+Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
 
     Dim nFileNumber As Integer
     
     On Error Resume Next
     
-    If szFileName = "" Then
-        szFileName = szLOG_FILE_NAME
+    If szFilename = "" Then
+        szFilename = szLOG_FILE_NAME
     End If
     
     nFileNumber = FreeFile
     
-    Open szFileName For Append As #nFileNumber
+    Open szFilename For Append As #nFileNumber
     
     Print #nFileNumber, szLogEntry
 
@@ -1471,13 +1538,13 @@ End Sub
 'Passed Variables: filename
 'Returns         : true if exists, false if not
 '
-Public Function tfnIsFile(ByVal szFileName As String) As Boolean
+Public Function tfnIsFile(ByVal szFilename As String) As Boolean
     
     Dim nLength As Integer
     
     On Error Resume Next
 
-    nLength = Len(Dir(szFileName))
+    nLength = Len(Dir(szFilename))
     
     If Err Or nLength = 0 Then
         tfnIsFile = False
@@ -1915,7 +1982,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2171,14 +2238,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2498,7 +2565,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2506,13 +2573,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sText)
         Else
@@ -2602,7 +2669,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -2656,12 +2723,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -2699,7 +2766,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -2710,8 +2777,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -2728,7 +2795,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.TITLE
     #End If
     Err.Clear
 End Function
@@ -2860,7 +2927,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
  
 errSQL:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.TITLE
     #End If
     
     Err.Clear
@@ -2907,19 +2974,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -2932,10 +2999,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -3163,22 +3230,22 @@ Public Function tfnGetDbName() As String
     
     Dim sDBPath As String
     Dim sDBName As String
-    Dim I As Integer
+    Dim i As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    I = InStrRev(sDBPath, "/")
+    i = InStrRev(sDBPath, "/")
     
-    If I > 1 Then
-        sDBPath = Left(sDBPath, I - 1)
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
     
-        I = InStrRev(sDBPath, "/")
+        i = InStrRev(sDBPath, "/")
     
-        If I > 1 Then
-            sDBName = Mid(sDBPath, I + 1)
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
         End If
     End If
     
@@ -3499,7 +3566,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Dim rsTemp As Recordset
     Dim strSQL1 As String
     Dim sAllFields As String
-    Dim I As Integer
+    Dim i As Integer
     Dim nPos As Integer
     Dim bAllFields As Boolean
     Dim bStar As Boolean
@@ -3559,16 +3626,16 @@ Public Function tfnFix_tx_table(sSql As String, _
     End If
     If bAllFields Then
         sAllFields = ""
-        For I = 0 To UBound(vColumArr()) - 1
-            sAllFields = sAllFields & vColumArr(I, 1) & " AS " & vColumArr(I, 0) & ","
+        For i = 0 To UBound(vColumArr()) - 1
+            sAllFields = sAllFields & vColumArr(i, 1) & " AS " & vColumArr(i, 0) & ","
             
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
-                    IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
+                    IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
             End If
-        Next I
+        Next i
         'We need to remove the last ,
         sAllFields = Left(sAllFields, Len(sAllFields) - 1)
         'Here i need to take care '*' and tx_table.*
@@ -3578,23 +3645,23 @@ Public Function tfnFix_tx_table(sSql As String, _
             strSQL = Replace(strSQL, "tx_table.*", sAllFields)
         End If
     Else
-        For I = 0 To UBound(vColumArr())
+        For i = 0 To UBound(vColumArr())
             'Checking some of them already alias name
             'if already alias name we don't need to put alias name
             'just we need to change the column name
-            nPos = InStr(1, LCase(strSQL), vColumArr(I, 0) & " as ")
+            nPos = InStr(1, LCase(strSQL), vColumArr(i, 0) & " as ")
             If nPos > 0 Then
-                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1))
             Else
-                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1) & " AS " & vColumArr(I, 0))
+                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1) & " AS " & vColumArr(i, 0))
             End If
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
-                        IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
+                        IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
             End If
-        Next I
+        Next i
     End If
     
     If Trim(strSQL1 & "") <> "" Then
@@ -3604,7 +3671,13 @@ Public Function tfnFix_tx_table(sSql As String, _
     'If we have don't have detail we don't need to link tx_detail table
     If InStr(1, LCase(strSQL), "txd_") > 0 Then
         strSQL = Replace(strSQL, soldTable, sNewTableHeader & "," & sNewTableDet)
-        strSQL = strSQL & " AND txd_trn = txh_trn"
+        'Some time strSQL1 is empty means we don't have where
+        If Trim(strSQL1 & "") = "" Then
+            strSQL = strSQL & " WHERE"
+        Else
+            strSQL = strSQL & " AND"
+        End If
+        strSQL = strSQL & " txd_trn = txh_trn"
         'we need to make sure server system date
         If bUseDate Then
             If Trim(t_tax_date & "") = "" Then
