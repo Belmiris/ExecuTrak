@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP                 FALSE
 
-#define PRODUCT_VERSION         "3.06"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak306"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.06"
+#define DEINSTALL_KEY           "ExecuTrak307"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.07"
 
 #define SIZE_REQ_LOCAL          15
 #define SIZE_REQ_REMOTE         1
@@ -2334,8 +2334,8 @@ end;
 
 function CheckCopyFiles(lstFileList, szFrom, szDest, bSharedFile, bSelfRegister)
 
-	STRING szName, szTemp, szVersionFrom, szVersionTo
-	NUMBER nReturn, nvXCopyFileParm, nvPosi;
+	STRING szName, szTemp, szVersionFrom, szVersionTo, szDateFrom, szDateTo;
+	NUMBER nReturn, nvXCopyFileParm, nvPosi, nvNotApplicable;
 	BOOL bGoCopy;
 begin
 
@@ -2363,19 +2363,37 @@ begin
 			else // EXE file
 				if fnFindFile(szDest, szName) then
 					szTemp = szFrom ^ szName;
-					VerGetFileVersion(szTemp, szVersionFrom);
+					if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
+						szVersionFrom = "";
+					endif;
+
+					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
+
 					szTemp = szDest ^ szName;
-					VerGetFileVersion(szTemp, szVersionTo);
+					if VerGetFileVersion(szTemp, szVersionTo) != 0 then
+						szVersionTo = "";
+					endif;
+
+					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
 
 					if DEVELOP then
 						MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
 							szTemp + ":\nszVersionTo=" + szVersionTo, INFORMATION);
 					endif;
 
-					if szVersionFrom <= szVersionTo then
+					if szVersionFrom < szVersionTo then
 						bGoCopy = FALSE;
 					else
-						bGoCopy = TRUE;
+						if szVersionFrom = szVersionTo then
+							// check the date
+							if szDateFrom > szDateTo then
+								bGoCopy = TRUE;
+							else
+								bGoCopy = FALSE;
+							endif;
+						else
+							bGoCopy = TRUE;
+						endif;
 					endif;
 				else
 					bGoCopy = FALSE;
