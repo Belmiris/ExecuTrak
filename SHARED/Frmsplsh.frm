@@ -39,7 +39,7 @@ Begin VB.Form frmSplash
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   10.48
+         Size            =   10.5
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -48,7 +48,6 @@ Begin VB.Form frmSplash
       EndProperty
       BevelOuter      =   0
       BorderWidth     =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   12
@@ -70,15 +69,6 @@ Begin VB.Form frmSplash
          Begin VB.ComboBox cmbDataSet 
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             Height          =   324
             Left            =   1860
             TabIndex        =   0
@@ -86,15 +76,6 @@ Begin VB.Form frmSplash
             Width           =   1992
          End
          Begin VB.TextBox txtDatabase 
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             Height          =   336
             Left            =   1860
             TabIndex        =   1
@@ -102,15 +83,6 @@ Begin VB.Form frmSplash
             Width           =   1995
          End
          Begin VB.TextBox txtHost 
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             Height          =   336
             Left            =   1860
             TabIndex        =   2
@@ -118,15 +90,6 @@ Begin VB.Form frmSplash
             Width           =   1995
          End
          Begin VB.TextBox txtUserName 
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             Height          =   336
             Left            =   1860
             TabIndex        =   3
@@ -134,15 +97,6 @@ Begin VB.Form frmSplash
             Width           =   1995
          End
          Begin VB.TextBox txtPassword 
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             Height          =   336
             IMEMode         =   3  'DISABLE
             Left            =   1860
@@ -165,15 +119,6 @@ Begin VB.Form frmSplash
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
             Caption         =   "Data Set Name :"
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             ForeColor       =   &H80000008&
             Height          =   312
             Index           =   0
@@ -186,15 +131,6 @@ Begin VB.Form frmSplash
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
             Caption         =   "Password :"
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             ForeColor       =   &H80000008&
             Height          =   312
             Index           =   1
@@ -207,15 +143,6 @@ Begin VB.Form frmSplash
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
             Caption         =   "User Name :"
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             ForeColor       =   &H80000008&
             Height          =   312
             Index           =   4
@@ -228,15 +155,6 @@ Begin VB.Form frmSplash
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
             Caption         =   "Host Name :"
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             ForeColor       =   &H80000008&
             Height          =   312
             Index           =   3
@@ -249,15 +167,6 @@ Begin VB.Form frmSplash
             Appearance      =   0  'Flat
             BackColor       =   &H00C0C0C0&
             Caption         =   "Database Name :"
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.5
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
             ForeColor       =   &H80000008&
             Height          =   312
             Index           =   2
@@ -805,7 +714,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As Textbox) As Boolean
+Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -814,7 +723,7 @@ Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As Textbox)
+Private Sub subSelectText(txtBox As TextBox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -1015,7 +924,7 @@ Private Sub btnOK_Click()
         sPWD = "fakePPP"
     End If
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     m_sDSN = cmbDataSet.Text
     m_sDriver = colDrivers(m_sDSN)
@@ -1040,7 +949,7 @@ Private Sub btnOK_Click()
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     Screen.MousePointer = vbDefault
     
     If Err.Number = 5 Then
@@ -1308,7 +1217,7 @@ Private Function fnConnectString(sDSN As String) As String
     
 End Function
 
-Private Function fnSetODBCINIPath(sDSN As String) As Boolean
+Public Function fnSetODBCINIPath(sDSN As String) As Boolean
     Dim sTemp As String
     
     m_sODBC_INI_Path = szODBC_REG_KEY2
