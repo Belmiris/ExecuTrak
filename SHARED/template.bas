@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -508,6 +508,10 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim t_lLockHandle As Long     'Handle for row lock routine
     Dim i As Integer
 
+    #If FACTOR_MENU = 1 Then
+        tfnLockRow = True
+        Exit Function
+    #End If
     tfnLockRow = False
     #If DEVELOP Then
         If Trim(sTable) = "" Then
@@ -598,7 +602,7 @@ Public Function tfnLockRow(sProgramID As String, _
         arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
-
+ 
 errOpenRecord:
     #If NO_ERROR_HANDLER Then
         MsgBox "Cannot lock table"
@@ -644,6 +648,11 @@ End Sub
 Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     Const SUB_NAME = "tfnUnlockRow"
     
+    #If FACTOR_MENU = 1 Then
+        tfnLockRow = True
+        Exit Function
+    #End If
+    
     If nHandleCount <= 0 Then
         Exit Function
     End If
@@ -674,7 +683,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         Dim sTable As String
         Dim i As Integer
         
-        sTable = LCase(Trim(vTemp))
+        sTable = LCase(Trim(vTable))
         For i = 0 To nHandleCount
             If sTable = arryLockHandles(i).m_sTable Then
                 strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
@@ -995,7 +1004,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As DataBase
+Public Function tfnOpenLocalDatabase() As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
