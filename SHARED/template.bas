@@ -458,8 +458,13 @@ Public Const VENDOR_CATEGORY_UP = 14900
 Public Const CSTORE_TIER_MAINT_UP = 14950
 '''''''''''''''''
 
-'david 03/27/2002
+'david 04/09/2002
 Public Const NO_DELIVERY_REASON_UP = 15000
+'''''''''''''''''
+
+'Vijaya  04/09/2002
+Public Const NEW_COMPANY_UP = 15050
+Public Const QUALIFICATION_UP = 15100
 '''''''''''''''''
 
 '''
