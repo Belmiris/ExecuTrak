@@ -62,16 +62,17 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
-                                Optional sErrMsg As String = "" _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As Long = -1 _
                              ) As Double
     ' dest_flag is I or E:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     product_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 End Function ' product_price
 
 'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
@@ -84,16 +85,17 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
-                                Optional sErrMsg As String = "" _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As Long = -1 _
                              ) As Double
                         
     ' dest_flag is I or E:
     Fuel_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 End Function ' product_price
 
 Public Function prod_price( _
@@ -103,16 +105,17 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
-                                Optional sErrMsg As String = "" _
+                                Optional sErrMsg As String = "", _
+                                Optional zzerc_contract_nbr As Long = -1 _
                             ) As Double
     ' dest_flag is always I:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     prod_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 
 End Function ' prod_price
 
@@ -125,12 +128,14 @@ Private Function sp_price(ByVal sProductLink As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As Database, _
+                            t_dbMainDatabase As DataBase, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
-                            Optional sErrMsg As String = "" _
+                            Optional sErrMsg As String = "", _
+                            Optional zzerc_contract_nbr As Long = -1 _
                             ) As Double
     
+
     Const SUB_NAME = "sp_price"
 
     'Double dfQuantity      ' was decimal[10] in the 4GL code
@@ -279,20 +284,48 @@ Private Function sp_price(ByVal sProductLink As String, _
         
         ' define cursor strings:
         Dim c_last_term As String, c_book_price As String, c_purch_term As String
-    
-        ' ///////////////////////////////
-        ' declare c_book_price cursor for
-        c_book_price = "SELECT * FROM sp_book" & _
-                       " WHERE spb_customer = " & QStr(lCustomer) & _
-                       " AND spb_loc = " & QStr(sWorkLocation) & _
-                       " AND spb_prodlnk = " & QStr(pr_inv_master!invt_prodlnk) & _
-                       " AND spb_date <= " & QStr(wrk_date) & _
-                       " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
-                        
-        ' open c_book_price
-        ' fetch c_book_price into pr_sp_book
         Dim pr_sp_book As Recordset
-        Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
+        
+        
+        '////////////////////// START CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
+        Set pr_sp_book = Nothing
+        
+        If zzerc_contract_nbr >= 0 Then
+            c_book_price = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
+                           "zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
+                           "zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
+                           "zzerc_oper spb_oper,zzerc_price spb_price" & _
+                           " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
+                           " AND zzerc_date <= " & QStr(wrk_date) & _
+                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+            'Ohhh, Order By is really not useful!
+            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
+            
+            If Not pr_sp_book Is Nothing Then
+                If pr_sp_book.RecordCount <= 0 Then
+                    Set pr_sp_book = Nothing
+                End If
+            End If
+        End If
+        
+
+        If pr_sp_book Is Nothing Then
+            'Codes inside this if are the privious
+            c_book_price = "SELECT * FROM sp_book" & _
+                           " WHERE spb_customer = " & QStr(lCustomer) & _
+                           " AND spb_loc = " & QStr(sWorkLocation) & _
+                           " AND spb_prodlnk = " & QStr(pr_inv_master!invt_prodlnk) & _
+                           " AND spb_date <= " & QStr(wrk_date) & _
+                           " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+                            
+            ' open c_book_price
+            ' fetch c_book_price into pr_sp_book
+            
+            Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
+        End If
+        
+        '////////////////////// END CHANGE FOR  #340618 WJ 02/14/02 East River //////////////////////
+        
         If pr_sp_book Is Nothing Then
             sErrMsg = "Failed to get sp_book info"
             Exit Function
@@ -638,7 +671,7 @@ CALC_CUST_PRICING_DISC:
     Dim nPriceFactor As Integer
     Dim pr_fo_product As Recordset
     
-    Dim I As Long
+    Dim i As Long
     
     Dim nYYYY1 As Integer
     Dim nYYYY2 As Integer
@@ -713,7 +746,7 @@ CALC_CUST_PRICING_DISC:
         nYYYY2 = nYYYY1 + 1
         
         'locate the right period
-        For I = 1 To pr_fo_product.RecordCount
+        For i = 1 To pr_fo_product.RecordCount
             If Not (IsNull(pr_fo_product!fop_start_date) Or IsNull(pr_fo_product!fop_end_date)) Then
                 If Len(pr_fo_product!fop_start_date) = 5 And Len(pr_fo_product!fop_end_date) = 5 Then
                     sMMDDYYYY1 = pr_fo_product!fop_start_date + "/" + Format(nYYYY1, "0000")
@@ -730,7 +763,7 @@ CALC_CUST_PRICING_DISC:
                     End If
                 End If
             End If
-        Next I
+        Next i
         
         If Not pr_fo_product.EOF Then
             dfCeilingPrice = tfnRound(pr_fo_product!fop_ceiling_price, DEFAULT_DECIMALS)
@@ -751,7 +784,7 @@ End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 '       Public cust_adv_action As String * 1
 '       Public mstpc As Integer
 
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     Dim pr_sys_parm As Recordset
    
     #If cDEBUG Then
@@ -789,7 +822,7 @@ Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
     
 End Sub ' set_wrk_date
 
-Private Sub book_pricing(t_dbMainDatabase As Database)
+Private Sub book_pricing(t_dbMainDatabase As DataBase)
     Const SUB_NAME = "book_pricing"
     
     Dim pr_sys_parm As Recordset
@@ -861,7 +894,7 @@ Sub Main()          'include for testing
     Dim t_szConnect As String            'holds ODBC connect string
     Dim t_engFactor As DBEngine          'pointer to database engine
     Dim t_wsWorkSpace As Workspace       'pointer to the default workspace
-    Dim t_dbMainDatabase As Database     'main database handle
+    Dim t_dbMainDatabase As DataBase     'main database handle
 
     #If cDEBUG Then
         Debug.Print " "
