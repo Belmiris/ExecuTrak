@@ -1483,7 +1483,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1491,7 +1491,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1985,7 +1985,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2228,7 +2228,7 @@ Public Sub tfnFixBackColor(ByRef frmMain As Form)
             If ctrl.BackColor <> &H800000 Then
                 ctrl.BackColor = &H8000000F
             End If
-        ElseIf TypeOf ctrl Is Label Then
+        ElseIf TypeOf ctrl Is label Then
             If ctrl.BorderStyle = 0 Then
                 ctrl.BackColor = &H8000000F
             End If
@@ -2241,14 +2241,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -3305,9 +3305,15 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     Exit Function
     
 errTrap:
-    If Not objErrHandler Is Nothing Then
-        tfnErrHandler SUB_NAME, strSQL, bShowError
-    End If
+    'Added by Junsong 08/19/2003
+    'Be careful! some module don't use Error Handler
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Error occured in " & SUB_NAME & vbCrLf & Err.Description & vbCrLf & vbCrLf & strSQL, vbCritical
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler SUB_NAME, strSQL, bShowError
+        End If
+    #End If
     
 End Function
 
@@ -3361,10 +3367,16 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     Exit Function
 
 errTrap:
-    If Not objErrHandler Is Nothing Then
-        tfnErrHandler SUB_NAME, strSQL, bShowError
-    End If
-    
+    'Added by Junsong 08/19/2003
+    'Be careful some module don't use Error Handler
+
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Error occured in " & SUB_NAME & vbCrLf & Err.Description & vbCrLf & vbCrLf & strSQL, vbCritical
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler SUB_NAME, strSQL, bShowError
+        End If
+    #End If
 End Function
 'End of Vijaya Code
 
