@@ -3521,25 +3521,27 @@ Public Function fvendor(code As Long, db As DataBase) As Recordset
 End Function    ''fvendor
 
 Public Function it_is_a_fuel(code As String, db As DataBase) As Boolean
-            
     Dim pr_inv_header As Recordset
     Dim pr_co_inv_codes As Recordset
+    
+    it_is_a_fuel = False
     
     Set pr_inv_header = finv_header(code, db)
     If Not (pr_inv_header Is Nothing) Then
         Set pr_co_inv_codes = fco_inv_codes(pr_inv_header!ivh_class, db)
         If pr_co_inv_codes Is Nothing Then
-            it_is_a_fuel = False: Exit Function
-        ElseIf pr_co_inv_codes!coic_prog_class = "" Then        ''???? not sure about this
-            it_is_a_fuel = False: Exit Function
-        ElseIf Len(pr_co_inv_codes!coic_prog_class) = 0 Then
-            it_is_a_fuel = False: Exit Function
+            Exit Function
         End If
-        If pr_co_inv_codes!coic_prog_class = "fuel" Then
-            it_is_a_fuel = True: Exit Function
+        If IsNull(pr_co_inv_codes!coic_prog_class) Then
+            Exit Function
+        End If
+        
+        'trim the pr_co_inv_codes!coic_prog_class david 11/11/99
+        If Trim(pr_co_inv_codes!coic_prog_class) = "fuel" Then
+            it_is_a_fuel = True
+            Exit Function
         End If
     End If
-    it_is_a_fuel = False
 End Function    ''it_is_a_fuel
 
 
