@@ -526,7 +526,7 @@ Public Function tfnRegExpControlKeyPress(ByRef cntl As Control, ByRef KeyAscii A
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlKeyPress = True
@@ -583,7 +583,7 @@ Public Function tfnRegExpControlChange(ByRef cntl As Control, ByRef szPattern As
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         If cntl.Text = "" Then
             tfnRegExpControlChange = True
             Exit Function
@@ -642,7 +642,7 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
         Exit Function
     End If
     
-    If TypeOf cntl Is Textbox Or TypeOf cntl Is ComboBox Then
+    If TypeOf cntl Is TextBox Or TypeOf cntl Is ComboBox Then
         ' check for cut/copy/paste keys
         If KeyAscii = vbKeyCancel Or KeyAscii = &H16 Or KeyAscii = &H18 Then
             tfnRegExpControlDateKeyPress = -1
@@ -829,22 +829,22 @@ Public Function tfnDateTimeString(ByVal sDateTime As String, _
     
     Select Case sYearTo
     Case "Y"
-        sUsedDateTime = tfnSQLString(sYYYY)
+        sUsedDateTime = fnSQLString(sYYYY)
         sQualifier = "year to year"
     Case "M"
-        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO)
+        sUsedDateTime = fnSQLString(sYYYY + "-" + sMO)
         sQualifier = "year to month"
     Case "D"
-        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD)
+        sUsedDateTime = fnSQLString(sYYYY + "-" + sMO + "-" + sDD)
         sQualifier = "year to day"
     Case "H"
-        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH)
+        sUsedDateTime = fnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH)
         sQualifier = "year to hour"
     Case "N"
-        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN)
+        sUsedDateTime = fnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN)
         sQualifier = "year to minute"
     Case "S"
-        sUsedDateTime = tfnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS)
+        sUsedDateTime = fnSQLString(sYYYY + "-" + sMO + "-" + sDD + " " + sHH + ":" + sMN + ":" + sSS)
         sQualifier = "year to second"
     End Select
     
@@ -921,3 +921,37 @@ Public Function fnParseDateTime(ByVal sDateTime As String, _
 errHandler:
     
 End Function
+
+Private Function fnSQLString(ByVal vTemp As Variant, Optional vNoQuotes As Variant) As String
+'
+' Properly quotes and formats an SQL string.  If vNoQuotes is present, the result WILL NOT BE QUOTED
+' for each ' character found, insert a double ''.  Leave "%* alone
+    
+    Dim nIdx As Integer
+    Dim nPos As Integer
+    Dim szParameter As String
+    
+    If IsNull(vTemp) Then
+        szParameter = ""
+    Else
+        szParameter = vTemp
+    End If
+
+    nIdx = 1
+    nPos = InStr(nIdx, szParameter, "'")
+    
+    While nPos <> 0
+        szParameter = Left(szParameter, nPos) & "'" & Right(szParameter, Len(szParameter) - nPos)
+        nIdx = nPos + 2
+        nPos = InStr(nIdx, szParameter, "'")
+    Wend
+    
+    ' quote the whole string - optional
+    If IsMissing(vNoQuotes) Then
+        fnSQLString = "'" & szParameter & "'"
+    Else
+        fnSQLString = szParameter
+    End If
+
+End Function
+
