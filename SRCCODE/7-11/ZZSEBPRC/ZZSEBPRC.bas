@@ -765,7 +765,11 @@ Public Function fnCheckBonusHold() As Integer
     End If
     
     strSQL = strSQL & " AND bh_date = " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
-
+    'do not include pay code is hoursly
+    strSQL = strSQL & " AND bh_pay_code NOT IN (SELECT prpa_pay_code FROM pr_pay "
+    strSQL = strSQL & " WHERE (prpa_type = 'P' AND prpa_calc_method = 'H') "
+    strSQL = strSQL & " OR (prpa_type = 'N' AND prpa_calc_method = 'D'))"
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         MsgBox "Failed to access database", vbExclamation
         Exit Function
@@ -1288,6 +1292,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             Exit Function
         Case "asst_mgr_3_m_sales"
             fnGetVarValue = fnGetAsstMgr3MonthSales(sVinV, sErrMsg, lEmpNo)
+            Exit Function
         Case "asst_mgr_gals_sold"
             strSQL = "SELECT bs_sales_amount as var_value FROM bonus_sales, pr_master, bonus_grades"
             strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
@@ -1549,6 +1554,7 @@ Private Function fnInsideSales(sVinV As String, _
 '
     strSQL = "SELECT bs_sales_amount FROM bonus_sales, pr_master, bonus_grades"
     strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    strSQL = strSQL & " AND bs_prft_ctr = prm_prft_ctr1 "
     strSQL = strSQL & " AND prm_emp_level = bg_emp_level"
     strSQL = strSQL & " AND bg_grade = 'A' "
     strSQL = strSQL & " AND bs_from_date <= " & tfnDateString(DateAdd("M", -1, CDate(frmZZSEBPRC.txtStartDate)), True)
@@ -2172,6 +2178,7 @@ Private Function fnGetAsstMgr3MonthSales(sVinV As String, sErrMsg As String, _
     Dim strSubSql As String
     Dim rsTemp As Recordset
     Dim dTotalSales As Double
+    Dim nCount As Double
     Dim sStartDate As String
     Const FUNC_NAME As String = "fnGetAsstMgr3MonthSales"
     
@@ -2195,6 +2202,7 @@ Private Function fnGetAsstMgr3MonthSales(sVinV As String, sErrMsg As String, _
         dTotalSales = dTotalSales + 0#
     Else
         dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+        nCount = nCount + 1#
     End If
     
     '2 months ago
@@ -2209,6 +2217,7 @@ Private Function fnGetAsstMgr3MonthSales(sVinV As String, sErrMsg As String, _
         dTotalSales = dTotalSales + 0#
     Else
         dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+        nCount = nCount + 1#
     End If
     
 
@@ -2224,9 +2233,14 @@ Private Function fnGetAsstMgr3MonthSales(sVinV As String, sErrMsg As String, _
         dTotalSales = dTotalSales + 0#
     Else
         dTotalSales = dTotalSales + tfnRound(rsTemp!bs_sales_amount, 2)
+        nCount = nCount + 1#
     End If
     
-    fnGetAsstMgr3MonthSales = tfnRound(dTotalSales, 2)
+    If nCount = 0 Then
+        fnGetAsstMgr3MonthSales = 0#
+    Else
+        fnGetAsstMgr3MonthSales = tfnRound(dTotalSales / nCount, 2)
+    End If
     
 End Function
 Private Function fnFindInList(vItemToFind As Variant, _
