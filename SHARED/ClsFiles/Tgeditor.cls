@@ -229,6 +229,12 @@ Private m_bColIsSorted As Boolean
 Private aryHighlightedID() As Byte
 Private lCountHighlightedID As Long
 '''''''''''''''''
+
+'david 06/05/2002
+'refresh the text of a cell automatically
+'when the content is changed in CellValue() let property.
+Private m_bCellValueAutoRebind As Boolean
+'''''''''''''''''
 '
 
 Public Sub AddEditColumn(ByVal nIndex As Integer, _
@@ -240,10 +246,12 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
     If nIndex >= nMaxCol Or nColumnCount >= nMaxCol Then
         Exit Sub
     End If
+    
     Dim i As Integer
     Dim j As Integer
     
     bClearData = True
+    
     If nColumnCount = 0 Then
         If nIndex < tgTable.Columns.Count Then
             tgTable.col = nIndex
@@ -258,6 +266,7 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
             nLastColumn = nIndex
         End If
     End If
+    
     bClearData = False
     
     For i = 0 To nColumnCount - 1
@@ -268,10 +277,13 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
             Exit Sub
         End If
     Next
+    
     i = 0
+    
     While i < nColumnCount And nIndex > nEditColumns(i)
         i = i + 1
     Wend
+    
     For j = nColumnCount To i + 1 Step -1
         nEditColumns(j) = nEditColumns(j - 1)
         sPrompt(j) = sPrompt(j - 1)
@@ -283,11 +295,13 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
     Next
 
     nEditColumns(i) = nIndex
+    
     If IsMissing(sMsg) Then
         sPrompt(i) = ""
     Else
         sPrompt(i) = sMsg
     End If
+    
     If IsMissing(vPtn) Then
         sPatternCode(i) = ""
     Else
@@ -295,30 +309,37 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
         sPtn = vPtn
         sPatternCode(i) = fnGetPatternCode(sPtn)
     End If
+    
     If IsMissing(vRequired) Then
         bFieldRequired(i) = True
     Else
         bFieldRequired(i) = vRequired
     End If
+    
     If Not IsMissing(vFormat) Then
         sDisplayFormat(nIndex) = vFormat
     End If
+    
     If IsMissing(nColType) Then
         nColumnType(i) = BACK_ONCE
     Else
         nColumnType(i) = nColType
     End If
+    
     bCheckRegExp(i) = True
     nColumnCount = nColumnCount + 1
+    
     If Not m_bKeepData Then
         If nColumnCount = 1 Then
             SetupTable True
         End If
     End If
+    
     With tgTable.Columns(nIndex)
         .Locked = False
         .FetchStyle = True
     End With
+    
     If Not m_bKeepData Then
         fnInitialParams
     End If
@@ -491,19 +512,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     
     DataEdited = False
     If bLocked Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
@@ -546,7 +567,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -760,15 +781,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .value
+            sVal = .Value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).value = .value Then
-                    sVal = .ValueItems(i).value
+                If .ValueItems(i).Value = .Value Then
+                    sVal = .ValueItems(i).Value
                     Exit For
                 End If
             Next
@@ -1146,10 +1167,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).value
+    vTemp = tgTable.Columns(nCol).Value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).value = vTemp Then
+            If .Item(i).Value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1235,9 +1256,9 @@ End Property
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 '''''''''''''''''
-Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
-    subSaveHighlightedRowID Button, Shift, X, y
+    subSaveHighlightedRowID Button, Shift, x, y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -2222,20 +2243,65 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
     If nRowCount < 0 Then
         Exit Property
     End If
+    
     If nCol >= nMaxCol Or lRow < 0 Or lRow > nRowCount Then
         Exit Property
     End If
+    
     GridArray(nCol, lRow) = vValue
     nCol1 = fnColumnNumber(nCol)
+    
     If nCol1 >= 0 Then
         nCellChanged(nCol1, lRow) = nCellChanged(nCol1, lRow) And (Not STATUS_VALIDATED)
     End If
 
     If tgTable.Columns(nCol).Visible Then
-        If lRow = GetCurrentRowNumber() Then
-            Dim bkMark As Variant
-            bkMark = MakeBookmark(lRow)
-            tgTable.Columns(nCol).Text = fnGetUserData(bkMark, nCol)
+        'david 06/05/2002
+        'refresh the text of a cell automatically
+        'when the content is changed in CellValue() let property.
+        If m_bCellValueAutoRebind Then
+            Dim lCurrRow As Long
+            Dim bTempLocked As Boolean
+            
+            lCurrRow = tgTable.Row
+            
+            If lCurrRow < 0 Then
+                Exit Property
+            End If
+            
+            If tgTable.FirstRow = "" Then
+                Exit Property
+            End If
+            
+            bTempLocked = bLocked
+            bLocked = True
+            
+            If lRow >= tgTable.FirstRow And lRow < tgTable.FirstRow + tgTable.VisibleRows Then
+                If lRow = tgTable.FirstRow + tgTable.VisibleRows - 1 And fnIsLastEditableCol() Then
+                    tgTable.Row = lRow - tgTable.FirstRow
+                ElseIf lRow < tgTable.FirstRow + tgTable.VisibleRows - 1 Then
+                    tgTable.Row = lRow - tgTable.FirstRow
+                End If
+                
+                If sDisplayFormat(nCol) = "" Then
+                    If tgTable.Columns(nCol).ValueItems.Count = 0 Then
+                        tgTable.Columns(nCol).Text = vValue
+                    End If
+                Else
+                    tgTable.Columns(nCol).Text = Format$(vValue, sDisplayFormat(nCol))
+                End If
+                
+                tgTable.Row = lCurrRow
+            End If
+            
+            bLocked = bTempLocked
+        '''''''''''''''''
+        Else
+            If lRow = GetCurrentRowNumber() Then
+                Dim bkMark As Variant
+                bkMark = MakeBookmark(lRow)
+                tgTable.Columns(nCol).Text = fnGetUserData(bkMark, nCol)
+            End If
         End If
     End If
 End Property
@@ -2278,9 +2344,9 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
         End If
     End If
     
-    Dim m_styRow As style            ' row style
-    Dim m_styCurrentCell As style    ' current cell style
-    Dim m_styHighLightedRow As style
+    Dim m_styRow As Style            ' row style
+    Dim m_styCurrentCell As Style    ' current cell style
+    Dim m_styHighLightedRow As Style
 
     tgTable.ClearCellStyle dbgAllCells
     
@@ -3001,7 +3067,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As DataBase, _
+Public Function FillWithSQL(dbSource As Database, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
@@ -3102,7 +3168,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
     Err.Clear
 
@@ -3687,20 +3753,10 @@ Private Function fnGotoNextRow(Optional bAction As Variant) As Boolean
             tgTable.Row = tgTable.Row + 1
         End If
     End If
+    
     fnGotoNextRow = True
     Exit Function
     
-    If IsMissing(bAction) Then
-'        SendKeys "{DOWN}", True
-    Else
-        If bAction Then
-'            SendKeys "{DOWN}", True
-        End If
-    End If
-    If nKeyProcessing = KEY_P_FINISHED Then
-        DoEvents
-    End If
-    fnGotoNextRow = True
 retTrue:
     On Error GoTo 0
     Exit Function
@@ -4239,12 +4295,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4703,7 +4759,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4777,7 +4833,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -4836,7 +4892,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     m_bColIsSorted = False
     
@@ -4903,7 +4959,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
         SortCol = True
     End If
     
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -4918,7 +4974,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     nSortCount = -1
     
@@ -5055,7 +5111,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, no sort
 End Function
 
@@ -5113,11 +5169,11 @@ End Function
 'TO SET/RESTORE HE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(Cancel As Integer)
+Public Sub SelChange(CANCEL As Integer)
     If lCountHighlightedID = 0 Then
-        Cancel = True
+        CANCEL = True
     Else
-        Cancel = False
+        CANCEL = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -5161,7 +5217,7 @@ Private Sub subSelectRow(ByVal lRow As Long)
     End With
 End Sub
 
-Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, y As Single)
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim j As Long
     Dim k As Long
     Dim lSelected() As Long
@@ -5178,7 +5234,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Si
         Exit Sub
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5199,7 +5255,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
@@ -5223,3 +5279,24 @@ Private Sub subReHighlightRows()
         Next j
     End If
 End Sub
+
+'david 06/05/2002
+'refresh the text of a cell automatically
+'when the content is changed in CellValue() let property.
+Property Let AutoRefreshCellValue(bStatus As Boolean)
+    m_bCellValueAutoRebind = bStatus
+End Property
+
+Private Function fnIsLastEditableCol(Optional nCol As Integer = -1) As Boolean
+    Dim i As Integer
+    
+    If nColumnCount = 0 Then
+        Exit Function
+    End If
+    
+    If nCol = -1 Then
+        nCol = tgTable.col
+    End If
+    
+    fnIsLastEditableCol = nCol = nEditColumns(nColumnCount - 1)
+End Function
