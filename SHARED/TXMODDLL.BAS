@@ -211,7 +211,8 @@ Public Function fnCalculateTaxes(sProduct As String, _
                                   dQuantity As Double, _
                                   ByRef dTaxAmount As Double, _
                                   Optional bShowMsgBox As Boolean = True, _
-                                  Optional sErrMsg As String = "") As Boolean
+                                  Optional sErrMsg As String = "", _
+                                  Optional bApplyLimit As Boolean = True) As Boolean
 
     'Calculate taxes by calling the tax mods
     Dim myStruct As CMovementLineItem
@@ -271,7 +272,9 @@ Public Function fnCalculateTaxes(sProduct As String, _
         Exit Function
     End If
     
-    subApplyLimit Taxes, nRecords
+    If bApplyLimit Then
+        subApplyLimit Taxes, nRecords
+    End If
 
     'Calculate the sum of the taxes
     dSum = 0
@@ -741,7 +744,8 @@ Public Function fnGetTaxAmount(szProduct As String, _
                                ByVal bExternal As Boolean, _
                                ByVal bLading As Boolean, _
                                Optional bShowMsgBox As Boolean = True, _
-                               Optional sErrMsg As String = "") As Double
+                               Optional sErrMsg As String = "", _
+                               Optional bApplyLimit As Boolean = True) As Double
 
     Dim fDollarBase As Double
     Dim fQuantity As Double
@@ -823,7 +827,9 @@ Public Function fnGetTaxAmount(szProduct As String, _
         Exit Function
     End If
     
-    subApplyLimit Taxes, nRecords
+    If bApplyLimit Then
+        subApplyLimit Taxes, nRecords
+    End If
     
     'Calculate the sum of the taxes
     dSum = 0
@@ -847,7 +853,8 @@ Public Function fnGetTaxAmount1(szProduct As String, _
                                ByVal bExternal As Boolean, _
                                ByVal bLading As Boolean, _
                                Optional bShowMsgBox As Boolean = True, _
-                               Optional sErrMsg As String = "") As Double
+                               Optional sErrMsg As String = "", _
+                               Optional bApplyLimit As Boolean = True) As Double
 
     Dim fQuantity As Double
     'Calculate taxes by calling the tax mods
@@ -923,7 +930,9 @@ Public Function fnGetTaxAmount1(szProduct As String, _
         Exit Function
     End If
     
-    subApplyLimit Taxes, nRecords
+    If bApplyLimit Then
+        subApplyLimit Taxes, nRecords
+    End If
     
     'Calculate the sum of the taxes
     dSum = 0
@@ -1116,7 +1125,8 @@ Public Function fnTaxInformation(sProduct As String, _
                                  ByRef Taxes() As CApplicableTaxes, _
                                  ByRef nRecords As Long, _
                                  Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Boolean
+                                 Optional sErrMsg As String = "", _
+                                 Optional bApplyLimit As Boolean = True) As Boolean
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1168,7 +1178,9 @@ Public Function fnTaxInformation(sProduct As String, _
         fnTaxInformation = False
         Exit Function
     End If
-    subApplyLimit Taxes, nRecords
+    If bApplyLimit Then
+        subApplyLimit Taxes, nRecords
+    End If
     fnTaxInformation = True
 End Function
 
@@ -1184,7 +1196,8 @@ Public Function fnTaxInformation1(sProduct As String, _
                                  ByRef Taxes() As CApplicableTaxes, _
                                  ByRef nRecords As Long, _
                                  Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Boolean
+                                 Optional sErrMsg As String = "", _
+                                 Optional bApplyLimit As Boolean = True) As Boolean
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1248,7 +1261,9 @@ Public Function fnTaxInformation1(sProduct As String, _
         fnTaxInformation1 = False
         Exit Function
     End If
-    subApplyLimit Taxes, nRecords
+    If bApplyLimit Then
+        subApplyLimit Taxes, nRecords
+    End If
     fnTaxInformation1 = True
 End Function
 
@@ -1492,7 +1507,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = Val(lLimit)
+                .m_lLimit = val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
