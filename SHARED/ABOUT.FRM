@@ -34,7 +34,7 @@ Begin VB.Form frmAbout
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Caption         =   "&OK"
+      Caption         =   "O&K"
       CaptionPos      =   4
       PicturePos      =   3
       ShowFocusRect   =   -1  'True
