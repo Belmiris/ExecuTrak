@@ -277,6 +277,8 @@ Public Function LaunchEDIPROC() As String
             LaunchEDIPROC = m_ErrorMessage
             Exit Function
         End If
+        
+        Wait 45
     Loop While fnExeIsRunning(sExeFile)
     
     Screen.MousePointer = vbDefault
@@ -547,15 +549,15 @@ Private Sub Wait(dfSeconds As Single)
 End Sub
 
 Private Function fnGetPath(sPathFile As String) As String
-    Dim I As Integer
+    Dim i As Integer
     
-    For I = Len(sPathFile) To 1 Step -1
-        If Mid(sPathFile, I, 1) = "\" Then
+    For i = Len(sPathFile) To 1 Step -1
+        If Mid(sPathFile, i, 1) = "\" Then
             Exit For
         End If
-    Next I
+    Next i
     
-    If I > 0 Then
-        fnGetPath = Left(sPathFile, I - 1)
+    If i > 0 Then
+        fnGetPath = Left(sPathFile, i - 1)
     End If
 End Function
