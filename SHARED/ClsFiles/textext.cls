@@ -174,7 +174,7 @@ Public Sub Click(objCtrl As Object)
         If nRow >= 0 Then
             tgTable.Row = nRow
         End If
-        y = objCtrl.Left + objCtrl.Width / 2
+        y = objCtrl.Left + Screen.TwipsPerPixelX * 2
         nRow = fnCurrentColumn(y)
         If nRow >= 0 Then
             tgTable.col = nRow
