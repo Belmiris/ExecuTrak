@@ -276,6 +276,9 @@ Public Function CheckLockLocalTable() As Boolean
     End If
     
     If rsTemp.RecordCount = 0 Then
+        MsgBox "Local Database Lock is lost!", vbCritical
+        
+        m_lLockedSerial = 0
         Exit Function
     End If
     
