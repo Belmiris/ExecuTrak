@@ -289,25 +289,44 @@ StartCopy:
         	FileSetBeginDefine("All Files");
 	StatusUpdate(ON, 90);
 
-// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
+
 
 	if bRunStandAlone then
 		TARGETDIR = WINDIR ^ "TEMP";
 	else
 		TARGETDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
+		DeleteFile("servdb.z");
 	endif;
 
-        LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
+// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
 
-        nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*", COMP_NORMAL);
-        if (nReturn < 0) then
-                MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
-                goto DecompressError;
+	        LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
+	        LOGWRITE(LOGMSG);
+	
+	        nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*", COMP_NORMAL);
+	        if (nReturn < 0) then
+	                MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
+	                goto DecompressError;
+		endif;
+	
+	        LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+// ************************* Normal install
+	else
+		LOGMSG="START NORMAL COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
+	        LOGWRITE(LOGMSG);
+	
+	        nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*",  COMP_UPDATE_DATE | COMP_UPDATE_SAME );
+	        if (nReturn < 0) then
+	                MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
+	                goto DecompressError;
+		endif;
+	
+	        LOGMSG="END NORMAL COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
 	endif;
-
-        LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
-	LOGWRITE(LOGMSG);
 
         FileSetEndDefine("All Files");
 
@@ -586,7 +605,16 @@ begin
                 endif;
                 nResult = FindAllFiles(szClientPath, "SERV*.Z", svFileName, CONTINUE);
         endwhile;
-
+        
+        if (fnFindFile(szClientPath, "LOCALDB.Z")) then
+                if (ListAddString(lstServiceZFiles, "LOCALDB.Z", AFTER) < 0) then
+                        MessageBox("ListAddString failed - 'lstServiceZFiles'.", SEVERE);
+	                MessageBox (szMsg, SEVERE);
+			ListDestroy(lstServiceZFiles);
+                        return FALSE;
+                endif;
+	endif;
+	
 	VarSave(SRCTARGETDIR);
 
 	// Decompress Service Pack
@@ -710,7 +738,7 @@ begin
 				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
 				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
-			elseif szName = "SERVDB.Z" then
+			elseif szName = "LOCALDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
 	        			szDest = WINSYSDISK ^ "Program Files" ^ "Common Files" ^ 
