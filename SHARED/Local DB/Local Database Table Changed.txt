@@ -1,3 +1,105 @@
+version: 3.25.11
+Date: 09/12/2001
+Module(s): ZZEFOGCK
+Description: 
+	1. Inherit from version 3.25.10
+	2. Add new tables:
+CREATE TABLE gas_header_crp(	
+	ghc_compname		char(30),
+	ghc_date		date,
+	ghc_accountno		integer,
+	ghc_accname		char(60),
+	ghc_addr1		char(30),
+	ghc_citystzip 		char(45),
+	ghc_phone1		char(14),
+	ghc_phone2		char(14),
+	ghc_calldate		date,
+	ghc_calltaker		char(8),
+	ghc_wo_nbr		integer,
+	ghc_shordesc		char(40),
+	ghc_size		smallint,
+	ghc_serialno		char(30),
+	ghc_mfg			char(30),
+	ghc_mfgdate		char(5),
+	ghc_ltestdate		date,
+	ghc_location		char(10),
+	ghc_condtank		char(1),
+	ghc_condpaint		char(1),
+	ghc_condpigtail		char(1),
+	ghc_condfitting		char(1),
+	ghc_condgauge		char(1),
+	ghc_condrelval		char(1),
+	ghc_condreldate		date,
+	ghc_condrelcap		char(1),
+	ghc_fittingltest	char(10));
+
+CREATE TABLE gas_detail_crp(	
+	gdc_Seqno		char(2),
+	gdc_ItemName		char(30),
+	gdc_CtrHeater		char(30),
+	gdc_RmHeater		char(30),
+	gdc_WtrHeater		char(30),
+	gdc_Range		char(30),
+	gdc_ClothDryer		char(30),
+	gdc_Other		char(30));
+
+
+CREATE TABLE gas_detail1_crp(	
+	gdc1_pipe_mat        	char (10),
+	gdc1_pipe_mat2       	char (10),
+	gdc1_pipe_size       	char (5),
+	gdc1_pipe_size2      	char (5),
+	gdc1_reg_man_dt      	char(10),
+	gdc1_reg_man_dt2     	char(10),
+	gdc1_reg_man         	char (10),
+	gdc1_reg_man2        	char (10),
+	gdc1_reg_condition   	char (10),
+	gdc1_reg_condition2  	char (10),
+	gdc1_reg_model       	char (10),
+	gdc1_reg_model2      	char (10),
+	gdc1_vent_position   	char (10),
+	gdc1_vent_position2  	char (10),
+	gdc1_protected       	char (10),
+	gdc1_protected2      	char (10),
+	gdc1_flow_press	    	double,
+	gdc1_flow_press2    	double,
+	gdc1_lock_press     	double,
+	gdc1_lock_press2    	double,
+	gdc1_start_press    	double,
+	gdc1_start_press2   	double,
+	gdc1_end_press      	double,
+	gdc1_end_press2	    	double,
+	gdc1_time_held      	smallint,
+	gdc1_time_held2     	smallint,
+	gdc1_system_ok      	char (1),
+	gdc1_system_ok2     	char (1));
+
+CREATE TABLE sm_gas_check_L (	
+smg_fo_tank         integer,
+smg_customer        integer,
+smg_stage_type      smallint,
+smg_pipe_mat        text (10),
+smg_pipe_mat2       text (10),
+smg_pipe_size       text (5),
+smg_pipe_size2      text (5),
+smg_reg_man_dt      text(10),
+smg_reg_man_dt2     text(10),
+smg_reg_man         text (10),
+smg_reg_man2        text (10),
+smg_reg_condition   text (10),
+smg_reg_condition2  text (10),
+smg_reg_model       text (10),
+smg_reg_model2      text (10),
+smg_vent_position   text (10),
+smg_vent_position2  text (10),
+smg_protected       text (10),
+smg_protected2      text (10));
+
+CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank);
+
+
+Notes:  This change was done from ZZEFOGCK 3.25.1201.
+
 version: 3.25.10
 Date: 07/20/2001
 Module(s): FDECDISP
@@ -13,7 +115,7 @@ version: 3.25.9
 Date: 07/20/2001
 Module(s): FMEMVMNT
 Description: 
-	1. Inherit from version 3.25.6
+	1. Inherit from version ***3.25.6
 	2. Add a new table fo_fuel_asst (
         	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
 		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
@@ -25,7 +127,7 @@ version: 3.25.8
 Date: 07/20/2001
 Module(s): Fuel Assitance Module
 Description: 
-	1. Inherit from version 3.25.5
+	1. Inherit from version ***3.25.5
 	2. Add a new table fo_fuel_asst (
         	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
 		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
@@ -41,5 +143,6 @@ Notes:  WAS NOT RELEASED (or should not have been released at the time Heating S
 version: 3.25.6
 Date: 06/21/2001
 Module(s): FMEMVMNT
+Inherit from version 3.25.5
 Description: Add a new column bPriceOverride into MDeliveryDetail table.
 Notes:  WAS NOT RELEASED (or should not have been released at the time Heating System Phase 2 was released)
