@@ -1,4 +1,8 @@
 Attribute VB_Name = "modProcessText"
+'***********************************************
+'This Module is used to process mutiline textbox
+'***********************************************
+
 Option Explicit
 
 Private Declare Function SendMessageByVal Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
@@ -11,6 +15,67 @@ Const EM_LINELENGTH = &HC1
 Const EM_FMTLINES = &HC8
 Const EM_GETLINE = &HC4
 
+' Return the number of lines in the control.
+Public Function GetLineCount(tb As Textbox) As Long
+    GetLineCount = SendMessageByVal(tb.hwnd, EM_GETLINECOUNT, 0, 0)
+End Function
+
+' Return the index of the first visible line
+' (0 for the first text line in the control).
+' When applied to a single-line control, return the
+' index of the first visible character
+' (0 for the first character in the control).
+
+Public Function GetFirstVisibleLine(tb As Textbox) As Long
+    GetFirstVisibleLine = SendMessageByVal(tb.hwnd, EM_GETFIRSTVISIBLELINE, 0, 0)
+End Function
+
+' Return the number of the line that contains the specified character.
+' Both line and character numbers are zero-based.
+
+Public Function LineFromChar(tb As Textbox, ByVal charIndex As Long) As Long
+    LineFromChar = SendMessageByVal(tb.hwnd, EM_LINEFROMCHAR, charIndex, 0)
+End Function
+
+' Return the character offset of the first character of a line.
+
+Public Function LineIndex(tb As Textbox, ByVal lineNum As Long) As Long
+    LineIndex = SendMessageByVal(tb.hwnd, EM_LINEINDEX, lineNum, 0)
+End Function
+
+' Return the length of the specified line.
+
+Public Function LineLength(tb As Textbox, ByVal lineNum As Long) As Long
+    Dim charOffset As Long
+    ' Retrieve the character offset of the first character of the line.
+    charOffset = SendMessageByVal(tb.hwnd, EM_LINEINDEX, lineNum, 0)
+    ' Now it is possible to retrieve the length of the line.
+    LineLength = SendMessageByVal(tb.hwnd, EM_LINELENGTH, charOffset, 0)
+End Function
+
+' Return the specified line.
+
+Public Function GetLine(tb As Textbox, ByVal lineNum As Long) As String
+    Dim charOffset As Long, lineLen As Long
+    ' Retrieve the character offset of the first character of the line.
+    charOffset = SendMessageByVal(tb.hwnd, EM_LINEINDEX, lineNum, 0)
+    ' Now it is possible to retrieve the length of the line.
+    lineLen = SendMessageByVal(tb.hwnd, EM_LINELENGTH, charOffset, 0)
+    ' Extract the line text.
+    GetLine = Mid$(tb.Text, charOffset + 1, lineLen)
+End Function
+
+' Get the line/column coordinates of a given character (both are zero-based).
+' If charIndex is negative, it returns the coordinates of the caret
+
+Public Sub GetLineColumn(tb As Textbox, ByVal charIndex As Long, line As Long, column As Long)
+    If charIndex < 0 Then charIndex = tb.SelStart
+    ' Get the line number.
+    line = SendMessageByVal(tb.hwnd, EM_LINEFROMCHAR, charIndex, 0)
+    ' Get the column number by subtracting the line's start
+    ' index from the caret position
+    column = tb.SelStart - SendMessageByVal(tb.hwnd, EM_LINEINDEX, line, 0)
+End Sub
 
 '************************************************************************************
 '   Functions to implement the multi-line text box
@@ -40,6 +105,31 @@ Public Function fnGetAllLines(tb As Textbox, Optional KeepHardLineBreaks As Bool
     SendMessageByVal tb.hwnd, EM_FMTLINES, False, 0
     fnGetAllLines = result()
 End Function
+
+Public Function fnDisplayLines(rsTemp As Recordset, Optional nMaxLen As Variant = 70, Optional fieldNum As Variant) As String
+    Dim sTemp As String
+    
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        Exit Function
+    End If
+    
+    If IsMissing(fieldNum) Then
+        fieldNum = 0
+    End If
+    
+    Do Until rsTemp.EOF
+        sTemp = sTemp & rsTemp.Fields(fieldNum) & vbCrLf
+        rsTemp.MoveNext
+    Loop
+    
+    fnDisplayLines = Right(sTemp, Len(sTemp) - 2)
+    
+End Function
+
 
 'This Function will process the text in the text control, and split the text, put the result into
 'table, Return the total number of lines and put all lines into array sParam()
