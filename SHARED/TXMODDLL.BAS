@@ -2478,12 +2478,39 @@ Private Sub subGetATaxCodeDesc(ByVal sState As String, ByVal lGal As Long, _
                                ByRef sTxCode As String, ByRef sTaxDesc As String, ByRef fTaxRate As Double)
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim sTrnCode As String
+    Dim i As Integer
+    Dim j As Integer
     
     sTxCode = sState & "LDF"
     sTaxDesc = "Loading Fees"
     
-    strSQL = "SELECT tt_code,tt_descr,tt_rate,tt_limit FROM tx_table WHERE tt_level = 'S' AND tt_where = '" & sState & "' AND tt_charge = 'Y'"
-    strSQL = tfnFix_tx_table(strSQL) & " ORDER BY tt_limit DESC"
+    'Vijaya on 11/24/04 Magic#465810
+    sTrnCode = ""
+    For i = 0 To nInfoCount - 1
+        For j = 0 To aryTaxInfo(i).m_nRecord - 1
+            If aryTaxInfo(i).m_Taxes(j).m_cCharge = vbKeyY Then
+                If aryTaxInfo(i).m_Taxes(j).m_cBasis = vbKeyA Then
+                    If sTrnCode = "" Then
+                        sTrnCode = aryTaxInfo(i).m_Taxes(j).m_lTrn
+                    Else
+                        sTrnCode = sTrnCode & "," & aryTaxInfo(i).m_Taxes(j).m_lTrn
+                    End If
+                End If
+            End If
+        Next j
+    Next i
+    'end of Vijaya Code
+    'Vijaya on 11/24/04 Magic#465810
+    'Modified the sql to get exact Tax Description and rate
+    strSQL = "SELECT tt_code,tt_descr,tt_rate,tt_limit FROM tx_table"
+    strSQL = strSQL & " WHERE tt_level = 'S' AND tt_where =" & tfnSQLString(sState)
+    strSQL = strSQL & " AND tt_charge = 'Y'"
+    If sTrnCode <> "" Then
+        strSQL = strSQL & " AND tt_trn in (" & sTrnCode & ")"
+    End If
+    strSQL = strSQL & " ORDER BY tt_limit DESC"
+    strSQL = tfnFix_tx_table(strSQL)
     
     Set rsTemp = txMod_OpenRecord(strSQL)
     If rsTemp Is Nothing Then
