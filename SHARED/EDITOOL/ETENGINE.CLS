@@ -1408,7 +1408,7 @@ Private Sub subCarrierInfo(sName As String, _
     Dim nIdx As Integer
     
     strSQL = "SELECT pn_name info1, pm_fed_id info2, ' ' info3 FROM p_altname, p_vendor" _
-                & "WHERE pn_alt = " & sCarrier _
+                & " WHERE pn_alt = " & sCarrier _
                 & " AND pm_vendor = pn_vendor "
 'Modified 6-18-02 RCA
 'WAS:
