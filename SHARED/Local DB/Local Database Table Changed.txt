@@ -1,3 +1,30 @@
+version: 3.25.10
+Date: 07/20/2001
+Module(s): Fuel Assitance Module
+Description: 
+	1. Inherit from version 3.25.7
+	2. Add a new table fo_fuel_asst (
+        	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
+		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
+
+version: 3.25.9
+Date: 07/20/2001
+Module(s): Fuel Assitance Module
+Description: 
+	1. Inherit from version 3.25.6
+	2. Add a new table fo_fuel_asst (
+        	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
+		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
+
+version: 3.25.8
+Date: 07/20/2001
+Module(s): Fuel Assitance Module
+Description: 
+	1. Inherit from version 3.25.5
+	2. Add a new table fo_fuel_asst (
+        	fofa_customer, fofa_tank, fofa_date, fofa_prodlnk, fofa_units_sold, fofa_last_date, 
+		fofa_entry_flag, fofa_total, fofa_agency, fofa_client, fofa_dollars_sold, fofa_line_nbr).
+
 version: 3.25.7
 Date: 06/21/2001
 Module(s): FDECDISP
@@ -7,4 +34,3 @@ version: 3.25.6
 Date: 06/21/2001
 Module(s): FMEMVMNT
 Description: Add a new column bPriceOverride into MDeliveryDetail table.
-
