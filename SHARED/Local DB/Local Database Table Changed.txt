@@ -1,17 +1,20 @@
 version: 3.26.0004
-Date: 01/04/2002
+Date: 01/08/2002, 01/04/2002
 Description: 
-	1. Sales & Marketing.
+	1. Sales & Marketing. (01/04/2002)
 	tables name prefix changed (from ps_ to mk_).
 
 	2. Fuel Movement. (01/08/2002)
 	alter table MLadingDetail ADD fOriginCost Double;
 
 version: 3.26.0003
-Date: 12/05/2001
+Date: 01/08/2002, 12/05/2001
 Description: 
-	Fuel Movement Changing Invoice Terms Fixed.
+	1. Fuel Movement Changing Invoice Terms Fixed. (12/05/2001)
 	alter table MDelivery ADD szTerms text(5);
+
+	2. Fuel Movement. (01/08/2002)
+	alter table MLadingDetail ADD fOriginCost Double;
 
 version: 3.26.0002
 Date: 11/12/2001
