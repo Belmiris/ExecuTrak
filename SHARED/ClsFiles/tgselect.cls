@@ -544,14 +544,13 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     If IsMultiSelectCellColumn(m_nClickCol) Then
         m_nShiftControl = Shift
         
-        If (Not bShiftDown) And (Not bCtrlDown) And (Not (bShiftDown And bCtrlDown)) Then
-            If m_colMultiSelectedCells.Count > 0 Then
-                If m_tgTable.EditActive Then
-                    ClearSelectedCells IIf(m_tgTable.EditActive, False, True)
-                Else
-                    ClearSelectedCells IIf(m_tgTable.EditActive, False, True)
-                End If
-            End If
+        If KeyCode = vbKeyHome Or KeyCode = vbKeyPageUp Or _
+           KeyCode = vbKeyEnd Or KeyCode = vbKeyPageDown Or _
+           KeyCode = vbKeyLeft Or KeyCode = vbKeyRight Or _
+           KeyCode = vbKeyUp Or KeyCode = vbKeyDown Or _
+           KeyCode = vbKeyBack Or KeyCode = vbKeyReturn _
+        Then
+            ClearSelectedCells True
         End If
     End If
     ''''''''''''''''''''''''''''
@@ -1503,7 +1502,7 @@ Private Sub subMarkCellSelected(ByVal sColRow As String, Optional ByVal bRebind 
             Next nCol
                     
             If Not bRebind Then
-                If lStartRow <> lCurRow Then
+                If lStartRow <> lCurRow Or Abs(nStartCol - nCurCol) > 1 Then
                     bRebind = True
                 End If
             End If
