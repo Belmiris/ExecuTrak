@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
    ClientHeight    =   1380
@@ -63,6 +63,11 @@ Private m_BackupFileName As String
 Private m_RunMode As String
 Private m_LogID As String
 Private m_ErrorMessage As String
+
+'Vijaya on 05/20/03 Magic#401028-7 hide error popup form
+'by default it will show the popup.
+Private m_bShowError As Boolean
+'
 
 'interface properties
 Property Set ParentForm(frmForm As Form)
@@ -135,6 +140,12 @@ End Property
 Property Get ErrorMessage() As String
     ErrorMessage = m_ErrorMessage
 End Property
+
+'Vijaya on 05/20/03 Magic#401028-7
+Property Let ShowErrorPopup(bParm As Boolean)
+    m_bShowError = bParm
+End Property
+'''''''''''''''''''''''''''''''''
 
 'return an error message if failed
 Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
@@ -375,6 +386,12 @@ Private Function fnCheckEdiProcError() As String
         rsTemp.MoveNext
     Wend
     
+    'Vijaya on 05/20/03 Magic#401028-7
+    If Not m_bShowError Then
+        bShowForm = False
+    End If
+    ''''''''''''''''''''''''''''''''''
+    
     'Add by junsong 04/05/02 to skip some error
     If bShowForm And sTemp <> "" Then
         With EDIErrLog
@@ -458,6 +475,10 @@ End Function
 Private Sub Form_Initialize()
     Set m_frmParent = Nothing
     Set m_lstLog = Nothing
+    
+    'Vijaya on 05/20/03 Magic#401028-7
+    'Default Value
+    m_bShowError = True
 End Sub
 
 Private Sub Form_Terminate()
