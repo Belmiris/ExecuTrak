@@ -679,7 +679,7 @@ Private Sub subSearchHoursForEmpInPrft(ByVal lEmpNo As Long, ByVal nPrftCtr As I
     dRegHours = 0
     dOTHours = 0
     
-    If dDate <= CDate(txtOTWeek1EndDate) Then
+    If DateDiff("d", dDate, CDate(txtOTWeek1EndDate)) >= 0 Then
         nWeek = 1
     Else
         nWeek = 2
@@ -1098,7 +1098,7 @@ Private Function fnWriteToHoldArray(ByVal rsTemp As Recordset, dRegHours As Sing
         Exit Function
     End If
     
-    If txtOTWeek2BeginDate <> "" And dDate > CDate(txtOTWeek1EndDate) Then
+    If txtOTWeek2BeginDate <> "" And DateDiff("d", dDate, CDate(txtOTWeek1EndDate)) < 0 Then
         dWeekHoursbeforeAdd = g_dWeek2EmployeeHours
         g_dWeek2EmployeeHours = g_dWeek2EmployeeHours + tfnRound(dHours, 2)
         dWeekHoursAfterAdd = g_dWeek2EmployeeHours
@@ -1245,15 +1245,15 @@ Private Function fnIsLatestRecordForEmpAndPrft(ByVal rsTemp As Recordset) As Boo
     
     If lEmpNo = tfnRound(rsTemp!bh_empno) And nPrftCtr = tfnRound(rsTemp!bh_prft_ctr) Then
         
-        If dDate <= CDate(txtOTWeek1EndDate) Then
+        If DateDiff("d", dDate, CDate(txtOTWeek1EndDate)) >= 0 Then
         
-            If (rsTemp!bh_date) <= CDate(txtOTWeek1EndDate) Then
+            If DateDiff("d", rsTemp!bh_date, CDate(txtOTWeek1EndDate)) >= 0 Then
                 fnIsLatestRecordForEmpAndPrft = False
             End If
         
         Else
         
-            If (rsTemp!bh_date) > dDate Then
+            If DateDiff("d", rsTemp!bh_date, dDate) < 0 Then
                 fnIsLatestRecordForEmpAndPrft = False
             End If
             
@@ -1302,9 +1302,9 @@ Private Sub subGetLasestData(ByRef dHoursOnDateOverReg As Single, ByRef dOTDate 
             Exit Do
         End If
         
-        If dDate <= CDate(txtOTWeek1EndDate) Then
+        If DateDiff("d", dDate, CDate(txtOTWeek1EndDate)) >= 0 Then
         
-            If (rsTemp!bh_date) > CDate(txtOTWeek1EndDate) Then
+            If DateDiff("d", rsTemp!bh_date, CDate(txtOTWeek1EndDate)) < 0 Then
                 Exit Do
             End If
         
@@ -1394,7 +1394,7 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
                 
                 If cValidate.ValidInput(txtOTWeek1EndDate) And txtOTWeek1EndDate <> "" Then
                     
-                    If sDate > txtOTWeek1EndDate Then
+                    If DateDiff("d", sDate, txtOTWeek1EndDate) < 0 Then
                         cValidate.SetErrorMessage txtBox, "The Begin Date of week 1 is later than End Date"
                         fnInValidData = True
                     End If
@@ -1432,7 +1432,7 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
                 
                 If cValidate.ValidInput(txtOTWeek1BeginDate) And txtOTWeek1BeginDate <> "" Then
                     
-                    If sDate < txtOTWeek1BeginDate Then
+                    If DateDiff("d", sDate, txtOTWeek1BeginDate) > 0 Then
                         cValidate.SetErrorMessage txtBox, "The End Date of week 1 is earlier than Begin Date"
                         fnInValidData = True
                     End If
@@ -1456,7 +1456,7 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
             
                 If cValidate.ValidInput(txtOTWeek1EndDate) And txtOTWeek1EndDate <> "" Then
                     
-                    If sDate <= txtOTWeek1EndDate Then
+                    If DateDiff("d", sDate, txtOTWeek1EndDate) >= 0 Then
                         cValidate.SetErrorMessage txtBox, "The Begin Date of week 2 is earlier than End Date of Week 1"
                         fnInValidData = True
                     End If
@@ -1465,7 +1465,7 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
                 
                 If cValidate.ValidInput(txtOTWeek2EndDate) And txtOTWeek2EndDate <> "" Then
                     
-                    If sDate > txtOTWeek2EndDate Then
+                    If DateDiff("d", sDate, txtOTWeek2EndDate) < 0 Then
                         cValidate.SetErrorMessage txtBox, "The Begin Date of week 2 is later than End Date"
                         fnInValidData = True
                     End If
@@ -1497,7 +1497,7 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
                 
                 If cValidate.ValidInput(txtOTWeek2BeginDate) And txtOTWeek2BeginDate <> "" Then
                     
-                    If sDate < txtOTWeek2BeginDate Then
+                    If DateDiff("d", sDate, txtOTWeek2BeginDate) > 0 Then
                         cValidate.SetErrorMessage txtBox, "The End Date of week 2 is earlier than Begin Date"
                         fnInValidData = True
                     End If
@@ -1593,7 +1593,7 @@ Private Sub subSetProgress(sngPercent As Single)
         pbStatus.Visible = False
     End If
     
-    pbStatus.value = sngPercent
+    pbStatus.Value = sngPercent
 End Sub
 
 Private Function fnInsertUpdate() As Boolean
