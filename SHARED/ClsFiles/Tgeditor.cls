@@ -185,6 +185,7 @@ Public AddingValidate As Boolean
 'variables for Column Sort enhancement
 Private Const m_NUMERIC_TYPE As Integer = 900
 Private Const m_STRING_TYPE As Integer = 901
+Private Const m_DATE_TYPE = 906
 Private Const m_ASCENDING As Integer = 902
 Private Const m_DESCENDING As Integer = 903
 Private Const m_CASE_SENSITIVE As Integer = 904
@@ -394,7 +395,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -480,19 +481,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+        If val(tgTable.Row) < 0 Then
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -535,7 +536,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -702,7 +703,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     nECol = fnColumnNumber(col)
     If nECol >= 0 Then
-        lRow = Val(Bookmark)
+        lRow = val(Bookmark)
         If Not bValidCell(nECol, lRow) Then
             If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
                 CellStyle.ForeColor = vbWhite
@@ -716,7 +717,7 @@ Public Property Get FirstRow() As Long
     If IsNull(tgTable.FirstRow) Then
         FirstRow = 0
     Else
-        FirstRow = Val(tgTable.FirstRow)
+        FirstRow = val(tgTable.FirstRow)
     End If
 End Property
 
@@ -745,19 +746,19 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     If IsNull(tgTable.FirstRow) Then
         lCurrRow = lRow
     Else
-        lCurrRow = lRow - Val(tgTable.FirstRow)
+        lCurrRow = lRow - val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .Value
+            sVal = .value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).Value = .Value Then
-                    sVal = .ValueItems(i).Value
+                If .ValueItems(i).value = .value Then
+                    sVal = .ValueItems(i).value
                     Exit For
                 End If
             Next
@@ -1135,10 +1136,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).Value
+    vTemp = tgTable.Columns(nCol).value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).Value = vTemp Then
+            If .Item(i).value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1339,7 +1340,7 @@ Public Sub ResetFlags(Optional vRow As Variant, _
     If IsMissing(vRow) Then
         j = GetCurrentRowNumber
     Else
-        j = Val(vRow)
+        j = val(vRow)
     End If
     If IsMissing(vCol) Then
         For i = 0 To nColumnCount - 1
@@ -1540,7 +1541,7 @@ Property Get LastRow() As Long
     If IsNull(tgTable.FirstRow) Then
         LastRow = nLastTableRow
     Else
-        LastRow = Val(tgTable.FirstRow) + nLastTableRow
+        LastRow = val(tgTable.FirstRow) + nLastTableRow
     End If
 End Property
 
@@ -1808,7 +1809,7 @@ Private Sub fnSaveChangedKeys()
     End If
     If sKeyFields(nKeyColumnCount, lKeyRows) = "  " Then
         sKeyFields(nKeyColumnCount, lKeyRows) = bmTemp
-        If Val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
+        If val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
             For nCol = 0 To nKeyColumnCount - 1
                 sKeyFields(nCol, lKeyRows) = GridArray(nKeyColumns(nCol), lEditingRow)
             Next
@@ -3090,12 +3091,12 @@ Public Function GetCurrentRowNumber() As Long
     If IsNull(tgTable.FirstRow) Then
         lRow = 0
     Else
-        lRow = Val(tgTable.FirstRow)
+        lRow = val(tgTable.FirstRow)
     End If
     If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + Val(tgTable.Row)
+        GetCurrentRowNumber = lRow + val(tgTable.Row)
     End If
 
 End Function
@@ -4052,7 +4053,7 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
             nIndex = -1
         End If
     Else
-        nIndex = Val(StartLocation)
+        nIndex = val(StartLocation)
         If nIndex < 0 Or nIndex >= lRows Then
             nIndex = -9999
         End If
@@ -4081,12 +4082,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4296,7 +4297,7 @@ Private Function fnRound(vLastRow As Variant) As Long
     If IsNull(vLastRow) Then
         fnRound = 0
     Else
-        fnRound = Val(vLastRow)
+        fnRound = val(vLastRow)
     End If
 End Function
 
@@ -4443,7 +4444,7 @@ Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean
         ' take the Val() to get the array index
         ' this is the opposite of the function in MakeBookmark()
         Index = -9999
-        fnIndexFromBookmark = Val(Bookmk)
+        fnIndexFromBookmark = val(Bookmk)
     End If
 End Function
 
@@ -4508,6 +4509,10 @@ End Property
 
 Property Get STRING_TYPE() As Integer
     STRING_TYPE = m_STRING_TYPE
+End Property
+
+Property Get DATE_TYPE() As Integer
+    DATE_TYPE = m_DATE_TYPE
 End Property
 
 Property Get ASCENDING() As Integer
@@ -4580,8 +4585,9 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
         
         Case 1  '[NUMERIC_TYPE|STRING_TYPE]
             
-            If argSortOnKeyList(i) <> m_NUMERIC_TYPE And argSortOnKeyList(i) <> m_STRING_TYPE Then
-                MsgBox "Invalid Column Type [NUMERIC_TYPE|STRING_TYPE].", vbExclamation
+            If argSortOnKeyList(i) <> m_NUMERIC_TYPE And argSortOnKeyList(i) <> m_STRING_TYPE _
+               And argSortOnKeyList(i) <> m_DATE_TYPE Then
+                MsgBox "Invalid Column Type [NUMERIC_TYPE|STRING_TYPE|DATE_TYPE].", vbExclamation
                 Exit Sub
             End If
             
@@ -4728,17 +4734,18 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     nSortCount = -1
     
     For n = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
-        If m_arySortCol(n, nIndex).nColType = m_NUMERIC_TYPE Then
+        Select Case m_arySortCol(n, nIndex).nColType
+        Case m_NUMERIC_TYPE
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 dfData1 = 0
             Else
-                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                dfData1 = val(vData(m_arySortCol(n, nIndex).nColIndex, j))
             End If
         
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
                 dfData2 = 0
             Else
-                dfData2 = Val(vData(m_arySortCol(n, nIndex).nColIndex, k))
+                dfData2 = val(vData(m_arySortCol(n, nIndex).nColIndex, k))
             End If
             
             If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
@@ -4758,7 +4765,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
                     Exit Function
                 End If
             End If
-        Else  'string_type
+        Case m_STRING_TYPE
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 sData1 = ""
             Else
@@ -4796,7 +4803,65 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
                     Exit Function
                 End If
             End If
-        End If
+        Case m_DATE_TYPE
+            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
+                sData1 = ""
+            Else
+                sData1 = tfnDateString(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                
+                If Not IsDate(sData1) Then
+                    sData1 = ""
+                End If
+            End If
+        
+            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
+                sData2 = ""
+            Else
+                sData2 = tfnDateString(vData(m_arySortCol(n, nIndex).nColIndex, k))
+                
+                If Not IsDate(sData2) Then
+                    sData2 = ""
+                End If
+            End If
+        
+            If sData1 <> "" And sData2 <> "" Then
+                If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                    If CDate(sData1) > CDate(sData2) Then
+                        fnCompareSortKeysNeedToSwap = True
+                        Exit Function
+                    ElseIf sData1 < sData2 Then
+                        'no swap
+                        Exit Function
+                    End If
+                Else  'descending
+                    If CDate(sData1) < CDate(sData2) Then
+                        fnCompareSortKeysNeedToSwap = True
+                        Exit Function
+                    ElseIf sData1 > sData2 Then
+                        'no swap
+                        Exit Function
+                    End If
+                End If
+            Else  'sData1 = "" Or sData2 = ""
+                If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
+                    If sData1 <> "" Then
+                        fnCompareSortKeysNeedToSwap = True
+                        Exit Function
+                    Else
+                        'no swap
+                        Exit Function
+                    End If
+                Else  'descending
+                    If sData2 <> "" Then
+                        fnCompareSortKeysNeedToSwap = True
+                        Exit Function
+                    Else
+                        'no swap
+                        Exit Function
+                    End If
+                End If
+            End If
+        End Select
     Next n
 
     Exit Function

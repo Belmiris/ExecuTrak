@@ -710,7 +710,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     Dim szCode As String
     Dim szQuery As String
     Dim sTemp As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     Dim szLink As String
     Dim I As Integer
     Dim nPos As Integer
@@ -896,7 +896,7 @@ Private Function fnLoadTable(nColumn As Integer, _
     szQuery = szQuery & sGroupByClause & " ORDER BY " & sTemp
     
     'Get the records
-    If Not fnGetRecord(rsTemp, szQuery, nDatabase) Then
+    If Not fnGetRecord(rstemp, szQuery, nDatabase) Then
         Screen.MousePointer = vbDefault
         ' Set the return value false
         tgDropDown.Visible = False
@@ -906,12 +906,12 @@ Private Function fnLoadTable(nColumn As Integer, _
     End If
 
     'Check there is something for us to display before we show the results
-    If rsTemp.RecordCount > 0 Then
+    If rstemp.RecordCount > 0 Then
         ' Set load the data table
-        Set datLink.Recordset = rsTemp
+        Set datLink.Recordset = rstemp
 
         ' Set the return values
-        If rsTemp.RecordCount = 1 And colTemp.Item(1).PopulateBox Then
+        If rstemp.RecordCount = 1 And colTemp.Item(1).PopulateBox Then
             fnGetText nColumn
         Else
             While tgDropDown.Columns.Count > 0
@@ -922,8 +922,8 @@ Private Function fnLoadTable(nColumn As Integer, _
                 tgDropDown.Columns(lCol - 1).AllowSizing = False
             Next
 
-            If rsTemp.RecordCount < nMaxVisibleRows Then
-                tgDropDown.Height = (tgDropDown.HeadLines + rsTemp.RecordCount + 1) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
+            If rstemp.RecordCount < nMaxVisibleRows Then
+                tgDropDown.Height = (tgDropDown.HeadLines + rstemp.RecordCount + 1) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
             Else
                 tgDropDown.Height = (tgDropDown.HeadLines + nMaxVisibleRows) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
             End If
@@ -1101,7 +1101,7 @@ Private Sub fnResizeTable(tgTable As TDBGrid)
     Dim I As Integer
     fFactor = frmParent.Height / frmParent.OriginalHeight
     tgTable.Height = nOriginalTableHeight * fFactor
-    tgTable.font.Size = nFontSize * fFactor
+    tgTable.Font.Size = nFontSize * fFactor
     tgTable.HeadFont.Size = nFontSize * fFactor
     
     fFactor = frmParent.Width / frmParent.OriginalWidth
@@ -1520,7 +1520,7 @@ Public Property Get RowWhenSearchClick() As Long
     RowWhenSearchClick = m_lRowWhenSearchBtnClick
 End Property
 
-Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Integer)
+Public Function fnGetRecord(rstemp As Recordset, strSQL As String, nDB As Integer)
     ' Get records from the given SQL statement
     ' nDB = 1 ---> Informax Database (remote)
     '     = 2 ---> Access Database (local)
@@ -1528,17 +1528,17 @@ Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Intege
     On Error GoTo SQLError
     Select Case nDB
         Case DB_INFORMIX
-            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            Set rstemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         Case DB_ACCESS
-            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
+            Set rstemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
         Case Else
             fnGetRecord = False
             MsgBox "Drop down database not setup", vbOKOnly + vbCritical, frmParent.Caption
             Exit Function
     End Select
-    If rsTemp.RecordCount > 0 Then
-        rsTemp.MoveLast
-        rsTemp.MoveFirst
+    If rstemp.RecordCount > 0 Then
+        rstemp.MoveLast
+        rstemp.MoveFirst
     End If
     
     fnGetRecord = True
@@ -1822,7 +1822,7 @@ Property Set MainTable(tblGrid As Object)
     Set tgMain = tblGrid
     nOriginalTableWidth = tgMain.Width
     nOriginalTableHeight = tgMain.Height
-    nFontSize = tgMain.font.Size
+    nFontSize = tgMain.Font.Size
 
     fnLocateMainTable
 End Property
@@ -2296,6 +2296,11 @@ Public Function CaseInSensitiveString(ByVal s As String) As String
             Else
                 If IsAphabet(sChar) Then
                     sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
+                ElseIf sChar = "_" Then
+                    sRet = sRet + "?"
+                ElseIf sChar = "%" Then
+                    sRet = sRet + "*"
+                    bSpaceFound = True
                 Else
                     sRet = sRet + sChar
                 End If
@@ -2317,6 +2322,130 @@ Private Function IsAphabet(ByVal sChar As String) As Boolean
     
     If sChar >= "A" And sChar <= "Z" Then
         IsAphabet = True
+    End If
+End Function
+
+Private Function tfnDateString(vDate As Variant, _
+                              Optional ByVal vQuote As Variant, _
+                              Optional ByVal vBackYears As Variant) As String
+'This function returns a string type variable for SQL statement,
+'The year has been converted from the 2-digit year(input) to 4-digits,
+'so that it considers the change of century. The default number of
+'years going back is 50. The caller can overwrite the years going back
+'by supplying the function the number of years going back as the third
+'parameter
+
+    Const YEARS_BACK_1 = 50
+    Const LEN_STANDARD = 8
+    Const LEN_YEAR = 2
+    
+    Dim nYearsLimit As Integer
+    Dim nYearsDiff As Integer
+    Dim nCurrYear As Integer
+    Dim nTemp As Integer
+    Dim nYears As Integer
+    Dim sText As String
+    
+    nCurrYear = Year(Date)
+    nYearsLimit = YEARS_BACK_1
+    If Not IsMissing(vBackYears) Then
+        nYearsLimit = vBackYears
+    End If
+    If IsNull(vDate) Then
+        sText = ""
+    Else
+        sText = vDate
+        If tfnNormDate(sText) Then
+            sText = Format(sText, FMT_DATE_SHORT)
+            nYears = tfnYear(sText)
+            nYearsDiff = nCurrYear Mod 100 - nYears Mod 100
+            If nYearsDiff < 0 Then
+                nYearsLimit = 100 - nYearsLimit
+                If Abs(nYearsDiff) <= nYearsLimit Then
+                    nYears = nCurrYear - nYearsDiff
+                Else
+                    nYears = nCurrYear - nYearsDiff - 100
+                End If
+            Else
+                If Abs(nYearsDiff) < nYearsLimit Then
+                    nYears = nCurrYear - nYearsDiff
+                Else
+                    nYears = nCurrYear - nYearsDiff + 100
+                End If
+            End If
+            nTemp = Len(sText) - LEN_YEAR
+            sText = Left(Trim(sText), nTemp) & CStr(nYears)
+        End If
+    End If
+    If IsMissing(vQuote) Then
+        tfnDateString = sText
+    Else
+        If vQuote Then
+            If sText = "" Then
+                tfnDateString = "Null"
+            Else
+                tfnDateString = "'" & sText & "'"
+            End If
+        Else
+            tfnDateString = sText
+        End If
+    End If
+End Function
+
+Private Function tfnNormDate(vTemp As String) As Boolean
+    'Returns true if there are 2 digit2 in year field
+    Dim nPos1 As Integer
+    Dim nPos2 As Integer
+    Dim nTemp As Integer
+    Dim sTemp As String
+    
+    tfnNormDate = False
+    sTemp = CStr(vTemp)
+    nPos1 = InStr(vTemp, "/")
+    If nPos1 <= 0 Then
+        nPos1 = InStr(vTemp, "-")
+    End If
+    If nPos1 > 0 Then
+        nPos2 = InStr(nPos1 + 1, vTemp, "/")
+        If nPos2 <= nPos1 Then
+            nPos2 = InStr(nPos1 + 1, vTemp, "-")
+        End If
+        If nPos1 <= 3 Then
+            If IsNumeric(Left(sTemp, nPos1 - 1)) Then
+                nTemp = nPos2 - nPos1 - 1
+                If nTemp = 1 Or nTemp = 2 Then
+                    If IsNumeric(Mid(sTemp, nPos1 + 1, nTemp)) Then
+                        nTemp = Len(sTemp) - nPos2
+                        If nTemp = 2 Then
+                            If IsNumeric(Mid(sTemp, nPos2 + 1, nTemp)) Then
+                                tfnNormDate = True
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+        End If
+    End If
+End Function
+
+Private Function tfnYear(sText As String) As Integer
+    Dim I As Integer
+    Dim sChar As String * 1
+    Dim sYear As String
+    
+    I = Len(sText)
+    sYear = ""
+    Do
+        sChar = Mid(sText, I, 1)
+        If sChar <> "/" And sChar <> "-" Then
+            sYear = sChar & sYear
+        Else
+            Exit Do
+        End If
+        I = I - 1
+    Loop Until I <= 1
+    If Len(sYear) <= 4 Then
+        tfnYear = Val(sYear)
     End If
 End Function
 
