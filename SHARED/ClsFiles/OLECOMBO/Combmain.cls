@@ -336,7 +336,7 @@ Private Function fnFieldType(ByVal rsTemp As Recordset, _
                 strSQL = "SELECT * FROM syscolumns WHERE colName='" & dbField.Name & "'"
                 If fnGetRecord(rsCol, strSQL, nDB) Then
                     If rsCol.RecordCount > 0 Then
-                        fnInformixColTypeDesc rsCol!colType, rsCol!colLength, right_nbr
+                        fnInformixColTypeDesc rsCol!ColType, rsCol!colLength, right_nbr
                     End If
                 End If
             End If
@@ -438,7 +438,7 @@ Public Function CellValue(ByVal nCol As Integer, _
     
     Dim nColCount As Integer
         
-    nColCount = colComboControls(nCurrentCombo).Count
+    nColCount = colComboControls(nCurrentCombo).count
     CellValue = sGridData(nCol, lRow)
 End Function
 
@@ -697,7 +697,7 @@ Public Sub Resize()
     For Each clsDD In colComboControls
         nTW = 0
         bLeftSet = False
-        For i = 1 To clsDD.Combos.Count
+        For i = 1 To clsDD.Combos.count
             Set clsCombo = clsDD.Combos(i)
             If Not bLeftSet Then
                 If Not (clsCombo.Textbox Is Nothing Or clsCombo.Button Is Nothing) Then
@@ -850,7 +850,7 @@ Public Sub SetExtend(sField As String, _
     Set colTemp = clsTemp.Combos
     Set clsCombo = colTemp(lComboIndex)
     
-    If Not ((lComboIndex = 1 And nDir = EXTR_COL_EXT_LEFT) Or (lComboIndex = colTemp.Count And nDir = EXTR_COL_EXT_RIGHT)) Then
+    If Not ((lComboIndex = 1 And nDir = EXTR_COL_EXT_LEFT) Or (lComboIndex = colTemp.count And nDir = EXTR_COL_EXT_RIGHT)) Then
         colTemp.Remove lComboIndex
         If nDir = EXTR_COL_EXT_LEFT Then
             colTemp.Add clsCombo, , 1
@@ -1011,7 +1011,7 @@ Public Property Let TextSet(objCtrl As Object, bFlag As Boolean)
     Dim nCombo As Integer
     
     If objCtrl Is Nothing Then
-        For i = 1 To colComboControls.Count
+        For i = 1 To colComboControls.count
             colComboControls.Item(i).Cleared = Not bFlag
         Next
     Else
@@ -1088,7 +1088,7 @@ Public Sub AddExtraField(txtBox As Object, _
 
     Set colTemp = colComboControls.Item(nCombo).Combos
     sTemp = UCase(Trim(sField))
-    For i = 1 To colTemp.Count
+    For i = 1 To colTemp.count
         With colTemp.Item(i)
             If .Button Is Nothing Then
                 If sTemp = UCase(Trim(.AliasName)) Then
@@ -1191,7 +1191,7 @@ Property Let ErrorMessage(sMsg As String)
     If colComboControls Is Nothing Then
         Exit Property
     End If
-    If colComboControls.Count = 0 Then
+    If colComboControls.count = 0 Then
         Exit Property
     End If
     
@@ -1235,7 +1235,7 @@ Private Function fnAppendCriteria(ByVal szQuery As String, _
         sGroupByClause = ""
     End If
     Set colCombo = clsCurrentDropdown.Combos
-    For lCol = 1 To colCombo.Count
+    For lCol = 1 To colCombo.count
         If Not (colCombo.Item(lCol).Textbox Is Nothing) Then
             bAppendCriteria = False
             If colCombo.Item(lCol).AppendCriteria Then
@@ -1421,7 +1421,7 @@ Private Function fnAppendCriteria1(ByVal szQuery As String, _
         sGroupByClause = ""
     End If
     Set colCombo = clsCurrentDropdown.Combos
-    For lCol = 1 To colCombo.Count
+    For lCol = 1 To colCombo.count
         If Not (colCombo.Item(lCol).Textbox Is Nothing) Then
             bAppendCriteria = False
             If colCombo.Item(lCol).AppendCriteria Then
@@ -1492,7 +1492,7 @@ Private Sub fnExtractFields(sSql As String, colTemp As Collection)
     sLPart = Trim(Left(sTemp, nPos))
     
     With colTemp
-        For i = 1 To .Count
+        For i = 1 To .count
             If .Item(i).ColWidth < 0 Then
                 sTemp = UCase(Trim(.Item(i).AliasName))
                 nPos = InStr(sLPart, sTemp)
@@ -1610,13 +1610,19 @@ Private Function fnGetFieldName(ByVal sField As String, Optional bReturnAlias As
         If nPosi > 0 Then
             sField = Trim(Left(sField, nPosi - 1))
         End If
-        If Left(sField, 1) <> "(" Then
-            sField = "(" + sField + ")"
+        If InStr(sField, "||") > 0 Then
+            If Left(sField, 1) <> "(" Then
+                sField = "(" + sField + ")"
+            End If
         End If
         sDataField = sField
     Else
         sDataField = sField
         sAlias = sField
+    End If
+    
+    If sAlias = "" Then
+        sAlias = sDataField
     End If
 
     If bReturnAlias Then
@@ -1697,12 +1703,12 @@ Private Sub fnSetupAlias(nIndex As Integer)
 
     Set colTemp = colComboControls.Item(nIndex).Combos
     sRPart = LCase(Trim(colComboControls.Item(nIndex).SQL))
-    ReDim nFieldPos(colTemp.Count)
+    ReDim nFieldPos(colTemp.count)
     
     If sRPart = "" Or colTemp Is Nothing Then
         Exit Sub
     End If
-    If colTemp.Count = 0 Then
+    If colTemp.count = 0 Then
         Exit Sub
     End If
     For Each clsTemp In colTemp
@@ -1852,7 +1858,7 @@ Public Sub ReLocateTable(Optional vTemp)
     Set colTemp = colComboControls.Item(lDropDown).Combos
     nTW = 0
     
-    For i = 1 To colTemp.Count
+    For i = 1 To colTemp.count
         With colTemp.Item(i)
             If i = 1 Then
                 Dim nLeft As Integer
@@ -1891,7 +1897,7 @@ Public Sub SetColumnCaptions(ParamArray sCaps())
     Set colTemp = colComboControls.Item(nCurrentCombo).Combos
     i = 0
     For i = 0 To nCol
-        If i < colTemp.Count Then
+        If i < colTemp.count Then
             colTemp.Item(i + 1).Caption = sCaps(i)
         End If
     Next
@@ -2019,7 +2025,7 @@ Public Function AddCombo(Optional sSql As Variant, _
     End With
     
     colComboControls.Add clsDD
-    nCurrentCombo = colComboControls.Count
+    nCurrentCombo = colComboControls.count
     AddCombo = nCurrentCombo
     
 extAddDropDown:
@@ -2059,12 +2065,12 @@ Public Sub SetComboSQL(SQL As String, Optional vTemp As Variant)
     If colComboControls Is Nothing Then
         Set colComboControls = New Collection
     End If
-    If colComboControls.Count = 0 Then
+    If colComboControls.count = 0 Then
         Dim clsDD As New clsComboDropDown
         colComboControls.Add clsDD
     End If
     
-    If nIndex > 0 And nIndex <= colComboControls.Count Then
+    If nIndex > 0 And nIndex <= colComboControls.count Then
         colComboControls.Item(nIndex).SQL = SQL
     End If
     
@@ -2080,7 +2086,7 @@ Public Function GetComboSQL(Optional vIndex As Variant) As String
         nIndex = vIndex
     End If
     
-    If nIndex > 0 And nIndex <= colComboControls.Count Then
+    If nIndex > 0 And nIndex <= colComboControls.count Then
         GetComboSQL = colComboControls.Item(nIndex).SQL
     End If
 End Function
@@ -2187,12 +2193,12 @@ End Sub
     
         GetWindowRect n_hWnd, myRect
     
-        myPoint.X = myRect.Left
+        myPoint.x = myRect.Left
         myPoint.y = myRect.Top
         
         If ScreenToClient(nParenthWnd, myPoint) Then
     '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-            nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox
+            nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox
             If nLeft < -nLimit Or nLeft > nLimit Then
                 nLeft = Screen.TwipsPerPixelX
             End If
@@ -2215,12 +2221,12 @@ End Sub
     
         GetWindowRect n_hWnd, myRect
     
-        myPoint.X = myRect.Left
+        myPoint.x = myRect.Left
         myPoint.y = myRect.Top
         
         If ScreenToClient(nParenthWnd, myPoint) Then
     '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-            nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox
+            nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox
             If nLeft < -nLimit Or nLeft > nLimit Then
                 nLeft = Screen.TwipsPerPixelX
             End If
@@ -2275,11 +2281,11 @@ Public Sub AddExtraColumn(sField As String, _
         nExtn = vExt
     End If
     
-    If nCurr > colComboControls.Count Then
+    If nCurr > colComboControls.count Then
         Set clsDD = New clsComboDropDown
         Set clsDD.Combos = New Collection
         colComboControls.Add clsDD
-        nCurr = colComboControls.Count
+        nCurr = colComboControls.count
     Else
         Set clsDD = colComboControls.Item(nCurr)
     End If
@@ -2287,7 +2293,7 @@ Public Sub AddExtraColumn(sField As String, _
     Set colTemp = clsDD.Combos
     
     sTemp = UCase(Trim(sField))
-    For i = 1 To colTemp.Count
+    For i = 1 To colTemp.count
         With colTemp.Item(i)
             If .Button Is Nothing Then
                 If sTemp = UCase(Trim(.AliasName)) Then
@@ -2378,7 +2384,7 @@ End Sub
 
 Property Get ComboCount() As Integer
     'Returns the number of combos in the control
-    ComboCount = colComboControls.Count
+    ComboCount = colComboControls.count
 End Property
 
 Private Sub fnGetKeys(nDropDown As Integer, _
@@ -2406,11 +2412,11 @@ Private Sub fnGetKeys(nDropDown As Integer, _
         bQueryActive = vQueryActive
     End If
     
-    For i = 1 To colComboControls.Count
+    For i = 1 To colComboControls.count
         With colComboControls.Item(i)
             If .Active Or bQueryActive Then
                 Set colTemp = .Combos
-                For j = 1 To colTemp.Count
+                For j = 1 To colTemp.count
                     If Not (colTemp.Item(j).Textbox Is Nothing) Then
                         If colTemp.Item(j).Textbox.TabIndex = objKey.TabIndex Then
                             nDropDown = i
@@ -2448,11 +2454,11 @@ Private Sub subIndexFromField(nDropDown As Integer, _
     
     nDropDown = -1
     nCombo = -1
-    For i = 1 To colComboControls.Count
+    For i = 1 To colComboControls.count
         With colComboControls.Item(i)
             If .Active Then
                 Set colTemp = .Combos
-                For j = 1 To colTemp.Count
+                For j = 1 To colTemp.count
                     'david 09/21/2004
                     If fnGetFieldName(colTemp.Item(j).DataField) = sField Or _
                        fnGetFieldName(colTemp.Item(j).DataField, True) = sField Then
@@ -2679,10 +2685,10 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
     Screen.MousePointer = vbHourglass
     If tgDropDown.DataMode = dbgUnbound Then
         If rsTemp.RecordCount > 0 Then
-            ReDim sGridData(rsTemp.Fields.Count - 1, rsTemp.RecordCount - 1)
+            ReDim sGridData(rsTemp.Fields.count - 1, rsTemp.RecordCount - 1)
             lRowCount = 0
             While Not rsTemp.EOF
-                For lCol = 1 To colCombo.Count
+                For lCol = 1 To colCombo.count
                     If IsNull(rsTemp.Fields(colCombo.Item(lCol).AliasName)) Then
                         sGridData(lCol - 1, lRowCount) = ""
                     Else
@@ -2716,7 +2722,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
                 Set datLink.Recordset = rsTemp
             End If
             
-            While tgDropDown.Columns.Count > 0
+            While tgDropDown.Columns.count > 0
                 tgDropDown.Columns.Remove 0
             Wend
             
@@ -2727,7 +2733,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
             '#Add two vals WJ 04/22/2003
             Dim nDataType As Integer
             Dim right_nbr As Integer
-            For lCol = 1 To colCombo.Count
+            For lCol = 1 To colCombo.count
                 If colCombo.Item(lCol).ColWidth > 0 Then
                     If colCombo.Item(lCol).Visible Then
                         nPos = lCol
@@ -2782,7 +2788,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
             If colCombo.Item(nPos).Button Is Nothing Then
                 tgDropDown.Width = nLen + SCROLLBAR_WIDTH
             Else
-                lCol = tgDropDown.Columns.Count - 1
+                lCol = tgDropDown.Columns.count - 1
                 tgDropDown.Columns(lCol).Width = tgDropDown.Columns(lCol).Width - SCROLLBAR_WIDTH
                 tgDropDown.Width = nLen
             End If
@@ -3051,7 +3057,7 @@ Public Function AddComboBox(txtBox As Object, _
     
     Set colTemp = clsDD.Combos
     With clsCombo
-        If colTemp.Count = 0 Then
+        If colTemp.count = 0 Then
             .KeyField = True
         Else
             .KeyField = False
@@ -3073,7 +3079,7 @@ Public Function AddComboBox(txtBox As Object, _
 
     Dim nW As Integer
     Dim nBoxCount As Integer
-    nBoxCount = colTemp.Count
+    nBoxCount = colTemp.count
     'Determine the column width of the dropdown table
     If IsMissing(nWidth) Then
         subColWidth nWCol, bAdd, colTemp, nBoxCount
@@ -3173,7 +3179,7 @@ Public Function AddCriteriaField(txtBox As Object, _
     
     Set colTemp = clsDD.Combos
     With clsCombo
-        If colTemp.Count = 0 Then
+        If colTemp.count = 0 Then
             .KeyField = True
         Else
             .KeyField = False
@@ -3292,7 +3298,7 @@ Property Set Table(tblGrid As Object)
     End With
     
     
-    For n = 0 To tblGrid.Columns.Count - 1
+    For n = 0 To tblGrid.Columns.count - 1
         With tblGrid.Columns(n)
             .DividerStyle = dbgBlackLine
             .Locked = False
@@ -3584,12 +3590,12 @@ Private Sub subShowODBCError(Optional vSQL As Variant)
     
     If Err.Number = 3146 Then
         With engDatabase.Errors
-            If .Count > 0 Then
-                For i = 0 To .Count - 2
+            If .count > 0 Then
+                For i = 0 To .count - 2
                     sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .Count <= 2 Then
+            If .count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -3629,7 +3635,7 @@ Private Sub fnGetText()
         If Not clsCurrentDropdown Is Nothing Then
             Set colCombo = clsCurrentDropdown.Combos
             lRow = fnCurrentRow
-            For i = 1 To colCombo.Count
+            For i = 1 To colCombo.count
                 With colCombo.Item(i)
                     If colCombo.Item(i).Populate Then
                         If Not .Textbox Is Nothing Then
@@ -3663,7 +3669,7 @@ Private Sub fnGetText()
         If Not datLink.Recordset Is Nothing Then
             If Not clsCurrentDropdown Is Nothing Then
                 Set colCombo = clsCurrentDropdown.Combos
-                For i = 1 To colCombo.Count
+                For i = 1 To colCombo.count
                     With colCombo.Item(i)
                         If colCombo.Item(i).Populate Then
                             If Not .Textbox Is Nothing Then
@@ -3709,7 +3715,7 @@ Private Sub fnGetText()
     On Error GoTo 0
     Exit Sub
 errGetText:
-    If i <= colCombo.Count Then
+    If i <= colCombo.count Then
         If TypeOf colCombo.Item(i).Textbox Is Textbox Then
             colCombo.Item(i).Textbox.Text = ""
         Else
@@ -3942,7 +3948,7 @@ Property Let SQL(SQL As String)
     If colComboControls Is Nothing Then
         Set colComboControls = New Collection
     End If
-    If colComboControls.Count = 0 Then
+    If colComboControls.count = 0 Then
         Dim clsDD As New clsComboDropDown
         colComboControls.Add clsDD
     End If
@@ -3956,7 +3962,7 @@ Property Get SQL() As String
     If colComboControls Is Nothing Then
         Exit Property
     End If
-    If colComboControls.Count = 0 Then
+    If colComboControls.count = 0 Then
         Exit Property
     End If
     
@@ -4039,7 +4045,7 @@ Property Let ComboActive(vTemp As Variant, bStatus As Boolean)
     ElseIf IsNumeric(vTemp) Then
         lDropDown = Val(vTemp)
     End If
-    If lDropDown > 0 And lDropDown <= colComboControls.Count Then
+    If lDropDown > 0 And lDropDown <= colComboControls.count Then
         Set clsTemp = colComboControls.Item(lDropDown)
         clsTemp.Active = bStatus
     End If
@@ -4062,7 +4068,7 @@ Property Get ComboActive(vTemp As Variant) As Boolean
     ElseIf IsNumeric(vTemp) Then
         lDropDown = Val(vTemp)
     End If
-    If lDropDown > 0 And lDropDown <= colComboControls.Count Then
+    If lDropDown > 0 And lDropDown <= colComboControls.count Then
         ComboActive = colComboControls.Item(lDropDown).Active
     End If
 End Property
@@ -4082,9 +4088,9 @@ Property Get ColVisible(vTemp As Variant) As Boolean
         If lDropDown < 0 Then
             Exit Property
         End If
-        If lDropDown > 0 And lDropDown <= colComboControls.Count Then
+        If lDropDown > 0 And lDropDown <= colComboControls.count Then
             Set colTemp = colComboControls.Item(lDropDown).Combos
-            If lComboIndex > 0 And lComboIndex <= colTemp.Count Then
+            If lComboIndex > 0 And lComboIndex <= colTemp.count Then
                 ColVisible = colTemp(lComboIndex).Visible
             End If
         End If
@@ -4105,9 +4111,9 @@ Property Let ColVisible(vTemp As Variant, bTemp As Boolean)
         If lDropDown < 0 Then
             Exit Property
         End If
-        If lDropDown > 0 And lDropDown <= colComboControls.Count Then
+        If lDropDown > 0 And lDropDown <= colComboControls.count Then
             Set colTemp = colComboControls.Item(lDropDown).Combos
-            If lComboIndex > 0 And lComboIndex <= colTemp.Count Then
+            If lComboIndex > 0 And lComboIndex <= colTemp.count Then
                 colTemp(lComboIndex).Visible = bTemp
             End If
         End If
@@ -4267,8 +4273,8 @@ Private Sub Class_Terminate()
 
     Dim colTemp As clsComboDropDown
     'Clear all the contents in the collections
-    While colComboControls.Count > 0
-        While colComboControls.Item(1).Combos.Count > 0
+    While colComboControls.count > 0
+        While colComboControls.Item(1).Combos.count > 0
             Set colComboControls.Item(1).Combos.Item(1).Textbox = Nothing
             Set colComboControls.Item(1).Combos.Item(1).Button = Nothing
             colComboControls.Item(1).Combos.Remove 1
