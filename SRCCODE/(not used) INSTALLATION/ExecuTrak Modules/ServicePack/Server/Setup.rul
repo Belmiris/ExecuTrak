@@ -10,7 +10,7 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.09.04"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.09.05"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define SIZE_REQ_SERVER         4
 
@@ -398,12 +398,32 @@ DecompressSuccessful:
 		szTemp = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
 	endif;
 
-
 	if !UpdateServicePack(szTemp, szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN") then
 		goto ZFAILURE;
 	endif;
+	
+	SetStatusWindow(97, "Copying Local Database...");
+	 //set Source directory to Target directory
+	 
+	if bRunStandAlone then
+		SRCDIR = WINDIR ^ "TEMP";
+	else
+		SRCDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
+	endif;
+        TARGETDIR = WINDIR ^ "TEMP";
+        
+        //extract the local database into TARGETDIR directory
+        LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
 
+        if (CompressGet("localdb.z", "*.*", COMP_NORMAL) < 0) then
+                MessageBox("LOCALDB.Z could not be decompressed", SEVERE);
+                goto ZFAILURE;
+        endif;
 
+        LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+        
 	SRCDIR = WINDIR ^ "TEMP";
         //copy factor.mdb and factor.ldb to BIN and WINDOWS\SYSTEM directory
         szDBFrom = "\"" + SRCDIR + "\"";
@@ -833,6 +853,9 @@ begin
 				nvPosi = StrFind(szName, ".MDB");
 				if nvPosi <0 then
 					nvPosi = StrFind(szName, ".QRT");
+					if nvPosi <0 then
+						nvPosi = StrFind(szName, ".HLP");
+					endif;
 				endif;
 				if nvPosi >=0 then
 					bGoCopy = TRUE;
@@ -858,7 +881,12 @@ begin
 						endif;
 	
 						if szVersionFrom < szVersionTo then
-							bGoCopy = FALSE;
+							//david 07/13/00
+							if szDateFrom > szDateTo then
+								bGoCopy = TRUE;
+							else
+								bGoCopy = FALSE;
+							endif;
 						else
 							if szVersionFrom = szVersionTo then
 								// check the date
@@ -871,12 +899,12 @@ begin
 								bGoCopy = TRUE;
 							endif;
 						endif;
-					else  //EXE file not found
+					else  //file not found
 						//david 07/12/00
 						//take care of releasing new EXE file in service pack
 						//check for first 2 characters in the file name (ModuleID)
 	                			StrSub(szModID, szName, 0, 2);
-	                			szModID = szModID + "*.*";
+	                			szModID = szModID + "*.EXE";
 						if fnFindFile(szDest, szModID) then
 							bGoCopy = TRUE;
 						else
