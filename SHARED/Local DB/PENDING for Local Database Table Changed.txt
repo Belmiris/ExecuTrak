@@ -3,8 +3,8 @@ Date: 04/05/2002
 Description: 
 	East River Custom Fuel Movement - Heating System Interface.
 
+	add new table zzer_cntrt_data_bak
 	add new table zzer_contract_data
-
 
 ''''''''''''''''' DONE - 3.26.0007 - 04/15/2002 ''''''''''''''''''''''''
 version: 3.26.0007
