@@ -12,6 +12,8 @@ Private Const ERR_MSG_RETURNED = -431
 Private Const ERR_MSG_RUN4GE = -432
 
 Private Const CONNECT_HOST = ";HOST"
+'david 10/23/00
+Private Const CONNECT_HOST2 = ";SRVR"
 Private Const CONNECT_DBPATH1 = ";DB"
 Private Const CONNECT_DBPATH2 = "DATABASE"
 
@@ -119,6 +121,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
             Exit Function
         #End If
     Else
+'MsgBox "t_dbMainDatabase.Connect=" + tfnSQLString(t_dbMainDatabase.Connect)
         sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
         sDBPath = fnDBPath
         #If FACTOR_MENU Then
@@ -129,6 +132,12 @@ Public Function fnExecute4GE(sCmdLine As String, _
             sPassWD = "menus"
         #End If
     End If
+    
+    'david 10/23/00
+    If Trim(sHost) = "" Then
+        sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST2)
+    End If
+    
     If Trim(sHost) = "" Then
         If Not t_oleObject Is Nothing Then
             sHost = t_oleObject.ConnectHost
@@ -193,7 +202,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = Val(vTemp)
+            fnParmIndex = val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -267,11 +276,13 @@ Private Function fnRunRCmd(sHost As String, _
     nCode = ERR_LOGIN
     sErrMsg = Space(MAX_MSG_LEN + 1)
     
-'    MsgBox "Logon: Host = " & sHost & vbCrLf _
-'           & "UID = " & sLocalUID & vbCrLf _
-'           & "PWD = " & sRemoteUID & vbCrLf _
-'           & "Command line = " & sCmd
-
+'MsgBox "Before calling WinsockRCmd()" + vbCrLf _
+    + "sHost=" & tfnSQLString(sHost) + vbCrLf _
+    + "WINSOCK_PORT=" & tfnSQLString(WINSOCK_PORT) + vbCrLf _
+    + "sLocalUID=" & tfnSQLString(sLocalUID) + vbCrLf _
+    + "sRemoteUID=" & tfnSQLString(sRemoteUID) + vbCrLf _
+    + "sCmd=" & tfnSQLString(sCmd)
+    
     nCode = WinsockRCmd(sHost, WINSOCK_PORT, sLocalUID, sRemoteUID, sCmd, sErrMsg, MAX_MSG_LEN)
     
     If nCode < 0 Then
@@ -363,7 +374,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = Val(vDefault)
+        nWhatToUse = val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
