@@ -10,7 +10,7 @@ call buildlog %1 %2 %3
 
 echo .
 echo Compress Application files
-icomp G:\PROGRAM\RELEASE\Exectrak\%1\*.* ..\disk\disk1\%1bin.z -i
+icomp G:\PROGRAM\RELEASE\exectrak\%1\*.* ..\disk\disk1\%1bin.z -i
 icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\%1bin.z BIN
 
 echo .
