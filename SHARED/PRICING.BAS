@@ -432,14 +432,8 @@ Private Function sp_price(ByVal sProductLink As String, _
         Else
             'changed by junsong 02/26/02
             If m_sSysParm6203 = "Y" Then
-                
-                If fnIsException(lCustomer, tfnRound(pr_inv_header!ivh_link), fnGetField(pr_inv_header!ivh_class)) Then
-                    Exit Do
-                Else
-                    sErrMsg = PRICE_BOOK_NOT_FOUND
-                    Exit Function
-                End If
-                
+                sErrMsg = PRICE_BOOK_NOT_FOUND
+                Exit Function
             Else
                 Exit Do 'while bBook_active
             End If
@@ -1011,27 +1005,6 @@ Public Function fnGetOverRideFlag() As String
         fnGetOverRideFlag = "N"
     End If
 End Function
-
-Private Function fnIsException(lCustomer As Long, lInvLink As Long, sClass As String) As Boolean
-    Dim rsException As Recordset
-    
-    fnIsException = False
-    Set rsException = fsp_excpt_cust(lCustomer, lInvLink, t_dbMainDatabase)
-    
-    If Not (rsException Is Nothing) Then
-        fnIsException = True
-    Else
-        Set rsException = fsp_excpt_clas(lCustomer, sClass, t_dbMainDatabase)
-        
-        If Not (rsException Is Nothing) Then
-            fnIsException = True
-        End If
-        
-    End If
-
-    
-End Function
-
 #If cMAIN Then
 Sub Main()          'include for testing
 
