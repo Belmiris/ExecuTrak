@@ -435,6 +435,7 @@ Public Sub ShowErrorMessage(txtBox As Object)
             nErr = .m_nStatusFlag
             If .m_nStatusFlag <> STATUS_ERROR_FREE Then
                 .m_nStatusFlag = STATUS_ERROR_WARNING
+                Beep
             End If
             fnShowStatus nNum
             .m_nInputFlag = nFlg
