@@ -239,7 +239,7 @@ Private m_bCellValueAutoRebind As Boolean
 
 'david 08/09/2002
 'reversed sort column on subsequence HeadClick()
-Private m_bReservedSortOnCol As Boolean
+Private m_bReverseSortOnCol As Boolean
 '''''''''''''''''
 
 'david 02/09/2004  #401172-1
@@ -593,7 +593,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -816,15 +816,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .value
+            sVal = .Value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).value = .value Then
-                    sVal = .ValueItems(i).value
+                If .ValueItems(i).Value = .Value Then
+                    sVal = .ValueItems(i).Value
                     Exit For
                 End If
             Next
@@ -1186,10 +1186,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).value
+    vTemp = tgTable.Columns(nCol).Value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).value = vTemp Then
+            If .Item(i).Value = vTemp Then
                 Exit For
             End If
         Next i
@@ -1273,9 +1273,9 @@ End Property
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 '''''''''''''''''
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     nKeyProcessing = KEY_P_FINISHED
-    subSaveHighlightedRowID Button, Shift, x, y
+    subSaveHighlightedRowID Button, Shift, X, Y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -4439,12 +4439,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4819,7 +4819,7 @@ Private Sub Class_Initialize()
 
     m_bSortOnCol = False
     m_bSortWhenGridNotvalid = False
-    m_bReservedSortOnCol = False
+    m_bReverseSortOnCol = False
 End Sub
 
 Private Sub Class_Terminate()
@@ -4877,9 +4877,9 @@ Property Get CASE_INSENSITIVE() As Integer
 End Property
 
 'david 08/09/2002
-'reversed sort column on subsequence HeadClick()
-Property Let ReservedSortByColumn(bStatus As Boolean)
-    m_bReservedSortOnCol = bStatus
+'reverse sort column on subsequence HeadClick()
+Property Let ReverseSortByColumn(bStatus As Boolean)
+    m_bReverseSortOnCol = bStatus
 End Property
 '''''''''''''''''
 
@@ -5100,7 +5100,7 @@ Debug.Print sSortCols
     End If
     
     'reversed sort column on subsequence HeadClick()
-    If m_bReservedSortOnCol Then
+    If m_bReverseSortOnCol Then
         'reverse the "order by" variable of the first sorting column
         'reverse the order
         If m_arySortCol(0, nIndex).nSortOrder = m_ASCENDING Then
@@ -5374,7 +5374,7 @@ Private Sub subSelectRow(ByVal lRow As Long)
     End With
 End Sub
 
-Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, Y As Single)
     Dim j As Long
     Dim k As Long
     Dim lSelected() As Long
@@ -5387,7 +5387,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
     End If
     
     'is not header click
-    If y >= tgTable.RowTop(0) Then
+    If Y >= tgTable.RowTop(0) Then
         Exit Sub
     End If
     
@@ -5462,7 +5462,7 @@ End Function
 Private Sub subResetSortOrder()
     Dim j As Integer
     
-    If m_bReservedSortOnCol Then
+    If m_bReverseSortOnCol Then
         For j = 0 To m_SortColCount - 1
             m_arySortCol(0, j).nSortOrder = m_arySortCol(0, j).nInitSortOrder
         Next j
