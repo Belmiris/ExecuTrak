@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "DUTCHOIL300"
-#define UNINSTALL_NAME          "Dutch Oil Electronic Data Transmission Version 3.00"
+#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "DUTCHOIL301"
+#define UNINSTALL_NAME          "Dutch Oil Electronic Data Transmission Version 3.01"
 
 #define SIZE_REQ_LOCAL          7       // 7 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
