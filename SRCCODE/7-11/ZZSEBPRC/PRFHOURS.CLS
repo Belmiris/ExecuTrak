@@ -2616,7 +2616,8 @@ Private Function fnValidMgrHours(txtBox As Textbox) As Boolean
         Exit Function
     End If
     strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
-    strSQL = strSQL & " AND prm_emp_level  = 3 AND prm_date_termed IS NULL"
+    strSQL = strSQL & " AND prm_emp_level  = 3"
+    strSQL = strSQL & " AND " & tfnDateString(txtEHDate, True) & " BETWEEN prm_date_hired AND prm_date_termed"
     strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
     If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) <= 0 Then
         sMsg = "No manager was found for the profit center."
@@ -2676,7 +2677,8 @@ Public Function fnInsertzzse_manager_hour() As Boolean
         Exit Function
     End If
     strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
-    strSQL = strSQL & " AND prm_emp_level  = 3 AND prm_date_termed IS NULL"
+    strSQL = strSQL & " AND prm_emp_level  = 3"
+    strSQL = strSQL & " AND " & tfnDateString(txtEHDate, True) & " BETWEEN prm_date_hired AND prm_date_termed"
     strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
     If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) > 0 Then
         lEmpNo = rsTemp!prm_empno
