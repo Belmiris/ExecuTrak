@@ -20,8 +20,8 @@ Global t_szConnect As String         'This holds the ODBC connect string passed 
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
 Global t_dbMainDatabase As DataBase  'main database handle
-
 Global CRLF As String 'carriage return linefeed string
+Global App_LogLvl As Integer        'Log file level, set by tfnGetLogLvl
 
 Public Const DEBUG_LOG_PATH = "C:\FACTOR\TEMP\"
 '##################################################
@@ -69,8 +69,13 @@ Public Const szHelpMANNATEC As String = "MANNATEC.HLP"
 Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
 Public Const sHelpTABLECHG  As String = "SYFTBCHG.HLP"  'Junsong 02/24/03 call 373319-1
 Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 call 379860-5
-
-
+'#######################################################################################
+'# Logging constants
+Global Const LE_SQL As Integer = 1 'Log level for SQL Only
+Global Const LE_SQL_PERF As Integer = 2 'Not implemented yet
+Global Const LE_ENTRY_POINT As Integer = 4 'Function Entry Point
+Global Const LE_RESOURCE As Integer = 7 'Log resource usage in each function entry point
+'#######################################################################################
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
 Public Const t_szREFRESH_MESSAGE = "All changes will be lost! Do you want to refresh anyway ?"
@@ -516,6 +521,24 @@ Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 
 Private m_Saved_GL_Batch As Long
+'#API Call to get username
+Private Declare Function W32GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (ByVal lpBuffer As String, _
+    nSize As Long) As Long
+'#API to get host name
+Private Declare Function W32GetComputerName Lib "kernel32" Alias "GetComputerNameA" (ByVal lpBuffer As String, nSize As Long) As Long
+'# Structure, API call to get free memory (for resource logging)
+Private Type LOG_MEMORY_STATUS
+    dwLength As Long
+    dwMemoryLoad As Long
+    dwTotalPhys As Long
+    dwAvailPhys As Long
+    dwTotalPageFile As Long
+    dwAvailPageFile As Long
+    dwTotalVirtual As Long
+    dwAvailVirtual As Long
+End Type
+Private Declare Sub GlobalMemoryStatus Lib "kernel32" (lpBuffer As LOG_MEMORY_STATUS)
+Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
@@ -1095,6 +1118,8 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     
     
     tfnOpenDatabase = True
+    '# Added 7-23-03 Robert Atwood for logging system
+    fnGet_Log_Lvl
     Exit Function
 
 ERROR_CONNECTING:
@@ -2816,7 +2841,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3033,7 +3058,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3258,19 +3283,19 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     'ini_file_name,ini_user_id may be null
     
     If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_name = " + tfnSQLString(sFilename)
+        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFilename))
     Else
         strSQL = strSQL & " ini_file_name is Null"
     End If
     
     If sUserID <> "" Then
-        strSQL = strSQL & " AND ini_user_id = " + tfnSQLString(sUserID)
+        strSQL = strSQL & " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
     Else
-        strSQL = strSQL & " AND ini_user_id  is Null"
+        strSQL = strSQL & " AND ini_user_id is Null"
     End If
     
-    strSQL = strSQL & " AND ini_section = " + tfnSQLString(sSECTION)
-    strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(sField)
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+    strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
     On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
@@ -3319,17 +3344,17 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(sFilename)
-        strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(sUserID)
-        strSQL = strSQL + " AND ini_section = " + tfnSQLString(sSECTION)
-        strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(sField)
+        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+        strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(sFilename) + ","
-        strSQL = strSQL + tfnSQLString(sUserID) + ","
-        strSQL = strSQL + tfnSQLString(sSECTION) + ","
-        strSQL = strSQL + tfnSQLString(sField) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sUserID)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
         strSQL = strSQL + tfnSQLString(sValue) + ")"
     End If
     
@@ -3343,3 +3368,179 @@ errTrap:
     
 End Function
 'End of Vijaya Code
+
+'*****************************************************************************************
+'Function   : fnGet_Log_Lvl
+'Programmer : Robert Atwood
+'Date       : 07/23/03
+'Magic#     : 411480
+'Description: This function is PRIVATE and is called by tfn_Log_Event (below).  This is run
+'               once and is used to determine what level this application and user
+'               should be logging at, if any.  It stores into module-global App_LogLvl
+'*****************************************************************************************
+Private Function fnGet_Log_Lvl() As Boolean
+    Dim strLogLvl As String
+    Dim strUser As String
+    On Error GoTo ErrorTrap
+        App_LogLvl = 0
+        'First grabs it from global app ini message
+        strLogLvl = tfn_Read_SYS_INI(App.EXEName, "", "LOGGING", "DETAIL_LEVEL", False)
+        If strLogLvl <> "" Then
+            App_LogLvl = strLogLvl
+        End If
+        strUser = tfnGetUserName
+        'Next grabs it from user ini
+        strLogLvl = tfn_Read_SYS_INI("", strUser, "LOGGING", "DETAIL_LEVEL", False)
+        If strLogLvl > App_LogLvl Then
+            App_LogLvl = strLogLvl
+        End If
+        'Finally, from both.  Highest wins.
+        strLogLvl = tfn_Read_SYS_INI(App.EXEName, strUser, "LOGGING", "DETAIL_LEVEL", False)
+        If strLogLvl > App_LogLvl Then
+            App_LogLvl = strLogLvl
+        End If
+    On Error Resume Next
+    fnGet_Log_Lvl = True
+ErrorTrap:
+    'No worries here
+End Function
+'*****************************************************************************************
+'Function   : tfnLog_Event
+'Programmer : Robert Atwood
+'Date       : 07/23/03
+'Magic#     : 411480
+'Arguments  : nEventLvl (Integer) Level of event (1 would be SQL, 4 would be function)
+'           : strEventText (String) text to store
+'Returns    : True for success, otherwise False
+'Description: This function is PUBLIC and is called by nearly every function in an application
+'             See loginsrt.pl for code injection technique (d:\vb2kdev\loginsrt.pl).
+'             Depending on log level, events are logged.
+'*****************************************************************************************
+Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Boolean
+Static strDBUser As String
+Static strOSUser As String
+Static strHost As String
+Static strProgram As String
+Static PID As Long
+
+Dim nSize As Long
+Dim strTimestamp As String
+Dim strSQL As String
+Dim LineID As Long
+Dim bProceed As Boolean
+Dim rsTemp As Recordset
+Dim nLogLineID As Integer
+Dim strTemp As String
+Dim nTempCount As Integer
+Dim dblAns As Double
+Dim psLogMemoryStatus As LOG_MEMORY_STATUS
+Dim strEventTextInt As String
+
+nSize = 128
+strOSUser = Space(nSize)
+strHost = Space(nSize)
+
+    bProceed = False
+    
+    Select Case App_LogLvl
+        Case 0
+            bProceed = False
+        Case 1 'SQL
+            If nEventLvl = 1 Then bProceed = True
+            
+        Case 2 'SQL, SQL Performance
+            If nEventLvl = 1 Or nEventLvl = 2 Then bProceed = True
+        Case 3 ' Both
+            If nEventLvl < 4 Then bProceed = True
+        Case 4 ' Functions only
+            If nEventLvl = 4 Then bProceed = True
+        Case 5 ' Functions and SQL
+            If nEventLvl = 4 Or nEventLvl = 1 Then bProceed = True
+        Case 6 ' Functions and SQL and SQL Performance
+            If nEventLvl = 4 Or nEventLvl = 1 Or nEventLvl = 2 Then bProceed = True
+        Case 7 'Resource logging
+            If nEventLvl = 7 Then bProceed = True
+        Case 8 'Resource and SQL
+            If nEventLvl = 7 Or nEventLvl = 1 Then bProceed = True
+        Case 9 'Resource, SQL, SQL Performance
+            If nEventLvl = 7 Or nEventLvl = 1 Or nEventLvl = 2 Then bProceed = True
+        Case 10 'Resource, SQL, Functions
+            If nEventLvl = 7 Or nEventLvl = 1 Or nEventLvl = 2 Or nEventLvl = 4 Then bProceed = True
+        Case Else
+            If App_LogLvl = nEventLvl Then
+                bProceed = True
+            Else
+                bProceed = False
+            End If
+    End Select
+    
+    If bProceed Then
+    strEventTextInt = strEventText
+        On Error GoTo ErrorTrap
+        If nEventLvl = 7 Then
+        '# we've been requested to do a memory check
+            GlobalMemoryStatus psLogMemoryStatus
+            strEventTextInt = strEventText & " MEMORY LOAD--Free RAM: " & psLogMemoryStatus.dwAvailPhys & "/" & psLogMemoryStatus.dwTotalPhys & _
+            " Free Virtual: " & psLogMemoryStatus.dwAvailVirtual & "/" & psLogMemoryStatus.dwTotalVirtual & _
+            " Free Page File: " & psLogMemoryStatus.dwAvailPageFile & "/" & psLogMemoryStatus.dwTotalPageFile & _
+            " Memory Load: " & psLogMemoryStatus.dwMemoryLoad
+        End If
+        strDBUser = tfnGetUserName
+        If strOSUser = Space(nSize) Then
+            W32GetUserName strOSUser, nSize
+            If strOSUser = "" Then
+                strOSUser = strDBUser
+            End If
+            strOSUser = Trim(strOSUser)
+            strOSUser = tfnStripNULL(strOSUser)
+        End If
+        If strHost = Space(Len(strHost)) Then
+            W32GetComputerName strHost, nSize
+            If strHost = "" Then
+                strHost = "<ERROR>"
+            End If
+            strHost = Trim(strHost)
+            strHost = tfnStripNULL(strHost)
+        End If
+        If PID = 0 Then
+            PID = GetCurrentProcessId
+        End If
+        
+        strTimestamp = Format(Now(), "yyyy-mm-dd Hh:Nn:Ss")
+        '#Insert main line here
+        strSQL = "INSERT INTO SYS_LOG (syl_id, syl_login, syl_db_login, syl_host, syl_pid_Hwnd, syl_program, syl_timestamp, syl_event_lvl) " & _
+                 "VALUES (0, " & tfnSQLString(strOSUser) & "," & tfnSQLString(strDBUser) & "," & _
+                 tfnSQLString(strHost) & ", " & App.hInstance & "," & tfnSQLString(App.EXEName) & "," & _
+                 tfnSQLString(strTimestamp) & ", " & nEventLvl & ")"
+        t_dbMainDatabase.ExecuteSQL strSQL
+        '# Now to get the ID we just generated...
+        strSQL = "SELECT MAX (syl_id) FROM SYS_LOG WHERE syl_login = " & tfnSQLString(strOSUser) & _
+                 "AND syl_db_login = " & tfnSQLString(strDBUser) & "AND syl_host = " & tfnSQLString(strHost) & _
+                 "AND syl_pid_hwnd= " & App.hInstance & " AND syl_program = " & tfnSQLString(App.EXEName) & _
+                 "AND syl_timestamp = " & tfnSQLString(strTimestamp) & " AND syl_event_lvl = " & nEventLvl
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If rsTemp.RecordCount > 0 Then
+        nLogLineID = CStr(Trim(rsTemp.Fields(0)))
+        nTempCount = 0
+        While (Len(strEventTextInt) > 0)
+            If Len(strEventTextInt) > 50 Then
+                strTemp = Left(strEventTextInt, 50)
+                
+                strEventTextInt = Right(strEventTextInt, (Len(strEventTextInt) - 50))
+            Else
+                strTemp = strEventTextInt
+                strEventTextInt = ""
+            End If
+            strSQL = "INSERT INTO SYS_LOG_DET (syld_id, syld_seq, syld_data) " & _
+                     "VALUES (" & nLogLineID & ", " & nTempCount & ", " & tfnSQLString(strTemp) & ")"
+            t_dbMainDatabase.ExecuteSQL strSQL
+            nTempCount = nTempCount + 1
+        Wend
+        tfnLog_Event = True
+        End If
+    Else
+        tfnLog_Event = False
+    End If
+ErrorTrap:
+    tfnLog_Event = False
+End Function
