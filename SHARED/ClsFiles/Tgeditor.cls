@@ -169,7 +169,7 @@ Option Explicit
     Private bCtrlYClearLocked As Boolean
     Private bLocked As Boolean
     Private bAllowAddNew As Boolean
-    Private m_bAllowRevalidate As booleaan
+    Private m_bAllowRevalidate As Boolean
 
     Private tgTable As TDBGrid
     Private lblStatusbar As Control
