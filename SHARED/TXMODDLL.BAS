@@ -1934,7 +1934,7 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     Dim nTries As Integer
     Dim i As Integer
 
-    If hld_vessel = -1 Then
+    If hld_vessel < 0 Then
         Exit Sub
     End If
     
