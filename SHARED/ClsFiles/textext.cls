@@ -366,6 +366,15 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nY As Integer)
         picTextFrame.Visible = False
         Exit Sub
     End If
+    If IsNull(tgTable.RowBookmark(nRow)) Then
+        picTextFrame.Visible = False
+        Exit Sub
+    End If
+    If Trim(tgTable.RowBookmark(nRow)) = "" Then
+        picTextFrame.Visible = False
+        Exit Sub
+    End If
+    
     If nRow <> nLastRow Then
         picTextFrame.Visible = False
     Else
