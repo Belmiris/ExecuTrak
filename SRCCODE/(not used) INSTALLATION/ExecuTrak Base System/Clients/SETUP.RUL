@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP                 FALSE
 
-#define PRODUCT_VERSION         "3.03"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.05"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak303"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.03"
+#define DEINSTALL_KEY           "ExecuTrak305"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.05"
 
 #define SIZE_REQ_LOCAL          15
 #define SIZE_REQ_REMOTE         1
@@ -286,7 +286,6 @@ GetTargetPath:
                 endif;
 
                 StrToUpper(szTemp, szTemp);
-
 
                 // search for factmenu.exe
                 if (FindFile(szTemp ^ PRODUCT_SUBDIR, PRODUCT_KEY, szFolder) >= 0) then
@@ -573,8 +572,12 @@ StartCopy:
                         LOGMSG="END NORMAL COPY OF sybin.z FILES IN " + TARGETDIR;
                         LOGWRITE(LOGMSG);
                 endif;
+        endif;
 
-                TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+	// extract and register the OLE SERVER FILES into C:\FACTOR\EXECTRAK\OLE
+	// directory
+               // TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+                 TARGETDIR = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
     
                 if (szForceInstall = "1 ") then
         
@@ -606,7 +609,6 @@ StartCopy:
                         LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                         LOGWRITE(LOGMSG);
                 endif;
-        endif;
 
         //set Source directory to Target directory
         TARGETDIR = WINDIR ^ "TEMP";
@@ -627,7 +629,7 @@ StartCopy:
 	        // copy Crystal Report files to windows\system
 	        TARGETDIR = WINSYSDIR;
 	
-                if (szForceInstall = "1 ") then
+        	if (szForceInstall = "1 ") then
 	
 	                LOGMSG="START FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
 	                LOGWRITE(LOGMSG);
@@ -1367,8 +1369,8 @@ begin
                 nvPosi = StrFind(szProgDir, "\\BIN");
                         
                 if nvPosi >= 0 then
-                    StrSub(szTemp, szProgDir, 0, nvPosi);
-
+                    //StrSub(szTemp, szProgDir, 0, nvPosi);
+	    szTemp = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
@@ -1386,10 +1388,9 @@ begin
                 DeleteFolderIcon(szFolder, "CopyLocal");
 
                 if bSecondRun then
-                    SdFinish(WELCOME_TITLE + " Complete",
-                             WELCOME_TITLE + " has finished copying files to your computer.",
-                             "Click Finish to complete " + WELCOME_TITLE,
-                             "", "", bTemp1, bTemp2);
+	                fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+	                       "  Before you can use " + PRODUCT_NAME + ", you must restart " +
+	                       "your computer.");
                 endif;
         endif;
 
@@ -2268,8 +2269,11 @@ begin
 				szDest = szDir;  // ?:\FACTOR\EXECTRAK
 			elseif szName = "SERVBIN.Z" then
 				szDest = szBin;  // ?:\FACTOR\EXECTRAK\BIN
+			elseif szName = "SERVDLL.Z" then
+				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
-				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+				//szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+				szDest = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
 			elseif szName = "SERVDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
@@ -2334,7 +2338,10 @@ begin
                 ListCurrentString(lstFileList, szName);
 	
 		if !bSelfRegister then
-                        	nvPosi = StrFind(szName, ".MDB");
+                        		nvPosi = StrFind(szName, ".MDB");
+			if nvPosi <0 then
+				nvPosi = StrFind(szName, ".QRT");
+			endif;
 			if nvPosi >=0 then
 				bGoCopy = TRUE;
 			else // EXE file

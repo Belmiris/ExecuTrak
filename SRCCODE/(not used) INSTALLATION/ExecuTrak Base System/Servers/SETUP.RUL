@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP			FALSE
 
-#define PRODUCT_VERSION         "3.03"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.05"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak303"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.03"
+#define DEINSTALL_KEY           "ExecuTrak305"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.05"
 
 #define SIZE_REQ_SERVER         15
 
@@ -465,8 +465,10 @@ StartCopy:
         endif;
         
         StatusUpdate(ON, 73);
-        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
-
+        //TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+        //set to local dir
+	TARGETDIR = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
+	
         if (szForceInstall = "1 ") then
 
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
@@ -1236,8 +1238,8 @@ begin
                     nvPosi = StrFind(szProgDir, "\\BIN");
                             
                     if nvPosi >= 0 then
-                        StrSub(szTemp, szProgDir, 0, nvPosi);
-
+                       // StrSub(szTemp, szProgDir, 0, nvPosi);
+			szTemp = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
@@ -1254,12 +1256,9 @@ begin
                 DeleteFolderIcon(szFolder, "CopyLocal");
 
                 if bSecondRun then
-                        SdFinish(WELCOME_TITLE + " Complete",
-                             WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
-                             "You may now run the " + PRODUCT_NAME + " Client Installation " +
-                             "program on any PC requiring access to the " + PRODUCT_NAME +
-                             " system.",
-                             "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
+	                fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+	                       "  Before you can use " + PRODUCT_NAME + ", you must restart " +
+	                       "your computer.");
                 endif;
         endif;
 
