@@ -8,7 +8,7 @@
 #include "winapi.h"
 
 //constants
-#define PRODUCT_VERSION         "3.01"
+#define PRODUCT_VERSION         "3.02"
 #define COMPANY_NAME		"FACTOR"
 #define PRODUCT_NAME            "FACTOR Software"
 #define PRODUCT_KEY             "CDinstallation"
@@ -34,13 +34,13 @@ declare
         LIST    ListApp, ListExe, ListFail;
 
         BOOL bTemp1, bTemp2, bInstalled, bRun, bRun00, bIsBaseInstall, bContinue;
-        BOOL bBaseInstallFailed, bIsExecVisionInstall;
+        BOOL bBaseInstallFailed, bIsExecVisionInstall, bRebootNeeded;
 
         //function prototypes
 
 	prototype subReadModuleList();
         prototype fnChangeExtension(STRING);
-        prototype fnRunSetup(STRING);
+        prototype fnRunSetup(STRING, BOOL);
 
 
 program
@@ -76,11 +76,11 @@ SayWelcome:
 
 	bRun00 = TRUE;
 	
-        	if (CMDLINE = "2") then
+	if (CMDLINE = "2") then
 		bRun00 = FALSE;
-
-                	szFolder = "Startup";
-                	DeleteFolderIcon(szFolder, "CDINSTALL");
+		
+		szFolder = "Startup";
+		DeleteFolderIcon(szFolder, "CDINSTALL");
 	endif;
 
 	if bRun00 then
@@ -91,10 +91,10 @@ SayWelcome:
 		SdShowMsg("",FALSE);
 	endif;
 
-        	subReadModuleList();
+	subReadModuleList();
 	 
 	if bRun00 then
-	        	szMsg = "The following modules will be installed.";
+        	szMsg = "The following modules will be installed.";
 	
 		Enable(BACKBUTTON);
 		
@@ -117,26 +117,33 @@ SayWelcome:
 
 	ListFail = ListCreate(STRINGLIST);
 
-        	Disable (BACKBUTTON);
+	Disable (BACKBUTTON);
 
 	bContinue = TRUE;
 
 	while (nResult != END_OF_LIST && bContinue)
 
-               bRun = TRUE;
-	bIsBaseInstall = FALSE;
-	bIsExecVisionInstall = FALSE;
+		bRun = TRUE;
+		bIsBaseInstall = FALSE;
+		bIsExecVisionInstall = FALSE;
 
-	StrToUpper(szTemp, szAppName); 
-               if (StrFind(szTemp, "EXECUTRAK BASE SYSTEM") >= 0) then
-		bIsBaseInstall = TRUE;
-	endif;
-               if (StrFind(szTemp, "EXECUVISION") >= 0) then
-		bIsBaseInstall = TRUE;
-		bIsExecVisionInstall = TRUE;
-	endif;
-
-	if (bRun00 || ((!bRun00) && (!bIsBaseInstall))) then
+		StrToUpper(szTemp, szAppName); 
+		
+		if (StrFind(szTemp, "EXECUTRAK BASE SYSTEM") >= 0) then
+			bIsBaseInstall = TRUE;
+		endif;
+		
+		if (StrFind(szTemp, "EXECUVISION") >= 0) then
+			bIsBaseInstall = TRUE;
+			bIsExecVisionInstall = TRUE;
+		endif;
+		
+		if (StrFind(szTemp, "HARBINGER") >= 0) then
+			bRebootNeeded = TRUE;
+			bIsExecVisionInstall = TRUE;
+		endif;
+		
+		if (bRun00 || ((!bRun00) && (!bIsBaseInstall))) then
 	                szMsg = "Do you want to install " + szAppName + "?";
 	
 	                szComponents = "Installation";
@@ -147,62 +154,63 @@ SayWelcome:
 	                ComponentSelectItem (szComponents, "N&o", FALSE);
 	
 	                szTemp = "";
+
 	                SdAskOptions("FACTOR Software Installation", szMsg,
 	                        "Click on the Back or Next button to continue.", szTemp, szComponents, EXCLUSIVE);
 	        
 	                if (ComponentIsItemSelected(szComponents,"N&o")) then
 	                        bRun = FALSE;
 	                endif;
-	else
-                        bRun = FALSE;
-	endif;
+		else
+	                bRun = FALSE;
+		endif;
 
-               if (bRun) then
+		if (bRun) then
                         Enable (HOURGLASS);
 
                         //store result into szSetupIns variable
                         fnChangeExtension(szExeName);
 
-                        	if (fnRunSetup(szSetupIns)) then
-			bInstalled = TRUE;
-		else
-			if (bIsBaseInstall) then
-				bBaseInstallFailed = TRUE;
-			endif;
+	        	if (fnRunSetup(szSetupIns, bRebootNeeded)) then
+				bInstalled = TRUE;
+			else
+				if (bIsBaseInstall) then
+					bBaseInstallFailed = TRUE;
+				endif;
+	
+				MessageBox("Fail to launchApp " + szAppName, WARNING);
 
-			MessageBox("Fail to launchApp " + szAppName, WARNING);
+                        	Enable (HOURGLASS);
 
-                                	Enable (HOURGLASS);
-
-			if (ListAddString(ListFail, szAppName, AFTER) < 0) then
-				MessageBox("Fail to add module item list.", WARNING);
-			endif;
+				if (ListAddString(ListFail, szAppName, AFTER) < 0) then
+					MessageBox("Fail to add module item list.", WARNING);
+				endif;
 			
-			nFailApp = nFailApp + 1;
-		endif;
-
-	else
-		if ((!bRun00) && bIsBaseInstall) then
-			//do nothing
-		else
-	                	if (ListAddString(ListFail, szAppName, AFTER) < 0) then
-				MessageBox("Fail to add module item list.", WARNING);
+				nFailApp = nFailApp + 1;
 			endif;
 
-			nFailApp = nFailApp + 1;
+		else
+			if ((!bRun00) && bIsBaseInstall) then
+				//do nothing
+			else
+	                	if (ListAddString(ListFail, szAppName, AFTER) < 0) then
+					MessageBox("Fail to add module item list.", WARNING);
+				endif;
+
+				nFailApp = nFailApp + 1;
+			endif;
 		endif;
-	endif;
 
         	Disable (HOURGLASS);
 
-	nResult = ListGetNextString(ListExe, szExeName);
-	ListGetNextString(ListApp, szAppName);
+		nResult = ListGetNextString(ListExe, szExeName);
+		ListGetNextString(ListApp, szAppName);
 
-	szExeName = SRCDIR ^ szExeName;
+		szExeName = SRCDIR ^ szExeName;
 
-	if ((bRun00 && bIsBaseInstall && bRun) || (bBaseInstallFailed)) then
-		bContinue = FALSE;
-	endif;
+		if ((bRun00 && bIsBaseInstall && bRun) || (bBaseInstallFailed)) then
+			bContinue = FALSE;
+		endif;
 
 	endwhile;
 
@@ -218,11 +226,13 @@ SayWelcome:
 				SdShowInfoList("Unsuccessful Installation Module List", "The following modules were not installed into your system.", ListFail);
 			endif;
 		
-			if (bInstalled = TRUE) then
-			       SdFinish(WELCOME_TITLE + " Completed",
-			                 WELCOME_TITLE + " has finished installing files to your system.",
-			                 "Click Finish to end " + WELCOME_TITLE,
-			                 "", "", bTemp1, bTemp2);
+			if (bInstalled = TRUE ) then
+				if (!bRebootNeeded) then
+				       SdFinish(WELCOME_TITLE + " Completed",
+				                 WELCOME_TITLE + " has finished installing files to your system.",
+				                 "Click Finish to end " + WELCOME_TITLE,
+				                 "", "", bTemp1, bTemp2);
+				endif;
 			else
 			       SdFinish(WELCOME_TITLE + " Incompleted",
 			                 WELCOME_TITLE + " has not finished installing any modules to your system.",
@@ -354,7 +364,7 @@ begin
 end;
 
 
-function fnRunSetup(szSetup)
+function fnRunSetup(szSetup, bRebootAfterSetup)
 
         NUMBER nLen;
         STRING szExtension;
@@ -367,17 +377,33 @@ begin
         StrToUpper (szExtension, szExtension);
 
         if (szExtension = "EXE") then
-                if (LaunchAppAndWait(szSetupIns, "", WAIT) > 0) then
-                        return TRUE;
-                else
-                        return FALSE;
-                endif;
+		if (bRebootAfterSetup) then
+	                if (LaunchAppAndWait(szSetupIns, "", NOWAIT) > 0) then
+	                        return TRUE;
+	                else
+	                        return FALSE;
+	                endif;
+		else
+	                if (LaunchAppAndWait(szSetupIns, "", WAIT) > 0) then
+	                        return TRUE;
+	                else
+	                        return FALSE;
+	                endif;
+		endif;
         else
-                if (DoInstall(szSetupIns, "", WAIT) > 0) then
-                        return TRUE;
-                else
-                        return FALSE;
-                endif;
+		if (bRebootAfterSetup) then
+	                if (DoInstall(szSetupIns, "", NOWAIT) > 0) then
+	                        return TRUE;
+	                else
+	                        return FALSE;
+	                endif;
+		else
+	                if (DoInstall(szSetupIns, "", WAIT) > 0) then
+	                        return TRUE;
+	                else
+	                        return FALSE;
+	                endif;
+		endif;
         endif;
 
 end;
