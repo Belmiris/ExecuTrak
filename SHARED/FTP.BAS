@@ -229,9 +229,11 @@ Private Const HTTP_ADDREQ_FLAG_ADD = &H20000000
 Private Const HTTP_ADDREQ_FLAG_REPLACE = &H80000000
 '
 
-Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String, _
-                                sRemotePathAndFile As String, _
-                                sLocalPath As String, sRetErrMsg As String, _
+Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String, _
+                                sSourcePathAndFile As String, sDestPath As String, _
+                                bIsItFromUnixToLocal As Boolean, _
+                                Optional sDestFileName As String, _
+                                Optional sRetErrMsg As String, _
                                 Optional bShowError As Boolean = True, _
                                 Optional bDeleteSourceFile As Boolean = False, _
                                 Optional bPassive As Boolean = True, _
@@ -240,13 +242,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String,
     Dim hOpen As Long, hConnection As Long, hFind As Long
     Dim lBinAscii As Long, lActPassive As Long
     Dim bFlag As Boolean, i As Integer
-    Dim sRemotePath As String, sRemoteFile As String, sItemName As String
+    Dim sSourcePath As String, sSourceFile As String, sItemName As String
     Dim pData As WIN32_FIND_DATA
     Dim lLastDLLError As Long
     Dim sArrFile() As String
     
     fnTransferFile = False
-    sLocalPath = Trim(sLocalPath)
+    sDestPath = Trim(sDestPath)
+    sSourcePathAndFile = Trim(sSourcePathAndFile)
     
     hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
     If hOpen = 0 Then
@@ -255,97 +258,159 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPwd As String,
     End If
     
     IIf bPassive, lActPassive = INTERNET_FLAG_PASSIVE, lActPassive = 0
-    
-    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPwd, _
-                                                          INTERNET_SERVICE_FTP, lActPassive, 0)
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, lActPassive, 0)
     If hConnection = 0 Then
         fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
         GoTo CloseHandle
     End If
     
-    IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
-    
-    'The remote file specified should be valid....
-    If Trim(sRemotePathAndFile) = "" Then
-        sRetErrMsg = "Remote file path is not specified, cannot continue!"
+    If sSourcePathAndFile = "" Then
+        sRetErrMsg = "Source file path is not specified, cannot continue!"
         subShowError bShowError, sRetErrMsg, vbExclamation
         GoTo CloseHandle
     End If
     
-    'Separate the file path and file name...
-    sRemoteFile = fnGetRemoteFile(sRemotePathAndFile)
-    sRemotePath = fnGetRemotePath(sRemotePathAndFile)
-    
-    'Validate the localpath...
-    On Error GoTo errTrap
-    If Dir(sLocalPath, vbDirectory) = "" Or sLocalPath = "" Then
-        sRetErrMsg = "Invalid Local path specified!"
+    If sDestPath = "" Then
+        sRetErrMsg = "Destination file path is not specified, cannot continue!"
         subShowError bShowError, sRetErrMsg, vbExclamation
         GoTo CloseHandle
     End If
-    subAddSlash sLocalPath
     
-    'Set the current directory path...
-    bFlag = FtpSetCurrentDirectory(hConnection, sRemotePath)
-    If bFlag = False Then
-        fnErrorOut Err.LastDllError, "FtpSetCurrentDirectory", bShowError, sRetErrMsg
-        GoTo CloseHandle
-    End If
-    
-    pData.cFileName = String(MAX_PATH, 0)
-    
-    hFind = FtpFindFirstFile(hConnection, sRemoteFile, pData, 0, 0)
-    If hFind = 0 Then
-        lLastDLLError = Err.LastDllError
-        If lLastDLLError = ERROR_NO_MORE_FILES Then
-            sRetErrMsg = "No file(s) found to transfer!"
-            subShowError bShowError, sRetErrMsg, vbExclamation
-        Else
-            fnErrorOut Err.LastDllError, "FtpFindFirstFile", bShowError, sRetErrMsg
-        End If
-        GoTo CloseHandle
-    End If
-    
-    'Get the filenames, More than one file possible...
-    sItemName = Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
-    lLastDLLError = NO_ERROR
-    Do
-        pData.cFileName = String(MAX_PATH, 0)
-        bFlag = InternetFindNextFile(hFind, pData)
+    'Validate the source and destination paths...
+    On Error GoTo ErrTrap
+    If bIsItFromUnixToLocal Then
+        'Separate the file path and file name...
+        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
+        
+        'Validate and set the source path...
+        bFlag = FtpSetCurrentDirectory(hConnection, sSourcePath)
         If bFlag = False Then
-            lLastDLLError = Err.LastDllError
-            If lLastDLLError = ERROR_NO_MORE_FILES Then
-                Exit Do
-            Else
-                fnErrorOut Err.LastDllError, "InternetFindNextFile", bShowError, sRetErrMsg
-                GoTo CloseHandle
-            End If
-        Else
-            sItemName = sItemName & "," & Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
-        End If
-    Loop
-    
-    If Trim(sItemName) = "" Then
-        GoTo CloseHandle
-    End If
-    
-    sArrFile = Split(sItemName, ",")
-    
-    'Transfer the file to the local path specified...
-    For i = 0 To UBound(sArrFile)
-        bFlag = FtpGetFile(hConnection, sArrFile(i), sLocalPath & sArrFile(i), False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
-        If bFlag = False Then
-            fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
+            fnErrorOut Err.LastDllError, "FtpSetCurrentDirectory", bShowError, sRetErrMsg
             GoTo CloseHandle
         End If
-        If bDeleteSourceFile Then
-            bFlag = FtpDeleteFile(hConnection, sArrFile(i))
+        'Validate the destination path...
+        If Dir(sDestPath, vbDirectory) = "" Then
+            sRetErrMsg = "Invalid destination path specified, cannot continue!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+        subAddSlash sDestPath, "\"
+        pData.cFileName = String(MAX_PATH, 0)
+        
+        'Get all the matching files...
+        hFind = FtpFindFirstFile(hConnection, sSourceFile, pData, 0, 0)
+        If hFind = 0 Then
+            lLastDLLError = Err.LastDllError
+            If lLastDLLError = ERROR_NO_MORE_FILES Then
+                sRetErrMsg = "No file(s) found to transfer!"
+                subShowError bShowError, sRetErrMsg, vbExclamation
+            Else
+                fnErrorOut Err.LastDllError, "FtpFindFirstFile", bShowError, sRetErrMsg
+            End If
+            GoTo CloseHandle
+        End If
+        
+        'Get the filenames, More than one file possible...
+        sItemName = Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
+        lLastDLLError = NO_ERROR
+        Do
+            pData.cFileName = String(MAX_PATH, 0)
+            bFlag = InternetFindNextFile(hFind, pData)
             If bFlag = False Then
-                fnErrorOut Err.LastDllError, "FtpDeleteFile", bShowError, sRetErrMsg
+                lLastDLLError = Err.LastDllError
+                If lLastDLLError = ERROR_NO_MORE_FILES Then
+                    Exit Do
+                Else
+                    fnErrorOut Err.LastDllError, "InternetFindNextFile", bShowError, sRetErrMsg
+                    GoTo CloseHandle
+                End If
+            Else
+                sItemName = sItemName & "," & Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
+            End If
+        Loop
+        
+        If Trim(sItemName) = "" Then
+            GoTo CloseHandle
+        End If
+        
+        IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
+        sArrFile = Split(sItemName, ",")
+        
+        'Transfer the file to the local path specified...
+        Dim sDest As String
+        Dim nNum As Integer, sNum As String
+        For i = 0 To UBound(sArrFile)
+            If sDestFileName <> "" Then
+                nNum = InStr(1, sDestFileName, ".")
+                IIf i = 0, sNum = "", sNum = CStr(i)
+                If nNum > 0 Then
+                    sDest = sDestPath & Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
+                Else
+                    sDest = sDestPath & sDestFileName & sNum
+                End If
+            Else
+                sDest = sDestPath & sArrFile(i)
+            End If
+            bFlag = FtpGetFile(hConnection, sArrFile(i), sDest, False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
+            If bFlag = False Then
+                fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
                 GoTo CloseHandle
             End If
+            If bDeleteSourceFile Then
+                bFlag = FtpDeleteFile(hConnection, sArrFile(i))
+                If bFlag = False Then
+                    fnErrorOut Err.LastDllError, "FtpDeleteFile", bShowError, sRetErrMsg
+                    GoTo CloseHandle
+                End If
+            End If
+        Next i
+    Else
+        Dim nNumFiles As Integer
+        'Separate the file path and file name...
+        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath, False
+        
+        'Validate the source path...
+        If Dir(sSourcePath, vbDirectory) = "" Then
+            sRetErrMsg = "Invalid Source path specified, cannot continue!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
         End If
-    Next i
+        'Validate the destination path...
+        bFlag = FtpSetCurrentDirectory(hConnection, sDestPath)
+        If bFlag = False Then
+            fnErrorOut Err.LastDllError, "FtpSetCurrentDirectory", bShowError, sRetErrMsg
+            GoTo CloseHandle
+        End If
+        subAddSlash sDestPath, "/"
+        
+        'Get all the matching files if more than one...
+        nNumFiles = fnBuildFileArray(sSourcePath, sSourceFile, sArrFile)
+        If nNumFiles >= 0 Then
+            For i = 0 To nNumFiles
+                If sDestFileName <> "" Then
+                    nNum = InStr(1, sDestFileName, ".")
+                    IIf i = 0, sNum = "", sNum = CStr(i)
+                    If nNum > 0 Then
+                        sDest = Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
+                    Else
+                        sDest = sDestFileName & sNum
+                    End If
+                Else
+                    sDest = sArrFile(i)
+                End If
+                subAddSlash sSourcePath, "\"
+                sSourceFile = sSourcePath & sArrFile(i)
+                bFlag = FtpPutFile(hConnection, sSourceFile, sDest, lBinAscii, 0)
+                If bFlag = False Then
+                    fnErrorOut Err.LastDllError, "FtpPutFile", bShowError, sRetErrMsg
+                    GoTo CloseHandle
+                End If
+                If bDeleteSourceFile Then
+                    Kill (sSourceFile)
+                End If
+            Next i
+        End If
+    End If
     
     InternetCloseHandle hConnection
     InternetCloseHandle hOpen
@@ -359,7 +424,7 @@ CloseHandle:
     If hOpen > 0 Then InternetCloseHandle hOpen
     If hFind > 0 Then InternetCloseHandle hFind
     Exit Function
-errTrap:
+ErrTrap:
     sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
@@ -370,6 +435,7 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
     Dim dwIntError As Long
     Dim dwLength As Long
     Dim strBuffer As String
+    Dim nPos As Integer
     
     fnErrorOut = True
     sErrorMsg = ""
@@ -378,7 +444,15 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
         InternetGetLastResponseInfo dwIntError, vbNullString, dwLength
         strBuffer = String(dwLength + 1, 0)
         InternetGetLastResponseInfo dwIntError, strBuffer, dwLength
-        sErrorMsg = szCallFunction & vbCrLf & "Err: " & dwIntError & " " & strBuffer
+        sErrorMsg = szCallFunction & " Err: " & dwIntError & " " & strBuffer
+        nPos = InStr(1, sErrorMsg, vbCrLf)
+        If nPos > 0 Then
+            sErrorMsg = Mid(sErrorMsg, 1, nPos - 1) & Trim(Mid(sErrorMsg, nPos + 1))
+            nPos = InStr(1, sErrorMsg, vbLf)
+            If nPos > 0 Then
+                sErrorMsg = Mid(sErrorMsg, 1, nPos - 1) & Mid(sErrorMsg, nPos + 1)
+            End If
+        End If
         subShowError bShowError, sErrorMsg, vbCritical
         Exit Function
     End If
@@ -395,6 +469,8 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
         Case "InternetFindNextFile"
             sErrorMsg = "Failed to get the file from the server"
         Case "FtpGetFile"
+            sErrorMsg = "Failed to transfer the file"
+        Case "FtpPutFile"
             sErrorMsg = "Failed to transfer the file"
         Case "FtpDeleteFile"
             sErrorMsg = "Failed to delete the source file"
@@ -413,34 +489,39 @@ Private Function fnIsWholePath(sPath As String) As Boolean
     End If
 End Function
 
-Private Function fnGetRemoteFile(sPath As String) As String
-    Dim nPos As Integer
-    
-    fnGetRemoteFile = ""
-    nPos = InStrRev(sPath, "/")
-    fnGetRemoteFile = Mid(sPath, nPos + 1)
-    
-End Function
-
-Private Sub subAddSlash(sStr As String)
+Private Sub subAddSlash(sStr As String, sSlash As String)
     If sStr <> "" Then
-        If Right(sStr, 1) <> "\" Then
-            sStr = sStr & "\"
+        If Right(sStr, 1) <> sSlash Then
+            sStr = sStr & sSlash
         End If
     End If
 End Sub
-
-Private Function fnGetRemotePath(sPath As String) As String
-    Dim nPos As Integer
-    
-    fnGetRemotePath = ""
-    nPos = InStrRev(sPath, "/")
-    fnGetRemotePath = Mid(sPath, 1, nPos)
-
-End Function
 
 Private Sub subShowError(bShow As Boolean, sErrMsg As String, vbType As VbMsgBoxStyle)
     If bShow Then
         MsgBox sErrMsg, vbType
     End If
+End Sub
+
+Private Sub subSeparateFileAndPath(sPath As String, sFile As String, sFilePath As String, _
+                                   Optional bRemote As Boolean = True)
+    Dim nPos As Integer
+    Dim sSlash As String
+    
+    If sPath = "" Then
+        Exit Sub
+    End If
+    
+    If bRemote Then
+        sSlash = "/"
+    Else
+        sSlash = "\"
+    End If
+    
+    nPos = InStrRev(sPath, sSlash)
+    If nPos > 1 Then
+        sFile = Mid(sPath, nPos + 1)
+        sFilePath = Left(sPath, nPos - 1)
+    End If
+    
 End Sub
