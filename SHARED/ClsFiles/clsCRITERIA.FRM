@@ -24,16 +24,16 @@ Begin VB.Form clsCRITERIA
    ScaleWidth      =   10170
    StartUpPosition =   3  'Windows Default
    Begin FACTFRMLib.FactorFrame efraFilterPopup 
-      Height          =   3015
-      Left            =   1380
-      TabIndex        =   17
+      Height          =   3030
+      Left            =   1590
+      TabIndex        =   19
       TabStop         =   0   'False
-      Top             =   1035
+      Top             =   2295
       Visible         =   0   'False
-      Width           =   7560
+      Width           =   8280
       _Version        =   65536
-      _ExtentX        =   13335
-      _ExtentY        =   5318
+      _ExtentX        =   14605
+      _ExtentY        =   5345
       _StockProps     =   77
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -61,11 +61,11 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame efraForFocus 
          Height          =   2175
          Left            =   150
-         TabIndex        =   7
+         TabIndex        =   9
          Top             =   195
-         Width           =   7290
+         Width           =   8010
          _Version        =   65536
-         _ExtentX        =   12859
+         _ExtentX        =   14129
          _ExtentY        =   3836
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -87,14 +87,22 @@ Begin VB.Form clsCRITERIA
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
+         Begin VB.TextBox txtDesc 
+            Height          =   360
+            HelpContextID   =   1002
+            Left            =   3105
+            TabIndex        =   7
+            Top             =   1680
+            Width           =   4365
+         End
          Begin VB.TextBox txtFilter 
             Height          =   360
             HelpContextID   =   1000
             Left            =   165
             Locked          =   -1  'True
-            TabIndex        =   13
+            TabIndex        =   15
             Top             =   990
-            Width           =   6915
+            Width           =   7680
          End
          Begin VB.TextBox txtOp 
             Height          =   360
@@ -107,10 +115,10 @@ Begin VB.Form clsCRITERIA
          Begin VB.TextBox txtValue 
             Height          =   360
             HelpContextID   =   1002
-            Left            =   1395
+            Left            =   1260
             TabIndex        =   5
             Top             =   1680
-            Width           =   5340
+            Width           =   1425
          End
          Begin FACTFRMLib.FactorFrame cmdOp 
             Height          =   360
@@ -150,7 +158,7 @@ Begin VB.Form clsCRITERIA
          Begin FACTFRMLib.FactorFrame cmdValue 
             Height          =   360
             HelpContextID   =   1002
-            Left            =   6750
+            Left            =   2700
             TabIndex        =   6
             TabStop         =   0   'False
             Top             =   1680
@@ -182,15 +190,62 @@ Begin VB.Form clsCRITERIA
                Strikethrough   =   0   'False
             EndProperty
          End
+         Begin FACTFRMLib.FactorFrame cmdDesc 
+            Height          =   360
+            HelpContextID   =   1002
+            Left            =   7485
+            TabIndex        =   8
+            TabStop         =   0   'False
+            Top             =   1680
+            Width           =   360
+            _Version        =   65536
+            _ExtentX        =   635
+            _ExtentY        =   635
+            _StockProps     =   77
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            =   9.75
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            CaptionPos      =   4
+            Picture         =   "clsCRITERIA.frx":02F4
+            Style           =   3
+            BorderWidth     =   4
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            =   9.75
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+         End
+         Begin VB.Label lblDesc 
+            BackColor       =   &H00C0C0C0&
+            BackStyle       =   0  'Transparent
+            Caption         =   "Description"
+            ForeColor       =   &H00000000&
+            Height          =   270
+            Left            =   3150
+            TabIndex        =   25
+            Top             =   1410
+            UseMnemonic     =   0   'False
+            Width           =   4605
+         End
          Begin VB.Label lblColumnName 
             BackColor       =   &H80000005&
             BorderStyle     =   1  'Fixed Single
             Height          =   360
             Left            =   180
-            TabIndex        =   22
+            TabIndex        =   24
             Top             =   315
             UseMnemonic     =   0   'False
-            Width           =   6915
+            Width           =   7680
          End
          Begin VB.Label Label 
             BackColor       =   &H00C0C0C0&
@@ -200,7 +255,7 @@ Begin VB.Form clsCRITERIA
             Height          =   270
             Index           =   0
             Left            =   180
-            TabIndex        =   21
+            TabIndex        =   23
             Top             =   75
             UseMnemonic     =   0   'False
             Width           =   2010
@@ -213,20 +268,20 @@ Begin VB.Form clsCRITERIA
             Height          =   270
             Index           =   2
             Left            =   180
-            TabIndex        =   20
+            TabIndex        =   22
             Top             =   1410
             UseMnemonic     =   0   'False
             Width           =   1320
          End
-         Begin VB.Label Label1 
+         Begin VB.Label Label 
             BackColor       =   &H00C0C0C0&
             BackStyle       =   0  'Transparent
             Caption         =   "Value"
             ForeColor       =   &H00000000&
             Height          =   270
             Index           =   3
-            Left            =   1440
-            TabIndex        =   19
+            Left            =   1305
+            TabIndex        =   21
             Top             =   1410
             UseMnemonic     =   0   'False
             Width           =   2055
@@ -237,9 +292,9 @@ Begin VB.Form clsCRITERIA
             Caption         =   "Filter"
             ForeColor       =   &H00000000&
             Height          =   270
-            Index           =   16
+            Index           =   1
             Left            =   180
-            TabIndex        =   18
+            TabIndex        =   20
             Top             =   750
             UseMnemonic     =   0   'False
             Width           =   825
@@ -248,8 +303,8 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdFilterOK 
          Height          =   390
          HelpContextID   =   16
-         Left            =   4641
-         TabIndex        =   9
+         Left            =   5148
+         TabIndex        =   11
          Top             =   2490
          Width           =   1305
          _Version        =   65536
@@ -285,8 +340,8 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdFilterCancel 
          Height          =   390
          HelpContextID   =   15
-         Left            =   6135
-         TabIndex        =   11
+         Left            =   6810
+         TabIndex        =   13
          Top             =   2490
          Width           =   1305
          _Version        =   65536
@@ -322,7 +377,7 @@ Begin VB.Form clsCRITERIA
          Height          =   390
          HelpContextID   =   10
          Left            =   165
-         TabIndex        =   8
+         TabIndex        =   10
          Top             =   2490
          Width           =   1305
          _Version        =   65536
@@ -358,8 +413,8 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdClear 
          Height          =   390
          HelpContextID   =   20
-         Left            =   1657
-         TabIndex        =   12
+         Left            =   1826
+         TabIndex        =   14
          Top             =   2490
          Width           =   1305
          _Version        =   65536
@@ -394,8 +449,8 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdRefresh 
          Height          =   390
          HelpContextID   =   14
-         Left            =   3149
-         TabIndex        =   10
+         Left            =   3487
+         TabIndex        =   12
          Top             =   2490
          Width           =   1305
          _Version        =   65536
@@ -431,7 +486,7 @@ Begin VB.Form clsCRITERIA
    Begin FACTFRMLib.FactorFrame efraTabBack 
       Height          =   5955
       Left            =   0
-      TabIndex        =   14
+      TabIndex        =   16
       TabStop         =   0   'False
       Top             =   0
       Width           =   10155
@@ -535,7 +590,7 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame efra0TabBase 
          Height          =   5175
          Left            =   120
-         TabIndex        =   15
+         TabIndex        =   17
          TabStop         =   0   'False
          Top             =   120
          Width           =   9945
@@ -566,7 +621,7 @@ Begin VB.Form clsCRITERIA
             Height          =   5040
             HelpContextID   =   1003
             Left            =   60
-            OleObjectBlob   =   "clsCRITERIA.frx":02F4
+            OleObjectBlob   =   "clsCRITERIA.frx":04F6
             TabIndex        =   0
             Top             =   60
             Width           =   9810
@@ -591,11 +646,11 @@ Begin VB.Form clsCRITERIA
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblComboDropdown 
-      Bindings        =   "clsCRITERIA.frx":192F
+      Bindings        =   "clsCRITERIA.frx":1B31
       Height          =   2484
       Left            =   0
-      OleObjectBlob   =   "clsCRITERIA.frx":194E
-      TabIndex        =   16
+      OleObjectBlob   =   "clsCRITERIA.frx":1B50
+      TabIndex        =   18
       TabStop         =   0   'False
       Top             =   0
       Width           =   3756
@@ -627,9 +682,13 @@ Private nCol_OldSort As Integer
 Private nCol_DefaultSort As Integer
 Private nCol_FieldName As Integer
 Private nCol_FieldType As Integer
-Private nCol_NdxTgCombo As String
+Private nCol_NdxTgCombo As Integer
 Private nCol_RegExp As Integer
-Private nCol_ComboSQL As String
+Private nCol_ComboSQL As Integer
+Private nCol_CriteriaField As Integer
+Private nCol_AllowEditSortCol As Integer
+Private nCol_XtraColName As Integer
+Private nCol_XtraRegExp As Integer
 Private nCol_sPreReqFields As Integer
 
 Private MAX_COL As Integer
@@ -647,6 +706,7 @@ Private m_sStatusMsg As String
 Private m_nCurrRow As Integer
 
 Private sRegExp As String
+Private sRegExpDesc As String
 Private sRegExpOp As String
 Private nClickCol As Integer
 Private ndxPrevActiveCombo As Integer
@@ -657,6 +717,9 @@ Private tgcDropdown As Object
 '
 Private Const nDB_LOCAL As Integer = 0
 Private Const nDB_REMOTE As Integer = 1
+
+Private sngDefaultValueLeft As Single
+Private sngDefaultValueWidth As Single
 '
 
 Public Sub Setup(frmParent As Form, strSQL As String, Optional bForceSetup As Boolean = False)
@@ -688,7 +751,9 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
                         Optional ByVal sRegExp As String = "", _
                         Optional ByVal sDefaultFilter As String = "", _
                         Optional ByVal sDefaultSort As String = "", _
-                        Optional ByVal sPreRequisiteFields As String = "") As Boolean
+                        Optional ByVal sPreRequisiteFields As String = "", _
+                        Optional ByVal sCriteriaField As String = "", _
+                        Optional ByVal bAllowEditSortCol As Boolean = True) As Boolean
     
     On Error GoTo errTrap
     
@@ -727,6 +792,8 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
     aryData(nCol_FieldType, 0) = sFieldType
     aryData(nCol_RegExp, 0) = sRegExp
     aryData(nCol_ComboSQL, 0) = sDropdownSQL
+    aryData(nCol_CriteriaField, 0) = fnCStr(sCriteriaField)
+    aryData(nCol_AllowEditSortCol, 0) = bAllowEditSortCol
     aryData(nCol_sPreReqFields, 0) = sPreRequisiteFields
     
     'create a tg combo the column
@@ -735,7 +802,7 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
     
     If Not tgcDropdown Is Nothing Then
         With tgcDropdown
-            aryData(nCol_NdxTgCombo, 0) = .AddCombo(sDropdownSQL)
+            aryData(nCol_NdxTgCombo, 0) = .AddCombo(sDropdownSQL, , tgcDropdown.DropUp)
             
             Select Case Left(sFieldType, 1)
             Case TYPE_DATE
@@ -768,7 +835,7 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
                 Exit Function
             End Select
             
-            .AddComboBox txtValue, cmdValue, sFieldName, nType
+            .AddComboBox txtValue, cmdValue, sFieldName, nType, , sFieldName
         End With
     End If
     
@@ -784,6 +851,115 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
 errTrap:
     MsgBox "Error in AddColumn()." + vbCrLf + vbCrLf + "Err Code: " & Err.Number & ", Err Desc: " & Err.Description
 End Function
+
+Public Sub AddExtraColumn(ByVal sPrimaryFieldName As String, ByVal sColName As String, _
+                          ByVal sFieldName As String, ByVal sFieldType As String, _
+                          Optional ByVal sRegExp As String = "", _
+                          Optional ByVal sColCaption1 As String = "", _
+                          Optional ByVal sColCaption2 As String = "")
+    
+    On Error GoTo errTrap
+    
+    Dim i As Integer
+    Dim ndxComboID As Integer
+    
+    sColName = fnCStr(sColName)
+    sFieldName = fnCStr(sFieldName)
+    sFieldType = fnCStr(sFieldType)
+    sRegExp = fnCStr(sRegExp)
+    sColCaption1 = fnCStr(sColCaption1)
+    sColCaption2 = fnCStr(sColCaption2)
+    
+    If sPrimaryFieldName = "" Then
+        MsgBox "FieldName for Primary Column (e.g. Product Code/Customer Number), is required.", vbCritical
+        Exit Sub
+    End If
+    
+    If sColName = "" Or sFieldName = "" Or sFieldType = "" Then
+        MsgBox "Column Name, Field Name, sFieldType and Dropdown SQL are required.", vbCritical
+        Exit Sub
+    End If
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_FieldName, i) = sPrimaryFieldName Then
+                ndxComboID = tfnRound(.CellValue(nCol_NdxTgCombo, i))
+                
+                If ndxComboID <= 0 Then
+                    MsgBox "ComboDropdown not setup for Primary Column!", vbCritical
+                    Exit Sub
+                End If
+                
+                Exit For
+            End If
+        Next
+        
+        If i > .RowCount - 1 Then
+            MsgBox "Primary Column (e.g. Product Code/Customer Number) not found!", vbCritical
+            Exit Sub
+        End If
+        
+        'save 'desc box' setup
+        .CellValue(nCol_XtraColName, i) = sColName
+        .CellValue(nCol_XtraRegExp, i) = sRegExp
+        
+        If sColCaption1 = "" Then
+            sColCaption1 = fnCStr(.CellValue(nCol_ColumnName, i))
+        End If
+        If sColCaption2 = "" Then
+            sColCaption2 = sColName
+        End If
+    End With
+    
+    'create a tg combo the column
+    Dim nType As Integer
+    Dim aryTemp() As String
+    
+    If Not tgcDropdown Is Nothing Then
+        With tgcDropdown
+            .CurrentCombo = ndxComboID
+            
+            Select Case Left(sFieldType, 1)
+            Case TYPE_DATE
+                nType = .SQL_DATE_TYPE
+            Case TYPE_STRING
+                aryTemp = Split(sFieldType, "-")
+                
+                If aryTemp(1) = "" Then
+                    nType = .SQL_STRING_TYPE
+                Else
+                    nType = .SQL_STRING_TYPE(Val(aryTemp(1)))
+                End If
+            Case TYPE_DECIMAL
+                aryTemp = Split(sFieldType, "-")
+                
+                If aryTemp(1) = "" Then
+                    nType = .SQL_DECIMAL_TYPE
+                Else
+                    aryTemp = Split(sFieldType, ",")
+                    nType = .SQL_DECIMAL_TYPE(Val(aryTemp(0)), Val(aryTemp(1)))
+                End If
+            Case TYPE_LONG
+                nType = .SQL_LONG_TYPE
+            Case TYPE_INT
+                nType = .SQL_INT_TYPE
+            Case TYPE_PHONE
+                nType = .SQL_PHONE_TYPE
+            Case Else  'regular expression
+                MsgBox "Field Type is not valid.", vbCritical
+                Exit Sub
+            End Select
+            
+            .AddComboBox txtDesc, cmdDesc, sFieldName, nType, , sFieldName
+            .SetColumnCaptions sColCaption1, sColCaption2
+        End With
+    End If
+    
+    Exit Sub
+    
+errTrap:
+    MsgBox "Error in AddColumn()." + vbCrLf + vbCrLf + "Err Code: " & Err.Number & ", Err Desc: " & Err.Description
+End Sub
 
 'the command button (e.g. cmdQuery) that activate this popup form needs to be disabled.
 'otherwise it will take two clicks to cancel/hide this form.
@@ -969,6 +1145,9 @@ Private Sub cmdRefresh_Click()
     cmdRefresh.Enabled = False
     txtOp = ""
     txtValue = ""
+    txtDesc = ""
+    cValidate.ResetFlags
+
     subSetFocus txtOp
 End Sub
 
@@ -1052,8 +1231,19 @@ Private Sub cmdOkBtn_Click()
     
     subBuildCriteria m_sCriteria, m_sOrderBy
     
+    'the 'order by' in MainSQL will override the one bult from the criteria screen
     m_sReturnSQL = fnCStr(m_sOriginalSQL)
     
+    'take out the 'order by' from MainSQL if any
+    Dim nPosi As Integer
+    
+    nPosi = InStr(UCase(m_sReturnSQL), "ORDER BY")
+    
+    If nPosi > 0 Then
+        m_sOrderBy = Trim(Mid(m_sReturnSQL, nPosi))
+        m_sReturnSQL = Trim(Left(m_sReturnSQL, nPosi - 1))
+    End If
+        
     If m_sCriteria <> "" Then
         If InStr(UCase(m_sReturnSQL), " WHERE ") > 0 Then
             m_sReturnSQL = m_sReturnSQL + " AND "
@@ -1083,6 +1273,7 @@ Private Sub cmdAdd_Click()
     
         txtOp = ""
         txtValue = ""
+        txtDesc = ""
         cValidate.ResetFlags
         
         cmdClear.Enabled = txtFilter.Text <> ""
@@ -1102,6 +1293,9 @@ Private Sub cmdClear_Click()
     cmdFilterOK.Enabled = fnFilterChanged()
     txtOp = ""
     txtValue = ""
+    txtDesc = ""
+    cValidate.ResetFlags
+    
     subSetFocus txtOp
     cmdClear.Enabled = False
 End Sub
@@ -1252,7 +1446,7 @@ Private Sub subSetupGrid()
         .AutoRefreshCellValue = True
         .SetupTable False
         .AllowAddNew = False
-        .AddEditColumn nCol_Sort, "Enter Sort Option: A for Ascending or D for Descending", "^([AD])$"
+        .AddEditColumn nCol_Sort, "Enter Sort Opt:(A)scending/(D)escending. Click on 'Filter' col to enter/change sel. criteria", "^([AD])$"
         nCol_OldFilter = .AddHiddenField("OldFilter")
         nCol_OldSort = .AddHiddenField("OldSort")
         nCol_DefaultSort = .AddHiddenField("DefaultSort")
@@ -1261,7 +1455,11 @@ Private Sub subSetupGrid()
         nCol_RegExp = .AddHiddenField("RegExp")
         nCol_NdxTgCombo = .AddHiddenField("NdxTgCombo")
         nCol_ComboSQL = .AddHiddenField("ComboSQL")
-        nCol_sPreReqFields = .AddHiddenField("NdxPreReqField")
+        nCol_CriteriaField = .AddHiddenField("CriteriaField")
+        nCol_AllowEditSortCol = .AddHiddenField("AllowEditSortCol")
+        nCol_XtraColName = .AddHiddenField("XtraColName")
+        nCol_XtraRegExp = .AddHiddenField("XtraRegExp")
+        nCol_sPreReqFields = .AddHiddenField("sPreReqFields")
         
         MAX_COL = nCol_sPreReqFields
         .ClearData
@@ -1371,6 +1569,13 @@ Private Sub tblCriteria_AfterColEdit(ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    If ColIndex = nCol_Sort Then
+        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+            CANCEL = True
+            Exit Sub
+        End If
+    End If
+    
     cmdOkBtn.Enabled = False
     tgmCriteria.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
@@ -1385,14 +1590,22 @@ Private Sub tblCriteria_FirstRowChange()
     If tgmCriteria.RowCount < 1 Then
         Exit Sub
     End If
+    
     tgmCriteria.FirstRowChange
 End Sub
 
 Private Sub tblCriteria_GotFocus()
     tgmCriteria.GotFocus
+    
     If tblCriteria.Col <> nCol_Sort Then
         m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+    ElseIf tblCriteria.Col = nCol_Sort Then
+        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+            m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+            Exit Sub
+        End If
     End If
+    
     subSetGridButtonStatus
 End Sub
 
@@ -1425,8 +1638,8 @@ Private Sub tblCriteria_LostFocus()
 End Sub
 
 Private Sub tblCriteria_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-Debug.Print "x="; X; ", nClickCol = "; nClickCol
     nClickCol = tblCriteria.ColContaining(X)
+Debug.Print "x="; X; ", nClickCol = "; nClickCol
 End Sub
 
 Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -1434,6 +1647,10 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     
     If tblCriteria.Col <> nCol_Sort Then
         m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+    ElseIf tblCriteria.Col = nCol_Sort Then
+        If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
+            m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+        End If
     End If
 
     If tgmCriteria.RowCount > 0 Then
@@ -1468,6 +1685,7 @@ End Function
 
 Private Sub subShowFilterPopup()
     Dim i As Integer
+    Dim sCaption As String
     
     If ndxPrevActiveCombo >= 0 Then
         For i = 0 To tgmCriteria.RowCount - 1
@@ -1488,6 +1706,25 @@ Private Sub subShowFilterPopup()
     
     sRegExp = tgmCriteria.CellValue(nCol_RegExp, m_nCurrRow)
     
+    sCaption = tgmCriteria.CellValue(nCol_XtraColName, m_nCurrRow)
+    
+    If sCaption = "" Then  'no extra column/textbox
+        lblDesc.Visible = False
+        txtDesc.Visible = False
+        cmdDesc.Visible = False
+        'cmdValue.Left = cmdDesc.Left
+        'txtValue.Width = sngDefaultValueWidth + cmdValue.Width + txtDesc.Width + 70
+    Else
+        'cmdValue.Left = sngDefaultValueLeft
+        'txtValue.Width = sngDefaultValueWidth
+        sRegExpDesc = tgmCriteria.CellValue(nCol_XtraRegExp, m_nCurrRow)
+        
+        lblDesc.Caption = sCaption
+        lblDesc.Visible = True
+        txtDesc.Visible = True
+        cmdDesc.Visible = True
+    End If
+    
     ndxPrevActiveCombo = tfnRound(tgmCriteria.CellValue(nCol_NdxTgCombo, m_nCurrRow))
     tgcDropdown.ComboActive(ndxPrevActiveCombo) = True
     
@@ -1498,6 +1735,7 @@ Private Sub subShowFilterPopup()
     nClickCol = 2
     txtOp = ""
     txtValue = ""
+    txtDesc = ""
     cValidate.ResetFlags
     
     efraTabBack.Enabled = False
@@ -1533,7 +1771,7 @@ Private Sub subSetupCombos()
     'Setup the combos
     ' Set the general properties of the combos
     If tgcDropdown Is Nothing Then
-        'for Debug only
+        'for Debugging only
         'Set tgcDropdown = New clsComboControl
         Set tgcDropdown = CreateObject(t_szOLECOMBO)
         
@@ -1546,17 +1784,22 @@ Private Sub subSetupCombos()
                 Set .DataBase = t_dbMainDatabase
                 Set .DataLink = datComboDropDown
                 Set .Table = tblComboDropDown
+                .SortOnColumnClick = True
                 
                 'Set .LocalDatabase = dbLocal (Your local database object variable)
                 'Add the combos below
                 
-                .AddCombo ("SELECT op FROM temp_operator")
+                .AddCombo "SELECT op FROM temp_operator", , tgcDropdown.DropUp
                 .AddComboBox txtOp, cmdOp, "op", .SQL_STRING_TYPE(2)
                 .SetOrderingNone txtOp
                 
                 'more will be added in AddColumn() function - ON THE FLY
             End With
         End If
+    
+        'save the default left and width
+        sngDefaultValueLeft = cmdValue.Left
+        sngDefaultValueWidth = txtValue.Width
     End If
 
     Exit Sub
@@ -1571,6 +1814,10 @@ End Sub
 
 Private Sub tblComboDropDown_GotFocus()
     tgcDropdown.GotFocus tblComboDropDown
+End Sub
+
+Private Sub tblComboDropDown_HeadClick(ByVal ColIndex As Integer)
+    tgcDropdown.HeadClick ColIndex
 End Sub
 
 Private Sub tblComboDropDown_KeyPress(KeyAscii As Integer)
@@ -1823,7 +2070,7 @@ Private Sub txtValue_LostFocus()
     #If ProtoType Then
         Exit Sub
     #End If
-    If cValidate.LostFocus(txtValue, cmdValue) Then
+    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc) Then
         subSetButtonStatus
         
         If cmdAdd.Enabled Then
@@ -1841,6 +2088,93 @@ Private Sub cmdValue_Click()
     
     subFixComboSQL
     tgcDropdown.Click cmdValue
+End Sub
+
+Private Sub txtDesc_Click()
+    tgcDropdown.Click txtDesc
+End Sub
+
+Private Sub txtDesc_Change()
+    If sRegExpDesc <> "" Then
+        tfnRegExpControlChange txtDesc, sRegExpDesc
+    End If
+    
+    cValidate.Change txtDesc
+End Sub
+
+Private Sub txtDesc_GotFocus()
+    If sRegExpDesc <> "" Then
+        tfnRegExpControlGotFocus txtDesc, sRegExpDesc
+    End If
+    
+    cValidate.GotFocus txtDesc
+    tgcDropdown.GotFocus txtDesc
+    If tgcDropdown.SingleRecordSelected Then
+        subSetButtonStatus
+        
+        If cmdAdd.Enabled Then
+            subSetFocus cmdAdd
+        End If
+    End If
+End Sub
+
+Private Sub txtDesc_KeyPress(KeyAscii As Integer)
+    #If ProtoType Then
+        Exit Sub
+    #End If
+    
+    If sRegExpDesc <> "" Then
+        If Not tfnRegExpControlKeyPress(txtDesc, KeyAscii, sRegExpDesc) Then
+            KeyAscii = 0
+            Exit Sub
+        End If
+    End If
+            
+    If KeyAscii = vbKeyReturn Then
+        Screen.MousePointer = vbHourglass
+        subFixComboSQL
+    End If
+    
+    If Not tgcDropdown.Keypress(txtDesc, KeyAscii) Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                subSetButtonStatus
+                
+                If cmdAdd.Enabled Then
+                    subSetFocus cmdAdd
+                End If
+            End If
+            
+            Screen.MousePointer = vbDefault
+        End If
+        KeyAscii = 0
+    Else
+        cValidate.Keypress txtDesc, KeyAscii
+    End If
+End Sub
+
+Private Sub txtDesc_LostFocus()
+    #If ProtoType Then
+        Exit Sub
+    #End If
+    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc) Then
+        subSetButtonStatus
+        
+        If cmdAdd.Enabled Then
+            If ActiveControl Is cmdFilterCancel Then
+                subSetFocus cmdAdd
+            End If
+        End If
+    End If
+End Sub
+
+Private Sub cmdDesc_Click()
+    #If ProtoType Then
+        Exit Sub
+    #End If
+    
+    subFixComboSQL
+    tgcDropdown.Click cmdDesc
 End Sub
 
 Private Sub subFixComboSQL()
@@ -1941,6 +2275,7 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
     #End If
     
     fnInvalidData = False
+    
     Select Case txtBox.TabIndex
         Case txtOp.TabIndex
             fnInvalidData = Not fnValidOperator(txtBox)

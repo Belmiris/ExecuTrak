@@ -623,11 +623,34 @@ Property Let ColumnDataField(nIndex As Integer, sField As String)
     Dim lDropDown As Long
     Dim lColumn As Long
     Dim colColumn As Collection
+    Dim stCol As clsColumns
     
     fnGetKeys lDropDown, lColumn, nIndex
     If lDropDown > 0 Then
         Set colColumn = colDropDowns.Item(lDropDown)
-        colColumn.Item(lColumn).DataField = sField
+        'colColumn.Item(lColumn).DataField = sField
+        Set stCol = colColumn.Item(lColumn)
+        
+        'david 10/22/2003
+        Dim nPosi As Integer
+        nPosi = InStrRev(sField, " ")
+        If nPosi > 0 Then
+            'field alias found
+            stCol.DataField = Trim(Mid(sField, nPosi + 1))
+            sField = Trim(Left(sField, nPosi - 1))
+            nPosi = InStrRev(LCase(sField), " as")
+            If nPosi > 0 Then
+                sField = Trim(Left(sField, nPosi - 1))
+            End If
+            If Left(sField, 1) <> "(" Then
+                sField = "(" + sField + ")"
+            End If
+            stCol.SourceDataField = sField
+        Else
+            stCol.SourceDataField = sField
+            stCol.DataField = sField
+        End If
+        '''''''''''''''''
     End If
 
 End Property
