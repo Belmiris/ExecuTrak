@@ -1,6 +1,6 @@
-version: 3.28.0002 davidc
-Date: 03/11/2004
-#401439
+version: 3.28.0302 davidc
+Date: 03/19/2004
+#401439-1
 
 Description: 
 	alter table p_holdgl add
