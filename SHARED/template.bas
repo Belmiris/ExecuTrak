@@ -548,6 +548,8 @@ Public Const t_lBigFormHeight As Long = 8760
 '#Weigong   08/06/2002
 Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
+Private Const sSEC_SHOW_INACTIVE_CUST = "Do Not Show Inactive Alternates"
+Private Const sKEY_SHOW_INACTIVE_CUST As String = "All Programs"
 
 Private m_Saved_GL_Batch As Long
 
@@ -571,8 +573,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -603,7 +605,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -773,7 +775,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1212,12 +1214,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1296,7 +1298,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1348,9 +1350,9 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1474,7 +1476,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -1821,12 +1823,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2667,6 +2669,19 @@ Public Function tfnSaveDoNotShowClosedCustSettings(ByVal nChkBoxValue As Integer
           IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
 End Function
 
+Public Function tfnGetDoNotShowInactiveCustSettings() As Integer  'sam zheng
+    Dim sValue As String
+    '#Read Factor.ini
+    sValue = tfnReadINI(sSEC_SHOW_INACTIVE_CUST, sKEY_SHOW_INACTIVE_CUST, tfnGetWindowsDir(True) & szFACTOR_INI)
+    tfnGetDoNotShowInactiveCustSettings = IIf(sValue = "YES", vbChecked, vbUnchecked)
+End Function
+
+Public Function tfnSaveDoNotShowInactiveCustSettings(ByVal nChkBoxValue As Integer) As Boolean
+    '#Save to factor.ini
+    tfnSaveDoNotShowInactiveCustSettings = tfnWriteINI(sSEC_SHOW_INACTIVE_CUST, sKEY_SHOW_INACTIVE_CUST, _
+          IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
+End Function
+
 '##############################################################################
 ' Function/Subroutine: tfnCaretToCR
 ' Author:               Robert Atwood
@@ -2849,7 +2864,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
 End Function
@@ -2891,7 +2906,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -2981,7 +2996,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
  
 errSQL:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     
     Err.Clear
@@ -3108,7 +3123,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3765,26 +3780,27 @@ End Function
 ''''''''''''''''''''''''''''''''
 
 'Sam Zheng on 07/29/2004 #427047-453803
-'To avoid the conflict with the different db version, I check the
+'To avoid the conflict with the different db versions, I check the
 'ar_altname.an_active field first. Later we can delete the first part.
 Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
-                                    Optional szNumber As String = "")
+                                    Optional szNumber As String = "", _
+                                    Optional szInactiveFlag As String = "N")
     Dim strSQL As String
     Dim rsTemp As Recordset
     
     On Error GoTo SQLError
     
-    t_bUseActiveCustOnly = False
-    
     'Part 1:
-    strSQL = " SELECT colname FROM systables,syscolumns " _
-            & " WHERE systables.tabid = syscolumns.tabid " _
-            & " AND tabname = 'ar_altname' " _
-            & " AND colname = 'an_active' "
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
-    If rsTemp.RecordCount <= 0 Then
-        rsTemp.Close
-        Exit Sub
+    If Not t_bUseActiveCustOnly Then
+        strSQL = " SELECT colname FROM systables,syscolumns " _
+                & " WHERE systables.tabid = syscolumns.tabid " _
+                & " AND tabname = 'ar_altname' " _
+                & " AND colname = 'an_active' "
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If rsTemp.RecordCount <= 0 Then
+            rsTemp.Close
+            Exit Sub
+        End If
     End If
     
     'Part 2:
@@ -3795,14 +3811,22 @@ Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
     
     strSQL = " DELETE from " & szTable _
             & " WHERE " & szNumber & " IN " _
-            & " (SELECT an_customer FROM ar_altname " _
-            & "  WHERE an_active = 'N')"
+            & " (SELECT an_customer FROM ar_altname "
+            
+    Select Case szInactiveFlag
+        Case "N"
+            strSQL = strSQL & "  WHERE an_active = 'N')"
+        Case "O"
+            strSQL = strSQL & " WHERE an_active = 'O')"
+        Case "B"
+            strSQL = strSQL & " WHERE an_active != 'Y')"
+    End Select
+    
     t_dbMainDatabase.ExecuteSQL strSQL
     Exit Sub
     
 SQLError:
     t_bUseActiveCustOnly = False
-    tfnErrHandler "tfnGetActiveAltCustomers", strSQL
     On Error GoTo 0
 End Sub
 
