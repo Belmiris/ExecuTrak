@@ -471,12 +471,12 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.X = myRect.Left
+    myPoint.x = myRect.Left
     myPoint.Y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
@@ -1787,20 +1787,25 @@ End Property
 Private Sub subInputSelected()
     Dim i As Integer
     Dim colTemp As Collection
+    Dim lLastRow As Long
     
     DoEvents
     If m_nSeries > 0 Then
         Set colTemp = colDropDowns.Item(m_nSeries)
         If colTemp.Item(1).Status Then
             If Not m_clsEdit Is Nothing Then
+                lLastRow = m_clsEdit.GetCurrentRowNumber
                 If colTemp.Item(1).CursorControl Then
                     m_clsEdit.GotoNextColumn nLastColumn
-                    For i = 1 To colTemp.Count
-                        If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
-                            m_clsEdit.subAddNewRow m_clsEdit.ColumnForNewRow
-                            Exit For
-                        End If
-                    Next
+                    DoEvents
+                    If lLastRow = m_clsEdit.GetCurrentRowNumber Then
+                        For i = 1 To colTemp.Count
+                            If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
+                                m_clsEdit.subAddNewRow m_clsEdit.ColumnForNewRow
+                                Exit For
+                            End If
+                        Next
+                    End If
                     On Error Resume Next
                     tgMain.SetFocus
                 End If
