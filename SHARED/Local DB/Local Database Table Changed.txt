@@ -1,3 +1,14 @@
+
+version: 3.26.0011
+Date: 06/12/2002
+#370621-3
+
+Description: 
+	Custom Contract Selection Interface (Papco and East River Energy).
+
+	add new table fm_contract_data
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 version: 3.26.0010
 Date: 06/06/2002
 #370694-2
