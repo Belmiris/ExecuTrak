@@ -1,9 +1,15 @@
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
 END
 Attribute VB_Name = "clsTGSelector"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '***********************************************************'
 '
@@ -88,12 +94,12 @@ Public Sub Clear()
     End With
 End Sub
 
-Public Sub Copy()
+Public Sub Copy(Optional vSelIndex As Variant)
     If m_tgcSelector Is Nothing Then
         Exit Sub
     End If
     
-    Dim nRows As Integer
+    Dim nRows As Long
     Dim bmTemp As SelBookmarks
     Dim tgcDest As Object
     
@@ -104,43 +110,68 @@ Public Sub Copy()
         Exit Sub
     End If
 
-    Dim i As Integer
+    Dim i As Long
     Dim j As Integer
     Dim vBuffer() As Variant
     Dim nCol As Integer
     Dim nColCount As Integer
+    Dim vData() As Variant
     
     nColCount = m_tgcEditor.Table.Columns.Count
-    ReDim vData(nColCount - 1, nRows - 1) As Variant
+    ReDim vData(nColCount - 1, nRows - 1)
     
-    'store the selected bookmarks
-    For i = 0 To nRows - 1
-        j = val(bmTemp.Item(i))
-        m_tgcEditor.GetRow vBuffer, nCol, j
-        For j = 0 To nColCount - 1
-            If j <> m_nIdleColumn Then
-                vData(j, i) = vBuffer(j)
+    If IsMissing(vSelIndex) Then
+        'store the selected bookmarks
+        For i = 0 To nRows - 1
+            j = Val(bmTemp.Item(i))
+            m_tgcEditor.GetRow vBuffer, nCol, j
+            For j = 0 To nColCount - 1
+                If j <> m_nIdleColumn Then
+                    vData(j, i) = vBuffer(j)
+                End If
+            Next j
+        Next i
+        tgcDest.FillWithArray vData, False
+    Else
+        If IsNumeric(vSelIndex) Then
+            i = Val(vSelIndex)
+            If i >= 0 And i < nRows Then
+                ReDim vData(nColCount - 1, 0)
+                m_tgcEditor.GetRow vBuffer, nCol, j
+                For j = 0 To nColCount - 1
+                    If j <> m_nIdleColumn Then
+                        vData(j, 0) = vBuffer(j)
+                    End If
+                Next j
+                tgcDest.FillWithArray vData, False
             End If
-        Next j
-    Next i
-    
-    tgcDest.FillWithArray vData, False
+        End If
+    End If
 
 End Sub
 
-Public Sub Delete()
+Public Sub Delete(Optional vRowIndex As Variant)
     If Count > 0 Then
-        Dim i As Integer
-        Dim nRow As Integer
-        ReDim vBkMark(Count - 1) As Variant
-    
-        For i = 0 To Count - 1
-            nRow = val(m_tgTable.SelBookmarks.Item(i))
-            vBkMark(i) = m_tgcEditor.Bookmark(nRow)
-        Next
-        For i = Count - 1 To 0 Step -1
-            m_tgcEditor.DeleteRow vBkMark(i), False
-        Next
+        Dim i As Long
+        If IsMissing(vRowIndex) Then
+            Dim nRow As Long
+            ReDim vBkMark(Count - 1) As Variant
+            For i = 0 To Count - 1
+                nRow = Val(m_tgTable.SelBookmarks.Item(i))
+                vBkMark(i) = m_tgcEditor.Bookmark(nRow)
+            Next
+            For i = Count - 1 To 0 Step -1
+                m_tgcEditor.DeleteRow vBkMark(i), False
+            Next
+        Else
+            If IsNumeric(vRowIndex) Then
+                i = Val(vRowIndex)
+                If i >= 0 And i < Count Then
+                    nRow = Val(m_tgTable.SelBookmarks.Item(i))
+                    m_tgcEditor.DeleteRow m_tgcEditor.Bookmark(nRow), False
+                End If
+            End If
+        End If
         m_tgcEditor.Rebind
     End If
 End Sub
@@ -242,8 +273,8 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, ByVal Shift As Integer)
                         m_tgTable.SelBookmarks.Remove i
                     Next
                 Else
-                    nCurrent = val(vCurrent)
-                    nLast = val(m_vLastRow)
+                    nCurrent = Val(vCurrent)
+                    nLast = Val(m_vLastRow)
                     If nCurrent < nLast Then
                         nStart = nCurrent
                         nEnd = nLast - 1
@@ -289,7 +320,7 @@ Public Sub GetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = val(.Item(i))
+                lTemp(i) = Val(.Item(i))
             Next i
         End If
     End With
@@ -371,8 +402,8 @@ Property Set Partner(tgcTemp As Object)
     Set m_tgcSelector = tgcTemp
 End Property
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If
