@@ -14,10 +14,10 @@
 // constants
 #define RUN_IQVISION_SETUP      1
 
-#define PRODUCT_VERSION         "3.03"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.04"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuVision303" 
-#define UNINSTALL_NAME          "ExecuVision 3.03"
+#define DEINSTALL_KEY           "ExecuVision304" 
+#define UNINSTALL_NAME          "ExecuVision 3.04"
 
 #define PROGRAM_SIZE            3
 
