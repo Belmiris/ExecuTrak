@@ -10,15 +10,15 @@ call buildlog %1 %2 %3
 
 echo .
 echo Compress updated application files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\BIN\*.* ..\disk\disk1\servbin.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\BIN\*.* ..\disk\disk1\isrvbin.z 
 
 echo .
 echo Compress updated application files
-icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\servbin.z 
+icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\isrvbin.z 
 
 echo .
 echo Compress updated custctl files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\custctl\*.* ..\disk\disk1\servctl.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\custctl\*.* ..\disk\disk1\isrvctl.z 
 
 echo .
 echo Compress Local Database
@@ -26,27 +26,27 @@ icomp G:\program\release\exectrak\local_db\factor.mdb ..\disk\disk1\localdb.z
 
 echo .
 echo Compress updated dll files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\dll\*.* ..\disk\disk1\servdll.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\dll\*.* ..\disk\disk1\isrvdll.z 
 
 echo .
 echo Compress updated ole files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\ole\*.* ..\disk\disk1\servole.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\ole\*.* ..\disk\disk1\isrvole.z 
 
 echo .
 echo Compress updated rtm files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\rtm\*.* ..\disk\disk1\servrtm.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\rtm\*.* ..\disk\disk1\isrvrtm.z 
 
 echo .
 echo Compress updated shared files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\shared\*.* ..\disk\disk1\servshar.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\shared\*.* ..\disk\disk1\isrvshar.z 
 
 echo .
 echo Compress updated factor menu files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\*.* ..\disk\disk1\servfact.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\*.* ..\disk\disk1\isrvfact.z 
 
 echo .
 echo Compress updated dtnctrl files
-icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\DTNCTRL\*.* ..\disk\disk1\servdtnc.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\SP_INTRM\DTNCTRL\*.* ..\disk\disk1\isrvdtnc.z 
 
 echo .
 echo Done
