@@ -583,7 +583,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                & " INTO TEMP fm_temp1"
         
         strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal," _
-            & " fml_date FROM fm_lading, fm_movement WHERE fml_date" _
+            & " fml_int_ext, fml_date FROM fm_lading, fm_movement WHERE fml_date" _
             & " BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
             & " AND fmm_dispatch_flag = 'C'" _
             & " AND fml_movement = fmm_movement" _
@@ -599,7 +599,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         End If
         
         strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn," _
-            & " fml_vendor, fml_terminal, fml_date" _
+            & " fml_int_ext, fml_vendor, fml_terminal, fml_date" _
             & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
             & " WHERE fmldt_movement = fmm_movement" _
             & " AND fmldt_bl_nbr = fml_bl_nbr" _
@@ -617,7 +617,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
     
-        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_vendor, fml_terminal," _
+        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor, fml_terminal," _
             & " fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn, fmd_dest_code," _
             & " fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount" _
             & " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
@@ -629,7 +629,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             & " AND fmmb_bl_prodlnk = ivh_link" _
             & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
 
-         strSQL = strSQL & " ORDER BY fmldt_bl_nbr" 'GROUP BY fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_vendor, fml_terminal, fml_date, fmmb_bl_line, ivh_link, fmd_dest_code, fmd_prft_ctr"
+         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
 
         m_nErrorNumber = EC_GET_RECORD_R
     Else
@@ -696,7 +696,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         If nTypeCode <> "7" Then
             strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
-                & " ivh_prodtcl, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
+                & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
                 & " AND fmldt_bl_nbr = fmmb_dv_nbr" _
@@ -708,7 +708,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         Else
             strSQL = "SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
-                & " ivh_prodtcl, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
+                & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
                 & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
@@ -720,7 +720,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
         End If
         
-        strSQL = strSQL & " ORDER BY fmldt_bl_nbr" ' GROUP BY fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link, fml_vendor, fml_terminal"
+        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         m_nErrorNumber = EC_GET_RECORD_R
     End If
     
@@ -749,7 +749,15 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 ciTemp.CarrierCode = sTemp
                 ciTemp.CarrierName = sInfo1
                 ciTemp.CarrierFedID = fnConvertFEDID(sInfo2)
-                sTemp = fnTerminalCity(tfnRound(!fml_terminal))
+                If nTypeCode = "5J" Or nTypeCode = "10A" Then
+                    If rsTemp!fml_int_ext = "E" Then
+                        sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
+                    Else
+                        sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
+                    End If
+                Else
+                    sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
+                End If
                 subGetCityInfo sInfo1, sInfo2, sTemp
                 ciTemp.OriginCity = sInfo1
                 ciTemp.OriginState = sInfo2
