@@ -547,3 +547,132 @@ Private Sub subSeparateFileAndPath(sPath As String, sFile As String, sFilePath A
     End If
     
 End Sub
+
+Public Function fnValidUnixPath(sHost As String, sUser As String, sPWD As String, _
+                                sPath As String, sRetErrMsg As String, _
+                                Optional bShowError As Boolean = False) As Boolean
+    
+    Dim hOpen As Long, hConnection As Long, hFind As Long
+    Dim bFlag As Boolean
+    
+    fnValidUnixPath = False
+    
+    If Trim(sPath) = "" Then Exit Function
+    
+    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
+    If hOpen = 0 Then
+        fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, 0, 0)
+    If hConnection = 0 Then
+        fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    'Validate the unix server path...
+    sPath = Trim(sPath)
+    bFlag = FtpSetCurrentDirectory(hConnection, sPath)
+    If bFlag = False Then
+        fnErrorOut Err.LastDllError, "FtpSetCurrentDirectory", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    fnValidUnixPath = True
+    Exit Function
+
+CloseHandle:
+    If hConnection > 0 Then InternetCloseHandle hConnection
+    If hOpen > 0 Then InternetCloseHandle hOpen
+    Exit Function
+End Function
+
+Private Function fnBuildFileArray(sPath As String, sFileName As String, _
+                                  aryFiles() As String, Optional vSortFilesByDate) As Integer
+    
+    Const SUB_NAME = "fnBuildFileArray"
+    Dim nMaxArraySize As Integer, nNumOfFiles As Integer
+    Dim sFileFound As String, AryDates() As String
+
+    If IsMissing(vSortFilesByDate) Then
+        vSortFilesByDate = False
+    Else
+        vSortFilesByDate = True
+    End If
+    
+    nNumOfFiles = -1
+    On Error GoTo errBuildList
+    
+    sFileFound = Dir(fnConCat(sPath, sFileName))
+    If sFileFound <> "" Then
+        nMaxArraySize = 50
+        ReDim aryFiles(nMaxArraySize)
+        
+        While sFileFound <> ""
+            nNumOfFiles = nNumOfFiles + 1
+            If nNumOfFiles > nMaxArraySize Then
+                nMaxArraySize = nMaxArraySize + 10
+                ReDim Preserve aryFiles(nMaxArraySize)
+            End If
+            aryFiles(nNumOfFiles) = sFileFound
+            ReDim Preserve AryDates(nNumOfFiles)
+            AryDates(nNumOfFiles) = Format(FileDateTime(fnConCat(sPath, sFileFound)), "mm/dd/yyyy  hh:mm:ss AMPM")
+            sFileFound = Dir()
+        Wend
+        
+        If vSortFilesByDate Then
+            'sort aryFiles by Date ascending
+            subSortFileDate aryFiles, nNumOfFiles, AryDates
+        End If
+    End If
+    
+    fnBuildFileArray = nNumOfFiles
+    Exit Function
+
+errBuildList:
+    If Err.Number = 76 Then
+        MsgBox " Path (" & fnConCat(sPath, sFileName) & ") not found in Function '" & SUB_NAME & "'"
+    End If
+    fnBuildFileArray = -1
+End Function
+
+Private Function fnConCat(MyPath As String, MyName As String) As String
+    fnConCat = IIf(Right(MyPath, 1) = "\", MyPath, MyPath + "\") + MyName
+End Function
+
+Private Sub subSortFileDate(aryFiles() As String, nNumOfFiles As Integer, AryDates() As String)
+    Dim lRow As Long, nCol As Integer, j As Long, k As Long, i As Integer, sTemp As String
+    
+    On Error GoTo ErrorOutofRange
+    lRow = UBound(AryDates)
+    
+    If nNumOfFiles <> lRow Then
+        tfnErrHandler "subSortFileDate", -1, "arydates Size mismatch", False
+        Exit Sub
+    End If
+    
+    On Error GoTo 0
+    For j = 0 To lRow
+        For k = 0 To lRow
+            If AryDates(j) < AryDates(k) Then
+                'swap key array
+                sTemp = AryDates(j)
+                AryDates(j) = AryDates(k)
+                AryDates(k) = sTemp
+                
+                'swap data array
+                sTemp = aryFiles(j)
+                aryFiles(j) = aryFiles(k)
+                aryFiles(k) = sTemp
+            End If
+        Next k
+    Next j
+    
+    Exit Sub
+    
+ErrorOutofRange:
+    tfnErrHandler "subSortFileDate", False
+    On Error GoTo 0
+End Sub
+
