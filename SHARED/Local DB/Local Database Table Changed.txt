@@ -1,3 +1,14 @@
+version: 3.26.0010
+Date: 06/06/2002
+#370694-2
+
+Description: 
+	Fuel Movement - Heating System Interface.
+
+	Alter table "MDelivery, MDeliveryDetail, MInvoiceLine, MBalance".
+	Change column type of lGross, lNet and fQuantity from Long Integer to Single.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 version: 3.26.0009
 Date: 05/22/2002
 #356994-3
