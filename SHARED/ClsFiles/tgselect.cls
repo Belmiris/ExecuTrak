@@ -822,8 +822,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Public Sub SelectAll()
@@ -1220,6 +1220,8 @@ Property Set CellColor(objCellColor As Object)
             m_objCellColor.Table.Columns(i).FetchStyle = True
         End If
     Next i
+    
+    On Error GoTo 0
 End Property
 
 Public Sub AddMultiSelectCellColumn(nCol As Integer)
@@ -1237,10 +1239,15 @@ Public Sub AddMultiSelectCellColumn(nCol As Integer)
     m_tgTable.Columns(nCol).FetchStyle = True
 End Sub
 
-Public Sub RemoveMultiSelectCellColumn(nCol As Integer)
+Public Sub RemoveMultiSelectCellColumn(nCol As Integer, Optional bFetchStyle As Boolean = False)
     On Error Resume Next
     m_colMultiSelCellColumns.Remove fnMakeKey(nCol)
-    m_tgTable.Columns(nCol).FetchStyle = False
+    
+    'david 12/28/2004
+    'when the "FetchStyle" property is set to false, the grid highlight for the editable column is not working
+    'i.e. when use arrow key or mouse click on the column, the foreground is still in dark blue
+    'instead of in white color
+    m_tgTable.Columns(nCol).FetchStyle = bFetchStyle
 End Sub
 
 Property Let MultiSelectRowFeature(bOnOff As Boolean)
@@ -1251,6 +1258,11 @@ Property Get MultiSelectRowFeature() As Boolean
     MultiSelectRowFeature = m_bMultiSelectRowFeature
 End Property
 
+'david 12/28/2004
+'USE THIS FUNCTION CAUSIOUSLY
+'when the "FetchStyle" property is set to false, the grid highlight for the editable column is not working
+'i.e. when use arrow key or mouse click on the column, the foreground is still in dark blue
+'instead of in white color
 Property Let FetchStyle(nCol As Integer, bOnOff As Boolean)
     m_tgTable.Columns(nCol).FetchStyle = bOnOff
 End Property
@@ -1265,7 +1277,9 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     If IsCellSelected(Col, Bookmark) Then
         CellStyle.ForeColor = vbBlue
         CellStyle.BackColor = &HE0E0E0
-    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or Condition = dbgSelectedRow Or Condition = dbgSelectedRow + dbgUpdatedCell Then 'selected row(s)
+    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or _
+           Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or Condition = dbgSelectedRow Or _
+           Condition = dbgSelectedRow + dbgUpdatedCell Then 'selected row(s)
         CellStyle.ForeColor = &H8000000E
         CellStyle.BackColor = &H8000000D
     End If

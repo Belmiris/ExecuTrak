@@ -210,7 +210,8 @@ Private m_SortColCount As Integer
 
 Private Const nCOL_IN_GRID As Integer = 0
 Private Const nCOL_KEYS_COUNT As Integer = 1
-Private Const MAX_COL_arySortKeysCount As Integer = 1
+Private Const nCOL_SORT_ENABLED As Integer = 2
+Private Const MAX_COL_arySortKeysCount As Integer = 2
 
 Private m_arySortKeysCount() As Integer
 Private m_bSortOnCol As Boolean
@@ -538,19 +539,19 @@ Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
 
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -593,7 +594,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -816,15 +817,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .Value
+            sVal = .value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).Value = .Value Then
-                    sVal = .ValueItems(i).Value
+                If .ValueItems(i).value = .value Then
+                    sVal = .ValueItems(i).value
                     Exit For
                 End If
             Next
@@ -1186,10 +1187,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).Value
+    vTemp = tgTable.Columns(nCol).value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).Value = vTemp Then
+            If .Item(i).value = vTemp Then
                 Exit For
             End If
         Next i
@@ -4444,12 +4445,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
@@ -4845,6 +4846,50 @@ Property Get SortByColumn() As Boolean
     SortByColumn = m_bSortOnCol
 End Property
 
+Property Let SortColEnabled(nColIndex As Integer, bStatus As Boolean)
+    Dim j As Long
+    
+    If Not m_bSortOnCol Then
+        Exit Property
+    End If
+    
+    If nColIndex < 0 Then
+        Exit Property
+    End If
+    
+    'check the exists of sort column
+    For j = 0 To m_SortColCount - 1
+        If m_arySortKeysCount(nCOL_IN_GRID, j) = nColIndex Then
+            m_arySortKeysCount(nCOL_SORT_ENABLED, j) = bStatus
+            Exit Property
+        End If
+    Next j
+    
+    MsgBox "Column Index " & nColIndex & " not found.", vbExclamation
+End Property
+
+Property Get SortColEnabled(nColIndex As Integer) As Boolean
+    Dim j As Long
+    
+    If Not m_bSortOnCol Then
+        Exit Property
+    End If
+    
+    If nColIndex < 0 Then
+        Exit Property
+    End If
+    
+    'check the exists of sort column
+    For j = 0 To m_SortColCount - 1
+        If m_arySortKeysCount(nCOL_IN_GRID, j) = nColIndex Then
+            SortColEnabled = m_arySortKeysCount(nCOL_SORT_ENABLED, j)
+            Exit Property
+        End If
+    Next j
+    
+    MsgBox "Column Index " & nColIndex & " not found.", vbExclamation
+End Property
+
 Property Let SortIgnoreGridValidation(bStatus As Boolean)
     m_bSortWhenGridNotvalid = bStatus
 End Property
@@ -4929,6 +4974,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
         ReDim Preserve m_arySortCol(MAX_SORT_KEYS - 1, j)
         ReDim Preserve m_arySortKeysCount(MAX_COL_arySortKeysCount, j)
         m_arySortKeysCount(nCOL_IN_GRID, j) = nColIndex
+        m_arySortKeysCount(nCOL_SORT_ENABLED, j) = True
     End If
     
     nSortKeyCount = -1
@@ -5056,59 +5102,19 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     lblStatusbar.Font.Bold = False
     lblStatusbar = "Sorting " + sSortCols + " ..."
     lblStatusbar.Refresh
-Debug.Print sSortCols
+'Debug.Print sSortCols
     Screen.MousePointer = vbHourglass
     
     'read data
     GetRecords vData, lDummyRow, szEMPTY
 
-'''    'sorting (bubble exit sort)
-'''    Dim lRow As Long
-'''    Dim k As Long
-'''    Dim vTemp As Variant
-'''    Dim bCompareExp As Boolean
-'''    Dim bFinished As Boolean
-'''
-'''    lRow = UBound(vData, 2)
-'''    nCol = UBound(vData, 1)
-'''
-'''    For j = 0 To lRow - 1
-'''        For k = j + 1 To lRow
-'''            bFinished = True
-'''            bCompareExp = fnCompareSortKeysNeedToSwap(nIndex, vData(), j, k)
-'''
-'''            If bCompareExp Then
-'''                m_bColIsSorted = True
-'''
-'''                For i = 0 To nCol
-'''                    vTemp = vData(i, j)
-'''                    vData(i, j) = vData(i, k)
-'''                    vData(i, k) = vTemp
-'''                Next
-'''
-'''                'swap highlighted row id
-'''                If lCountHighlightedID > 0 Then
-'''                    vTemp = aryHighlightedID(j)
-'''                    aryHighlightedID(j) = aryHighlightedID(k)
-'''                    aryHighlightedID(k) = vTemp
-'''                End If
-'''
-'''                bFinished = False
-'''            End If
-'''        Next k
-'''
-'''        If bFinished Then
-'''            Exit For
-'''        End If
-'''    Next j
-    
     'begin shell sort
     Dim NumEls As Long
     Dim Index As Long
     Dim Index2 As Long
     Dim FirstItem As Long
     Dim Distance As Long
-    Dim Value()
+    Dim value()
 
     NumEls = UBound(vData, 2) + 1
     FirstItem = LBound(vData, 2)
@@ -5119,7 +5125,7 @@ Debug.Print sSortCols
         Distance = Distance * 3 + 1
     Loop Until Distance > NumEls
 
-    ReDim Value(nCol)
+    ReDim value(nCol)
 
     'Sort the array.
     Do
@@ -5129,13 +5135,13 @@ Debug.Print sSortCols
             'Value = vData(Index)
             'array assignment
             For i = 0 To nCol
-                Value(i) = vData(i, Index)
+                value(i) = vData(i, Index)
             Next
             
             Index2 = Index
 
             'Do While (vData(Index2 - Distance) > Value)
-            Do While (fnCompareSortKeysNeedToSwap2(nIndex, vData, Index2 - Distance, Value))
+            Do While (fnCompareSortKeysNeedToSwap2(nIndex, vData, Index2 - Distance, value))
                 'vData(Index2) = vData(Index2 - Distance)
                 'array assignment
                 For i = 0 To nCol
@@ -5154,7 +5160,7 @@ Debug.Print sSortCols
             'vData(Index2) = Value
             'array assignment
             For i = 0 To nCol
-                vData(i, Index2) = Value(i)
+                vData(i, Index2) = value(i)
             Next
         Next Index
     Loop Until Distance = 1
@@ -5511,7 +5517,6 @@ End Function
 
 Private Function IsColForSorting(nSortCol As Integer, Optional Index As Integer) As Boolean
     Dim j As Long
-    Dim k As Long
     
     Index = -1
     
@@ -5536,8 +5541,11 @@ Private Function IsColForSorting(nSortCol As Integer, Optional Index As Integer)
     'check the exists of sort column
     For j = 0 To m_SortColCount - 1
         If m_arySortKeysCount(nCOL_IN_GRID, j) = nSortCol Then
-            Index = j
-            IsColForSorting = True
+            If m_arySortKeysCount(nCOL_SORT_ENABLED, j) Then
+                Index = j
+                IsColForSorting = True
+            End If
+                
             Exit Function
         End If
     Next j
@@ -5549,11 +5557,11 @@ End Function
 'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(CANCEL As Integer)
+Public Sub SelChange(Cancel As Integer)
     If lCountHighlightedID = 0 Then
-        CANCEL = True
+        Cancel = True
     Else
-        CANCEL = False
+        Cancel = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -5627,7 +5635,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
                 If j = lSelected(k) Then
                     aryHighlightedID(j) = 1
                     Exit For
-Debug.Print "j="; j
+'Debug.Print "j="; j
                 End If
             Next k
         Next j
