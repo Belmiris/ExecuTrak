@@ -2454,7 +2454,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         '#We do not need to populate Internal Loading Fees
         If aryLDF(i).dv_nbr <> 0 And tfnRound(aryLDF(i).dv_atax, 2) <> 0 And aryLDF(i).dv_IE = "E" Then
             '#Try to Get the same desc as 4GL does.
-            subGetATaxCodeDesc sTaxState, aryLDF(i).dv_vol, sTaxCode, sTaxDesc, fTaxRate
+            subGetATaxCodeDesc m_local, aryLDF(i).dv_nbr, lMovement, sTaxState, _
+                                aryLDF(i).dv_vol, sTaxCode, sTaxDesc, fTaxRate
             If aryLDF(i).dv_nbr * aryLDF(i).dv_atax < 0 Then
                 aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
             End If
@@ -2516,11 +2517,18 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     ''''''''''''''''''''''''''''''''
 End Sub
 
-Private Sub subGetATaxCodeDesc(ByVal sState As String, ByVal lGal As Long, _
-                               ByRef sTxCode As String, ByRef sTaxDesc As String, ByRef fTaxRate As Double)
+Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
+                               ByVal lMvmtNo As Long, ByVal sState As String, _
+                               ByVal lGal As Long, ByRef sTxCode As String, _
+                               ByRef sTaxDesc As String, ByRef fTaxRate As Double)
+    
+    Const SUB_NAME As String = "subGetATaxCodeDesc"
+    
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim rsTrnCode As Recordset
     Dim sTrnCode As String
+    
     Dim i As Integer
     Dim j As Integer
     
@@ -2529,27 +2537,48 @@ Private Sub subGetATaxCodeDesc(ByVal sState As String, ByVal lGal As Long, _
     
     'Vijaya on 11/24/04 Magic#465810
     sTrnCode = ""
-    For i = 0 To nInfoCount - 1
-        For j = 0 To aryTaxInfo(i).m_nRecord - 1
-            If aryTaxInfo(i).m_Taxes(j).m_cCharge = vbKeyY Then
-                If aryTaxInfo(i).m_Taxes(j).m_cBasis = vbKeyA Then
-                    If sTrnCode = "" Then
-                        sTrnCode = aryTaxInfo(i).m_Taxes(j).m_lTrn
-                    Else
-                        sTrnCode = sTrnCode & "," & aryTaxInfo(i).m_Taxes(j).m_lTrn
-                    End If
-                End If
+    
+    'Get the Tax Use Group and Product Class
+    strSQL = " SELECT lProductLink,szTaxUseGroup"
+    strSQL = strSQL & " FROM mdeliverydetail"
+    strSQL = strSQL & " WHERE lMovement = " & tfnRound(lMvmtNo)
+    strSQL = strSQL & " AND lDelivery = " & tfnRound(lDeliveryNo)
+    
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    End If
+    If rsTemp.RecordCount > 0 Then
+        While Not rsTemp.EOF
+            strSQL = "SELECT tul_trn FROM tx_use_g,tx_use_link,inv_header"
+            strSQL = strSQL & " WHERE ivh_link =" & tfnRound(rsTemp!lProductLink)
+            strSQL = strSQL & " AND tu_use_g = " & tfnSQLString(rsTemp!szTaxUseGroup)
+            strSQL = strSQL & " AND tu_link = tul_link"
+            strSQL = strSQL & " AND tu_prodtcl = ivh_prodtcl"
+            Set rsTrnCode = txMod_OpenRecord(strSQL, SUB_NAME)
+            If rsTrnCode Is Nothing Then
+                Exit Sub
             End If
-        Next j
-    Next i
-    'end of Vijaya Code
-    'Vijaya on 11/24/04 Magic#465810
+            If rsTrnCode.RecordCount > 0 Then
+                While Not rsTrnCode.EOF
+                    If sTrnCode = "" Then
+                        sTrnCode = tfnRound(rsTrnCode!tul_trn)
+                    Else
+                        sTrnCode = sTrnCode & "," & tfnRound(rsTrnCode!tul_trn)
+                    End If
+                    rsTrnCode.MoveNext
+                Wend
+            End If
+            rsTemp.MoveNext
+        Wend
+    End If
+    
     'Modified the sql to get exact Tax Description and rate
     strSQL = "SELECT tt_code,tt_descr,tt_rate,tt_limit FROM tx_table"
     strSQL = strSQL & " WHERE tt_level = 'S' AND tt_where =" & tfnSQLString(sState)
     strSQL = strSQL & " AND tt_charge = 'Y'"
     If sTrnCode <> "" Then
-        strSQL = strSQL & " AND tt_trn in (" & sTrnCode & ")"
+        strSQL = strSQL & " AND tt_trn IN (" & sTrnCode & ")"
     End If
     strSQL = strSQL & " ORDER BY tt_limit DESC"
     strSQL = tfnFix_tx_table(strSQL)
