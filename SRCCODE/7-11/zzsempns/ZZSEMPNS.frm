@@ -11,7 +11,7 @@ Begin VB.Form frmZZSEMPNS
    ClientWidth     =   8865
    BeginProperty Font 
       Name            =   "Arial"
-      Size            = 9.75  
+      Size            =   9.75
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -56,7 +56,7 @@ Begin VB.Form frmZZSEMPNS
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size        = 8.75   
+         Size            =   9
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -68,7 +68,7 @@ Begin VB.Form frmZZSEMPNS
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            = 9.75  
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -88,7 +88,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -104,7 +104,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -125,7 +125,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -141,7 +141,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -153,7 +153,7 @@ Begin VB.Form frmZZSEMPNS
          Height          =   390
          HelpContextID   =   12
          Left            =   3000
-         TabIndex        =   16
+         TabIndex        =   19
          Top             =   4710
          Width           =   1305
          _Version        =   65536
@@ -162,7 +162,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -179,7 +179,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -191,7 +191,7 @@ Begin VB.Form frmZZSEMPNS
          Height          =   390
          HelpContextID   =   13
          Left            =   4470
-         TabIndex        =   17
+         TabIndex        =   16
          Top             =   4710
          Width           =   1305
          _Version        =   65536
@@ -200,7 +200,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -228,7 +228,7 @@ Begin VB.Form frmZZSEMPNS
          Height          =   390
          HelpContextID   =   15
          Left            =   7410
-         TabIndex        =   19
+         TabIndex        =   18
          Top             =   4710
          Width           =   1350
          _Version        =   65536
@@ -237,7 +237,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -253,7 +253,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -265,7 +265,7 @@ Begin VB.Form frmZZSEMPNS
          Height          =   390
          HelpContextID   =   14
          Left            =   5940
-         TabIndex        =   18
+         TabIndex        =   17
          Top             =   4710
          Width           =   1305
          _Version        =   65536
@@ -274,7 +274,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -290,7 +290,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -311,7 +311,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -322,7 +322,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -330,29 +330,29 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          Begin VB.TextBox txtSeries 
-            Height          =   396
-            HelpContextID   =   1802
-            Left            =   1710
+            Height          =   360
+            HelpContextID   =   101
+            Left            =   1980
             MaxLength       =   5
             TabIndex        =   9
-            Top             =   60
+            Top             =   90
             Width           =   1488
          End
          Begin FACTFRMLib.FactorFrame cmdSeries 
-            Height          =   396
-            HelpContextID   =   1803
-            Left            =   3225
+            Height          =   360
+            HelpContextID   =   102
+            Left            =   3495
             TabIndex        =   11
             TabStop         =   0   'False
-            Top             =   60
+            Top             =   90
             Width           =   390
             _Version        =   65536
             _ExtentX        =   688
-            _ExtentY        =   698
+            _ExtentY        =   635
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75  
+               Size            =   9.75
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -367,7 +367,7 @@ Begin VB.Form frmZZSEMPNS
             TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            = 9.75  
+               Size            =   9.75
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -378,10 +378,10 @@ Begin VB.Form frmZZSEMPNS
          Begin VB.Label lblSeries 
             Caption         =   "Series:"
             Height          =   255
-            Left            =   840
+            Left            =   1230
             TabIndex        =   20
             Top             =   150
-            Width           =   855
+            Width           =   705
          End
       End
       Begin FACTFRMLib.FactorFrame efraOuterFrame 
@@ -397,7 +397,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -408,7 +408,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -416,13 +416,13 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          Begin DBTrueGrid.TDBGrid tgTable 
-            Height          =   2835
-            HelpContextID   =   120
-            Left            =   0
+            Height          =   2775
+            HelpContextID   =   103
+            Left            =   90
             OleObjectBlob   =   "ZZSEMPNS.frx":0112
             TabIndex        =   13
             Top             =   90
-            Width           =   8640
+            Width           =   8520
          End
       End
       Begin FACTFRMLib.FactorFrame efraInnerFrame 
@@ -438,7 +438,7 @@ Begin VB.Form frmZZSEMPNS
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -449,7 +449,7 @@ Begin VB.Form frmZZSEMPNS
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75  
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -457,44 +457,44 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          Begin VB.OptionButton optRptBtn 
-            Caption         =   "South"
+            Caption         =   "&South"
             Height          =   240
-            HelpContextID   =   103
+            HelpContextID   =   100
             Index           =   4
-            Left            =   6270
+            Left            =   6630
             TabIndex        =   7
-            Top             =   330
+            Top             =   300
             Width           =   1245
          End
          Begin VB.OptionButton optRptBtn 
-            Caption         =   "Moviequik"
+            Caption         =   "&Moviequik"
             Height          =   240
             HelpContextID   =   100
             Index           =   1
-            Left            =   810
+            Left            =   1170
             TabIndex        =   1
-            Top             =   330
+            Top             =   300
             Value           =   -1  'True
             Width           =   1395
          End
          Begin VB.OptionButton optRptBtn 
-            Caption         =   "Payphone"
+            Caption         =   "&Payphone"
             Height          =   240
-            HelpContextID   =   101
+            HelpContextID   =   100
             Index           =   2
-            Left            =   2610
+            Left            =   2970
             TabIndex        =   3
-            Top             =   330
+            Top             =   300
             Width           =   1410
          End
          Begin VB.OptionButton optRptBtn 
-            Caption         =   "North"
+            Caption         =   "&North"
             Height          =   240
-            HelpContextID   =   102
+            HelpContextID   =   100
             Index           =   3
-            Left            =   4620
+            Left            =   4980
             TabIndex        =   5
-            Top             =   330
+            Top             =   300
             Width           =   1320
          End
       End
@@ -512,7 +512,7 @@ Begin VB.Form frmZZSEMPNS
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -525,7 +525,7 @@ Begin VB.Form frmZZSEMPNS
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -546,7 +546,7 @@ Begin VB.Form frmZZSEMPNS
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -560,7 +560,7 @@ Begin VB.Form frmZZSEMPNS
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -798,7 +798,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     CRLF = Chr(10) + Chr(13)
 
     ' ** change the help file for the application
-    App.HelpFile = "711MPNS.HLP"
+    App.HelpFile = "7-ELEVEN.HLP"
 End Sub
 
 Private Sub Form_Unload(CANCEL As Integer)
@@ -838,7 +838,7 @@ Private Sub Form_Load()
 
     #If FACTOR_MENU = 0 Then
         't_szConnect = "ODBC;DSN=Gasup;DB=/factor/gasup/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=ma;PWD=menus"
-        t_szConnect = "ODBC;DSN=dktest;DB=/factor/dktest/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=hzheng;PWD=shangyu"
+        t_szConnect = "ODBC;DSN=dktest;DB=/factor/testing/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=hzheng;PWD=shangyu"
     #End If
     If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
         Unload Me
@@ -972,11 +972,11 @@ Private Sub cmdEditBtn_Click()
 End Sub
 
 Private Sub subAfterAddEditClick()
-    If Not tfnLockRow("ZZSEMPNS", "zzse_gf_store_data", "zzse_gf_store_data") Then
-        Exit Sub
-    End If
+    'If Not tfnLockRow("ZZSEMPNS", "zzse_gf_store_data", "zzse_gf_store_data") Then
+    '    Exit Sub
+    'End If
     
-    tgTable.Columns(COL_YTD).Locked = True
+   ' tgTable.Columns(COL_YTD).Locked = True
     If t_nFormMode = ADD_MODE Then
         cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
         mnuUpdateInsert.Caption = t_szCAPTION_INSERT
@@ -1004,7 +1004,6 @@ Private Sub subAfterAddEditClick()
     subEnableSeries True
     txtSeries.SetFocus
 
- 
 End Sub
 Private Sub cmdDeleteBtn_Click()
     Dim lRow As Long
@@ -1371,18 +1370,18 @@ End Sub
 Private Sub tgTable_AfterColEdit(ByVal ColIndex As Integer)
     
     Dim lRow As Long
-    Dim ntemp As Long
+    Dim nTemp As Long
     Dim i    As Long
     
     tgmDetail.AfterColEdit ColIndex
     
     lRow = tgmDetail.GetCurrentRowNumber
     If tgmDetail.CellValue(COL_NBR, lRow) <> "" Then
-        ntemp = tgmDetail.CellValue(COL_NBR, 0)
-        tgmDetail.CellValue(COL_YTD, 0) = ntemp
+        nTemp = tgmDetail.CellValue(COL_NBR, 0)
+        tgmDetail.CellValue(COL_YTD, 0) = nTemp
         For i = 1 To tgmDetail.RowCount - 1
-            ntemp = ntemp + tgmDetail.CellValue(COL_NBR, i)
-            tgmDetail.CellValue(COL_YTD, i) = ntemp
+            nTemp = nTemp + tgmDetail.CellValue(COL_NBR, i)
+            tgmDetail.CellValue(COL_YTD, i) = nTemp
         Next i
         
         tgmDetail.Rebind
@@ -1449,17 +1448,17 @@ Private Sub tgTable_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgmDetail.RowColChange LastRow, LastCol
     
     If tgTable.col = COL_YTD Then
-       tgTable.col = COL_PERIOD
-       If t_nFormMode = EDIT_MODE Then
-          If lRow < tgmDetail.RowCount - 1 Then
-             tgTable.Row = lRow + 1
-          End If
-       End If
-       If t_nFormMode = ADD_MODE Then
-          If lRow < tgmDetail.RowCount Then
-             tgTable.Row = lRow + 1
-          End If
-       End If
+       'tgTable.col = COL_PERIOD
+       'If t_nFormMode = EDIT_MODE Then
+       '   If lRow < tgmDetail.RowCount - 1 Then
+       '      tgTable.Row = lRow + 1
+       '   End If
+       'End If
+       'If t_nFormMode = ADD_MODE Then
+       '   If lRow < tgmDetail.RowCount Then
+       '      tgTable.Row = lRow + 1
+       '   End If
+       'End If
     End If
     If t_nFormMode = EDIT_MODE And tgTable.col = 0 Then
         tgTable.col = 1
@@ -1645,7 +1644,7 @@ Private Sub subSetupTDTable()
     End With
     With tgTable.Columns(COL_YTD)
         .DataField = ""
-        .Width = 0.4 * nWidth
+        .Width = 0.037 * nWidth
     End With
 
     Set tgmDetail = New clsTGSpreadSheet
@@ -1656,7 +1655,7 @@ Private Sub subSetupTDTable()
         
         .AddEditColumn COL_PERIOD, "Enter a period", szLongPattern
         .AddEditColumn COL_NBR, "Enter the number of stores", szLongPattern
-        .AddEditColumn COL_YTD, "Year to date total number of stores (display only)", szLongPattern
+        '.AddEditColumn COL_YTD, "Year to date total number of stores (display only)", szLongPattern
         .ClearData
     End With
     
@@ -1721,11 +1720,35 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
 End Function
 
 Private Function fnValidSeries(txtBox As Textbox) As Boolean
+    Dim nTemp As Integer
+    Const SUB_NAME = "fnValidSeries"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+
+    fnValidSeries = False
+    
     If Trim(txtBox.Text) = "" Then
-       fnValidSeries = False
-    Else
-       fnValidSeries = True
+       Exit Function
     End If
+    
+   nTemp = txtBox.Text
+   If nTemp < 1 Or nTemp > 3000 Then
+      Exit Function
+   End If
+   
+   If t_nFormMode = EDIT_MODE Then
+        strSQL = "SELECT * FROM zzse_gf_store_data " _
+                & " WHERE gfsd_flag = " & tfnSQLString(t_nCurrentRpt) _
+                & " AND gfsd_series = " & tfnSQLString(Trim(txtBox.Text))
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "")
+        If Not rsTemp Is Nothing Then
+            If rsTemp.RecordCount = 0 Then
+                Exit Function
+            End If
+        End If
+   End If
+   
+   fnValidSeries = True
 End Function
 Public Function fnValidCellValue(tgTDTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Long, sText As String) As Boolean
     Dim strSQL As String
@@ -1759,11 +1782,18 @@ Private Function fnValidPeriod(ByVal sText As String, ByVal nRow As Long)
         Exit Function
     End If
     
+    '1+.check  >100
+    i = sText
+    If i > 100 Then
+        tgmDetail.ErrorMessage(COL_PERIOD) = "The period must be between 0-100"
+        Exit Function
+    End If
+    
     '2. check duplicated in the filled table on screen
     nRowCount = tgmDetail.RowCount
     For i = 0 To nRowCount - 1
         If Trim(tgmDetail.CellValue(COL_PERIOD, i)) = sText And i <> nRow Then
-            tgmDetail.ErrorMessage(COL_PERIOD) = "The duplicated period encounted"
+            tgmDetail.ErrorMessage(COL_PERIOD) = "Duplicated period encountered"
             Exit Function
         End If
     Next i
@@ -1797,6 +1827,7 @@ Private Function fnPeriodInUse(ByVal sText As String) As Boolean
 End Function
 
 Private Function fnValidNumber(ByVal sText As String, ByVal nRow As Long)
+    
      fnValidNumber = False
     
     '1.check  empty
@@ -1808,6 +1839,12 @@ Private Function fnValidNumber(ByVal sText As String, ByVal nRow As Long)
    '2
     If Mid(sText, 1, 1) = "-" Then
        tgmDetail.ErrorMessage(COL_NBR) = "The number of stores must be positive"
+       Exit Function
+    End If
+    
+    '3
+    If sText > 1000 Then
+        tgmDetail.ErrorMessage(COL_NBR) = "The number of stores must be between 0-1000"
        Exit Function
     End If
     
@@ -2219,31 +2256,37 @@ Private Sub txtSeries_KeyPress(KeyAscii As Integer)
 
     Dim bCode As Boolean
     
-    If KeyAscii = vbKeyReturn Then
-        Screen.MousePointer = vbHourglass
-        If txtSeries.Text <> "" And fnSeriesIsNew() Then
-           subEnableTgTable True
-           Screen.MousePointer = vbDefault
-           Exit Sub
-        End If
-    End If
-    
-    bCode = tgcDropdown.Keypress(txtSeries, KeyAscii)
-    Screen.MousePointer = vbDefault
-
-    If Not bCode Then
-        If KeyAscii = vbKeyReturn Then
-            If tgcDropdown.SingleRecordSelected Then
-                If cValidate.ValidInput(txtSeries) Then
-                   subEnableTgTable True
-                   subLoadScreen
+    Select Case t_nFormMode
+        Case EDIT_MODE
+            bCode = tgcDropdown.Keypress(txtSeries, KeyAscii)
+            Screen.MousePointer = vbDefault
+        
+            If Not bCode Then
+                If KeyAscii = vbKeyReturn Then
+                    If tgcDropdown.SingleRecordSelected Then
+                        If cValidate.ValidInput(txtSeries) Then
+                           subEnableTgTable True
+                           subLoadScreen
+                        End If
+                    End If
                 End If
+                KeyAscii = 0
+            Else
+                cValidate.Keypress txtSeries, KeyAscii
             End If
+    Case Else
+        If KeyAscii = vbKeyReturn Then
+            If cValidate.ValidInput(txtSeries) Then
+               subEnableTgTable True
+             '  subLoadScreen
+            End If
+            KeyAscii = 0
+        Else
+            cValidate.Keypress txtSeries, KeyAscii
+            tfnRegExpControlKeyPress txtSeries, KeyAscii, "^P{0,5}$"
         End If
-        KeyAscii = 0
-    Else
-        cValidate.Keypress txtSeries, KeyAscii
-    End If
+    
+    End Select
 End Sub
 
 Private Sub txtSeries_LostFocus()

@@ -33,7 +33,7 @@ Description="MPNS Store Data Maintenance"
 CompatibleMode="0"
 MajorVer=3
 MinorVer=25
-RevisionVer=0
+RevisionVer=401
 AutoIncrementVer=0
 ServerSupportFiles=0
 VersionComments="ZZSEMPNS"
@@ -42,7 +42,7 @@ VersionFileDescription="ZZSEMPNS.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
