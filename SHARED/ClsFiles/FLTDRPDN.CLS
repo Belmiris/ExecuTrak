@@ -820,6 +820,7 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
             Wend
             For lCol = 1 To colTemp.Count
                 tgDropDown.Columns.Add lCol - 1
+                tgDropDown.Columns(lCol - 1).AllowSizing = False
             Next
 
             If rsTemp.RecordCount < nMaxVisibleRows Then

@@ -4099,7 +4099,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer) As B
     End If
     If LastRow < tgTable.Row Then
         'Row changed
-        If GetCurrentRowNumber >= RowCount - 1 Then
+        If GetCurrentRowNumber >= RowCount - 1 And bAllowAddNew Then
             'The last row
             Dim i As Integer
             For i = nColumnCount - 1 To 0 Step -1
