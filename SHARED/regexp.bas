@@ -736,9 +736,10 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
     
     If Len(sTime) < 2 Or Len(sTime) > 8 Then
         If Len(sTime) > 8 And (UCase(Right(sTime, 2)) = "AM" Or UCase(Right(sTime, 2)) = "PM") Then
-            fnFormatTime = Format(sTime, "hh:mm:ss")
+            sTime = Format(sTime, "hh:mm:ss")
+        Else
+            Exit Function
         End If
-        Exit Function
     End If
     
     nPosi = InStr(sTime, ":")
