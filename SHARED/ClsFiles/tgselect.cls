@@ -77,6 +77,8 @@ Option Explicit
     Private m_nLastClickedRow As Integer
     Private m_bRowHilighted As Boolean
     Private m_bAvoidBeep As Boolean
+    Private m_bSelectCurrRow As Boolean
+    Private m_vLastSelected As Variant
 Property Let AllowMultipleSelect(bTemp As Boolean)
 
     If bTemp Then
@@ -221,7 +223,8 @@ Public Sub Click()
     End If
 End Sub
 
-Private Function fnMarkCurrent(ByVal KeyCode As Integer, ByVal Shift As Integer) As Integer
+Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
+                               ByVal Shift As Integer) As Integer
     Dim nRow As Integer
     Dim vCurrent As Variant
     Dim nCurrent As Integer
@@ -301,6 +304,7 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, ByVal Shift As Integer)
     End If
 End Function
 
+
 Private Function fnRowSelected(vBkMark As Variant) As Integer
     Dim bFound As Boolean
     Dim i As Integer
@@ -359,12 +363,16 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     ElseIf m_nSelectMode = MODE_KEY_CONTROL Then
         m_nShiftControl = Shift  'MyShiftMask
         If Shift = vbShiftMask Then
-            If Count > 0 Then
-                fnMarkCurrent KeyCode, m_nShiftControl
-'                If KeyCode = vbKeyDown Or KeyCode = vbKeyUp Then
-'                    m_nShiftControl = MyShiftMask
-'                    subMarkSelected m_vLastRow
-'                End If
+            If m_bSelectCurrRow Then
+                If Count > 0 Then
+                    fnMarkCurrent KeyCode, m_nShiftControl
+                End If
+            Else
+                If Count = 0 Then
+                    m_tgTable.SelBookmarks.Add m_tgcEditor.Bookmark
+                Else
+                    fnMarkCurrent KeyCode, m_nShiftControl
+                End If
             End If
             'subSetCurrentRow
         Else
@@ -445,8 +453,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
 End Property
 
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If
@@ -481,6 +489,10 @@ End Property
 
 Property Get RowHighLighted() As Boolean
     RowHighLighted = m_bRowHilighted
+End Property
+
+Property Let SelectCurrRow(ByVal bTemp As Boolean)
+    m_bSelectCurrRow = bTemp
 End Property
 
 Public Sub SelectRow(ByVal lRow As Long)
@@ -525,7 +537,10 @@ Private Sub subMarkSelected(vBkMark As Variant)
 '            Stop
         Else
             Clear
-            m_tgTable.SelBookmarks.Add vBkMark
+            If m_bSelectCurrRow Then
+                m_tgTable.SelBookmarks.Add vBkMark
+            End If
+            
 '            subToggleSelected vBkMark
 '            If nStart = nEnd Then
 '                If Count > 0 Then
@@ -558,6 +573,7 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
         Else
             subMarkSelected m_vLastRow
         End If
+        m_vLastSelected = m_tgcEditor.Bookmark
     End If
 End Sub
 
@@ -610,6 +626,7 @@ Private Sub Class_Initialize()
     m_nLastClickedRow = -1
     m_nIdleColumn = -1
     m_bAvoidBeep = True
+    m_bSelectCurrRow = True
 End Sub
 
 Private Sub Class_Terminate()
