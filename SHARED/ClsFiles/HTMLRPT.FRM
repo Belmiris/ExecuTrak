@@ -2,25 +2,25 @@ VERSION 5.00
 Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "shdocvw.dll"
 Begin VB.Form clsHtmlReport 
    Caption         =   "Report Browser"
-   ClientHeight    =   7620
+   ClientHeight    =   8355
    ClientLeft      =   45
    ClientTop       =   330
    ClientWidth     =   11715
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   7620
+   ScaleHeight     =   8355
    ScaleWidth      =   11715
    StartUpPosition =   3  'Windows Default
    Visible         =   0   'False
    Begin SHDocVwCtl.WebBrowser WebBrowser1 
-      Height          =   7644
-      Left            =   12
+      Height          =   8340
+      Left            =   0
       TabIndex        =   0
-      Top             =   -36
-      Width           =   11712
-      ExtentX         =   20659
-      ExtentY         =   13483
+      Top             =   0
+      Width           =   11685
+      ExtentX         =   20611
+      ExtentY         =   14711
       ViewMode        =   0
       Offline         =   0
       Silent          =   0
@@ -89,7 +89,8 @@ Public Sub BuildInternetReport(frmMain As Form, _
                                     Optional bBrowseIt As Boolean = True, _
                                     Optional bPrintIt As Boolean = True, _
                                     Optional sReportID As String = "", _
-                                    Optional nOrientation As Integer = vbPRORPortrait)
+                                    Optional nOrientation As Integer = vbPRORPortrait, _
+                                    Optional bCompressed As Boolean = False)
     
     Dim sHeaderLine As String
     
@@ -106,11 +107,26 @@ Public Sub BuildInternetReport(frmMain As Form, _
     Screen.MousePointer = vbHourglass
     
     If nOrientation = vbPRORPortrait Then
-        nPageWidth = 104
-        nLinesPerPage = 72
+        If bCompressed Then
+            nPageWidth = 132
+            nLinesPerPage = 90
+        Else
+            nPageWidth = 104
+            nLinesPerPage = 72
+        End If
     Else
-        nPageWidth = 132
-        nLinesPerPage = 51
+        If fnVB_IDE() Then
+            MsgBox "The landscape style report is not working properly because the program cannot " _
+                + "set the Print Orientation automatically when Preview.", vbInformation
+        End If
+        
+        If bCompressed Then
+            nPageWidth = 232
+            nLinesPerPage = 66
+        Else
+            nPageWidth = 132
+            nLinesPerPage = 52
+        End If
     End If
     
     'initialize member variables
@@ -129,7 +145,14 @@ Public Sub BuildInternetReport(frmMain As Form, _
     
     bFileOpen = True
     
-    sHeaderLine = "<HTML><STYLE> @media print { DIV.PAGEBREAK {page-break-before: always}}</STYLE><BODY style=""font-family: Courier New; font-size: 8pt""><PRE>"
+    sHeaderLine = "<HTML><STYLE> @media print {DIV.PAGEBREAK {page-break-before: always}}</STYLE>"
+    
+    If bCompressed Then
+        sHeaderLine = sHeaderLine + "<BODY style=""font-family:'Lucida Console';mso-bidi-font-family:'Courier New';font-size:6.3pt""><PRE>"
+    Else
+        sHeaderLine = sHeaderLine + "<BODY style=""font-family: Courier New; font-size: 8pt""><PRE>"
+    End If
+    
     Print #m_nFileNum, sHeaderLine
     
     subInitReportHeader sReportTitle, sColumnHeading
@@ -344,7 +367,7 @@ Private Function fnOpenRecord(strSQL As String, Optional vDB As Variant) As Reco
     Const SUB_NAME = "fnOpenRecord"
     
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -378,3 +401,14 @@ End Function
 Private Sub Form_Load()
     tfnCenterForm Me
 End Sub
+
+Private Function fnVB_IDE() As Boolean
+    On Error GoTo errTrap
+    Debug.Print 1 / 0
+    Exit Function
+    
+errTrap:
+    fnVB_IDE = True
+
+End Function
+
