@@ -188,19 +188,20 @@ Public AddingValidate As Boolean
 
 'david 01/15/2001
 'variables for Column Sort enhancement
-Private Const m_NUMERIC_TYPE As Integer = 900
-Private Const m_STRING_TYPE As Integer = 901
-Private Const m_DATE_TYPE = 906
-Private Const m_ASCENDING As Integer = 902
-Private Const m_DESCENDING As Integer = 903
-Private Const m_CASE_SENSITIVE As Integer = 904
-Private Const m_CASE_INSENSITIVE As Integer = 905
+Private Const m_NUMERIC_TYPE As Byte = 100
+Private Const m_STRING_TYPE As Byte = 101
+Private Const m_DATE_TYPE = 106
+Private Const m_ASCENDING As Byte = 102
+Private Const m_DESCENDING As Byte = 103
+Private Const m_CASE_SENSITIVE As Byte = 104
+Private Const m_CASE_INSENSITIVE As Byte = 105
 
 Private Type typSortKey
-    nColIndex As Integer
-    nColType As Integer
-    nSortOrder As Integer
-    nCaseSensitive As Integer
+    nColIndex As Byte
+    nColType As Byte
+    nSortOrder As Byte
+    nCaseSensitive As Byte
+    nInitSortOrder As Byte
 End Type
 
 Private Const MAX_SORT_KEYS As Integer = 5
@@ -234,6 +235,11 @@ Private lCountHighlightedID As Long
 'refresh the text of a cell automatically
 'when the content is changed in CellValue() let property.
 Private m_bCellValueAutoRebind As Boolean
+'''''''''''''''''
+
+'david 08/09/2002
+'reversed sort column on subsequence HeadClick()
+Private m_bReservedSortOnCol As Boolean
 '''''''''''''''''
 '
 
@@ -426,7 +432,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If val(tgTable.Row) < 0 Then
+        If Val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -523,7 +529,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
         Cancel = True
         Exit Sub
     Else
-        If val(tgTable.Row) < 0 Then
+        If Val(tgTable.Row) < 0 Then
             Cancel = True
             Exit Sub
         End If
@@ -663,6 +669,10 @@ Public Sub ClearData()
     DoEvents
     bClearData = bFlag
 
+    'david 08/10/2002
+    'restore the original sort order
+    subResetSortOrder
+    '''''''''''''''''
 End Sub
 
 Property Let ColumnForNewRow(nCol As Integer)
@@ -734,7 +744,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     nECol = fnColumnNumber(col)
     If nECol >= 0 Then
-        lRow = val(Bookmark)
+        lRow = Val(Bookmark)
         If Not bValidCell(nECol, lRow) Then
             If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
                 CellStyle.ForeColor = vbWhite
@@ -748,7 +758,7 @@ Public Property Get FirstRow() As Long
     If IsNull(tgTable.FirstRow) Then
         FirstRow = 0
     Else
-        FirstRow = val(tgTable.FirstRow)
+        FirstRow = Val(tgTable.FirstRow)
     End If
 End Property
 
@@ -777,7 +787,7 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     If IsNull(tgTable.FirstRow) Then
         lCurrRow = lRow
     Else
-        lCurrRow = lRow - val(tgTable.FirstRow)
+        lCurrRow = lRow - Val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
@@ -1379,7 +1389,7 @@ Public Sub ResetFlags(Optional vRow As Variant, _
     If IsMissing(vRow) Then
         j = GetCurrentRowNumber
     Else
-        j = val(vRow)
+        j = Val(vRow)
     End If
     If IsMissing(vCol) Then
         For i = 0 To nColumnCount - 1
@@ -1580,7 +1590,7 @@ Property Get LastRow() As Long
     If IsNull(tgTable.FirstRow) Then
         LastRow = nLastTableRow
     Else
-        LastRow = val(tgTable.FirstRow) + nLastTableRow
+        LastRow = Val(tgTable.FirstRow) + nLastTableRow
     End If
 End Property
 
@@ -1848,7 +1858,7 @@ Private Sub fnSaveChangedKeys()
     End If
     If sKeyFields(nKeyColumnCount, lKeyRows) = "  " Then
         sKeyFields(nKeyColumnCount, lKeyRows) = bmTemp
-        If val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
+        If Val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
             For nCol = 0 To nKeyColumnCount - 1
                 sKeyFields(nCol, lKeyRows) = GridArray(nKeyColumns(nCol), lEditingRow)
             Next
@@ -3074,7 +3084,8 @@ Public Function FillWithSQL(dbSource As Database, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
                             Optional vValidate As Variant, _
-                            Optional vClear As Variant) As Boolean
+                            Optional vClear As Variant, _
+                            Optional bResetSortOrder As Boolean = True) As Boolean
     Dim rsTemp As Recordset
     Dim nDBType As Integer
     If IsMissing(nDB) Then
@@ -3093,10 +3104,12 @@ Public Function FillWithSQL(dbSource As Database, _
         rsTemp.MoveLast
         rsTemp.MoveFirst
     End If
-    FillWithRecordset rsTemp, bRefresh, vValidate, vClear
+    
+    FillWithRecordset rsTemp, bRefresh, vValidate, vClear, bResetSortOrder
     rsTemp.Close
     Set rsTemp = Nothing
     FillWithSQL = True
+
 quitsub:
     On Error GoTo 0
     Exit Function
@@ -3195,12 +3208,12 @@ Public Function GetCurrentRowNumber() As Long
     If IsNull(tgTable.FirstRow) Then
         lRow = 0
     Else
-        lRow = val(tgTable.FirstRow)
+        lRow = Val(tgTable.FirstRow)
     End If
     If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + val(tgTable.Row)
+        GetCurrentRowNumber = lRow + Val(tgTable.Row)
     End If
 
 End Function
@@ -3402,7 +3415,8 @@ End Sub
 'AFTER THE GRID HAS BEEN FILLED WITH THE DATA
 Public Sub FillWithArray(arryData() As Variant, _
                          Optional vClear As Variant, _
-                         Optional vValid As Variant)
+                         Optional vValid As Variant, _
+                         Optional bResetSortOrder As Boolean = True)
     Dim i As Long
     Dim lRow As Long
     Dim nCol As Integer
@@ -3480,10 +3494,18 @@ Public Sub FillWithArray(arryData() As Variant, _
         Rebind
         DoEvents
     End If
+    
     bClearData = False
     bValidating = False
     
+    'david 08/10/2002
+    'restore the original sort order
+    If bResetSortOrder Then
+        subResetSortOrder
+    End If
+    '''''''''''''''''
 End Sub
+
 Private Function fnUbound(arryTemp() As Variant, Optional vIndex As Variant)
     Dim nIndex As Integer
     
@@ -3498,11 +3520,11 @@ Private Function fnUbound(arryTemp() As Variant, Optional vIndex As Variant)
     fnUbound = UBound(arryTemp, nIndex)
 End Function
 
-
 Public Sub FillWithRecordset(rsTemp As Recordset, _
                              Optional bRefresh As Variant, _
                              Optional vValidate As Variant, _
-                             Optional vClear As Variant)
+                             Optional vClear As Variant, _
+                             Optional bResetSortOrder As Boolean = True)
     Dim lRow As Long
     Dim nCol As Integer
     Dim i As Integer
@@ -3603,6 +3625,14 @@ Public Sub FillWithRecordset(rsTemp As Recordset, _
     DoEvents
     bClearData = False
     bValidating = False
+
+    'david 08/10/2002
+    'restore the original sort order
+    If bResetSortOrder Then
+        subResetSortOrder
+    End If
+    '''''''''''''''''
+
 extFill:
     On Error GoTo 0
     Exit Sub
@@ -4268,7 +4298,7 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
             nIndex = -1
         End If
     Else
-        nIndex = val(StartLocation)
+        nIndex = Val(StartLocation)
         If nIndex < 0 Or nIndex >= lRows Then
             nIndex = -9999
         End If
@@ -4512,7 +4542,7 @@ Private Function fnRound(vLastRow As Variant) As Long
     If IsNull(vLastRow) Then
         fnRound = 0
     Else
-        fnRound = val(vLastRow)
+        fnRound = Val(vLastRow)
     End If
 End Function
 
@@ -4660,7 +4690,7 @@ Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean
         ' take the Val() to get the array index
         ' this is the opposite of the function in MakeBookmark()
         Index = -9999
-        fnIndexFromBookmark = val(Bookmk)
+        fnIndexFromBookmark = Val(Bookmk)
     End If
 End Function
 
@@ -4692,6 +4722,7 @@ Private Sub Class_Initialize()
 
     m_bSortOnCol = False
     m_bSortWhenGridNotvalid = False
+    m_bReservedSortOnCol = False
 End Sub
 
 Private Sub Class_Terminate()
@@ -4748,6 +4779,13 @@ Property Get CASE_INSENSITIVE() As Integer
     CASE_INSENSITIVE = m_CASE_INSENSITIVE
 End Property
 
+'david 08/09/2002
+'reversed sort column on subsequence HeadClick()
+Property Let ReservedSortByColumn(bStatus As Boolean)
+    m_bReservedSortOnCol = bStatus
+End Property
+'''''''''''''''''
+
 'calling syntax
 'AddSortColumn
 'nGridColIndex, nCol, <NUMERIC_TYPE|STRING_TYPE>, <ASCENDING|DESCEDING>, <CASE_SENSITIVE|CASE_INSENSITIVE>
@@ -4761,7 +4799,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4818,6 +4856,10 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
             End If
         
             m_arySortCol(nSortKeyCount, j).nSortOrder = argSortOnKeyList(i)
+            'david 08/11/2002
+            'save the original sort order
+            m_arySortCol(nSortKeyCount, j).nInitSortOrder = m_arySortCol(nSortKeyCount, j).nSortOrder
+            '''''''''''''''''
         
         Case 3  '[CASE_SENSITIVE|CASE_INSENSITIVE]
             
@@ -4835,7 +4877,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -4894,7 +4936,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     m_bColIsSorted = False
     
@@ -4916,7 +4958,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     lblStatusbar.Font.Bold = False
     lblStatusbar = "Sorting " + sSortCols + " ..."
     lblStatusbar.Refresh
-    
+Debug.Print sSortCols
     Screen.MousePointer = vbHourglass
     
     'read data
@@ -4956,12 +4998,22 @@ Public Function SortCol(nSortCol As Integer) As Boolean
         'if a cell validation in the main form uses the value from other cells,
         'the validation will fail because those values are not available.
         'THE REVALIDATION OF THE GRID NEEDS TO BE DONE AFTER THE COLUMNS HAS BEEN SORT
-        FillWithArray vData, True  ', Not bReValidate
-        
+        FillWithArray vData, True, , False  ', Not bReValidate
         SortCol = True
     End If
     
-errTrap:
+    'reversed sort column on subsequence HeadClick()
+    If m_bReservedSortOnCol Then
+        'reverse the "order by" variable of the first sorting column
+        'reverse the order
+        If m_arySortCol(0, nIndex).nSortOrder = m_ASCENDING Then
+            m_arySortCol(0, nIndex).nSortOrder = m_DESCENDING
+        Else
+            m_arySortCol(0, nIndex).nSortOrder = m_ASCENDING
+        End If
+    End If
+    
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -4976,7 +5028,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     nSortCount = -1
     
@@ -4986,13 +5038,13 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 dfData1 = 0
             Else
-                dfData1 = val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
             End If
         
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
                 dfData2 = 0
             Else
-                dfData2 = val(vData(m_arySortCol(n, nIndex).nColIndex, k))
+                dfData2 = Val(vData(m_arySortCol(n, nIndex).nColIndex, k))
             End If
             
             If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
@@ -5113,7 +5165,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-errTrap:
+ErrTrap:
     'error, no sort
 End Function
 
@@ -5168,7 +5220,7 @@ End Function
 'david 04/27/2002
 'THIS CALL IS REQUIRED FOR THE IMPLEMENTATION OF:
 'WHEN CLICKED ON THE COLUMN HEADER TO SORT THE GRID
-'TO SET/RESTORE HE HIGHLIGHTED ROW PROPERLY
+'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 Public Sub SelChange(Cancel As Integer)
@@ -5193,7 +5245,7 @@ Private Sub subGetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = val(.Item(i))
+                lTemp(i) = Val(.Item(i))
             Next i
         End If
     End With
@@ -5236,7 +5288,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
         Exit Sub
     End If
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5257,7 +5309,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
@@ -5302,3 +5354,14 @@ Private Function fnIsLastEditableCol(Optional nCol As Integer = -1) As Boolean
     
     fnIsLastEditableCol = nCol = nEditColumns(nColumnCount - 1)
 End Function
+
+'david 08/10/2002
+Private Sub subResetSortOrder()
+    Dim j As Integer
+    
+    If m_bReservedSortOnCol Then
+        For j = 0 To m_SortColCount - 1
+            m_arySortCol(0, j).nSortOrder = m_arySortCol(0, j).nInitSortOrder
+        Next j
+    End If
+End Sub
