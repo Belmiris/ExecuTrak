@@ -20,7 +20,6 @@ Begin VB.Form LogForm
    EndProperty
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
-   LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   6036
@@ -28,7 +27,7 @@ Begin VB.Form LogForm
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   17
+      TabIndex        =   13
       TabStop         =   0   'False
       Top             =   5676
       Width           =   8880
@@ -71,7 +70,7 @@ Begin VB.Form LogForm
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -84,7 +83,7 @@ Begin VB.Form LogForm
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -100,7 +99,7 @@ Begin VB.Form LogForm
       Begin MSComctlLib.Toolbar tbToolbar 
          Height          =   372
          Left            =   60
-         TabIndex        =   5
+         TabIndex        =   4
          Top             =   84
          Width           =   6876
          _ExtentX        =   12129
@@ -110,10 +109,248 @@ Begin VB.Form LogForm
          _Version        =   393216
       End
    End
+   Begin FACTFRMLib.FactorFrame ffBackground1 
+      Height          =   5184
+      Left            =   0
+      TabIndex        =   0
+      TabStop         =   0   'False
+      Top             =   480
+      Width           =   8880
+      _Version        =   65536
+      _ExtentX        =   15663
+      _ExtentY        =   9144
+      _StockProps     =   77
+      BackColor       =   8388608
+      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "Arial"
+         Size            =   7.2
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      BevelOuter      =   0
+      Align           =   5
+      PicturePos      =   0
+      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+         Name            =   "MS Sans Serif"
+         Size            =   9.6
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Begin FACTFRMLib.FactorFrame cmdProcess 
+         Height          =   396
+         HelpContextID   =   3005
+         Left            =   6036
+         TabIndex        =   1
+         Top             =   4716
+         Width           =   1308
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "&Process"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
+         Height          =   396
+         HelpContextID   =   15
+         Left            =   7464
+         TabIndex        =   2
+         Top             =   4716
+         Width           =   1308
+         _Version        =   65536
+         _ExtentX        =   2302
+         _ExtentY        =   688
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Caption         =   "&Exit"
+         CaptionPos      =   4
+         PicturePos      =   3
+         ShowFocusRect   =   -1  'True
+         Style           =   3
+         BorderWidth     =   4
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+      End
+      Begin MSComDlg.CommonDialog dlgFilenames 
+         Left            =   3780
+         Top             =   4692
+         _ExtentX        =   699
+         _ExtentY        =   699
+         _Version        =   393216
+      End
+      Begin VB.FileListBox lstFile 
+         Height          =   288
+         Left            =   2100
+         TabIndex        =   9
+         Top             =   4800
+         Visible         =   0   'False
+         Width           =   1572
+      End
+      Begin FACTFRMLib.FactorFrame efraTabFrame1 
+         Height          =   4536
+         Left            =   108
+         TabIndex        =   5
+         TabStop         =   0   'False
+         Top             =   84
+         Width           =   8652
+         _Version        =   65536
+         _ExtentX        =   15261
+         _ExtentY        =   8001
+         _StockProps     =   77
+         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "Arial"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         BevelOuter      =   5
+         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+            Name            =   "MS Sans Serif"
+            Size            =   9.6
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         Begin VB.ListBox lstOutput 
+            BeginProperty Font 
+               Name            =   "Arial"
+               Size            =   10.2
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            Height          =   3924
+            HelpContextID   =   3001
+            Left            =   48
+            TabIndex        =   6
+            TabStop         =   0   'False
+            Top             =   72
+            Width           =   8556
+         End
+         Begin FACTFRMLib.FactorFrame efraProgressBar 
+            Height          =   408
+            Left            =   48
+            TabIndex        =   7
+            Top             =   4068
+            Visible         =   0   'False
+            Width           =   8568
+            _Version        =   65536
+            _ExtentX        =   15113
+            _ExtentY        =   720
+            _StockProps     =   77
+            ForeColor       =   -2147483634
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            =   9.6
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            BevelOuter      =   5
+            CaptionPos      =   4
+            FloodColor      =   8388608
+            FloodDirection  =   1
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            =   9.6
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+         End
+         Begin FACTFRMLib.FactorFrame efraProgressBar1 
+            Height          =   408
+            Left            =   48
+            TabIndex        =   8
+            Top             =   4068
+            Visible         =   0   'False
+            Width           =   8568
+            _Version        =   65536
+            _ExtentX        =   15113
+            _ExtentY        =   720
+            _StockProps     =   77
+            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "Arial"
+               Size            =   9.6
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+            BevelOuter      =   5
+            FloodColor      =   12582912
+            FloodDirection  =   1
+            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+               Name            =   "MS Sans Serif"
+               Size            =   9.6
+               Charset         =   0
+               Weight          =   400
+               Underline       =   0   'False
+               Italic          =   0   'False
+               Strikethrough   =   0   'False
+            EndProperty
+         End
+      End
+   End
    Begin FACTFRMLib.FactorFrame ffBackground2 
       Height          =   5196
       Left            =   12
-      TabIndex        =   14
+      TabIndex        =   10
       TabStop         =   0   'False
       Top             =   480
       Width           =   8880
@@ -147,7 +384,7 @@ Begin VB.Form LogForm
          Height          =   396
          HelpContextID   =   15
          Left            =   7464
-         TabIndex        =   16
+         TabIndex        =   12
          Top             =   4716
          Width           =   1308
          _Version        =   65536
@@ -156,7 +393,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -183,7 +420,7 @@ Begin VB.Form LogForm
          Height          =   396
          HelpContextID   =   3005
          Left            =   6048
-         TabIndex        =   15
+         TabIndex        =   11
          Top             =   4716
          Width           =   1308
          _Version        =   65536
@@ -192,7 +429,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -218,7 +455,7 @@ Begin VB.Form LogForm
       Begin FACTFRMLib.FactorFrame ffSetupInOut 
          Height          =   4536
          Left            =   108
-         TabIndex        =   33
+         TabIndex        =   29
          TabStop         =   0   'False
          Top             =   96
          Width           =   8652
@@ -249,7 +486,7 @@ Begin VB.Form LogForm
             Height          =   2196
             Index           =   6
             Left            =   84
-            TabIndex        =   34
+            TabIndex        =   30
             TabStop         =   0   'False
             Top             =   2280
             Width           =   8460
@@ -279,7 +516,7 @@ Begin VB.Form LogForm
             Begin FACTFRMLib.FactorFrame ffIOInput 
                Height          =   840
                Left            =   84
-               TabIndex        =   47
+               TabIndex        =   43
                TabStop         =   0   'False
                Top             =   60
                Width           =   732
@@ -311,7 +548,7 @@ Begin VB.Form LogForm
                   Height          =   372
                   Index           =   17
                   Left            =   24
-                  TabIndex        =   49
+                  TabIndex        =   45
                   Top             =   312
                   Width           =   696
                End
@@ -320,7 +557,7 @@ Begin VB.Form LogForm
                   Height          =   288
                   Index           =   13
                   Left            =   24
-                  TabIndex        =   48
+                  TabIndex        =   44
                   Top             =   48
                   Width           =   696
                End
@@ -328,7 +565,7 @@ Begin VB.Form LogForm
             Begin FACTFRMLib.FactorFrame FactorFrame3 
                Height          =   876
                Left            =   36
-               TabIndex        =   42
+               TabIndex        =   38
                TabStop         =   0   'False
                Top             =   1224
                Width           =   8328
@@ -359,14 +596,14 @@ Begin VB.Form LogForm
                   Height          =   372
                   HelpContextID   =   2001
                   Left            =   2052
-                  TabIndex        =   31
+                  TabIndex        =   27
                   Top             =   72
                   Width           =   5112
                End
                Begin VB.TextBox txtBackupName 
                   Height          =   372
                   Left            =   2052
-                  TabIndex        =   32
+                  TabIndex        =   28
                   Top             =   492
                   Width           =   3000
                End
@@ -374,7 +611,7 @@ Begin VB.Form LogForm
                   Height          =   372
                   HelpContextID   =   2002
                   Left            =   7200
-                  TabIndex        =   43
+                  TabIndex        =   39
                   TabStop         =   0   'False
                   Top             =   72
                   Width           =   1068
@@ -427,7 +664,7 @@ Begin VB.Form LogForm
                   Height          =   288
                   Index           =   22
                   Left            =   72
-                  TabIndex        =   46
+                  TabIndex        =   42
                   Top             =   48
                   Width           =   732
                End
@@ -436,7 +673,7 @@ Begin VB.Form LogForm
                   Height          =   288
                   Index           =   21
                   Left            =   912
-                  TabIndex        =   45
+                  TabIndex        =   41
                   Top             =   120
                   Width           =   1200
                End
@@ -445,7 +682,7 @@ Begin VB.Form LogForm
                   Height          =   336
                   Index           =   16
                   Left            =   912
-                  TabIndex        =   44
+                  TabIndex        =   40
                   Top             =   552
                   Width           =   1200
                End
@@ -454,14 +691,14 @@ Begin VB.Form LogForm
                Height          =   372
                HelpContextID   =   2001
                Left            =   2076
-               TabIndex        =   25
+               TabIndex        =   21
                Top             =   60
                Width           =   5112
             End
             Begin VB.TextBox txtFileName 
                Height          =   372
                Left            =   2076
-               TabIndex        =   26
+               TabIndex        =   22
                Top             =   480
                Width           =   3000
             End
@@ -469,7 +706,7 @@ Begin VB.Form LogForm
                Height          =   312
                Index           =   7
                Left            =   792
-               TabIndex        =   35
+               TabIndex        =   31
                TabStop         =   0   'False
                Top             =   864
                Width           =   3900
@@ -501,7 +738,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   1
                   Left            =   2424
-                  TabIndex        =   28
+                  TabIndex        =   24
                   Top             =   72
                   Width           =   768
                End
@@ -510,7 +747,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   0
                   Left            =   1476
-                  TabIndex        =   27
+                  TabIndex        =   23
                   Top             =   72
                   Width           =   768
                End
@@ -519,7 +756,7 @@ Begin VB.Form LogForm
                   Height          =   264
                   Index           =   9
                   Left            =   96
-                  TabIndex        =   36
+                  TabIndex        =   32
                   Top             =   60
                   Width           =   1392
                End
@@ -528,7 +765,7 @@ Begin VB.Form LogForm
                Height          =   372
                HelpContextID   =   2002
                Left            =   7236
-               TabIndex        =   37
+               TabIndex        =   33
                TabStop         =   0   'False
                Top             =   60
                Width           =   1068
@@ -565,7 +802,7 @@ Begin VB.Form LogForm
                Height          =   312
                Index           =   8
                Left            =   4692
-               TabIndex        =   38
+               TabIndex        =   34
                TabStop         =   0   'False
                Top             =   864
                Width           =   3648
@@ -597,7 +834,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   1
                   Left            =   2616
-                  TabIndex        =   30
+                  TabIndex        =   26
                   Top             =   72
                   Width           =   768
                End
@@ -606,7 +843,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   0
                   Left            =   1536
-                  TabIndex        =   29
+                  TabIndex        =   25
                   Top             =   72
                   Width           =   768
                End
@@ -615,7 +852,7 @@ Begin VB.Form LogForm
                   Height          =   264
                   Index           =   10
                   Left            =   84
-                  TabIndex        =   39
+                  TabIndex        =   35
                   Top             =   60
                   Width           =   1776
                End
@@ -625,7 +862,7 @@ Begin VB.Form LogForm
                Height          =   288
                Index           =   12
                Left            =   900
-               TabIndex        =   41
+               TabIndex        =   37
                Top             =   108
                Width           =   1200
             End
@@ -634,7 +871,7 @@ Begin VB.Form LogForm
                Height          =   336
                Index           =   11
                Left            =   900
-               TabIndex        =   40
+               TabIndex        =   36
                Top             =   540
                Width           =   1200
             End
@@ -643,7 +880,7 @@ Begin VB.Form LogForm
             Height          =   780
             Index           =   12
             Left            =   84
-            TabIndex        =   50
+            TabIndex        =   46
             TabStop         =   0   'False
             Top             =   48
             Width           =   2340
@@ -675,7 +912,7 @@ Begin VB.Form LogForm
                Height          =   240
                Index           =   1
                Left            =   1236
-               TabIndex        =   19
+               TabIndex        =   15
                Top             =   360
                Width           =   1044
             End
@@ -684,7 +921,7 @@ Begin VB.Form LogForm
                Height          =   240
                Index           =   0
                Left            =   72
-               TabIndex        =   18
+               TabIndex        =   14
                Top             =   360
                Width           =   1224
             End
@@ -693,7 +930,7 @@ Begin VB.Form LogForm
                Height          =   264
                Index           =   24
                Left            =   84
-               TabIndex        =   51
+               TabIndex        =   47
                Top             =   72
                Width           =   1572
             End
@@ -702,7 +939,7 @@ Begin VB.Form LogForm
             Height          =   1332
             Index           =   5
             Left            =   84
-            TabIndex        =   52
+            TabIndex        =   48
             TabStop         =   0   'False
             Top             =   888
             Width           =   8448
@@ -732,7 +969,7 @@ Begin VB.Form LogForm
             Begin VB.TextBox txtLogFile 
                Height          =   384
                Left            =   2280
-               TabIndex        =   24
+               TabIndex        =   20
                Top             =   852
                Width           =   3156
             End
@@ -740,7 +977,7 @@ Begin VB.Form LogForm
                Height          =   384
                HelpContextID   =   2001
                Left            =   2280
-               TabIndex        =   23
+               TabIndex        =   19
                Top             =   384
                Width           =   4908
             End
@@ -748,7 +985,7 @@ Begin VB.Form LogForm
                Height          =   672
                Index           =   0
                Left            =   72
-               TabIndex        =   53
+               TabIndex        =   49
                TabStop         =   0   'False
                Top             =   84
                Width           =   1836
@@ -780,7 +1017,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   1
                   Left            =   912
-                  TabIndex        =   22
+                  TabIndex        =   18
                   Top             =   348
                   Width           =   888
                End
@@ -789,7 +1026,7 @@ Begin VB.Form LogForm
                   Height          =   240
                   Index           =   0
                   Left            =   60
-                  TabIndex        =   21
+                  TabIndex        =   17
                   Top             =   348
                   Width           =   888
                End
@@ -798,7 +1035,7 @@ Begin VB.Form LogForm
                   Height          =   264
                   Index           =   1
                   Left            =   84
-                  TabIndex        =   54
+                  TabIndex        =   50
                   Top             =   36
                   Width           =   1212
                End
@@ -807,7 +1044,7 @@ Begin VB.Form LogForm
                Height          =   384
                HelpContextID   =   2002
                Left            =   7236
-               TabIndex        =   55
+               TabIndex        =   51
                TabStop         =   0   'False
                Top             =   384
                Width           =   1068
@@ -845,7 +1082,7 @@ Begin VB.Form LogForm
                Height          =   336
                Index           =   2
                Left            =   384
-               TabIndex        =   57
+               TabIndex        =   53
                Top             =   912
                Width           =   1704
             End
@@ -854,7 +1091,7 @@ Begin VB.Form LogForm
                Height          =   288
                Index           =   3
                Left            =   2280
-               TabIndex        =   56
+               TabIndex        =   52
                Top             =   96
                Width           =   1608
             End
@@ -863,7 +1100,7 @@ Begin VB.Form LogForm
             Height          =   780
             Index           =   3
             Left            =   2532
-            TabIndex        =   58
+            TabIndex        =   54
             TabStop         =   0   'False
             Top             =   48
             Width           =   6000
@@ -894,7 +1131,7 @@ Begin VB.Form LogForm
                Height          =   384
                HelpContextID   =   2001
                Left            =   120
-               TabIndex        =   20
+               TabIndex        =   16
                Top             =   324
                Width           =   4656
             End
@@ -902,7 +1139,7 @@ Begin VB.Form LogForm
                Height          =   384
                HelpContextID   =   2002
                Left            =   4824
-               TabIndex        =   59
+               TabIndex        =   55
                TabStop         =   0   'False
                Top             =   324
                Width           =   1068
@@ -940,332 +1177,9 @@ Begin VB.Form LogForm
                Height          =   288
                Index           =   0
                Left            =   132
-               TabIndex        =   60
+               TabIndex        =   56
                Top             =   48
                Width           =   1608
-            End
-         End
-      End
-   End
-   Begin FACTFRMLib.FactorFrame ffBackground1 
-      Height          =   5184
-      Left            =   0
-      TabIndex        =   0
-      TabStop         =   0   'False
-      Top             =   480
-      Width           =   8880
-      _Version        =   65536
-      _ExtentX        =   15663
-      _ExtentY        =   9144
-      _StockProps     =   77
-      BackColor       =   8388608
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Arial"
-         Size            =   7.2
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      BevelOuter      =   0
-      Align           =   5
-      PicturePos      =   0
-      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "MS Sans Serif"
-         Size            =   9.6
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Begin FACTFRMLib.FactorFrame cmdProcess 
-         Height          =   396
-         HelpContextID   =   3005
-         Left            =   6036
-         TabIndex        =   1
-         Top             =   4716
-         Width           =   1308
-         _Version        =   65536
-         _ExtentX        =   2302
-         _ExtentY        =   688
-         _StockProps     =   77
-         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "Arial"
-            Size            =   9.46
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Caption         =   "&Process"
-         CaptionPos      =   4
-         PicturePos      =   3
-         ShowFocusRect   =   -1  'True
-         Style           =   3
-         BorderWidth     =   4
-         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "MS Sans Serif"
-            Size            =   9.6
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-      End
-      Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
-         Height          =   396
-         HelpContextID   =   15
-         Left            =   7464
-         TabIndex        =   2
-         Top             =   4716
-         Width           =   1308
-         _Version        =   65536
-         _ExtentX        =   2302
-         _ExtentY        =   688
-         _StockProps     =   77
-         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "Arial"
-            Size            =   9.46
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Caption         =   "&Exit"
-         CaptionPos      =   4
-         PicturePos      =   3
-         ShowFocusRect   =   -1  'True
-         Style           =   3
-         BorderWidth     =   4
-         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "MS Sans Serif"
-            Size            =   9.6
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-      End
-      Begin MSComDlg.CommonDialog dlgFilenames 
-         Left            =   3780
-         Top             =   4692
-         _ExtentX        =   699
-         _ExtentY        =   699
-         _Version        =   393216
-      End
-      Begin VB.FileListBox lstFile 
-         Height          =   288
-         Left            =   2100
-         TabIndex        =   13
-         Top             =   4800
-         Visible         =   0   'False
-         Width           =   1572
-      End
-      Begin FACTFRMLib.FactorFrame efraTabFrame1 
-         Height          =   4536
-         Left            =   108
-         TabIndex        =   6
-         TabStop         =   0   'False
-         Top             =   84
-         Width           =   8652
-         _Version        =   65536
-         _ExtentX        =   15261
-         _ExtentY        =   8001
-         _StockProps     =   77
-         BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "Arial"
-            Size            =   9.6
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         BevelOuter      =   5
-         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-            Name            =   "MS Sans Serif"
-            Size            =   9.6
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Begin VB.ListBox lstOutput 
-            BeginProperty Font 
-               Name            =   "Arial"
-               Size            =   10.2
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            Height          =   3924
-            HelpContextID   =   3001
-            Left            =   48
-            TabIndex        =   7
-            TabStop         =   0   'False
-            Top             =   72
-            Width           =   8556
-         End
-         Begin FACTFRMLib.FactorFrame efraProgressBar 
-            Height          =   408
-            Left            =   48
-            TabIndex        =   9
-            Top             =   4068
-            Visible         =   0   'False
-            Width           =   8568
-            _Version        =   65536
-            _ExtentX        =   15113
-            _ExtentY        =   720
-            _StockProps     =   77
-            ForeColor       =   -2147483634
-            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "Arial"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            BevelOuter      =   5
-            CaptionPos      =   4
-            FloodColor      =   8388608
-            FloodDirection  =   1
-            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "MS Sans Serif"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-         End
-         Begin FACTFRMLib.FactorFrame efraProgressBar1 
-            Height          =   408
-            Left            =   48
-            TabIndex        =   10
-            Top             =   4068
-            Visible         =   0   'False
-            Width           =   8568
-            _Version        =   65536
-            _ExtentX        =   15113
-            _ExtentY        =   720
-            _StockProps     =   77
-            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "Arial"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            BevelOuter      =   5
-            FloodColor      =   12582912
-            FloodDirection  =   1
-            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "MS Sans Serif"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-         End
-         Begin FACTFRMLib.FactorFrame efraSearch 
-            Height          =   468
-            Left            =   48
-            TabIndex        =   11
-            Top             =   4032
-            Visible         =   0   'False
-            Width           =   8568
-            _Version        =   65536
-            _ExtentX        =   15113
-            _ExtentY        =   826
-            _StockProps     =   77
-            BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "Arial"
-               Size            =   9.61
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            BevelOuter      =   5
-            FloodColor      =   8388608
-            FloodDirection  =   1
-            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-               Name            =   "MS Sans Serif"
-               Size            =   9.6
-               Charset         =   0
-               Weight          =   400
-               Underline       =   0   'False
-               Italic          =   0   'False
-               Strikethrough   =   0   'False
-            EndProperty
-            Begin VB.TextBox txtSearch 
-               Height          =   372
-               HelpContextID   =   3002
-               Left            =   1344
-               TabIndex        =   8
-               Top             =   36
-               Width           =   6588
-            End
-            Begin FACTFRMLib.FactorFrame cmdSearch 
-               Height          =   372
-               HelpContextID   =   3003
-               Left            =   7968
-               TabIndex        =   4
-               TabStop         =   0   'False
-               Tag             =   "Copy From"
-               Top             =   36
-               Width           =   372
-               _Version        =   65536
-               _ExtentX        =   656
-               _ExtentY        =   656
-               _StockProps     =   77
-               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "Arial"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-               CaptionPos      =   4
-               Style           =   3
-               BorderWidth     =   4
-               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                  Name            =   "MS Sans Serif"
-                  Size            =   9.6
-                  Charset         =   0
-                  Weight          =   400
-                  Underline       =   0   'False
-                  Italic          =   0   'False
-                  Strikethrough   =   0   'False
-               EndProperty
-            End
-            Begin VB.Label lblSearch 
-               Alignment       =   1  'Right Justify
-               Caption         =   "Search for"
-               Height          =   300
-               Left            =   60
-               TabIndex        =   12
-               Top             =   96
-               Width           =   1152
             End
          End
       End
@@ -1587,11 +1501,6 @@ End Sub
 
 Public Sub ShowProgressbar(bFlag As Boolean)
     efraProgressBar.Visible = bFlag
-    If lstOutput.ListCount > 0 Then
-        efraSearch.Visible = Not bFlag
-    Else
-        efraSearch.Visible = False
-    End If
 End Sub
 
 
@@ -2062,6 +1971,10 @@ Private Sub subBrowsePath(txtBox As Textbox, _
         subSetButtonStatus
         subSetToNextBox txtBox
     End If
+End Sub
+
+Private Sub efraSearch_Click()
+
 End Sub
 
 Private Sub Form_Resize()
@@ -2633,7 +2546,6 @@ Private Sub tfnResetScreen()
     subEnableProcess True
     
     lstOutput.Clear
-    txtSearch.Text = ""
     
     subEnableCancel False
     
@@ -2699,7 +2611,7 @@ Private Sub subShowPopup()
     
     hSubMenu = GetSubMenu(hSubMenu, 1)
     'Popup the menu
-    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hwnd, rctMainWindow)
+    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, Me.hwnd, rctMainWindow)
 
 End Sub
 
