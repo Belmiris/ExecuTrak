@@ -318,7 +318,7 @@ End Function
 Private Function fnStr2BoolTrue(sTemp As String) As Boolean
     fnStr2BoolTrue = False
     If IsNumeric(sTemp) Then
-        If Val(sTemp) <> 0 Then
+        If val(sTemp) <> 0 Then
             fnStr2BoolTrue = True
         End If
     ElseIf UCase(sTemp) = PV_TRUE Then
@@ -874,15 +874,26 @@ Private Sub subInitialize(sCommand As String)
         End
     End If
     
-    If tfnOpenDatabase Then
-        Set dbLocal = tfnOpenLocalDatabase
+    Dim sStatusbarMsg As String
+    
+    sStatusbarMsg = LogForm.ffraStatusbar
+    subSetStatusbarMessage "Opening Database. Please wait..."
+    Screen.MousePointer = vbHourglass
+    
+    If tfnOpenDatabase() Then
+        subSetStatusbarMessage "Opening Database. Please wait..."
+        Screen.MousePointer = vbHourglass
+        Set dbLocal = tfnOpenLocalDatabase()
         subInitErrorHandler
+        Screen.MousePointer = vbHourglass
         tfnUpdateVersion
     Else
         Unload LogForm
         End
     End If
     
+    subSetStatusbarMessage sStatusbarMsg
+    Screen.MousePointer = vbDefault
 End Sub
 
 Private Function fnCheckRunMethod(sCommand As String) As Boolean
@@ -1347,3 +1358,10 @@ Private Function fnUncrypt(sSource As String) As String
     fnUncrypt = sTemp
     
 End Function
+
+Private Sub subSetStatusbarMessage(sStatusbarMsg As String)
+    LogForm.ffraStatusbar.ForeColor = STANDARD_TEXT_COLOR
+    LogForm.ffraStatusbar.Font.Bold = False
+    LogForm.ffraStatusbar.Caption = sStatusbarMsg
+    LogForm.ffraStatusbar.Refresh
+End Sub
