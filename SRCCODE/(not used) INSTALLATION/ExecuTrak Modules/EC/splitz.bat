@@ -6,14 +6,14 @@ call fsplit ..\disk\factbin.z ..\disk 700
 move ..\disk\factbin.1 ..\disk\disk1
 move ..\disk\factbin.2 ..\disk\disk2
 move ..\disk\factbin.3 ..\disk\disk3
-move ..\disk\factbin.4 ..\disk\disk3
+move ..\disk\factbin.4 ..\disk\disk4
 
 echo .
-REMecho split localdb.z
-REMcall fsplit ..\disk\localdb.z ..\disk 9
-REMmove ..\disk\localdb.1 ..\disk\disk3
-REMmove ..\disk\localdb.2 ..\disk\disk4
-copy localdb.z ..\disk\disk4
+REM echo split localdb.z
+REM call fsplit ..\disk\localdb.z ..\disk 9
+REM move ..\disk\localdb.1 ..\disk\disk3
+REM move ..\disk\localdb.2 ..\disk\disk4
+copy ..\disk\localdb.z ..\disk\disk4
 
 echo .
 choice /c:yn /t:y,7 Do you want to Compile the Setup Script
