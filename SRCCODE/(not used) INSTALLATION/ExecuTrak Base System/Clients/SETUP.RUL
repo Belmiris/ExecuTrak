@@ -2396,6 +2396,9 @@ begin
 				nvPosi = StrFind(szName, ".MDB");
 				if nvPosi <0 then
 					nvPosi = StrFind(szName, ".QRT");
+					if nvPosi <0 then
+						nvPosi = StrFind(szName, ".HLP");
+					endif;
 				endif;
 				if nvPosi >=0 then
 					bGoCopy = TRUE;
@@ -2439,7 +2442,7 @@ begin
 						//take care of releasing new EXE file in service pack
 						//check for first 2 characters in the file name (ModuleID)
 	                			StrSub(szModID, szName, 0, 2);
-	                			szModID = szModID + "*.*";
+	                			szModID = szModID + "*.EXE";
 						if fnFindFile(szDest, szModID) then
 							bGoCopy = TRUE;
 						else
