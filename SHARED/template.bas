@@ -561,6 +561,8 @@ Public Function tfn_Is_Cust_Editable(ByVal sCust As String, _
         
         If IsMissing(vUser) Then
             sUser = tfnGetUserName
+        Else
+            sUser = vUser
         End If
         
         strSQL = "SELECT ara_privilege FROM ar_access,ar_altname WHERE an_access_zone=ara_access_zone"
