@@ -1,8 +1,17 @@
 Attribute VB_Name = "FlatFileUtil"
 Option Explicit
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'On 05/09/2002, we did the following two things:
+'(1)Add output file information to the INI file
+'(2)The INI File Can be set up by the calling program
+' If you do not need output file setup, you still work the same way as
+' the template. If you do need output file setup, See subGetInfo and subinitilize
+' for detail. (the program ZZPSPRI is the first program with output set up
+' ---- Weigong Jiang
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'    Private Const FF_PROC_INIFILE = "FACTOR.INI"
 
-    Private Const FF_PROC_INIFILE = "FACTOR.INI"
-    
+    Private FF_PROC_INIFILE As String  '= "FACTOR.INI"
     Private Const szEMPTY = ""
 
     Private Const ERR_AUTO_FAILED = "Auto processing failed."
@@ -46,7 +55,14 @@ Option Explicit
     Public Const CLP_ID_LTYPE = "LFileType"
     Public Const CLP_IDX_WTLOG = 13
     Public Const CLP_ID_WTLOG = "WriteLogFlag"
-    Public Const CLP_PARM_COUNT = 14
+    Public Const CLP_IDX_OPATH = 14
+    Public Const CLP_ID_OPATH = "OFilePath"
+    Public Const CLP_IDX_OTYPE = 15
+    Public Const CLP_ID_OTYPE = "OFileType"
+    Public Const CLP_IDX_ONAME = 16
+    Public Const CLP_ID_ONAME = "OFileName"
+    
+    Public Const CLP_PARM_COUNT = 17
     Private aryCmdLineParms(CLP_PARM_COUNT - 1) As String
 
 'status bar colors
@@ -75,6 +91,7 @@ Option Explicit
     Public udtInputInfo As tpFileInfo
     Public udtLogInfo As tpFileInfo
     Public udtBackupInfo As tpFileInfo
+    Public udtOutputInfo As tpFileInfo
     Public m_sIniFile As String
     
     Public m_sWorkPath As String
@@ -752,6 +769,7 @@ Public Sub Main()
     subProcessPath udtLogInfo.m_sPath
     subProcessPath udtBackupInfo.m_sPath
     subProcessPath udtInputInfo.m_sPath
+    subProcessPath udtOutputInfo.m_sPath
     
     LogForm.subSetFileInfo
     
@@ -776,6 +794,7 @@ Private Sub subInitialize(sCommand As String)
     
     Dim aryInfo() As String
     Dim i As Integer
+    Dim nUbound As Integer
     
     #If PROTOTYPE Then
         LogForm.mnuPrint1.Visible = False
@@ -783,11 +802,25 @@ Private Sub subInitialize(sCommand As String)
         Exit Sub
     #End If
     
-    m_sINIParmSetion = LogForm.efraToolBar.FMName
     subGetInfo aryInfo
     LogForm.efraToolBar.FMName = aryInfo(0)
     LogForm.Caption = aryInfo(1)
     
+    'Set Default Ini name and Section
+    m_sINIParmSetion = aryInfo(0)
+    FF_PROC_INIFILE = "FACTOR.INI"
+    'We can overwite it
+    nUbound = UBound(aryInfo)
+    If nUbound >= 2 Then
+        If Trim(aryInfo(2)) <> szEMPTY Then
+            FF_PROC_INIFILE = Trim(aryInfo(2)) & ".INI"
+        End If
+    End If
+    If nUbound >= 3 Then
+        If Trim(aryInfo(3)) <> szEMPTY Then
+            m_sINIParmSetion = Trim(aryInfo(3))
+        End If
+    End If
     subGetPrintMenu aryInfo
     If UBound(aryInfo) = 0 Then
         LogForm.mnuPrint1.Visible = False
@@ -822,6 +855,10 @@ Private Sub subInitialize(sCommand As String)
     aryCmdLineParms(CLP_IDX_BKNAME) = UCase(CLP_ID_BKNAME)
     aryCmdLineParms(CLP_IDX_BKTYPE) = UCase(CLP_ID_BKTYPE)
 
+    aryCmdLineParms(CLP_IDX_OPATH) = UCase(CLP_ID_OPATH)
+    aryCmdLineParms(CLP_IDX_OTYPE) = UCase(CLP_ID_OTYPE)
+    aryCmdLineParms(CLP_IDX_ONAME) = UCase(CLP_ID_ONAME)
+    
     udtLogInfo.m_sType = LOG_NAME_EXTN
     udtBackupInfo.m_sType = DATA_BACKUP_EXTN
     subReadINIParms
@@ -1060,6 +1097,12 @@ Private Sub subSetParmValue(ByVal nIdx As Integer, _
             udtInputInfo.m_sFile = sValue
         Case CLP_IDX_ITYPE
             udtInputInfo.m_sType = sValue
+        Case CLP_IDX_OPATH
+            udtOutputInfo.m_sPath = sValue
+        Case CLP_IDX_ONAME
+            udtOutputInfo.m_sFile = sValue
+        Case CLP_IDX_OTYPE
+            udtOutputInfo.m_sType = sValue
         Case CLP_IDX_LPATH
             udtLogInfo.m_sPath = sValue
         Case CLP_IDX_LNAME
@@ -1197,6 +1240,10 @@ Public Sub subWriteInOut()
     fnWriteINI m_sINIParmSetion, CLP_ID_IPATH, fnGetSubPath(m_sWorkPath, udtInputInfo.m_sPath), m_sIniFile
     fnWriteINI m_sINIParmSetion, CLP_ID_INAME, udtInputInfo.m_sFile, m_sIniFile
     fnWriteINI m_sINIParmSetion, CLP_ID_ITYPE, udtInputInfo.m_sType, m_sIniFile
+    
+    fnWriteINI m_sINIParmSetion, CLP_ID_OPATH, fnGetSubPath(m_sWorkPath, udtOutputInfo.m_sPath), m_sIniFile
+    fnWriteINI m_sINIParmSetion, CLP_ID_ONAME, udtOutputInfo.m_sFile, m_sIniFile
+    fnWriteINI m_sINIParmSetion, CLP_ID_OTYPE, udtOutputInfo.m_sType, m_sIniFile
     
     If Not fnTestFlag(m_nRunParm, RP_MASK_FILEWRITE) Then
         If fnTestFlag(m_nRunParm, RP_MASK_BKFILE) Then
