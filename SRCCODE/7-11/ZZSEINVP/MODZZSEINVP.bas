@@ -308,7 +308,9 @@ Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     Dim strSQL As String
     
     strSQL = "DELETE FROM p_nbr WHERE pno_vendor = " & lVendor
-    strSQL = strSQL & " AND pno_invoice = " & lInvoice
+    'david 01/07/2003 #400457
+    strSQL = strSQL & " AND pno_invoice = " & tfnSQLString(lInvoice)
+    '''''''''''''''''''''''''
     strSQL = strSQL & " AND EXISTS (SELECT rsphh_status FROM rs_p_hold_header WHERE "
     strSQL = strSQL & " rsphh_vendor = " & lVendor & " AND rsphh_invoice = " & lInvoice
     strSQL = strSQL & " AND rsphh_status = 'N' )"
