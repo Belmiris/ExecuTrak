@@ -881,7 +881,16 @@ DecompressSuccessful:
 	
 	// Run the client installation?
 	if (bRunStandAlone) then
-        
+	        
+	        // create folder shortcuts
+	        szFolder = COMPANY_NAME ^ "ExecuTrak";
+	        szAppDir = szEXECTRAKDirectory;
+	        szSCWork = szAppDir;
+	        szSCIcon = "";
+	
+	        szSCExe = szSCWork ^ HELP_FILE;
+        	AddFolderIcon(szFolder, "ProfitTrak Help",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 		
 	else
 		TARGETDIR = szDisk ^ APP_FACTOR_PATH ^ "Clients" ^ PRODUCT_SUBDIR;
