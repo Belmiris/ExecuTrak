@@ -334,143 +334,211 @@ Attribute VB_Exposed = False
 '    frmMain.Show
 'End Sub
 
-
-
 Option Explicit
 
-    Private Const SECTION_INI_DS = "ODBC 32 bit Data Sources"
-    Private Const SECTION_REG_DS = "ODBC Data Sources"
-    Private Const PARM_HOST = "HostName"
-    Private Const PARM_SERVERNAME = "ServerName"
-    Private Const PARM_DATABASE = "Database"
-    Private Const PARM_USERID = "LogonID"
-    Private Const PARM_SERVICE = "Service"
-    Private Const PARM_PROTOCOL = "Protocol"
-    Private Const PARM_YIELDPROC = "YieldProc"
-    Private Const PARM_CB = "CursorBehavior"
-    
-    Private Const FACTOR_REGISTER = "Software\Factor\ExecTrak\"
-    Private Const szODBC_REG_KEY1 = ".Default\Software\ODBC\ODBC.INI\"
-    Private Const szODBC_REG_KEY2 = "Software\ODBC\ODBC.INI\"
-    Private Const HKEY_CLASSES_ROOT = &H80000000
-    Private Const HKEY_CURRENT_USER = &H80000001
-    Private Const HKEY_LOCAL_MACHINE = &H80000002
-    Private Const HKEY_USERS = &H80000003
-    Private Const KEY_QUERY_VALUE = &H1
-    Private Const KEY_ENUMERATE_SUB_KEYS = &H8
-    Private Const KEY_NOTIFY = &H10
-    Private Const READ_CONTROL = &H20000
-    Private Const STANDARD_RIGHTS_READ = (READ_CONTROL)
-    Private Const SYNCHRONIZE = &H100000
-    Private Const KEY_ALL_ACCESS = &H3F
-    Private Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
+Private Const SECTION_INI_DS = "ODBC 32 bit Data Sources"
+Private Const SECTION_REG_DS = "ODBC Data Sources"
+Private Const PARM_HOST = "HostName"
+Private Const PARM_SERVERNAME = "ServerName"
+Private Const PARM_DATABASE = "Database"
+Private Const PARM_USERID = "LogonID"
+Private Const PARM_SERVICE = "Service"
+Private Const PARM_PROTOCOL = "Protocol"
+Private Const PARM_YIELDPROC = "YieldProc"
+Private Const PARM_CB = "CursorBehavior"
 
-    Private Const REG_OPTION_NON_VOLATILE = 0
-    Private Const REG_SZ As Long = 1
-    Private Const REG_DWORD As Long = 4
-    Private Const REG_OPTION_VOLATILE = 1           ' Key is not preserved when system is rebooted
-    
-    Private Const INFORMIX_DATA_SOURCE = "INFORMIX"
-    Private Const SECURITY_DATABASE = "XTRACKSECURITY"
-    Private Const HELP_CONTENTS = &H3
-    
-    Private Const LINE_COLOR1 = &HFFFFFF
-    Private Const LINE_COLOR2 = &H808080
-    Private Const LINE_COLOR3 = 0
+Private Const FACTOR_REGISTER = "Software\Factor\ExecTrak\"
+Private Const szODBC_REG_KEY1 = ".Default\Software\ODBC\ODBC.INI\"
+Private Const szODBC_REG_KEY2 = "Software\ODBC\ODBC.INI\"
+Private Const HKEY_CLASSES_ROOT = &H80000000
+Private Const HKEY_CURRENT_USER = &H80000001
+Private Const HKEY_LOCAL_MACHINE = &H80000002
+Private Const HKEY_USERS = &H80000003
+Private Const KEY_QUERY_VALUE = &H1
+Private Const KEY_ENUMERATE_SUB_KEYS = &H8
+Private Const KEY_NOTIFY = &H10
+Private Const READ_CONTROL = &H20000
+Private Const STANDARD_RIGHTS_READ = (READ_CONTROL)
+Private Const SYNCHRONIZE = &H100000
+Private Const KEY_ALL_ACCESS = &H3F
+Private Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
 
-    Private Const ERROR_NONE = 0
-    Private Const ERROR_BADDB = 1
-    Private Const ERROR_BADKEY = 2
-    Private Const ERROR_CANTOPEN = 3
-    Private Const ERROR_CANTREAD = 4
-    Private Const ERROR_CANTWRITE = 5
-    Private Const ERROR_OUTOFMEMORY = 6
-    Private Const ERROR_INVALID_PARAMETER = 7
-    Private Const ERROR_ACCESS_DENIED = 8
-    Private Const ERROR_INVALID_PARAMETERS = 87
-    Private Const ERROR_NO_MORE_ITEMS = 259
-    
-    Private Const PROCESS_ALL_ACCESS = &H1F0FFF
-    Private Const STILL_ACTIVE = &H103    'Not sure
-    
-    Private Declare Function RegCloseKey Lib "advapi32.dll" _
-        (ByVal hKey As Long) As Long
-    
-    Private Declare Function RegCreateKeyEx Lib "advapi32.dll" Alias "RegCreateKeyExA" _
-        (ByVal hKey As Long, _
-         ByVal lpSubKey As String, _
-         ByVal Reserved As Long, _
-         ByVal lpClass As String, _
-         ByVal dwOptions As Long, _
-         ByVal samDesired As Long, _
-         lpSecurityAttributes As Long, _
-         phkResult As Long, lpdwDisposition As Long) As Long
-    
-    Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" _
-        (ByVal hKey As Long, _
-         ByVal lpSubKey As String, _
-         ByVal ulOptions As Long, _
-         ByVal samDesired As Long, _
-         phkResult As Long) As Long
-    
-    Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" _
-        (ByVal hKey As Long, _
-         ByVal lpValueName As String, _
-         ByVal lpReserved As Long, _
-         lpType As Long, _
-         ByVal lpData As String, _
-         lpcbData As Long) As Long
-    
-    Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" _
-        (ByVal hKey As Long, _
-         ByVal lpValueName As String, _
-         ByVal lpReserved As Long, _
-         lpType As Long, _
-         lpData As Long, _
-         lpcbData As Long) As Long
-    
-    Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" _
-        (ByVal hKey As Long, _
-         ByVal lpValueName As String, _
-         ByVal lpReserved As Long, _
-         lpType As Long, _
-         ByVal lpData As Long, _
-         lpcbData As Long) As Long
+Private Const REG_OPTION_NON_VOLATILE = 0
+Private Const REG_SZ As Long = 1
+Private Const REG_DWORD As Long = 4
+Private Const REG_OPTION_VOLATILE = 1           ' Key is not preserved when system is rebooted
 
-    Private Declare Function RegEnumKey Lib "advapi32.dll" Alias "RegEnumKeyA" ( _
-        ByVal hKey As Long, _
-        ByVal dwIndex As Long, _
-        ByVal lpName As String, _
-        ByVal cbName As Long) As Long
-        
-    Private Declare Function RegEnumValue Lib "advapi32.dll" Alias "RegEnumValueA" ( _
-        ByVal hKey As Long, _
-        ByVal dwIndex As Long, _
-        ByVal lpValueName As String, _
-        lpcbValueName As Long, _
-        lpReserved As Long, _
-        lpType As Long, _
-        lpData As Any, _
-        lpcbData As Long) As Long
-        
-    Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" _
-        (ByVal hKey As Long, _
-         ByVal lpValueName As String, _
-         ByVal Reserved As Long, _
-         ByVal dwType As Long, _
-         ByVal lpData As String, _
-         ByVal cbData As Long) As Long         ' Note that if you declare the lpData parameter as String, you must pass it By Value.
-    
-    Private Declare Function GetPrivateProfileSection Lib "kernel32" Alias "GetPrivateProfileStringA" ( _
-        ByVal lpApplicationName As String, _
-        ByVal lpKeyName As Long, _
-        ByVal lpDefault As String, _
-        ByVal lpReturnedString As String, _
-        ByVal nSize As Long, _
-        ByVal lpFileName As String) As Long
+Private Const INFORMIX_DATA_SOURCE = "INFORMIX"
+Private Const SECURITY_DATABASE = "XTRACKSECURITY"
+Private Const szSECURITY As String = "XTrackSecurity"
 
-    Private Declare Function fnRegisterDll Lib "REGDLL.DLL" _
-        Alias "RegisterDLL" (ByVal sPathName As String) As Long
+Private Const HELP_CONTENTS = &H3
+
+Private Const LINE_COLOR1 = &HFFFFFF
+Private Const LINE_COLOR2 = &H808080
+Private Const LINE_COLOR3 = 0
+
+Private Const ERROR_NONE = 0
+Private Const ERROR_BADDB = 1
+Private Const ERROR_BADKEY = 2
+Private Const ERROR_CANTOPEN = 3
+Private Const ERROR_CANTREAD = 4
+Private Const ERROR_CANTWRITE = 5
+Private Const ERROR_OUTOFMEMORY = 6
+Private Const ERROR_INVALID_PARAMETER = 7
+Private Const ERROR_ACCESS_DENIED = 8
+Private Const ERROR_INVALID_PARAMETERS = 87
+Private Const ERROR_NO_MORE_ITEMS = 259
+
+Private Const PROCESS_ALL_ACCESS = &H1F0FFF
+Private Const STILL_ACTIVE = &H103    'Not sure
+
+'ODBC API function declarations and constants
+'
+Private Const SQL_ERROR = -1
+Private Const SQL_INVALID_HANDLE = -2
+Private Const SQL_NO_DATA_FOUND = 100
+Private Const SQL_SUCCESS = 0
+Private Const SQL_SUCCESS_WITH_INFO = 1
+
+Private Const SQL_FETCH_NEXT = 1
+Private Const SQL_FETCH_FIRST = 2
+Private Const SQL_FETCH_LAST = 3
+Private Const SQL_FETCH_PRIOR = 4
+Private Const SQL_FETCH_ABSOLUTE = 5
+Private Const SQL_FETCH_RELATIVE = 6
+Private Const SQL_FETCH_BOOKMARK = 8
+
+Private Declare Function RegCloseKey Lib "advapi32.dll" _
+    (ByVal hKey As Long) As Long
+
+Private Declare Function RegCreateKeyEx Lib "advapi32.dll" Alias "RegCreateKeyExA" _
+    (ByVal hKey As Long, _
+     ByVal lpSubKey As String, _
+     ByVal Reserved As Long, _
+     ByVal lpClass As String, _
+     ByVal dwOptions As Long, _
+     ByVal samDesired As Long, _
+     lpSecurityAttributes As Long, _
+     phkResult As Long, lpdwDisposition As Long) As Long
+
+Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" _
+    (ByVal hKey As Long, _
+     ByVal lpSubKey As String, _
+     ByVal ulOptions As Long, _
+     ByVal samDesired As Long, _
+     phkResult As Long) As Long
+
+Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" _
+    (ByVal hKey As Long, _
+     ByVal lpValueName As String, _
+     ByVal lpReserved As Long, _
+     lpType As Long, _
+     ByVal lpData As String, _
+     lpcbData As Long) As Long
+
+Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" _
+    (ByVal hKey As Long, _
+     ByVal lpValueName As String, _
+     ByVal lpReserved As Long, _
+     lpType As Long, _
+     lpData As Long, _
+     lpcbData As Long) As Long
+
+Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" _
+    (ByVal hKey As Long, _
+     ByVal lpValueName As String, _
+     ByVal lpReserved As Long, _
+     lpType As Long, _
+     ByVal lpData As Long, _
+     lpcbData As Long) As Long
+
+Private Declare Function RegEnumKey Lib "advapi32.dll" Alias "RegEnumKeyA" ( _
+    ByVal hKey As Long, _
+    ByVal dwIndex As Long, _
+    ByVal lpName As String, _
+    ByVal cbName As Long) As Long
+    
+Private Declare Function RegEnumValue Lib "advapi32.dll" Alias "RegEnumValueA" ( _
+    ByVal hKey As Long, _
+    ByVal dwIndex As Long, _
+    ByVal lpValueName As String, _
+    lpcbValueName As Long, _
+    lpReserved As Long, _
+    lpType As Long, _
+    lpData As Any, _
+    lpcbData As Long) As Long
+    
+Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" _
+    (ByVal hKey As Long, _
+     ByVal lpValueName As String, _
+     ByVal Reserved As Long, _
+     ByVal dwType As Long, _
+     ByVal lpData As String, _
+     ByVal cbData As Long) As Long         ' Note that if you declare the lpData parameter as String, you must pass it By Value.
+
+Private Declare Function GetPrivateProfileSection Lib "kernel32" Alias "GetPrivateProfileStringA" ( _
+    ByVal lpApplicationName As String, _
+    ByVal lpKeyName As Long, _
+    ByVal lpDefault As String, _
+    ByVal lpReturnedString As String, _
+    ByVal nSize As Long, _
+    ByVal lpFileName As String) As Long
+
+Private Declare Function fnRegisterDll Lib "REGDLL.DLL" _
+    Alias "RegisterDLL" (ByVal sPathName As String) As Long
+
+Private Declare Function SQLAllocConnect Lib "odbc32.dll" (ByVal henv&, phdbc&) As Integer
+Private Declare Function SQLAllocEnv Lib "odbc32.dll" (phenv&) As Integer
+Private Declare Function SQLAllocStmt Lib "odbc32.dll" (ByVal hdbc&, phstmt&) As Integer
+Private Declare Function SQLFetch Lib "odbc32.dll" (ByVal hstmt&) As Integer
+Private Declare Function SQLFreeConnect Lib "odbc32.dll" (ByVal hdbc&) As Integer
+Private Declare Function SQLFreeEnv Lib "odbc32.dll" (ByVal henv&) As Integer
+Private Declare Function SQLFreeStmt Lib "odbc32.dll" (ByVal hstmt&, ByVal fOption%) As Integer
+Private Declare Function SQLDrivers Lib "odbc32.dll" (ByVal henv&, ByVal fDirection%, ByVal szDriverDesc$, ByVal cbDriverDescMax%, pcbDriverDesc%, ByVal szDriverAttr$, ByVal cbDrvrAttrMax%, pcbDrvrAttr%) As Integer
+Private Declare Function SQLDataSources Lib "odbc32.dll" (ByVal henv&, ByVal fDirection%, ByVal szDSN$, ByVal cbDSNMax%, pcbDSN%, ByVal szDescription$, ByVal cbDescriptionMax%, pcbDescription%) As Integer
+
+'david 10/30/00
+Private Const szODBC_DATABASE = "Database"
+Private Const szODBC_HOST = "HostName"
+Private Const szODBC_SERVERNAME = "ServerName"
+Private Const szODBC_SERVICE = "Service"
+Private Const szODBC_YIELDPROC = "YieldProc"
+Private Const szODBC_CB = "CursorBehavior"
+Private Const szODBC_PROTOCOL = "Protocol"
+Private Const szODBC_DRIVER = "Driver"
+
+'key name for Informix Driver
+Private Const szODBC_SERVERNAME2 = "Server"
+Private Const szODBC_CLIENT_LOCALE = "CLIENT_LOCALE"
+Private Const szODBC_DB_LOCALE = "DB_LOCALE"
+Private Const szODBC_VMBCHARLENEXACT = "VMBCHARLENEXACT"
+Private Const szODBC_ENABLESCROLLABLECURSORS = "ENABLESCROLLABLECURSORS"
+Private Const szODBC_ENABLEINSERTCURSORS = "ENABLEINSERTCURSORS"
+Private Const szODBC_OPTIMIZEAUTOCOMMIT = "OPTIMIZEAUTOCOMMIT"
+Private Const szODBC_OPTOFC = "OPTOFC"
+Private Const szODBC_REPORTKEYSETCURSORS = "REPORTKEYSETCURSORS"
+Private Const szODBC_NEEDODBCTYPESONLY = "NEEDODBCTYPESONLY"
+Private Const szODBC_FETCHBUFFERSIZE = "FETCHBUFFERSIZE"
+
+Private Const gszSPACE As String = " "
+Private Const szDRIVER_DESCRIPTION As String = "INFORMIX"
+Private Const szHENV_ERROR As String = "Cannot Allocation Environment Handle"
+Private Const gszCOMMA As String = ","
+Private Const szFORM_NAME As String = "FRMGENRL.FRM"
+Private Const gszMODULE_ERROR As String = "Module Error"
+
+Private colDrivers As Collection
+
+Private m_sDSN As String
+Private m_sUID As String
+Private m_sPWD As String
+Private m_sHost As String
+Private m_sDriver As String
+
+Private m_sODBC_INI_Path As String
+Private m_lODBC_INI_Key As Long
+'
 
 Private Function fnAllBoxFilled() As Boolean
 
@@ -1150,7 +1218,11 @@ End Sub
 Private Sub Form_Load()
     tfnDisableFormSystemClose Me
     tfnCenterForm Me
-    subLoadDataSources
+    'subLoadDataSources
+    If fnGetDataSources(cmbDataSet) = 0 Then
+        MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
+        End
+    End If
 End Sub
 
 Private Sub picMain_Paint()
@@ -1239,3 +1311,111 @@ Public Sub Connect(sDSN As String, sUID As String, sPWD As String)
     txtPassword = sPWD
     btnOK_Click
 End Sub
+
+'david 10/30/00
+'THIS FUNCTION IS NOT USED IN ANYWHERE OF THIS PROGRAM
+'FOR FUTURE USED ONLY!!!
+Private Function fnConnectString(sDSN As String) As String
+
+    Dim sTemp As String
+    Dim sODBCKey As String
+    Dim sDatabase As String
+    
+    sODBCKey = m_sODBC_INI_Path & sDSN
+    m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
+    End If
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
+    End If
+    fnConnectString = "ODBC;DSN=" & sDSN & ";UID=" & m_sUID _
+            & ";PWD=" & m_sPWD
+    sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
+    fnConnectString = fnConnectString & ";DB=" & sDatabase & ";HOST=" & m_sHost
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVICE)
+    fnConnectString = fnConnectString & ";SERV=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_YIELDPROC)
+    fnConnectString = fnConnectString & ";YLD=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_CB)
+    fnConnectString = fnConnectString & ";CB=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_PROTOCOL)
+    fnConnectString = fnConnectString & ";PRO=" & sTemp
+    
+End Function
+
+'
+'This routine fills a list or combo box with all available
+'ODBC Data Source Names (DSN's) found in ODBC.INI matching
+'the szDRIVER_DESCRIPTION string defined above.
+'Example.
+'[ODBC Data Sources]
+'factor=INTERSOLV INFORMIX5
+'
+'factor would be the DSN
+'INTERSOLV INFORMIX5 would be the Driver Description
+'
+Private Function fnGetDataSources(plstObject As ComboBox) As Integer
+
+    Dim szDataSourceName As String       'Data Source Name returned from SQL function call
+    Dim szDriverDescription As String    'Driver Description returned from SQL function call
+    Dim nDataSourceNameLen As Integer    'DSN string length returned from SQL function call
+    Dim nDriverDescriptionLen As Integer 'Driver Description string length returned from SQL function call
+    Dim nReturn As Integer               'return code from SQL call
+    Dim lHenv As Long                    'handle to the environment
+
+    Const DSN_LENGTH = 32          'Data Source Name (fixed) length passed to SQL function
+    Const DRIVER_DESC_LENGTH = 255 'Driver Description (fixed) length passed to SQL function
+
+    plstObject.Clear         'clear old list box entries
+    Set colDrivers = New Collection 'clear drivers collection
+    
+    If SQLAllocEnv(lHenv) <> SQL_ERROR Then 'get valid environment handle
+
+        szDataSourceName = String(DSN_LENGTH, gszSPACE)
+        szDriverDescription = String(DRIVER_DESC_LENGTH, gszSPACE) 'set fixed length strings, pad with spaces
+
+        nReturn = SQLDataSources(lHenv, SQL_FETCH_FIRST, szDataSourceName, DSN_LENGTH, nDataSourceNameLen, _
+            szDriverDescription, DRIVER_DESC_LENGTH, nDriverDescriptionLen) 'get first DSN/Driver Description values
+
+        While nReturn = SQL_SUCCESS Or nReturn = SQL_SUCCESS_WITH_INFO 'process if SQL function call OK
+
+            szDriverDescription = Left(szDriverDescription, nDriverDescriptionLen) 'strip any spaces and --> terminating NULL
+            szDataSourceName = Left(szDataSourceName, nDataSourceNameLen)
+
+            If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
+                If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
+                    plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
+                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
+                End If
+            End If
+
+            szDataSourceName = String(DSN_LENGTH, gszSPACE)
+            szDriverDescription = String(DRIVER_DESC_LENGTH, gszSPACE) 're-initialized fixed length strings for next fetch
+
+            nReturn = SQLDataSources(lHenv, SQL_FETCH_NEXT, szDataSourceName, DSN_LENGTH, nDataSourceNameLen, _
+                szDriverDescription, DRIVER_DESC_LENGTH, nDriverDescriptionLen) 'get next DSN/Driver Description values
+
+        Wend
+
+        SQLFreeEnv (lHenv) 'free the environment handle
+
+    Else
+        subCriticalMsg szHENV_ERROR & gszCOMMA & szFORM_NAME, gszMODULE_ERROR
+    End If
+    If plstObject.ListCount > 0 Then
+        plstObject.ListIndex = 0
+    End If
+
+    fnGetDataSources = plstObject.ListCount 'return the number of valid DSN's configured in ODBC.INI
+
+End Function
+
+Private Sub subCriticalMsg(sMsg As String, _
+                          sCaption As String)
+
+    MsgBox sMsg, vbOKOnly + vbCritical, sCaption
+    
+End Sub
+
+
