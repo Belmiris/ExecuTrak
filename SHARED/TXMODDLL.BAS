@@ -626,8 +626,9 @@ Public Sub subFixTypeATaxForInfo()
     For nDel = 0 To nDelCount - 1
         fTaxes = fTaxes + tfnRound(fTypeATaxes(nDel), 2)
     Next nDel
-    
-    If fTaxes > fLadingTypeATax Then
+    '#Magic #405291 WJ 04/24/2003
+    'If fTaxes > fLadingTypeATax Then
+    If Abs(fTaxes) > Abs(fLadingTypeATax) Then
         fTaxes = fLadingTypeATax
         'Need to redistribute among the delivery items
         If lTotalFuel = 0 Then
