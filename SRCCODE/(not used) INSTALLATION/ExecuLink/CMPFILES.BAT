@@ -51,6 +51,7 @@ icomp g:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 echo .
 echo DISK BUILD PROCESS has been cancelled
 
+goto finished
 
 :showinfo
 echo .
