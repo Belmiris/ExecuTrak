@@ -108,7 +108,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -354,7 +354,7 @@ Begin VB.Form frmZZSESLIP
          Begin FACTFRMLib.FactorFrame efraEmployee 
             Height          =   900
             Left            =   84
-            TabIndex        =   19
+            TabIndex        =   18
             TabStop         =   0   'False
             Top             =   120
             Width           =   8520
@@ -480,7 +480,7 @@ Begin VB.Form frmZZSESLIP
                Caption         =   "Employee Name"
                Height          =   252
                Left            =   2616
-               TabIndex        =   21
+               TabIndex        =   20
                Top             =   108
                Width           =   1956
             End
@@ -488,7 +488,7 @@ Begin VB.Form frmZZSESLIP
                Caption         =   "Employee Number"
                Height          =   252
                Left            =   96
-               TabIndex        =   20
+               TabIndex        =   19
                Top             =   108
                Width           =   1632
             End
@@ -497,7 +497,7 @@ Begin VB.Form frmZZSESLIP
             Height          =   336
             HelpContextID   =   605
             Left            =   2424
-            TabIndex        =   22
+            TabIndex        =   21
             Top             =   1260
             Width           =   984
             _Version        =   65536
@@ -506,7 +506,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            =   9.61
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -541,7 +541,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -607,24 +607,12 @@ Begin VB.Form frmZZSESLIP
       Top             =   660
       Width           =   3756
    End
-   Begin MSComctlLib.ProgressBar pbLock 
-      Height          =   264
-      Left            =   7044
-      TabIndex        =   17
-      Top             =   6036
-      Visible         =   0   'False
-      Width           =   1836
-      _ExtentX        =   3239
-      _ExtentY        =   466
-      _Version        =   393216
-      Appearance      =   1
-   End
    Begin DBTrueGrid.TDBGrid tblDropDown 
       Bindings        =   "ZZSESLIP.frx":2812
       Height          =   1008
       Left            =   324
       OleObjectBlob   =   "ZZSESLIP.frx":282C
-      TabIndex        =   18
+      TabIndex        =   17
       TabStop         =   0   'False
       Top             =   708
       Width           =   2604
@@ -890,6 +878,7 @@ Private Sub Form_Unload(CANCEL As Integer)
     Unload frmAbout
     
     'project local database object variables
+    Set dbLocal = Nothing
     
     If Not t_dbMainDatabase Is Nothing Then
         t_dbMainDatabase.Close
