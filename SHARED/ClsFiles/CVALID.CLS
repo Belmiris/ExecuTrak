@@ -109,8 +109,14 @@ Public Function CheckFocus() As Integer
 End Function
 
 
-Property Set ControlForFocus(Ctrl As Control)
-    Set ctrlForFocus = Ctrl
+Property Set ControlForFocus(ctrl As Control)
+    Set ctrlForFocus = ctrl
+    If nMaxTabIndex < ctrl.TabIndex Then
+        nMaxTabIndex = ctrl.TabIndex
+    End If
+    If nMinTabIndex > ctrl.TabIndex - 1 Then
+        nMinTabIndex = ctrl.TabIndex - 1
+    End If
 End Property
 
 Property Get ControlForFocus() As Control
@@ -141,14 +147,14 @@ Public Property Let DataChanged(txtBox As Object, bTemp As Boolean)
     End If
 End Property
 
-Public Function IsESCControl(Optional Ctrl As Variant) As Boolean
+Public Function IsESCControl(Optional ctrl As Variant) As Boolean
     IsESCControl = False
-    If IsMissing(Ctrl) Then
+    If IsMissing(ctrl) Then
         If frmParent.ActiveControl.TabIndex <= nMinTabIndex Then
             IsESCControl = True
         End If
     Else
-        If Ctrl.TabIndex <= nMinTabIndex Then
+        If ctrl.TabIndex <= nMinTabIndex Then
             IsESCControl = True
         End If
     End If
