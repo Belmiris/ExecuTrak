@@ -456,6 +456,10 @@ Public Const CONTRACT_SELECTION_UP = 15200
 Public Const FM_FO_INTERFACE_UP = 15250
 '''''''''''''''''
 
+'david 03/03/2003  #373319-1
+Public Const VIEW_SYS_TBL_CHG_UP = 15300
+'''''''''''''''''
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -564,10 +568,10 @@ Public Function tfnIsSysTranCode(ByVal sARTranCode As String) As Boolean 'WJ 4/1
     sARTranCode = "'" & UCase(sARTranCode) & "'"
     tfnIsSysTranCode = (InStr(SYSTEM_AR_TRAN_CODES, sARTranCode) > 0)
 End Function
-Public Sub tfnClearLog(szFilename)
+Public Sub tfnClearLog(szFileName)
 
     On Error Resume Next
-    Kill szFilename
+    Kill szFileName
     
 End Sub
 
@@ -1482,19 +1486,19 @@ End Sub
 'Passed Variables: string to save in file, optional name of file to save data
 'Returns         : true for yes, false for no
 '
-Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
+Public Sub tfnLog(szLogEntry As String, Optional szFileName As String = "")
 
     Dim nFileNumber As Integer
     
     On Error Resume Next
     
-    If szFilename = "" Then
-        szFilename = szLOG_FILE_NAME
+    If szFileName = "" Then
+        szFileName = szLOG_FILE_NAME
     End If
     
     nFileNumber = FreeFile
     
-    Open szFilename For Append As #nFileNumber
+    Open szFileName For Append As #nFileNumber
     
     Print #nFileNumber, szLogEntry
 
@@ -1506,13 +1510,13 @@ End Sub
 'Passed Variables: filename
 'Returns         : true if exists, false if not
 '
-Public Function tfnIsFile(ByVal szFilename As String) As Boolean
+Public Function tfnIsFile(ByVal szFileName As String) As Boolean
     
     Dim nLength As Integer
     
     On Error Resume Next
 
-    nLength = Len(Dir(szFilename))
+    nLength = Len(Dir(szFileName))
     
     If Err Or nLength = 0 Then
         tfnIsFile = False
