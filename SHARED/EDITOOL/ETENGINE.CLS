@@ -945,7 +945,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                         If nTypeCode = "1" Then
                             'david 09/18/00
                             'If Not IsMissing(vExtractFrom) Then
-                                If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
+                                'david 09/25/00
+                                If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
                                     If ciTemp.DestState = "AR" Then
                                         colTemp.Add ciTemp
                                     End If
@@ -954,7 +955,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                             '    colTemp.Add ciTemp
                             'End If
                         ElseIf nTypeCode = "3" Then
-                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
+                            'david 09/25/00
+                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                                 If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
                                     colTemp.Add ciTemp
                                 End If
@@ -1071,7 +1073,8 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     If nTypeCode = "1" Then
                         'david 09/18/00
                         'If Not IsMissing(vExtractFrom) Then
-                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
+                        'david 09/25/00
+                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
                                 If ciTemp.DestState = "AR" Then
                                     colTemp.Add ciTemp
                                 End If
@@ -1080,7 +1083,8 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                         '    colTemp.Add ciTemp
                         'End If
                     ElseIf nTypeCode = "3" Then
-                        If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
+                        'david 09/25/00
+                        If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                             If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
                                 colTemp.Add ciTemp
                             End If
