@@ -1,16 +1,22 @@
-version: 3.26.2
+version: 3.26.0003
+Date: 12/05/2001
+Description: 
+	Fuel Movement Changing Invoice Terms Fixed.
+	alter table MDelivery ADD szTerms text(5);
+
+version: 3.26.0002
 Date: 11/12/2001
 Description: 
 Description: 
 	Murphy Voucher Jacket Fixed.
 	alter table vouch_jacket_rpt add vjr_less_disc text(20);
 
-version: 3.26.1
+version: 3.26.0001
 Date: 11/02/2001
 Description: 
 	For ExecuTrak for Windows version 3.26 release.
 
-version: 3.25.15
+version: 3.25.0015
 Date: 10/24/2001
 Description: 
     For Profit Report Enhancement.

@@ -1,4 +1,5 @@
-version: 3.26.3
+''''''''''''''''' DONE - 3.26.0003 - 12/05/2001 ''''''''''''''''''''''''
+version: 3.26.0003
 Date: 12/05/2001
 Description: 
 	Fuel Movement Changing Invoice Terms Fixed.
@@ -6,15 +7,15 @@ Description:
 
 
 
-''''''''''''''''' DONE - 3.26.2 - 11/12/2001 ''''''''''''''''''''''''
-version: 3.26.2
+''''''''''''''''' DONE - 3.26.0002 - 11/12/2001 ''''''''''''''''''''''''
+version: 3.26.0002
 Date: 11/12/2001
 Description: 
 	Murphy Voucher Jacket Fixed.
 	alter table vouch_jacket_rpt add vjr_less_disc text(20);
 
 
-''''''''''''''''' DONE - 3.25.15  ''''''''''''''''''''''''
+''''''''''''''''' DONE - 3.25.0015  ''''''''''''''''''''''''
 version: 3.25.15???
 Date: 10/10/2001
 Description: 
