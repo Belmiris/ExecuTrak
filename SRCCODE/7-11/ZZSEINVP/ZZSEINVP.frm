@@ -177,7 +177,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.59
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -213,7 +213,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.59
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -249,7 +249,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.59
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -508,8 +508,9 @@ Private Sub cmdProcess_Click()
         tfnSetStatusBarMessage "Processing, Please Wait..."
         
         If fnIsFile(sFileName) Then
-            subDisplayMsg "START PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
+            subDisplayMsg "START PROCESSING FILE " & sFileName & " AT " & Now
             subDisplayMsg String(100, "*")
+            
             If fnProcessRSInvFile(sFileName) Then
                 g_bProcessOk = True
             Else
@@ -518,7 +519,7 @@ Private Sub cmdProcess_Click()
             
             subSetProgress 0
             subDisplayMsg String(100, "*")
-            subDisplayMsg "END PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
+            subDisplayMsg "END PROCESSING FILE " & sFileName & " AT " & Now
         Else
             subDisplayMsg "Input file not found"
         End If
@@ -586,7 +587,8 @@ End Sub
 
 Private Sub Form_Load()
 
-#If Not PROTOTYPE Then
+    #If Not PROTOTYPE Then
+
         If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
             Unload Me
             Exit Sub
@@ -608,7 +610,7 @@ Private Sub Form_Load()
         
         subInitErrorHandler   ' Setup Error Control
         tfnUpdateVersion
-#End If
+    #End If
         
     tfnDisableFormSystemClose Me
     subSetupToolBar
@@ -821,11 +823,13 @@ Private Sub tfnResetScreen()
     mnuExit.Enabled = True
     mnuCopy.Enabled = False
     mnuPaste.Enabled = False
-#If PROTOTYPE Then
-    subEnableProcessBtn False
-#Else
-    subEnableProcessBtn True
-#End If
+    
+    #If PROTOTYPE Then
+        subEnableProcessBtn False
+    #Else
+        subEnableProcessBtn True
+    #End If
+    
     subEnablePrintBtn False
     PbProgressBar.Visible = False
 End Sub

@@ -39,7 +39,7 @@ Private Const STATUS_INSERT = "I"
 Private sStatusChar As String
 
 Public Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
-                Optional sCalledFrom As Variant, Optional bShowError As Variant) As Boolean
+                Optional sCalledFrom As String = "", Optional bShowError As Variant) As Boolean
                 
     On Error GoTo SQLError
     
@@ -58,10 +58,6 @@ Public Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
     Exit Function
     
 SQLError:
-
-    If IsMissing(sCalledFrom) Then
-        sCalledFrom = ""
-    End If
     
     If IsMissing(bShowError) Then
         bShowError = True
@@ -76,7 +72,7 @@ End Function
 ' nDB = 1 ---> Informax Database (remote)
 '     = 2 ---> Access Database (local)
 'This function will return a recordcount
-Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB As Integer, Optional sCalledFrom As String, Optional bShowError As Variant) As Long
+Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB As Variant, Optional sCalledFrom As String = "", Optional bShowError As Variant) As Long
     Const SUB_NAME = "fnGetRecord"
 
     On Error GoTo SQLError
@@ -101,10 +97,6 @@ Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB 
     Exit Function
     
 SQLError:
-    
-    If IsMissing(sCalledFrom) Then
-        sCalledFrom = ""
-    End If
     
     If IsMissing(bShowError) Then
         bShowError = True
@@ -189,7 +181,7 @@ Private Function fnGetShiftLink(nProfitCenter As Integer, lShift As Long, dDate 
             
 End Function
     
-Private Function fnLockShiftLink(lShiftLink As Long, Optional bSale As Boolean) As Boolean
+Private Function fnLockShiftLink(lShiftLink As Long, Optional bSale As Variant) As Boolean
     Dim rsSummary As Recordset
     Dim strSQL As String
     Const FUNC_NAME As String = "fnLockShiftLink"
@@ -270,15 +262,11 @@ Public Function fnUnlockShiftReport(nProfitCenter As Integer, lShiftLink As Long
 End Function
 
 
-Public Function fnLockProcess(sPID As String, Optional sLockUser As String) As Boolean
+Public Function fnLockProcess(sPID As String, Optional sLockUser As String = "") As Boolean
     Const FUNC_NAME = "fnLockProcess"
     Dim sUser As String
     Dim rsTemp As Recordset
     Dim strSQL As String
-    
-    If Not IsMissing(sLockUser) Then
-        sLockUser = ""
-    End If
     
     strSQL = "SELECT lock_user FROM sys_lock WHERE lock_name = " & tfnSQLString(sPID)
     

@@ -1007,7 +1007,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1042,7 +1042,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1077,7 +1077,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1114,7 +1114,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1150,7 +1150,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -2670,7 +2670,7 @@ Private Sub subEnableProfitctr(bOnOff As Boolean)
     subEnableSearchButton cmdFromPrftName, bOnOff
     subEnableSearchButton cmdToPrftCtr, bOnOff
     subEnableSearchButton cmdToPrftName, bOnOff
-    
+    chkAllInvoice.Enabled = bOnOff
     tblHeader.Enabled = Not bOnOff
 End Sub
 
@@ -3331,7 +3331,7 @@ Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
         vArray(ColDetailQty, i) = tfnRound(rsDetail!rsphd_qty, 3)
         vArray(ColDetailCost, i) = tfnRound(rsDetail!rsphd_cost, 3)
         vArray(ColDetailExtCost, i) = vArray(ColDetailQty, i) * vArray(ColDetailCost, i)
-        vArray(ColDetailRetail, i) = tfnRound(rsDetail!rsphd_retail)
+        vArray(ColDetailRetail, i) = tfnRound(rsDetail!rsphd_retail, 3)
         vArray(ColDetailExtRetail, i) = vArray(ColDetailRetail, i) * vArray(ColDetailQty, i)
         vArray(ColDetailUOM, i) = Trim(rsDetail!rsphd_stock_unit & "")
         sItemUOM = Trim$(rsDetail!rsbi_stock_unit & "")
@@ -4145,7 +4145,7 @@ Private Function fnGetItemCategory(lVendor As Long, sItemCode As String) As Stri
     Dim rsTemp As Recordset
     
     strSQL = "SELECT rsbi_cat FROM rs_b_item WHERE rsbi_vendor = " & lVendor
-    strSQL = strSQL & " AND rsbi_code = " & tfnRound(sItemCode)
+    strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(sItemCode)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetItemCategory") > 0 Then
         fnGetItemCategory = Trim(rsTemp!rsbi_cat & "")

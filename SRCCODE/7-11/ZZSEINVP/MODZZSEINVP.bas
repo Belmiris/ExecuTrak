@@ -650,7 +650,7 @@ End Function
 ' nDB = 1 ---> Informax Database (remote)
 '     = 2 ---> Access Database (local)
 'This function will return a recordcount
-Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB As Integer, Optional sCalledFrom As String, Optional bShowError As Variant) As Long
+Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB As Variant, Optional sCalledFrom As String = "", Optional bShowError As Variant) As Long
     Const SUB_NAME = "fnGetRecord"
 
     On Error GoTo SQLError
@@ -676,10 +676,6 @@ Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, Optional nDB 
     
 SQLError:
     
-    If IsMissing(sCalledFrom) Then
-        sCalledFrom = ""
-    End If
-    
     If IsMissing(bShowError) Then
         bShowError = True
     End If
@@ -689,7 +685,7 @@ SQLError:
 End Function
 
 Public Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
-                Optional sCalledFrom As Variant, Optional bShowError As Variant) As Boolean
+                Optional sCalledFrom As String = "", Optional bShowError As Variant) As Boolean
                 
     On Error GoTo SQLError
     
@@ -708,10 +704,6 @@ Public Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
     Exit Function
     
 SQLError:
-
-    If IsMissing(sCalledFrom) Then
-        sCalledFrom = ""
-    End If
     
     If IsMissing(bShowError) Then
         bShowError = True
@@ -1335,7 +1327,7 @@ Public Function fnGetCompanyName(sCompanyName As String) As Boolean
     sCompanyName = Trim(rsTemp!con_name)
     
     If sCompanyName = "" Then
-        tfnErrHandler "fnGetCompanyName", 60003, "Company is NULL.  Program will be terminated."
+        tfnErrHandler "fnGetCompanyName", 60003, "Company is empty.  Program will be terminated."
         Exit Function
     End If
     

@@ -20,7 +20,7 @@ IconForm="frmzzseitmt"
 Startup="frmzzseitmt"
 HelpFile="FACTOR.HLP"
 Title="ZZSEITMT"
-ExeName32="ZZFITEMT.EXE"
+ExeName32="ZZSEITMT.EXE"
 Path32="D:\FACTOR\EXECTRAK\BIN"
 Command32=""
 Name="ZZSEITMT"
@@ -38,7 +38,7 @@ VersionFileDescription="ZZSEITMT.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
