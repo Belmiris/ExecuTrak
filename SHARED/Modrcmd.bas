@@ -124,13 +124,10 @@ Public Function fnExecute4GE(sCmdLine As String, _
 'MsgBox "t_dbMainDatabase.Connect=" + tfnSQLString(t_dbMainDatabase.Connect)
         sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
         sDBPath = fnDBPath
-        #If FACTOR_MENU Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
-            sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
-        #Else
-            sUserID = "ssfactor"
-            sPassWD = "menus"
-        #End If
+        
+        'david 11/16/00
+        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
+        sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
     End If
     
     'david 10/23/00
@@ -202,7 +199,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = val(vTemp)
+            fnParmIndex = Val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -374,7 +371,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = val(vDefault)
+        nWhatToUse = Val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
