@@ -3869,7 +3869,8 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     strSQL = strSQL & " prm_job_class job_class,prm_emp_level emp_level,"
     strSQL = strSQL & " zzsepi_lvl_desc emp_level_desc,prm_date_hired date_hired, "
     strSQL = strSQL & " prep_amount old_rate, zzsepi_pay zzsepi_pay, zzsepi_days zzsepi_days,"
-    strSQL = strSQL & " prep_pay_code pay_code, zzsep_factor conv_factor, prep_year prep_year"
+    strSQL = strSQL & " prep_pay_code pay_code, zzsep_factor conv_factor, prep_year prep_year,"
+    strSQL = strSQL & " prep_amount prep_amount"
     strSQL = strSQL & " FROM pr_master,pr_emp_pay,zzse_pay_increase, "
     strSQL = strSQL & " zzse_job_class, zzse_pay_code"
     strSQL = strSQL & " WHERE prm_job_class= zzsej_job_class AND (prm_date_termed IS NULL OR prm_date_termed ='')  AND prm_emp_level=zzsepi_emp_level "
@@ -3888,6 +3889,7 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     strSQL = strSQL & ", zzsepi_pay, conv_factor,prep_year "
     strSQL = strSQL & " FROM tmpTableReport AS a, zzse_pay_code"
     strSQL = strSQL & " WHERE a.zzsepi_days = (SELECT MAX(b.zzsepi_days) FROM tmpTableReport AS b WHERE a.emp_level = b.emp_level AND a.empno = b.empno  AND b.zzsepi_days <= (Today - b.date_hired))"
+    'AND (b.zzsepi_pay * b.conv_factor)-b.prep_amount>0)"
     strSQL = strSQL & " ORDER BY a.empno,a.emp_level"
     
 
@@ -3903,12 +3905,12 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
     'Dim vData() As Variant
     Dim nRowCount As Long
     Const GRID_COL_COUNT = 12
-    Dim i As Long
+    Dim i As Long, j As Long
     Dim prev_empno As Long
     Dim new_empno As Long
     
     i = -1
-    'prev_empno = -999
+    prev_empno = -999
     If rsTemp.RecordCount > 0 Then
         nRowCount = rsTemp.RecordCount
         'new_empno = fnGetField(rsTemp!empno)
@@ -3962,10 +3964,27 @@ Private Function fnRSToString(ByVal vTemp As Variant) As String
         fnRSToString = vTemp
     End If
 End Function
-Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As String, sLineHeader As String, Optional sFileName As String = "ZZSEPILG", Optional bAppend As Boolean = False) As Boolean
+Private Function fnBuildEmpTrailer() As String
+    Dim i As Long
+    Dim j As Long
+    Dim prev_emp As String
+    Dim curr_emp As String
+    
+    prev_emp = "-9999"
+    j = 0
+    For i = 0 To tgmGrid.RowCount - 1
+        curr_emp = fnGetField(tgmGrid.CellValue(COL_EMPNO, i))
+        If prev_emp <> curr_emp Then
+            j = j + 1
+        End If
+        prev_emp = curr_emp
+    Next
+    fnBuildEmpTrailer = j & " Employee(s) Changed"
+End Function
+Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As String, szTrailer As String, sLineHeader As String, Optional sFileName As String = "ZZSEPILG", Optional bAppend As Boolean = False) As Boolean
     Const LINES As Integer = 30
     Dim nFilePtr As Integer
-
+    
     Dim nPage As Integer, nLine As Integer, nPages As Integer
     fnWriteLog = False
     
@@ -3993,7 +4012,8 @@ Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As 
         Print #nFilePtr, vData(i)
         i = i + 1
     Loop
-    
+    szTrailer = fnBuildEmpTrailer
+    Print #nFilePtr, szTrailer
     Close #nFilePtr
     
     tfnSetStatusBarCorrect "Finished Writing Log File: " & sFileName
@@ -4210,11 +4230,14 @@ Public Sub subPrintRpt()
           subLineFeed sLine
        End With
     Next
-    
 
     'write log file
-    fnWriteLog ary_REPORT, sProgName, sRptTitle, sLineHeader
-    
+    fnWriteLog ary_REPORT, sProgName, sRptTitle, sExtraLine, sLineHeader
+    If lCount > 0 Then
+        subLineFeed String(CHAR_PER_LINE, "-")
+        subLineFeed sExtraLine
+    End If
+    sExtraLine = szEMPTY
     
     tfnSetStatusBarMessage "Sending Data to Printer -- " & Printer.DeviceName & " ..."
     fnSendToPrinter sProgName, sRptTitle, sExtraLine, sLineHeader
