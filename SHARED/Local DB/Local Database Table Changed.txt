@@ -1,0 +1,10 @@
+version: 3.25.6
+Date: 06/21/2001
+Module(s): FMEMVMNT
+Description: Add a new column bPriceOverride into MDeliveryDetail table.
+
+version: 3.25.7
+Date: 06/21/2001
+Module(s): FDECDISP
+Description: Add new columns (fdo_movement, fdo_ship_time, fdo_alt_name, fdo_alt_phone, fdo_time_stamp) into FD_ORDER table.
+
