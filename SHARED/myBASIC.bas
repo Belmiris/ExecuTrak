@@ -35,14 +35,14 @@ Public Const DATA_CHANGED As Integer = 2
 Public nDataStatus As Integer 'data loaded,inti,changed flag
 Public bUpdateTable As Boolean  'almost never used
 Public Const SCROLL_BAR_WIDTH As Integer = 250
-Public dbLocal As Database
+Public dbLocal As DataBase
 Public Const nDB_LOCAL As Integer = 0
 Public Const nDB_REMOTE As Integer = 1
 Public Const DB_REMOTE = 1
 Public Const DB_LOCAL = 0
 Global t_engFactor2nd As DBEngine
 Global t_wsWorkSpace2nd As Workspace
-Global t_dbMainDatabase2nd As Database
+Global t_dbMainDatabase2nd As DataBase
 '======================================================
 
 
@@ -233,15 +233,16 @@ Public Function GetRecordSet(rsTemp As Recordset, szSql As String, _
        
          Set rsTemp = dbLocal.OpenRecordset(szSql, dbOpenSnapshot)
          
-         If rsTemp.RecordCount > 0 Then
-            rsTemp.MoveLast
-            rsTemp.MoveFirst
-         End If
+        
        Case nDB_REMOTE
        
          Set rsTemp = t_dbMainDatabase.OpenRecordset(szSql, dbOpenSnapshot, dbSQLPassThrough)
          
     End Select
+    If rsTemp.RecordCount > 0 Then
+            rsTemp.MoveLast
+            rsTemp.MoveFirst
+    End If
     GetRecordSet = rsTemp.RecordCount
     Exit Function
 SQLError:
@@ -350,7 +351,7 @@ End Sub
 Public Sub subEnableDelete(bYesNo As Boolean)
     With myForm
         .cmdDeleteBtn.Enabled = bYesNo
-        .mnudelete.Enabled = bYesNo
+        .mnuDelete.Enabled = bYesNo
     End With
 End Sub
 '=====================================================
@@ -529,7 +530,7 @@ Public Function fnWorkingDays(ByVal dStartDate, ByVal dEndDate) As Integer
     
     nDays = 0
     For d = dStartDate To dEndDate
-        If WeekDay(d) <> vbSaturday And WeekDay(d) <> vbSunday Then
+        If Weekday(d) <> vbSaturday And Weekday(d) <> vbSunday Then
             nDays = nDays + 1
         End If
     Next
@@ -960,7 +961,7 @@ Public Function fnGetExeSQLCount(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -1003,7 +1004,7 @@ Public Function fnExecuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -1189,7 +1190,7 @@ tryAnother:
 End Sub
 '=====================================================================
 
-Public Sub subEnableSearchButton(ByRef ctrlButton As FactorFrame     , _
+Public Sub subEnableSearchButton(ByRef ctrlButton As FactorFrame, _
                                  ByVal bStatus As Boolean)
 
     ctrlButton.Style = 3  'command button
@@ -1428,7 +1429,7 @@ End Sub
 '===========================================
 
 'open local database, need to reset sInifilename
-Public Function fnOpenLocalDatabase() As Database
+Public Function fnOpenLocalDatabase() As DataBase
     
     Dim sDataBasePath As String
     Dim sIniFileName As String
