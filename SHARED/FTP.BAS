@@ -358,8 +358,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         Loop
         
         If Trim(sItemName) = "" Then GoTo CloseHandle
-        
-        IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
+        'Fix for 421631 Robert C Atwood 8/29/03 6:46 PM just before a long weekend. :P
+        'Old code never worked, bBinary not initialized, etc.  Someone was being way too
+        '"clever" for words here, so binary/ascii has been broken forever.
+        'IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
+        lBinAscii = 0 'Default Binary
+        If Not (bBinary) Then ' If we're in NOT in binary, set binascii to 1.
+            lBinAscii = 1
+        End If
         sArrFile = Split(sItemName, ",")
         sArrOldname = Split(sItemName, ",")
         
