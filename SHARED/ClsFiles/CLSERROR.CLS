@@ -283,12 +283,12 @@ Public Property Set FormParent(frmForm As Object)
     sVerInfo = " (Version " + sMajor + "." + sMinor + "." + sRevision + ")"
     
     On Error GoTo ErrorSetName
-    m_sAppName = App.EXEName & sVerInfo
+    m_sAppName = UCase(App.EXEName) & sVerInfo
     
     Exit Property
     
 ErrorSetName:
-    m_sAppName = Trim(frmForm.Name) & sVerInfo
+    m_sAppName = UCase(Trim(frmForm.Name)) & sVerInfo
 End Property
 
 'david 02/20/2001
