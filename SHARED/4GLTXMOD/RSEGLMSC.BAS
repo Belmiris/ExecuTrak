@@ -151,6 +151,15 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 If it_is <> True Then
                    pa_ftax_cnt = pa_ftax_cnt + 1
                    tk = pa_ftax_cnt
+                   
+                   'david 10/03/2002  #382612
+                   'fixed the subscript out of range rte
+                   'when the tk = pa_ftax_cnt > 60
+                   If tk > UBound(pa_ftax) Then
+                       ReDim Preserve pa_ftax(tk + 10)
+                   End If
+                   '''''''''''''''''''''''''''
+                   
                    pa_ftax(tk).ftax_prodlnk = aryComp(j).lProductLink
                    pa_ftax(tk).ftax_trn = pr_trn.trn
                    pa_ftax(tk).ftax_ulink = pr_trn.ulink
@@ -180,6 +189,15 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 If it_is <> True Then
                    pa_ftax_cnt = pa_ftax_cnt + 1
                    tk = pa_ftax_cnt
+                   
+                   'david 10/03/2002  #382612
+                   'fixed the subscript out of range rte
+                   'when the tk = pa_ftax_cnt > 60
+                   If tk > UBound(pa_ftax) Then
+                       ReDim Preserve pa_ftax(tk + 10)
+                   End If
+                   '''''''''''''''''''''''''''
+                   
                    pa_ftax(tk).ftax_prodlnk = aryComp(j).lProductLink
                    pa_ftax(tk).ftax_trn = pr_trn.trn
                    pa_ftax(tk).ftax_ulink = pr_trn.ulink
@@ -224,6 +242,15 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 If it_is <> True Then
                    pa_ftax_cnt = pa_ftax_cnt + 1
                    tk = pa_ftax_cnt
+                   
+                   'david 10/03/2002  #382612
+                   'fixed the subscript out of range rte
+                   'when the tk = pa_ftax_cnt > 60
+                   If tk > UBound(pa_ftax) Then
+                       ReDim Preserve pa_ftax(tk + 10)
+                   End If
+                   '''''''''''''''''''''''''''
+                   
                    pa_ftax(tk).ftax_prodlnk = aryComp(j).lProductLink
                    pa_ftax(tk).ftax_trn = pr_trn.trn
                    pa_ftax(tk).ftax_ulink = pr_trn.ulink
@@ -250,6 +277,15 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 If it_is <> True Then
                    pa_ftax_cnt = pa_ftax_cnt + 1
                    tk = pa_ftax_cnt
+                   
+                   'david 10/03/2002  #382612
+                   'fixed the subscript out of range rte
+                   'when the tk = pa_ftax_cnt > 60
+                   If tk > UBound(pa_ftax) Then
+                       ReDim Preserve pa_ftax(tk + 10)
+                   End If
+                   '''''''''''''''''''''''''''
+                   
                    pa_ftax(tk).ftax_prodlnk = aryComp(j).lProductLink
                    pa_ftax(tk).ftax_trn = pr_trn.trn
                    pa_ftax(tk).ftax_ulink = pr_trn.ulink
@@ -327,6 +363,10 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
     Exit Sub
 
 errTrap:
+    'david 10/03/2002  #382612
+    found_error = True
+    error_found = True
+    ''''''''''''''''''''''''''
     tfnErrHandler "fuel_gl"
 End Sub
 
