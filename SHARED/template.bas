@@ -519,7 +519,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -542,7 +542,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     ''tfnErrHandler "tfnIS_RM", strSQl
 
@@ -655,7 +655,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -743,7 +743,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -797,12 +797,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -840,7 +840,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -851,8 +851,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -940,19 +940,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -965,10 +965,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -1185,7 +1185,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1237,7 +1237,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1245,8 +1245,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1293,14 +1293,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1431,7 +1431,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1502,7 +1502,7 @@ Public Function tfnBuildMultiLines(sParam() As String, _
     tfnBuildMultiLines = UBound(sParam) + 1
 End Function
 
-Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Variant) As String
+Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Variant, Optional bRightTrim As Boolean = True) As String
     Dim sTemp As String
     
     If rsTemp.RecordCount > 0 Then
@@ -1511,8 +1511,13 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         End If
         'first line
         If Not IsNull(rsTemp.Fields(fieldNum)) Then
-            'david 04/30/2002
-            sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+            '#This test is added by Weigong on 07/24/02. It was always RTRIM before
+            If bRightTrim Then
+                'david 04/30/2002
+                sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+            Else
+                sTemp = fnRemoveChr0(rsTemp.Fields(fieldNum))
+            End If
             '''''''''''''''''
         Else
             sTemp = ""
@@ -1523,8 +1528,13 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         'the rest
         While Not rsTemp.EOF
             If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                'david 04/30/2002
-                sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+                '#This test is added by Weigong on 07/24/02. It was always RTRIM before
+                If bRightTrim Then
+                    'david 04/30/2002
+                    sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+                Else
+                    sTemp = sTemp & vbCrLf & fnRemoveChr0(rsTemp.Fields(fieldNum))
+                End If
                 '''''''''''''''''
             Else
                 sTemp = sTemp + vbCrLf + ""
@@ -2509,7 +2519,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2531,7 +2541,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -2632,7 +2642,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2640,13 +2650,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sText)
         Else
