@@ -124,24 +124,33 @@ End Function
 
 Public Function tfnFormatDecimal(ByVal vTemp As Variant, _
                                  Optional ByVal nDecimals As Variant, _
-                                 Optional ByVal nExtras As Variant) As String
+                                 Optional ByVal nExtras As Variant, _
+                                 Optional ByVal bShowComma As Boolean = True) As String
     Dim sFmt As String
     Dim sReturn As String
     Dim sChar As String
     
-    sFmt = "###,###,###,###,##0"
+    If bShowComma Then
+        sFmt = "###,###,###,###,##0"
+    Else
+        sFmt = "0"
+    End If
+    
     sChar = "."
+    
     If Not IsMissing(nDecimals) Then
         If nDecimals > 0 Then
             sFmt = sFmt & sChar & String(nDecimals, "0")
             sChar = ""
         End If
     End If
+    
     If Not IsMissing(nExtras) Then
         If nExtras > 0 Then
             sFmt = sFmt & sChar & String(nExtras, "#")
         End If
     End If
+    
     If IsNumeric(vTemp) Then
         tfnFormatDecimal = Format(vTemp, sFmt)
         If Right(tfnFormatDecimal, 1) = "." Then
@@ -332,7 +341,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             #Else
                 'Keep 4-digit-year only if the centuries are different
                 nPos1 = Year(Date) \ 100     'This century
-                nPos2 = Val(sYear) \ 100     'Input century
+                nPos2 = val(sYear) \ 100     'Input century
                 If nPos1 <> nPos2 Then
                     sFmt = FMT_DATE_LONG
                 End If
@@ -352,7 +361,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             'Keep the century if it is against 50 years rule, otherwise, drop it
             'Check whether it is against 50 years rule.
             nPos1 = Year(Date)      'This year
-            nPos2 = Val(sYear)     'Input year
+            nPos2 = val(sYear)     'Input year
             If Abs(nPos1 - nPos2) >= 50 Then
                 sFmt = FMT_DATE_LONG
             Else
@@ -449,7 +458,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
 End Function
 
@@ -792,7 +801,7 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
+    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
         Exit Function
     Else
         fnFormatTime = sHH + ":" & sMM
