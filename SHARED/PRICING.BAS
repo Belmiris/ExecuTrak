@@ -51,6 +51,7 @@ Private bBook_origin As Boolean
 Private bBook_dest As Boolean
 Private bBook_city As Boolean
 Private bBook_term As Boolean
+'
 
 Public Function product_price( _
                                 DEST_FLAG As String, _
@@ -60,13 +61,16 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase _
+                                t_dbMainDatabase As Database, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "" _
                              ) As Double
     ' dest_flag is I or E:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     product_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
 End Function ' product_price
 
 'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
@@ -79,14 +83,18 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase _
+                                t_dbMainDatabase As Database, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "" _
                              ) As Double
                         
     ' dest_flag is I or E:
     Fuel_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
 End Function ' product_price
+
 Public Function prod_price( _
                                 sProductLink As String, _
                                 lProfitCenter As Long, _
@@ -94,13 +102,16 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase _
+                                t_dbMainDatabase As Database, _
+                                Optional lSite As Long = -1, _
+                                Optional sInvoiceDate As String = "", _
+                                Optional sErrMsg As String = "" _
                             ) As Double
     ' dest_flag is always I:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     prod_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
-                                t_dbMainDatabase)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg)
 
 End Function ' prod_price
 
@@ -113,8 +124,12 @@ Private Function sp_price(ByVal sProductLink As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As DataBase _
+                            t_dbMainDatabase As Database, _
+                            Optional lSite As Long = -1, _
+                            Optional sInvoiceDate As String = "", _
+                            Optional sErrMsg As String = "" _
                             ) As Double
+    
     Const SUB_NAME = "sp_price"
 
     'Double dfQuantity      ' was decimal[10] in the 4GL code
@@ -130,13 +145,15 @@ Private Function sp_price(ByVal sProductLink As String, _
     #If cDEBUG Then
         Debug.Print "function sp_price called"
     #End If
-       
+    
     dfPrice = 0#   'set DEFAULT value (floating zero)
+    sErrMsg = ""
     
     ' for the parm sProductLink (product code), retrieve the inv_header record
     Set pr_inv_header = finv_header(sProductLink, t_dbMainDatabase)
     If pr_inv_header Is Nothing Then
         sp_price = dfPrice   '1, dfPrice=0
+        sErrMsg = "Failed to validate product " + tfnSQLString(sProductLink)
         Exit Function       'cannot procede with invalid product
     End If
     
@@ -145,6 +162,7 @@ Private Function sp_price(ByVal sProductLink As String, _
     Set pr_inv_master = finv_master(pr_inv_header!ivh_link, CInt(lProfitCenter), t_dbMainDatabase)
     If pr_inv_master Is Nothing Then
         sp_price = dfPrice   '2, dfPrice=0
+        sErrMsg = "Failed to validate product " + tfnSQLString(sProductLink) + ", " & lProfitCenter & " in inv_master table"
         Exit Function       'cannot procede with no master inventory record
     End If
     If dfCost = 0# Then dfCost = pr_inv_master!invt_cost 'use master rec "cost" if cost parm zero
@@ -165,8 +183,10 @@ Private Function sp_price(ByVal sProductLink As String, _
     
     '--------------------------------------------------------------------------------
     Call book_pricing(t_dbMainDatabase)   'get bBook_active boolean (and others if bBook_active)
+    
     Do While bBook_active
         Dim sWorkLocation As String
+        
         If bBook_origin Then
             If bBook_city Then
                 If fnFirstCharU(DEST_FLAG) = "I" Then
@@ -191,6 +211,7 @@ Private Function sp_price(ByVal sProductLink As String, _
                     Set pr_ar_altname = far_altname(lCustomer, t_dbMainDatabase)
                     If pr_ar_altname Is Nothing Then
                         sp_price = dfPrice   '3, dfPrice
+                        sErrMsg = "Failed to validate profit center/customer " + tfnSQLString(lCustomer)
                         Exit Function
                     End If
                     sWorkLocation = pr_ar_altname!an_city
@@ -218,6 +239,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         Dim pr_sp_book As Recordset
         Set pr_sp_book = fnMainmodsOpenRecordset(c_book_price, SUB_NAME)
         If pr_sp_book Is Nothing Then
+            sErrMsg = "Failed to get sp_book info"
             Exit Function
         End If
         If pr_sp_book.RecordCount > 0 Then
@@ -229,15 +251,21 @@ Private Function sp_price(ByVal sProductLink As String, _
         
         If fnFirstCharU(pr_sp_book!spb_oper) = "B" Then
             sp_price = pr_sp_book!spb_price + pr_inv_master!invt_price
-            Exit Function
+            'david 07/11/2001
+            'Exit Function
+            GoTo CALC_CUST_PRICING_DISC
         End If
         If fnFirstCharU(pr_sp_book!spb_oper) = "=" Then
             sp_price = pr_sp_book!spb_price
-            Exit Function
+            'david 07/11/2001
+            'Exit Function
+            GoTo CALC_CUST_PRICING_DISC
         End If
         If CVar(pr_sp_book!spb_pterminal) = Null Then
             sp_price = dfCost + pr_sp_book!spb_price
-            Exit Function
+            'david 07/11/2001
+            'Exit Function
+            GoTo CALC_CUST_PRICING_DISC
         End If
         ' ///////////////////////////////
         
@@ -253,6 +281,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         Dim pr_purch_term As Recordset
         Set pr_purch_term = fnMainmodsOpenRecordset(c_purch_term, SUB_NAME)
         If pr_purch_term Is Nothing Then
+            sErrMsg = "Failed to get fm_purch_term info"
             Exit Function
         End If
         If pr_purch_term.RecordCount > 0 Then
@@ -264,8 +293,9 @@ Private Function sp_price(ByVal sProductLink As String, _
                 
         If pr_purch_term!fmpt_date <= wrk_date Then
             sp_price = pr_purch_term!fmpt_cost + pr_sp_book!spb_price
-            'Set pr_purch_term = Nothing  <--unnecessary since function is exiting
-            Exit Function
+            'david 07/11/2001
+            'Exit Function
+            GoTo CALC_CUST_PRICING_DISC
         End If
         '--------------------------------
         
@@ -282,6 +312,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         Dim VALIDRecordSet As Boolean
         Set pr_cost = fnMainmodsOpenRecordset(c_last_term, SUB_NAME)
         If pr_cost Is Nothing Then
+            sErrMsg = "Failed to get fm_cost info"
             Exit Function
         End If
         If pr_cost.RecordCount > 0 Then
@@ -295,7 +326,9 @@ Private Function sp_price(ByVal sProductLink As String, _
             'If pr_cost!fmc_date <= wrk_date Then
             If DateDiff("d", pr_cost!fmc_date, wrk_date) >= 0 Then
                 sp_price = pr_cost!fmc_cost + pr_sp_book!spb_price
-                Exit Function
+                'david 07/11/2001
+                'Exit Function
+                GoTo CALC_CUST_PRICING_DISC
             End If
             ' fetch previous c_last_term into pr_cost.*
             pr_cost.MovePrevious 'populate with previous record
@@ -319,12 +352,16 @@ Private Function sp_price(ByVal sProductLink As String, _
         Else
             Set pr_ar_altname = far_altname(lCustomer, t_dbMainDatabase)
             If pr_ar_altname Is Nothing Then
-                sp_price = dfPrice:  Exit Function   '3, dfPrice=0
+                sp_price = dfPrice
+                sErrMsg = "Failed to validate customer " + tfnSQLString(lCustomer)
+                Exit Function   '3, dfPrice=0
             End If
             Dim pr_ar_customer As Recordset
             Set pr_ar_customer = far_customer(pr_ar_altname!an_cust, t_dbMainDatabase)
             If pr_ar_customer Is Nothing Then
-                sp_price = dfPrice:  Exit Function   '4, dfPrice=0
+                sp_price = dfPrice
+                sErrMsg = "Failed to validate customer " + tfnSQLString(lCustomer) + " in ar_customer table"
+                Exit Function   '4, dfPrice=0
             Else
                 vLevel = pr_ar_customer!cust_lvl    '** use valid customer's pricing level
             End If
@@ -373,6 +410,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         
         Set pr_cust_grp = fnMainmodsOpenRecordset(c_groups, SUB_NAME)
         If pr_cust_grp Is Nothing Then
+            sErrMsg = "Failed to get sp_cust_grp info"
             Exit Function
         End If
         With pr_cust_grp
@@ -389,6 +427,7 @@ Private Function sp_price(ByVal sProductLink As String, _
                         
                         Set pr_grp_price = fnMainmodsOpenRecordset(c_grp_price, SUB_NAME)
                         If pr_grp_price Is Nothing Then
+                            sErrMsg = "Failed to get sp_grp_price info"
                             Exit Function
                         End If
                         If pr_grp_price.RecordCount > 0 Then
@@ -398,7 +437,9 @@ Private Function sp_price(ByVal sProductLink As String, _
                                     If fnFirstCharU(pr_grp_price!spgp_flag) = "B" Then
                                         ' B = base inventory price + group price
                                         sp_price = pr_inv_master!invt_price + pr_grp_price!spgp_price
-                                        Exit Function
+                                        'david 07/11/2001
+                                        'Exit Function
+                                        GoTo CALC_CUST_PRICING_DISC
                                     End If
                                     If pr_grp_price!spgp_price < dfLowestPrice Then
                                         dfLowestPrice = pr_grp_price!spgp_price
@@ -432,6 +473,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         
         Set pr_grp_price = fnMainmodsOpenRecordset(c_grp_price, SUB_NAME)
         If pr_grp_price Is Nothing Then
+            sErrMsg = "Failed to get sp_grp_price info"
             Exit Function
         End If
         
@@ -454,6 +496,7 @@ Private Function sp_price(ByVal sProductLink As String, _
         Dim pr_sp_table As Recordset    'was an array of (10)
         Set pr_sp_table = fnMainmodsOpenRecordset(c_1l, SUB_NAME)
         If pr_sp_table Is Nothing Then
+            sErrMsg = "Failed to get sp_table info"
             Exit Function
         End If
         If pr_sp_table.RecordCount > 0 Then
@@ -465,7 +508,9 @@ Private Function sp_price(ByVal sProductLink As String, _
             pr_sp_table.MovePrevious
             If pr_sp_table.BOF Then
                 sp_price = dfPrice  '5, dfPrice
-                Exit Function
+                'david 07/11/2001
+                'Exit Function
+                GoTo CALC_CUST_PRICING_DISC
             End If
         Else
             If dfPrice = 0 Then
@@ -473,30 +518,43 @@ Private Function sp_price(ByVal sProductLink As String, _
             Else
                 sp_price = dfPrice      '5, dfPrice
             End If
-            Exit Function
+            'david 07/11/2001
+            'Exit Function
+            GoTo CALC_CUST_PRICING_DISC
         End If
         
         Select Case fnFirstCharU(pr_sp_table!pt_type)
-            Case "F":   dfPrice = pr_inv_master!invt_price   'inventory base
-            Case "C":   dfPrice = dfCost                     'cost
+            Case "F"
+                dfPrice = pr_inv_master!invt_price   'inventory base
+            Case "C"
+                dfPrice = dfCost                     'cost
             'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
-            Case "D":   dfPrice = dfDiscountedCost
-            Case Else:  sp_price = pr_sp_table!pt_factor    'use factor
-                        Exit Function
+            Case "D"
+                dfPrice = dfDiscountedCost
+            Case Else
+                sp_price = pr_sp_table!pt_factor    'use factor
+                'david 07/11/2001
+                'Exit Function
+                GoTo CALC_CUST_PRICING_DISC
         End Select
         
         Select Case Left(LTrim(pr_sp_table!pt_operator), 1)
-            Case "+":   dfPrice = dfPrice + pr_sp_table!pt_factor
+            Case "+"
+                dfPrice = dfPrice + pr_sp_table!pt_factor
             Case "/"
-                        If pr_sp_table!pt_factor <> 0 Then
-                            dfPrice = dfPrice / pr_sp_table!pt_factor
-                        Else
-                            dfPrice = 0#
-                        End If
-            Case "-":   dfPrice = dfPrice - pr_sp_table!pt_factor
-            Case "*":   dfPrice = dfPrice * pr_sp_table!pt_factor
-            Case "=":   dfPrice = pr_sp_table!pt_factor
-            Case Else:  dfPrice = 0#   'stmt added during translation to VB
+                If pr_sp_table!pt_factor <> 0 Then
+                    dfPrice = dfPrice / pr_sp_table!pt_factor
+                Else
+                    dfPrice = 0#
+                End If
+            Case "-"
+                dfPrice = dfPrice - pr_sp_table!pt_factor
+            Case "*"
+                dfPrice = dfPrice * pr_sp_table!pt_factor
+            Case "="
+                dfPrice = pr_sp_table!pt_factor
+            Case Else
+                dfPrice = 0#   'stmt added during translation to VB
         End Select
     ' end of fixed or formula
     End If
@@ -512,8 +570,86 @@ Private Function sp_price(ByVal sProductLink As String, _
     If (dfPrice < dfLowestPrice) And (cLowestType = "V") Then
         If cust_adv_action <> "A" Then dfLowestPrice = dfPrice
     End If
+    
     sp_price = dfLowestPrice
 
+
+'david 07/11/2001
+'new feature!!!
+'customer pricing discount and
+'Ceiling Price consideration
+CALC_CUST_PRICING_DISC:
+    
+    Dim nPriceFactor As Integer
+    Dim pr_fo_product As Recordset
+    Dim dfCeilingPrice As Double
+    
+    If pr_ar_altname Is Nothing Then
+        Set pr_ar_altname = far_altname(lCustomer, t_dbMainDatabase)
+        If pr_ar_altname Is Nothing Then
+            sErrMsg = "Failed to validate customer " + tfnSQLString(lCustomer)
+            Exit Function
+        End If
+    End If
+    
+    If pr_ar_customer Is Nothing Then
+        Set pr_ar_customer = far_customer(pr_ar_altname!an_cust, t_dbMainDatabase)
+        If pr_ar_customer Is Nothing Then
+            sErrMsg = "Failed to validate customer " + tfnSQLString(lCustomer) + " in ar_customer table"
+            Exit Function
+        End If
+    End If
+    
+    nPriceFactor = tfnRound(pr_ar_customer!cust_pricefactor)
+    
+    If nPriceFactor > 0 Then
+        sp_price = sp_price - tfnRound(sp_price * nPriceFactor / 100, DEFAULT_DECIMALS)
+    End If
+    
+    'Ceiling Price consideration
+    'Compare the final price with the ceiling price and
+    'return the lowest price
+    If lSite < 0 Then
+        Exit Function
+    End If
+    
+    If Not IsDate(tfnDateString(sInvoiceDate)) Then
+        sErrMsg = "Invoice Date " + sInvoiceDate + " is not valid"
+        Exit Function
+    End If
+    
+    'checking fo_product table
+    bDontShowError = True
+    c_1l = "SELECT * FROM fo_product WHERE 1 <> 1"
+    Set pr_fo_product = fnMainmodsOpenRecordset(c_1l, SUB_NAME)
+    
+    If pr_fo_product Is Nothing Then
+        Exit Function
+    End If
+    
+    bDontShowError = False
+    
+    'getting fo_product info
+    c_1l = "SELECT * FROM fo_product" & _
+        " WHERE fop_customer = " & lCustomer & _
+        " AND fop_tank = " & lSite & _
+        " AND fop_prodlnk = " & pr_inv_header!ivh_link & _
+        " AND " & tfnDateString(sInvoiceDate, True) & _
+        " BETWEEN fop_start_date AND fop_end_date"
+    Set pr_fo_product = fnMainmodsOpenRecordset(c_1l, SUB_NAME)
+    
+    If pr_fo_product Is Nothing Then
+        sErrMsg = "Failed to get fo_product info"
+        Exit Function
+    End If
+    
+    If pr_fo_product.RecordCount > 0 Then
+        dfCeilingPrice = tfnRound(pr_fo_product!fop_ceiling_price, DEFAULT_DECIMALS)
+        
+        If sp_price > dfCeilingPrice Then
+            sp_price = dfCeilingPrice
+        End If
+    End If
 End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 
 'note: no internal callers; one external caller: "input_del_prod" in fmemvdel
@@ -525,7 +661,7 @@ End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 '       Public cust_adv_action As String * 1
 '       Public mstpc As Integer
 
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
     Dim pr_sys_parm As Recordset
    
     #If cDEBUG Then
@@ -563,7 +699,7 @@ Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     
 End Sub ' set_wrk_date
 
-Private Sub book_pricing(t_dbMainDatabase As DataBase)
+Private Sub book_pricing(t_dbMainDatabase As Database)
     Const SUB_NAME = "book_pricing"
     
     Dim pr_sys_parm As Recordset
@@ -628,7 +764,7 @@ Sub Main()          'include for testing
     Dim t_szConnect As String            'holds ODBC connect string
     Dim t_engFactor As DBEngine          'pointer to database engine
     Dim t_wsWorkSpace As Workspace       'pointer to the default workspace
-    Dim t_dbMainDatabase As DataBase     'main database handle
+    Dim t_dbMainDatabase As Database     'main database handle
 
     #If cDEBUG Then
         Debug.Print " "
@@ -766,5 +902,7 @@ Sub Main()          'include for testing
     
 End Sub 'Main mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 #End If 'cMAIN
+
+
 
 
