@@ -13,9 +13,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "GLERJTOP301"
-#define UNINSTALL_NAME          "Remote G/L Journal Transaction Version 3.01"
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "GLERJTOP302"
+#define UNINSTALL_NAME          "Remote G/L Journal Transaction Version 3.02"
 
 #define SIZE_REQ_LOCAL          6       // 6 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
@@ -738,6 +738,8 @@ begin
 
             		//get cpylocal.exe program directory
             		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+            	else
+            		return;
         	endif;
 	endif;
 
@@ -766,7 +768,28 @@ begin
                 LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
                       szDBFrom + " " + szDBTo, WAIT);             
         endif;
+        
+        if !fnFindFile(szProgDir, "FACTOR.MDB") then
+                TARGETDIR = szProgDir;
 
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                    TARGETDIR + "'. Please wait...", TRUE);
+
+                CopyFile("FACTOR.MDB", "FACTOR.MDB");
+
+        else          
+                //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
+                szDBFrom = "\"" + SRCDIR + "\"";
+                TARGETDIR = szProgDir;
+                szDBTo = "\"" + TARGETDIR + "\"";
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                TARGETDIR + "'. Please wait...", TRUE);
+
+                LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
+                    szDBFrom + " " + szDBTo, WAIT);
+	endif;
+	
         SdShowMsg("", FALSE);
 
 	// delete the local database from WINDOWS\TEMP directory

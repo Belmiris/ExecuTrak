@@ -748,6 +748,8 @@ begin
 
             		//get cpylocal.exe program directory
             		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+            	else
+            		return;
         	endif;
 	endif;
 
@@ -776,6 +778,27 @@ begin
                 LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
                       szDBFrom + " " + szDBTo, WAIT);             
         endif;
+        
+        if !fnFindFile(szProgDir, "FACTOR.MDB") then
+                TARGETDIR = szProgDir;
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                    TARGETDIR + "'. Please wait...", TRUE);
+
+                CopyFile("FACTOR.MDB", "FACTOR.MDB");
+
+        else          
+                //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
+                szDBFrom = "\"" + SRCDIR + "\"";
+                TARGETDIR = szProgDir;
+                szDBTo = "\"" + TARGETDIR + "\"";
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                TARGETDIR + "'. Please wait...", TRUE);
+
+                LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
+                    szDBFrom + " " + szDBTo, WAIT);
+	endif;
 
         SdShowMsg("", FALSE);
 
