@@ -1,0 +1,10 @@
+DIR=G:\program\release\exectrak\epb MASK=*.*
+DIR=G:\program\release\exectrak\crystal MASK=*.*
+DIR=G:\program\release\exectrak\ole MASK=tbkit.dll
+DIR=G:\program\release\exectrak\ole MASK=olecombo.dll
+DIR=G:\program\release\exectrak\custctl MASK=*.*
+DIR=G:\program\release\exectrak\dll MASK=*.*
+DIR=G:\program\release\exectrak\rtm MASK=*.*
+DIR=G:\program\release\exectrak\shared MASK=*.*
+DIR=G:\program\release\exectrak\local_db MASK=*.*
+
