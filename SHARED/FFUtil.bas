@@ -774,6 +774,12 @@ Private Sub subInitialize()
     Dim aryInfo() As String
     Dim i As Integer
     
+    #If PROTOTYPE Then
+        LogForm.mnuPrint1.Visible = False
+        LogForm.mnuPrint.Visible = True
+        Exit Sub
+    #End If
+    
     m_sINIParmSetion = LogForm.efraToolBar.FMName
     subGetInfo aryInfo
     LogForm.efraToolBar.FMName = aryInfo(0)
