@@ -21,7 +21,8 @@ Option Explicit
 'used with fixed length strings - normally with windows api calls
 Const MAX_STRING_LENGTH As Integer = 255
 Const szEMPTY As String = ""
-Const szFACTOR_INI As String = "FACTOR.INI" 'application INI filename
+'david 11/14/2001 commented out, use the template definition
+'Const szFACTOR_INI As String = "FACTOR.INI" 'application INI filename
 
 Const sSECTION As String = "SendMail_Info"
 Const sSECTION_OLD As String = "Old_SendMail"
@@ -220,10 +221,10 @@ Private Function fnCheckSendMailError() As String
     fnCheckSendMailError = ""
     
     'retrieve logid
-    sLogID = Trim(tfnReadINI(sSECTION_OLD, sKEY_logid, szFACTOR_INI))
+    sLogID = Trim(tfnReadINI(sSECTION_OLD, sKEY_logid, tfnGetWindowsDir() + szFACTOR_INI))
     
     If sLogID = m_LogID Then
-        fnCheckSendMailError = Trim(tfnReadINI(sSECTION_OLD, sKEY_lasterror, szFACTOR_INI))
+        fnCheckSendMailError = Trim(tfnReadINI(sSECTION_OLD, sKEY_lasterror, tfnGetWindowsDir() + szFACTOR_INI))
     End If
 End Function
 
@@ -354,20 +355,20 @@ End Function
 
 Private Sub subWriteSendMailInfo()
     'store the key values in [SendMail_Info]
-    tfnWriteINI sSECTION, sKEY_emailaddress, m_SendTo, szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_subject, m_Subject, szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_message, m_Message, szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_attachment, m_Attachment, szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_emailaddress, m_SendTo, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_subject, m_Subject, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_message, m_Message, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_attachment, m_Attachment, tfnGetWindowsDir() + szFACTOR_INI
     If m_DeleteAftSent = "" Then
         m_DeleteAftSent = "false"
     End If
-    tfnWriteINI sSECTION, sKEY_delete_after_sent, m_DeleteAftSent, szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_delete_after_sent, m_DeleteAftSent, tfnGetWindowsDir() + szFACTOR_INI
     If m_RenameAftSent = "" Then
         m_RenameAftSent = "false"
     End If
-    tfnWriteINI sSECTION, sKEY_rename_after_sent, m_RenameAftSent, szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_rename_to, m_RenameTo, szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_logid, m_LogID, szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_rename_after_sent, m_RenameAftSent, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_rename_to, m_RenameTo, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSECTION, sKEY_logid, m_LogID, tfnGetWindowsDir() + szFACTOR_INI
 End Sub
 
 Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As String) As String
