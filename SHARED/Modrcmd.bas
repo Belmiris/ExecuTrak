@@ -166,16 +166,16 @@ Public Function fnExecute4GE(sCmdLine As String, _
              & "$PROGPATH/" & sCmdLine
         
         Dim strSQL As String
-        Dim rsTemp As Recordset
+        Dim RsTemp As Recordset
         
         strSQL = "EXECUTE PROCEDURE execute_unix_cmd (" & tfnSQLString(sCmd) & ")"
         On Error GoTo errExecuteProcedure
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        If rsTemp.RecordCount > 0 Then
-            If tfnRound(rsTemp.Fields(0)) = 0 Then
-                sTemp = fnCStr(rsTemp.Fields(1))
-                If rsTemp.Fields.Count > 2 Then
-                    sTemp = sTemp & vbCrLf & "System command: " & fnCStr(rsTemp.Fields(2))
+        Set RsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If RsTemp.RecordCount > 0 Then
+            If tfnRound(RsTemp.Fields(0)) = 0 Then
+                sTemp = fnCStr(RsTemp.Fields(1))
+                If RsTemp.Fields.Count > 2 Then
+                    sTemp = sTemp & vbCrLf & "System command: " & fnCStr(RsTemp.Fields(2))
                 End If
                 tfnErrHandler SUB_NAME, -1, sTemp
             Else
@@ -311,10 +311,10 @@ Private Function fnRunRCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
     End If
 End Function
 
@@ -353,7 +353,12 @@ Private Function fnVariables(sHost As String) As String
     sTemp = sTemp & "DBTEMP=/usr/tmp; export DBTEMP;"
     sTemp = sTemp & "INFORMIXDIR=/usr/informix; export INFORMIXDIR;"
     sTemp = sTemp & "INFORMIXSERVER=" & sHost & "; export INFORMIXSERVER;"
-    sTemp = sTemp & "PROGPATH=/usr/factor; export PROGPATH;"
+    
+    '***********************************************************
+    ''sTemp = sTemp & "PROGPATH=/usr/factor; export PROGPATH;"
+    'Use the next line WJ 12/28/00
+    sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
+    '************************************************************
     sTemp = sTemp & "SQLEXEC=/usr/informix/lib/sqlrm;export SQLEXEC;"
     'Took out because these may cause problem on different systems. Ma. 2/5/99
     sTemp = sTemp & "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
@@ -361,13 +366,46 @@ Private Function fnVariables(sHost As String) As String
     fnVariables = sTemp
 End Function
 
+Private Function fnGetProgPath() As String
+    
+    Const PARM_PROG_PATH = -1
+    Dim strSQL As String
+    Dim sPathOut As String
+    Dim RsTemp As Recordset
+    
+    '****************************************
+    'This function is added by WJ on 12/28/00
+    'It will normally return "/usr/factor". But for debug the
+    'program, wemay need another Prog Path. This function
+    'will query DB each time. This, although might be slower,
+    'will give you a chance to run the 4GE wiout quiting VB
+    'program.
+    '****************************************
+    sPathOut = "/usr/factor"
+    On Error GoTo errGetParm
+    
+    strSQL = "SELECT parm_field FROM sys_parm" _
+        & " WHERE parm_nbr = " & PARM_PROG_PATH
+    
+    Set RsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If RsTemp.RecordCount > 0 Then
+        If Trim(fnCStr(RsTemp!parm_field)) <> "" Then
+            sPathOut = Trim(fnCStr(RsTemp!parm_field))
+        End If
+    End If
+    
+    fnGetProgPath = sPathOut
+    Exit Function
+errGetParm:
+    fnGetProgPath = sPathOut
+End Function
 Public Function fnSetParmForUnixCmd(vFlag As Variant, _
                                     Optional vDefault As Variant) As Boolean
 
     Const SUB_NAME = "fnSetParmForUnixCmd"
     
     Dim sTemp As String
-    Dim rsTemp As Recordset
+    Dim RsTemp As Recordset
     Dim nParmIdx As Integer
     
     fnSetParmForUnixCmd = False
@@ -382,9 +420,9 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
                & " WHERE parm_nbr = " & PARM_RUN_4GE
     
         On Error GoTo errGetParm
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(sTemp, dbOpenSnapshot, dbSQLPassThrough)
-        If rsTemp.RecordCount > 0 Then
-            sTemp = fnCStr(rsTemp!parm_field)
+        Set RsTemp = t_dbMainDatabase.OpenRecordset(sTemp, dbOpenSnapshot, dbSQLPassThrough)
+        If RsTemp.RecordCount > 0 Then
+            sTemp = fnCStr(RsTemp!parm_field)
             If nParmIdx <= Len(sTemp) Then
                 If UCase(Mid(sTemp, nParmIdx, 1)) = "D" Then
                     nWhatToUse = USE_RCMD
@@ -443,10 +481,10 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
     End If
     
     
