@@ -97,15 +97,15 @@ Private Function Let_Val(szChar1 As String, szChar2 As String) As Long
 End Function
 Private Function GetMaxAr(nFrom As Long, nTo As Long) As Long
     Dim szSQL As String
-    Dim rstemp As Recordset
+    Dim rsTemp As Recordset
     
     szSQL = "SELECT MAX(an_customer) max_ar FROM ar_altname WHERE an_customer BETWEEN " _
             & nFrom & " AND " & nTo
     On Error GoTo errTrap
-    Set rstemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rstemp.RecordCount > 0 Then
-        If Not IsNull(rstemp!max_ar) Then
-            GetMaxAr = Val(rstemp!max_ar)
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rsTemp.RecordCount > 0 Then
+        If Not IsNull(rsTemp!max_ar) Then
+            GetMaxAr = Val(rsTemp!max_ar)
         Else
             GetMaxAr = nFrom
         End If
@@ -118,13 +118,13 @@ errTrap:
 End Function
 Private Function GetMaxAp(nFrom As Long, nTo As Long) As Long
     Dim szSQL As String
-    Dim rstemp As Recordset
+    Dim rsTemp As Recordset
     szSQL = "SELECT MAX(pn_alt) ap_max FROM p_altname WHERE pn_alt BETWEEN " & CStr(nFrom) & " AND " & CStr(nTo)
     On Error GoTo errTrap
-    Set rstemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rstemp.RecordCount > 0 Then
-        If Not IsNull(rstemp!ap_max) Then
-           GetMaxAp = Val(rstemp!ap_max)
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rsTemp.RecordCount > 0 Then
+        If Not IsNull(rsTemp!ap_max) Then
+           GetMaxAp = Val(rsTemp!ap_max)
         Else
             GetMaxAp = nFrom
         End If
@@ -138,7 +138,7 @@ End Function
 
 Public Function IsInDatabase(nNumber As Long, nArAp As Integer) As Boolean
     Dim szSQL As String
-    Dim rstemp As Recordset
+    Dim rsTemp As Recordset
     Dim bFound As Boolean
     
     IsInDatabase = False
@@ -332,7 +332,7 @@ End Sub
 Public Function UnlockAr(Optional nAR) As Boolean
     Const SUB_NAME = "UnlockAr"
     
-    Dim strsql As String
+    Dim strSQL As String
     
     UnlockAr = True
     
@@ -344,11 +344,11 @@ Public Function UnlockAr(Optional nAR) As Boolean
     End If
     
     'make sure all null but an_customer
-    strsql = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
-    strsql = strsql & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
+    strSQL = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
     
     On Error GoTo errUnlockAr
-    t_dbMainDatabase.ExecuteSQL strsql
+    t_dbMainDatabase.ExecuteSQL strSQL
     
     lLockedAR_AP_NBR = -1
     
@@ -362,7 +362,7 @@ End Function
 Public Function UnlockAp(Optional nAP) As Boolean
     Const SUB_NAME = "UnlockAp"
     
-    Dim strsql As String
+    Dim strSQL As String
     
     UnlockAp = True
     
@@ -374,12 +374,12 @@ Public Function UnlockAp(Optional nAP) As Boolean
     End If
     'make sure all null but pn_alt
     
-    strsql = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
-    strsql = strsql & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
-    strsql = strsql & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
+    strSQL = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
+    strSQL = strSQL & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
     
     On Error GoTo errUnlockAp
-    t_dbMainDatabase.ExecuteSQL strsql
+    t_dbMainDatabase.ExecuteSQL strSQL
     lLockedAR_AP_NBR = -1
     Exit Function
 errUnlockAp:
@@ -390,16 +390,16 @@ End Function
 Public Function fncheck_cust_exits(MastCustomerNo As Long) As Boolean
     Const FUNC_NAME As String = "fncheck_cust_exits"
     
-    Dim strsql As String
-    Dim rstemp As Recordset
+    Dim strSQL As String
+    Dim rsTemp As Recordset
     
     fncheck_cust_exits = True
     If MastCustomerNo < 1 Then
         Exit Function
     End If
     
-    strsql = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(MastCustomerNo)
-    If fnGetRecord(rstemp, strsql, nDBRemote, FUNC_NAME) > 0 Then
+    strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(MastCustomerNo)
+    If fnGetRecord(rsTemp, strSQL, nDBRemote, FUNC_NAME) > 0 Then
         Exit Function
     End If
     fncheck_cust_exits = False
