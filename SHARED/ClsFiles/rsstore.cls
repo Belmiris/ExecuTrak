@@ -1,9 +1,15 @@
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
 END
 Attribute VB_Name = "clsRetailStorage"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '***********************************************************'
 '
@@ -172,10 +178,10 @@ Private Function fnCopyRecords(strctDest As tpDBCopyTable, _
             While Not rsTemp.EOF
                 strSQL = strSQLd & ") VALUES ("
                 For i = 0 To nFields
-                    If IsNull(rsTemp.Fields(i).Value) Then
+                    If IsNull(rsTemp.Fields(i).value) Then
                         strSQL = strSQL & "''"
                     Else
-                        strSQL = strSQL & fnSQLString(rsTemp.Fields(i).Value)
+                        strSQL = strSQL & fnSQLString(rsTemp.Fields(i).value)
                     End If
                     If i < nFields Then
                         strSQL = strSQL & ", "
@@ -203,6 +209,51 @@ Private Function fnCopyRecords(strctDest As tpDBCopyTable, _
     fnCopyRecords = True
     
 End Function
+
+Private Function fnFixSeqence(ByVal lShiftLink As Long) As Boolean
+    Const SUB_NAME = "fnFixSeqence"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim nCount As Integer
+    Dim sLastType As String
+    
+    strSQL = "SELECT szType, lSeqNum FROM rsShiftHold" _
+           & " WHERE lShiftLink = " & CStr(lShiftLink) _
+           & " ORDER BY szType, lSeqNum"
+    On Error GoTo errFix
+    Set rsTemp = m_dbLocal.OpenRecordset(strSQL, dbOpenDynaset)
+    If rsTemp.RecordCount > 0 Then
+        rsTemp.MoveLast
+        rsTemp.MoveFirst
+        nCount = 1
+        While Not rsTemp.EOF
+            If sLastType <> fnCStr(rsTemp!szType) Then
+                nCount = 1
+                sLastType = fnCStr(rsTemp!szType)
+            End If
+            rsTemp.Edit
+            rsTemp!lSeqNum = CStr(nCount)
+            rsTemp.Update
+            nCount = nCount + 1
+            rsTemp.MoveNext
+        Wend
+    End If
+    fnFixSeqence = True
+    Exit Function
+errFix:
+    fnFixSeqence = False
+    tfnErrHandler strSQL, SUB_NAME
+End Function
+
+Private Function fnCStr(vTemp As Variant) As String
+    If IsNull(vTemp) Then
+        fnCStr = ""
+    Else
+        fnCStr = Trim(vTemp)
+    End If
+End Function
+
 
 Private Function fnSQLString(ByVal szParameter As String, Optional vNoQuotes As Variant) As String
     
@@ -333,26 +384,29 @@ Public Sub Store(ByVal lShiftLink As Long)
     Dim strctRemote As tpDBCopyTable
     Dim strctLocal As tpDBCopyTable
     
-    sLink = CStr(lShiftLink)
-    With strctRemote
-        Set .m_dbObject = m_dbRemote
-        .m_sTable = TABLE_REMOTE
-        .m_sCriteria = "rssh_shl = " & sLink
-    End With
-    With strctLocal
-        Set .m_dbObject = m_dbLocal
-        .m_sTable = TABLE_LOCAL
-        .m_sCriteria = "lShiftLink = " & sLink
-    End With
-
-    If Not fnCopyRecords(strctRemote, strctLocal, False) Then
-        If m_nError = ERROR_COPY_TABLE Then
-            m_nError = ERROR_STORAGE_FAILED
+    If fnFixSeqence(lShiftLink) Then
+        sLink = CStr(lShiftLink)
+        With strctRemote
+            Set .m_dbObject = m_dbRemote
+            .m_sTable = TABLE_REMOTE
+            .m_sCriteria = "rssh_shl = " & sLink
+        End With
+        With strctLocal
+            Set .m_dbObject = m_dbLocal
+            .m_sTable = TABLE_LOCAL
+            .m_sCriteria = "lShiftLink = " & sLink
+        End With
+    
+        If Not fnCopyRecords(strctRemote, strctLocal, False) Then
+            If m_nError = ERROR_COPY_TABLE Then
+                m_nError = ERROR_STORAGE_FAILED
+            End If
+        Else
+            m_nError = ERROR_STATUS_OK
         End If
     Else
-        m_nError = ERROR_STATUS_OK
+        m_nError = ERROR_STORAGE_FAILED
     End If
-    
 End Sub
 
 
