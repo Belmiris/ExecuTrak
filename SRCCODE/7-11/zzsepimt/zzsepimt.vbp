@@ -1,0 +1,66 @@
+Type=Exe
+Form=zzsepimp.FRM
+Module=modProject; Project.bas
+Module=ProgramLog; log.bas
+Class=clsErrorHandler; ..\..\..\SHARED\CLSFILES\CLSERROR.CLS
+Module=modConstants; ..\..\..\SHARED\CONSTANT.BAS
+Module=modWinApi; ..\..\..\SHARED\WINAPI.BAS
+Module=modTemplate; ..\..\..\SHARED\TEMPLATE.BAS
+Module=modErrorHandler; ..\..\..\SHARED\ERRHNDLE.BAS
+Module=modRegexp; ..\..\..\SHARED\REGEXP.BAS
+Class=cValidateInput; ..\..\..\Shared\ClsFiles\CVALID.CLS
+Class=clsCursor; ..\..\..\Shared\ClsFiles\cursor.cls
+Form=..\..\..\SHARED\ABOUT.FRM
+Form=..\..\..\SHARED\context.frm
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#c:\WINDOWS\SYSTEM\STDOLE2.TLB#Standard OLE Types
+Reference=*\G{00025E04-0000-0000-C000-000000000046}#3.5#0#C:\PROGRAM FILES\COMMON FILES\MICROSOFT SHARED\DAO\dao2535.tlb#Microsoft DAO 2.5 Object Library
+Object={C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0; FACTFRM.OCX
+Object={3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0; FACTTAB.OCX
+Object={01028C21-0000-0000-0000-000000000046}#4.0#0; TG32OV.OCX
+Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; MSCOMCTL.OCX
+Object={478E45E0-5745-11CF-8918-00A02416C765}#1.0#0; SQAOTE32.OCX
+IconForm="frmZZSEPIMT"
+Startup="frmZZSEPIMT"
+HelpFile="FACTOR.HLP"
+Title="TABTEMP"
+ExeName32="TABTEMP.EXE"
+Path32="D:\FACTOR\EXECTRAK\BIN"
+Command32=""
+Name="zzsepimt"
+HelpContextID="0"
+Description="Template file for the Factor screens"
+CompatibleMode="0"
+MajorVer=3
+MinorVer=25
+RevisionVer=1
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionComments="TABTEMP"
+VersionCompanyName="FACTOR, A Division of WR Hess Company"
+VersionFileDescription="TABTEMP.EXE"
+VersionLegalCopyright="Copyright (c) 1999 FACTOR, A Division of WR Hess Company"
+VersionLegalTrademarks="FACTOR"
+VersionProductName="FACTOR"
+CondComp="FACTOR_MENU = 0 : DEVELOP = -1"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+
+[SQA]
+DisableUpdate=0
+UpdateMode=1
+
+[MS Transaction Server]
+AutoRefresh=1
