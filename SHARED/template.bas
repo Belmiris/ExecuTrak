@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -414,7 +414,7 @@ Public Const SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','
 Private Const Log10 = 2.30258509299405
 Private SYS_PARM_14000 As String
 
-Public Function tfnIS_RM() As Boolean
+Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
     On Error GoTo errTrap
@@ -435,6 +435,9 @@ Public Function tfnIS_RM() As Boolean
     Else
         tfnIS_RM = False
     End If
+    
+    sRetSysParm14000 = SYS_PARM_14000
+    
     Exit Function
     
 errTrap:
@@ -1067,7 +1070,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -2017,7 +2020,7 @@ Public Sub subDisableSystemClose(frmMain As Form)
     End If
 End Sub
 
-Public Function fnCopyFactorMDB(dbLocalDataBase As DataBase, _
+Public Function fnCopyFactorMDB(dbLocalDataBase As Database, _
                                 Optional bShowError As Boolean = True, _
                                 Optional sErrMsg As String = "") As Boolean
 
