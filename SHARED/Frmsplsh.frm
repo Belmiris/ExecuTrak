@@ -39,7 +39,7 @@ Begin VB.Form frmSplash
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   10.5
+         Size            =   10.48
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -48,6 +48,7 @@ Begin VB.Form frmSplash
       EndProperty
       BevelOuter      =   0
       BorderWidth     =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   12
@@ -68,7 +69,7 @@ Begin VB.Form frmSplash
          Width           =   5724
          Begin VB.ComboBox cmbDataSet 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
+            BackColor       =   &H8000000F&
             Height          =   324
             Left            =   1860
             TabIndex        =   0
@@ -117,7 +118,6 @@ Begin VB.Form frmSplash
          End
          Begin VB.Label lblStatic 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
             Caption         =   "Data Set Name :"
             ForeColor       =   &H80000008&
             Height          =   312
@@ -129,7 +129,6 @@ Begin VB.Form frmSplash
          End
          Begin VB.Label lblStatic 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
             Caption         =   "Password :"
             ForeColor       =   &H80000008&
             Height          =   312
@@ -141,7 +140,6 @@ Begin VB.Form frmSplash
          End
          Begin VB.Label lblStatic 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
             Caption         =   "User Name :"
             ForeColor       =   &H80000008&
             Height          =   312
@@ -153,7 +151,6 @@ Begin VB.Form frmSplash
          End
          Begin VB.Label lblStatic 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
             Caption         =   "Host Name :"
             ForeColor       =   &H80000008&
             Height          =   312
@@ -165,7 +162,6 @@ Begin VB.Form frmSplash
          End
          Begin VB.Label lblStatic 
             Appearance      =   0  'Flat
-            BackColor       =   &H00C0C0C0&
             Caption         =   "Database Name :"
             ForeColor       =   &H80000008&
             Height          =   312
