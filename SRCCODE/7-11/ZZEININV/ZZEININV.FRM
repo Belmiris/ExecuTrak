@@ -1220,7 +1220,7 @@ Begin VB.Form frmZZEININV
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1233,7 +1233,7 @@ Begin VB.Form frmZZEININV
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -4014,7 +4014,7 @@ Private Function fnInsertPriceBookInvDetail() As Boolean
         dRetail = tfnRound(tgmDetail.CellValue(ColDetailRetail, i), 2)
         dExtCost = tfnRound(tgmDetail.CellValue(ColDetailExtCost, i), 2)
         dExtRetail = tfnRound(tgmDetail.CellValue(ColDetailExtRetail, i), 2)
-        dQty = tfnRound(tgmDetail.CellValue(ColDetailCost, i), 3)
+        dQty = tfnRound(tgmDetail.CellValue(ColDetailQty, i), 3)
         lPriceBookLnk = fnGetPriceBookLink(sItemCode, lVendor, nPrftctr)
         
         If lPriceBookLnk <= 0 Then
