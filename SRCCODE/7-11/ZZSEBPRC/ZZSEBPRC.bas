@@ -683,7 +683,7 @@ Public Function fnInsertHoldBonus() As String
                 'the check link is greater than zero
                 'and if the 'Process Hourly Employee only' checkbox is checked
                 'insert a new record...
-                If frmZZSEBPRC.chkHourly.Value = vbChecked Then
+                If frmZZSEBPRC.chkHourly.value = vbChecked Then
                     strSQL1 = lEmpNo & ", "
                     strSQL1 = strSQL1 & nPrftCtr & ", "
                     strSQL1 = strSQL1 & tfnSQLString(sPayCode) & ", "
@@ -3376,3 +3376,387 @@ Public Function fnSetRegularOtHoursPayCode() As Boolean
     
     fnSetRegularOtHoursPayCode = True
 End Function
+
+'david 03/12/2003
+'move the log file ZZSEBPRC.LOG from \FACTOR\EXECTRAK\BIN
+'to \FACTOR\LOG directory
+Public Sub subMoveLogFile()
+    Dim sLogPath As String
+    Dim sErrMsg As String
+    Dim szNewName As String
+    Dim nPosi As Integer
+    
+    '****************** TO BE DELETE WHEN THE FEATURE IS TURNED ON ******************
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    Exit Sub
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    'THIS FEATURE IS CURRENTLY TURNED OFF.
+    '****************** TO BE DELETE WHEN THE FEATURE IS TURNED ON ******************
+    
+    If Not tfnIsFile(sLogFilePath) Then
+        'file not found, ok
+        Exit Sub
+    End If
+    
+    'get the \factor
+    
+    sLogPath = UCase(App.Path)
+    
+    nPosi = InStrRev(sLogPath, "\EXECTRAK")
+    
+    If nPosi > 0 Then
+        sLogPath = Left(sLogPath, nPosi) + "LOG\"
+    Else
+        sLogPath = "C:\FACTOR\LOG\"
+    End If
+    
+    sErrMsg = fnCheckAndCreateDirectory(sLogPath, False)
+    
+    If sErrMsg <> "" Then
+        MsgBox sErrMsg, vbExclamation
+        Exit Sub
+    End If
+    
+    szNewName = fnGetNewFile(sLogPath, App.Title, ".LOG", 5, False)
+    
+    If szNewName <> "" Then
+        szNewName = sLogPath + szNewName
+        fnRenameFile sLogFilePath, szNewName, True
+    End If
+End Sub
+
+Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
+    Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
+    
+    fnCheckAndCreateDirectory = ""
+    
+    On Error Resume Next
+    sTmpDir = Dir(sDir, vbDirectory)
+    
+    If sTmpDir <> "" Then
+        Exit Function
+    End If
+    
+    If bPromptForCreate Then
+        If MsgBox("Directory '" + sDir + "' does not exist.  Do you want to create it?", vbQuestion + vbYesNo) = vbNo Then
+            fnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
+            Exit Function
+        End If
+    End If
+    
+    If Right(sDir, 1) <> "\" Then sDir = sDir + "\"
+    
+    nPosi = InStr(sDir, ":\")
+    If nPosi > 0 Then
+        sDrive = Left(sDir, nPosi)
+        sDir = Mid(sDir, nPosi + 2)
+    End If
+    
+    sParentDir = sDrive
+    
+    On Error Resume Next
+    nPosi = InStr(sDir, "\")
+    
+    While nPosi > 0
+        sParentDir = sParentDir + "\" + Left(sDir, nPosi - 1)
+        
+        On Error Resume Next
+        sTmpDir = Dir(sParentDir, vbDirectory)
+        
+        If sTmpDir = "" Then  'directory does not exist, create it
+            On Error GoTo ErrTrap
+            MkDir sParentDir
+        End If
+        
+        sTmpDir = Mid(sDir, nPosi + 1)
+        
+        sDir = sTmpDir
+        
+        nPosi = 0
+        nPosi = InStr(sDir, "\")
+    Wend
+    
+    Exit Function
+
+ErrTrap:
+    tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
+    fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
+End Function
+
+'this function returns an error message string if any
+Public Function fnRenameFile(sFrom As String, sTo As String, _
+                             Optional bShowErrMsg As Boolean = True, _
+                             Optional bCopy As Boolean = False) As String
+    Dim sErrMsg As String
+    
+    On Error GoTo ErrTrap
+    
+    sErrMsg = "Error occurred while deleting file '" & sTo & "'"
+    If Dir(sTo) <> "" Then Kill sTo
+    
+    sErrMsg = "Error occurred while renaming file from '" & sFrom & "' to '" & sTo & "'"
+    FileCopy sFrom, sTo
+    
+    If Not bCopy Then
+        sErrMsg = "Error occurred while deleting file '" & sFrom & "'"
+        Kill sFrom
+    End If
+    
+    fnRenameFile = ""
+    Exit Function
+    
+ErrTrap:
+    tfnErrHandler "fnRenameFile", bShowErrMsg
+    fnRenameFile = sErrMsg
+End Function
+
+Public Function fnGetNewFile(sDir As String, _
+                              sPrefix As String, _
+                              sEXTENSION As String, _
+                              Optional nSeqCount As Integer = 2, _
+                              Optional bUseAlpabet As Boolean = True) As String
+    
+    Dim sFileName As String
+    Dim sFileFound As String
+    Dim sLatestFile As String
+    
+    Dim sFile As String
+    Dim sExt As String
+    
+    If nSeqCount < 2 Then
+        nSeqCount = 2
+    End If
+    
+    sFileName = sDir + sPrefix + "-" + String(nSeqCount, "?") + sEXTENSION
+    
+    'search the latest file
+    sFileFound = Dir(sFileName)
+    
+    Do While sFileFound <> ""
+        subParseExtensionFilePathDrive sFileFound, sExt, sFile
+        If bUseAlpabet Then
+            If Not IsAlphanumeric(Right(sFile, nSeqCount)) Then
+                sFileFound = ""
+            Else
+                'make sure the seq is all upper case
+                sFileFound = Left(sFile, Len(sFile) - nSeqCount) + UCase(Right(sFile, nSeqCount)) + "." + sExt
+            End If
+        Else
+            If Not IsNumeric(Right(sFile, nSeqCount)) Then
+                sFileFound = ""
+            End If
+        End If
+        
+        If sFileFound <> "" Then
+            If sFileFound <> sLatestFile Then
+                If sFileFound > sLatestFile Then
+                    sLatestFile = sFileFound
+                End If
+            End If
+        End If
+        
+        sFileFound = Dir()
+    Loop
+    
+    If sLatestFile = "" Then
+        fnGetNewFile = sPrefix + "-" + String(nSeqCount - 1, "0") + "1" + sEXTENSION
+    Else
+        fnGetNewFile = fnGetNextFile(sLatestFile, sEXTENSION, nSeqCount, bUseAlpabet)
+    End If
+End Function
+
+'##############################################################################
+' Function/Subroutine: fnGetNextFile
+' Author:               David Chai
+' Date:                 03/12/2003
+' Project Number:       ??????
+' Program Version:      N/A
+' ARGS:                 sFileName:String, original path and filename
+'                       Optional vExtension:Variant, extension for new path and filename
+'                       Optional sSeqCount:Integer, number of digits for the seq number
+' Returns:              New filename with path: String
+' Description:          get the next path and filename for the given original path and filename
+'-
+'##############################################################################
+'assume two characters in filename part are reserved for copy indicator
+Public Function fnGetNextFile(ByVal sFileName As String, _
+                               Optional vExtension, _
+                               Optional nSeqCount As Integer = 2, _
+                               Optional bUseAlpabet As Boolean = True) As String
+    
+    Dim nPosi As Integer
+    Dim sEXTENSION As String
+    
+    Dim i As Integer
+    Dim bOverflow As Boolean
+    Dim aryExtra() As Integer
+    Dim sSeq As String
+    
+    If sFileName = "" Then
+        #If DEVELOP Then
+            MsgBox "Filename is empty"
+        #End If
+        Exit Function
+    End If
+    
+    nPosi = InStrRev(sFileName, ".")
+    
+    If nPosi > 0 Then
+        sEXTENSION = Mid(sFileName, nPosi)
+        sFileName = Left(sFileName, nPosi - 1)
+    End If
+
+    If Not IsMissing(vExtension) Then
+        sEXTENSION = vExtension
+    End If
+    
+    If nSeqCount < 2 Then
+        nSeqCount = 2
+    End If
+    
+    If Len(sFileName) <= nSeqCount Then
+        'filename is not valid (format xxx-00)
+        Exit Function
+    End If
+    
+    ReDim Preserve aryExtra(nSeqCount - 1)
+    
+    For i = 0 To nSeqCount - 1
+        aryExtra(i) = Asc(Mid(sFileName, Len(sFileName) - nSeqCount + 1 + i, 1))
+    Next i
+    
+    'exceeds maximum filenames
+    For i = 0 To nSeqCount - 1
+        If bUseAlpabet Then
+            If aryExtra(i) < 90 Then
+                Exit For
+            End If
+        Else
+            If aryExtra(i) < 57 Then
+                Exit For
+            End If
+        End If
+    Next i
+    
+    'reach maximum seq, abort
+    If i > nSeqCount - 1 Then
+        Exit Function
+    End If
+    
+    i = nSeqCount - 1
+    
+    Do
+        bOverflow = False
+        aryExtra(i) = aryExtra(i) + 1
+        
+        If bUseAlpabet And aryExtra(i) > 57 And aryExtra(i) < 65 Then  '> 9 and < A
+            aryExtra(i) = 65  'set to A
+        ElseIf (bUseAlpabet And aryExtra(i) > 90) Or ((Not bUseAlpabet) And aryExtra(i) > 57) Then
+            aryExtra(i) = 48 'set to 0
+            bOverflow = True
+        End If
+        
+        If Not bOverflow Then
+            Exit Do
+        End If
+        
+        i = i - 1
+    Loop Until i < 0
+    
+    If aryExtra(0) > 90 Then  'ASC= 90 is Z
+        'reach maximum seq, abort
+        Exit Function
+    End If
+    
+    For i = 0 To nSeqCount - 1
+        sSeq = sSeq + Chr(aryExtra(i))
+    Next i
+    
+    fnGetNextFile = Left(sFileName, Len(sFileName) - nSeqCount) + sSeq + sEXTENSION
+End Function
+
+Public Function IsAlphanumeric(sIn As String) As Boolean
+    Dim i As Long
+    
+    For i = 1 To Len(sIn)
+        If Not ((Mid(sIn, i, 1) >= "a" And Mid(sIn, i, 1) <= "z") _
+           Or (Mid(sIn, i, 1) >= "A" And Mid(sIn, i, 1) <= "Z") _
+           Or (Mid(sIn, i, 1) >= "0" And Mid(sIn, i, 1) <= "9")) Then
+            Exit Function
+        End If
+    Next i
+    
+    IsAlphanumeric = True
+End Function
+
+Public Sub subParseExtensionFilePathDrive(sFileName As String, _
+                                           Optional ByRef sExt As String, _
+                                           Optional ByRef sFile As String, _
+                                           Optional ByRef sPath As String, _
+                                           Optional ByRef sDrive As String)
+
+    Dim nPosi As Integer
+    Dim i As Integer
+    
+    If sFileName = "" Then
+        #If DEVELOP Then
+            MsgBox "Filename is empty"
+        #End If
+        Exit Sub
+    End If
+    
+    'get the extension
+    nPosi = InStrRev(sFileName, ".")
+    
+    If nPosi > 0 Then
+        sExt = Mid(sFileName, nPosi + 1)
+        sFile = Left(sFileName, nPosi - 1)
+    Else
+        sFile = sFileName
+    End If
+
+    'get the path
+    nPosi = InStrRev(sFile, "\")
+    
+    If nPosi > 0 Then
+        sPath = Left(sFile, nPosi - 1)
+        sFile = Mid(sFile, nPosi + 1)
+    End If
+    
+    'get the drive
+    'check drive letter
+    'C:\FACTOR\EXECTRAK\BIN
+    nPosi = InStr(sPath, ":")
+    
+    'found the drive letter
+    If nPosi > 0 Then
+        sDrive = Left(sPath, nPosi - 1)
+        'skip :\
+        sPath = Mid(sFile, nPosi + 2)
+    Else
+        'check network drive
+        '\\VB6TEST\C\Crescent
+        nPosi = InStr(3, sFileName, "\")  'network path
+        
+        If nPosi > 0 Then
+            'find the backslash after the network drive
+            nPosi = InStr(nPosi + 1, sFileName, "\") 'drive
+            
+            If nPosi > 0 Then
+                sDrive = Left(sPath, nPosi - 1)
+                'skip :\
+                sPath = Mid(sFile, nPosi + 2)
+            End If
+        End If
+    End If
+    
+    'remove the backslash at the beginning of the network path (if any)
+    If Left(sPath, 1) = "\" Then
+        sPath = Mid(sPath, 2)
+    End If
+End Sub
+'''''''''''''''''
+

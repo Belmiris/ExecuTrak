@@ -3135,7 +3135,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOk.Enabled = True
+    cmdOK.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -3187,7 +3187,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -3196,8 +3196,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -3335,10 +3335,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOk.Enabled = True
+                cmdOK.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOk.Enabled = False
+                cmdOK.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -3898,10 +3898,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOk.Enabled = True
+                            cmdOK.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOk.Enabled = False
+                            cmdOK.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -3963,10 +3963,10 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOk.Enabled = True
+            cmdOK.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOk.Enabled = False
+            cmdOK.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -4267,6 +4267,11 @@ Private Sub cmdProcess_Click()
     bNoRecordFound = False
     
     subLogErrMsg "", True
+    
+    'david 03/12/2003
+    'move log file from \factor\exectrak\bin to \factor\log
+    subMoveLogFile
+    '''''''''''''''''
     
     subLogErrMsg "Commission Processing" + IIf(bShowDetail, " Detail", "") + " Log"
     
