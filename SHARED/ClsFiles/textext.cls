@@ -177,7 +177,7 @@ Public Sub Click(objCtrl As Object)
         y = objCtrl.Left + Screen.TwipsPerPixelX * 2
         nRow = fnCurrentColumn(y)
         If nRow >= 0 Then
-            tgTable.col = nRow
+            tgTable.Col = nRow
         End If
         picTextFrame.Visible = False
     End If
@@ -238,7 +238,7 @@ Public Function RowColChange() As Boolean
     RowColChange = Not m_bMouseDown
     If m_bMouseDown Then
         tgTable.Row = m_lOriginalRow
-        tgTable.col = m_lOriginalCol
+        tgTable.Col = m_lOriginalCol
         m_bMouseDown = False
     End If
 End Function
@@ -305,7 +305,7 @@ Public Sub ShowColumnExt()
         End If
     End With
     If Not IsNull(tgTable.FirstRow) Then
-        lFirstRow = Val(tgTable.FirstRow)
+        lFirstRow = val(tgTable.FirstRow)
     End If
     If lFirstRow <> m_lLastFirstRow Then
         m_lLastFirstRow = lFirstRow
@@ -474,7 +474,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
                 If IsNull(tgTable.FirstRow) Then
                     lRow = nRow
                 Else
-                    lRow = Val(tgTable.FirstRow) + nRow
+                    lRow = val(tgTable.FirstRow) + nRow
                 End If
                 sMsg = frmParent.fnGetText(tgTable, arryColumns(nCol).m_nColumn, lRow)
             Else
@@ -514,7 +514,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
                 End If
             End If
             If nLeft + nWidth > tgTable.Left + tgTable.Width Then
-                nLeft = tgTable.Width - nWidth
+                nLeft = nLeft - ((nLeft + nWidth) - (tgTable.Left + tgTable.Width)) 'tgTable.Width - nWidth
                 If nLeft < 0 Then
                     nLeft = 0
                 End If
@@ -651,7 +651,7 @@ Public Sub MouseDown(ByVal Button As Integer, ByVal x As Single, ByVal y As Sing
             If x >= .Left Then
                 If x <= .Left + .Width Then
                     m_lOriginalRow = tgTable.Row
-                    m_lOriginalCol = tgTable.col
+                    m_lOriginalCol = tgTable.Col
                     fnShowText nCol, y
                     m_bMouseDown = True
                     bFlag = False
