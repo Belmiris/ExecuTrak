@@ -1964,7 +1964,9 @@ Public Sub tfnFixBackColor(ByRef frmMain As Form)
     
     For Each ctrl In frmMain.Controls
         If TypeOf ctrl Is FactorFrame Then
-            ctrl.BackColor = &H8000000F
+            If ctrl.BackColor <> &H800000 Then
+                ctrl.BackColor = &H8000000F
+            End If
         End If
     Next
 End Sub
