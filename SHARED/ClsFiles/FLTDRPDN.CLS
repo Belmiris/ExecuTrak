@@ -114,12 +114,16 @@ Option Explicit
     Private m_bDefaultCursorControl As Boolean
     Private m_bLocked As Boolean
 
+    'david 03/05/2001
+    Private m_nColWhenSearchBtnClick As Integer
+    Private m_lRowWhenSearchBtnClick As Long
+    
     #If Win32 Then
         Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
     #Else
         Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
     #End If
-    
+'
 
 Property Let AutoHide(ByVal bTemp As Boolean)
     bAutoHide = bTemp
@@ -1077,7 +1081,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1367,9 +1371,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1390,11 +1394,23 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
 End Function
 
 Public Sub ButtonClick(ParamArray vMoreFields() As Variant)
-
+    'david 03/05/2001
+    m_nColWhenSearchBtnClick = tgMain.col
+    If Not m_clsEdit Is Nothing Then
+        m_lRowWhenSearchBtnClick = m_clsEdit.GetCurrentRowNumber()
+    End If
+    
     fnLoadTable tgMain.col
     subInputSelected
 End Sub
 
+Public Property Get ColWhenSearchClick() As Integer
+    ColWhenSearchClick = m_nColWhenSearchBtnClick
+End Property
+
+Public Property Get RowWhenSearchClick() As Long
+    RowWhenSearchClick = m_lRowWhenSearchBtnClick
+End Property
 
 Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Integer)
     ' Get records from the given SQL statement
@@ -1524,7 +1540,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1828,7 +1844,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1845,7 +1861,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1958,6 +1974,9 @@ Private Sub subInputSelected()
                         Next
                     End If
                     On Error Resume Next
+                    'david 03/05/2001
+                    cmdSearch.SetFocus
+                    'end
                     tgMain.SetFocus
                 End If
             End If
