@@ -2204,14 +2204,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     '#words, the new routine needes this field. This is why
     '#we did not remove the old "temp patch " codes -- does not
     '#hurt if new routine is used
-    strSQL = "SELECT cTaxBasis FROM MTaxDetail"
+    strSQL = "SELECT cTaxBasis FROM MTaxDetail WHERE lMovement = " & lMovement 'Vijaya on 01/28/05 Magic#458098
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsTemp Is Nothing Then
          Exit Sub
     End If
     
     '#lLading May be -1. Skip this routine if -1 since it is not ready to do loading fee
-    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & CStr(lMovement) & " AND lLading <= 0 "
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lMovement & " AND lLading <= 0 "
     Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsMvBal Is Nothing Then
          Exit Sub
@@ -2235,14 +2235,19 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     ElseIf rsTemp.RecordCount = 0 Then
         Exit Sub
     End If
+    
     lDelGal = tfnRound(rsTemp!gal)
-    If lLadGal <> lDelGal Or lDelGal = 0 Then
+    'david 02/04/2005  #470421
+    'commented out the Or ...
+    'because if the user zero out the delivery gallon
+    'we need to set the TX loading fee to 0
+    If lLadGal <> lDelGal Then  'Or lDelGal = 0 Then
         Exit Sub
     End If
     
     sTaxState = "TX" '#Defalt to Texas
     
-    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & CStr(lMovement)
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lMovement
     Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsMvBal Is Nothing Then
          Exit Sub
@@ -2250,7 +2255,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
          Exit Sub
     End If
 
-    strSQL = "SELECT * FROM MLading WHERE lMovement = " & CStr(lMovement)
+    strSQL = "SELECT * FROM MLading WHERE lMovement = " & lMovement
     Set rsLadHeader = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsLadHeader Is Nothing Then
         Exit Sub
@@ -2261,7 +2266,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     strSQL = "SELECT MDeliveryDetail.*,MDelivery.lDestination,MDelivery.bExternal FROM MDelivery,MDeliveryDetail " _
              & " WHERE MDelivery.lMovement=MDeliveryDetail.lMovement " _
              & " AND MDelivery.lDelivery=MDeliveryDetail.lDelivery " _
-             & " AND MDelivery.lMovement = " & CStr(lMovement)
+             & " AND MDelivery.lMovement = " & lMovement
              
     Set rsDelD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsDelD Is Nothing Then
@@ -2276,7 +2281,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         strSQL = "SELECT * " _
                & " FROM MLadingDetail " _
                & " WHERE lLading = " & CStr(rsLadHeader!lLading) _
-               & " AND lMovement = " & CStr(lMovement) _
+               & " AND lMovement = " & lMovement _
                & " ORDER BY lLineNumber"
                
         Set rsLadD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2476,12 +2481,20 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     monkey_the_numbers Trim(dsl_fuel_group), bTexasDiverted
     
-    strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & CStr(lMovement) & " AND cTaxBasis = 'A'"
+    strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & lMovement & " AND cTaxBasis = 'A'"
     txMod_ExeCuteSQL strSQL, , , m_local
     
     For i = 0 To ldf_cnt
         '#We do not need to populate Internal Loading Fees
-        If aryLDF(i).dv_nbr <> 0 And tfnRound(aryLDF(i).dv_atax, 2) <> 0 And aryLDF(i).dv_IE = "E" Then
+        'david 02/04/2005  #470421
+        'modify the IF statement below to insert zero loading fee
+        'and is to be used to reset the fSalesTax in invoice header
+        'and the fTotalTax in invoice line to zero
+        'when the delivery gallons is zero and the loading fee is zero
+        'ZERO loading fee records will be deleted later...
+        If aryLDF(i).dv_nbr <> 0 And aryLDF(i).dv_IE = "E" _
+           And (tfnRound(aryLDF(i).dv_atax, 2) <> 0 _
+           Or tfnRound(aryLDF(i).dv_vol, 1) = 0) Then
             '#Try to Get the same desc as 4GL does.
             If fnGetATaxCodeDesc(rsDelD, aryLDF(i).dv_nbr, _
                                  aryLDF(i).dv_vol, _
@@ -2503,7 +2516,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 End If
                 strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
                          & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
-                strSQL = strSQL & CStr(lMovement) & ","
+                strSQL = strSQL & lMovement & ","
                 strSQL = strSQL & CStr(aryLDF(i).dv_nbr) & ","
                 strSQL = strSQL & CStr(aryLDF(i).dv_line) & ","
                 strSQL = strSQL & tfnSQLString(sTaxCode) & ","
@@ -2521,6 +2534,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'Vijaya on 12/06/04 Magic#465810
     'Update the Field in minvoice.fTotalTax (Local)
     strSQL = "SELECT lMovement,lDelivery,SUM(fTaxAmount) as dTxAmt FROM mtaxdetail"
+    strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2541,6 +2555,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'Update the Field in minvoiceline.fSalesTax (Local)
     strSQL = "SELECT lMovement,lDelivery,lLineNumber,SUM(fTaxAmount) as dTxAmt"
     strSQL = strSQL & " FROM mtaxdetail"
+    strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery,lLineNumber"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery,lLineNumber"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2558,6 +2573,16 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         Wend
     End If
     ''''''''''''''''''''''''''''''''
+
+    'david 02/04/2005  #470421
+    'delete the ZERO loading fee records
+    strSQL = "DELETE FROM MTaxDetail"
+    strSQL = strSQL & " WHERE lMovement =" & lMovement
+    strSQL = strSQL & " AND fBaseAmount = 0"
+    strSQL = strSQL & " AND fTaxAmount = 0"
+    strSQL = strSQL & " AND cTaxBasis = 'A'"
+    txMod_ExeCuteSQL strSQL, , , m_local
+    ''''''''''''''''''''''''''
 End Sub
 
 Private Function fnGetATaxCodeDesc(ByVal rsDD As Recordset, _
