@@ -2472,6 +2472,48 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
             txMod_ExeCuteSQL strSQL, , , m_local
         End If
     Next
+    
+    'Adjusting Tax Amount in minvoice local table
+    'Vijaya on 12/06/04 Magic#465810
+    'Update the Field in minvoice.fTotalTax (Local)
+    strSQL = "SELECT lMovement,lDelivery,SUM(fTaxAmount) as dTxAmt FROM mtaxdetail"
+    strSQL = strSQL & " GROUP BY lMovement,lDelivery"
+    strSQL = strSQL & " ORDER BY lMovement,lDelivery"
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    End If
+    If rsTemp.RecordCount > 0 Then
+        While Not rsTemp.EOF
+            strSQL = "UPDATE minvoice SET fTotalTax =" & tfnRound(rsTemp!dTxAmt, 2)
+            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
+            strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
+            txMod_ExeCuteSQL strSQL, , , m_local
+            rsTemp.MoveNext
+        Wend
+    End If
+    
+    'Adjusting Tax Amount in minvoiceline local table
+    'Update the Field in minvoiceline.fSalesTax (Local)
+    strSQL = "SELECT lMovement,lDelivery,lLineNumber,SUM(fTaxAmount) as dTxAmt"
+    strSQL = strSQL & " FROM mtaxdetail"
+    strSQL = strSQL & " GROUP BY lMovement,lDelivery,lLineNumber"
+    strSQL = strSQL & " ORDER BY lMovement,lDelivery,lLineNumber"
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    End If
+    If rsTemp.RecordCount > 0 Then
+        While Not rsTemp.EOF
+            strSQL = "UPDATE minvoiceline SET fSalesTax =" & tfnRound(rsTemp!dTxAmt, 2)
+            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
+            strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
+            strSQL = strSQL & " AND lLineNumber =" & tfnRound(rsTemp!lLineNumber)
+            txMod_ExeCuteSQL strSQL, , , m_local
+            rsTemp.MoveNext
+        Wend
+    End If
+    ''''''''''''''''''''''''''''''''
 End Sub
 
 Private Sub subGetATaxCodeDesc(ByVal sState As String, ByVal lGal As Long, _
