@@ -2671,7 +2671,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2680,8 +2680,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2780,7 +2780,7 @@ Private Sub eTabMain_Click()
             frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
                 
-            cmdOk.Enabled = tgmApprove.RowCount > 0
+            cmdOK.Enabled = tgmApprove.RowCount > 0
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
             #If PROTOTYPE Then
@@ -3277,7 +3277,7 @@ Private Sub tfnResetScreen(Index As Integer)
                             tblApprove.col = 0
                         End If
                         
-                        cmdOk.Enabled = tgmApprove.RowCount > 0
+                        cmdOK.Enabled = tgmApprove.RowCount > 0
                     End If
                 End If
             End If
@@ -3716,7 +3716,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    cmdOk.Enabled = tgmApprove.RowCount > 0
+    cmdOK.Enabled = tgmApprove.RowCount > 0
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -3958,10 +3958,11 @@ Private Sub subSetupExetension()
     Set tgcExtension.Form = Me
     Set tgcExtension.PictureBox = picTextExtension
     Set tgcExtension.Table = tblApprove
+    tgcExtension.PositionDefault = tgcExtension.PositionTop
     
     tgcExtension.AddColumn colAPrftCtr
     tgcExtension.Style(colAPrftCtr) = 3
-
+    
     tgcExtension.AddColumn colAPayCode
     tgcExtension.Style(colAPayCode) = 3
 End Sub
