@@ -2044,7 +2044,12 @@ Private Function fnLoadData() As String
         If tblBonus.Columns(ColSequence).Locked Then
             tgmBonus.CellValue(nxColSeqValid, lRow) = True
         End If
+        
+        tgmBonus.CellValue(ColElgDate, lRow) = tfnFormatDate(tgmBonus.CellValue(ColElgDate, lRow))
+        tgmBonus.CellValue(ColStopDate, lRow) = tfnFormatDate(tgmBonus.CellValue(ColStopDate, lRow))
     Next lRow
+    
+    tgmBonus.Rebind
     
     fnLoadData = ""
         
@@ -2855,6 +2860,8 @@ Private Function fnValidDate(szText As String, lRow As Long, nCol As Integer) As
     Const SUB_NAME As String = "fnValidDate"
     Const DEFAULT_END_DATE As String = "01/01/2525"
     Dim sTemp As String
+    Dim sStartDate As String
+    Dim sStopDate As String
     
     fnValidDate = False
     
@@ -2872,27 +2879,43 @@ Private Function fnValidDate(szText As String, lRow As Long, nCol As Integer) As
         End If
     End If
     
-    tgmBonus.CellValue(nCol, lRow) = tfnFormatDate(szText)
-    
-    If nCol = ColElgDate Then
-        fnValidDate = True
+    If Not IsValidDate(szText) Then
+        tgmBonus.ErrorMessage(nCol) = sTemp & "is not valid"
         Exit Function
     End If
     
-    If nCol = ColStopDate Then
-        If CDate(tfnFormatDate(szText)) < CDate(tgmBonus.CellValue(ColElgDate, lRow)) Then
-            tgmBonus.ErrorMessage(nCol) = sTemp + " must be earlier than Stop Date"
-            tgmBonus.ErrorMessage(ColElgDate) = sTemp + " must be later than Stop Date"
-            tgmBonus.ValidCell(ColElgDate, lRow) = False
+    szText = tfnFormatDate(szText)
+    tgmBonus.CellValue(nCol, lRow) = tfnFormatDate(szText)
+    
+    If nCol = ColElgDate Then
+        If Not IsValidDate(tgmBonus.CellValue(ColStopDate, lRow)) Then
+            fnValidDate = True
             Exit Function
         End If
+        
+        sStartDate = szText
+        sStopDate = tfnFormatDate(tgmBonus.CellValue(ColStopDate, lRow))
     Else
-        If CDate(tfnFormatDate(szText)) < CDate(tgmBonus.CellValue(ColElgDate, lRow)) Then
-            tgmBonus.ErrorMessage(nCol) = sTemp + " must be earlier than Stop Date"
-            tgmBonus.ErrorMessage(ColStopDate) = sTemp + " must be later than Stop Date"
-            tgmBonus.ValidCell(ColStopDate, lRow) = False
+        If Not IsValidDate(tgmBonus.CellValue(ColElgDate, lRow)) Then
+            fnValidDate = True
             Exit Function
         End If
+    
+        sStopDate = szText
+        sStartDate = tfnFormatDate(tgmBonus.CellValue(ColElgDate, lRow))
+    End If
+    
+    If CDate(tfnDateString(sStartDate)) > CDate(tfnDateString(sStopDate)) Then
+        tgmBonus.ErrorMessage(ColElgDate) = "Eligible Date must be earlier than Stop Date"
+        tgmBonus.ErrorMessage(ColStopDate) = "Stop Date must be later than Eligible Date"
+        
+        If nCol = ColStopDate Then
+            tgmBonus.ValidCell(ColElgDate, lRow) = False
+        Else
+            tgmBonus.ValidCell(ColStopDate, lRow) = False
+        End If
+    
+        Exit Function
     End If
     
     If nCol = ColStopDate Then
@@ -3058,4 +3081,22 @@ End Function
 '        tgcExtension.ShowColumnExt
 '    End If
 'End Sub
+
+Private Function IsValidDate(ByVal sDate As String) As Boolean
+    If sDate = "" Then
+        Exit Function
+    End If
+    
+    sDate = tfnFormatDate(sDate)
+    
+    If SRegExpMatch(szDatePattern, sDate) <> 0 Then
+        Exit Function
+    End If
+    
+    If Not IsDate(tfnDateString(sDate)) Then
+        Exit Function
+    End If
+    
+    IsValidDate = True
+End Function
 
