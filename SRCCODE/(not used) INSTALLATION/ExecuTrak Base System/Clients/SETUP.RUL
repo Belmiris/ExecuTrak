@@ -37,8 +37,6 @@
 #define SERVICE_ONLY		104
 
 
-// global variables
-
 declare
 
 #include "sddialog.h"
@@ -69,13 +67,14 @@ declare
 
         // function prototypes
         prototype LOGWRITE(STRING);
-        prototype CheckDiskSpace(number);
+        prototype CheckDiskSpace(NUMBER);
         prototype Is16BitFactMenu();
         prototype Is16BitFactorFolder();
         prototype UnInstallFactor16();
         prototype CopyLocalDB(STRING);
         prototype fnFindFile(STRING, STRING);
         prototype fnFinishReboot(STRING);
+        prototype DeleteOldOleDir(STRING);
 
 
 	// new variables and function definition
@@ -495,120 +494,117 @@ StartCopy:
 
         // These go into the FACTOR directory (LOCAL installation)
         if (bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY)) then
-                TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
+		TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
+		
+		if (szForceInstall = "1 ") then
+		
+			LOGMSG="START FORCED COPY OF factmenu.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("factmenu.z", "*.*", COMP_NORMAL | SHAREDFILE);
+			if (nReturn < 0) then
+			        MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END FORCED COPY OF factmenu.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		
+		else
+        
+        		// ************************* Normal install
+        
+			LOGMSG="START NORMAL COPY OF factmenu.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("factmenu.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_SAME | SHAREDFILE);
+			if (nReturn < 0) then
+			        MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF factmenu.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		endif;
 
-                if (szForceInstall = "1 ") then
+		LOGMSG="START FORCED COPY OF factmenu.z - menus.* FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		nReturn = CompressGet("factmenu.z", "menus.*", COMP_NORMAL | SHAREDFILE);
+		if (nReturn < 0) then
+		        MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
+		        goto ZFAILURE;
+		endif;
+		
+		LOGMSG="END FORCED COPY OF factmenu.z - menus.* FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		 
+		TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN";
+		
+		if (szForceInstall = "1 ") then
+		
+			LOGMSG="START FORCED COPY OF sybin.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("sybin.z", "*.*", COMP_NORMAL);
+			if (nReturn < 0) then
+			        MessageBox("SYBIN.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END FORCED COPY OF sybin.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		
+		else
         
-                        LOGMSG="START FORCED COPY OF factmenu.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
+        		// ************************* Normal install
         
-                        nReturn = CompressGet("factmenu.z", "*.*", COMP_NORMAL | SHAREDFILE);
-                        if (nReturn < 0) then
-                                MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END FORCED COPY OF factmenu.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                else
-        
-        // ************************* Normal install
-        
-                        LOGMSG="START NORMAL COPY OF factmenu.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                        nReturn = CompressGet("factmenu.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_SAME | SHAREDFILE);
-                        if (nReturn < 0) then
-                                MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END NORMAL COPY OF factmenu.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-                endif;
+			LOGMSG="START NORMAL COPY OF sybin.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("sybin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME);
+			if (nReturn < 0) then
+			        MessageBox("SYBIN.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF sybin.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		endif;
 
-                LOGMSG="START FORCED COPY OF factmenu.z - menus.* FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
+		TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+		
+		if (szForceInstall = "1 ") then
+		
+			LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("factole.z", "*.*", COMP_NORMAL | SELFREGISTER);
+			if (nReturn < 0) then
+			        MessageBox("FACTOLE.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		
+		else
         
-                nReturn = CompressGet("factmenu.z", "menus.*", COMP_NORMAL | SHAREDFILE);
-                if (nReturn < 0) then
-                        MessageBox("FACTMENU.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                        goto ZFAILURE;
-                endif;
-        
-                LOGMSG="END FORCED COPY OF factmenu.z - menus.* FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-                 
-                TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN";
-        
-                if (szForceInstall = "1 ") then
-        
-                        LOGMSG="START FORCED COPY OF sybin.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                        nReturn = CompressGet("sybin.z", "*.*", COMP_NORMAL);
-                        if (nReturn < 0) then
-                                MessageBox("SYBIN.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END FORCED COPY OF sybin.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-
-                else
-        
-        // ************************* Normal install
-        
-                        LOGMSG="START NORMAL COPY OF sybin.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                        nReturn = CompressGet("sybin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME);
-                        if (nReturn < 0) then
-                                MessageBox("SYBIN.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END NORMAL COPY OF sybin.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-                endif;
-        endif;
-
-	// extract and register the OLE SERVER FILES into C:\FACTOR\EXECTRAK\OLE
-	// directory
-               // TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
-                 TARGETDIR = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
-    
-                if (szForceInstall = "1 ") then
-        
-                        LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                        nReturn = CompressGet("factole.z", "*.*", COMP_NORMAL | SELFREGISTER);
-                        if (nReturn < 0) then
-                                MessageBox("FACTOLE.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                else
-        
-        // ************************* Normal install
-        
-                        LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-        
-                        nReturn = CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SELFREGISTER);
-                        if (nReturn < 0) then
-                                MessageBox("FACTOLE.Z could not be decompressed. " + szErrorMessage, SEVERE);
-                                goto ZFAILURE;
-                        endif;
-        
-                        LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
-                        LOGWRITE(LOGMSG);
-                endif;
+        		// ************************* Normal install
+		
+			LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			nReturn = CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SELFREGISTER);
+			if (nReturn < 0) then
+			        MessageBox("FACTOLE.Z could not be decompressed. " + szErrorMessage, SEVERE);
+			        goto ZFAILURE;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+		endif;
+        endif;  //(bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY))
 
         //set Source directory to Target directory
         TARGETDIR = WINDIR ^ "TEMP";
@@ -1369,8 +1365,8 @@ begin
                 nvPosi = StrFind(szProgDir, "\\BIN");
                         
                 if nvPosi >= 0 then
-                    //StrSub(szTemp, szProgDir, 0, nvPosi);
-	    szTemp = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+                    StrSub(szTemp, szProgDir, 0, nvPosi);
+
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
                     LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
@@ -2272,8 +2268,7 @@ begin
 			elseif szName = "SERVDLL.Z" then
 				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
-				//szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
-				szDest = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
+				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
 			elseif szName = "SERVDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
@@ -2501,5 +2496,6 @@ begin
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
 end;
+
 
 #include "sddialog.rul"

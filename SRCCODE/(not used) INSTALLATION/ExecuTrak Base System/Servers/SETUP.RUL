@@ -68,8 +68,8 @@ declare
         prototype fnFindFile(STRING, STRING);
         prototype fnFinishReboot(STRING);
 
-	prototype CheckDeleteServicePack();
-	prototype RemoveOldModClientDir();
+        prototype CheckDeleteServicePack();
+        prototype RemoveOldModClientDir();
 
 
 // the script starts here
@@ -465,9 +465,7 @@ StartCopy:
         endif;
         
         StatusUpdate(ON, 73);
-        //TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
-        //set to local dir
-	TARGETDIR = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR ^ "OLE";
+        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
 	
         if (szForceInstall = "1 ") then
 
@@ -490,7 +488,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                nReturn = CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SELFREGISTER);
+                nReturn = CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | 
+		   COMP_UPDATE_DATE | COMP_UPDATE_SAME | SELFREGISTER);
                 if (nReturn < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed." + szErrorMessage, SEVERE);
                         goto DecompressError;
@@ -526,7 +525,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                nReturn = CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER);
+                nReturn = CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+		   COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER);
                 if (nReturn < 0) then
                         MessageBox("CRYSTAL.Z could not be decompressed." + szErrorMessage, SEVERE);
                         goto DecompressError;
@@ -1238,8 +1238,7 @@ begin
                     nvPosi = StrFind(szProgDir, "\\BIN");
                             
                     if nvPosi >= 0 then
-                       // StrSub(szTemp, szProgDir, 0, nvPosi);
-			szTemp = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+                       StrSub(szTemp, szProgDir, 0, nvPosi);
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "PPLINE32.EXE", "", WAIT);
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "TCLCOM32.EXE", "", WAIT);
                         LaunchAppAndWait(szTemp ^ "OLE" ^ "FACTOLE.EXE", "", WAIT);
