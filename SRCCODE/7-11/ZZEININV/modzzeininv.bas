@@ -1,7 +1,7 @@
 Attribute VB_Name = "modzzeininv"
 Option Explicit
 
-Public dbLocal As Database
+Public dbLocal As DataBase
 Public Const nDB_LOCAL As Integer = 1
 Public Const nDB_REMOTE As Integer = 2
 
@@ -20,15 +20,17 @@ Public colHdnHeaderInvDate As Integer
 Public Const ColDetailLine As Integer = 0
 Public Const ColDetailItemCode As Integer = 1
 Public Const ColDetailItemDesc As Integer = 2
-Public Const ColDetailQty As Integer = 3
-Public Const ColDetailCost As Integer = 4
-Public Const ColDetailExtCost As Integer = 5
-Public Const ColDetailPBCost As Integer = 6
-Public Const ColDetailExtPBCost As Integer = 7
-Public Const ColDetailRetail As Integer = 8
-Public Const ColDetailExtRetail As Integer = 9
-Public colHdnDetailUOM As Integer
-Public Const nMaxDetailCol As Integer = 10
+Public Const ColDetailUOM As Integer = 3
+Public Const ColDetailQty As Integer = 4
+Public Const ColDetailCost As Integer = 5
+Public Const ColDetailExtCost As Integer = 6
+Public Const ColDetailPBCost As Integer = 7
+Public Const ColDetailExtPBCost As Integer = 8
+Public Const ColDetailRetail As Integer = 9
+Public Const ColDetailExtRetail As Integer = 10
+'use to check the cost is equal to price book or not. 'Y' is Equal, 'N' is not equal
+Public colHdnDetailFlag As Integer
+Public Const nMaxDetailCol As Integer = 11
 
 Public Function fnExecuteSQL(szSQL As String, Optional nDB As Variant, _
                 Optional sCalledFrom As Variant, Optional bShowError As Variant) As Boolean

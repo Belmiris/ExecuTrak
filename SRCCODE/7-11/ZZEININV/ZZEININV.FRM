@@ -23,6 +23,7 @@ Begin VB.Form frmZZEININV
    HelpContextID   =   1
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
+   LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   6060
@@ -32,7 +33,7 @@ Begin VB.Form frmZZEININV
       Left            =   0
       TabIndex        =   4
       TabStop         =   0   'False
-      Top             =   516
+      Top             =   552
       Width           =   8880
       _Version        =   65536
       _ExtentX        =   15663
@@ -111,6 +112,40 @@ Begin VB.Form frmZZEININV
                Italic          =   0   'False
                Strikethrough   =   0   'False
             EndProperty
+            Begin FACTFRMLib.FactorFrame eLblStatus 
+               Height          =   372
+               Left            =   60
+               TabIndex        =   55
+               TabStop         =   0   'False
+               Top             =   3888
+               Width           =   2772
+               _Version        =   65536
+               _ExtentX        =   4890
+               _ExtentY        =   656
+               _StockProps     =   77
+               ForeColor       =   32768
+               BackColor       =   8388608
+               BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "Arial"
+                  Size            =   9.6
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+               Caption         =   "Out of Balance By 999999.999"
+               BorderWidth     =   0
+               BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                  Name            =   "MS Sans Serif"
+                  Size            =   12
+                  Charset         =   0
+                  Weight          =   400
+                  Underline       =   0   'False
+                  Italic          =   0   'False
+                  Strikethrough   =   0   'False
+               EndProperty
+            End
             Begin FACTFRMLib.FactorFrame cmdDetailCancel 
                Height          =   396
                Left            =   7488
@@ -157,7 +192,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -191,7 +226,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -225,7 +260,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -307,22 +342,6 @@ Begin VB.Form frmZZEININV
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
-                  Begin VB.Data datDropDown 
-                     Caption         =   "Data1"
-                     Connect         =   "Access"
-                     DatabaseName    =   ""
-                     DefaultCursorType=   0  'DefaultCursor
-                     DefaultType     =   2  'UseODBC
-                     Exclusive       =   0   'False
-                     Height          =   420
-                     Left            =   276
-                     Options         =   0
-                     ReadOnly        =   0   'False
-                     RecordsetType   =   1  'Dynaset
-                     RecordSource    =   ""
-                     Top             =   2052
-                     Width           =   1428
-                  End
                   Begin DBTrueGrid.TDBGrid tblDetail 
                      Height          =   2616
                      Left            =   48
@@ -334,7 +353,7 @@ Begin VB.Form frmZZEININV
                   Begin FACTFRMLib.FactorFrame cmdSearch 
                      Height          =   336
                      Left            =   396
-                     TabIndex        =   53
+                     TabIndex        =   52
                      Top             =   252
                      Width           =   1140
                      _Version        =   65536
@@ -343,7 +362,7 @@ Begin VB.Form frmZZEININV
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.61
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -361,6 +380,23 @@ Begin VB.Form frmZZEININV
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                  End
+                  Begin VB.Data datDropDown 
+                     Caption         =   "DropDown"
+                     Connect         =   "Access"
+                     DatabaseName    =   ""
+                     DefaultCursorType=   0  'DefaultCursor
+                     DefaultType     =   2  'UseODBC
+                     Exclusive       =   0   'False
+                     Height          =   420
+                     Left            =   276
+                     Options         =   0
+                     ReadOnly        =   0   'False
+                     RecordsetType   =   1  'Dynaset
+                     RecordSource    =   ""
+                     Top             =   2052
+                     Visible         =   0   'False
+                     Width           =   1428
                   End
                End
                Begin FACTFRMLib.FactorFrame efraDetailHeader 
@@ -393,6 +429,14 @@ Begin VB.Form frmZZEININV
                      Italic          =   0   'False
                      Strikethrough   =   0   'False
                   EndProperty
+                  Begin VB.Label Label2 
+                     Caption         =   "Amount"
+                     Height          =   216
+                     Left            =   6684
+                     TabIndex        =   54
+                     Top             =   468
+                     Width           =   696
+                  End
                   Begin VB.Label lblAmount 
                      Caption         =   "00000.00"
                      BeginProperty Font 
@@ -405,10 +449,10 @@ Begin VB.Form frmZZEININV
                         Strikethrough   =   0   'False
                      EndProperty
                      Height          =   216
-                     Left            =   7260
+                     Left            =   7440
                      TabIndex        =   45
                      Top             =   468
-                     Width           =   1176
+                     Width           =   1080
                   End
                   Begin VB.Label lblInvoice 
                      Caption         =   "000000"
@@ -430,7 +474,7 @@ Begin VB.Form frmZZEININV
                   Begin VB.Label Label12 
                      Caption         =   "Invoice #"
                      Height          =   216
-                     Left            =   5064
+                     Left            =   4872
                      TabIndex        =   43
                      Top             =   468
                      Width           =   756
@@ -447,7 +491,7 @@ Begin VB.Form frmZZEININV
                         Strikethrough   =   0   'False
                      EndProperty
                      Height          =   240
-                     Left            =   7752
+                     Left            =   7440
                      TabIndex        =   42
                      Top             =   120
                      Width           =   732
@@ -455,7 +499,7 @@ Begin VB.Form frmZZEININV
                   Begin VB.Label Label10 
                      Caption         =   "Shift"
                      Height          =   240
-                     Left            =   7260
+                     Left            =   6684
                      TabIndex        =   41
                      Top             =   120
                      Width           =   468
@@ -514,7 +558,7 @@ Begin VB.Form frmZZEININV
                         Strikethrough   =   0   'False
                      EndProperty
                      Height          =   240
-                     Left            =   5064
+                     Left            =   4884
                      TabIndex        =   37
                      Top             =   120
                      Width           =   1056
@@ -663,14 +707,6 @@ Begin VB.Form frmZZEININV
                      Top             =   36
                      Width           =   8520
                   End
-                  Begin DBTrueGrid.TDBGrid tblDropDown 
-                     Height          =   648
-                     Left            =   324
-                     OleObjectBlob   =   "ZZEININV.frx":25BA
-                     TabIndex        =   52
-                     Top             =   1116
-                     Width           =   1752
-                  End
                End
                Begin FACTFRMLib.FactorFrame efraProfitCtr 
                   Height          =   1440
@@ -757,7 +793,6 @@ Begin VB.Form frmZZEININV
                      Height          =   360
                      Left            =   3288
                      TabIndex        =   25
-                     TabStop         =   0   'False
                      Top             =   996
                      Width           =   360
                      _Version        =   65536
@@ -773,6 +808,9 @@ Begin VB.Form frmZZEININV
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                     CaptionPos      =   4
+                     Style           =   3
+                     BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   12
@@ -903,7 +941,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -937,7 +975,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -971,7 +1009,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.59
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1008,7 +1046,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1044,7 +1082,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1114,7 +1152,7 @@ Begin VB.Form frmZZEININV
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1127,7 +1165,7 @@ Begin VB.Form frmZZEININV
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1171,10 +1209,10 @@ Begin VB.Form frmZZEININV
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblComboDropdown 
-      Bindings        =   "ZZEININV.frx":3899
+      Bindings        =   "ZZEININV.frx":25BA
       Height          =   2484
       Left            =   72
-      OleObjectBlob   =   "ZZEININV.frx":38B8
+      OleObjectBlob   =   "ZZEININV.frx":25D9
       TabIndex        =   6
       TabStop         =   0   'False
       Top             =   576
@@ -1189,6 +1227,16 @@ Begin VB.Form frmZZEININV
       Width           =   456
       _ExtentX        =   804
       _ExtentY        =   804
+   End
+   Begin DBTrueGrid.TDBGrid tblDropDown 
+      Bindings        =   "ZZEININV.frx":38BD
+      Height          =   648
+      Left            =   0
+      OleObjectBlob   =   "ZZEININV.frx":38D7
+      TabIndex        =   53
+      TabStop         =   0   'False
+      Top             =   600
+      Width           =   1752
    End
    Begin VB.Menu mnuFile 
       Caption         =   "&File"
@@ -1323,6 +1371,10 @@ Private cValidate As cValidateInput
 Private tgmHeader As clsTGSpreadSheet
 Private tgmDetail As clsTGSpreadSheet
 Private tgfDropdown As clsFloatingDropDown
+Private g_bDetailDataChanged As Boolean
+Private g_bExceptionsClicked As Boolean
+Private g_vHoldDetailData() As Variant
+Private g_lNewLineNo As Long
 
 Private Sub subSetupCombos()
     Dim sSql As String
@@ -1372,6 +1424,84 @@ End Sub
 
 Public Function fnInvalidData(txtBox As Textbox) As Boolean
     fnInvalidData = Not fnValidProfitCtr(txtBox)
+End Function
+
+Public Function fnValidCellValue(tgTable As TDBGrid, _
+                                 ByVal nCurrCol As Integer, _
+                                 ByVal lCurrRow As Long, _
+                                 szText As String) As Boolean
+    fnValidCellValue = True
+    
+    Select Case nCurrCol
+        Case ColDetailItemCode
+            fnValidCellValue = fnValidItemCode(szText, nCurrCol, lCurrRow)
+        Case ColDetailQty
+            fnValidCellValue = fnValidDetailQty(szText, nCurrCol, lCurrRow)
+        Case ColDetailCost
+            fnValidCellValue = fnValidDetailCost(szText, nCurrCol, lCurrRow)
+    End Select
+    
+End Function
+
+Private Function fnValidItemCode(szText As String, nCurrCol As Integer, lCurrDetailRow As Long) As Boolean
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lVendor As Long
+    
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, tgmHeader.GetCurrentRowNumber))
+    
+    If Trim(szText) = "" Then
+        tgmDetail.ErrorMessage(nCurrCol) = "The item code can't be empty"
+        Exit Function
+    End If
+    
+    strSQL = "SELECT rsbi_code, rsbi_desc, rsbi_stock_unit FROM rs_b_item WHERE rsbi_vendor = " & lVendor
+    strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(szText)
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidItemCode") < 0 Then
+        tgmDetail.ErrorMessage(nCurrCol) = "Database Access Error"
+    ElseIf rsTemp.RecordCount = 0 Then
+        tgmDetail.ErrorMessage(nCurrCol) = "Invalid Item Code entered"
+    Else
+        fnValidItemCode = True
+        subLoadInfoForThisRow lVendor, Trim(szText), Trim(rsTemp!rsbi_stock_unit & ""), Trim(rsTemp!rsbi_desc & "")
+        'tgmDetail.CellValue(ColDetailItemDesc, lCurrDetailRow) = Trim(rsTemp!rsbi_desc & "")
+    End If
+    
+End Function
+
+Private Function fnValidDetailQty(szText As String, nCurrCol As Integer, lCurrDetailRow As Long) As Boolean
+    
+    If Trim(szText) = "" Then
+        tgmDetail.ErrorMessage(nCurrCol) = "The Quantity can't be empty"
+        Exit Function
+    End If
+    
+    fnValidDetailQty = True
+End Function
+
+Private Function fnValidDetailCost(szText As String, nCurrCol As Integer, lCurrDetailRow As Long) As Boolean
+    
+    If Trim(szText) = "" Then
+        tgmDetail.ErrorMessage(nCurrCol) = "The cost can't be empty"
+        Exit Function
+    End If
+    
+    If Not IsNumeric(szText) Then
+        tgmDetail.ErrorMessage(nCurrCol) = "Invalid Cost entered"
+    ElseIf CDbl(szText) < 0 Then
+        tgmDetail.ErrorMessage(nCurrCol) = "The cost can't be less than 0"
+    Else
+    
+        If CDbl(szText) <> tgmDetail.CellValue(ColDetailPBCost, lCurrDetailRow) Then
+            tgmDetail.CellValue(colHdnDetailFlag, lCurrDetailRow) = "N"
+        Else
+            tgmDetail.CellValue(colHdnDetailFlag, lCurrDetailRow) = "Y"
+        End If
+        
+        fnValidDetailCost = True
+    End If
+    
 End Function
 
 Private Function fnValidProfitCtr(txtBox As Textbox) As Boolean
@@ -1445,9 +1575,9 @@ Private Sub subInitializeSpreadSheet()
     vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total")
     vHeaderFields = Array("rsphh_prft_ctr", "prft_name", "rsphh_rpt_date", "rsphh_vendor", "pn_name", "rsphh_invoice" _
                          , "rsphh_invoice_amt")
-    vDetailWidth = Array(0.06, 0.11, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.08)
-    vDetailNames = Array("Line", "Item Code", "Description", "Qty.", "Cost", "Ext. Cost", "PB Cost", "Ext. PB Cost", "Retail", "Ext. Retail")
-    vDetailFields = Array("rsphd_line_nbr", "rsphd_code", "rsbi_desc", "rsphd_qty", "rsphd_cost", "Ext. cost", "rsbp_cost", "Ext. PB Cost", _
+    vDetailWidth = Array(0.08, 0.12, 0.16, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08)
+    vDetailNames = Array("Line", "Item Code", "Description", "UOM", "Qty.", "Cost", "Ext. Cost", "PB Cost", "Ext. PB Cost", "Retail", "Ext. Retail")
+    vDetailFields = Array("rsphd_line_nbr", "rsphd_code", "rsbi_desc", "rsphd_stock_unit", "rsphd_qty", "rsphd_cost", "Ext. cost", "rsbp_cost", "Ext. PB Cost", _
                         "rsphd_retail", "Ext. Retail")
 
     While tblHeader.Columns.Count > 0
@@ -1491,7 +1621,7 @@ Private Sub subInitializeSpreadSheet()
         
         With tblDetail.Columns(i)
             .Caption = vDetailNames(i)
-            .Width = vDetailWidth(i) * tblDetail.Width - 50
+            .Width = vDetailWidth(i) * tblDetail.Width
             .DataField = vDetailFields(i)
             .Visible = True
         End With
@@ -1504,27 +1634,29 @@ Private Sub subInitializeSpreadSheet()
         Set .Form = Me
         Set .StatusBar = ffraStatusbar
         Set .Table = tblDetail
-        .SetRowHighLighted True
         .AllowAddNew = True
-        colHdnDetailUOM = .AddHiddenField("rsphd_stock_unit")
     End With
     
     With tgmDetail
         Dim sDecimal12attern As String
+        Dim sQuantityPattern As String
         
-        sDecimal12Pattern = tfnDecimalPattern(12, 3, False, True)
-        .AddEditColumn ColDetailItemCode, "Enter Item Code", "^P(0,10)$"
+        sDecimal12attern = tfnDecimalPattern(12, 3, False, True)
+        sQuantityPattern = tfnDecimalPattern(12, 3, True, True)
+        .AddEditColumn ColDetailItemCode, "Enter Item Code", "^P{1,10}$"
         .AddESCColumn ColDetailItemDesc, ColDetailItemCode
-        .AddEditColumn ColDetailItemDesc, "Enter Item Description", "^P(0,18)$"
-        .AddEditColumn ColDetailQty, "Enter Quantity", sDecimal12attern
+        .AddEditColumn ColDetailItemDesc, "Enter Item Description", "^P{0,18}$"
+        .AddEditColumn ColDetailUOM, "Enter Unit of Measure", "^P{1,5}$"
+        .AddEditColumn ColDetailQty, "Enter Quantity", sQuantityPattern
         .AddEditColumn ColDetailCost, "Enter Cost", sDecimal12attern
+        colHdnDetailFlag = .AddHiddenField("cost flag")
     End With
     
 End Sub
 
 Private Sub subSetupDropDown()
     
-    subEnableSearchbtn cmdSearch, True
+    subEnableSearchButton cmdSearch, True
     
     Set tgfDropdown = New clsFloatingDropDown
     
@@ -1540,13 +1672,115 @@ Private Sub subSetupDropDown()
     
         .AddDropDown 1
         .AddColumn ColDetailItemCode, "rsbi_code"
-        .ColumnCaption(ColDetailItemCode) = "Item Code"
+        .ColumnCaption(ColDetailItemCode) = "Code"
         .ColumnType(ColDetailItemCode) = .COLUMN_TYPE_STRING
         .AddColumn ColDetailItemDesc, "rsbi_desc"
-        .ColumnCaption(colPrftDesc) = "Item Description"
-        .ColumnType(colPrftDesc) = .COLUMN_TYPE_STRING
+        .ColumnCaption(ColDetailItemDesc) = "Description"
+        .ColumnType(ColDetailItemDesc) = .COLUMN_TYPE_STRING
     End With
     
+End Sub
+
+Private Sub cmdDetailCancel_Click()
+    
+    If g_bDetailDataChanged Then
+        
+        If Not tfnCancelExit(t_szCANCEL_MESSAGE) Then
+            Exit Sub
+        End If
+        
+    End If
+    
+    g_bDetailDataChanged = False
+    
+    If fnLoadDetailData(tgmHeader.GetCurrentRowNumber) Then
+    End If
+    
+End Sub
+
+Private Sub cmdDetailCancel_GotFocus()
+    tfnSetStatusBarMessage "Cancel"
+End Sub
+
+Private Sub cmdDetailDelete_Click()
+    Dim lCurHeaderRow As Long
+    Dim lCurDetailRow As Long
+    Dim lVendor As Long
+    Dim lInvoice As Long
+    Dim lLineNo As Long
+    
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    lCurDetailRow = tgmDetail.GetCurrentRowNumber
+    lLineNo = tgmDetail.CellValue(ColDetailLine, lCurDetailRow)
+        
+    If tgmDetail.RowCount > 0 Then
+        
+        If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
+            Exit Sub
+        End If
+        
+        If fnDeleteDetailData(lVendor, lInvoice, lLineNo) Then
+            tgmDetail.DeleteRow
+        End If
+        
+        If tgmDetail.RowCount > 0 Then
+            
+            If fnLoadDetailData(lCurHeaderRow) Then
+                '
+            End If
+            
+        End If
+                                  
+    End If
+
+    If tgmDetail.RowCount < 1 Then
+        subEnableDetailCancelBtn False
+        subEnableDetailDeleteBtn False
+        subEnableDetailOKBtn False
+        
+        If Not tfnCancelExit("Do you want to delete the header since it has no more details?") Then
+            Exit Sub
+        End If
+        
+        If fnDeleteData(lVendor, lInvoice) Then
+            etabMain.CurrTab = 0
+            etabMain.TabEnabled(1) = False
+            tgmHeader.DeleteRow
+        End If
+                
+    End If
+         
+    If tgmHeader.RowCount < 1 Then
+        subEnableHeaderButtons False
+        t_bDataChanged = False
+        cmdExitCancelBtn_Click
+    End If
+
+End Sub
+
+Private Sub cmdDetailDelete_GotFocus()
+    tfnSetStatusBarMessage "Delete"
+End Sub
+
+Private Sub cmdExceptions_Click()
+
+    subLoadDataNoException g_bExceptionsClicked
+    
+    If tgmDetail.RowCount < 1 Then
+        subEnableDetailDeleteBtn False
+        subEnableDetailOKBtn False
+    Else
+        subEnableDetailDeleteBtn True
+        subEnableDetailOKBtn cmdOk.Enabled
+    End If
+    
+    subCheckButtonStatus
+End Sub
+
+Private Sub cmdExceptions_GotFocus()
+    tfnSetStatusBarMessage "Exceptions"
 End Sub
 
 Private Sub cmdFromPrftCtr_Click()
@@ -1564,13 +1798,13 @@ Private Sub cmdFromPrftName_Click()
 End Sub
 
 Private Sub cmdHeaderDelete_Click()
-    Dim lCurRow As Long
+    Dim lCurHeaderRow As Long
     Dim lVendor As Long
     Dim lInvoice As Long
     
-    lCurRow = tgmHeader.GetCurrentRowNumber
-    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurRow))
-    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurRow))
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
         
     If tgmHeader.RowCount > 0 Then
         
@@ -1586,7 +1820,8 @@ Private Sub cmdHeaderDelete_Click()
     End If
     
     If tgmHeader.RowCount < 1 Then
-        subEnableButtons False
+        subEnableHeaderButtons False
+        t_bDataChanged = False
         cmdExitCancelBtn_Click
     End If
     
@@ -1594,24 +1829,30 @@ Private Sub cmdHeaderDelete_Click()
 End Sub
 
 Private Sub cmdHeaderSelect_Click()
-    Dim lCurRow As Long
+    Dim lCurHeaderRow As Long
     
     subShowHourGlass
-    lCurRow = tgmHeader.GetCurrentRowNumber
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     tfnSetStatusBarCorrect "Polulating Data, Please wait..."
     
-    If fnLoadDetailData(lCurRow) Then
+    ReDim g_vHoldDetailData(0, 0) As Variant
+    g_bExceptionsClicked = False
+    
+    If fnLoadDetailData(lCurHeaderRow) Then
         etabMain.TabEnabled(1) = True
         etabMain.CurrTab = 1
-        lblPrftCtr.Caption = tgmHeader.CellValue(ColHeaderPrftctr, lCurRow)
-        lblPrftCtrName.Caption = tgmHeader.CellValue(ColHeaderPrftDesc, lCurRow)
-        lblReportDate.Caption = tgmHeader.CellValue(ColHeaderRptDate, lCurRow)
-        lblShift.Caption = tgmHeader.CellValue(ColHdnHeaderShift, lCurRow)
-        lblVendor.Caption = tgmHeader.CellValue(ColHeaderVendor, lCurRow)
-        lblVendorName.Caption = tgmHeader.CellValue(ColHeaderVendorName, lCurRow)
-        lblInvoice.Caption = tgmHeader.CellValue(ColHeaderInvoice, lCurRow)
-        lblAmount.Caption = tgmHeader.CellValue(ColHeaderInvAmount, lCurRow)
+        lblPrftCtr.Caption = tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow)
+        lblPrftCtrName.Caption = tgmHeader.CellValue(ColHeaderPrftDesc, lCurHeaderRow)
+        lblReportDate.Caption = tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow)
+        lblShift.Caption = tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow)
+        lblVendor.Caption = tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow)
+        lblVendorName.Caption = tgmHeader.CellValue(ColHeaderVendorName, lCurHeaderRow)
+        lblInvoice.Caption = tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow)
+        lblAmount.Caption = tgmHeader.CellValue(ColHeaderInvAmount, lCurHeaderRow)
         subSetFocus tblDetail
+        subEnableDetailOKBtn False
+        subEnableDetailCancelBtn False
+        subEnableDetailDeleteBtn True
     Else
         subSetFocus cmdExitCancelBtn
     End If
@@ -1620,11 +1861,28 @@ Private Sub cmdHeaderSelect_Click()
     
 End Sub
 
+Private Sub cmdOk_Click()
+    
+    If fnUpdateDetail() Then
+        subEnableUpdateBtn True
+        tgmDetail.ClearData
+        etabMain.CurrTab = 0
+        etabMain.TabEnabled(1) = False
+    Else
+        subEnableUpdateBtn False
+    End If
+    
+End Sub
+
+Private Sub cmdOk_GotFocus()
+    tfnSetStatusBarMessage "OK"
+End Sub
+
 Private Sub cmdQuery_Click()
         
     subShowHourGlass
     If fnLoadHeaderData() Then
-        subEnableButtons True
+        subEnableHeaderButtons True
         subEnableProfitctr False
         subSetFocus tblHeader
     End If
@@ -1635,13 +1893,17 @@ End Sub
 
 
 Private Sub cmdSearch_Click()
-    Dim lCurRow As Long
+    Dim lCurHeaderRow As Long
     Dim lVendor As Long
     
-    lCurRow = tgmHeader.GetCurrentRowNumber
-    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurRow))
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     tgfDropdown.DropDownSQL(1) = "SELECT rsbi_code, rsbi_desc FROM rs_b_item Where rsbi_vendor = " & lVendor
     tgfDropdown.ButtonClick
+End Sub
+
+Private Sub cmdSearch_LostFocus()
+    tgfDropdown.LostFocus cmdSearch
 End Sub
 
 Private Sub cmdToPrftCtr_Click()
@@ -1656,6 +1918,30 @@ Private Sub cmdToPrftName_Click()
     tgcDropdown.ComboSQL(txtToPrftName) = fnSetPrftComboSQL(txtToPrftCtr)
     tgcDropdown.Click cmdToPrftName
     subHideHourGlass
+End Sub
+
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+    If Not etabMain.TabEnabled(NewTab) Then
+        Cancel = True
+        Exit Sub
+    End If
+    
+    Select Case NewTab
+        Case 0
+            
+            If efraProfitCtr.Enabled Then
+                subSetFocus txtFromPrftCtr
+            ElseIf tblHeader.Enabled Then
+                subSetFocus tblHeader
+            End If
+            
+        Case 1
+            If tblDetail.Enabled Then
+                subSetFocus tblDetail
+            End If
+        
+    End Select
+
 End Sub
 
 Private Sub tblDetail_Click()
@@ -1747,8 +2033,10 @@ Private Sub Form_Unload(Cancel As Integer)
     Set tgcDropdown = Nothing
     Set cValidate = Nothing
     Set objErrHandler = Nothing
-    
+    Set tgfDropdown = Nothing
     Set objCurrTabControl = Nothing
+    Set tgmDetail = Nothing
+    Set tgmHeader = Nothing
     
     Unload frmContext
     Unload frmAbout
@@ -1817,6 +2105,7 @@ Private Sub Form_Load()
     subSetupCombos  'Set up the combo dropdowns
     subInitValidation  'set up validation object
     subInitializeSpreadSheet
+    subSetupDropDown
     Screen.MousePointer = vbHourglass
     
     ' ^ ^ ^ ^ ^ ^ ^
@@ -2012,7 +2301,7 @@ Private Sub tfnResetScreen()
     subEnableUpdateBtn False
     subSetExitCancelBtn "EXIT"
     subEnableProfitctr True
-    subEnableButtons False
+    subEnableHeaderButtons False
     cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
     mnuUpdateInsert.Caption = t_szCAPTION_INSERT
     
@@ -2034,6 +2323,7 @@ Private Sub tfnResetScreen()
     tgmHeader.ClearData
     tgmDetail.ClearData
     cValidate.ResetFlags
+    g_bDetailDataChanged = False
     subSetFocus txtFromPrftCtr
 End Sub
 
@@ -2042,7 +2332,7 @@ Private Sub subSetFocus(v As Control)
     v.SetFocus
 End Sub
 
-Private Sub subEnableButtons(bOnOff As Boolean)
+Private Sub subEnableHeaderButtons(bOnOff As Boolean)
     cmdHeaderDelete.Enabled = bOnOff
     cmdHeaderSelect.Enabled = bOnOff
     cmdQuery.Enabled = Not bOnOff
@@ -2102,15 +2392,41 @@ Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, Star
 End Sub
 
 Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
+    Dim lCurDetailRow As Long
+    
     tgmDetail.AfterColEdit ColIndex
+    g_bDetailDataChanged = True
+    lCurDetailRow = tgmDetail.GetCurrentRowNumber
+    
+    If ColIndex = ColDetailQty Then
+        tgmDetail.CellValue(ColDetailExtCost, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailCost, lCurDetailRow), 3) _
+                        * tfnRound(tgmDetail.CellValue(ColDetailQty, lCurDetailRow), 3), 3)
+        tgmDetail.CellValue(ColDetailExtPBCost, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailPBCost, lCurDetailRow), 3) _
+                        * tfnRound(tgmDetail.CellValue(ColDetailQty, lCurDetailRow), 3), 3)
+        tgmDetail.CellValue(ColDetailExtRetail, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailRetail, lCurDetailRow), 3) _
+                        * tfnRound(tgmDetail.CellValue(ColDetailQty, lCurDetailRow), 3), 3)
+    ElseIf ColIndex = ColDetailCost Then
+        tgmDetail.CellValue(ColDetailExtCost, lCurDetailRow) = tfnRound(tfnRound(tgmDetail.CellValue(ColDetailCost, lCurDetailRow), 3) _
+                        * tfnRound(tgmDetail.CellValue(ColDetailQty, lCurDetailRow), 3), 3)
+    End If
+    
+    subEnableDetailCancelBtn True
+    subCheckButtonStatus
+    
 End Sub
 
 Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
+    subEnableDetailOKBtn False
 End Sub
 
 Private Sub tblDetail_Change()
     tgmDetail.Change
+    
+    If tblDetail.col = ColDetailItemCode Then
+        tblDetail.Columns(ColDetailItemDesc).Text = ""
+    End If
+    
 End Sub
 
 Private Sub tblDetail_GotFocus()
@@ -2118,6 +2434,8 @@ Private Sub tblDetail_GotFocus()
     tgfDropdown.GotFocus
     
     If tgfDropdown.ValidSelection Then
+        subCheckButtonStatus
+        subEnableDetailCancelBtn True
     End If
     
 End Sub
@@ -2132,17 +2450,19 @@ Private Sub tblDetail_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then
         
         If tblDetail.col = ColDetailItemCode Or tblDetail.col = ColDetailItemDesc Then
-            Dim lCurRow As Long
+            Dim lCurHeaderRow As Long
             Dim lVendor As Long
             
-            lCurRow = tgmHeader.GetCurrentRowNumber
-            lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurRow))
+            lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+            lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
             tgfDropdown.DropDownSQL(1) = "SELECT rsbi_code, rsbi_desc FROM rs_b_item Where rsbi_vendor = " & lVendor
         End If
         
     End If
     
     If tgfDropdown.ValidSelection Then
+        subCheckButtonStatus
+        subEnableDetailCancelBtn True
     End If
     
     If Not tgmDetail.Keypress(KeyAscii) Then
@@ -2152,8 +2472,8 @@ Private Sub tblDetail_KeyPress(KeyAscii As Integer)
 End Sub
 
 Private Sub tblDetail_LostFocus()
-    tgmDetail.LostFocus
     tgfDropdown.LostFocus tblDetail
+    tgmDetail.LostFocus
 End Sub
 
 Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -2204,6 +2524,22 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
         mnuCancel.Enabled = True
     End If
     
+End Sub
+
+Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
+    cmdOk.Enabled = bOnOff
+End Sub
+
+Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
+    cmdDetailCancel.Enabled = bOnOff
+End Sub
+
+Private Sub subEnableDetailDeleteBtn(bOnOff As Boolean)
+    cmdDetailDelete.Enabled = bOnOff
+End Sub
+
+Private Sub subEnableDetailExceptions(bOnOff As Boolean)
+    cmdExceptions.Enabled = bOnOff
 End Sub
 
 Private Sub Form_Resize()
@@ -2573,7 +2909,7 @@ Private Function fnLoadHeaderData() As Boolean
     
 End Function
 
-Private Function fnLoadDetailData(lCurRow As Long) As Boolean
+Private Function fnLoadDetailData(lCurHeaderRow As Long) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim rsDetail As Recordset
@@ -2582,15 +2918,15 @@ Private Function fnLoadDetailData(lCurRow As Long) As Boolean
     Dim lInvoice As Long
     Dim sItemCode As String
     Dim nPrftCtr As Integer
-    Dim dtInvDate As Date
+    Dim dtInVDate As Date
     Dim sItemUOM As String
     Dim vArray() As Variant
     Dim i As Long
     
-    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurRow))
-    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurRow))
-    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurRow))
-    dtInvDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurRow)))
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    dtInVDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
     
     strSQL = "SELECT rsphd_line_nbr, rsphd_code, rsbi_desc, rsbi_stock_unit, rsphd_qty, rsphd_cost"
     strSQL = strSQL & ", rsphd_retail, rsphd_stock_unit FROM rs_p_hold_detail, rs_b_item "
@@ -2599,6 +2935,7 @@ Private Function fnLoadDetailData(lCurRow As Long) As Boolean
     strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
     
     lCount = fnGetRecord(rsDetail, strSQL, nDB_REMOTE, "fnLoadDetailData")
+    g_lNewLineNo = lCount + 1
     
     If lCount <= 0 Then
         fnLoadDetailData = False
@@ -2620,22 +2957,29 @@ Private Function fnLoadDetailData(lCurRow As Long) As Boolean
         vArray(ColDetailExtCost, i) = vArray(ColDetailQty, i) * vArray(ColDetailCost, i)
         vArray(ColDetailRetail, i) = tfnRound(rsDetail!rsphd_retail)
         vArray(ColDetailExtRetail, i) = vArray(ColDetailRetail, i) * vArray(ColDetailQty, i)
-        vArray(colHdnDetailUOM, i) = Trim(rsDetail!rsphd_stock_unit & "")
+        vArray(ColDetailUOM, i) = Trim(rsDetail!rsphd_stock_unit & "")
         sItemUOM = Trim$(rsDetail!rsbi_stock_unit & "")
         
-        If sItemUOM = CStr(vArray(colHdnDetailUOM, i)) Then
-            vArray(ColDetailPBCost, i) = fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInvDate)
+        If sItemUOM = CStr(vArray(ColDetailUOM, i)) Then
+            vArray(ColDetailPBCost, i) = fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInVDate)
         Else
             vArray(ColDetailPBCost, i) = vArray(ColDetailCost, i)
+        End If
+        
+        If vArray(ColDetailCost, i) <> vArray(ColDetailPBCost, i) Then
+            vArray(colHdnDetailFlag, i) = "N"
+        Else
+            vArray(colHdnDetailFlag, i) = "Y"
         End If
         
         vArray(ColDetailExtPBCost, i) = vArray(ColDetailPBCost, i) * vArray(ColDetailQty, i)
         i = i + 1
         rsDetail.MoveNext
     Loop
-    
-    
+
     tgmDetail.FillWithArray vArray(), True, True
+    
+    fnIsAmountBalance fnGetToTalCost()
     
     If tgmDetail.RowCount > 0 Then
         fnLoadDetailData = True
@@ -2643,8 +2987,27 @@ Private Function fnLoadDetailData(lCurRow As Long) As Boolean
     
 End Function
 
+Private Function fnIsAmountBalance(dTotalCost As Double) As Boolean
+    Dim fAmount As Double
+    
+    fAmount = tfnRound(lblAmount.Caption, 3) - dTotalCost
+    
+    If Abs(fAmount) < 0.005 Then
+        eLblStatus.ForeColor = &HFFFFFF
+        eLblStatus.Caption = "The invoice is balanced"
+        eLblStatus.Refresh
+        fnIsAmountBalance = True
+    Else
+        eLblStatus.ForeColor = &HFF
+        eLblStatus.Caption = "Out of balance by " & Format(fAmount, "#0.00")
+        eLblStatus.Refresh
+        fnIsAmountBalance = False
+    End If
+    
+End Function
+
 Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
-            nPrftCtr As Integer, dtInvDate As Date) As Double
+            nPrftCtr As Integer, dtInVDate As Date, Optional dRetailPrice As Double) As Double
     Dim lBook As Long
     Dim lSubBook As Long
     Dim strSQL As String
@@ -2674,8 +3037,8 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
         Exit Function
     End If
     
-    strSQL = "SELECT rsbp_cost FROM rs_b_price WHERE rsbp_promo = 'Y'"
-    strSQL = strSQL & " AND " & tfnDateString(dtInvDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+    strSQL = "SELECT rsbp_cost, rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
+    strSQL = strSQL & " AND " & tfnDateString(dtInVDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
     strSQL = strSQL & " AND rsbp_bk_lnk = "
     strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
     strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -2685,9 +3048,14 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
 
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
         dPBCost = IIf(IsNull(rsTemp!rsbp_cost), 0, rsTemp!rsbp_cost)
+        
+        If Not IsMissing(dRetailPrice) Then
+            dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, tfnRound(rsTemp!rsbp_retail, 3))
+        End If
+        
     Else
-        strSQL = "SELECT rsbp_cost FROM rs_b_price WHERE rsbp_promo = 'N'"
-        strSQL = strSQL & " AND " & tfnDateString(dtInvDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
+        strSQL = "SELECT rsbp_cost, rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
+        strSQL = strSQL & " AND " & tfnDateString(dtInVDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
         strSQL = strSQL & " AND rsbp_bk_lnk = "
         strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
         strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -2697,9 +3065,16 @@ Private Function fnGetPriceBookCost(sItemCode As String, lVendor As Long, _
 
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, sFUNC_NAME) > 0 Then
             dPBCost = IIf(IsNull(rsTemp!rsbp_cost), 0, rsTemp!rsbp_cost)
+            
+            If Not IsMissing(dRetailPrice) Then
+                dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, tfnRound(rsTemp!rsbp_retail, 3))
+            End If
+        
         End If
             
     End If
+    
+    fnGetPriceBookCost = tfnRound(dPBCost, 3)
 
 End Function
 
@@ -2726,4 +3101,184 @@ Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     fnDeleteData = True
 End Function
 
+Private Sub subLoadInfoForThisRow(lVendor As Long, sItemCode As String, sUom As String, sItemDesc As String)
+    Dim vData(nMaxDetailCol) As Variant
+    Dim lInvoice As Long
+    Dim nPrftCtr As Integer
+    Dim dtInVDate As Date
+    Dim lCurHeaderRow As Long
+    Dim lCurDetailRow As Long
+    Dim dCost As Double
+    Dim dRetailPrice As Double
+    
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    nPrftCtr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
+    dtInVDate = CDate(tfnFormatDate(tgmHeader.CellValue(colHdnHeaderInvDate, lCurHeaderRow)))
+    
+    dCost = fnGetPriceBookCost(sItemCode, lVendor, nPrftCtr, dtInVDate, dRetailPrice)
+    
+    lCurDetailRow = tgmDetail.GetCurrentRowNumber
+    
+    If CStr(tgmDetail.CellValue(ColDetailLine, lCurDetailRow)) = "" Then
+        vData(ColDetailLine) = g_lNewLineNo
+        g_lNewLineNo = g_lNewLineNo + 1
+    Else
+        vData(ColDetailLine) = tgmDetail.CellValue(ColDetailLine, lCurDetailRow)
+    End If
+    
+    vData(ColDetailItemCode) = sItemCode
+    vData(ColDetailItemDesc) = sItemDesc
+    vData(ColDetailQty) = 0#
+    vData(ColDetailCost) = tfnRound(dCost, 3)
+    vData(ColDetailExtCost) = 0#
+    vData(ColDetailPBCost) = tfnRound(dCost, 3)
+    vData(ColDetailExtPBCost) = 0#
+    vData(ColDetailRetail) = tfnRound(dRetailPrice, 3)
+    vData(ColDetailExtRetail) = 0#
+    vData(ColDetailUOM) = sUom
+    vData(colHdnDetailFlag) = "Y"
 
+    tgmDetail.SetCurrentRowData vData
+
+End Sub
+
+Private Sub subLoadDataNoException(bYesNo As Boolean)
+    Dim vData() As Variant
+    Dim vAllData() As Variant
+    Dim nCol As Integer
+    Dim lFilter As Long
+    Dim i As Long
+    Dim j As Integer
+    
+    If Not bYesNo Then
+        ReDim g_vHoldDetailData(nMaxDetailCol, tgmDetail.RowCount - 1)
+        
+        For i = 0 To tgmDetail.RowCount - 1
+            tgmDetail.GetRow vData, nCol, i
+            
+            If vData(colHdnDetailFlag) = "Y" Then
+                ReDim Preserve vAllData(nMaxDetailCol, lFilter)
+                
+                vAllData(ColDetailLine, lFilter) = vData(ColDetailLine)
+                vAllData(ColDetailItemCode, lFilter) = vData(ColDetailItemCode)
+                vAllData(ColDetailItemDesc, lFilter) = vData(ColDetailItemDesc)
+                vAllData(ColDetailUOM, lFilter) = vData(ColDetailUOM)
+                vAllData(ColDetailQty, lFilter) = vData(ColDetailQty)
+                vAllData(ColDetailCost, lFilter) = vData(ColDetailCost)
+                vAllData(ColDetailExtCost, lFilter) = vData(ColDetailExtCost)
+                vAllData(ColDetailPBCost, lFilter) = vData(ColDetailPBCost)
+                vAllData(ColDetailExtPBCost, lFilter) = vData(ColDetailExtPBCost)
+                vAllData(ColDetailRetail, lFilter) = vData(ColDetailRetail)
+                vAllData(ColDetailExtRetail, lFilter) = vData(ColDetailExtRetail)
+                vAllData(colHdnDetailFlag, lFilter) = vData(colHdnDetailFlag)
+                lFilter = lFilter + 1
+            End If
+            
+            For j = 0 To nMaxDetailCol
+                g_vHoldDetailData(j, i) = vData(j)
+            Next
+            
+        Next
+        
+        tgmDetail.FillWithArray vAllData(), True, True
+        g_bExceptionsClicked = True
+    Else
+        'On Error Resume Next
+        tgmDetail.FillWithArray g_vHoldDetailData(), True, True
+        g_bExceptionsClicked = False
+    End If
+    
+End Sub
+
+Private Function fnDeleteDetailData(lVendor As Long, lInvoice As Long, lLineNo As Long) As Boolean
+    Dim strSQL As String
+    
+    strSQL = "DELETE FROM rs_p_hold_detail WHERE rsphd_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
+    strSQL = strSQL & " AND rsphd_line_nbr = " & lLineNo
+    
+    If fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteDetailData") Then
+        
+        strSQL = "UPDATE rs_p_hold_detail SET rsphd_line_nbr = rsphd_line_nbr -1 "
+        strSQL = strSQL & " WHERE rsphd_vendor = " & lVendor
+        strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
+        strSQL = strSQL & " AND rsphd_line_nbr > " & lLineNo
+        
+        If fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteDetailData") Then
+            fnDeleteDetailData = True
+        End If
+        
+    End If
+    
+End Function
+
+Private Sub subCheckButtonStatus()
+    Dim dTotalCost As Double
+    
+    dTotalCost = fnGetToTalCost
+    
+    If fnIsAmountBalance(dTotalCost) Then
+        
+        If tgmDetail.ValidData Then
+            subEnableDetailOKBtn True
+        Else
+            subEnableDetailOKBtn False
+        End If
+        
+    Else
+        subEnableDetailOKBtn False
+    End If
+    
+End Sub
+
+Private Function fnGetToTalCost() As Double
+    Dim i As Long
+    Dim dTotalCost As Double
+    
+    For i = 0 To tgmDetail.RowCount - 1
+        dTotalCost = dTotalCost + tfnRound(tgmDetail.CellValue(ColDetailExtCost, i), 3)
+    Next
+    
+    fnGetToTalCost = dTotalCost
+    
+End Function
+
+Private Function fnUpdateDetail() As Boolean
+    Dim strSQL As String
+    Dim lVendor As Long
+    Dim lInvoice As Long
+    Dim lCurHeaderRow As Long
+    Dim i As Long
+    Const sFUNC_NAME As String = "fnUpdateDetail"
+    
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+    lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    
+    strSQL = "DELETE FROM rs_p_hold_detail WHERE rsphd_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
+    
+    If fnExecuteSQL(strSQL, nDB_REMOTE, sFUNC_NAME) Then
+        
+        For i = 0 To tgmDetail.RowCount - 1
+            strSQL = "INSERT INTO rs_p_hold_detail (rsphd_vendor, rsphd_invoice, rsphd_line_nbr, "
+            strSQL = strSQL & " rsphd_type, rsphd_code, rsphd_qty, rsphd_stock_unit, rsphd_cost, "
+            strSQL = strSQL & " rsphd_retail) VALUES(" & lVendor & "," & lInvoice & "," & i + 1 & ","
+            strSQL = strSQL & "'P', " & tfnSQLString(tgmDetail.CellValue(ColDetailItemCode, i)) & ","
+            strSQL = strSQL & tfnRound(tgmDetail.CellValue(ColDetailQty, i), 3) & ","
+            strSQL = strSQL & tfnSQLString(tgmDetail.CellValue(ColDetailUOM, i)) & ","
+            strSQL = strSQL & tfnRound(tgmDetail.CellValue(ColDetailCost, i), 3) & ","
+            strSQL = strSQL & tfnRound(tgmDetail.CellValue(ColDetailRetail, i), 3) & ")"
+            
+            If Not fnExecuteSQL(strSQL, nDB_REMOTE, sFUNC_NAME) Then
+                Exit Function
+            End If
+            
+        Next
+        
+        fnUpdateDetail = True
+    End If
+    
+
+End Function

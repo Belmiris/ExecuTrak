@@ -927,7 +927,7 @@ Private Function fnValidUOM(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidUOM") < 0 Then
             fnValidUOM = "Database access error."
         ElseIf rsTemp.RecordCount = 0 Then
-            fnValidUOM = udtInvDetail.sUOM & " ss an invalid Unit of Measure."
+            fnValidUOM = udtInvDetail.sUOM & " is an invalid Unit of Measure."
         Else
             udtInvDetail.dCost = IIf(IsNull(rsTemp!icm_cost), 0, rsTemp!icm_cost)
             udtInvDetail.sRetail = IIf(IsNull(rsTemp!icm_retail), "0", rsTemp!icm_retail)
