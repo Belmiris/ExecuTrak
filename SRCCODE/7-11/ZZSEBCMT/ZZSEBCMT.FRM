@@ -3102,6 +3102,7 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     fnValidGradeLevel = True
 
 End Function
+
 Private Sub subRevalidate(ByVal nCol As Integer)
     Dim i As Long
     
@@ -3147,7 +3148,7 @@ Private Function fnValidBonusFreq(szText As String, ByVal lRow As Long) As Boole
     
     strSQL = "SELECT * FROM bonus_frequency WHERE bfq_frequency = " & tfnSQLString(szText)
     
-    If GetRecordCount(strSQL, , SUB_NAME) = 0 Then
+    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
         tgmBonus(nBonusCode).ErrorMessage(nColBCFreq) = "Commission frequency does not exist"
         Exit Function
     End If
