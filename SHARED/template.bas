@@ -474,6 +474,7 @@ Public Const SEWALL_CUSTOM_PROGRAM_UP = 15310  'no program
 '#379860-3
 Public Const AR_ALTNAME_UP = 15320  'ARFALTNM.EXE
 Public Const ENTER_DELIVERIES_UP = 15330  'no program
+Public Const BANK_ACCT_UP = 15340  'SYFBNKAT
 '''''''''''''''''
 
 'generic buttons for toolbar button that requires new bitmap
@@ -1030,7 +1031,7 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
         frmForm.ffraStatusbar.PanelCaption(0) = szEMPTY
     End If
 
-    DoEvents
+   DoEvents
 
     intKeyStatus = GetKeyState(VK_NUMLOCK)
 
@@ -2833,7 +2834,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3050,7 +3051,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3383,15 +3384,19 @@ Private Function fnGet_Log_Lvl() As Boolean
         strUser = tfnGetUserName
         'Next grabs it from user ini
         strLogLvl = tfn_Read_SYS_INI("", strUser, "LOGGING", "DETAIL_LEVEL", False)
-        If strLogLvl > App_LogLvl Then
-            App_LogLvl = strLogLvl
+        If strLogLvl <> "" Then
+            If strLogLvl > App_LogLvl Then
+                App_LogLvl = strLogLvl
+            End If
         End If
         'Finally, from both.  Highest wins.
         strLogLvl = tfn_Read_SYS_INI(App.EXEName, strUser, "LOGGING", "DETAIL_LEVEL", False)
-        If strLogLvl > App_LogLvl Then
-            App_LogLvl = strLogLvl
+        If strLogLvl <> "" Then
+            If strLogLvl > App_LogLvl Then
+                App_LogLvl = strLogLvl
+            End If
         End If
-    On Error Resume Next
+    On Error GoTo 0
     fnGet_Log_Lvl = True
 ErrorTrap:
     'No worries here
