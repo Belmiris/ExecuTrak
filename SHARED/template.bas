@@ -791,7 +791,7 @@ Public Sub tfnUpdateVersion()
             #If Not NO_ERROR_HANDLER Then
                 tfnErrHandler "tfnUpdateVersion", sSql, rsTemp.Fields(1)
             #End If
-            MsgBox "Version Update Failed! " & CRLF & CRLF & "pro_version Error.", vbExclamation
+            MsgBox "Version Update Failed! " & vbCrLf & vbCrLf & "pro_version Error.", vbExclamation
         End If
     End If
 
@@ -804,7 +804,7 @@ ErrorInMakeExeOption:
 #End If
 ErrorExecuteSQL:
     #If DEVELOP Then
-        MsgBox "Version Update Failed! " & CRLF & CRLF & "pro_version Error. at spot: " & CStr(nSpot), vbExclamation
+        MsgBox "Version Update Failed! " & vbCrLf & vbCrLf & "pro_version Error. at spot: " & CStr(nSpot), vbExclamation
         If nSpot = 4 Then
             MsgBox "The program Name is : " & sProgramName & vbCrLf & vbCrLf & "but the application name is : " & UCase(Trim(App.EXEName))
         End If
