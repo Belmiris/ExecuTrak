@@ -705,7 +705,13 @@ End Sub
 
 Private Sub subInitialize()
     
+    Dim aryInfo() As String
+    
     m_sINIParmSetion = LogForm.efraToolBar.FMName
+    subGetInfo aryInfo
+    LogForm.efraToolBar.FMName = aryInfo(0)
+    LogForm.Caption = aryInfo(1)
+    
     m_nRunParm = 0
     
     aryCmdLineParms(CLP_IDX_IPATH) = UCase(CLP_ID_IPATH)

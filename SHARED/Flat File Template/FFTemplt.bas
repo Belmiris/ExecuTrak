@@ -27,6 +27,15 @@ Attribute VB_Name = "FFTemplate"
 
 Option Explicit
 
+Public Sub subGetInfo(aryInfo() As String)
+
+    ReDim aryInfo(1)
+    
+    aryInfo(0) = "ZZFMBNK"
+    aryInfo(1) = "Murphy Bank File Import"
+    
+End Sub
+
 Public Sub subProcessFile(sFile As String)
 
     Dim sLine As String
