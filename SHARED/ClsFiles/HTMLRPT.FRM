@@ -54,8 +54,17 @@ Attribute VB_Exposed = False
 '**************************************************************'
 
 Option Explicit
-
+    
+Private m_sReportID As String
 Private m_sURL As String
+Private m_nFileNum As Long
+Private m_sCompanyName As String
+Private m_sRunDate As String
+Private m_sRunTime As String
+Private m_sRptTitle1 As String
+Private m_sRptTitle2 As String
+Private m_sColHeading1 As String
+Private m_sColHeading2 As String
 '
 
 Public Function FormatRptCol(sData As String, nLength As Integer, Optional bRightAdjustment As Boolean = False) As String
@@ -76,25 +85,18 @@ Public Sub BuildInternetReport(frmMain As Form, _
                                     sReportTitle As String, _
                                     sColumnHeading As String, _
                                     aryBody() As String, _
+                                    aryCriteria() As String, _
                                     Optional bBrowseIt As Boolean = True, _
                                     Optional bPrintIt As Boolean = True, _
                                     Optional sReportID As String = "", _
                                     Optional nOrientation As Integer = vbPRORPortrait)
     
     Dim sHeaderLine As String
-    Dim nFileNum As Long
+    
     Dim i As Long
     Dim bFileOpen As Boolean
-    Dim sCompanyName As String
-    Dim sRunDate As String
-    Dim sRunTime As String
-    Dim nSpc As Integer
     Dim sReportLine As String
-    Dim sPageNum As String
     Dim lLineNum As Long
-    Dim sHeader1 As String
-    Dim sHeader2 As String
-    Dim nPosi As Integer
     
     On Error GoTo EXITHERE
 
@@ -114,101 +116,73 @@ Public Sub BuildInternetReport(frmMain As Form, _
     'initialize member variables
     m_sURL = ""
     
-    If sReportID = "" Then
-        sReportID = UCase(App.Title)
+    m_sReportID = sReportID
+    
+    If m_sReportID = "" Then
+        m_sReportID = UCase(App.Title)
     End If
     
     m_sURL = LCase(App.Path & "\" & sReportID) & ".html"
-    nFileNum = FreeFile
+    m_nFileNum = FreeFile
 
-    Open m_sURL For Output As #nFileNum
+    Open m_sURL For Output As #m_nFileNum
     
     bFileOpen = True
     
     sHeaderLine = "<HTML><STYLE> @media print { DIV.PAGEBREAK {page-break-before: always}}</STYLE><BODY style=""font-family: Courier New; font-size: 8pt""><PRE>"
-    Print #nFileNum, sHeaderLine
-
-    sRunDate = Format(Date, "MM/DD/YYYY")
-    sRunTime = Format(Time, "HH:MM AMPM")
-    sCompanyName = fnGetCompanyName()
+    Print #m_nFileNum, sHeaderLine
     
-    Dim sRptTitle1 As String
-    Dim sRptTitle2 As String
+    subInitReportHeader sReportTitle, sColumnHeading
+    
+    'write report criteria page
+    If aryCriteria(0) <> "" Then
+        subReportHeader nPageWidth
+        lLineNum = 4
 
+        For i = 0 To UBound(aryCriteria)
+            Screen.MousePointer = vbHourglass
+            
+            If lLineNum > nLinesPerPage Then
+                Print #m_nFileNum, "<DIV CLASS=""PAGEBREAK""></DIV>"
+                subReportHeader nPageWidth
+                lLineNum = 4
+            End If
+    
+            sHeaderLine = aryCriteria(i)
+            Print #m_nFileNum, sHeaderLine
+            lLineNum = lLineNum + 1
+            Screen.MousePointer = vbHourglass
+        Next
+    
+        Print #m_nFileNum, "<DIV CLASS=""PAGEBREAK""></DIV>"
+    End If
+    
+    'write report details
     Screen.MousePointer = vbHourglass
-    
-    nPosi = InStr(sReportTitle, vbCrLf)
-    If nPosi > 0 Then
-        sRptTitle1 = Left(sReportTitle, nPosi - 1)
-        sRptTitle2 = Mid(sReportTitle, nPosi + 2)
-    Else
-        sRptTitle1 = sReportTitle
-        sRptTitle2 = ""
-    End If
-    
-    Dim sColHeading1 As String
-    Dim sColHeading2 As String
-
-    nPosi = InStr(sColumnHeading, vbCrLf)
-    If nPosi > 0 Then
-        sColHeading1 = Left(sColumnHeading, nPosi - 1)
-        sColHeading2 = Mid(sColumnHeading, nPosi + 2)
-    Else
-        sColHeading1 = sReportTitle
-        sColHeading2 = ""
-    End If
-
-    'sPageNum = "Page No.  " + fnRightJustified(nPageNumber, "####")
-    nSpc = (nPageWidth - Len(sCompanyName)) / 2 - Len("Program ID: " & sReportID)
-    sHeaderLine = "Program ID: " + sReportID + Space(nSpc) + sCompanyName
-    sHeaderLine = sHeaderLine & Space(nPageWidth - Len(sHeaderLine)) ' - Len(sPageNum)) & sPageNum
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
-    Print #nFileNum, sHeaderLine
-    
-    nSpc = (nPageWidth - Len(sRptTitle1)) / 2 - Len(Trim(sRunDate & "Run Date: "))
-    sHeaderLine = "Run Date: " + sRunDate + Space(nSpc) + sRptTitle1
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
-    Print #nFileNum, sHeaderLine
-
-    nSpc = (nPageWidth - Len(sRptTitle2)) / 2 - Len(Trim(sRunTime & "Run Time: "))
-    sHeaderLine = "Run Time: " + sRunTime + Space(nSpc) + sRptTitle2
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
-    Print #nFileNum, sHeaderLine
-
-    Print #nFileNum, ""
-
-    sHeaderLine = sColHeading1
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
-    sHeader1 = sHeaderLine
-    Print #nFileNum, sHeaderLine
-
-    sHeaderLine = sColHeading2
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
-    sHeader2 = sHeaderLine
-    Print #nFileNum, sHeaderLine
-    lLineNum = 6
+        
+    subReportHeader nPageWidth
+    subColumnHeader
+    lLineNum = 7
     
     For i = 0 To UBound(aryBody)
         Screen.MousePointer = vbHourglass
         
         If lLineNum > nLinesPerPage Then
+            Print #m_nFileNum, "<DIV CLASS=""PAGEBREAK""></DIV>"
+            subColumnHeader
             lLineNum = 3
-            Print #nFileNum, "<DIV CLASS=""PAGEBREAK""></DIV>"
-            Print #nFileNum, sHeader1
-            Print #nFileNum, sHeader2
-            Print #nFileNum, ""
         End If
 
         sHeaderLine = aryBody(i)
-        Print #nFileNum, sHeaderLine
+        Print #m_nFileNum, sHeaderLine
         lLineNum = lLineNum + 1
         Screen.MousePointer = vbHourglass
     Next
 
     sHeaderLine = "</PRE></body></html>"
-    Print #nFileNum, sHeaderLine
+    Print #m_nFileNum, sHeaderLine
 
-    Close #nFileNum
+    Close #m_nFileNum
     bFileOpen = False
 
     If bBrowseIt Then
@@ -224,7 +198,7 @@ Public Sub BuildInternetReport(frmMain As Form, _
 EXITHERE:
     
     If bFileOpen Then
-        Close #nFileNum
+        Close #m_nFileNum
     End If
 
     Screen.MousePointer = vbDefault
@@ -289,6 +263,68 @@ End Sub
 Private Function fnRightJustified(ByVal sIn As String, sFormatString As String) As String
     fnRightJustified = Format(Format(sIn, sFormatString), String(Len(sFormatString), "@"))
 End Function
+
+Private Sub subInitReportHeader(sReportTitle As String, sColumnHeading As String)
+    Dim nPosi As Integer
+    
+    m_sRunDate = Format(Date, "MM/DD/YYYY")
+    m_sRunTime = Format(Time, "HH:MM AMPM")
+    m_sCompanyName = fnGetCompanyName()
+
+    nPosi = InStr(sReportTitle, vbCrLf)
+    If nPosi > 0 Then
+        m_sRptTitle1 = Left(sReportTitle, nPosi - 1)
+        m_sRptTitle2 = Mid(sReportTitle, nPosi + 2)
+    Else
+        m_sRptTitle1 = sReportTitle
+        m_sRptTitle2 = ""
+    End If
+
+    nPosi = InStr(sColumnHeading, vbCrLf)
+    If nPosi > 0 Then
+        m_sColHeading1 = Left(sColumnHeading, nPosi - 1)
+        m_sColHeading2 = Mid(sColumnHeading, nPosi + 2)
+    Else
+        m_sColHeading1 = sReportTitle
+        m_sColHeading2 = ""
+    End If
+End Sub
+
+Private Sub subReportHeader(nPageWidth As Integer)
+    Dim nSpc As Integer
+    Dim sHeaderLine As String
+    
+    On Error Resume Next
+    nSpc = (nPageWidth - Len(m_sCompanyName)) / 2 - Len("Program ID: " & m_sReportID)
+    sHeaderLine = "Program ID: " + m_sReportID + Space(nSpc) + m_sCompanyName
+    sHeaderLine = sHeaderLine & Space(nPageWidth - Len(sHeaderLine))
+    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    Print #m_nFileNum, sHeaderLine
+    
+    nSpc = (nPageWidth - Len(m_sRptTitle1)) / 2 - Len(Trim(m_sRunDate & "Run Date: "))
+    sHeaderLine = "Run Date: " + m_sRunDate + Space(nSpc) + m_sRptTitle1
+    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    Print #m_nFileNum, sHeaderLine
+
+    nSpc = (nPageWidth - Len(m_sRptTitle2)) / 2 - Len(Trim(m_sRunTime & "Run Time: "))
+    sHeaderLine = "Run Time: " + m_sRunTime + Space(nSpc) + m_sRptTitle2
+    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    Print #m_nFileNum, sHeaderLine
+
+    Print #m_nFileNum, ""
+End Sub
+
+Private Sub subColumnHeader()
+    Dim sHeaderLine As String
+    
+    sHeaderLine = "<B>" & m_sColHeading1 & "</B>"
+    Print #m_nFileNum, sHeaderLine
+
+    sHeaderLine = "<B>" & m_sColHeading2 & "</B>"
+    Print #m_nFileNum, sHeaderLine
+    
+    Print #m_nFileNum, ""
+End Sub
 
 Private Function fnGetCompanyName() As String
     Dim strSQL As String
