@@ -183,7 +183,8 @@ End Function
 Public Function fnRunExe(sExe As String, _
                          Optional nMode As Integer = vbNormalFocus, _
                          Optional bForcedRun As Boolean = False, _
-                         Optional bCheckRun As Boolean = True) As Boolean
+                         Optional bCheckRun As Boolean = True, _
+                         Optional bShowMsg As Boolean = True) As Boolean
     Dim szErrorMessage As String
     
     If Not bForcedRun Then
@@ -208,46 +209,52 @@ Public Function fnRunExe(sExe As String, _
             If fnExeIsRunning(sExe) Then
                 fnRunExe = True
             Else
-                MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+                If bShowMsg Then
+                    MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+                End If
             End If
         Else
             fnRunExe = True
         End If
     Else 'error occured clear handles and display error message
-        MsgBox szErrorMessage, vbOKOnly + vbCritical, "Error"
+        If bShowMsg Then
+            MsgBox szErrorMessage, vbOKOnly + vbCritical, "Error"
+        End If
     End If
     
     Exit Function
 
 errLaunching:
-    MsgBox "Unable to launch program " & sExe & " (" & Err.Description & ")", vbOKOnly + vbCritical, "Error"
+    If bShowMsg Then
+        MsgBox "Unable to launch program " & sExe & " (" & Err.Description & ")", vbOKOnly + vbCritical, "Error"
+    End If
 End Function
 
 Private Function fnExtractFileName(sPath As String) As String
 
-    Dim I As Integer
+    Dim i As Integer
     Dim sTemp As String
     Dim sChar As String * 1
     
-    I = Len(sPath)
+    i = Len(sPath)
     Do
-        sChar = Mid(sPath, I, 1)
-        I = I - 1
+        sChar = Mid(sPath, i, 1)
+        i = i - 1
         If sChar = "." Then
             Exit Do
         End If
-    Loop Until I = 0
-    If I = 0 Then
+    Loop Until i = 0
+    If i = 0 Then
         fnExtractFileName = sPath
     Else
         sTemp = ""
-        Do While I > 0
-            sChar = Mid(sPath, I, 1)
+        Do While i > 0
+            sChar = Mid(sPath, i, 1)
             If sChar = "\" Then
                 Exit Do
             End If
             sTemp = sChar & sTemp
-            I = I - 1
+            i = i - 1
         Loop
         fnExtractFileName = sTemp
     End If
