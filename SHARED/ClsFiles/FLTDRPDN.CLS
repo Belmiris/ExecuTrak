@@ -97,6 +97,7 @@ Option Explicit
     Private bSearchOnReturn As Boolean
     Private bKeyPressed As Boolean
     Private bNavigating As Boolean
+    Private bShowList As Boolean
 
     Private nOriginalTableWidth As Integer
     Private nOriginalTableHeight As Integer
@@ -779,6 +780,7 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
 
             tgDropDown.Visible = True
             On Error Resume Next
+            bShowList = True
             tgDropDown.ZOrder 0
             tgDropDown.SetFocus
         End If
@@ -980,9 +982,11 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
     bKeyPressed = True
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         If KeyAscii = vbKeyReturn Then
+            bShowList = False
             fnGetText tgMain.col
             subInputSelected
         ElseIf KeyAscii = vbKeyEscape Then
+            bShowList = False
             tgDropDown.Visible = False
             On Error Resume Next
             tgMain.SetFocus
@@ -991,7 +995,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1004,7 +1008,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
     bKeyPressed = False
 End Sub
 
-Public Sub KeyPress(tgTable As Object, KeyAscii As Integer)
+Public Sub Keypress(tgTable As Object, KeyAscii As Integer)
     If Not t_dbMainDatabase Is Nothing Then
         KeyDown tgTable, KeyAscii
     End If
@@ -1264,9 +1268,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1419,7 +1423,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1528,8 +1532,12 @@ Public Sub LostFocus(objControl As Object)
             End If
         End If
     ElseIf objControl.TabIndex = tgDropDown.TabIndex Then
-        tgDropDown.Visible = False
-        tgMain.SetFocus
+        If bShowList Then
+            tgDropDown.SetFocus
+        Else
+            tgDropDown.Visible = False
+            tgMain.SetFocus
+        End If
     ElseIf objControl.TabIndex = cmdSearch.TabIndex Then
         If nTab <> tgMain.TabIndex And nTab <> tgDropDown.TabIndex Then
             cmdSearch.Visible = False
@@ -1601,6 +1609,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         If bTableClicked Then
             If lDropDown >= 0 Then
+                bShowList = False
                 lOldRow = tgMain.Row
                 fnGetText tgMain.col
                 DoEvents
@@ -1686,7 +1695,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1703,7 +1712,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1716,6 +1725,7 @@ Public Sub TableClick(tgTable As Object)
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         Dim nRowTop As Integer
         Dim nRowBtm As Integer
+        bShowList = False
         If tgDropDown.Row >= 0 Then
             nRowTop = tgDropDown.RowTop(tgDropDown.Row)
             nRowBtm = nRowTop + tgDropDown.RowHeight
