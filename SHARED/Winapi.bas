@@ -243,6 +243,11 @@ Public Const SC_HOTKEY = &HF150
         (ByVal hMenu As Long, ByVal nPosition As Long, _
         ByVal wFlags As Long) As Long
 
+
+    Public Declare Function CopyFile Lib "kernel32.dll" Alias "CopyFileA" _
+        (ByVal lpExistingFileName As String, ByVal lpNewFileName As String, _
+        ByVal bFailIfExists As Long) As Long
+
 #Else
     Type POINTAPI 'Point structure
         x As Integer

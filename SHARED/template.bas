@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -1055,7 +1055,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -2000,3 +2000,68 @@ Public Sub subDisableSystemClose(frmMain As Form)
         End If
     End If
 End Sub
+
+Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
+                                Optional sErrMsg As String = "") As Boolean
+
+    Dim sWinSysDir As String
+    
+    On Error GoTo errHandler
+    
+    sWinSysDir = UCase(Trim(tfnGetSystemDir()))
+    
+    'create C:\FACTOR\CRYSTAL if not exists.
+    If Dir("C:\FACTOR", vbDirectory) = "" Then
+        MkDir "C:\FACTOR"
+    End If
+    
+    If Dir("C:\FACTOR\CYSTAL", vbDirectory) = "" Then
+        MkDir "C:\FACTOR\CYSTAL"
+    End If
+
+    If Dir(sWinSysDir + "\FACTOR.MDB", vbNormal) = "" Then
+        sErrMsg = "FACTOR.MDB does not exist in " + tfnSQLString(sWinSysDir) + "."
+        If bShowError Then
+            MsgBox sErrMsg, vbExclamation
+        End If
+        Exit Function
+    End If
+    
+    If Dir("C:\FACTOR\CYSTAL\FACTOR.MDB", vbNormal) <> "" Then
+        On Error GoTo errFileInUsed
+        Kill "C:\FACTOR\CYSTAL\FACTOR.MDB"
+    End If
+    
+    Dim lRet As Long
+    
+    lRet = CopyFile(sWinSysDir + "\FACTOR.MDB", "C:\FACTOR\CYSTAL\FACTOR.MDB", 1)
+    
+    If lRet = 0 Then
+        sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\CYSTAL'."
+        If bShowError Then
+            MsgBox sErrMsg, vbExclamation
+        End If
+    End If
+    
+    fnCopyFactorMDB = True
+    
+    Exit Function
+    
+errHandler:
+    sErrMsg = "An error occurred while copying data." + vbCrLf + vbCrLf _
+        + "Error Code: " & Err.Number & ". Error Desc: " & Err.Description + "."
+    If bShowError Then
+        MsgBox sErrMsg, vbExclamation
+    End If
+    
+    Exit Function
+    
+errFileInUsed:
+    sErrMsg = "'C:\FACTOR\CYSTAL\FACTOR.MDB' is in used by another program."
+    If bShowError Then
+        MsgBox sErrMsg, vbExclamation
+    End If
+
+End Function
+
+
