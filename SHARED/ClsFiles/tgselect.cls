@@ -396,7 +396,13 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
             'subSetCurrentRow
         Else
             'david 02/01/2001
-            If (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) Then
+            If Shift = 0 And KeyCode <> 0 Then
+                Dim i As Integer
+                For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
+                    m_tgTable.SelBookmarks.Remove i
+                    SetRowHighLighted m_bRowHighLighted
+                Next i
+            ElseIf (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) Then
                 SelectAll
                 Shift = 0
                 KeyCode = 0
@@ -409,7 +415,6 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     If KeyCode = vbKeyDown Then
         If Not m_tgcEditor Is Nothing Then
             If m_tgcEditor.GetCurrentRowNumber >= m_tgcEditor.RowCount - 1 Then
-                'm_tgTable.Row = m_tgTable.VisibleRows - 1
                 KeyCode = 0
                 Exit Sub
             End If
