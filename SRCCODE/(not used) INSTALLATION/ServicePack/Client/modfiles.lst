@@ -1,0 +1,9 @@
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\BIN\*.* MASK=*.* 
+DIR=G:\program\release\exectrak\common\cpylocal.exe MASK=cpylocal.exe 
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\custctl\*.* MASK=*.*
+DIR=G:\program\release\exectrak\local_db\factor.mdb MASK=factor.mdb
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\dll\*.* MASK=*.*
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\ole\*.* MASK=*.* 
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\rtm\*.* MASK=*.*
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\shared\*.* MASK=*.* 
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK\*.* .MASK=*.*
