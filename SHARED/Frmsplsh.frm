@@ -5,13 +5,13 @@ Begin VB.Form frmSplash
    BackColor       =   &H00800000&
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Select Data Sources"
-   ClientHeight    =   2832
-   ClientLeft      =   1548
-   ClientTop       =   2628
-   ClientWidth     =   7536
+   ClientHeight    =   2835
+   ClientLeft      =   1545
+   ClientTop       =   2625
+   ClientWidth     =   7545
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   10.8
+      Size            =   10.5
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -24,8 +24,8 @@ Begin VB.Form frmSplash
    LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
-   ScaleHeight     =   2832
-   ScaleWidth      =   7536
+   ScaleHeight     =   2835
+   ScaleWidth      =   7545
    Begin FACTFRMLib.FactorFrame FactorFrame1 
       Height          =   2844
       Left            =   0
@@ -39,7 +39,7 @@ Begin VB.Form frmSplash
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   10.8
+         Size            =   10.48
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -48,6 +48,7 @@ Begin VB.Form frmSplash
       EndProperty
       BevelOuter      =   0
       BorderWidth     =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   12
@@ -60,8 +61,8 @@ Begin VB.Form frmSplash
       Begin VB.PictureBox picMain 
          Height          =   2604
          Left            =   132
-         ScaleHeight     =   2556
-         ScaleWidth      =   5676
+         ScaleHeight     =   2550
+         ScaleWidth      =   5670
          TabIndex        =   9
          TabStop         =   0   'False
          Top             =   120
@@ -71,7 +72,7 @@ Begin VB.Form frmSplash
             BackColor       =   &H00C0C0C0&
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -87,7 +88,7 @@ Begin VB.Form frmSplash
          Begin VB.TextBox txtDatabase 
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -103,7 +104,7 @@ Begin VB.Form frmSplash
          Begin VB.TextBox txtHost 
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -119,7 +120,7 @@ Begin VB.Form frmSplash
          Begin VB.TextBox txtUserName 
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -135,7 +136,7 @@ Begin VB.Form frmSplash
          Begin VB.TextBox txtPassword 
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -166,7 +167,7 @@ Begin VB.Form frmSplash
             Caption         =   "Data Set Name :"
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -187,7 +188,7 @@ Begin VB.Form frmSplash
             Caption         =   "Password :"
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -208,7 +209,7 @@ Begin VB.Form frmSplash
             Caption         =   "User Name :"
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -229,7 +230,7 @@ Begin VB.Form frmSplash
             Caption         =   "Host Name :"
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -250,7 +251,7 @@ Begin VB.Form frmSplash
             Caption         =   "Database Name :"
             BeginProperty Font 
                Name            =   "Arial"
-               Size            =   10.2
+               Size            =   10.5
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -270,14 +271,14 @@ Begin VB.Form frmSplash
          Caption         =   "O&K"
          BeginProperty Font 
             Name            =   "Arial"
-            Size            =   10.2
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Height          =   396
+         Height          =   360
          Left            =   6084
          TabIndex        =   5
          Top             =   516
@@ -287,14 +288,14 @@ Begin VB.Form frmSplash
          Caption         =   "&Cancel"
          BeginProperty Font 
             Name            =   "Arial"
-            Size            =   10.2
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Height          =   396
+         Height          =   360
          Left            =   6084
          TabIndex        =   6
          Top             =   1236
@@ -304,14 +305,14 @@ Begin VB.Form frmSplash
          Caption         =   "&Help"
          BeginProperty Font 
             Name            =   "Arial"
-            Size            =   10.2
+            Size            =   9.75
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Height          =   396
+         Height          =   360
          Left            =   6084
          TabIndex        =   7
          Top             =   1980
