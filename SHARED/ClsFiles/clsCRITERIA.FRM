@@ -723,6 +723,7 @@ Private nCol_NdxTgCombo As Integer
 Private nCol_RegExp As Integer
 Private nCol_ComboSQL As Integer
 Private nCol_CriteriaField As Integer
+Private nCol_Operators As Integer
 Private nCol_Enabled As Integer
 Private nCol_AllowEditSortCol As Integer
 Private nCol_XtraColName As Integer
@@ -791,7 +792,8 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
                         Optional ByVal sDefaultSort As String = "", _
                         Optional ByVal sPreRequisiteFields As String = "", _
                         Optional ByVal sCriteriaField As String = "", _
-                        Optional ByVal bAllowEditSortCol As Boolean = True) As Boolean
+                        Optional ByVal bAllowEditSortCol As Boolean = True, _
+                        Optional ByVal sOperators As String = "") As Boolean
     
     On Error GoTo errTrap
     
@@ -831,7 +833,8 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
     aryData(nCol_RegExp, 0) = sRegExp
     aryData(nCol_ComboSQL, 0) = sDropdownSQL
     aryData(nCol_CriteriaField, 0) = fnCStr(sCriteriaField)
-    aryData(nCol_Enabled, 0) = "Y"
+    aryData(nCol_Operators, 0) = fnCStr(sOperators)
+    aryData(nCol_Enabled, 0) = True
     aryData(nCol_AllowEditSortCol, 0) = bAllowEditSortCol
     aryData(nCol_sPreReqFields, 0) = sPreRequisiteFields
     
@@ -1031,23 +1034,31 @@ End Property
 Public Sub ClearFilter(Optional sColName As String = "")
     Dim i As Integer
     
-    For i = 0 To tgmCriteria.RowCount - 1
-        If sColName = "" Or sColName = tgmCriteria.CellValue(nCol_ColumnName, i) Then
-            tgmCriteria.CellValue(nCol_Filter, i) = ""
-            tgmCriteria.CellValue(nCol_OldFilter, i) = ""
-            tgmCriteria.CellValue(nCol_Sort, i) = tgmCriteria.CellValue(nCol_DefaultSort, i)
-            tgmCriteria.CellValue(nCol_OldSort, i) = tgmCriteria.CellValue(nCol_DefaultSort, i)
-            
-            If sColName <> "" Then
-                Exit For
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If sColName = "" Or sColName = .CellValue(nCol_ColumnName, i) Then
+                .CellValue(nCol_Filter, i) = ""
+                .CellValue(nCol_OldFilter, i) = ""
+                
+                If .CellValue(nCol_Enabled, i) Then
+                    .CellValue(nCol_Sort, i) = .CellValue(nCol_DefaultSort, i)
+                Else
+                    .CellValue(nCol_Sort, i) = "N/A"
+                End If
+                
+                .CellValue(nCol_OldSort, i) = .CellValue(nCol_DefaultSort, i)
+                
+                If sColName <> "" Then
+                    Exit For
+                End If
             End If
+        Next
+        
+        If .RowCount > 0 Then
+            tblCriteria.Bookmark = 0
         End If
-    Next
+    End With
     
-    If tgmCriteria.RowCount > 0 Then
-        tblCriteria.Bookmark = 0
-    End If
-
     m_sCriteria = ""
     m_sOrderBy = ""
     m_sReturnSQL = ""
@@ -1133,6 +1144,50 @@ Property Get SQL_PHONE_TYPE() As String
     SQL_PHONE_TYPE = TYPE_PHONE
 End Property
 
+Property Let AllowEditSortCol(ByVal sColName As String, ByVal bStatus As Boolean)
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                .CellValue(nCol_AllowEditSortCol, i) = bStatus
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
+End Property
+
+Property Get AllowEditSortCol(ByVal sColName As String) As Boolean
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                AllowEditSortCol = .CellValue(nCol_AllowEditSortCol, i)
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
+End Property
+
 Property Let ColEnabled(ByVal sColName As String, ByVal bStatus As Boolean)
     sColName = fnCStr(sColName)
     
@@ -1146,7 +1201,16 @@ Property Let ColEnabled(ByVal sColName As String, ByVal bStatus As Boolean)
     With tgmCriteria
         For i = 0 To .RowCount - 1
             If .CellValue(nCol_ColumnName, i) = sColName Then
-                .CellValue(nCol_Enabled, i) = IIf(bStatus, "Y", "N")
+                .CellValue(nCol_Enabled, i) = bStatus
+                
+                If bStatus Then
+                    .CellValue(nCol_Sort, i) = .CellValue(nCol_DefaultSort, i)
+                Else
+                    .CellValue(nCol_Sort, i) = "N/A"
+                End If
+                
+                .CellValue(nCol_OldSort, i) = .CellValue(nCol_DefaultSort, i)
+                
                 Exit Property
             End If
         Next
@@ -1168,7 +1232,51 @@ Property Get ColEnabled(ByVal sColName As String) As Boolean
     With tgmCriteria
         For i = 0 To .RowCount - 1
             If .CellValue(nCol_ColumnName, i) = sColName Then
-                ColEnabled = .CellValue(nCol_Enabled, i) = "Y"
+                ColEnabled = .CellValue(nCol_Enabled, i)
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
+End Property
+
+Property Let Operators(ByVal sColName As String, ByVal sOperators As String)
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                .CellValue(nCol_Operators, i) = fnCStr(sOperators)
+                Exit Property
+            End If
+        Next
+    End With
+
+    MsgBox "Column Name not found in the Criteria Screen.", vbCritical
+End Property
+
+Property Get Operators(ByVal sColName As String) As String
+    sColName = fnCStr(sColName)
+    
+    If sColName = "" Then
+        MsgBox "Column Name is required.", vbCritical
+        Exit Property
+    End If
+    
+    Dim i As Integer
+    
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If .CellValue(nCol_ColumnName, i) = sColName Then
+                Operators = .CellValue(nCol_Operators, i)
                 Exit Property
             End If
         Next
@@ -1229,10 +1337,17 @@ Private Sub cmdClearAll_Click()
 
     Dim i As Integer
     
-    For i = 0 To tgmCriteria.RowCount - 1
-        tgmCriteria.CellValue(nCol_Filter, i) = ""
-        tgmCriteria.CellValue(nCol_Sort, i) = tgmCriteria.CellValue(nCol_DefaultSort, i)
-    Next
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            .CellValue(nCol_Filter, i) = ""
+            
+            If .CellValue(nCol_Enabled, i) Then
+                .CellValue(nCol_Sort, i) = .CellValue(nCol_DefaultSort, i)
+            Else
+                .CellValue(nCol_Sort, i) = "N/A"
+            End If
+        Next
+    End With
 End Sub
 
 Private Sub cmdClearAll_GotFocus()
@@ -1428,15 +1543,15 @@ Private Sub cmdFilterOK_Click()
 End Sub
 
 Private Function fnRefreshFilterString() As Boolean
-    Dim sOP As String
+    Dim sOp As String
     Dim sValue As String
     Dim aryTemp() As String
     Dim i As Integer
     Dim sNewOp As String
     
-    sOP = fnCStr(txtOp)
+    sOp = fnCStr(txtOp)
     
-    If sOP = "" Then
+    If sOp = "" Then
         Exit Function
     End If
     
@@ -1464,21 +1579,21 @@ Private Function fnRefreshFilterString() As Boolean
     sNewOp = ""
 
     If fnCStr(txtFilter.Text) = "" Then
-        txtFilter.Text = sOP + sValue
+        txtFilter.Text = sOp + sValue
     Else
         aryTemp = Split(txtFilter.Text, ";")
         
         For i = 0 To UBound(aryTemp)
-            If Left(aryTemp(i), Len(sOP)) = sOP Then
+            If Left(aryTemp(i), Len(sOp)) = sOp Then
                 Exit For
             End If
         Next i
         
         If i > UBound(aryTemp) Then
-            sNewOp = sOP + sValue
+            sNewOp = sOp + sValue
         Else
             'if not already exist in the filter, add it to the filter
-            If InStr("," + Mid(aryTemp(i), Len(sOP) + 1) + ",", "," + sValue + ",") <= 0 Then
+            If InStr("," + Mid(aryTemp(i), Len(sOp) + 1) + ",", "," + sValue + ",") <= 0 Then
                 aryTemp(i) = aryTemp(i) + "," + sValue
             End If
         End If
@@ -1555,7 +1670,8 @@ Private Sub subSetupGrid()
         .AutoRefreshCellValue = True
         .SetupTable False
         .AllowAddNew = False
-        .AddEditColumn nCol_Sort, "Enter Sort Opt:(A)scending/(D)escending. Click on 'Filter' col to enter/change sel. criteria", "^([AD])$"
+        .AddEditColumn nCol_Sort, "Enter Sort Opt:(A)scending/(D)escending. Click on" _
+            + " 'Filter' col to enter/change sel. criteria", "^(([AD])|(\N\/\A))$"
         nCol_OldFilter = .AddHiddenField("OldFilter")
         nCol_OldSort = .AddHiddenField("OldSort")
         nCol_DefaultSort = .AddHiddenField("DefaultSort")
@@ -1565,6 +1681,7 @@ Private Sub subSetupGrid()
         nCol_NdxTgCombo = .AddHiddenField("NdxTgCombo")
         nCol_ComboSQL = .AddHiddenField("ComboSQL")
         nCol_CriteriaField = .AddHiddenField("CriteriaField")
+        nCol_Operators = .AddHiddenField("Operators")
         nCol_Enabled = .AddHiddenField("Enabled")
         nCol_AllowEditSortCol = .AddHiddenField("AllowEditSortCol")
         nCol_XtraColName = .AddHiddenField("XtraColName")
@@ -1599,67 +1716,69 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
     sCriteria = ""
     sOrderBy = ""
     
-    For i = 0 To tgmCriteria.RowCount - 1
-        If nRow < 0 Or (nRow >= 0 And nRow = i) Then
-            sColumnName = fnCStr(tgmCriteria.CellValue(nCol_FieldName, i))
-            sTemp = ""
-            
-            If fnCStr(tgmCriteria.CellValue(nCol_Filter, i)) <> "" Then
-                aryTemp = Split(fnCStr(tgmCriteria.CellValue(nCol_Filter, i)), ";")
+    With tgmCriteria
+        For i = 0 To .RowCount - 1
+            If nRow < 0 Or (nRow >= 0 And nRow = i) Then
+                sColumnName = fnCStr(.CellValue(nCol_FieldName, i))
+                sTemp = ""
                 
-                For j = 0 To UBound(aryTemp)
-                    sOperator = Left(fnCStr(aryTemp(j)), 1)
-                    sValue = Mid(fnCStr(aryTemp(j)), 2)
+                If fnCStr(.CellValue(nCol_Filter, i)) <> "" Then
+                    aryTemp = Split(fnCStr(.CellValue(nCol_Filter, i)), ";")
                     
-                    'Here we are checking it is < or <>
-                    If Left(sValue, 1) = ">" Then
-                        sOperator = "<>"
-                        sValue = Mid(sValue, 2)
+                    For j = 0 To UBound(aryTemp)
+                        sOperator = Left(fnCStr(aryTemp(j)), 1)
+                        sValue = Mid(fnCStr(aryTemp(j)), 2)
+                        
+                        'Here we are checking it is < or <>
+                        If Left(sValue, 1) = ">" Or Left(sValue, 1) = "=" Then
+                            sOperator = sOperator + Left(sValue, 1)
+                            sValue = Mid(sValue, 2)
+                        End If
+                        
+                        aryTemp2 = Split(sValue, ",")
+                        
+                        For k = 0 To UBound(aryTemp2)
+                            If fnCStr(aryTemp2(k)) <> "" Then
+                                If sTemp <> "" Then
+                                    sTemp = sTemp & " OR "
+                                End If
+                                
+                                If UCase(aryTemp2(k)) = "NULL" Then
+                                    sTemp = sTemp & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
+                                Else
+                                    sTemp = sTemp & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
+                                End If
+                            End If
+                        Next k
+                    Next j
+                End If
+                
+                If sTemp <> "" Then
+                    If sCriteria <> "" Then
+                        sCriteria = sCriteria & " AND "
                     End If
                     
-                    aryTemp2 = Split(sValue, ",")
+                    sCriteria = sCriteria + "(" + sTemp + ")"
+                End If
+                
+                If nRow >= 0 Then
+                    Exit For
+                End If
+                
+                If .CellValue(nCol_Enabled, i) And fnCStr(.CellValue(nCol_Sort, i)) <> "" Then
+                    If sOrderBy = "" Then
+                        sOrderBy = "ORDER BY " & sColumnName
+                    Else
+                        sOrderBy = sOrderBy & ", " & sColumnName
+                    End If
                     
-                    For k = 0 To UBound(aryTemp2)
-                        If fnCStr(aryTemp2(k)) <> "" Then
-                            If sTemp <> "" Then
-                                sTemp = sTemp & " OR "
-                            End If
-                            
-                            If UCase(aryTemp2(k)) = "NULL" Then
-                                sTemp = sTemp & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
-                            Else
-                                sTemp = sTemp & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
-                            End If
-                        End If
-                    Next k
-                Next j
-            End If
-            
-            If sTemp <> "" Then
-                If sCriteria <> "" Then
-                    sCriteria = sCriteria & " AND "
-                End If
-                
-                sCriteria = sCriteria + "(" + sTemp + ")"
-            End If
-            
-            If nRow >= 0 Then
-                Exit For
-            End If
-            
-            If fnCStr(tgmCriteria.CellValue(nCol_Sort, i)) <> "" Then
-                If sOrderBy = "" Then
-                    sOrderBy = "ORDER BY " & sColumnName
-                Else
-                    sOrderBy = sOrderBy & ", " & sColumnName
-                End If
-                
-                If fnCStr(tgmCriteria.CellValue(nCol_Sort, i)) = "D" Then
-                    sOrderBy = sOrderBy & " DESC"
+                    If fnCStr(.CellValue(nCol_Sort, i)) = "D" Then
+                        sOrderBy = sOrderBy & " DESC"
+                    End If
                 End If
             End If
-        End If
-    Next i
+        Next i
+    End With
     
     If nRow < 0 Then
         sRetOrderBy = sOrderBy
@@ -1689,7 +1808,7 @@ Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii 
             Exit Sub
         End If
         
-        If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
+        If Not tgmCriteria.CellValue(nCol_Enabled, lRow) Then
             CANCEL = True
             Exit Sub
         End If
@@ -1720,7 +1839,7 @@ Private Sub tblCriteria_GotFocus()
     
     lRow = tgmCriteria.GetCurrentRowNumber
     
-    If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
+    If Not tgmCriteria.CellValue(nCol_Enabled, lRow) Then
         m_frmParent.tfnSetStatusBarMessage "Selection Criteria is not applied"
         Exit Sub
     End If
@@ -1760,6 +1879,13 @@ End Sub
 Private Sub tblCriteria_KeyPress(KeyAscii As Integer)
     If tblCriteria.Col = nCol_Sort Then
         KeyAscii = fnUcase(KeyAscii)
+        
+        If KeyAscii <> vbKeyBack And KeyAscii <> vbKeyReturn Then
+            If SRegExpMatch("^[AD]$", Chr(KeyAscii)) <> 0 Then
+                Beep
+                KeyAscii = 0
+            End If
+        End If
     End If
     If Not tgmCriteria.Keypress(KeyAscii) Then
        KeyAscii = 0
@@ -1782,9 +1908,7 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     
     lRow = tgmCriteria.GetCurrentRowNumber
     
-    If tgmCriteria.CellValue(nCol_Enabled, lRow) <> "Y" Then
-        m_frmParent.tfnSetStatusBarMessage "Selection Criteria is not applied"
-    Else
+    If tgmCriteria.CellValue(nCol_Enabled, lRow) Then
         If tblCriteria.Col <> nCol_Sort Then
             m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
         ElseIf tblCriteria.Col = nCol_Sort Then
@@ -1799,6 +1923,8 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
                 subShowFilterPopup
             End If
         End If
+    Else
+        m_frmParent.tfnSetStatusBarMessage "Selection Criteria is not applied"
     End If
 End Sub
 
@@ -2489,6 +2615,33 @@ Private Function fnRemvBeginEndQuotes(ByVal sIn As String) As String
     fnRemvBeginEndQuotes = sIn
 End Function
 
+Private Function fnConvtToRegExp(sIn As String) As String
+    Dim ary() As String
+    Dim i As Integer
+    Dim sTemp As String
+    Dim sRet As String
+    
+    ary = Split(sIn, ",")
+    
+    For i = 0 To UBound(ary)
+        sTemp = fnCStr(ary(i))
+        
+        If sTemp <> "" Then
+            If sRet <> "" Then
+                sRet = sRet + "|"
+            End If
+            
+            sRet = sRet + "(" + sTemp + ")"
+        End If
+    Next i
+    
+    If sRet <> "" Then
+        fnConvtToRegExp = "^(" + sRet + ")$"
+    Else
+        fnConvtToRegExp = ""
+    End If
+End Function
+
 Private Sub subCreateTmpOperator()
    Const SUB_NAME As String = "subCreateTmpOperator"
    
@@ -2507,13 +2660,19 @@ LetUsGo:
    strSQL = "INSERT INTO temp_operator VALUES ('=', 1)"
    t_dbMainDatabase.ExecuteSQL strSQL
    
-   strSQL = "INSERT INTO temp_operator VALUES ('<', 2)"
+   strSQL = "INSERT INTO temp_operator VALUES ('>=', 2)"
    t_dbMainDatabase.ExecuteSQL strSQL
    
-   strSQL = "INSERT INTO temp_operator VALUES ('>', 3)"
+   strSQL = "INSERT INTO temp_operator VALUES ('<=', 3)"
    t_dbMainDatabase.ExecuteSQL strSQL
    
-   strSQL = "INSERT INTO temp_operator VALUES ('<>', 4)"
+   strSQL = "INSERT INTO temp_operator VALUES ('<', 4)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('>', 5)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('<>', 6)"
    t_dbMainDatabase.ExecuteSQL strSQL
    
    Exit Sub
@@ -2559,7 +2718,7 @@ Private Function fnValidFilter() As String
     Dim k As Integer
     Dim aryTemp() As String
     Dim aryTemp2() As String
-    Dim sOP As String
+    Dim sOp As String
     Dim sValue As String
     Dim sFilter As String
     Dim sNewFilter As String
@@ -2575,36 +2734,39 @@ Private Function fnValidFilter() As String
         sNewFilter = ""
         
         For j = 0 To UBound(aryTemp)
-            sOP = Left(fnCStr(aryTemp(j)), 1)
+            sOp = Left(fnCStr(aryTemp(j)), 1)
             sValue = Mid(fnCStr(aryTemp(j)), 2)
             
-            If sOP = "" Then
+            If sOp = "" Then
                 fnValidFilter = "Operator is missing"
                 Exit Function
             End If
             
             'Here we are checking it is < or <>
             If Left(sValue, 1) = ">" Then
-                If sOP <> "<" Then
-                    fnValidFilter = "Invalid operator '" + sOP + Left(sValue, 1) + "' encountered"
+                If sOp <> "<" Then
+                    fnValidFilter = "Invalid operator '" + sOp + Left(sValue, 1) + "' encountered"
                     Exit Function
                 End If
                 
-                sOP = "<>"
+                sOp = "<>"
+                sValue = Mid(sValue, 2)
+            ElseIf Left(sValue, 1) = "=" Then
+                sOp = sOp + "="
                 sValue = Mid(sValue, 2)
             End If
             
-            Select Case sOP
-            Case "<", ">", "=", "<>"
+            Select Case sOp
+            Case "<", ">", "=", "<>", ">=", "<="
                 'good
             Case Else
-                fnValidFilter = "Invalid operator '" + sOP + "' encountered"
+                fnValidFilter = "Invalid operator '" + sOp + "' encountered"
                 Exit Function
             End Select
             
-            If sOP = "<" Or sOP = ">" Then
+            If sOp = "<" Or sOp = ">" Or sOp = ">=" Or sOp = "<=" Then
                 If Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1) = TYPE_STRING Then
-                    fnValidFilter = sOP + " is not allow for char type column"
+                    fnValidFilter = sOp + " is not allow for char type column"
                     Exit Function
                 End If
             End If
@@ -2617,12 +2779,12 @@ Private Function fnValidFilter() As String
                 sTemp = fnCStr(aryTemp2(k))
                 
                 If sTemp = "" Then
-                    fnValidFilter = "Value is missing for operator '" + sOP + "'"
+                    fnValidFilter = "Value is missing for operator '" + sOp + "'"
                     Exit Function
                 Else
                     If UCase(sTemp) = "NULL" Then
-                        If sOP = "<" Or sOP = ">" Then
-                            fnValidFilter = "NULL is not valid for operator " + sOP
+                        If sOp = "<" Or sOp = ">" Or ">=" Or "<=" Then
+                            fnValidFilter = "NULL is not valid for operator " + sOp
                             Exit Function
                         End If
                         
@@ -2666,7 +2828,7 @@ Private Function fnValidFilter() As String
                 sNewFilter = sNewFilter + ";"
             End If
         
-            sNewFilter = sNewFilter + sOP + sFilter
+            sNewFilter = sNewFilter + sOp + sFilter
         Next j
         
         txtFilter.Text = sNewFilter
@@ -2683,12 +2845,10 @@ Private Function fnValidOperator(txtBox As Textbox) As Boolean
     fnValidOperator = False
     
     If fnCStr(txtBox) <> "" Then
-        strSQL = "SELECT op FROM temp_operator WHERE op=" & tfnSQLString(fnCStr(txtBox))
+        subLoadOpSQL False
         
-        Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_STRING, TYPE_PHONE
-            strSQL = strSQL & " AND op IN ('=','<>')"
-        End Select
+        strSQL = tgcDropdown.ComboSQL(txtBox)
+        strSQL = strSQL + " AND op = " + tfnSQLString(txtBox)
         
         If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 1 Then
             cValidate.SetErrorMessage txtBox, "Invalid Operator"
@@ -2842,11 +3002,13 @@ End Function
 
 Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, ByVal lRow As Long, sText As String) As Boolean
     Const SUB_NAME As String = "fnValidCellValue"
+    
     fnValidCellValue = True         'Assume the value will be valid
     sText = fnCStr(sText)
+    
     Select Case nCol
         Case nCol_Sort
-            If sText <> szEMPTY Then
+            If tgmCriteria.CellValue(nCol_Enabled, lRow) And sText <> szEMPTY Then
                 If sText <> "A" And sText <> "D" Then
                     tgmCriteria.ErrorMessage(nCol) = "Invalid Sort Option"
                     fnValidCellValue = False
@@ -2863,39 +3025,64 @@ Private Sub subSetGridButtonStatus()
     End If
 End Sub
 
-Private Sub subLoadOpSQL()
-
+Private Sub subLoadOpSQL(Optional bAddOrderBy As Boolean = True)
     Dim strSQL As String
-    strSQL = "SELECT op, seq FROM temp_operator"
-    Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_STRING, TYPE_PHONE
-            strSQL = strSQL & " WHERE op IN ('=','<>')"
-    End Select
+    Dim sOp As String
     
-    strSQL = strSQL & " ORDER BY seq"
+    strSQL = "SELECT op, seq FROM temp_operator WHERE 1=1"
+        
+    'operators overriden
+    If tgmCriteria.CellValue(nCol_Operators, m_nCurrRow) <> "" Then
+        sOp = fnAddBeginEndQuotes(tgmCriteria.CellValue(nCol_Operators, m_nCurrRow))
+    Else
+        Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
+        Case TYPE_STRING, TYPE_PHONE
+            sOp = "'=','<>'"
+        Case Else
+            sOp = "'=','<','>','<>'"
+        End Select
+    End If
+    
+    If sOp <> "" Then
+        strSQL = strSQL & " AND op IN " + "(" + sOp + ")"
+    End If
+    
+    If bAddOrderBy Then
+        strSQL = strSQL & " ORDER BY seq"
+    End If
+    
     tgcDropdown.ComboSQL(txtOp) = strSQL
 End Sub
 
 Private Sub SubSetOpRegExp()
-    sRegExpOp = "^((=)|(<)|(>)|(<>))$"
-    Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_DATE, TYPE_STRING
+    'operators overriden
+    If tgmCriteria.CellValue(nCol_Operators, m_nCurrRow) <> "" Then
+        sRegExpOp = fnConvtToRegExp(tgmCriteria.CellValue(nCol_Operators, m_nCurrRow))
+    Else
+        Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
+        Case TYPE_STRING, TYPE_PHONE
             sRegExpOp = "^((=)|(<>))$"
-    End Select
+        Case Else
+            sRegExpOp = "^((=)|(<)|(>)|(<>))$"
+        End Select
+    End If
 End Sub
 
 Private Function IsValidDate(ByVal sDate As String) As Boolean
-    
     If sDate = "" Then
         Exit Function
     End If
+    
     sDate = tfnFormatDate(sDate)
+    
     If SRegExpMatch(szDatePattern, sDate) <> 0 Then
         Exit Function
     End If
+    
     If Not IsDate(tfnDateString(sDate)) Then
         Exit Function
     End If
+    
     IsValidDate = True
 End Function
 
