@@ -31,7 +31,7 @@ Description="Process Retail Sales Purchase Invoices"
 CompatibleMode="0"
 MajorVer=3
 MinorVer=25
-RevisionVer=1
+RevisionVer=601
 AutoIncrementVer=0
 ServerSupportFiles=0
 VersionComments="ZZSEINVP"
@@ -40,7 +40,7 @@ VersionFileDescription="ZZSEINVP.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

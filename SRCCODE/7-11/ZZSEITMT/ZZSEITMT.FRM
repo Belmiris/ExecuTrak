@@ -312,15 +312,15 @@ Begin VB.Form frmzzseitmt
          EndProperty
       End
       Begin FACTFRMLib.FactorFrame efraOuterFrame 
-         Height          =   4608
+         Height          =   4620
          Left            =   132
          TabIndex        =   20
          TabStop         =   0   'False
          Top             =   144
-         Width           =   8676
+         Width           =   8688
          _Version        =   65536
-         _ExtentX        =   15303
-         _ExtentY        =   8128
+         _ExtentX        =   15325
+         _ExtentY        =   8149
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
@@ -331,7 +331,7 @@ Begin VB.Form frmzzseitmt
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         BevelOuter      =   5
+         BevelOuter      =   0
          FMName          =   "POFSELGP"
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
@@ -343,23 +343,23 @@ Begin VB.Form frmzzseitmt
             Strikethrough   =   0   'False
          EndProperty
          Begin DBTrueGrid.TDBGrid tblDetail 
-            Height          =   2880
+            Height          =   2832
             HelpContextID   =   708
             Left            =   84
             OleObjectBlob   =   "ZZSEITMT.frx":0000
             TabIndex        =   13
-            Top             =   1644
+            Top             =   1680
             Width           =   8520
          End
          Begin FACTFRMLib.FactorFrame efraHeader 
-            Height          =   1512
+            Height          =   1488
             Left            =   84
             TabIndex        =   11
-            Top             =   120
+            Top             =   108
             Width           =   8520
             _Version        =   65536
             _ExtentX        =   15028
-            _ExtentY        =   2667
+            _ExtentY        =   2625
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
@@ -385,7 +385,7 @@ Begin VB.Form frmzzseitmt
                HelpContextID   =   706
                Left            =   2616
                TabIndex        =   9
-               Top             =   1056
+               Top             =   1023
                Width           =   5448
             End
             Begin VB.TextBox txtVendorDesc 
@@ -406,7 +406,7 @@ Begin VB.Form frmzzseitmt
                Left            =   8064
                TabIndex        =   10
                TabStop         =   0   'False
-               Top             =   1056
+               Top             =   1023
                Width           =   360
                _Version        =   65536
                _ExtentX        =   635
@@ -440,7 +440,7 @@ Begin VB.Form frmzzseitmt
                Left            =   2196
                TabIndex        =   8
                TabStop         =   0   'False
-               Top             =   1056
+               Top             =   1023
                Width           =   360
                _Version        =   65536
                _ExtentX        =   635
@@ -473,7 +473,7 @@ Begin VB.Form frmzzseitmt
                HelpContextID   =   704
                Left            =   84
                TabIndex        =   7
-               Top             =   1056
+               Top             =   1023
                Width           =   2100
             End
             Begin VB.TextBox txtVendor 
@@ -561,23 +561,23 @@ Begin VB.Form frmzzseitmt
             End
             Begin VB.Label lblItemDesc 
                Caption         =   "Item Description"
-               Height          =   228
+               Height          =   276
                Left            =   2616
                TabIndex        =   25
-               Top             =   756
-               Width           =   1488
+               Top             =   768
+               Width           =   1536
             End
             Begin VB.Label lblItemCode 
                Caption         =   "Item No."
-               Height          =   264
+               Height          =   276
                Left            =   96
                TabIndex        =   24
-               Top             =   756
+               Top             =   768
                Width           =   756
             End
             Begin VB.Label lblVendorName 
                Caption         =   "Vendor Description"
-               Height          =   252
+               Height          =   276
                Left            =   2616
                TabIndex        =   23
                Top             =   108
@@ -585,7 +585,7 @@ Begin VB.Form frmzzseitmt
             End
             Begin VB.Label lblVendorNo 
                Caption         =   "Vendor No."
-               Height          =   252
+               Height          =   276
                Left            =   96
                TabIndex        =   22
                Top             =   108
@@ -607,7 +607,7 @@ Begin VB.Form frmzzseitmt
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -620,7 +620,7 @@ Begin VB.Form frmzzseitmt
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -863,7 +863,7 @@ Private Sub cmdDeleteBtn_Click()
             
         strSQL = "DELETE FROM item_cost_maint "
         strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(txtVendor)
-        strSQL = strSQL & " AND icm_code = " & tfnRound(txtItemCode)
+        strSQL = strSQL & " AND icm_code = " & tfnSQLString(txtItemCode)
         strSQL = strSQL & " AND icm_eff_date = " & tfnDateString(tgmDetail.CellValue(ColEffDate, lRow), True)
         
         If Not fnExecuteSQL(strSQL) Then
@@ -900,7 +900,7 @@ Private Sub cmdItemDesc_Click()
 End Sub
 
 Private Sub efraHeader_Gotfocus()
-    cValidate.GotFocus efraBackground
+    cValidate.GotFocus efraHeader
 End Sub
 
 '===========
@@ -1067,6 +1067,7 @@ Private Sub cmdAddBtn_Click()
     subEnableCancel True
     subSetFocus txtVendor
     
+    tblDetail.Refresh
     cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
     mnuUpdateInsert.Caption = t_szCAPTION_INSERT
     
@@ -1508,7 +1509,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1833,10 +1834,10 @@ Private Sub subInitValidation()
     cValidate.AddEditBox txtVendor, "Enter Vendor Number"
     cValidate.AddEditBox txtItemCode, "Enter Item Code"
     cValidate.MinTabIndex = tbToolbar.TabIndex - 1
-    cValidate.MaxTabIndex = efraHeader.TabIndex + 1
+    cValidate.MaxTabIndex = efraHeader.TabIndex
     Set cValidate.ControlForFocus = efraHeader
     Set cValidate.LastBox = txtItemCode
-    cValidate.ESCControl = tblDetail
+   ' cValidate.ESCControl = tblDetail
     cValidate.ESCControl = cmdExitCancelBtn
 End Sub
 
@@ -1911,7 +1912,7 @@ Private Function fnValidVendor(Box As Textbox) As Boolean
     fnValidVendor = False
     
     If Trim(Box.Text) = "" Then
-        cValidate.SetErrorMessage Box, "You Must Enter a Vendor Number"
+        cValidate.SetErrorMessage Box, "You must enter a Vendor Number"
         Exit Function
     End If
     
@@ -1953,7 +1954,7 @@ Private Function fnValidItemCode(Box As Textbox) As Boolean
     fnValidItemCode = False
     
     If Trim(Box.Text) = "" Then
-        cValidate.SetErrorMessage Box, "You Must Enter a item Code"
+        cValidate.SetErrorMessage Box, "You must enter an Item Code"
         Exit Function
     End If
     
@@ -2017,8 +2018,8 @@ Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
-    tgcDropdown.TableMouseUp Y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcDropdown.TableMouseUp y
 End Sub
 
 Private Sub subSetupCombos()

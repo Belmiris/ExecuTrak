@@ -12,7 +12,7 @@ Begin VB.Form frmzzseinvp
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.6
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -51,7 +51,7 @@ Begin VB.Form frmzzseinvp
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -63,7 +63,7 @@ Begin VB.Form frmzzseinvp
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -85,7 +85,7 @@ Begin VB.Form frmzzseinvp
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -96,7 +96,7 @@ Begin VB.Form frmzzseinvp
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -116,7 +116,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -127,7 +127,7 @@ Begin VB.Form frmzzseinvp
          Caption         =   " "
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -177,7 +177,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -192,7 +192,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -213,7 +213,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -228,7 +228,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -249,7 +249,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -263,7 +263,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -285,7 +285,7 @@ Begin VB.Form frmzzseinvp
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -298,7 +298,7 @@ Begin VB.Form frmzzseinvp
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -469,6 +469,8 @@ Const INISUBSECTION As String = "filePath"
 Private g_bProcessOk As Boolean
 
 Private Sub cmdPrintReport_Click()
+
+    Screen.MousePointer = vbDefault
     
     If g_bProcessOk Then
         frmReports.chkPrintErr.Value = vbUnchecked
@@ -480,7 +482,9 @@ Private Sub cmdPrintReport_Click()
         frmReports.chkPrintProcLog.Value = vbUnchecked
     End If
     
+    subEnablePrintBtn False
     frmReports.Show vbModal
+    subEnablePrintBtn True
     subSetFocus cmdExitCancelBtn
 End Sub
 
@@ -950,11 +954,12 @@ Private Function fnFileName(sFileName As String) As Boolean
     Dim sInitDirPath As String
     Dim sDirPath As String
     Dim nDirPos As Integer
-    
+    Dim sHldDir As String
     fnFileName = False
     sInitDirPath = fnGetInitDirPath()
     
     With dlgFileNames
+        sHldDir = .InitDir
         .InitDir = sInitDirPath
         .DialogTitle = "Invoice File Location"
         .FileName = "RSP*.*"
@@ -980,7 +985,9 @@ Private Function fnFileName(sFileName As String) As Boolean
             
             fnFileName = True
         End If
-
+        
+        'change it back it empty
+        .InitDir = App.Path
     End With
     
     If sDirPath <> "" Then

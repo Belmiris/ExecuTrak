@@ -225,7 +225,7 @@ Private Function fnProcessDetailLine(sLine As String, udtInvDetail As RSINV_Deta
         .sRecId = Trim$(Mid$(sLine, 1, 3))
         .nDetailLine = CInt(Mid$(sLine, 4, 3))
         .sTypeCode = Trim$(Mid$(sLine, 7, 1))
-        .sItemCode = Mid$(sLine, 8, 10)
+        .sItemCode = Trim$(Mid$(sLine, 8, 10))
         .dQuantity = CDbl(Mid(sLine, 18, 12))
         .sUOM = Trim$(Mid$(sLine, 30, 5))
         .dCost = CDbl(Mid$(sLine, 35, 12))

@@ -590,7 +590,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         fnGetField(rsTemp!bf_variable1), _
         fnGetField(rsTemp!bf_variable2), _
         fnGetField(rsTemp!bf_variable3), _
-        tfnRound(rsTemp!bf_max_total), _
+        tfnRound(rsTemp!bf_max_total, 2), _
         fnGetField(rsTemp!bf_formula), _
         fnGetField(rsTemp!bf_condition), _
         fnGetField(rsTemp!bf_adj_formula), _
@@ -1905,7 +1905,7 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
     
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim sGrade As String
+    Dim bIsManager As Boolean
     Dim sDateHired As String
     Dim sDateStart As String
     Dim dDiff As Double
@@ -1927,6 +1927,8 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
     End If
     
     If rsTemp.RecordCount = 0 Then
+        bIsManager = False
+        
         strSQL = "SELECT prm_emp_level, prm_date_hired"
         strSQL = strSQL & " FROM pr_master"
         strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
@@ -1944,16 +1946,29 @@ Private Function fnYearAtLevelJan1(sVinV As String, _
             sErrMsg = "Employee is not Manager, Assistant Manager, or Night Manager"
             Exit Function
         End If
-    
+    Else
+        bIsManager = True
     End If
     
     sDateHired = fnGetField(rsTemp!prm_date_hired)
-    
     sDateStart = frmZZSEBPRC!txtStartDate
     
     strSQL = "SELECT prhs_effective_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
     strSQL = strSQL & " FROM pr_history"
     strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+    
+    If bIsManager Then
+        strSQL = strSQL & " AND prhs_emp_level IN ("
+        strSQL = strSQL & " SELECT bg_emp_level"
+        strSQL = strSQL & " FROM bonus_grades"
+        strSQL = strSQL & " WHERE bg_grade IN " & sGradeManager & ")"
+    Else
+        strSQL = strSQL & " AND prhs_emp_level IN ("
+        strSQL = strSQL & " SELECT bg_emp_level"
+        strSQL = strSQL & " FROM bonus_grades"
+        strSQL = strSQL & " WHERE bg_grade IN " & sGradeAsstManager & ")"
+    End If
+    
     strSQL = strSQL & " AND prhs_effective_dt <= " & tfnDateString(sDateStart, True)
     strSQL = strSQL & " ORDER BY prhs_effective_dt"
     

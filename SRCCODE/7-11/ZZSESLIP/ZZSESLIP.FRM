@@ -108,7 +108,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75  
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -506,7 +506,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75  
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -541,7 +541,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75  
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -803,6 +803,7 @@ Private Const ColSlipDate As Integer = 2
 Private Const colShiftNum As Integer = 3
 Private Const nMaxCol As Integer = 3
 
+Private g_nDefaultPrftctr As Integer
 
 Private Sub cmdDeleteBtn_Click()
     Dim sBCode As String
@@ -1306,7 +1307,7 @@ Private Sub tfnResetScreen()
     cvalidate.ResetFlags
     tgmSlip.ClearData
     nDataStatus = DATA_INIT
-    subSetFocus cmdaddbtn
+    subSetFocus cmdAddBtn
     subHideHourGlass
     DoEvents
     
@@ -1331,6 +1332,10 @@ Private Sub tblSlip_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As I
     
     If t_nFormMode = ADD_MODE Then
         lCurRow = tgmSlip.GetCurrentRowNumber
+'
+'        If tgmSlip.CellValue(ColPrftCtr, lCurRow) = "" Then
+'            tgmSlip.CellValue(ColPrftCtr, lCurRow) = g_nDefaultPrftctr
+'        End If
         
         If tgmSlip.CellValue(colShiftNum, lCurRow) = "" Then
             tgmSlip.CellValue(colShiftNum, lCurRow) = 1
@@ -1378,7 +1383,25 @@ Private Sub tblSlip_KeyDown(KeyCode As Integer, Shift As Integer)
 End Sub
 
 Private Sub tblSlip_KeyPress(KeyAscii As Integer)
+    Dim lCurRow As Long
+
+    If t_nFormMode = ADD_MODE Then
+        
+        If KeyAscii = vbKeyReturn Then
+            
+            If tblSlip.col = ColPrftCtr Or tblSlip.col = colPrftDesc Then
+                lCurRow = tgmSlip.GetCurrentRowNumber
+                 
+                If tgmSlip.CellValue(ColPrftCtr, lCurRow) = "" Then
+                    tgmSlip.CellValue(ColPrftCtr, lCurRow) = g_nDefaultPrftctr
+                End If
+                
+            End If
+            
+        End If
     
+    End If
+        
     If tgfDropdown.ValidSelection Then
         nDataStatus = DATA_CHANGED
     End If
@@ -1449,7 +1472,7 @@ Private Sub subInitErrorHandler()
 End Sub
 
 Private Sub subEnableAddBtn(bOnOff As Boolean)
-    cmdaddbtn.Enabled = bOnOff
+    cmdAddBtn.Enabled = bOnOff
     mnuAdd.Enabled = bOnOff
 End Sub
 
@@ -1460,7 +1483,7 @@ End Sub
 
 Private Sub subEnableDeleteBtn(bOnOff As Boolean)
     cmdDeleteBtn.Enabled = bOnOff
-    mnudelete.Enabled = bOnOff
+    mnuDelete.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableRefreshBtn(bOnOff As Boolean)
@@ -1537,7 +1560,7 @@ End Sub
 Private Sub subInitializeSpreadSheet()
     Dim myWidth As Variant
     Dim myField As Variant
-    Dim i As Integer
+    Dim I As Integer
     
     myWidth = Array(0.2, 0.4, 0.2, 0.2)
     myField = Array("bd_prft_ctr", "prft_name", "bd_slip_date", "bd_shift")
@@ -1546,12 +1569,12 @@ Private Sub subInitializeSpreadSheet()
         tblSlip.Columns.Remove 0
     Wend
     
-    For i = 0 To UBound(myWidth)
-        tblSlip.Columns.Add i
+    For I = 0 To UBound(myWidth)
+        tblSlip.Columns.Add I
         
-        With tblSlip.Columns(i)
-            .Width = myWidth(i) * tblSlip.Width - 50
-            .DataField = myField(i)
+        With tblSlip.Columns(I)
+            .Width = myWidth(I) * tblSlip.Width - 50
+            .DataField = myField(I)
             .Visible = True
         End With
         
@@ -1827,7 +1850,14 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
         tgcDropdown.SetText txtEmployee, rsTemp!prm_empname
     End If
     
+    
     fnValidEmployee = True
+    
+    strSQL = "SELECT prm_prft_ctr1 FROM pr_master WHERE prm_empno = " & tfnRound(Box.Text)
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
+        g_nDefaultPrftctr = tfnRound(rsTemp!prm_prft_ctr1)
+    End If
     
 End Function
 
@@ -1900,6 +1930,7 @@ Private Function fnSwitchPhase() As Boolean
         
         nDataStatus = DATA_LOADED
     End If
+    
     
     subEnableEmployee Not bYesNo
     fnSwitchPhase = bYesNo
@@ -2019,7 +2050,7 @@ End Function
 Private Function fnValidEntireRowValue(szText As String, lCurRow As Long, nCurCol As Integer) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim i As Long
+    Dim I As Long
     
     If tgmSlip.ValidCell(ColPrftCtr, lCurRow) And tgmSlip.ValidCell(ColSlipDate, lCurRow) Then
         strSQL = "SELECT * FROM bonus_day_off_slip WHERE "
@@ -2036,18 +2067,18 @@ Private Function fnValidEntireRowValue(szText As String, lCurRow As Long, nCurCo
             Exit Function
         End If
         
-        For i = 0 To tgmSlip.RowCount - 1
+        For I = 0 To tgmSlip.RowCount - 1
             
-            If i <> lCurRow Then
+            If I <> lCurRow Then
                 
-                If CStr(tgmSlip.CellValue(ColPrftCtr, i)) = CStr(tgmSlip.CellValue(ColPrftCtr, lCurRow)) _
-                    And CStr(tgmSlip.CellValue(ColSlipDate, i)) = CStr(tgmSlip.CellValue(ColSlipDate, lCurRow)) _
-                    And CStr(tgmSlip.CellValue(colShiftNum, i)) = CStr(szText) Then
+                If CStr(tgmSlip.CellValue(ColPrftCtr, I)) = CStr(tgmSlip.CellValue(ColPrftCtr, lCurRow)) _
+                    And CStr(tgmSlip.CellValue(ColSlipDate, I)) = CStr(tgmSlip.CellValue(ColSlipDate, lCurRow)) _
+                    And CStr(tgmSlip.CellValue(colShiftNum, I)) = CStr(szText) Then
                     
                     tgmSlip.ErrorMessage(nCurCol) = "Duplicate data in the grid"
                     Exit Function
                 Else
-                    tgmSlip.Revalidate colShiftNum, i
+                    tgmSlip.Revalidate colShiftNum, I
                 End If
             
             End If
@@ -2180,13 +2211,13 @@ End Sub
 Private Function fnInsertData() As Boolean
     Dim strSQL As String
     Dim vData() As Variant
-    Dim i As Long
+    Dim I As Long
     Dim nCount As Integer
     
     If t_nFormMode = ADD_MODE Then
         
-        For i = 0 To tgmSlip.RowCount - 1
-            tgmSlip.GetRow vData, nCount, i
+        For I = 0 To tgmSlip.RowCount - 1
+            tgmSlip.GetRow vData, nCount, I
             
             If fnGetShiftLink(CLng(vData(ColPrftCtr)), CLng(vData(colShiftNum)), CDate(vData(ColSlipDate))) = 0 Then
                 Exit Function
