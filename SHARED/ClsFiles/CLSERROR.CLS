@@ -25,7 +25,7 @@ Private m_frmParent As Form
 
 Private m_sAppName As String
 Private m_sProcName As String
-Private m_nErrorCode As Variant
+Private m_vErrorCode As Variant
 Private m_sErrorDesc As String
 Private m_sOdbcErrorDesc As String
 Private m_sSqlStatement As String
@@ -49,7 +49,7 @@ Private Sub Class_Initialize()
     
     m_sAppName = ""
     m_sProcName = ""
-    m_nErrorCode = 0
+    m_vErrorCode = 0
     m_sErrorDesc = ""
     m_sOdbcErrorDesc = ""
     m_sSqlStatement = ""
@@ -106,7 +106,7 @@ Public Function ErrorHandler(sProcName As String, _
     sProcName = Trim(sProcName)
     If sProcName = "" Then sProcName = "unknown"
     m_sProcName = sProcName
-    m_nErrorCode = Err.Number
+    m_vErrorCode = Err.Number
     m_sErrorDesc = Err.Description
     
     If Not IsMissing(vExecProcMessage) Then
@@ -157,7 +157,7 @@ Public Function ErrorHandler(sProcName As String, _
                 'override error code
                 m_sErrorDesc = ""
                 bDefinedError = True
-                m_nErrorCode = vSQL
+                m_vErrorCode = vSQL
                 bShowMessage = m_bAlwaysShowMessage
                 If Not IsMissing(vExecProcMessage) Then
                     If VarType(vExecProcMessage) = vbString Then
@@ -170,7 +170,7 @@ Public Function ErrorHandler(sProcName As String, _
                     End If
                 End If
             ElseIf VarType(vSQL) = vbString Then 'SQL string
-                If m_nErrorCode = ODBC_CALL_FAIL Or fnIsAccessDatabaseError(m_nErrorCode) Or VarType(vExecProcMessage) = vbString Then
+                If m_vErrorCode = ODBC_CALL_FAIL Or fnIsAccessDatabaseError(m_vErrorCode) Or VarType(vExecProcMessage) = vbString Then
                     m_sSqlStatement = vSQL
                 Else
                     m_sSqlStatement = ""
@@ -201,7 +201,7 @@ Public Function ErrorHandler(sProcName As String, _
     
     
     'determine error
-    If m_nErrorCode = ODBC_CALL_FAIL Then
+    If m_vErrorCode = ODBC_CALL_FAIL Then
         sErrorMsg = fnGetErrorMessage(ODBC_CALL_FAIL)
     ElseIf bDefinedError Then
         sErrorMsg = fnGetErrorMessage(DEFINED_ERROR)
@@ -335,7 +335,7 @@ Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
             End If
             
             If Not m_dbLocal Is Nothing Then
-                sSql = "SELECT * FROM ErrMessage WHERE ErrorCode = " & m_nErrorCode
+                sSql = "SELECT * FROM ErrMessage WHERE ErrorCode = " & m_vErrorCode
                 On Error Resume Next
                 Set rsTemp = m_dbLocal.OpenRecordset(sSql, dbOpenSnapshot)
                 sTmp = rsTemp!ErrorDesc
@@ -343,7 +343,7 @@ Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
             
             m_sErrorDesc = sTmp & IIf(m_sErrorDesc <> "", " " & Trim(m_sErrorDesc), "")
             If Right(m_sErrorDesc, 1) <> "." Then m_sErrorDesc = m_sErrorDesc & "."
-            sMsg = sMsg & vbCrLf & vbCrLf & "Error Code = " & m_nErrorCode & vbCrLf & "Error Desc: " & m_sErrorDesc & vbCrLf
+            sMsg = sMsg & vbCrLf & vbCrLf & "Error Code = " & m_vErrorCode & vbCrLf & "Error Desc: " & m_sErrorDesc & vbCrLf
             sMsg = sMsg & vbCrLf & REPORT_TO & vbCrLf
             fnGetErrorMessage = sMsg
             Exit Function
@@ -473,11 +473,11 @@ Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
     
     'append odbcErrorDesc
     If IsMissing(nErrorType) Then  'vb run-time error
-        sMsg = sMsg & vbCrLf & vbCrLf & "Error Code = " & m_nErrorCode & vbCrLf & "Error Desc: " & m_sErrorDesc & vbCrLf
+        sMsg = sMsg & vbCrLf & vbCrLf & "Error Code = " & m_vErrorCode & vbCrLf & "Error Desc: " & m_sErrorDesc & vbCrLf
     Else
         If nErrorType = ODBC_CALL_FAIL Then
             m_sOdbcErrorDesc = fnGetOdbcErrorDesc()
-            sMsg = sMsg & vbCrLf & "Error Code = " & m_nErrorCode & vbCrLf & "Error Desc: " & m_sOdbcErrorDesc & vbCrLf
+            sMsg = sMsg & vbCrLf & "Error Code = " & m_vErrorCode & vbCrLf & "Error Desc: " & m_sOdbcErrorDesc & vbCrLf
         End If
     End If
     
@@ -495,6 +495,12 @@ Public Function fnGetOdbcErrorDesc() As String
     
     fnGetOdbcErrorDesc = ""
     For n = 0 To m_engFactor.Errors.Count - 1
+        If m_vErrorCode = ODBC_CALL_FAIL Then
+            If m_engFactor.Errors(n).Number <> ODBC_CALL_FAIL Then
+                m_vErrorCode = m_engFactor.Errors(n).Number
+            End If
+        End If
+        
         If n = 0 Then
             fnGetOdbcErrorDesc = m_engFactor.Errors(n)
         Else
@@ -603,7 +609,7 @@ Private Function WriteToDB(sMsg As String) As Boolean
    
     rsTemp!AppName = m_sAppName
     rsTemp!ProcName = m_sProcName
-    rsTemp!ErrorCode = Str$(m_nErrorCode)
+    rsTemp!ErrorCode = Str$(m_vErrorCode)
     If Len(m_sErrorDesc) > 255 Then
         rsTemp!ErrorDesc = Left(m_sErrorDesc, 255)
     Else
