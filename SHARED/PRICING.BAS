@@ -64,7 +64,7 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -88,7 +88,7 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -110,7 +110,7 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -132,7 +132,7 @@ Private Function sp_price(ByVal sProductLink As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As Database, _
+                            t_dbMainDatabase As DataBase, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
@@ -818,7 +818,7 @@ End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 '       Public cust_adv_action As String * 1
 '       Public mstpc As Integer
 
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     Dim pr_sys_parm As Recordset
    
     #If cDEBUG Then
@@ -869,7 +869,7 @@ Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
     
 End Sub ' set_wrk_date
 
-Private Sub book_pricing(t_dbMainDatabase As Database)
+Private Sub book_pricing(t_dbMainDatabase As DataBase)
     Const SUB_NAME = "book_pricing"
     
     Dim pr_sys_parm As Recordset
@@ -969,7 +969,7 @@ Private Function fnGetSPBook(lCustomer As Long, sWorkLocation As String, lProduc
         strSQL = "SELECT * FROM sp_book" & _
                 " WHERE spb_customer = " & lCustomer & _
                 " AND spb_loc = " & QStr(sWorkLocation) & _
-                " AND spb_prodlnk = " & lProdLnk & _
+                " AND spb_prodlnk = " & lProductlnk & _
                 " AND spb_date <= " & QStr(wrk_date) & _
                 " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
              
@@ -986,7 +986,7 @@ Sub Main()          'include for testing
     Dim t_szConnect As String            'holds ODBC connect string
     Dim t_engFactor As DBEngine          'pointer to database engine
     Dim t_wsWorkSpace As Workspace       'pointer to the default workspace
-    Dim t_dbMainDatabase As Database     'main database handle
+    Dim t_dbMainDatabase As DataBase     'main database handle
 
     #If cDEBUG Then
         Debug.Print " "
