@@ -839,7 +839,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         fnExecuteSQL strSQL, SUB_NAME
         
         strSQL = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, " _
-            & "ih_ship_date, idp_seq_nbr, idp_prodlnk, ilt_trn, ilt_units "
+            & "ih_date, idp_seq_nbr, idp_prodlnk, ilt_trn, ilt_units "
         
         strSQL = strSQL & " FROM ssfactor.inv_header inv_header,"
         strSQL = strSQL & " ssfactor.si_inv_line si_inv_line,"
@@ -855,8 +855,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         
         strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
         strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
-        strSQL = strSQL & " AND ih_ship_date BETWEEN " & tfnDateString(m_sStartDate, True)
+        strSQL = strSQL & " AND ih_date BETWEEN " & tfnDateString(m_sStartDate, True)
         strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
+        strSQL = strSQL & " AND (si_inv_line.idp_movement_flag = 0 OR si_inv_line.idp_movement_flag IS NULL)"
         
         m_nErrorNumber = EC_GET_RECORD_R
         
@@ -900,7 +901,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     If ciTemp.BuySellFedID = "" Then
                         ciTemp.BuySellFedID = m_sCarrier_FEIN  '"000000000"
                     End If
-                    ciTemp.LadingDate = tfnFormatDate(!ih_ship_date)
+                    ciTemp.LadingDate = tfnFormatDate(!ih_date)
                     
                     ciTemp.DetailType = m_sEDIType
                     ciTemp.LadingNumber = tfnRound(!ih_nbr)
