@@ -153,21 +153,26 @@ End Function    ''fQQ
 #End If
 
 Public Function QStr(numORstr As Variant) As String
-    '
-    ' used as follows:  sSql = "SELECT * FROM QQ WHERE ZZ = " & QStr(sParm1)
-    '
-    ' benefits: (1) variables, regardless of type, may be concatenated to a sql string;
-    '               if it is numeric, a non-quoted string is returned;
-    '               otherwise, a double-quoted string is returned:  "value of sParm1"
-    '           (2) string parms containing embedded single and/or  double quotes are properly handled.
-    '
-    Select Case VarType(numORstr)
-        Dim pos As Integer
-        Case vbInteger, vbLong, vbSingle, vbDouble, vbCurrency
-            QStr = CStr(numORstr)           'return numeric as a non-quoted string
-        Case Else
-            QStr = """" & numORstr & """"   'return dbl-quoted string
-    End Select
+    Dim nIdx As Integer
+    Dim nPos As Integer
+    Dim szParameter As String
+    
+    If IsNull(numORstr) Then
+        szParameter = ""
+    Else
+        szParameter = numORstr
+    End If
+
+    nIdx = 1
+    nPos = InStr(nIdx, szParameter, "'")
+    
+    While nPos <> 0
+        szParameter = Left(szParameter, nPos) & "'" & Right(szParameter, Len(szParameter) - nPos)
+        nIdx = nPos + 2
+        nPos = InStr(nIdx, szParameter, "'")
+    Wend
+    
+    QStr = "'" & szParameter & "'"
 End Function 'QStr
 
 
