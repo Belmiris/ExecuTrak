@@ -484,7 +484,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
                 nInputKey = -1
             End If
             If i >= 0 Then
-                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).value
+                GridArray(ColIndex, lEditingRow) = .ValueItems.Item(i).Value
                 nCellChanged(nCol, lEditingRow) = nCellChanged(nCol, lEditingRow) And (Not STATUS_VALIDATED) Or STATUS_CHANGED
                 GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
                 bErrorFlag = fnValidate(ColIndex, lEditingRow, GridArray(ColIndex, lEditingRow))
@@ -694,15 +694,15 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
-            sVal = .value
+            sVal = .Value
         Else
             sVal = GridArray(nCol, lRow)
         End If
         If .ValueItems.Count > 0 Then
             Dim i As Integer
             For i = 0 To .ValueItems.Count - 1
-                If .ValueItems(i).value = .value Then
-                    sVal = .ValueItems(i).value
+                If .ValueItems(i).Value = .Value Then
+                    sVal = .ValueItems(i).Value
                     Exit For
                 End If
             Next
@@ -1074,10 +1074,10 @@ Private Function fnNextValueItemIndex(nCol As Integer)
     Dim vTemp As Variant
     
     fnNextValueItemIndex = -1
-    vTemp = tgTable.Columns(nCol).value
+    vTemp = tgTable.Columns(nCol).Value
     With tgTable.Columns(nCol).ValueItems
         For i = 0 To .Count - 1
-            If .Item(i).value = vTemp Then
+            If .Item(i).Value = vTemp Then
                 Exit For
             End If
         Next i
@@ -2891,7 +2891,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As DataBase, _
+Public Function FillWithSQL(dbSource As Database, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
@@ -3088,11 +3088,11 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
         If (nCellChanged(nECol, lRow) And STATUS_CHANGED) = STATUS_CHANGED Then
             lblStatusbar.ForeColor = &H8000&  'Green text
             lblStatusbar.Caption = "Data is valid"
-            lblStatusbar.Font.bOld = False
+            lblStatusbar.Font.Bold = False
         Else
             lblStatusbar.Caption = sPrompt(nECol)
             lblStatusbar.ForeColor = &H80000012
-            lblStatusbar.Font.bOld = False
+            lblStatusbar.Font.Bold = False
         End If
     Else
         Dim bAddRow As Boolean
@@ -3111,11 +3111,11 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
                 End If
             End If
             lblStatusbar.ForeColor = &HFF&       'Red Text on
-            lblStatusbar.Font.bOld = True
+            lblStatusbar.Font.Bold = True
         Else
             lblStatusbar.Caption = sPrompt(nECol)
             lblStatusbar.ForeColor = &H80000012
-            lblStatusbar.Font.bOld = False
+            lblStatusbar.Font.Bold = False
         End If
     End If
     lblStatusbar.Refresh
@@ -3278,6 +3278,7 @@ Public Sub FillWithArray(arryData() As Variant, _
 
 '    bmLastRow = BookMark(0)
     bClearData = True
+    bErrorFlag = False
     bValidating = True
     tgTable.Row = 0
     If bClear Then
@@ -3989,12 +3990,12 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
         '    the ReDim statement
             If j% >= 0 And j% < nMaxCol Then
                 If sDisplayFormat(j%) <> "" Then
-                    RowBuf.value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
+                    RowBuf.Value(i%, j%) = Format$(GridArray(j%, nIndex), sDisplayFormat(j%))
                 Else
-                    RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                    RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
                 End If
             Else
-                RowBuf.value(i%, j%) = GridArray(j%, nIndex)
+                RowBuf.Value(i%, j%) = GridArray(j%, nIndex)
             End If
         
         Next j%
