@@ -25,6 +25,7 @@ Private m_lBackColor() As Long
 
 Public Sub AddCondition(nCol As Integer, ParamArray aryColorCond() As Variant)
     Dim i As Integer
+    Dim j As Integer
     
     i = -1
     
@@ -41,6 +42,7 @@ Public Sub AddCondition(nCol As Integer, ParamArray aryColorCond() As Variant)
     
     'syntax for condition check: XopY,
     'X means old cell value, op can be (==, <>, >>, <<, GT, LT),
+    'Y can be COLHEADING means the cell value is a caption for column heading,
     'Y can be ~ means new cell value,
     'Y can be a constant number,
     'Y can be [Z] means a cell value in ColZ
@@ -56,10 +58,15 @@ Public Sub AddCondition(nCol As Integer, ParamArray aryColorCond() As Variant)
     ReDim m_lForeColor(ConditionCount)
     ReDim m_lBackColor(ConditionCount)
     
+    j = -1
+    
     For i = 0 To ConditionCount
-        m_sCondition(i) = aryColorCond(0)(i)
-        m_lForeColor(i) = aryColorCond(0)(i + 1)
-        m_lBackColor(i) = aryColorCond(0)(i + 2)
+        j = j + 1
+        m_sCondition(i) = aryColorCond(0)(j)
+        j = j + 1
+        m_lForeColor(i) = aryColorCond(0)(j)
+        j = j + 1
+        m_lBackColor(i) = aryColorCond(0)(j)
     Next
 End Sub
 

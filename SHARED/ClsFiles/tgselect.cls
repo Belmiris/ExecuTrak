@@ -1185,6 +1185,7 @@ End Sub
 Public Sub RemoveMultiSelectCellColumn(nCol As Integer)
     On Error Resume Next
     m_colMultiSelCellColumns.Remove fnMakeKey(nCol)
+    m_tgTable.Columns(nCol).FetchStyle = False
 End Sub
 
 Property Let MultiSelectRowFeature(bOnOff As Boolean)
