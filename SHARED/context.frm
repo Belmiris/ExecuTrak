@@ -263,6 +263,7 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
 
 '    Set objToolbar = New clsToolbar
     Set frmMainForm = frmTemp
+    On Error GoTo errSetup1
     Set objToolbar = CreateObject(t_szOLETBKit)
     With objToolbar
         Set .ContextForm = Me
@@ -303,6 +304,11 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
         .BeginSetupToolbar frmTemp
     End With
     subCheckError
+    Exit Sub
+errSetup1:
+    If Err.Number = 429 Then
+        MsgBox "Toolbar OLE is not registered properly. Please contact Factor."
+    End If
 End Sub
 
 
