@@ -1,3 +1,10 @@
+version 3.28.0604 szheng
+Date: 09/23/2004
+#443059 Trigas Meter Reading Cards 
+
+Description:
+	Add a new table zztg_meter_cards which is used by a crystal report.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ''''DONE - 3.28.0403 - 04/07/2004 ''''''''''''''''''''''''
 version: 3.28.0403 davidc
 Date: 03/22/2004
