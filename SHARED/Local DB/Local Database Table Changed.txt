@@ -1,3 +1,10 @@
+version: 3.26.2
+Date: 11/12/2001
+Description: 
+Description: 
+	Murphy Voucher Jacket Fixed.
+	alter table vouch_jacket_rpt add vjr_less_disc text(20);
+
 version: 3.26.1
 Date: 11/02/2001
 Description: 
