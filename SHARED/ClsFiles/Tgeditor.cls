@@ -4116,8 +4116,14 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer) As B
         RowColChange = True
         Exit Function
     End If
-    If ((nLastColumn <> tgTable.col) Or nColumnCount = 1) Then
-        fnCheckForError LastRow
+    If nReturnKeyAction = RETURN_KEY_DOWN Then
+        If ((nLastTableRow <> tgTable.Row) Or nColumnCount = 1) Then
+            fnCheckForError LastRow
+        End If
+    Else
+        If ((nLastColumn <> tgTable.col) Or nColumnCount = 1) Then
+            fnCheckForError LastRow
+        End If
     End If
     If bErrorFlag Then
 '        nCol = fnColumnNumber(tgTable.col)
