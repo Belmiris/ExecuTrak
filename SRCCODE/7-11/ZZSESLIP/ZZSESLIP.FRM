@@ -108,7 +108,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZSESLIP
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -506,7 +506,7 @@ Begin VB.Form frmZZSESLIP
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            = 9.75 
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -541,7 +541,7 @@ Begin VB.Form frmZZSESLIP
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSESLIP
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2004,7 +2004,11 @@ Private Function fnValidPrftCtr(szText As String, lRow As Long, nCol As Integer)
         Exit Function
     End If
     
-    strSQL = "SELECT * FROM sys_prft_ctr WHERE prft_ctr = " & Trim(szText)
+    strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr, pr_master WHERE prft_ctr = " & Trim(szText)
+    strSQL = strSQL & " AND prm_empno = " & tfnRound(frmZZSESLIP!txtEmployee)
+    strSQL = strSQL & " AND (prm_prft_ctr1 = prft_ctr OR prm_prft_ctr2 = prft_ctr "
+    strSQL = strSQL & " OR prm_prft_ctr3 = prft_ctr OR prm_prft_ctr4 = prft_ctr "
+    strSQL = strSQL & " OR prm_prft_ctr5 = prft_ctr) "
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <> 1 Then
         tgmSlip.ErrorMessage(ColPrftCtr) = "Invalid profit center specified"
