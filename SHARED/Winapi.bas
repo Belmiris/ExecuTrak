@@ -248,6 +248,14 @@ Public Const SC_HOTKEY = &HF150
         (ByVal lpExistingFileName As String, ByVal lpNewFileName As String, _
         ByVal bFailIfExists As Long) As Long
 
+    'david 11/15/00
+    Public Declare Function SendMessageByNum Lib "user32" Alias _
+    "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal _
+    wParam As Long, ByVal lParam As Long) As Long
+    
+    Public Const LB_SETHORIZONTALEXTENT = &H194
+
+    
 #Else
     Type POINTAPI 'Point structure
         x As Integer
