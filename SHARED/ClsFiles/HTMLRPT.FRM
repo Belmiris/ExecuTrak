@@ -122,7 +122,7 @@ Public Sub BuildInternetReport(frmMain As Form, _
         m_sReportID = UCase(App.Title)
     End If
     
-    m_sURL = LCase(App.Path & "\" & sReportID) & ".html"
+    m_sURL = LCase(App.Path & "\" & m_sReportID) & ".html"
     m_nFileNum = FreeFile
 
     Open m_sURL For Output As #m_nFileNum
