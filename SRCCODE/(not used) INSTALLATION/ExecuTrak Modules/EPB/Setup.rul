@@ -52,7 +52,7 @@ declare
         NUMBER nTemp, i;
         STRING szBaseDirectory;
         STRING szDestMsg, svUninstLogFile;
-        STRING szMsg, szNumber, szTemp, szFolder;
+        STRING szMsg, szNumber, szTemp, szFolder, szDisk;
         STRING szSCIcon, szSCExe, szSCWork, szAppDir;
         STRING szOldRunValue, szNewRunValue;
         STRING szDBFrom, szDBTo, szForceInstall;
@@ -67,6 +67,7 @@ declare
         prototype CopySetup();
 	prototype CopyLocalDB(STRING);
 	prototype fnFindFile(STRING, STRING);
+	prototype UpdatePBFEDIEX_INI();
 	prototype fnFinishReboot(STRING);
 
 
@@ -175,23 +176,23 @@ GetTargetPath:
         szTemp = szBaseDirectory ^ "";
         StrToLower(szTemp, szTemp);
 
-        ParsePath(szFolder, szBaseDirectory, DISK);
-        StrToLower(szFolder, szFolder);
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        StrToLower(szDisk, szDisk);
 
         nTemp = StrFind(szTemp, szFolder ^ "factor");
 
-        StrToUpper(szFolder, szFolder);
+        StrToUpper(szDisk, szDisk);
 
         if (nTemp < 0) then   //incorrect directory
                 szMsg = PRODUCT_NAME + " Program Directory '" +
                     szBaseDirectory + "\\' is not valid.\n\n";
                 szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
-                    szFolder ^ APP_BASE_PATH + "' directory.";
+                    szDisk ^ APP_BASE_PATH + "' directory.";
 
                 MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
         endif;
 
-        szBaseDirectory = szFolder ^ APP_BASE_PATH;
+        szBaseDirectory = szDisk ^ APP_BASE_PATH;
 
 
 Check_Disk_Space:
@@ -242,7 +243,7 @@ StartCopy:
 
 	CopySetup();
 
-        	szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
+	szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
 
 	LOGMSG="INSTALLING IN : " + szBaseDirectory;
 	LOGWRITE(LOGMSG);
@@ -370,7 +371,7 @@ StartCopy:
 
                 // These go into the FACTOR\EXECTRAK directory
                 if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
+		COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
                         MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -386,7 +387,7 @@ StartCopy:
                 LOGWRITE(LOGMSG);
 
                 if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+	      	COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("SHARED.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -402,7 +403,7 @@ StartCopy:
                 LOGWRITE(LOGMSG);
 
                 if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+		COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -411,13 +412,13 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 
 //OLEs
- 	TARGETDIR = szBaseDirectory ^ "OLE";
+	 	TARGETDIR = szBaseDirectory ^ "OLE";
 
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
                 if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+		COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -433,7 +434,7 @@ StartCopy:
                 LOGWRITE(LOGMSG);
         
                 if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+	      	COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -447,7 +448,7 @@ StartCopy:
                 LOGWRITE(LOGMSG);
         
                 if (CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+	      	COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CRYSTAL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -459,7 +460,7 @@ StartCopy:
                 LOGWRITE(LOGMSG);
 
                 if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
-	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+	      	COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("RTM.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -576,6 +577,9 @@ StartCopy:
 
         SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
 
+	//create \FACTOR\TRNSLATE and \FACTOR\TRNSLATE\BACK directory
+	UpdatePBFEDIEX_INI();
+
 	// add registry information
 	LOGMSG="ADDING REGISTRY INFORMATION";
 	LOGWRITE(LOGMSG);
@@ -592,7 +596,7 @@ StartCopy:
 	if (BATCH_INSTALL) then
 		CopyLocalDB("First");    
 	else
-        		CopyLocalDB("");
+		CopyLocalDB("");
 	endif;   
 
 	LOGMSG="MUST REBOOT BEFORE RUNNING";
@@ -860,6 +864,84 @@ begin
         CommitSharedFiles(0);
 
         System(SYS_BOOTMACHINE);
+
+end;
+
+
+function UpdatePBFEDIEX_INI()
+
+        STRING szTemp, szOldValue, szNewValue, szINI, szKey;
+
+begin
+
+        LOGMSG="START UPDATING PBFEDIEX.INI";
+	LOGWRITE(LOGMSG);
+
+	szINI = szBaseDirectory ^ "BIN" ^ "PBFEDIEX.INI";
+
+	szKey = "Incoming file path";
+	szNewValue = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+
+        if (GetProfString(szINI, "EPB", szKey, szOldValue) = 0) then
+                ReplaceProfString(szINI, "EPB", szKey, szOldValue, szNewValue);
+        else
+                WriteProfString(szINI, "EPB", szKey, szNewValue);
+        endif;
+
+	// and update PBFEDIEX.INI file
+	szTemp = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+        if (ExistsDir(szTemp) = NOTEXISTS) then
+                if (CreateDir(szTemp) < 0) then
+                        MessageBox("Cannot create directory: " + szTemp, SEVERE);
+                endif;
+        endif;
+
+	szTemp = szDisk ^ APP_BASE_PATH ^ "TRNSLATE" ^ "BACK";
+        if (ExistsDir(szTemp) = NOTEXISTS) then
+                if (CreateDir(szTemp) < 0) then
+                        MessageBox("Cannot create directory: " + szTemp, SEVERE);
+                endif;
+        endif;
+	
+
+	szKey = "Factor EDI input file path";
+	szNewValue = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+
+        if (GetProfString(szINI, "EPB", szKey, szOldValue) = 0) then
+                ReplaceProfString(szINI, "EPB", szKey, szOldValue, szNewValue);
+        else
+                WriteProfString(szINI, "EPB", szKey, szNewValue);
+        endif;
+
+	szKey = "Factor EDI output file path";
+	szNewValue = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+
+        if (GetProfString(szINI, "EPB", szKey, szOldValue) = 0) then
+                ReplaceProfString(szINI, "EPB", szKey, szOldValue, szNewValue);
+        else
+                WriteProfString(szINI, "EPB", szKey, szNewValue);
+        endif;
+
+	szKey = "EDI Translator Path";
+	szNewValue = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+
+        if (GetProfString(szINI, "EPB", szKey, szOldValue) = 0) then
+                ReplaceProfString(szINI, "EPB", szKey, szOldValue, szNewValue);
+        else
+                WriteProfString(szINI, "EPB", szKey, szNewValue);
+        endif;
+
+	szKey = "XML Translator Path";
+	szNewValue = szDisk ^ APP_BASE_PATH ^ "TRNSLATE";
+
+        if (GetProfString(szINI, "EPB", szKey, szOldValue) = 0) then
+                ReplaceProfString(szINI, "EPB", szKey, szOldValue, szNewValue);
+        else
+                WriteProfString(szINI, "EPB", szKey, szNewValue);
+        endif;
+
+        LOGMSG="END UPDATING PBFEDIEX.INI";
+	LOGWRITE(LOGMSG);
 
 end;
 
