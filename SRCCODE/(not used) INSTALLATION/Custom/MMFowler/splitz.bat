@@ -29,7 +29,9 @@ move ..\disk\rtm.2 ..\disk\disk5
 move ..\disk\rtm.3 ..\disk\disk6
 
 echo NO split factdb.z
-copy ..\disk\factdb.z ..\disk\disk6
+call fsplit ..\disk\factdb.z ..\disk 100
+move ..\disk\factdb.1 ..\disk\disk6
+move ..\disk\factdb.2 ..\disk\disk7
 
 
 echo .
