@@ -4527,7 +4527,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
         
         Case 1  '[NUMERIC_TYPE|STRING_TYPE]
             
-            If argSortOnKeyList(i) <> NUMERIC_TYPE And argSortOnKeyList(i) <> STRING_TYPE Then
+            If argSortOnKeyList(i) <> m_NUMERIC_TYPE And argSortOnKeyList(i) <> m_STRING_TYPE Then
                 MsgBox "Invalid Column Type [NUMERIC_TYPE|STRING_TYPE].", vbExclamation
                 Exit Sub
             End If
@@ -4536,7 +4536,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
         
         Case 2  '[ASCENDING|DESCEDING]
             
-            If argSortOnKeyList(i) <> ASCENDING And argSortOnKeyList(i) <> DESCEDING Then
+            If argSortOnKeyList(i) <> m_ASCENDING And argSortOnKeyList(i) <> m_DESCENDING Then
                 MsgBox "Invalid Sort Order [ASCENDING|DESCEDING].", vbExclamation
                 Exit Sub
             End If
@@ -4545,7 +4545,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
         
         Case 3  '[CASE_SENSITIVE|CASE_INSENSITIVE]
             
-            If argSortOnKeyList(i) <> CASE_SENSITIVE And argSortOnKeyList(i) <> CASE_INSENSITIVE Then
+            If argSortOnKeyList(i) <> m_CASE_SENSITIVE And argSortOnKeyList(i) <> m_CASE_INSENSITIVE Then
                 MsgBox "Invalid Sort Order [CASE_SENSITIVE|CASE_INSENSITIVE].", vbExclamation
                 Exit Sub
             End If
@@ -4665,7 +4665,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     nSortCount = -1
     
     For n = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
-        If m_arySortCol(n, nIndex).nColType = NUMERIC_TYPE Then
+        If m_arySortCol(n, nIndex).nColType = m_NUMERIC_TYPE Then
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 dfData1 = 0
             Else
@@ -4678,7 +4678,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
                 dfData2 = Val(vData(m_arySortCol(n, nIndex).nColIndex, k))
             End If
             
-            If m_arySortCol(n, nIndex).nSortOrder = ASCENDING Then
+            If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
                 If dfData1 > dfData2 Then
                     fnCompareSortKeysNeedToSwap = True
                     Exit Function
@@ -4699,7 +4699,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 sData1 = ""
             Else
-                If m_arySortCol(n, nIndex).nCaseSensitive = CASE_SENSITIVE Then
+                If m_arySortCol(n, nIndex).nCaseSensitive = m_CASE_SENSITIVE Then
                     sData1 = vData(m_arySortCol(n, nIndex).nColIndex, j)
                 Else
                     sData1 = UCase(vData(m_arySortCol(n, nIndex).nColIndex, j))
@@ -4709,14 +4709,14 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
                 sData2 = ""
             Else
-                If m_arySortCol(n, nIndex).nCaseSensitive = CASE_SENSITIVE Then
+                If m_arySortCol(n, nIndex).nCaseSensitive = m_CASE_SENSITIVE Then
                     sData2 = vData(m_arySortCol(n, nIndex).nColIndex, k)
                 Else
                     sData2 = UCase(vData(m_arySortCol(n, nIndex).nColIndex, k))
                 End If
             End If
         
-            If m_arySortCol(n, nIndex).nSortOrder = ASCENDING Then
+            If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
                 If sData1 > sData2 Then
                     fnCompareSortKeysNeedToSwap = True
                     Exit Function
