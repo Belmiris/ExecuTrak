@@ -131,19 +131,18 @@ Begin VB.Form frmZZSEBCMT
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         CurrTab         =   2
          TabsPerPage     =   4
          Caption         =   "Co&mmission Code|Comm &Type / Freq|Commission &Grades"
          Begin FACTFRMLib.FactorFrame efraBaseGrades 
-            Height          =   5055
-            Left            =   15
+            Height          =   5085
+            Left            =   18150
             TabIndex        =   29
             TabStop         =   0   'False
-            Top             =   15
-            Width           =   8880
+            Top             =   0
+            Width           =   8910
             _Version        =   65536
-            _ExtentX        =   15663
-            _ExtentY        =   8916
+            _ExtentX        =   15716
+            _ExtentY        =   8969
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -449,7 +448,7 @@ Begin VB.Form frmZZSEBCMT
          End
          Begin FACTFRMLib.FactorFrame efraBaseType 
             Height          =   5085
-            Left            =   -22425
+            Left            =   18075
             TabIndex        =   28
             TabStop         =   0   'False
             Top             =   0
@@ -584,15 +583,15 @@ Begin VB.Form frmZZSEBCMT
             End
          End
          Begin FACTFRMLib.FactorFrame efraBaseBCode 
-            Height          =   5085
-            Left            =   -22500
+            Height          =   5055
+            Left            =   15
             TabIndex        =   26
             TabStop         =   0   'False
-            Top             =   0
-            Width           =   8910
+            Top             =   15
+            Width           =   8880
             _Version        =   65536
-            _ExtentX        =   15716
-            _ExtentY        =   8969
+            _ExtentX        =   15663
+            _ExtentY        =   8916
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1408,9 +1407,7 @@ Private Sub Form_Load()
             Unload Me
             Exit Sub
         End If
-    #If Not FACTOR_MENU Then
-        t_szConnect = "ODBC;DSN=vbdev;DB=/factor/vbdev/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=ssfactor;PWD=ebcdic"
-    #End If
+
         
         If tfnOpenDatabase = False Then 'open the database, ODBC Dialog Box during developemnt, oleObject Connection String when not
             Unload Me
@@ -2206,8 +2203,18 @@ Private Sub subSetFloatingSQL(Index As Integer)
         
     ElseIf Index = nGrade Then
         sCheckDubInGrid = fnCheckDubInGrid(nColBGLevel, tgmBonus(Index).GetCurrentRowNumber, Index)
-        sSql = "SELECT grade_level FROM tmpGradeLevel WHERE grade_level NOT IN ("
-        sSql = sSql & sCheckDubInGrid & ")"
+        sSql = "SELECT grade_level FROM tmpGradeLevel"
+        If sCheckDubInGrid <> "" Then
+            sSql = sSql & " WHERE grade_level NOT IN ( "
+            sSql = sSql & sCheckDubInGrid & " )"
+            If t_nFormMode = ADD_MODE Then
+                sSql = sSql & " AND grade_level NOT IN ( SELECT bg_emp_level FROM bonus_grades ) "
+            End If
+        Else
+            If t_nFormMode = ADD_MODE Then
+                sSql = sSql & " WHERE grade_level NOT IN ( SELECT bg_emp_level FROM bonus_grades ) "
+            End If
+        End If
         tgfDropdown(Index).SetSQL nColBGLevel, sSql
     End If
 
@@ -2593,13 +2600,13 @@ Private Function fnCheckDubInGrid(nCol_Nbr As Integer, lCurrRow As Long, _
             If k <> lCurrRow Then
                 If sTemp = "" Then
                     If nCol_Nbr = nColBGLevel Then
-                        sTemp = tgmBonus(Index).CellValue(nColCode, k)
+                        sTemp = tgmBonus(Index).CellValue(nColBGLevel, k)
                     Else
                         sTemp = tfnSQLString(tgmBonus(Index).CellValue(nColCode, k))
                     End If
                 Else
                     If nCol_Nbr = nColBGLevel Then
-                        sTemp = sTemp & "," & tgmBonus(Index).CellValue(nColCode, k)
+                        sTemp = sTemp & "," & tgmBonus(Index).CellValue(nColBGLevel, k)
                     Else
                         sTemp = sTemp & "," & tfnSQLString(tgmBonus(Index).CellValue(nColCode, k))
                     End If
@@ -2771,7 +2778,9 @@ Private Sub tblBonus_BeforeColEdit(Index As Integer, ByVal ColIndex As Integer, 
     'add
     
     If t_nFormMode = ADD_MODE And Index = nBonusCode And ColIndex = nColBCOverride Then
-        tgmBonus(Index).CellValue(ColIndex, tgmBonus(Index).GetCurrentRowNumber) = "N"
+        If Trim(tgmBonus(Index).CellValue(ColIndex, tgmBonus(Index).GetCurrentRowNumber)) = "" Then
+            tgmBonus(Index).CellValue(ColIndex, tgmBonus(Index).GetCurrentRowNumber) = "N"
+        End If
     End If
     tgmBonus(Index).BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
@@ -2998,12 +3007,12 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     fnValidGradeLevel = False
     
     If Trim(szText) = "" Then
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "You must enter a grade level"
+        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "You must enter a Grade Level"
         Exit Function
     End If
     
     If tfnRound(szText) < 0 Then
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade level must be greater than 0"
+        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level must be greater than 0"
         Exit Function
     End If
     
@@ -3013,7 +3022,7 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
         strSQL = "SELECT prm_emp_level FROM pr_master WHERE prm_emp_level = " & tfnRound(szText)
         strSQL = strSQL + " GROUP BY prm_emp_level"
         If GetRecordCount(strSQL, , SUB_NAME) = 0 Then
-            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade level does not exist"
+            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level does not exist"
             Exit Function
         End If
     #End If
@@ -3022,9 +3031,15 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     If t_nFormMode = ADD_MODE Then
         strSQL = "SELECT bg_grade FROM bonus_grades WHERE bg_emp_level = " & tfnRound(szText)
         If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
-            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade level already been assigned to Grade " + tfnSQLString(fnGetField(rsTemp!bg_grade))
+            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level already been assigned to Grade " + tfnSQLString(fnGetField(rsTemp!bg_grade))
             Exit Function
         End If
+    End If
+    'check pr_master table for valid values
+    strSQL = "SELECT grade_level FROM tmpGradeLevel WHERE grade_level = " & tfnRound(szText)
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) = 0 Then
+        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level is not a valid value. "
+        Exit Function
     End If
     
     'check for duplication
@@ -3251,38 +3266,39 @@ Private Function fnCreateTbl_tmpGradeLevel() As Boolean
 err_handler:
     tfnErrHandler SUB_NAME, strSQL
 End Function
-Private Function fnUpdateTbl_tmpGradeLevel(tblIndex As Integer) As Boolean
-    Const SUB_NAME = "fnUpdateTbl_tmpGradeLevel"
-    Dim strSQL As String
-    Dim vTemp() As Variant
-    Dim rsTemp As Recordset
-    Dim lRows As Long
-    
-    fnCreateTbl_tmpGradeLevel = False
-    
-    On Error GoTo err_handler
-    If Not fnCreateTbl_tmpGradeLevel Then
-        Exit Function
-    End If
-       
-    tgmBonus(tblIndex).GetRecords vTemp, lRows, "bg_emp_level"
-    
-    If lRows <= 0 Then
-        fnUpdateTbl_tmpGradeLevel = True
-        Exit Function
-    End If
-    
-    Dim i As Integer
-    Dim nLevel As Integer
-    For i = 0 To lRows - 1
-        nLevel = vTemp(0, i)
-        strSQL = "DELETE FROM tmpGradeLevel WHERE grade_level=" & nLevel
-        t_dbMainDatabase.ExecuteSQL strSQL
-    
-    Next
-    fnUpdateTbl_tmpGradeLevel = True
-    Exit Function
-err_handler:
-    tfnErrHandler SUB_NAME, strSQL
-End Function
 
+'Private Function fnUpdateTbl_tmpGradeLevel(tblIndex As Integer) As Boolean
+'    Const SUB_NAME = "fnUpdateTbl_tmpGradeLevel"
+'    Dim strSQL As String
+'    Dim vTemp() As Variant
+'    Dim rsTemp As Recordset
+'    Dim lRows As Long
+'
+'    fnCreateTbl_tmpGradeLevel = False
+'
+'    On Error GoTo err_handler
+'    If Not fnCreateTbl_tmpGradeLevel Then
+'        Exit Function
+'    End If
+'
+'    tgmBonus(tblIndex).GetRecords vTemp, lRows, "bg_emp_level"
+'
+'    If lRows <= 0 Then
+'        fnUpdateTbl_tmpGradeLevel = True
+'        Exit Function
+'    End If
+'
+'    Dim i As Integer
+'    Dim nLevel As Integer
+'    For i = 0 To lRows - 1
+'        nLevel = vTemp(0, i)
+'        strSQL = "DELETE FROM tmpGradeLevel WHERE grade_level=" & nLevel
+'        t_dbMainDatabase.ExecuteSQL strSQL
+'
+'    Next
+'    fnUpdateTbl_tmpGradeLevel = True
+'    Exit Function
+'err_handler:
+'    tfnErrHandler SUB_NAME, strSQL
+'End Function
+'
