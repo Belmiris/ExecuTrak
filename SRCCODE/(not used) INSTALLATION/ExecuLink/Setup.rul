@@ -73,6 +73,13 @@ program
 
 
 StartHere:
+
+	StrSub(szTemp, CMDLINE, 0, 8);
+	if szTemp = "CPYLOCAL" then
+		CopyLocalDB("Second");
+		exit;
+	endif;
+
         INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
 
         //set installation header
@@ -502,7 +509,7 @@ StartCopy:
 	LOGWRITE(LOGMSG);
 
 	szFolder = COMPANY_NAME;
-	szAppDir = szBaseDirectory ^ PRODUCT_SUBDIR;
+	szAppDir = szBaseDirectory;
 	szSCWork = szAppDir;
 	szSCIcon = "";
 	
