@@ -666,7 +666,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         'david 08/27/99
         'now for 10A-non hwy use, need to consider both Internal and External Delivery!
         'david 03/17/00
-        If nTypeCode <> "7" And nTypeCode <> "10A" Then
+        '5J-OK BZ, need to consider both Internal and External Delivery!
+        'david 03/24/00
+        If nTypeCode <> "7" And nTypeCode <> "10A" And nTypeCode <> "5J" Then
             strSQL = strSQL & " AND fmd_dest_flag = 'E'"
         End If
         
@@ -685,7 +687,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         'david 08/18/99
         'for Others Schedule DO IT, becuase it work before
         'david 08/27/99
-        If nTypeCode = "7" Then
+        'david 03/24/00
+        If nTypeCode = "7" Or nTypeCode = "10A" Or nTypeCode = "5J" Then
             strSQL = "SELECT DISTINCT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, " _
                 & " fmd_invoice, fmd_dest_code, fmd_dest_flag, fmd_prft_ctr, fmd_date" _
                 & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
@@ -716,7 +719,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
         
-        If nTypeCode = "7" Then
+        If nTypeCode = "7" Or nTypeCode = "10A" Or nTypeCode = "5J" Then
             strSQL = "SELECT DISTINCT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
                 & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
                 & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount" _
