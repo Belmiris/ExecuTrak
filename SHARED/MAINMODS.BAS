@@ -233,6 +233,7 @@ Public Function start_of_program(un As String)
     init_fast = False
     init_fsys = False
     init_wndw = False
+    CleanUp rs
     ''set lock mode to wait
 End Function    ''start_of_program
 
@@ -282,7 +283,7 @@ Public Sub top_bar(f As String, k As String)
     j = 79 '' spaces char*
     j(66, 78) = "Help = Ctrl-w"
     j(2, 9) = f
-    lLen = Length(k)
+    lLen = length(k)
     strt = (79 - lLen) / 2
     j(strt, strt + lLen) = k ' /* clipped */
     '' comment out this next call for rds
@@ -298,13 +299,13 @@ Public Sub top_company(k As String)
     Dim lLen As Long, strt As Long
     '' display "" at 1,1
     '' display "" at 2,1
-    lLen = Length(pr_company_con_name)
+    lLen = length(pr_company_con_name)
     strt = (80 - lLen) / 2
     '' display pr_company_con_name at 1,strt
     If k = Null Then
             k = Date
     End If
-    lLen = Length(k)
+    lLen = length(k)
     strt = (80 - lLen) / 2
     '' display k at 2,strt
 #End If
@@ -336,6 +337,7 @@ Public Sub lderror()
     For i = LBound(pa_serr_active) To conErrmsgDimension
         pa_serr_active(i) = 0   'set current error-counting array to zeroes
     Next
+    CleanUp rs
 End Sub ''lderror
 
 Public Function pserror(i As Long)
@@ -398,6 +400,7 @@ Public Sub dserror(i As Long)
             MsgBox errmsg, vbExclamation, "sub dserror (development only message?)"
         End If
     #End If
+    CleanUp rs_errmsg
 End Sub         ''dserror
 
 Public Sub dsmsg(i As Long)
@@ -419,6 +422,7 @@ Public Sub dsmsg(i As Long)
             MsgBox errmsg, vbExclamation, "sub dsmsg (development only message?)"
         End If
     #End If
+    CleanUp rs_errmsg
 End Sub         ''dsmsg
 
 Public Sub sverrors()
@@ -894,6 +898,7 @@ Public Function process_locked(p As String, Optional vLockUser) As Boolean
             End If
         End If
     End If
+    CleanUp rs
 End Function    ''process_locked
 
 Public Function unlock_process(p As String) As Boolean
@@ -905,6 +910,7 @@ Public Function rprft_name(code As Long) As String
     Dim pr_sys_prft_ctr As Recordset    'Csys_prft_ctr
     Set pr_sys_prft_ctr = fsys_prft_ctr(code, t_dbMainDatabase)
     If Not (pr_sys_prft_ctr Is Nothing) Then rprft_name = pr_sys_prft_ctr!prft_name
+    CleanUp pr_sys_prft_ctr
 End Function    ''rprft_name
 
 Public Function main_warning()
