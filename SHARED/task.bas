@@ -102,11 +102,11 @@ Public Function IsWndRunning(sWindowTitle As String) As Long
     Dim lTemp As Long
     Dim bCheck As Boolean
     
-    Dim sNAME As String
+    Dim sName As String
     Dim sWIN_NAME As String
     Dim sWIN_CLASS As String
     
-    sNAME = UCase(Trim(sWindowTitle))
+    sName = UCase(Trim(sWindowTitle))
     
     IsWndRunning = 0
     hTempWnd = GetDesktopWindow
@@ -132,11 +132,11 @@ Public Function IsWndRunning(sWindowTitle As String) As Long
 '            Debug.Print "sWIN_CLASS=", hTempWnd, sWIN_CLASS
 '        End If
                 
-        If InStr(sWIN_NAME, sNAME) > 0 Then
+        If InStr(sWIN_NAME, sName) > 0 Then
             IsWndRunning = hTempWnd
             Exit Do
         Else
-            If InStr(sWIN_CLASS, sNAME) > 0 Then
+            If InStr(sWIN_CLASS, sName) > 0 Then
                 IsWndRunning = hTempWnd
                 Exit Do
             End If
@@ -188,17 +188,13 @@ Public Function fnExeIsRunning(ByVal sExe As String) As Boolean
     fnExeIsRunning = False
 End Function
 
-Public Function fnRunExe(sExe As String, Optional vMode, Optional vForcedRun) As Boolean
+Public Function fnRunExe(sExe As String, _
+                         Optional nMode As Integer = vbNormalFocus, _
+                         Optional bForcedRun As Boolean = False, _
+                         Optional bCheckRun As Boolean = True) As Boolean
     Dim szErrorMessage As String
-    Dim nMode As Integer
     
-    If IsMissing(vMode) Then
-        nMode = vbNormalFocus
-    Else
-        nMode = vMode
-    End If
-    
-    If IsMissing(vForcedRun) Then
+    If Not bForcedRun Then
         If fnExeIsRunning(sExe) Then
             fnRunExe = True
             Exit Function
@@ -216,10 +212,14 @@ Public Function fnRunExe(sExe As String, Optional vMode, Optional vForcedRun) As
     szErrorMessage = sExe & " " & Err.Description
              
     If (lTempInstance < 0) Or (lTempInstance > SHELL_OK) Then
-        If fnExeIsRunning(sExe) Then
-            fnRunExe = True
+        If bCheckRun Then
+            If fnExeIsRunning(sExe) Then
+                fnRunExe = True
+            Else
+                MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+            End If
         Else
-            MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+            fnRunExe = True
         End If
     Else 'error occured clear handles and display error message
         MsgBox szErrorMessage, vbOKOnly + vbCritical, "Error"
@@ -233,29 +233,29 @@ End Function
 
 Private Function fnExtractFileName(sPath As String) As String
 
-    Dim I As Integer
+    Dim i As Integer
     Dim sTemp As String
     Dim sChar As String * 1
     
-    I = Len(sPath)
+    i = Len(sPath)
     Do
-        sChar = Mid(sPath, I, 1)
-        I = I - 1
+        sChar = Mid(sPath, i, 1)
+        i = i - 1
         If sChar = "." Then
             Exit Do
         End If
-    Loop Until I = 0
-    If I = 0 Then
+    Loop Until i = 0
+    If i = 0 Then
         fnExtractFileName = sPath
     Else
         sTemp = ""
-        Do While I > 0
-            sChar = Mid(sPath, I, 1)
+        Do While i > 0
+            sChar = Mid(sPath, i, 1)
             If sChar = "\" Then
                 Exit Do
             End If
             sTemp = sChar & sTemp
-            I = I - 1
+            i = i - 1
         Loop
         fnExtractFileName = sTemp
     End If
