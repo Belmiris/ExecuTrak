@@ -1265,7 +1265,10 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             End If
             
             strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
-            strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+            strSQL = strSQL & " WHERE bh_chk_link = 0"
+            'david 05/10/2002 #368969
+            'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+            strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_OtHrs + ")"
             strSQL = strSQL & " AND bh_empno = " & lEmpNo
             
         Case "regular_hours"
@@ -1275,7 +1278,10 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             End If
             
             strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
-            strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+            strSQL = strSQL & " WHERE bh_chk_link = 0"
+            'david 05/10/2002 #368969
+            'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+            strSQL = strSQL & " AND bh_pay_code IN (" & sPayCode_RegHrs + ")"
             strSQL = strSQL & " AND bh_empno = " & lEmpNo
                         
         Case "two_week_sales"
@@ -3196,4 +3202,139 @@ errTrap:
     tfnErrHandler "fnDateDiff"
 End Function
 
+Public Function fnSetRegularOtHoursPayCode() As Boolean
+    Const SUB_NAME As String = "fnSetRegularOtHoursPayCode"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    Dim i As Integer
+    Dim sTemp As String
+    Dim bError As Boolean
+    
+'david 05/10/2002 #368969
+'commented out old code
+'
+'    Dim sSysParm30854 As String
+'
+'    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 30854"
+'
+'    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+'        subLogErrMsg "Failed to access the database."
+'        subLogErrMsg "Processing terminates."
+'        Exit Function
+'    End If
+'
+'    If rsTemp.RecordCount > 0 Then
+'        If IsNull(rsTemp!parm_field) Then
+'            If bShowDetail Then
+'                subLogErrMsg "SysParm#30854 is NULL"
+'            End If
+'        Else
+'            sSysParm30854 = UCase(rsTemp!parm_field)
+'
+'            If bShowDetail Then
+'                subLogErrMsg "SysParm#30854 = " + tfnSQLString(sSysParm30854)
+'            End If
+'
+'            If Len(sSysParm30854) >= 4 Then
+'                sPayCode_RegHrs = Left(sSysParm30854, 4)
+'            End If
+'
+'            If Len(sSysParm30854) >= 9 Then
+'                sPayCode_OtHrs = Trim(Mid(sSysParm30854, 6, 4))
+'            End If
+'
+'            If bShowDetail Then
+'                subLogErrMsg "Pay Code for Regular Hour = " + tfnSQLString(sPayCode_RegHrs)
+'                subLogErrMsg "Pay Code for Overtime Hour = " + tfnSQLString(sPayCode_OtHrs)
+'            End If
+'
+'        End If
+'
+'    Else
+'        subLogErrMsg "SysParm#30854 not found"
+'    End If
+    
+    sPayCode_OtHrs = ""
+    
+    strSQL = "SELECT zzsep_code FROM zzse_pay_code WHERE zzsep_factor > 1"
 
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        subLogErrMsg "Failed to access the database."
+        subLogErrMsg "Processing terminates."
+        Exit Function
+    End If
+
+    If rsTemp.RecordCount > 0 Then
+        For i = 1 To rsTemp.RecordCount
+            sTemp = fnGetField(rsTemp!zzsep_code)
+            
+            If sTemp <> "" Then
+                If sPayCode_OtHrs = "" Then
+                    sPayCode_OtHrs = tfnSQLString(sTemp)
+                Else
+                    sPayCode_OtHrs = sPayCode_OtHrs + ", " + tfnSQLString(sTemp)
+                End If
+            End If
+            
+            rsTemp.MoveNext
+        Next i
+    
+        If sPayCode_OtHrs = "" Then
+            subLogErrMsg "Pay Code for Overtime Hour was not set up"
+            bError = True
+        Else
+            If bShowDetail Then
+                subLogErrMsg "Pay Code for Overtime Hour = " + sPayCode_OtHrs
+            End If
+        End If
+    Else
+        subLogErrMsg "Pay Code for Overtime Hours was not set up"
+        bError = True
+    End If
+    
+    sPayCode_RegHrs = ""
+    
+    strSQL = "SELECT zzsep_code FROM zzse_pay_code WHERE zzsep_factor = 1"
+
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        subLogErrMsg "Failed to access the database."
+        subLogErrMsg "Processing terminates."
+        Exit Function
+    End If
+
+    If rsTemp.RecordCount > 0 Then
+        For i = 1 To rsTemp.RecordCount
+            sTemp = fnGetField(rsTemp!zzsep_code)
+            
+            If sTemp <> "" Then
+                If sPayCode_RegHrs = "" Then
+                    sPayCode_RegHrs = tfnSQLString(sTemp)
+                Else
+                    sPayCode_RegHrs = sPayCode_RegHrs + ", " + tfnSQLString(sTemp)
+                End If
+            End If
+            
+            rsTemp.MoveNext
+        Next i
+    
+        If sPayCode_RegHrs = "" Then
+            subLogErrMsg "Pay Code for Regular Hour was not set up"
+            bError = True
+        Else
+            If bShowDetail Then
+                    subLogErrMsg "Pay Code for Regular Hour = " + sPayCode_RegHrs
+            End If
+        End If
+    Else
+        subLogErrMsg "Pay Code for Regular Hours was not set up"
+        bError = True
+    End If
+    
+    If bError Then
+        subLogErrMsg "Processing terminates."
+        Exit Function
+    End If
+    
+    fnSetRegularOtHoursPayCode = True
+End Function
