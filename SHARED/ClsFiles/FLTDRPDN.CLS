@@ -139,7 +139,6 @@ Private m_lRowWhenSearchBtnClick As Long
 
 'david 10/25/2001
 Private bHeaderClick As Boolean
-Private sPrevSortingCol As String
 '''''''''''''''''
 '
 
@@ -329,12 +328,12 @@ End Property
 
 
 Private Function fnVisibleColumns(nCol As Integer) As Integer
-    Dim I As Integer
+    Dim i As Integer
     Dim nCount As Integer
     
     nCount = 0
-    For I = 0 To nCol
-        If tgMain.Columns(I).Visible Then
+    For i = 0 To nCol
+        If tgMain.Columns(i).Visible Then
             nCount = nCount + 1
         End If
     Next
@@ -345,7 +344,7 @@ End Function
 
 Private Function fnLocateDropDownTable(colTemp As Collection)
     Dim lCol As Long
-    Dim I As Integer
+    Dim i As Integer
     Dim nExtra As Integer
     Dim nTWidth As Integer
     Dim objCol As Column
@@ -358,8 +357,8 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
         nVisibleColumns = fnVisibleColumns(tgMain.Columns.Count - 1)
     End If
     nExtra = 0
-    For I = 1 To colTemp.Count
-        If colTemp.Item(I).ColumnIndex >= EXTRACOLUMNOFFSET Then
+    For i = 1 To colTemp.Count
+        If colTemp.Item(i).ColumnIndex >= EXTRACOLUMNOFFSET Then
             nExtra = nExtra + 1
         End If
     Next
@@ -374,50 +373,50 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
         For lCol = 1 To colTemp.Count
             With colTemp.Item(lCol)
                 If .ColumnIndex < EXTRACOLUMNOFFSET Then
-                    I = nExtra + lCol - 1
+                    i = nExtra + lCol - 1
                     Set objCol = tgMain.Columns(.ColumnIndex)
                     nTemp = objCol.Left + objCol.Width
                     If nRight < nTemp Then
                         nRight = nTemp
                     End If
                     If .ColWidth > 0 Then
-                        tgDropDown.Columns(I).Width = .ColWidth
+                        tgDropDown.Columns(i).Width = .ColWidth
                     Else
                         If fnVisibleColumns(.ColumnIndex) >= nVisibleColumns Then
                             bFlag = False
                             If tgMain.ExtendRightColumn Then
                                 nTemp = tgMain.Width
-                                tgDropDown.Columns(I).Width = nTemp - objCol.Left - SCROLLBAR_WIDTH
+                                tgDropDown.Columns(i).Width = nTemp - objCol.Left - SCROLLBAR_WIDTH
                                 If nRight < nTemp Then
                                     nRight = nTemp
                                 End If
                             Else
-                                tgDropDown.Columns(I).Width = objCol.Width - SCROLLBAR_WIDTH
+                                tgDropDown.Columns(i).Width = objCol.Width - SCROLLBAR_WIDTH
                             End If
                         Else
-                                                                                                                                                                                                                     tgDropDown.Columns(I).Width = objCol.Width
+                                                                                                                                                                                                                     tgDropDown.Columns(i).Width = objCol.Width
                         End If
                     End If
                     If .Caption = "" Then
-                        tgDropDown.Columns(I).Caption = objCol.Caption
+                        tgDropDown.Columns(i).Caption = objCol.Caption
                     Else
-                        tgDropDown.Columns(I).Caption = .Caption
+                        tgDropDown.Columns(i).Caption = .Caption
                     End If
                     If .DataField = "" Then
-                        tgDropDown.Columns(I).DataField = objCol.DataField
+                        tgDropDown.Columns(i).DataField = objCol.DataField
                     Else
-                        tgDropDown.Columns(I).DataField = .DataField
+                        tgDropDown.Columns(i).DataField = .DataField
                     End If
                 Else
-                    I = colTemp.Count - lCol
-                    tgDropDown.Columns(I).Width = .ColWidth
-                    tgDropDown.Columns(I).Caption = .Caption
-                    tgDropDown.Columns(I).DataField = .DataField
+                    i = colTemp.Count - lCol
+                    tgDropDown.Columns(i).Width = .ColWidth
+                    tgDropDown.Columns(i).Caption = .Caption
+                    tgDropDown.Columns(i).DataField = .DataField
                 End If
             End With
             tgDropDown.Columns(lCol - 1).Visible = colTemp(lCol).Visible
             If colTemp(lCol).Visible Then
-                nTWidth = nTWidth + tgDropDown.Columns(I).Width
+                nTWidth = nTWidth + tgDropDown.Columns(i).Width
             End If
             nTemp = nRight - nTWidth
             If bFlag Then
@@ -665,20 +664,20 @@ Property Get DropDownCount() As Integer
 End Property
 
 Private Sub fnGetKeys(lDropDown As Long, lColumn As Long, ByVal nCol As Integer)
-    Dim I As Long
+    Dim i As Long
     Dim j As Long
     Dim colTemp As Collection
     
-    For I = 1 To colDropDowns.Count
-        Set colTemp = colDropDowns.Item(I)
+    For i = 1 To colDropDowns.Count
+        Set colTemp = colDropDowns.Item(i)
         For j = 1 To colTemp.Count
             If colTemp.Item(j).ColumnIndex = nCol Then
-                lDropDown = I
+                lDropDown = i
                 lColumn = j
                 Exit Sub
             End If
         Next j
-    Next I
+    Next i
 '    MsgBox "Column not defined for drop down"
     lDropDown = -1
 End Sub
@@ -710,9 +709,9 @@ Private Function fnLoadTable(nColumn As Integer, _
     Dim szCode As String
     Dim szQuery As String
     Dim sTemp As String
-    Dim rstemp As Recordset
+    Dim rsTemp As Recordset
     Dim szLink As String
-    Dim I As Integer
+    Dim i As Integer
     Dim nPos As Integer
     Dim lDropDown As Long
     Dim lCol As Long
@@ -727,8 +726,6 @@ Private Function fnLoadTable(nColumn As Integer, _
         If ColIndex < 0 Then
             Exit Function
         End If
-    Else
-        sPrevSortingCol = ""
     End If
     ''''''''''''''''''
     
@@ -818,19 +815,20 @@ Private Function fnLoadTable(nColumn As Integer, _
                     End If
                 End If
             Next
+            
             If colTemp.Item(1).Unique Then
                 If Not m_clsEdit Is Nothing Then
                     m_clsEdit.GetColumn vData, lCount, nColumn
                     lCol = m_clsEdit.GetCurrentRowNumber
                     sTemp = ""
-                    For I = 0 To lCount - 1
-                        If I <> lCol Then
-                            If Not IsNull(vData(I)) Then
-                                If Trim(vData(I)) <> "" Then
+                    For i = 0 To lCount - 1
+                        If i <> lCol Then
+                            If Not IsNull(vData(i)) Then
+                                If Trim(vData(i)) <> "" Then
                                     If sTemp = "" Then
-                                        sTemp = fnSQLString(vData(I))
+                                        sTemp = fnSQLString(vData(i))
                                     Else
-                                        sTemp = sTemp & "," & fnSQLString(vData(I))
+                                        sTemp = sTemp & "," & fnSQLString(vData(i))
                                     End If
                                 End If
                             End If
@@ -881,22 +879,35 @@ Private Function fnLoadTable(nColumn As Integer, _
     Next
     
     If bIndexFound Then
+        'override the sTemp (ORDER BY fields)
         If stCol.OrderByFields <> "" Then
             sTemp = stCol.OrderByFields
+        Else
+            sTemp = sDataField
         End If
     End If
         
-    sPrevSortingCol = sDataField
-        
     If bCalledByHeaderClick Then
         bHeaderClick = True
+        
+        If stCol.PrevOrderIsAscending() Then
+            'order by descending
+            sTemp = fnFixSortOrder(sTemp, True)
+            stCol.PrevOrderIsAscending() = False
+        Else
+            'order by ascending
+            sTemp = fnFixSortOrder(sTemp, False)
+            stCol.PrevOrderIsAscending() = True
+        End If
+    Else
+        stCol.PrevOrderIsAscending() = True
     End If
     ''''''''''''''''''
     
     szQuery = szQuery & sGroupByClause & " ORDER BY " & sTemp
     
     'Get the records
-    If Not fnGetRecord(rstemp, szQuery, nDatabase) Then
+    If Not fnGetRecord(rsTemp, szQuery, nDatabase) Then
         Screen.MousePointer = vbDefault
         ' Set the return value false
         tgDropDown.Visible = False
@@ -906,12 +917,12 @@ Private Function fnLoadTable(nColumn As Integer, _
     End If
 
     'Check there is something for us to display before we show the results
-    If rstemp.RecordCount > 0 Then
+    If rsTemp.RecordCount > 0 Then
         ' Set load the data table
-        Set datLink.Recordset = rstemp
+        Set datLink.Recordset = rsTemp
 
         ' Set the return values
-        If rstemp.RecordCount = 1 And colTemp.Item(1).PopulateBox Then
+        If rsTemp.RecordCount = 1 And colTemp.Item(1).PopulateBox Then
             fnGetText nColumn
         Else
             While tgDropDown.Columns.Count > 0
@@ -922,8 +933,8 @@ Private Function fnLoadTable(nColumn As Integer, _
                 tgDropDown.Columns(lCol - 1).AllowSizing = False
             Next
 
-            If rstemp.RecordCount < nMaxVisibleRows Then
-                tgDropDown.Height = (tgDropDown.HeadLines + rstemp.RecordCount + 1) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
+            If rsTemp.RecordCount < nMaxVisibleRows Then
+                tgDropDown.Height = (tgDropDown.HeadLines + rsTemp.RecordCount + 1) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
             Else
                 tgDropDown.Height = (tgDropDown.HeadLines + nMaxVisibleRows) * tgDropDown.RowHeight + 2 * Screen.TwipsPerPixelY
             End If
@@ -1066,7 +1077,7 @@ End Function
 
 Private Sub subSetFlagSelection(ByVal lDropDown As Long, _
                                 bStatus As Boolean)
-    Dim I As Integer
+    Dim i As Integer
     m_nSeries = lDropDown
     If m_nSeries > 0 Then
 '        colDropDowns.Item(m_nSeries).Item(1).Status = bValidSelection
@@ -1077,13 +1088,13 @@ End Sub
 Private Function fnCoulmnOrder(nDrpDn As Long, nCol As Integer) As Integer
     Dim colTemp As Collection
     Dim stCol As clsColumns
-    Dim I As Integer
+    Dim i As Integer
 
     fnCoulmnOrder = 0
     Set colTemp = colDropDowns.Item(nDrpDn)
-    For I = 1 To colTemp.Count
-        If colTemp.Item(I).ColumnIndex = nCol Then
-            fnCoulmnOrder = I
+    For i = 1 To colTemp.Count
+        If colTemp.Item(i).ColumnIndex = nCol Then
+            fnCoulmnOrder = i
             Exit For
         End If
     Next
@@ -1098,7 +1109,7 @@ End Property
 Private Sub fnResizeTable(tgTable As TDBGrid)
     Dim fFactor As Single
     Dim nTW As Integer
-    Dim I As Integer
+    Dim i As Integer
     fFactor = frmParent.Height / frmParent.OriginalHeight
     tgTable.Height = nOriginalTableHeight * fFactor
     tgTable.Font.Size = nFontSize * fFactor
@@ -1108,16 +1119,16 @@ Private Sub fnResizeTable(tgTable As TDBGrid)
     nTW = tgTable.Width
     tgTable.Width = nOriginalTableWidth * fFactor
     fFactor = tgTable.Width / nTW
-    For I = 0 To tgTable.Columns.Count - 1
-        tgTable.Columns(I).Width = fFactor * tgTable.Columns(I).Width
-    Next I
+    For i = 0 To tgTable.Columns.Count - 1
+        tgTable.Columns(i).Width = fFactor * tgTable.Columns(i).Width
+    Next i
 End Sub
 
 Public Sub GetColumns(nTemp() As Integer, nCount As Integer, ByVal nColumn As Integer)
     Dim lDropDown As Long
     Dim lColIndex As Long
     Dim colTemp As Collection
-    Dim I As Integer
+    Dim i As Integer
 
     fnGetKeys lDropDown, lColIndex, nColumn
     If lDropDown > 0 Then
@@ -1125,9 +1136,9 @@ Public Sub GetColumns(nTemp() As Integer, nCount As Integer, ByVal nColumn As In
         If colTemp.Count > 0 Then
             ReDim nTemp(colTemp.Count - 1)
             nCount = 0
-            For I = 1 To colTemp.Count
-                If colTemp.Item(I).ColumnIndex < EXTRACOLUMNOFFSET Then
-                    nTemp(nCount) = colTemp.Item(I).ColumnIndex
+            For i = 1 To colTemp.Count
+                If colTemp.Item(i).ColumnIndex < EXTRACOLUMNOFFSET Then
+                    nTemp(nCount) = colTemp.Item(i).ColumnIndex
                     nCount = nCount + 1
                 End If
             Next
@@ -1181,7 +1192,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1270,7 +1281,7 @@ Public Sub AddColumn(nIndex As Integer, _
                      Optional nDropDown As Variant, _
                      Optional sOrderByFields As String = "")
 
-    Dim I As Integer
+    Dim i As Integer
     Dim j As Integer
     Dim stCol As New clsColumns
     Dim colTemp As Collection
@@ -1479,9 +1490,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1520,7 +1531,7 @@ Public Property Get RowWhenSearchClick() As Long
     RowWhenSearchClick = m_lRowWhenSearchBtnClick
 End Property
 
-Public Function fnGetRecord(rstemp As Recordset, strSQL As String, nDB As Integer)
+Public Function fnGetRecord(rsTemp As Recordset, strSQL As String, nDB As Integer)
     ' Get records from the given SQL statement
     ' nDB = 1 ---> Informax Database (remote)
     '     = 2 ---> Access Database (local)
@@ -1528,17 +1539,17 @@ Public Function fnGetRecord(rstemp As Recordset, strSQL As String, nDB As Intege
     On Error GoTo SQLError
     Select Case nDB
         Case DB_INFORMIX
-            Set rstemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         Case DB_ACCESS
-            Set rstemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
+            Set rsTemp = dbMain.OpenRecordset(strSQL, dbOpenSnapshot)
         Case Else
             fnGetRecord = False
             MsgBox "Drop down database not setup", vbOKOnly + vbCritical, frmParent.Caption
             Exit Function
     End Select
-    If rstemp.RecordCount > 0 Then
-        rstemp.MoveLast
-        rstemp.MoveFirst
+    If rsTemp.RecordCount > 0 Then
+        rsTemp.MoveLast
+        rsTemp.MoveFirst
     End If
     
     fnGetRecord = True
@@ -1553,7 +1564,7 @@ SQLError:
 End Function
 
 Private Sub fnGetText(nCol As Integer)
-    Dim I As Integer
+    Dim i As Integer
     Dim lDropDown As Long
     Dim lColumn As Long
     Dim colColumn As Collection
@@ -1573,8 +1584,8 @@ Private Sub fnGetText(nCol As Integer)
         If Not m_clsEdit Is Nothing Then
             m_clsEdit.AddingValidate = True
         End If
-        For I = 1 To colColumn.Count
-            With colColumn.Item(I)
+        For i = 1 To colColumn.Count
+            With colColumn.Item(i)
                 If .ColumnIndex < EXTRACOLUMNOFFSET Then
                     If Not m_clsEdit Is Nothing Then
                         'david 01/24/2001
@@ -1593,7 +1604,7 @@ Private Sub fnGetText(nCol As Integer)
                     End If
                 End If
             End With
-        Next I
+        Next i
         If Not m_clsEdit Is Nothing Then
             m_clsEdit.AddingValidate = False
         End If
@@ -1608,7 +1619,7 @@ Private Sub fnGetText(nCol As Integer)
     Exit Sub
 
 errGetText:
-    tgMain.Columns(colColumn.Item(I).ColumnIndex).Text = ""
+    tgMain.Columns(colColumn.Item(i).ColumnIndex).Text = ""
     Err.Clear
     Resume Next
 End Sub
@@ -1648,7 +1659,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1828,10 +1839,10 @@ Property Set MainTable(tblGrid As Object)
 End Property
 
 Private Function fnColumnNumber(nIndex) As Integer
-    Dim I As Integer
+    Dim i As Integer
     
     fnColumnNumber = -1
-    For I = 0 To nColumnCount - 1
+    For i = 0 To nColumnCount - 1
 '        If nColumns(i) = nIndex Then
 '            fnColumnNumber = i
 '            Exit Function
@@ -1960,7 +1971,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1977,7 +1988,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2015,17 +2026,12 @@ Public Sub TableClick(tgTable As Object)
 End Sub
 
 Public Sub HeadClick(ByVal ColIndex As Integer)
-    If LCase(tgDropDown.Columns(ColIndex).DataField) = sPrevSortingCol Then
-        Exit Sub
-    End If
-    
     fnLoadTable tgMain.col, True, ColIndex
 End Sub
 
 Property Get ValidSelection() As Boolean
     ValidSelection = bValidSelection
     bValidSelection = False
-'    subSetFlagSelection m_nSeries
 End Property
 Property Let ValidSelection(bStatus As Boolean)
     bValidSelection = bStatus
@@ -2072,7 +2078,7 @@ Property Let CursorControl(nIndex As Integer, bStatus As Boolean)
 End Property
 
 Private Sub subInputSelected()
-    Dim I As Integer
+    Dim i As Integer
     Dim colTemp As Collection
     Dim lLastRow As Long
     
@@ -2088,8 +2094,8 @@ Private Sub subInputSelected()
                         DoEvents
                     End If
                     If lLastRow = m_clsEdit.GetCurrentRowNumber Then
-                        For I = 1 To colTemp.Count
-                            If colTemp.Item(I).ColumnIndex = m_clsEdit.ColumnForNewRow Then
+                        For i = 1 To colTemp.Count
+                            If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
                                 m_clsEdit.subAddNewRow m_clsEdit.ColumnForNewRow
                                 If m_nSeries > 0 Then
                                     colDropDowns.Item(m_nSeries).Item(1).Status = False
@@ -2116,7 +2122,7 @@ End Property
 
 Private Sub subShowODBCError(Optional vMsg As Variant, _
                              Optional vSQL As Variant)
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -2133,8 +2139,8 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -2219,7 +2225,7 @@ End Sub
 Public Sub AddOrderByFields(ByVal sDataField As String, _
                             ByVal sOrderByString As String, _
                             Optional nDropDown As Variant)
-    Dim I As Integer
+    Dim i As Integer
     Dim nIndex As Integer
     Dim stCol As New clsColumns
     Dim colTemp As Collection
@@ -2254,10 +2260,10 @@ Public Sub AddOrderByFields(ByVal sDataField As String, _
         Exit Sub
     End If
     
-    I = InStr(UCase(sOrderByString), "ORDER BY")
+    i = InStr(UCase(sOrderByString), "ORDER BY")
     
-    If I > 0 Then
-        sOrderByString = Trim(Mid(sOrderByString, I + Len("ORDER BY")))
+    If i > 0 Then
+        sOrderByString = Trim(Mid(sOrderByString, i + Len("ORDER BY")))
     End If
     
     stCol.OrderByFields = sOrderByString
@@ -2275,19 +2281,19 @@ End Property
 'david 10/30/2001
 'this function will rebuild the criteria string so that it can be used for case insensitive WHERE clause
 'NOTE: need to use the MATCHES keyword in the WHERE clause
-Public Function CaseInSensitiveString(ByVal s As String) As String
-    Dim I As Integer
+Public Function CaseInSensitiveString(ByVal S As String) As String
+    Dim i As Integer
     Dim sRet As String
     Dim sChar As String
     Dim bSpaceFound As Boolean
     
-    s = Trim(s)
+    S = Trim(S)
     
-    If Trim(s) = "" Then
+    If Trim(S) = "" Then
         sRet = "*"
     Else
-        For I = 1 To Len(s)
-            sChar = Mid(s, I, 1)
+        For i = 1 To Len(S)
+            sChar = Mid(S, i, 1)
             If sChar = " " Then
                 If Not bSpaceFound Then
                     sRet = sRet + "*"
@@ -2307,7 +2313,7 @@ Public Function CaseInSensitiveString(ByVal s As String) As String
                 
                 bSpaceFound = False
             End If
-        Next I
+        Next i
             
         'david 11/26/2001
         'sRet = "*" + sRet + "*"
@@ -2429,23 +2435,55 @@ Private Function tfnNormDate(vTemp As String) As Boolean
 End Function
 
 Private Function tfnYear(sText As String) As Integer
-    Dim I As Integer
+    Dim i As Integer
     Dim sChar As String * 1
     Dim sYear As String
     
-    I = Len(sText)
+    i = Len(sText)
     sYear = ""
     Do
-        sChar = Mid(sText, I, 1)
+        sChar = Mid(sText, i, 1)
         If sChar <> "/" And sChar <> "-" Then
             sYear = sChar & sYear
         Else
             Exit Do
         End If
-        I = I - 1
-    Loop Until I <= 1
+        i = i - 1
+    Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
+End Function
+
+'david 01/28/2002
+Private Function fnFixSortOrder(ByVal sOrder As String, bDescending As Boolean) As String
+    Dim nPosi As Integer
+    Dim sTemp As String
+    Dim sOthers As String
+    If sOrder = "" Then
+        Exit Function
+    End If
+    
+    nPosi = InStr(sOrder, ",")
+    
+    If nPosi > 0 Then
+        sTemp = Trim(Left(sOrder, nPosi - 1))
+        sOthers = Mid(sOrder, nPosi)
+    Else
+        sTemp = Trim(sOrder)
+        sOthers = ""
+    End If
+
+    nPosi = InStr(sTemp, " ")
+    
+    If nPosi > 0 Then
+        sTemp = Trim(Left(sTemp, nPosi - 1))
+    End If
+    
+    If bDescending Then
+        sTemp = sTemp + " DESC"
+    End If
+
+    fnFixSortOrder = sTemp + sOthers
 End Function
 

@@ -22,26 +22,34 @@ Attribute VB_Exposed = False
 ' This module defines a class used for by the floating dropdown class module.
 
 Option Explicit
-    Private Const FLAG_VISIBLE = 1
-    Private Const FLAG_CURSOR_CONTROL = 2
-    Private Const FLAG_STATUS = 4
-    Private Const FLAG_UNIQUE = 8
-    Private Const FLAG_POPULATE_BOX = 16
-    Private Const FLAG_MESSAGE = 32
-    Private Const FLAG_CAPTION = 64
     
-    Private nColumn As Integer
-    Private sCaption As String
-    Private sDataField As String
-    Private nColumnType As Integer
-    Private nColumnWidth As Integer
-    'david 10/25/2001
-    Private sOrderByString As String
-    '''''''''''''''''
-    Private sSql As String
-    Private nDropDownType As Integer
-    Private nECDirection As Integer
-    Public m_nFlags As Integer
+Private Const FLAG_VISIBLE = 1
+Private Const FLAG_CURSOR_CONTROL = 2
+Private Const FLAG_STATUS = 4
+Private Const FLAG_UNIQUE = 8
+Private Const FLAG_POPULATE_BOX = 16
+Private Const FLAG_MESSAGE = 32
+Private Const FLAG_CAPTION = 64
+
+Private nColumn As Integer
+Private sCaption As String
+Private sDataField As String
+Private nColumnType As Integer
+Private nColumnWidth As Integer
+
+Private sSql As String
+Private nDropDownType As Integer
+Private nECDirection As Integer
+Public m_nFlags As Integer
+
+'david 10/25/2001
+Private sOrderByString As String
+'''''''''''''''''
+
+'david 01/28/2002
+Private bSortAscending As Boolean
+'''''''''''''''''
+'
 
 Property Get Caption() As String
     Caption = sCaption
@@ -228,3 +236,10 @@ Property Let OrderByFields(sFields As String)
     sOrderByString = sFields
 End Property
 
+Property Get PrevOrderIsAscending() As Boolean
+    PrevOrderIsAscending = bSortAscending
+End Property
+
+Property Let PrevOrderIsAscending(bFields As Boolean)
+    bSortAscending = bFields
+End Property

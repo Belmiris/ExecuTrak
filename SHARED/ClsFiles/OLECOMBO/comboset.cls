@@ -24,29 +24,37 @@ Attribute VB_Exposed = False
 
 Option Explicit
     
-    Private Const MASK_EXTN_DIR = &H3
-    Private Const MASK_KEY_FIELD = &H4
-    Private Const MASK_APPEND_CRTR = &H8
-    Private Const MASK_GET_TEXT = &H10
-    Private Const MASK_TEXT_CHANGED = &H20
-    Private Const MASK_TEXT_VALID = &H40
-    Private Const MASK_AUTO_WIDTH = &H80
-    Private Const MASK_VISIBLE = &H100
-    
-    Private txtBox As Control
-    Private cmdButton As Control
-    Private sColCaption As String
-    Private sDataField As String
-    Private sFieldValue As String
-    Private sAliasName As String
-    Private sRegPattern As String
-    Private nFieldType As Integer
-    Private nColumnWidth As Integer
-    Private nOrderFlag As Integer
-    Private nFlags As Integer
+Private Const MASK_EXTN_DIR = &H3
+Private Const MASK_KEY_FIELD = &H4
+Private Const MASK_APPEND_CRTR = &H8
+Private Const MASK_GET_TEXT = &H10
+Private Const MASK_TEXT_CHANGED = &H20
+Private Const MASK_TEXT_VALID = &H40
+Private Const MASK_AUTO_WIDTH = &H80
+Private Const MASK_VISIBLE = &H100
+
+Private txtBox As Control
+Private cmdButton As Control
+Private sColCaption As String
+Private sDataField As String
+Private sFieldValue As String
+Private sAliasName As String
+Private sRegPattern As String
+Private nFieldType As Integer
+Private nColumnWidth As Integer
+Private nOrderFlag As Integer
+Private nFlags As Integer
+
+'david 01/28/2002
+Private sOrderByString As String
+Private bSortAscending As Boolean
+''''''''''''''''''
+'
+
 Property Let Caption(sCap As String)
     sColCaption = sCap
 End Property
+
 Property Get Caption() As String
     Caption = sColCaption
 End Property
@@ -62,6 +70,7 @@ End Property
 Property Set Button(b As Object)
     Set cmdButton = b
 End Property
+
 Property Get Button() As Object
     Set Button = cmdButton
 End Property
@@ -71,10 +80,9 @@ Property Get ComboType() As Integer
 End Property
 
 Property Let ComboType(nType As Integer)
-    
     nFieldType = nType
-
 End Property
+
 Property Get ColWidth() As Integer
     ColWidth = nColumnWidth
 End Property
@@ -82,6 +90,7 @@ End Property
 Property Let ColWidth(nWidth As Integer)
     nColumnWidth = nWidth
 End Property
+
 Property Get DataField() As String
     DataField = sDataField
 End Property
@@ -109,6 +118,7 @@ Property Let KeyField(bTemp As Boolean)
         nFlags = nFlags And Not MASK_KEY_FIELD
     End If
 End Property
+
 Property Let AppendCriteria(bTemp As Boolean)
     If bTemp Then
         nFlags = nFlags Or MASK_APPEND_CRTR
@@ -116,6 +126,7 @@ Property Let AppendCriteria(bTemp As Boolean)
         nFlags = nFlags And Not MASK_APPEND_CRTR
     End If
 End Property
+
 Property Let Populate(bTemp As Boolean)
     If bTemp Then
         nFlags = nFlags Or MASK_GET_TEXT
@@ -148,6 +159,7 @@ Property Get AppendCriteria() As Boolean
         AppendCriteria = False
     End If
 End Property
+
 Property Get Populate() As Boolean
     If (nFlags And MASK_GET_TEXT) = MASK_GET_TEXT Then
         Populate = True
@@ -180,8 +192,6 @@ Property Get AutoWidth() As Boolean
     End If
 End Property
 
-
-
 Property Let Changed(bTemp As Boolean)
     If bTemp Then
         nFlags = nFlags Or MASK_TEXT_CHANGED
@@ -197,7 +207,6 @@ Property Let AutoWidth(bTemp As Boolean)
         nFlags = nFlags And Not MASK_AUTO_WIDTH
     End If
 End Property
-
 
 Property Get ExtDir() As Integer
     ExtDir = nFlags And MASK_EXTN_DIR
@@ -215,11 +224,9 @@ Property Get RegExpPattern() As String
     RegExpPattern = sRegPattern
 End Property
 
-
 Property Let RegExpPattern(sPattern As String)
     sRegPattern = sPattern
 End Property
-
 
 Property Set Textbox(Box As Object)
     Set txtBox = Box
@@ -238,15 +245,12 @@ Property Get Visible() As Boolean
 End Property
 
 Property Let Visible(bTemp As Boolean)
-
     If bTemp Then
         nFlags = nFlags Or MASK_VISIBLE
     Else
         nFlags = nFlags And Not MASK_VISIBLE
     End If
-
 End Property
-
 
 Private Sub Class_Initialize()
     Set txtBox = Nothing
@@ -255,13 +259,26 @@ Private Sub Class_Initialize()
     sDataField = ""
     sAliasName = ""
     sRegPattern = ""
-
 End Sub
-
 
 Private Sub Class_Terminate()
     Set txtBox = Nothing
     Set cmdButton = Nothing
 End Sub
 
+Property Get OrderByFields() As String
+    OrderByFields = sOrderByString
+End Property
+
+Property Let OrderByFields(sFields As String)
+    sOrderByString = sFields
+End Property
+
+Property Get PrevOrderIsAscending() As Boolean
+    PrevOrderIsAscending = bSortAscending
+End Property
+
+Property Let PrevOrderIsAscending(bFields As Boolean)
+    bSortAscending = bFields
+End Property
 

@@ -11,7 +11,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-
 '***********************************************************'
 '
 ' Copyright (c) 1996 FACTOR, A Division of W.R.Hess Company
@@ -95,6 +94,18 @@ Attribute VB_Exposed = False
 '           Properties: Read-only. Return the constant to determine the type of
 '               a textbox.
 '          SQL_PHONE_TYPE is ADDED on 01/03/2001 WJ
+
+'          ******************************************************************
+'          *david 10/30/2001 for 3.26.xxxx release
+'          *The SQL_STRING_TYPE SQL will be case INSENSITIVE (default)
+'          *This means that the search (such as name, desc and etc.) will NOT BE case sensitive
+'          *
+'          *new property
+'          *CaseSensitive() - set or return the value of the SQL_STRING_TYPE to be treated
+'          *                  True - Query will be case sensitive,
+'          *                  False - Query will NOT be case sensitive
+'          ******************************************************************
+'
 '       f. DropDown, DropUp, and Position
 '           Properties: DropDown and DropUp are read-only, Position is write-only
 '           This three properties is used to set the position where the table appears.
@@ -131,117 +142,121 @@ Attribute VB_Exposed = False
 
 Option Explicit
     
-    #Const DEBUG_MODE = False
-    #If MAKE_DLL Then
-        Private Const dbgBlackLine = 1
-        Private Const dbgFixedSingle = 1
-        Private Const dbgNone = 0
-        Private Const dbgHorizontal = 1
-        Private Const dbgVertical = 2
-        Private Const dbgBoth = 3
-        Private Const dbgAutomatic = 4
-        Private Const dbgHighlightRow = 3
-        Private Const dbg3D = 1
-        Private Const dbgScrollOnSelect = 0
-        Private Const dbgControlNavigation = 0
-        Private Const dbgMarqueeRow = 2
-        Private Const dbgCurrentCell = 1
-        Private Const dbgUnbound = 1
-    #End If
-    
-    Private Const TYPE_STRING As Integer = -1
-    Private Const TYPE_LONG As Integer = -2
-    Private Const TYPE_INT As Integer = -3
-    Private Const TYPE_DECIMAL As Integer = -4
-    Private Const TYPE_DATE As Integer = -5
-    Private Const TYPE_OBJECT As Integer = -6
-    Private Const TYPE_PHONE As Integer = -7
-    Private Const TYPE_CASE_INCENSITIVE As Integer = -8
-    
-    Private Const MAX_TYPES As Integer = -9
-    
-    Private Const TYPE_DCM_INT_MASK = 19 ' a prime
-    Private Const DEFAULT_COLWIDTH As Integer = 1500
-    
-    Private Const FACTORSEARCH = 1
-    Private Const COMMONDROPDOWN = 2
-    
-    Private Const DB_INFORMIX As Integer = 0
-    Private Const DB_ACCESS As Integer = 1
-    
-    Private Const nDROP_DOWN As Integer = 1
-    Private Const nDROP_UP As Integer = 2
-    
-    Private Const nORDERING_DESCENT As Integer = -1
-    Private Const nORDERING_ASSCENT As Integer = 1
-    Private Const nORDERING_NONE As Integer = 2
+#Const DEBUG_MODE = False
+#If MAKE_DLL Then
+    Private Const dbgBlackLine = 1
+    Private Const dbgFixedSingle = 1
+    Private Const dbgNone = 0
+    Private Const dbgHorizontal = 1
+    Private Const dbgVertical = 2
+    Private Const dbgBoth = 3
+    Private Const dbgAutomatic = 4
+    Private Const dbgHighlightRow = 3
+    Private Const dbg3D = 1
+    Private Const dbgScrollOnSelect = 0
+    Private Const dbgControlNavigation = 0
+    Private Const dbgMarqueeRow = 2
+    Private Const dbgCurrentCell = 1
+    Private Const dbgUnbound = 1
+#End If
 
-    Private Const CONTROL_TYPE_TEXTBOX As Integer = 1
-    Private Const CONTROL_TYPE_BUTTON As Integer = 2
-    
-    Private Const nVISIBLEROWS_DEFAULT As Integer = 7
-    Private Const SCROLLBAR_WIDTH As Integer = 264
+Private Const TYPE_STRING As Integer = -1
+Private Const TYPE_LONG As Integer = -2
+Private Const TYPE_INT As Integer = -3
+Private Const TYPE_DECIMAL As Integer = -4
+Private Const TYPE_DATE As Integer = -5
+Private Const TYPE_OBJECT As Integer = -6
+Private Const TYPE_PHONE As Integer = -7
 
-    Private Const EXTRACOLUMNOFFSET = 1000
-    Private Const EXTR_COL_EXT_RIGHT = 1
-    Private Const EXTR_COL_EXT_LEFT = 2
-    Private Const KEY_CTRL_Y = &H19
-    Private Const sINITIAL As Integer = -1
-    
-    Private Const SQL_INT_MAX As String = "32767"
-    Private Const SQL_LONG_MAX As String = "2147483647"
-    
-    Private Const nHEIGHTOFFSET = 3
-    Private Const nERROR_DLLFILE = 53
-    Private Const nERROR_SQL = -100
+Private Const MAX_TYPES As Integer = -8
 
-    Private Const sSTRING_PATTERN As String = "^P*$"
-'    Private Const sLONG_PATTERN As String = "^(#{1,10}?[:\-]#{0,10})$"
-'    Private Const sINT_PATTERN As String = "^(#{1,5}?[:\-]#{0,5})$"
-    Private Const sLONG_PATTERN As String = szLongPattern
-    Private Const sINT_PATTERN As String = szIntegerPattern
-    Private Const sFieldSep As String * 1 = ","
-    
-    Private sPercentOrAster(1) As String * 1
-    Private nCurrentCombo As Integer
-    Private colComboControls As Collection
+Private Const TYPE_DCM_INT_MASK = 19 ' a prime
+Private Const DEFAULT_COLWIDTH As Integer = 1500
 
-    Private tgDropDown As Object
-    Private frmParent As Form
-    Private datLink As Data
-    Private dbRemote As DataBase
-    Private t_dbLocal As DataBase
-    Private engDatabase As DBEngine
-    Private sGridData() As String
-    Private lRowCount As Long
-    Private m_nOringalFormWidth As Integer
-    Private m_nOringalFormHeight As Integer
+Private Const FACTORSEARCH = 1
+Private Const COMMONDROPDOWN = 2
 
-'    Private colCurrentCombo As Collection
+Private Const DB_INFORMIX As Integer = 0
+Private Const DB_ACCESS As Integer = 1
 
-    Private clsCurrentDropdown As clsComboDropDown
-    Private bTableClicked As Boolean
-    Private nClickPointY As Single
-    Private bValidSelection As Boolean
-    Private lRecordsReturned As Long
-    Private lComboIndex As Integer
-    Private nErrorNumber As Integer
-    Private nLastRow As Integer
-    Private m_bDebug As Boolean
-    Private m_bFillingText As Boolean
-    Private m_bPROTOTYPE As Boolean
-    
-    #If Win32 Then
-        Private Declare Function GetParent Lib "user32" (ByVal hwnd As Long) As Long
-        Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, lpRect As RECT) As Long
-        Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
-        Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
-    #Else
-        Private Declare Function SetParent Lib "USER" (ByVal hWndChild As Integer, ByVal hWndNewParent As Integer) As Integer
-        Private Declare Function GetParent Lib "USER" (ByVal hwnd As Integer) As Integer
-        Private Declare Sub GetWindowRect Lib "USER" (ByVal hwnd As Integer, lpRect As RECT)
-        Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
-    #End If
+Private Const nDROP_DOWN As Integer = 1
+Private Const nDROP_UP As Integer = 2
+
+Private Const nORDERING_DESCENT As Integer = -1
+Private Const nORDERING_ASSCENT As Integer = 1
+Private Const nORDERING_NONE As Integer = 2
+
+Private Const CONTROL_TYPE_TEXTBOX As Integer = 1
+Private Const CONTROL_TYPE_BUTTON As Integer = 2
+
+Private Const nVISIBLEROWS_DEFAULT As Integer = 7
+Private Const SCROLLBAR_WIDTH As Integer = 264
+
+Private Const EXTRACOLUMNOFFSET = 1000
+Private Const EXTR_COL_EXT_RIGHT = 1
+Private Const EXTR_COL_EXT_LEFT = 2
+Private Const KEY_CTRL_Y = &H19
+Private Const sINITIAL As Integer = -1
+
+Private Const SQL_INT_MAX As String = "32767"
+Private Const SQL_LONG_MAX As String = "2147483647"
+
+Private Const nHEIGHTOFFSET = 3
+Private Const nERROR_DLLFILE = 53
+Private Const nERROR_SQL = -100
+
+Private Const sSTRING_PATTERN As String = "^P*$"
+Private Const sLONG_PATTERN As String = szLongPattern
+Private Const sINT_PATTERN As String = szIntegerPattern
+Private Const sFieldSep As String * 1 = ","
+
+Private sPercentOrAster(1) As String * 1
+Private nCurrentCombo As Integer
+Private colComboControls As Collection
+
+Private tgDropDown As Object
+Private frmParent As Form
+Private datLink As Data
+Private dbRemote As DataBase
+Private t_dbLocal As DataBase
+Private engDatabase As DBEngine
+Private sGridData() As String
+Private lRowCount As Long
+Private m_nOringalFormWidth As Integer
+Private m_nOringalFormHeight As Integer
+
+Private clsCurrentDropdown As clsComboDropDown
+
+Private bTableClicked As Boolean
+Private nClickPointY As Single
+Private bValidSelection As Boolean
+Private lRecordsReturned As Long
+Private lComboIndex As Integer
+Private nErrorNumber As Integer
+Private nLastRow As Integer
+Private m_bDebug As Boolean
+Private m_bFillingText As Boolean
+Private m_bProtoType As Boolean
+
+'david 10/30/2001
+Private m_bCaseSensitive As Boolean
+
+'david 01/28/2002
+Private lHeadClickDropDown As Long
+Private bHeaderClick As Boolean
+
+#If Win32 Then
+    Private Declare Function GetParent Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, lpRect As RECT) As Long
+    Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
+    Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
+#Else
+    Private Declare Function SetParent Lib "USER" (ByVal hWndChild As Integer, ByVal hWndNewParent As Integer) As Integer
+    Private Declare Function GetParent Lib "USER" (ByVal hwnd As Integer) As Integer
+    Private Declare Sub GetWindowRect Lib "USER" (ByVal hwnd As Integer, lpRect As RECT)
+    Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
+#End If
+'
 
 Property Let AppendCriteria(objControl As Object, bTemp As Boolean)
     Dim lDropDown As Integer
@@ -268,8 +283,8 @@ Public Function CellValue(ByVal nCol As Integer, _
     CellValue = sGridData(nCol, lRow)
 End Function
 
-Property Let PROTOTYPE(bTemp As Boolean)
-    m_bPROTOTYPE = bTemp
+Property Let ProtoType(bTemp As Boolean)
+    m_bProtoType = bTemp
 End Property
 
 Private Sub subColWidth(nW As Integer, _
@@ -334,7 +349,6 @@ Private Function fnLeftMostCol(colTemp As Collection, _
 
 End Function
 
-
 Property Get KeyChanged(ctrl As Object) As Boolean
     Dim lDropDown As Integer
     Dim nctrlType As Integer
@@ -368,7 +382,6 @@ Property Let KeyField(objControl As Object, bTemp As Boolean)
     Set clsTemp = colComboControls.Item(lDropDown).Combos.Item(lComboIndex)
     clsTemp.KeyField = bTemp
 End Property
-
 
 Private Function fnGetTop() As Integer
     Dim clsTemp As clsComboSet
@@ -499,7 +512,6 @@ Property Let Populate(objControl As Object, bTemp As Boolean)
     clsTemp.Populate = bTemp
 End Property
 
-
 Property Let FieldType(objControl As Object, nTemp As Integer)
     Dim lDropDown As Integer
     Dim nctrlType As Integer
@@ -578,7 +590,6 @@ Property Get SearchOnReturn(objControl As Object) As Boolean
     Set clsTemp = colComboControls.Item(lDropDown)
     SearchOnReturn = clsTemp.SearchOnReturn
 End Property
-
 
 Property Get RecordsReturned() As Long
     RecordsReturned = lRecordsReturned
@@ -668,7 +679,6 @@ Property Get ComboWidth(txtBox As Object) As Integer
                         
 End Property
 
-
 Public Sub SetExtend(sField As String, _
                      ByVal nDir As Integer)
     Dim lDropDown As Integer
@@ -738,7 +748,6 @@ Public Sub SetText(objCtrl As Object, _
     End If
 End Sub
 
-
 Public Function GetText(objCtrl As Object) As String
 
     Dim lDropDown As Integer
@@ -793,7 +802,6 @@ Public Sub FillText(objCtrl As Object)
         End With
     End If
 End Sub
-
 
 Private Sub subSetType(objControl As Object, _
                        clsTemp As clsComboSet, _
@@ -876,7 +884,6 @@ Public Property Get TextSet(objCtrl As Object) As Boolean
 
 End Property
 
-
 Property Let ShowNoDataMessage(objControl As Object, bStatus As Boolean)
     'Set the SQL of the specific combo
 
@@ -897,7 +904,6 @@ End Property
 Public Sub SetDebug(bStatus As Boolean)
     m_bDebug = bStatus
 End Sub
-
 
 Public Sub AddExtraField(txtBox As Object, _
                          sField As String, _
@@ -992,7 +998,6 @@ Property Let ComboSQL(objControl As Object, sSql As String)
 
 End Property
 
-
 Property Let ComboErrorMessage(objControl As Object, sMsg As String)
     
     'Set the SQL of the specific combo
@@ -1025,6 +1030,7 @@ Property Get ComboSQL(objControl As Object) As String
     ComboSQL = GetComboSQL(lDropDown)
 
 End Property
+
 Property Let ErrorMessage(sMsg As String)
     If colComboControls Is Nothing Then
         Exit Property
@@ -1117,11 +1123,20 @@ Private Function fnAppendCriteria(ByVal szQuery As String, _
                         Case TYPE_PHONE
                             szQuery = szQuery & szLink & sDataField & " LIKE " & fnSQLString(fnPhoneCriteria(szCode, nDBType) & sPercentOrAster(nDBType)) & ")"
                             szLink = " AND ("
-                        Case TYPE_CASE_INCENSITIVE
-                            szQuery = szQuery & szLink & sDataField & " MATCHES " & fnSQLString(fnCaseIncensitiveCriteria(szCode)) & ")"
-                            szLink = " AND ("
                         Case TYPE_STRING, Is > 0
-                            szQuery = szQuery & szLink & sDataField & " LIKE " & fnSQLString(szCode & sPercentOrAster(nDBType)) & ")"
+                            
+                            If nDBType = DB_ACCESS Then
+                                szQuery = szQuery & szLink & sDataField & " LIKE " & fnSQLString(szCode & sPercentOrAster(nDBType)) & ")"
+                            Else
+                                
+                                If m_bCaseSensitive Then
+                                    szQuery = szQuery & szLink & sDataField & " LIKE " & fnSQLString(szCode & sPercentOrAster(nDBType)) & ")"
+                                Else
+                                    szQuery = szQuery & szLink & sDataField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
+                                End If
+                                
+                            End If
+                            
                             szLink = " AND ("
                     End Select
                 End If
@@ -1131,7 +1146,7 @@ Private Function fnAppendCriteria(ByVal szQuery As String, _
     fnAppendCriteria = szQuery & sGroupByClause
 End Function
 
-Private Function fnPhoneCriteria(ByVal s As String, _
+Private Function fnPhoneCriteria(ByVal S As String, _
                         ByVal nDBType As Integer) As String
      Dim sTemp As String
      Dim i As Integer
@@ -1140,14 +1155,14 @@ Private Function fnPhoneCriteria(ByVal s As String, _
      
      fnPhoneCriteria = ""
      
-     s = Trim(s)
+     S = Trim(S)
      sWild = sPercentOrAster(nDBType)
      
-     If s <> "" Then
+     If S <> "" Then
         sTemp = ""
         
-        For i = 1 To Len(s)
-           sChar = Mid(s, i, 1)
+        For i = 1 To Len(S)
+           sChar = Mid(S, i, 1)
            If IsNumeric(sChar) Then
                 sTemp = sTemp & sChar
            ElseIf sChar = "(" Or sChar = ")" Or sChar = "-" Or sChar = " " Then
@@ -1163,24 +1178,29 @@ Private Function fnPhoneCriteria(ByVal s As String, _
         ElseIf Len(sTemp) >= 3 Then
             fnPhoneCriteria = sWild & Mid(sTemp, 1, 3) & sWild & Mid(sTemp, 4, 3)
         Else
-            fnPhoneCriteria = s
+            fnPhoneCriteria = S
         End If
      End If
 End Function
 
-Private Function fnCaseIncensitiveCriteria(ByVal s As String) As String
+'david 01/28/2002
+'take care of '%' and '_'
+'david 10/30/2001
+'this function will rebuild the criteria string so that it can be used for case insensitive WHERE clause
+'NOTE: need to use the MATCHES keyword in the WHERE clause
+Public Function CaseInSensitiveString(ByVal S As String) As String
     Dim i As Integer
     Dim sRet As String
     Dim sChar As String
     Dim bSpaceFound As Boolean
     
-    s = Trim(s)
+    S = Trim(S)
     
-    If Trim(s) = "" Then
-        sRet = " MATCHES *"
+    If Trim(S) = "" Then
+        sRet = "*"
     Else
-        For i = 1 To Len(s)
-            sChar = Mid(s, i, 1)
+        For i = 1 To Len(S)
+            sChar = Mid(S, i, 1)
             If sChar = " " Then
                 If Not bSpaceFound Then
                     sRet = sRet + "*"
@@ -1189,6 +1209,11 @@ Private Function fnCaseIncensitiveCriteria(ByVal s As String) As String
             Else
                 If IsAphabet(sChar) Then
                     sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
+                ElseIf sChar = "_" Then
+                    sRet = sRet + "?"
+                ElseIf sChar = "%" Then
+                    sRet = sRet + "*"
+                    bSpaceFound = True
                 Else
                     sRet = sRet + sChar
                 End If
@@ -1197,10 +1222,12 @@ Private Function fnCaseIncensitiveCriteria(ByVal s As String) As String
             End If
         Next i
             
-        sRet = "*" + sRet + "*"
+        'david 11/26/2001
+        'sRet = "*" + sRet + "*"
+        sRet = sRet + "*"
     End If
     
-    fnCaseIncensitiveCriteria = sRet
+    CaseInSensitiveString = sRet
 End Function
 
 Private Function IsAphabet(ByVal sChar As String) As Boolean
@@ -1270,7 +1297,7 @@ Private Function fnAppendCriteria1(ByVal szQuery As String, _
                         Case TYPE_LONG, TYPE_INT
                             szQuery = szQuery & szLink & sDataField & " = " & szCode & ")"
                             szLink = " AND ("
-                        Case TYPE_PHONE, TYPE_CASE_INCENSITIVE
+                        Case TYPE_PHONE
                             szQuery = szQuery & szLink & sDataField & " = " & fnSQLString(szCode) & ")"
                             szLink = " AND ("
                         Case TYPE_STRING, Is > 0
@@ -1447,7 +1474,7 @@ Public Sub ReadData(ByVal RowBuf As Object, _
                 Index = -1
             End If
         Else
-            Index = Val(Bookmk)
+            Index = val(Bookmk)
         End If
         Index = Index + RelPos
         If Index < 0 Or Index >= lRowCount Then
@@ -1455,7 +1482,7 @@ Public Sub ReadData(ByVal RowBuf As Object, _
         End If
         Bookmk = Str(Index)
         For j = 0 To RowBuf.ColumnCount - 1
-            RowBuf.Value(i, j) = sGridData(j, Index)
+            RowBuf.value(i, j) = sGridData(j, Index)
         Next j
         RowBuf.Bookmark(i) = Bookmk
         RowsFetched = RowsFetched + 1
@@ -1685,12 +1712,11 @@ Public Sub SetColumnCaptions(ParamArray sCaps())
             colTemp.Item(i + 1).Caption = sCaps(i)
         End If
     Next
-    colComboControls.Item(nCurrentCombo).HeadLines = 1
     
+    colComboControls.Item(nCurrentCombo).HeadLines = 1
 End Sub
 
 Public Sub SetOrderingDescent(objControl As Object)
-    
     Dim nDropDown As Integer
     Dim nCmb As Integer
     Dim nType As Integer
@@ -1700,7 +1726,6 @@ Public Sub SetOrderingDescent(objControl As Object)
     If nDropDown >= 0 Then
         colComboControls.Item(nDropDown).Combos.Item(nCmb).OrderFlag = nORDERING_DESCENT
     End If
-
 End Sub
 
 Public Sub SetOrderingAscent(objControl As Object)
@@ -1714,6 +1739,7 @@ Public Sub SetOrderingAscent(objControl As Object)
     If nDropDown > 0 Then
         colComboControls.Item(nDropDown).Combos.Item(nCmb).OrderFlag = nORDERING_ASSCENT
     End If
+
 
 End Sub
 
@@ -2039,7 +2065,8 @@ Public Sub AddExtraColumn(sField As String, _
                           Optional nWidth As Variant, _
                           Optional vBox As Variant, _
                           Optional vExt As Variant, _
-                          Optional vCombo As Variant)
+                          Optional vCombo As Variant, _
+                          Optional sOrderByFields As String = "")
     
     'Add an extra column to the dropdown table.
     ' This column can not be used to enter search criteria.
@@ -2073,6 +2100,7 @@ Public Sub AddExtraColumn(sField As String, _
     Else
         Set clsDD = colComboControls.Item(nCurr)
     End If
+    
     Set colTemp = clsDD.Combos
     
     sTemp = UCase(Trim(sField))
@@ -2124,6 +2152,12 @@ Public Sub AddExtraColumn(sField As String, _
     Else
         clsCombo.ColWidth = nWidth
     End If
+    
+    'david 01/28/2002
+    If sOrderByFields <> "" Then
+        clsCombo.OrderByFields = sOrderByFields
+    End If
+    '''''''''''''''''
     
     clsDD.TableWidth = clsDD.TableWidth + clsCombo.ColWidth
     If clsCombo.ExtDir = EXTR_COL_EXT_LEFT Then
@@ -2271,7 +2305,9 @@ errSetFocus:
     End If
 End Sub
 
-Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
+Private Function fnLoadTable(ByVal lDropDown As Integer, _
+                             Optional bCalledByHeaderClick As Boolean = False, _
+                             Optional ColIndex As Integer = -1) As Boolean
     'Load the dropdown table with the given SQL and criteria
     
     Const szUNION As String = " UNION "
@@ -2287,15 +2323,27 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
     Dim nLeft As Integer
     Dim colCombo As Collection
     
-    If m_bPROTOTYPE Then
+    If m_bProtoType Then
         Exit Function
     End If
+    
+    'david 01/28/2002
+    If bCalledByHeaderClick Then
+        If ColIndex < 0 Then
+            Exit Function
+        End If
+    End If
+    ''''''''''''''''''
     
     'Make our mouse pointer an hourglass
     Screen.MousePointer = vbHourglass
     bValidSelection = False
     
-    tgDropDown.Visible = False
+    'david 01/28/2002
+    If Not bCalledByHeaderClick Then
+        tgDropDown.Visible = False
+    End If
+    '''''''''''''''''
     frmParent.Cls
 
     lRecordsReturned = -1
@@ -2304,32 +2352,43 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
         Exit Function
     End If
 
-    If clsCurrentDropdown Is colComboControls.Item(lDropDown) Then
-        If Not clsCurrentDropdown.ReQuery Then
-            If Not clsCurrentDropdown.DataEntered Then
-                If datLink.Recordset Is Nothing Then
+    'david 01/28/2002
+    If Not bCalledByHeaderClick Then
+        If clsCurrentDropdown Is colComboControls.Item(lDropDown) Then
+            If Not clsCurrentDropdown.ReQuery Then
+                If Not clsCurrentDropdown.DataEntered Then
+                    If datLink.Recordset Is Nothing Then
+                        Exit Function
+                    End If
+                    If datLink.Recordset.RecordCount > 1 Then
+                        tgDropDown.Visible = True
+                        tgDropDown.ZOrder 0
+                        bValidSelection = False
+                    End If
+                    fnSetFocus tgDropDown
+                    fnLoadTable = True
+                    Screen.MousePointer = vbDefault
                     Exit Function
                 End If
-                If datLink.Recordset.RecordCount > 1 Then
-                    tgDropDown.Visible = True
-                    tgDropDown.ZOrder 0
-                    bValidSelection = False
-                End If
-                fnSetFocus tgDropDown
-                fnLoadTable = True
-                Screen.MousePointer = vbDefault
-                Exit Function
             End If
+        Else
+            'Get the dropdown class
+            Set clsCurrentDropdown = colComboControls.Item(lDropDown)
         End If
+    
+        'david 01/28/2002
+        lHeadClickDropDown = lDropDown
+        '''''''''''''''''
     Else
-        'Get the dropdown class
         Set clsCurrentDropdown = colComboControls.Item(lDropDown)
     End If
-
+    '''''''''''''''
+    
     Set colCombo = clsCurrentDropdown.Combos
     szQuery = clsCurrentDropdown.SQL
     'If there is a 'UNION statement, don't do anything
     nPos = InStr(UCase(szQuery), szUNION)
+    
     If nPos = 0 Then
         szQuery = fnAppendCriteria(szQuery, clsCurrentDropdown.dbType, 0)
         sColName = colCombo.Item(lComboIndex).DataField
@@ -2342,8 +2401,8 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
         sRPart = szQuery
         szQuery = ""
         lCol = 1
+        
         While sRPart <> ""
-            
             If nPos > 1 Then
                 szQuery1 = Left(sRPart, nPos - 1)
                 nLen = Len(sRPart) - nPos - Len(szUNION) + 1
@@ -2358,6 +2417,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
             End If
 
             szQuery1 = fnAppendCriteria(szQuery1, clsCurrentDropdown.dbType, lCol)
+            
             If szQuery = "" Then
                 szQuery = szQuery1
             Else
@@ -2369,16 +2429,48 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
             End If
             lCol = lCol + 1
         Wend
+        
         sColName = CStr(lComboIndex)
     End If
     
-    If colCombo.Item(lComboIndex).OrderFlag <> nORDERING_NONE Then
-        szQuery = szQuery & " ORDER BY " & sColName
-        If colCombo.Item(lComboIndex).OrderFlag = nORDERING_DESCENT Then
-            szQuery = szQuery & " DESC"
+    'david 01/28/2002
+    If bCalledByHeaderClick Then
+        Dim sTemp As String
+        
+        bHeaderClick = True
+        
+        If colCombo.Item(lComboIndex).OrderByFields <> "" Then
+            sTemp = colCombo.Item(lComboIndex).OrderByFields
+        Else
+            sTemp = tgDropDown.Columns(ColIndex).DataField
+        End If
+        
+        If colCombo.Item(lComboIndex).PrevOrderIsAscending() Then
+            colCombo.Item(lComboIndex).PrevOrderIsAscending() = False
+            'order by descending
+            sTemp = fnFixSortOrder(sTemp, True)
+            
+        Else
+            colCombo.Item(lComboIndex).PrevOrderIsAscending() = True
+            'order by ascending
+            sTemp = fnFixSortOrder(sTemp, False)
+        End If
+    
+        szQuery = szQuery & " ORDER BY " & sTemp
+    Else
+        If colCombo.Item(lComboIndex).OrderFlag <> nORDERING_NONE Then
+            szQuery = szQuery & " ORDER BY " & sColName
+            
+            If colCombo.Item(lComboIndex).OrderFlag = nORDERING_DESCENT Then
+                szQuery = szQuery & " DESC"
+                colCombo.Item(lComboIndex).PrevOrderIsAscending() = False
+            Else
+                colCombo.Item(lComboIndex).PrevOrderIsAscending() = True
+            End If
         End If
     End If
-    
+    ''''''''''''''''''
+
     'Get the records
     If Not fnGetRecord(rsTemp, szQuery, clsCurrentDropdown.dbType) Then
         Screen.MousePointer = vbDefault
@@ -2388,6 +2480,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
         fnSetFocus colCombo.Item(lComboIndex).Textbox
         Exit Function
     End If
+    
     If tgDropDown.DataMode = dbgUnbound Then
         If rsTemp.RecordCount > 0 Then
             ReDim sGridData(rsTemp.Fields.Count - 1, rsTemp.RecordCount - 1)
@@ -2425,12 +2518,15 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
             If tgDropDown.DataMode <> dbgUnbound Then
                 Set datLink.Recordset = rsTemp
             End If
+            
             While tgDropDown.Columns.Count > 0
                 tgDropDown.Columns.Remove 0
             Wend
+            
             nColCount = 0
             nPos = 1
             nLen = clsCurrentDropdown.TableWidth
+            
             For lCol = 1 To colCombo.Count
                 If colCombo.Item(lCol).ColWidth > 0 Then
                     If colCombo.Item(lCol).Visible Then
@@ -2448,25 +2544,34 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
                     End If
                 End If
             Next
+            
             tgDropDown.HeadLines = clsCurrentDropdown.HeadLines
-
+            
+            'david 01/28/2002
+            If tgDropDown.HeadLines > 0 Then
+                tgDropDown.ColumnHeaders = True
+            Else
+                tgDropDown.ColumnHeaders = False
+            End If
+            
             nLeft = clsCurrentDropdown.TableLeft
             
             If colCombo.Item(nPos).Button Is Nothing Then
-'                tgDropDown.Width = clsCurrentDropdown.TableWidth + SCROLLBAR_WIDTH
                 tgDropDown.Width = nLen + SCROLLBAR_WIDTH
             Else
                 lCol = tgDropDown.Columns.Count - 1
                 tgDropDown.Columns(lCol).Width = tgDropDown.Columns(lCol).Width - SCROLLBAR_WIDTH
-'                tgDropDown.Width = clsCurrentDropdown.TableWidth
                 tgDropDown.Width = nLen
             End If
 
             Dim nH As Integer
+            
             nH = clsCurrentDropdown.VisibleRows
+            
             If clsCurrentDropdown.HorScroll Then
                 nH = nH - 1
             End If
+            
             If rsTemp.RecordCount <= nH Then
                 nH = rsTemp.RecordCount
                 If clsCurrentDropdown.HorScroll Then
@@ -2485,17 +2590,14 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
                     tgDropDown.ScrollBars = dbgVertical
                 End If
             End If
+            
             tgDropDown.Height = (tgDropDown.HeadLines + nH) * tgDropDown.RowHeight + nHEIGHTOFFSET * Screen.TwipsPerPixelY
             
             nTop = fnGetTop
             If tgDropDown.DataMode = dbgUnbound Then
                 tgDropDown.Refresh
             End If
-'            If clsCurrentDropdown.Position = nDROP_UP Then
-'                nTop = clsCurrentDropdown.TableTop - clsCurrentDropdown.Combos.Item(1).Textbox.Height - tgDropDown.Height
-'            Else
-'                nTop = clsCurrentDropdown.TableTop
-'            End If
+            
             tgDropDown.Move nLeft, nTop
             tgDropDown.Visible = True
             tgDropDown.ZOrder 0
@@ -2518,11 +2620,13 @@ Private Function fnLoadTable(ByVal lDropDown As Integer) As Boolean
         fnSetFocus colCombo.Item(lComboIndex).Textbox
         fnLoadTable = False
     End If
+    
     lRecordsReturned = rsTemp.RecordCount
     
     'Reset our mouse pointer to the default
     Screen.MousePointer = vbDefault
 End Function
+
 Private Sub fnParseString(sParam() As String, _
                           sSrc As String, _
                           Optional vStart As Variant, _
@@ -2586,7 +2690,7 @@ Public Function SQL_DECIMAL_TYPE(Optional ByVal vWhole As Variant, _
     If IsMissing(vWhole) Then
         nWhole = DEFAULT_LENGTH
     Else
-        nWhole = Val(vWhole)
+        nWhole = val(vWhole)
         If nWhole <= 0 Then
             nWhole = DEFAULT_LENGTH
         End If
@@ -2594,7 +2698,7 @@ Public Function SQL_DECIMAL_TYPE(Optional ByVal vWhole As Variant, _
     If IsMissing(vDecimal) Then
         nDecimal = 0
     Else
-        nDecimal = Val(vDecimal)
+        nDecimal = val(vDecimal)
     End If
     SQL_DECIMAL_TYPE = -(TYPE_DCM_INT_MASK * nWhole + nDecimal)
 End Function
@@ -2603,24 +2707,16 @@ Property Get SQL_LONG_TYPE() As Integer
     SQL_LONG_TYPE = TYPE_LONG
 End Property
 
+
 Property Get SQL_INT_TYPE() As Integer
     SQL_INT_TYPE = TYPE_INT
 End Property
 
-Property Get SQL_PHONE_TYPE() As Integer
+Property Get SQL_PHONE_TYPE() As Integer 'WJ
     SQL_PHONE_TYPE = TYPE_PHONE
 End Property
 
-Property Get SQL_CASE_INCENSITIVE() As Integer
-    SQL_CASE_INCENSITIVE = TYPE_CASE_INCENSITIVE
-End Property
-
 Public Function Keypress(objControl As Object, KeyAscii As Integer) As Boolean
-    #If PROTOTYPE Then
-        Keypress = True
-        Exit Function
-    #End If
-    
     If objControl.TabIndex = tgDropDown.TabIndex Then
         If KeyAscii = vbKeyReturn Then
             fnGetText
@@ -2640,6 +2736,7 @@ Public Function Keypress(objControl As Object, KeyAscii As Integer) As Boolean
             Keypress = True
             Exit Function
         End If
+        
         Set clsTemp = colComboControls.Item(lDropDown).Combos.Item(lComboIndex)
         If nctrlType = CONTROL_TYPE_BUTTON Then
             If colComboControls.Item(lDropDown).ComboOn Then
@@ -2649,7 +2746,7 @@ Public Function Keypress(objControl As Object, KeyAscii As Integer) As Boolean
             If KeyAscii = vbKeyReturn Then
                 Keypress = False
                 If colComboControls.Item(lDropDown).ComboOn Then
-                    If m_bPROTOTYPE Then
+                    If m_bProtoType Then
                         Keypress = False
                         bValidSelection = True
                         Exit Function
@@ -2703,7 +2800,8 @@ Public Function AddComboBox(txtBox As Object, _
                             cmdButton As Object, _
                             sField As String, _
                             Optional nType As Variant, _
-                            Optional nWidth As Variant) As Boolean
+                            Optional nWidth As Variant, _
+                            Optional sOrderByFields As String = "") As Boolean
 
     'Add a comboset(a text box and a command button) to a combo
     If frmParent Is Nothing Then
@@ -2793,6 +2891,12 @@ Public Function AddComboBox(txtBox As Object, _
         AddComboBox = True
         nErrorNumber = 0
     End If
+    
+    'david 01/28/2002
+    If sOrderByFields <> "" Then
+        clsCombo.OrderByFields = sOrderByFields
+    End If
+    '''''''''''''''''
     
 extAddComboBox:
     On Error GoTo 0
@@ -3002,7 +3106,6 @@ Property Set Table(tblGrid As Object)
         .HeadLines = 0
         .Appearance = dbg3D
         .BorderStyle = dbgFixedSingle
-'        .DataMode = dbgBound
         .AllowArrows = True
         .TabAcrossSplits = False
         .WrapCellPointer = False
@@ -3049,7 +3152,7 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String, ByV
     Dim nxloop As Integer
     Dim nPos As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     nLenNumber = Len(sTrimedPrefix)
     
     'Check whether there is a ':' or '-'
@@ -3075,7 +3178,7 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String, ByV
     Else
         'Otherwise, generate the criteria for concantenate
         sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-        If Val(sTrimedPrefix) > 0 Then
+        If val(sTrimedPrefix) > 0 Then
             nLoopEnd = nFieldLen - nLenNumber
             For nloop = 1 To nLoopEnd
                 sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -3096,10 +3199,6 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String, ByV
 End Function
 
 Public Sub Click(objControl As Object)
-    #If PROTOTYPE Then
-        Exit Sub
-    #End If
-    
     'Event call for all the controls
     If objControl.TabIndex = tgDropDown.TabIndex Then
 
@@ -3124,7 +3223,7 @@ Public Sub Click(objControl As Object)
     
         'If the control is a command button, load the table
         If colComboControls.Item(lDropDown).ComboOn Then
-            If m_bPROTOTYPE Then
+            If m_bProtoType Then
                 If lComboIndex > 0 Then
                     bValidSelection = True
                     On Error Resume Next
@@ -3135,8 +3234,8 @@ Public Sub Click(objControl As Object)
             fnLoadTable lDropDown
         End If
     End If
-
 End Sub
+
 Public Function fnSQLString(ByRef szParameter As String) As String
 '
 ' Properly quotes and formats an SQL string.  If vNoQuotes is present, the result WILL NOT BE QUOTED
@@ -3385,8 +3484,8 @@ End Sub
 
 
 Private Function fnGetPCode(ByVal nType As Integer)
-    'get the PCode for the regular expression
     
+    'get the PCode for the regular expression
     Dim nCode As Integer
     Dim nWhole As Integer
     Dim nDecimal As Integer
@@ -3403,8 +3502,6 @@ Private Function fnGetPCode(ByVal nType As Integer)
             End If
         Case TYPE_PHONE
              nCode = GetRegExpPCode("^P{0,14}$", sBuffer)
-        Case TYPE_CASE_INCENSITIVE
-            nCode = GetRegExpPCode(sSTRING_PATTERN, sBuffer)
         Case TYPE_LONG
             nCode = GetRegExpPCode(sLONG_PATTERN, sBuffer)
         Case TYPE_INT
@@ -3532,7 +3629,7 @@ Private Function fnCurrentRow() As Long
     If IsNull(tgDropDown.FirstRow) Then
         fnCurrentRow = tgDropDown.Row
     Else
-        fnCurrentRow = Val(tgDropDown.FirstRow) + tgDropDown.Row
+        fnCurrentRow = val(tgDropDown.FirstRow) + tgDropDown.Row
     End If
 End Function
 
@@ -3543,16 +3640,21 @@ Property Set Form(frmMain As Object)
 End Property
 
 Public Sub RowColChange()
-'    Dim lDropDown As Long
     Dim lCol As Long
     
+    'david 01/28/2002
+    If bHeaderClick Then
+        bHeaderClick = False
+        bTableClicked = False
+        Exit Sub
+    End If
+    ''''''''''''''''''
+    
     If bTableClicked Then
-'        If lDropDown >= 0 Then
-            fnGetText
-            fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
-            tgDropDown.Visible = False
-            tgDropDown.ZOrder 1
-'        End If
+        fnGetText
+        fnSetFocus clsCurrentDropdown.Combos.Item(lComboIndex).Textbox
+        tgDropDown.Visible = False
+        tgDropDown.ZOrder 1
         bTableClicked = False
     Else
         If tgDropDown.Row < 0 Then
@@ -3586,6 +3688,9 @@ Property Get SQL() As String
     
     SQL = colComboControls.Item(nCurrentCombo).SQL
 End Property
+
+
+
 
 Public Function SQL_STRING_TYPE(Optional vLen As Variant) As Integer
     If IsMissing(vLen) Then
@@ -3658,7 +3763,7 @@ Property Let ComboActive(vTemp As Variant, bStatus As Boolean)
             Exit Property
         End If
     ElseIf IsNumeric(vTemp) Then
-        lDropDown = Val(vTemp)
+        lDropDown = val(vTemp)
     End If
     If lDropDown > 0 And lDropDown <= colComboControls.Count Then
         Set clsTemp = colComboControls.Item(lDropDown)
@@ -3681,7 +3786,7 @@ Property Get ComboActive(vTemp As Variant) As Boolean
             Exit Property
         End If
     ElseIf IsNumeric(vTemp) Then
-        lDropDown = Val(vTemp)
+        lDropDown = val(vTemp)
     End If
     If lDropDown > 0 And lDropDown <= colComboControls.Count Then
         ComboActive = colComboControls.Item(lDropDown).Active
@@ -3778,7 +3883,7 @@ Property Get Validate(txtBox As Object) As Boolean
     Dim nCombo As Integer
     Dim clsTemp As clsComboSet
     
-    If m_bPROTOTYPE Then
+    If m_bProtoType Then
         Validate = True
         Exit Property
     End If
@@ -3842,7 +3947,6 @@ Property Get Validate(txtBox As Object) As Boolean
     End If
 End Property
 
-
 Property Let VisibleRows(nRows As Integer)
     
     colComboControls.Item(nCurrentCombo).VisibleRows = nRows
@@ -3855,6 +3959,15 @@ Property Get VisibleRows() As Integer
 
 End Property
 
+'david 10/30/2001
+Property Let CaseSensitive(bStatus As Boolean)
+     m_bCaseSensitive = bStatus
+End Property
+
+Property Get CaseSensitive() As Boolean
+     CaseSensitive = m_bCaseSensitive
+End Property
+
 Private Sub Class_Initialize()
     Set colComboControls = New Collection
     sPercentOrAster(0) = "%"
@@ -3862,7 +3975,9 @@ Private Sub Class_Initialize()
     nCurrentCombo = 1
     lRecordsReturned = -1
     m_bFillingText = False
-    m_bPROTOTYPE = False
+    m_bProtoType = False
+    m_bCaseSensitive = False
+    lHeadClickDropDown = -1
 End Sub
 
 Private Sub Class_Terminate()
@@ -3888,4 +4003,46 @@ Private Sub Class_Terminate()
     Set engDatabase = Nothing
     Set colTemp = Nothing
 End Sub
+
+'david 01/28/2002
+Public Sub HeadClick(ByVal ColIndex As Integer)
+    If lHeadClickDropDown < 0 Then
+        Exit Sub
+    End If
+    
+    fnLoadTable lHeadClickDropDown, True, ColIndex
+End Sub
+
+'david 01/28/2002
+Private Function fnFixSortOrder(ByVal sOrder As String, bDescending As Boolean) As String
+    Dim nPosi As Integer
+    Dim sTemp As String
+    Dim sOthers As String
+    If sOrder = "" Then
+        Exit Function
+    End If
+    
+    nPosi = InStr(sOrder, ",")
+    
+    If nPosi > 0 Then
+        sTemp = Trim(Left(sOrder, nPosi - 1))
+        sOthers = Mid(sOrder, nPosi)
+    Else
+        sTemp = Trim(sOrder)
+        sOthers = ""
+    End If
+
+    nPosi = InStr(sTemp, " ")
+    
+    If nPosi > 0 Then
+        sTemp = Trim(Left(sTemp, nPosi - 1))
+    End If
+    
+    If bDescending Then
+        sTemp = sTemp + " DESC"
+    End If
+
+    fnFixSortOrder = sTemp + sOthers
+End Function
+
 
