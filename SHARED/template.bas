@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -749,7 +749,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -803,12 +803,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -846,7 +846,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -857,8 +857,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -875,7 +875,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
     #End If
     Err.Clear
 End Function
@@ -946,19 +946,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -971,10 +971,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -1015,8 +1015,8 @@ Public Sub tfnUpdateVersion()
     #End If
     
     sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.Major))
-    sMinorVersion = Trim(CStr(App.Minor))
+    sMajorVersion = Trim(CStr(App.major))
+    sMinorVersion = Trim(CStr(App.minor))
     sRevision = Trim(CStr(App.Revision))
     
     On Error GoTo 0
@@ -1126,9 +1126,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_CAPITAL)
 
     If intKeyStatus = 1 Then
-        frmForm.ffraStatusbar.PanelCaption(2) = "CAPS"
+        frmForm.ffrastatusbar.PanelCaption(2) = "CAPS"
     Else
-        frmForm.ffraStatusbar.PanelCaption(2) = szEMPTY
+        frmForm.ffrastatusbar.PanelCaption(2) = szEMPTY
     End If
 
     DoEvents
@@ -1136,9 +1136,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_SCROLL)
 
     If intKeyStatus = 1 Then
-        frmForm.ffraStatusbar.PanelCaption(0) = "SCRL"
+        frmForm.ffrastatusbar.PanelCaption(0) = "SCRL"
     Else
-        frmForm.ffraStatusbar.PanelCaption(0) = szEMPTY
+        frmForm.ffrastatusbar.PanelCaption(0) = szEMPTY
     End If
 
     DoEvents
@@ -1146,9 +1146,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_NUMLOCK)
 
     If intKeyStatus = 1 Then
-        frmForm.ffraStatusbar.PanelCaption(1) = "NUM"
+        frmForm.ffrastatusbar.PanelCaption(1) = "NUM"
     Else
-        frmForm.ffraStatusbar.PanelCaption(1) = szEMPTY
+        frmForm.ffrastatusbar.PanelCaption(1) = szEMPTY
     End If
 End Sub
 
@@ -1191,7 +1191,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1243,7 +1243,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1251,8 +1251,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1316,7 +1316,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1385,7 +1385,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1439,7 +1439,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1563,7 +1563,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -1582,7 +1582,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1590,7 +1590,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1911,12 +1911,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2068,7 +2068,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2324,14 +2324,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2423,7 +2423,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2651,7 +2651,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2659,13 +2659,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sText)
         Else
@@ -2702,7 +2702,7 @@ End Function
 '##############################################################################
 ' Function/Subroutine: tfnCaretToCR
 ' Author:               Robert Atwood
-' Date:                 02/08/23
+' Date:                 2002/08/23
 ' Project Number:       373550
 ' Program Version:      N/A
 ' ARGS:                 strInput: String, input string
@@ -2719,7 +2719,7 @@ End Function
 '##############################################################################
 ' Function/Subroutine: tfnCRToCaret
 ' Author:               Robert Atwood
-' Date:                 02/08/23
+' Date:                 2002/08/23
 ' Project Number:       373550
 ' Program Version:      N/A
 ' ARGS:                 strInput: String, input string
@@ -2730,7 +2730,11 @@ End Function
 '-
 '##############################################################################
 Public Function tfnCRToCaret(strInput As String) As String
-    tfnCRToCaret = Replace(strInput, vbCrLf, "^")
-    tfnCRToCaret = Replace(strInput, vbCr, "^")
+    Dim sTemp As String
+    
+    sTemp = Replace(strInput, vbCrLf, "^")
+    sTemp = Replace(sTemp, vbCr, "")
+    tfnCRToCaret = Replace(sTemp, vbLf, "")
+    
 End Function
 
