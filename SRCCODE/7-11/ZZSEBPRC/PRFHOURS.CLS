@@ -134,6 +134,10 @@ Private bWarned As Boolean 'for warning of Date with glp_status ='W'
 
 Private bTableExists As Boolean
 Private g_lOriginalRowCount As Long
+
+'david 12/18/2003  #421627
+Private lMgrEmpNbr As Long
+''''''''''''''''''''''''''
 '
 
 '===========================
@@ -1883,6 +1887,7 @@ Private Sub tfnResetScreen()
     'Vijaya on 12/12/03 Magic#421627
     txtEHMgrHours = ""
     bMgrHoursValid = False
+    lMgrEmpNbr = -1
     ''''''''''''''''''''''''''''''''
     
     nDataStatus = DATA_INI
@@ -2594,60 +2599,37 @@ Private Sub subSelectIt(v As Textbox)
 End Sub
 
 Private Function fnValidMgrHours(txtBox As Textbox) As Boolean
-    Const FUNC_NAME As String = "fnValidMgrHours"
     
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim sMsg As String
-    Dim slistPrftCtr As String
-    
-    fnValidMgrHours = False
     'This control is Optional, Null or 0 valid
     If Trim(txtBox) = "" Or Trim(txtBox) = 0 Then
         fnValidMgrHours = True
         Exit Function
     End If
+    
     If Not IsNumeric(txtBox) Then
         cValidate.SetErrorMessage txtBox, "Manager Hours must be a numeric"
         Exit Function
     End If
+    
     If bMgrHoursValid Then
         fnValidMgrHours = True
         Exit Function
     End If
-    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
-    strSQL = strSQL & " AND prm_emp_level  = 3"
-    strSQL = strSQL & " AND " & tfnDateString(txtEHDate, True) & " BETWEEN prm_date_hired AND prm_date_termed"
-    strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
-    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) <= 0 Then
-        sMsg = "No manager was found for the profit center."
-        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a manager"
-        sMsg = sMsg & " for the profit center. Manager's hours cannot be entered until"
-        sMsg = sMsg & " one manager exists."
-        DoEvents
-        MsgBox sMsg, vbExclamation
-        cValidate.SetErrorMessage txtBox, "Manager not found"
+    
+    'david 12/18/2003  #421627
+    'return error message if any
+    'will set the lMgrEmpNbr variable to a valid manager's emp nbr
+    Dim sErrMsg As String
+    sErrMsg = fnCheckMgrEmpNbr()
+    
+    If sErrMsg <> "" Then
+        cValidate.SetErrorMessage txtBox, sErrMsg
         Exit Function
     End If
-    If rsTemp.RecordCount > 1 Then
-        While Not rsTemp.EOF
-            If slistPrftCtr = "" Then
-                slistPrftCtr = tfnRound(fnGetField(rsTemp!prm_empno))
-            Else
-                slistPrftCtr = slistPrftCtr & "," & tfnRound(fnGetField(rsTemp!prm_empno))
-            End If
-            rsTemp.MoveNext
-        Wend
-        sMsg = "There is more than one manager assigned to this profit center."
-        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a termination"
-        sMsg = sMsg & " date for the invalid manager(s). Manager's hours cannot be inserted"
-        sMsg = sMsg & " until only one manager exists."
-        DoEvents
-        MsgBox sMsg, vbExclamation
-        cValidate.SetErrorMessage txtBox, "More than one manager (" & slistPrftCtr & ") found"
-        Exit Function
-    End If
+    ''''''''''''''''''''''''''
+    
     fnValidMgrHours = True
+
 End Function
 
 Public Function fnInsertzzse_manager_hour() As Boolean
@@ -2655,14 +2637,12 @@ Public Function fnInsertzzse_manager_hour() As Boolean
     
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim lEmpNo As Long
     
     If Not txtEHMgrHours.Visible Then
         fnInsertzzse_manager_hour = True
         Exit Function
     End If
     
-    fnInsertzzse_manager_hour = False
     If Trim(txtEHMgrHours) = "" Or Trim(txtEHMgrHours) = 0 Then
         strSQL = "DELETE FROM zzse_manager_hour"
         strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
@@ -2676,36 +2656,101 @@ Public Function fnInsertzzse_manager_hour() As Boolean
         fnInsertzzse_manager_hour = True
         Exit Function
     End If
-    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
-    strSQL = strSQL & " AND prm_emp_level  = 3"
-    strSQL = strSQL & " AND " & tfnDateString(txtEHDate, True) & " BETWEEN prm_date_hired AND prm_date_termed"
-    strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
-    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) > 0 Then
-        lEmpNo = rsTemp!prm_empno
-    End If
+    
     strSQL = "SELECT zzsemh_empno FROM zzse_manager_hour"
     strSQL = strSQL & " WHERE zzsemh_prft_ctr = " & tfnRound(txtEHPrftCtr)
     strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
     If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 0 Then
         Exit Function
     End If
+    
     If rsTemp.RecordCount > 0 Then
         strSQL = "UPDATE zzse_manager_hour SET"
         If Not bMgrHoursValid Then
-            strSQL = strSQL & " zzsemh_empno=" & lEmpNo & ","
+            strSQL = strSQL & " zzsemh_empno=" & lMgrEmpNbr & ","
         End If
         strSQL = strSQL & " zzsemh_hours=" & Format(txtEHMgrHours, "0.00")
         strSQL = strSQL & " WHERE zzsemh_prft_ctr=" & tfnRound(txtEHPrftCtr)
         strSQL = strSQL & " AND zzsemh_date=" & tfnDateString(txtEHDate, True)
     Else
         strSQL = "INSERT INTO zzse_manager_hour (zzsemh_empno, zzsemh_prft_ctr,"
-        strSQL = strSQL & " zzsemh_date,zzsemh_hours) VALUES (" & lEmpNo
+        strSQL = strSQL & " zzsemh_date,zzsemh_hours) VALUES (" & lMgrEmpNbr
         strSQL = strSQL & " ," & tfnRound(txtEHPrftCtr) & "," & tfnDateString(txtEHDate, True)
         strSQL = strSQL & "," & Format(txtEHMgrHours, "0.00") & ")"
     End If
+    
     If fnExecuteSQL(strSQL, FUNC_NAME) < 0 Then
         Exit Function
     End If
+    
     fnInsertzzse_manager_hour = True
+    
 End Function
 'End of Vijaya code
+
+'return error message if any
+'will set the lMgrEmpNbr variable to a valid manager's emp nbr
+Private Function fnCheckMgrEmpNbr() As String
+    
+    Const SUB_NAME As String = "fnCheckMgrEmpNbr"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sMsg As String
+    Dim sPrftCtrList As String
+    
+    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
+    strSQL = strSQL & " AND prm_emp_level  = 3"
+    strSQL = strSQL & " AND " & tfnDateString(txtEHDate, True) & " BETWEEN prm_date_hired AND prm_date_termed"
+    strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        fnCheckMgrEmpNbr = "Failed to access database"
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
+        strSQL = strSQL & " AND prm_emp_level  = 3"
+        strSQL = strSQL & " AND prm_date_termed IS NULL"
+        strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
+        
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            fnCheckMgrEmpNbr = "Failed to access database"
+            Exit Function
+        End If
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        sMsg = "No manager was found for the profit center."
+        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a manager"
+        sMsg = sMsg & " for the profit center. Manager's hours cannot be entered until"
+        sMsg = sMsg & " one manager exists."
+        DoEvents
+        MsgBox sMsg, vbExclamation
+        fnCheckMgrEmpNbr = "Manager not found"
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 1 Then
+        While Not rsTemp.EOF
+            If sPrftCtrList = "" Then
+                sPrftCtrList = tfnRound(fnGetField(rsTemp!prm_empno))
+            Else
+                sPrftCtrList = sPrftCtrList & "," & tfnRound(fnGetField(rsTemp!prm_empno))
+            End If
+            rsTemp.MoveNext
+        Wend
+        sMsg = "There is more than one manager assigned to this profit center."
+        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a termination"
+        sMsg = sMsg & " date for the invalid manager(s). Manager's hours cannot be inserted"
+        sMsg = sMsg & " until only one manager exists."
+        DoEvents
+        MsgBox sMsg, vbExclamation
+        fnCheckMgrEmpNbr = "More than one manager (" & sPrftCtrList & ") found"
+        Exit Function
+    End If
+    
+    lMgrEmpNbr = tfnRound(rsTemp!prm_empno)
+    
+End Function
