@@ -1766,11 +1766,6 @@ Private Function fnValidate(nCurrCol As Integer, _
 
     Dim szText As String
 
-#If FACTOR_MENU = 1 Then
-    fnValidate = True
-    Exit Function
-#End If
-    
     If bValidating And Not m_bAllowRevalidate Then
         Exit Function
     End If
@@ -1798,7 +1793,11 @@ Private Function fnValidate(nCurrCol As Integer, _
     
     If bFieldRequired(nCol) Then
         If szText = "" Then
-            bValidCell(nCol, lCurrRow) = frmParent.fnValidCellValue(tgTable, nCurrCol, lCurrRow, szText)
+            #If FACTOR_MENU = 1 Then
+                bValidCell(nCol, lCurrRow) = True
+            #Else
+                bValidCell(nCol, lCurrRow) = frmParent.fnValidCellValue(tgTable, nCurrCol, lCurrRow, szText)
+            #End If
             nCellChanged(nCol, lCurrRow) = nCellChanged(nCol, lCurrRow) Or STATUS_VALIDATED
             fnValidate = Not bValidCell(nCol, lCurrRow)
             bValidating = False
@@ -1820,7 +1819,11 @@ Private Function fnValidate(nCurrCol As Integer, _
         #End If
     End If
     If nCode = 0 Or nCode = Len(szText) + 1 Then
-        bValidCell(nCol, lCurrRow) = frmParent.fnValidCellValue(tgTable, nCurrCol, lCurrRow, szText)
+        #If FACTOR_MENU = 1 Then
+            bValidCell(nCol, lCurrRow) = True
+        #Else
+            bValidCell(nCol, lCurrRow) = frmParent.fnValidCellValue(tgTable, nCurrCol, lCurrRow, szText)
+        #End If
     Else
         bValidCell(nCol, lCurrRow) = False
     End If
