@@ -19,9 +19,9 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
-Global CRLF As String 'carriage return linefeed string
-Global App_LogLvl As Integer        'Log file level, set by tfnGetLogLvl
+Global t_dbMainDatabase As DataBase  'main database handle
+Global CRLF As String                'carriage return linefeed string
+Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
 Public Const DEBUG_LOG_PATH = "C:\FACTOR\TEMP\"
 '##################################################
@@ -69,6 +69,7 @@ Public Const szHelpMANNATEC As String = "MANNATEC.HLP"
 Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
 Public Const sHelpTABLECHG  As String = "SYFTBCHG.HLP"  'Junsong 02/24/03 call 373319-1
 Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 call 379860-5
+Global Const szHelpHedging As String = "ZZFPCHDG.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-4
 '#######################################################################################
 '# Logging constants
 Global Const LE_SQL As Integer = 1 'Log level for SQL Only
@@ -1217,7 +1218,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2228,7 +2229,7 @@ Public Sub tfnFixBackColor(ByRef frmMain As Form)
             If ctrl.BackColor <> &H800000 Then
                 ctrl.BackColor = &H8000000F
             End If
-        ElseIf TypeOf ctrl Is label Then
+        ElseIf TypeOf ctrl Is Label Then
             If ctrl.BorderStyle = 0 Then
                 ctrl.BackColor = &H8000000F
             End If
@@ -2340,7 +2341,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3444,7 +3445,7 @@ Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Bo
     Dim LineID As Long
     Dim bProceed As Boolean
     Dim rsTemp As Recordset
-    Dim nLogLineID As Integer
+    Dim lLogLineID As Long
     Dim strTemp As String
     Dim nTempCount As Integer
     Dim dblAns As Double
@@ -3530,12 +3531,12 @@ Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Bo
         t_dbMainDatabase.ExecuteSQL strSQL
         '# Now to get the ID we just generated...
         strSQL = "SELECT MAX (syl_id) FROM SYS_LOG WHERE syl_login = " & tfnSQLString(strOSUser) & _
-                 "AND syl_db_login = " & tfnSQLString(strDBUser) & "AND syl_host = " & tfnSQLString(strHost) & _
-                 "AND syl_pid_hwnd= " & PID & " AND syl_program = " & tfnSQLString(App.EXEName) & _
-                 "AND syl_timestamp = " & tfnSQLString(strTimestamp) & " AND syl_event_lvl = " & nEventLvl
+                 " AND syl_db_login = " & tfnSQLString(strDBUser) & " AND syl_host = " & tfnSQLString(strHost) & _
+                 " AND syl_pid_hwnd= " & PID & " AND syl_program = " & tfnSQLString(App.EXEName) & _
+                 " AND syl_timestamp = " & tfnSQLString(strTimestamp) & " AND syl_event_lvl = " & nEventLvl
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount > 0 Then
-        nLogLineID = CStr(Trim(rsTemp.Fields(0)))
+        lLogLineID = CStr(Trim(rsTemp.Fields(0)))
         nTempCount = 0
         While (Len(strEventTextInt) > 0)
             If Len(strEventTextInt) > 50 Then
@@ -3547,7 +3548,7 @@ Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Bo
                 strEventTextInt = ""
             End If
             strSQL = "INSERT INTO SYS_LOG_DET (syld_id, syld_seq, syld_data) " & _
-                     "VALUES (" & nLogLineID & ", " & nTempCount & ", " & tfnSQLString(strTemp) & ")"
+                     "VALUES (" & lLogLineID & ", " & nTempCount & ", " & tfnSQLString(strTemp) & ")"
             t_dbMainDatabase.ExecuteSQL strSQL
             nTempCount = nTempCount + 1
         Wend
