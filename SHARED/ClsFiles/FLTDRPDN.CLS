@@ -557,6 +557,7 @@ Public Sub AddExtraColumn(sCap As String, _
     clsCol.Caption = sCap
     clsCol.DataField = sField
     clsCol.ColWidth = nWidth
+    clsCol.Visible = True
     
     colTemp.Add clsCol
 End Sub
@@ -1204,6 +1205,7 @@ Public Sub AddColumn(nIndex As Integer, _
     Else
         stCol.ColWidth = nColWidth
     End If
+    stCol.Visible = True
 End Sub
 
 Property Get DropDownSQL(ByVal nIndex As Integer) As String
