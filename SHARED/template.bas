@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -491,7 +491,7 @@ Public Function tfnGetUserName() As String
         tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
-            If Not t_dbMainDatabase Is Empty Then
+            If Not t_dbMainDatabase Is Nothing Then
                 tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
             End If
         Else
@@ -1038,14 +1038,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1054,7 +1054,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As DataBase
+Public Function tfnOpenLocalDatabase() As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1147,7 +1147,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1278,7 +1278,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1286,7 +1286,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -1754,7 +1754,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
     Else
         bCloseSize = vCloseSize
     End If
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
     If bCloseSize Then
         Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
@@ -1868,7 +1868,7 @@ Public Function tfnRun(szExeName As String, _
             szCmd = szCmd & " " & Trim(sParms)
         End If
         
-        hTempInstance = shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
+        hTempInstance = Shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
         If hTempInstance > SHELL_OK Or hTempInstance < 0 Then 'if hInstance greater than 32 application is running
             tfnRun = True 'application running
             Exit Function
@@ -1906,7 +1906,7 @@ Public Function tfnGetHostName() As String
         tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
     #Else
 '        If t_oleObject Is Nothing Then
-            If Not t_dbMainDatabase Is Empty Then
+            If Not t_dbMainDatabase Is Nothing Then
                 tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
             End If
 '        Else
@@ -1926,7 +1926,7 @@ Public Function tfnGetPassword() As String
         tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
     #Else
 '        If t_oleObject Is Nothing Then
-            If Not t_dbMainDatabase Is Empty Then
+            If Not t_dbMainDatabase Is Nothing Then
                 tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
             End If
 '        Else
