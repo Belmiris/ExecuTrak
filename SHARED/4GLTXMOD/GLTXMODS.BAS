@@ -184,7 +184,7 @@ Public Sub initialize_tax_buffers()
     If pr_sys_parm Is Nothing Then
         dsl_fuel_group = "NONE"    '#value that can not occur
     Else
-        dsl_fuel_group = pr_sys_parm!parm_field
+        dsl_fuel_group = fnCStr(pr_sys_parm!parm_field)
     End If
     
     start_ldfee
@@ -1879,5 +1879,15 @@ SQLError:
     tfnErrHandler strMsg, strSQL, bShowMsg
     fnGetRecord = -1
     Resume quitsub
+End Function
+
+Private Function fnCStr(vTemp As Variant) As String
+
+    If IsNull(vTemp) Then
+        fnCStr = ""
+    Else
+        fnCStr = Trim(vTemp)
+    End If
+    
 End Function
 
