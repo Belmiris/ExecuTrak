@@ -73,6 +73,10 @@ Private Declare Function FtpPutFile Lib "wininet.dll" Alias "FtpPutFileA" _
 
 Private Declare Function FtpSetCurrentDirectory Lib "wininet.dll" Alias "FtpSetCurrentDirectoryA" _
     (ByVal hFtpSession As Long, ByVal lpszDirectory As String) As Boolean
+    
+Private Declare Function FtpGetCurrentDirectory Lib "wininet.dll" Alias "FtpGetCurrentDirectoryA" _
+   (ByVal hFtpSession As Long, ByVal lpszCurrentDirectory As String, lpdwCurrentDirectory As Long) As Boolean
+    
 ' Initializes an application's use of the Win32 Internet functions
 Private Declare Function InternetOpen Lib "wininet.dll" Alias "InternetOpenA" _
 (ByVal sAgent As String, ByVal lAccessType As Long, ByVal sProxyName As String, _
@@ -94,7 +98,7 @@ Private Const INTERNET_FLAG_PASSIVE = &H8000000
 ' Opens a HTTP session for a given site.
 Private Declare Function InternetConnect Lib "wininet.dll" Alias "InternetConnectA" _
 (ByVal hInternetSession As Long, ByVal sServerName As String, ByVal nServerPort As Integer, _
-ByVal sUsername As String, ByVal sPassword As String, ByVal lService As Long, _
+ByVal sUserName As String, ByVal sPassword As String, ByVal lService As Long, _
 ByVal lFlags As Long, ByVal lContext As Long) As Long
                 
 Private Const ERROR_INTERNET_EXTENDED_ERROR = 12003
@@ -230,8 +234,9 @@ Private Const HTTP_ADDREQ_FLAG_REPLACE = &H80000000
 '
 
 Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String, _
-                                sSourcePathAndFile As String, sDestPath As String, _
-                                bIsItFromUnixToLocal As Boolean, _
+                                sSourcePathAndFile As String, _
+                                Optional bFromUnixToLocal As Boolean = True, _
+                                Optional sDestPath As String, _
                                 Optional sDestFileName As String, _
                                 Optional sRetErrMsg As String, _
                                 Optional bShowError As Boolean = True, _
@@ -250,6 +255,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     fnTransferFile = False
     sDestPath = Trim(sDestPath)
     sSourcePathAndFile = Trim(sSourcePathAndFile)
+    
+    If sDestFileName <> "" Then
+        If InStr(1, sDestFileName, "*") > 0 Or InStr(1, sDestFileName, "?") > 0 Then
+            sRetErrMsg = "Invalid destination path specified, cannot continue!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+    End If
     
     hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
     If hOpen = 0 Then
@@ -271,17 +284,27 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     End If
     
     If sDestPath = "" Then
-        sRetErrMsg = "Destination file path is not specified, cannot continue!"
-        subShowError bShowError, sRetErrMsg, vbExclamation
-        GoTo CloseHandle
+        Dim szDir As String
+        If bFromUnixToLocal Then
+            szDir = App.Path
+        Else
+            'Get the destination directory path from unix server...
+            szDir = String(1024, Chr$(0))
+            If FtpGetCurrentDirectory(hConnection, szDir, 1024) = False Then
+                fnErrorOut Err.LastDllError, "FtpGetCurrentDirectory", bShowError, sRetErrMsg
+                GoTo CloseHandle
+            End If
+        End If
+        sDestPath = Trim(szDir)
+        If InStr(1, Trim(szDir), Chr(0)) > 0 Then
+            sDestPath = Mid(Trim(szDir), 1, InStr(1, Trim(szDir), Chr(0)) - 1)
+        End If
     End If
     
-    'Validate the source and destination paths...
     On Error GoTo ErrTrap
-    If bIsItFromUnixToLocal Then
+    If bFromUnixToLocal Then
         'Separate the file path and file name...
         subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
-        
         'Validate and set the source path...
         bFlag = FtpSetCurrentDirectory(hConnection, sSourcePath)
         If bFlag = False Then
@@ -296,7 +319,6 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         End If
         subAddSlash sDestPath, "\"
         pData.cFileName = String(MAX_PATH, 0)
-        
         'Get all the matching files...
         hFind = FtpFindFirstFile(hConnection, sSourceFile, pData, 0, 0)
         If hFind = 0 Then
@@ -309,7 +331,6 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             End If
             GoTo CloseHandle
         End If
-        
         'Get the filenames, More than one file possible...
         sItemName = Left(pData.cFileName, InStr(1, pData.cFileName, String(1, 0), vbBinaryCompare) - 1)
         lLastDLLError = NO_ERROR
@@ -329,9 +350,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             End If
         Loop
         
-        If Trim(sItemName) = "" Then
-            GoTo CloseHandle
-        End If
+        If Trim(sItemName) = "" Then GoTo CloseHandle
         
         IIf bBinary, lBinAscii = FTP_TRANSFER_TYPE_BINARY, lBinAscii = FTP_TRANSFER_TYPE_ASCII
         sArrFile = Split(sItemName, ",")
@@ -342,7 +361,11 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         For i = 0 To UBound(sArrFile)
             If sDestFileName <> "" Then
                 nNum = InStr(1, sDestFileName, ".")
-                IIf i = 0, sNum = "", sNum = CStr(i)
+                If i = 0 Then
+                    sNum = ""
+                Else
+                    sNum = CStr(i)
+                End If
                 If nNum > 0 Then
                     sDest = sDestPath & Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
                 Else
@@ -364,7 +387,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
                 End If
             End If
         Next i
-    Else
+    Else 'Transfer from local to unix server...
         Dim nNumFiles As Integer
         'Separate the file path and file name...
         subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath, False
@@ -381,15 +404,17 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             fnErrorOut Err.LastDllError, "FtpSetCurrentDirectory", bShowError, sRetErrMsg
             GoTo CloseHandle
         End If
-        subAddSlash sDestPath, "/"
-        
         'Get all the matching files if more than one...
         nNumFiles = fnBuildFileArray(sSourcePath, sSourceFile, sArrFile)
         If nNumFiles >= 0 Then
             For i = 0 To nNumFiles
                 If sDestFileName <> "" Then
                     nNum = InStr(1, sDestFileName, ".")
-                    IIf i = 0, sNum = "", sNum = CStr(i)
+                    If i = 0 Then
+                        sNum = ""
+                    Else
+                        sNum = CStr(i)
+                    End If
                     If nNum > 0 Then
                         sDest = Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
                     Else
@@ -459,6 +484,8 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
             End If
         Case "FtpSetCurrentDirectory"
             sErrorMsg = "Invalid path, Failed to set the current directory"
+        Case "FtpGetCurrentDirectory"
+            sErrorMsg = "Failed to get the current directory path"
         Case "FtpFindFirstFile"
             sErrorMsg = "Failed to get the file from the server"
         Case "InternetFindNextFile"
