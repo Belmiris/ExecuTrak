@@ -776,8 +776,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Public Sub SelectAll()
@@ -1216,7 +1216,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     If IsCellSelected(Col, Bookmark) Then
         CellStyle.ForeColor = vbBlue
         CellStyle.BackColor = &HE0E0E0
-    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or Condition = dbgSelectedRow Then    'selected row(s)
+    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or Condition = dbgSelectedRow Or Condition = dbgSelectedRow + dbgUpdatedCell Then 'selected row(s)
         CellStyle.ForeColor = &H8000000E
         CellStyle.BackColor = &H8000000D
     End If
