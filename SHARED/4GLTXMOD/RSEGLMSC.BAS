@@ -23,12 +23,18 @@ Public Sub fuel_gl()
     initialize_tax_buffers
     
     Debug.Print "Preparing G/L & Tax Information"
+    'david 06/15/2001
+    subShowStatusMsg "Preparing G/L & Tax Information"
+    
     Set pr_ar_class = far_class("PRFTC", t_dbMainDatabase)
     initialize_gl
+    
     ReDim pa_ftax(60)
+    
     pa_ftax_cnt = 0
 
     start_smmry
+    
     meter_total = 0
     
     #If PROCESSING Then
@@ -38,13 +44,14 @@ Public Sub fuel_gl()
     'got everything in aryComp, so do this
     Dim ivh_product As String
     
+    'david 06/15/2001
+    subShowStatusMsg "Collecting Blend Info"
+    
     For j = 0 To UBound(aryComp)
         ivh_product = aryComp(j).sProduct
         ivh_product = Left$(ivh_product, InStr(ivh_product, ",") - 1)
-        bld_smmry ivh_product, aryComp(j).dfCompDollars, _
-                                 aryComp(j).dfCompUnits, _
-                                 aryComp(j).dfCompUnits, _
-                                 aryComp(j).dfCompUnits
+        bld_smmry ivh_product, aryComp(j).dfCompDollars, aryComp(j).dfCompUnits, _
+            aryComp(j).dfCompUnits, aryComp(j).dfCompUnits
     Next j
     
     For j = 0 To UBound(aryComp)
@@ -55,6 +62,10 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
             meter_total = meter_total + aryComp(j).dfCompDollars
             Set pr_inv_master = finv_master(aryComp(j).lProductLink, lProfitCenter, t_dbMainDatabase)
             Set pr_inv_header = fproduct(aryComp(j).lProductLink, t_dbMainDatabase)
+            
+            'david 06/15/2001
+            subShowStatusMsg "Calculating Fuel Taxes - " & ivh_product
+            
             tax_only = compute_fuel_taxes(j) 'pass
             
             If found_error Then
@@ -83,6 +94,10 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
             tax_only = dround(tax_only)
             fuel_only = aryComp(j).dfCompDollars
             fuel_only = fuel_only - tax_only
+    
+            'david 06/15/2001
+            subShowStatusMsg "Preparing G/L (1) - " & lProfitCenter & ", " & _
+                ivh_product & ", " & sProfitUseGroup
     
             intrn_bl_gl lProfitCenter, ivh_product, sProfitUseGroup, _
                                      aryComp(j).dfCompUnits, _
@@ -128,16 +143,16 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 pr_trn = get_a_fltr(ti)
                 it_is = False
                 If pa_ftax_cnt > 0 Then
-                For tj = 1 To pa_ftax_cnt
-                   If pa_ftax(tj).ftax_prodlnk = aryComp(j).lProductLink And _
-                      pa_ftax(tj).ftax_trn = pr_trn.trn And _
-                      pa_ftax(tj).ftax_ulink = pr_trn.ulink Then
-                         pa_ftax(tj).ftax_amount = pa_ftax(tj).ftax_amount + pr_trn.extn
-                         pa_ftax(tj).ftax_tunits = pa_ftax(tj).ftax_tunits + pr_trn.tunits
-                         it_is = True
-                         Exit For
-                   End If
-                Next
+                    For tj = 1 To pa_ftax_cnt
+                       If pa_ftax(tj).ftax_prodlnk = aryComp(j).lProductLink And _
+                          pa_ftax(tj).ftax_trn = pr_trn.trn And _
+                          pa_ftax(tj).ftax_ulink = pr_trn.ulink Then
+                             pa_ftax(tj).ftax_amount = pa_ftax(tj).ftax_amount + pr_trn.extn
+                             pa_ftax(tj).ftax_tunits = pa_ftax(tj).ftax_tunits + pr_trn.tunits
+                             it_is = True
+                             Exit For
+                       End If
+                    Next
                 End If
                 If it_is <> True Then
                    pa_ftax_cnt = pa_ftax_cnt + 1
@@ -151,6 +166,10 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
                 End If
             Next
     
+            'david 06/15/2001
+            subShowStatusMsg "Preparing G/L (2) - " & lProfitCenter & ", " & _
+                ivh_product & ", " & aryComp(j).sUseGroup
+                
             extrn_del_gl lProfitCenter, ivh_product, _
                              aryComp(j).sUseGroup, aryComp(j).dfCompUnits, _
                              aryComp(j).dfCompUnits, aryComp(j).dfCompUnits, fuel_only, _
@@ -221,6 +240,9 @@ Debug.Print "PumpNo: "; aryComp(j).sPump; "Seq: "; aryComp(j).sSeq; "Product: ";
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Debug.Print "Collecting Summary"
     Dim gl_tmp As gl_type, meter_gl_amt As Double
+    
+    'david 06/15/2001
+    subShowStatusMsg "Collecting Summary"
     
     j = gl_count()
     
@@ -294,6 +316,8 @@ Public Function compute_fuel_taxes(w As Integer) As Double
     Dim w1 As Integer, dtx As dtx_type
     Dim lcnt As Integer, ret_val As Double
 
+    On Error GoTo errTrap
+    
     Set pr_inv_header = fproduct(aryComp(w).lProductLink, t_dbMainDatabase)
 
     set_this_pc lProfitCenter
@@ -313,5 +337,13 @@ Public Function compute_fuel_taxes(w As Integer) As Double
 
     compute_fuel_taxes = ret_val
 
+    Exit Function
+    
+errTrap:
+    #If PROCESSING Then
+        tfnErrHandler "compute_fuel_taxes", False
+    #Else
+        tfnErrHandler "compute_fuel_taxes"
+    #End If
 End Function
 

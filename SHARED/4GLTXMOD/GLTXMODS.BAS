@@ -583,6 +583,8 @@ Public Sub intrn_bl_gl(this_pc As Long, _
                        ByVal cost As Double, _
                        tax_acct As Long)
     
+    On Error GoTo errTrap
+    
     setup_for_gl product, this_pc, tax_acct
     If found_error Then
         Exit Sub
@@ -679,6 +681,14 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     filter_trn
     found_error = False: error_found = 0
     
+    Exit Sub
+
+errTrap:
+    #If PROCESSING Then
+        tfnErrHandler "intrn_bl_gl", False
+    #Else
+        tfnErrHandler "intrn_bl_gl"
+    #End If
 End Sub
 
 Public Sub intrn_del_gl(this_pc As Long, _
@@ -789,6 +799,8 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
                         ByVal nunits As Double, ByVal gunits As Double, _
                         ByVal tdolrs As Double, ByVal cost As Double, _
                         cust As Long, ByVal Sale As Double)
+    
+    On Error GoTo errTrap
     
     setup_for_gl product, this_pc, 0
     If found_error Then
@@ -923,6 +935,14 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     filter_trn
     found_error = False: error_found = 0
     
+    Exit Sub
+
+errTrap:
+    #If PROCESSING Then
+        tfnErrHandler "extrn_del_gl", False
+    #Else
+        tfnErrHandler "extrn_del_gl"
+    #End If
 End Sub
 
 Public Sub post_tax(bod As String, tax_gl As Long, charge_flag As String, post_amt As Double, ext_gl As Long)
@@ -988,10 +1008,14 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
     Dim skeyi As String * 22, skeyj As String * 22
     Dim found_sw As Integer, sSql As String, pr_use_link As Recordset
 
+    On Error GoTo errTrap
+
     found_sw = 0
     For i = 1 To ulink_cnt
         If pa_ulink(i).tul_link = pr_use_g!tu_link Then
             trn_arry_cnt = trn_arry_cnt + 1
+            'david 06/18/2001
+            ReDim Preserve trn_arry(trn_arry_cnt)
             j = trn_arry_cnt
             trn_arry(j).trn = pa_ulink(i).tul_trn
             trn_arry(j).ulink = pa_ulink(i).tul_link
@@ -1111,16 +1135,23 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
 
 Exit Sub
 
-For si = 1 To trn_arry_cnt
-With trn_arry(si)
-Debug.Print .ttype; " ";
-Debug.Print Format(.amount, "####0.000"); " ";
-Debug.Print .charge; " ";
-Debug.Print .limit; " ";
-Debug.Print .order_group; " ";
-Debug.Print .tt_gl_acct
-End With
-Next
+errTrap:
+    #If PROCESSING Then
+        tfnErrHandler "load_trn_arry", False
+    #Else
+        tfnErrHandler "load_trn_arry"
+    #End If
+'
+'For si = 1 To trn_arry_cnt
+'With trn_arry(si)
+'Debug.Print .ttype; " ";
+'Debug.Print Format(.amount, "####0.000"); " ";
+'Debug.Print .charge; " ";
+'Debug.Print .limit; " ";
+'Debug.Print .order_group; " ";
+'Debug.Print .tt_gl_acct
+'End With
+'Next
 End Sub
 
 Public Sub set_tax_freight(l_amount As Double)
@@ -1408,6 +1439,8 @@ Public Sub detax(use_group As String, tclass As String, _
 
     Dim level_rate As Single
     Dim last_level As Integer
+    
+    On Error GoTo errTrap
 
     Set pr_use_g = ftx_use_g(use_group, tclass, t_dbMainDatabase)
 
@@ -1491,6 +1524,14 @@ Public Sub detax(use_group As String, tclass As String, _
 
     found_error = False: error_found = 0
 
+    Exit Sub
+    
+errTrap:
+    #If PROCESSING Then
+        tfnErrHandler "detax", False
+    #Else
+        tfnErrHandler "detax"
+    #End If
 End Sub
 
 Public Function dtx_count() As Integer
