@@ -367,14 +367,14 @@ End Property
 
 Private Function fnConvertFEDID(sID As Variant) As String
     Dim sTemp As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sChar As String
     
     sTemp = ""
     
     If Not IsNull(sID) Then
-        For i = 1 To Len(sID)
-            sChar = Mid(sID, i, 1)
+        For I = 1 To Len(sID)
+            sChar = Mid(sID, I, 1)
             If sChar <> "-" And sChar <> " " Then
                 sTemp = sTemp & sChar
             End If
@@ -590,13 +590,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     fnExecuteSQL strSQL, SUB_NAME
     
     If m_sEDIType = EDI_TYPE_R Then
-        If nTypeCode = "3" Then
-            'david 04/02/00
-            'for Import fmldt_type should be 'I'
-            sType = "I"
-        Else
-            sType = "B"
-        End If
+        sType = "B"
         
         'david 04/01/00
         'USE THE EXISTING SQL STATEMENT
@@ -1138,7 +1132,7 @@ Private Function fnAppenCriteria(sField As String, _
     Const sERR_CODE  As String = "ERR"
     
     Dim sTemp As String, sPosi As Integer, aryCodes() As String, aryOp() As String
-    Dim nPosi As Integer, i As Integer, j As Integer, aryCriteria() As String
+    Dim nPosi As Integer, I As Integer, j As Integer, aryCriteria() As String
     
     'parse the code
     sTemp = sCriteria
@@ -1197,7 +1191,7 @@ Private Function fnAppenCriteria(sField As String, _
                     Exit Function
                 End If
                 
-                fnAppenCriteria = fnAppenCriteria + "(" + sField + " " + aryOp(i) + _
+                fnAppenCriteria = fnAppenCriteria + "(" + sField + " " + aryOp(I) + _
                     " " + tfnSQLString(aryCodes(0)) + ") OR "
             End If
         End If
@@ -1259,14 +1253,14 @@ Private Function fnGetName(aryStore() As tpLinkName, _
                            ByVal lLink As Long) As String
 
     Const SUB_NAME = "fnGetName"
-    Dim i As Integer
+    Dim I As Integer
     
-    For i = 0 To nCount - 1
-        If lLink = aryStore(i).m_lLink Then
-            fnGetName = aryStore(i).m_sName
+    For I = 0 To nCount - 1
+        If lLink = aryStore(I).m_lLink Then
+            fnGetName = aryStore(I).m_sName
             Exit Function
         End If
-    Next i
+    Next I
     
     Dim rsTemp As Recordset
     
@@ -1422,15 +1416,15 @@ Private Function fnGetInfoLink(aryInfo() As tpLinkInfo, _
                                sCode As String) As Integer
 
     Const SUB_NAME = "fnGetInfoLink"
-    Dim i As Integer
+    Dim I As Integer
     
     fnGetInfoLink = -1
-    For i = 0 To nCount - 1
-        If sCode = aryInfo(i).m_sLink Then
-            fnGetInfoLink = i
+    For I = 0 To nCount - 1
+        If sCode = aryInfo(I).m_sLink Then
+            fnGetInfoLink = I
             Exit Function
         End If
-    Next i
+    Next I
 
     Dim rsTemp As Recordset
     
@@ -1461,19 +1455,19 @@ Private Function fnVendorTaxID(ByVal lVendor As Long, _
                                sTaxClass As String) As String
 
     Const SUB_NAME = "fnVendorTaxID"
-    Dim i As Integer
+    Dim I As Integer
     
     fnVendorTaxID = ""
-    For i = 0 To nVTaxIDCount - 1
-        If lVendor = aryVendorTaxID(i).m_lVendor Then
-            If sState = aryVendorTaxID(i).m_sState Then
-                If sTaxClass = aryVendorTaxID(i).m_sTaxClass Then
-                    fnVendorTaxID = aryVendorTaxID(i).m_sTaxID
+    For I = 0 To nVTaxIDCount - 1
+        If lVendor = aryVendorTaxID(I).m_lVendor Then
+            If sState = aryVendorTaxID(I).m_sState Then
+                If sTaxClass = aryVendorTaxID(I).m_sTaxClass Then
+                    fnVendorTaxID = aryVendorTaxID(I).m_sTaxID
                     Exit Function
                 End If
             End If
         End If
-    Next i
+    Next I
 
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1509,17 +1503,17 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
                                  sEI As String) As String
 
     Const SUB_NAME = "fnCustomerTaxID"
-    Dim i As Integer
+    Dim I As Integer
     
     fnCustomerTaxID = ""
-    For i = 0 To nCTaxIDCount - 1
-        If lCustomer = aryCustomerTaxID(i).m_lCustomer Then
-            If lTrn = aryCustomerTaxID(i).m_lTrnLink Then
-                fnCustomerTaxID = aryCustomerTaxID(i).m_sTaxID
+    For I = 0 To nCTaxIDCount - 1
+        If lCustomer = aryCustomerTaxID(I).m_lCustomer Then
+            If lTrn = aryCustomerTaxID(I).m_lTrnLink Then
+                fnCustomerTaxID = aryCustomerTaxID(I).m_sTaxID
                 Exit Function
             End If
         End If
-    Next i
+    Next I
 
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1680,10 +1674,10 @@ End Sub
 
 Private Sub subCheckFEIN(colItems As Collection)
     Dim ciTemp As ETFMTaxRecord, sErrMsg As String
-    Dim i As Integer
+    Dim I As Integer
     
     sErrMsg = ""
-    i = -1
+    I = -1
     
     For Each ciTemp In colItems
         If Trim(ciTemp.CarrierFedID) = "" Then
@@ -1773,12 +1767,12 @@ End Property
 Private Function fnTrnNumbers(lSource() As Long, _
                              ByVal nCount As Integer) As String
 
-    Dim i As Integer
+    Dim I As Integer
     Dim sTemp As String
     
     sTemp = lSource(0)
-    For i = 1 To nCount
-        sTemp = sTemp & "," & CStr(lSource(i))
-    Next i
+    For I = 1 To nCount
+        sTemp = sTemp & "," & CStr(lSource(I))
+    Next I
     fnTrnNumbers = "(" & sTemp & ")"
 End Function
