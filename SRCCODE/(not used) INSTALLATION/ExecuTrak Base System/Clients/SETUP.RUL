@@ -8,10 +8,10 @@
 // constants
 #define DEVELOP                 FALSE
 
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak300"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.00"
+#define DEINSTALL_KEY           "ExecuTrak302"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.02"
 
 #define SIZE_REQ_LOCAL          15
 #define SIZE_REQ_REMOTE         1
@@ -84,6 +84,7 @@ declare
 	LIST lstClientID, lstClientName;
 
 	prototype AskClientOptions(BYREF NUMBER);
+	prototype GetModulesCount(STRING, BYREF NUMBER);
 	prototype SelectModClients(BYREF LIST, BYREF LIST, BYREF NUMBER, BYREF NUMBER);
 	prototype ReadClientID(STRING, BYREF LIST, BYREF LIST, BYREF NUMBER);
 	prototype CreateClientID(STRING, BYREF LIST, BYREF LIST, BYREF NUMBER);
@@ -215,7 +216,7 @@ GetRemoteLocal:
                                         abort;
                                 endif;
                          	
-				StrToUpper(szTemp, szTemp);
+		   StrToUpper(szTemp, szTemp);
                                 szBaseDirectory = szTemp;
                         endif;
                 else
@@ -370,13 +371,13 @@ ConfirmCopy:
         endif;
         ListAddString(listInfo, "", AFTER);
 
-//        ListAddString(listInfo, "Intallation Type:", AFTER);
+//        ListAddString(listInfo, "Installation Type:", AFTER);
 //        if (szForceInstall = "1 ") then
 //                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
 //        else
 //                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
 //        endif;
-        ListAddString(listInfo, "Intallation Option:", AFTER);
+        ListAddString(listInfo, "Installation Option:", AFTER);
 
 	switch (nvClientOption)
 	case BASE_ONLY:
@@ -388,7 +389,7 @@ ConfirmCopy:
 	case SERVICE_ONLY:
                 ListAddString(listInfo, "        ExecuTrak Service Pack Update", AFTER);
 	endswitch;
-        ListAddString(listInfo, "", AFTER);
+        	ListAddString(listInfo, "", AFTER);
 
 	if nvClientOption != SERVICE_ONLY then
 	        if (bRunLocal) then
@@ -418,7 +419,7 @@ ConfirmCopy:
 
 	        ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
 	        ListAddString(listInfo, "        Program\\Factor" + "\\" + PRODUCT_NAME, AFTER);
-        	ListAddString(listInfo, "", AFTER);
+        		ListAddString(listInfo, "", AFTER);
 
 		if nvClientCount > 0 then
 	        	ListAddString(listInfo, "Modules' Client Installation:", AFTER);
@@ -445,11 +446,11 @@ ConfirmCopy:
                 "satisfied with the settings, click Next to begin copying files.";
         if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
            ListDestroy( listInfo );
-		if nvClientOption = BASE_AND_MOD || nvClientOption = MOD_ONLY then
-           		goto SelectModule;
-		else
-           		goto ClientOptions;
-		endif;
+	if nvClientOption = BASE_AND_MOD || nvClientOption = MOD_ONLY then
+   		goto SelectModule;
+	else
+   		goto ClientOptions;
+	endif;
         endif;
 
         ListDestroy( listInfo );
@@ -494,7 +495,7 @@ StartCopy:
         FileSetBeginDefine("All Files");
 
         // These go into the FACTOR directory (LOCAL installation)
-        if (bRunLocal) then
+        if (bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY)) then
                 TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
 
                 if (szForceInstall = "1 ") then
@@ -897,7 +898,7 @@ CreateFolder:
 
         Delay( 1 );
 
-        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System intallation...");
+        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System installation...");
 
         Disable(STATUS);
         StatusUpdate(OFF, 0);
@@ -916,7 +917,7 @@ CreateFolder:
 		SdShowMsg ("", FALSE);
 	endif;
 
-        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System intallation...");
+        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System installation...");
         Do(SELFREGISTRATIONPROCESS);
 
         LOGMSG="INSTALLATION COMPLETE";
@@ -954,7 +955,7 @@ ZFAILURE:
         LOGWRITE(LOGMSG);
 
         MessageBox("Installation incomplete.  Close any running\n" +
-			   "applications before intalling " + PRODUCT_NAME + ".",
+			   "applications before installing " + PRODUCT_NAME + ".",
                            SEVERE);
         abort;
 	
@@ -1434,13 +1435,13 @@ function AskClientOptions(nvRetOption)
 
 	STRING  szTitle, szMsg, szServerVersion, szLocalVersion, szTemp;
    	LIST    listButtons, listDescrip;
-   	NUMBER  nReturn;
+   	NUMBER  nReturn, nModuleCount;
 	BOOL bUpdateBase;
 
 begin
 
 	// Check Service Pack Files
-	if fnFindFile(szBaseDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, "SERV*.*") then
+	if fnFindFile(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, "SERV*.*") then
 		bServicePack = TRUE;
 	else
 		bServicePack = FALSE;
@@ -1497,23 +1498,31 @@ begin
 
 	// Set button list
 	// Add the bitmap buttons to the listButtons list.
+	// Base System Client
 	ListAddString (listButtons, "@12001;1;255,0,255", AFTER);
-	ListAddString (listButtons, "@12004;1;255,0,255", AFTER);
-
-	// Set description list
 	ListAddString (listDescrip, "ExecuTrak Base System Client Installation Only.\n" +
 		"Installing ExecuTrak Base System Client Only.", AFTER);
-	ListAddString (listDescrip, "ExecuTrak Base System and Modules Client Installation.\n" +
-		"Installing ExecuTrak Base System Client and ExecuTrak Modules' Client.", AFTER);
+	
+	GetModulesCount(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, nModuleCount);
 
-	if !bUpdateBase then
-	ListAddString (listButtons, "@12003;1;255,0,255", AFTER);
+	// Base System and Modules Client
+	if nModuleCount > 0 then
+		ListAddString (listButtons, "@12004;1;255,0,255", AFTER);
+		ListAddString (listDescrip, "ExecuTrak Base System and Modules Client Installation.\n" +
+			"Installing ExecuTrak Base System Client and ExecuTrak Modules' Client.", AFTER);
+	endif;
+
+	// Modules Client
+	if (!bUpdateBase) &&  nModuleCount > 0 then
+		ListAddString (listButtons, "@12003;1;255,0,255", AFTER);
 		ListAddString (listDescrip, "ExecuTrak Modules Client Installation Only.\n" +
 			"Installing ExecuTrak Modules' Client.", AFTER);
 	endif;
 
+	// Service Pack Update
 	if bServicePack then
 		ListAddString (listButtons, "@12002;1;255,0,255", AFTER);
+		//ListAddString (listButtons, "@12005;1;255,0,255", AFTER);
 		ListAddString (listDescrip, "ExecuTrak Service Pack Update.\n"  +
 			"Update ExecuTrak programs.", AFTER);
 	endif;
@@ -1532,6 +1541,31 @@ begin
 		return NEXT;
 	endif;
 
+end;
+
+
+function GetModulesCount(szClientDir, nCount)
+        
+	STRING svFileName;
+	NUMBER nResult;
+
+begin
+
+	nResult = FindAllFiles(szClientDir, "*BIN.Z", svFileName, RESET);
+
+	nCount = 0;
+
+	while (nResult = 0)
+		nResult = FindAllFiles(szClientDir, "*BIN.Z", svFileName, CONTINUE);
+		nCount = nCount + 1;
+	endwhile;
+
+	nCount = nCount - 1;
+
+	if DEVELOP then
+		NumToStr(svFileName, nCount);
+		MessageBox("nCount=" + svFileName, INFORMATION);
+	endif;
 end;
 
 
@@ -1648,13 +1682,14 @@ end;
 function ReadClientID(szPath, lstID, lstName, nvCount)
 
 	NUMBER nvFileNum, nFlag, nvPosi, nReturn;
-	STRING 	szFile, szLineText, szTemp, szID, szName;
+	STRING 	szFile, szLineText, szTemp, szID, szName, szKey;
 	BOOL bIDFound;
 
 begin
 
 	nvCount = 0;
 	szFile = "CLIENT.INF";
+	szKey = "[FACTOR MODULES]";
 
         if (OpenFile(nvFileNum, szPath, szFile) < 0) then
 		if DEVELOP then
@@ -1669,19 +1704,21 @@ begin
         nFlag = 0;
 	szLineText = "";
 
-        while (nFlag = 0 && szLineText != "[FACTOR MOUDLES]")
+        while (nFlag = 0 && szLineText != szKey)
                 szLineText = "";
                 nFlag = GetLine (nvFileNum, szLineText);
         endwhile;
 
 	
-	if szLineText != "[FACTOR MOUDLES]" then
+	if szLineText != szKey then
 		if DEVELOP then
-	                MessageBox ("[FACTOR MOUDLES] header is missing.\n\n'" + szFile + "' format is not valid.", SEVERE);
-                	CloseFile(nvFileNum);
+	                	MessageBox (szKey + " header is missing.\n\n'" + szFile + "' format is not valid.", SEVERE);
 		endif;
 
+                	CloseFile(nvFileNum);
+
 		nReturn = CreateClientID(szPath, lstID, lstName, nvCount);
+
 		return nReturn;
         endif;
 
@@ -1691,51 +1728,53 @@ begin
         lstID = ListCreate (STRINGLIST);
         
         if (lstID = LIST_NULL) then
-                MessageBox ("Unable to create necessary Lists 'lstID'!", SEVERE);
-		return FALSE;
+	MessageBox ("Unable to create necessary Lists 'lstID'!", SEVERE);
+        	CloseFile(nvFileNum);
+	return FALSE;
         endif;
 
         lstName = ListCreate (STRINGLIST);
         
         if (lstName = LIST_NULL) then
                 MessageBox ("Unable to create necessary Lists 'lstName'!", SEVERE);
-		return FALSE;
+        	CloseFile(nvFileNum);
+	return FALSE;
         endif;
 
 	bIDFound = FALSE;
 	szTemp = "";
 
-        while (nFlag = 0 && szTemp != "[")
-                szLineText = "";
-
-                nFlag = GetLine (nvFileNum, szLineText);
-
+	while (nFlag = 0 && szTemp != "[")
+		szLineText = "";
+		
+		nFlag = GetLine (nvFileNum, szLineText);
+		
 		StrSub(szTemp, szLineText, 0, 1);
-
+		
 		if szTemp != "[" then
 			nvPosi = StrFind(szLineText, "=");
 			if nvPosi >= 0 then
-				StrSub(szID, szLineText, 0, nvPosi - 1);
-
+				StrSub(szID, szLineText, 0, nvPosi);
+		
 				if fnFindFile(szPath, szID) then
 					bIDFound = TRUE;
-
+			
 					StrSub(szName, szLineText, nvPosi + 1, StrLength(szLineText));
-	
-			                if (ListAddString(lstID, szID, AFTER) < 0) then
-			                        MessageBox("ListAddString failed - 'lstID'.", SEVERE);
-			                        return FALSE;
-			                endif;
-			                if (ListAddString(lstName, szName, AFTER) < 0) then
-			                        MessageBox("ListAddString failed - 'lstName'.", SEVERE);
-			                        return FALSE;
-			                endif;
-
+			
+				                if (ListAddString(lstID, szID, AFTER) < 0) then
+				                        MessageBox("ListAddString failed - 'lstID'.", SEVERE);
+				                        return FALSE;
+				                endif;
+				                if (ListAddString(lstName, szName, AFTER) < 0) then
+				                        MessageBox("ListAddString failed - 'lstName'.", SEVERE);
+				                        return FALSE;
+				                endif;
+			
 					nvCount = nvCount + 1;
 				endif;        
-                        endif;
-                endif;
-        endwhile;
+			endif;
+		endif;
+	endwhile;
         
         CloseFile(nvFileNum);
 
@@ -1804,7 +1843,7 @@ begin
 	endif;
 
 	szID = "CMBIN.Z";
-	szName = "Credit Management System";
+	szName = "Credit Management";
 	if fnFindFile(szPath, szID) then
 	        if (ListAddString(lstID, szID, AFTER) < 0) then
 	                MessageBox("ListAddString failed - 'lstID'.", SEVERE);
@@ -1874,7 +1913,7 @@ begin
 	endif;
 
 	szID = "GLBIN.Z";
-	szName = "";
+	szName = "General Ledger";
 	if fnFindFile(szPath, szID) then
 	        if (ListAddString(lstID, szID, AFTER) < 0) then
 	                MessageBox("ListAddString failed - 'lstID'.", SEVERE);
@@ -1987,6 +2026,20 @@ begin
 
 	szID = "WSBIN.Z";
 	szName = "Wholesale";
+	if fnFindFile(szPath, szID) then
+	        if (ListAddString(lstID, szID, AFTER) < 0) then
+	                MessageBox("ListAddString failed - 'lstID'.", SEVERE);
+	                return FALSE;
+	        endif;
+	        if (ListAddString(lstName, szName, AFTER) < 0) then
+	                MessageBox("ListAddString failed - 'lstName'.", SEVERE);
+	                return FALSE;
+	        endif;
+		nvCount = nvCount +1;
+	endif;
+
+	szID = "PTBIN.Z";
+	szName = "ProfitTrak";
 	if fnFindFile(szPath, szID) then
 	        if (ListAddString(lstID, szID, AFTER) < 0) then
 	                MessageBox("ListAddString failed - 'lstID'.", SEVERE);
@@ -2277,10 +2330,9 @@ begin
 
         while ((nReturn != END_OF_LIST))
                 ListCurrentString(lstFileList, szName);
-
-		
+	
 		if !bSelfRegister then
-                        nvPosi = StrFind(szName, ".MDB");
+                        	nvPosi = StrFind(szName, ".MDB");
 			if nvPosi >=0 then
 				bGoCopy = TRUE;
 			else // EXE file
@@ -2297,6 +2349,8 @@ begin
 
 					if szVersionFrom <= szVersionTo then
 						bGoCopy = FALSE;
+					else
+						bGoCopy = TRUE;
 					endif;
 				else
 					bGoCopy = FALSE;
