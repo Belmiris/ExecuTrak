@@ -23,7 +23,7 @@ Startup="frmZZSESLIP"
 HelpFile="FACTOR.HLP"
 Title="ZZSESLIP"
 ExeName32="ZZSESLIP.EXE"
-Path32="G:\PROGRAM\DOC\Special Projects\7-11\Prototype"
+Path32="D:\FACTOR\EXECTRAK\BIN"
 Command32=""
 Name="ZZSESLIP"
 HelpContextID="0"
@@ -37,10 +37,10 @@ ServerSupportFiles=0
 VersionComments="ZZSESLIP"
 VersionCompanyName="FACTOR, A Division of WR Hess Company"
 VersionFileDescription="ZZSESLIP.EXE"
-VersionLegalCopyright="Copyright © 1997-2000 FACTOR, A Division of WR Hess Company"
+VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
