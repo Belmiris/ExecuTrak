@@ -1,21 +1,21 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
    ClientHeight    =   1380
-   ClientLeft      =   48
-   ClientTop       =   336
-   ClientWidth     =   2124
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   2130
    LinkTopic       =   "Form1"
    LockControls    =   -1  'True
    ScaleHeight     =   1380
-   ScaleWidth      =   2124
+   ScaleWidth      =   2130
    StartUpPosition =   3  'Windows Default
    Begin MSComDlg.CommonDialog cdlgOpen 
       Left            =   276
       Top             =   192
-      _ExtentX        =   699
-      _ExtentY        =   699
+      _ExtentX        =   688
+      _ExtentY        =   688
       _Version        =   393216
       CancelError     =   -1  'True
       DialogTitle     =   "Select EDI Translator Program"
@@ -547,6 +547,8 @@ End Function
 
 Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
     Dim lLine As Long, sTemp As String, nPosi As Integer
+    Dim sDelimeter As String
+    Dim x As Long
     
     If m_lstLog Is Nothing Then
         Exit Sub
@@ -554,22 +556,45 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
     
     On Error Resume Next
     
+    If IsMissing(vPipeAsCrLf) Or sMsg = "" Then
+        sDelimeter = vbCr
+    Else
+        sDelimeter = "|"
+    End If
+    
     sTemp = sMsg
-    nPosi = InStr(sTemp, vbCr)
-     
+    nPosi = InStr(sTemp, sDelimeter)
+    
      While nPosi > 0
-        m_lstLog.AddItem Mid(sTemp, 1, nPosi - 1)
+        sTemp = Mid(sTemp, 1, nPosi - 1)
+        m_lstLog.AddItem sTemp
+        
+        x = m_frmParent.TextWidth(sTemp & "  ")
+        If x > Val(m_lstLog.Tag) Then
+            m_lstLog.Tag = x
+            If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+        End If
+    
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
         If Mid(sTemp, nPosi + 1) = vbLf Then
             sTemp = Mid(sTemp, nPosi + 2)
         Else
             sTemp = Mid(sTemp, nPosi + 1)
         End If
-        nPosi = InStr(sTemp, vbCr)
+        nPosi = InStr(sTemp, sDelimeter)
     Wend
     
     If sTemp <> "" Then
         m_lstLog.AddItem sTemp
+        
+        x = m_frmParent.TextWidth(sTemp & "  ")
+        If x > Val(m_lstLog.Tag) Then
+            m_lstLog.Tag = x
+            If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+        End If
+    
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
     End If
     
