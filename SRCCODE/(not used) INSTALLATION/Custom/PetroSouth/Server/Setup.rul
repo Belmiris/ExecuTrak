@@ -514,9 +514,9 @@ DecompressSuccessful:
                 szSCWork = szAppDir;
                 szSCExe = szAppDir ^ HELP_FILE;
                 
-                LongPathToQuote(szSCExe, TRUE);
-                AddFolderIcon(szFolder, MODULE_NAME,
-                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+                //LongPathToQuote(szSCExe, TRUE);
+                //AddFolderIcon(szFolder, MODULE_NAME,
+                //                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
                                   
                 		                          
                 LOGMSG="FOLDER SHORTCUTS CREATED";
