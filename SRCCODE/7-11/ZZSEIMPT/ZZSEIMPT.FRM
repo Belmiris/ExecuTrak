@@ -13,7 +13,7 @@ Begin VB.Form frmZZSEIMPT
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.6
+      Size            = 9.75 
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -41,7 +41,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -52,7 +52,7 @@ Begin VB.Form frmZZSEIMPT
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -72,7 +72,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   68
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -80,7 +80,7 @@ Begin VB.Form frmZZSEIMPT
             Strikethrough   =   0   'False
          EndProperty
          TabsPerPage     =   2
-         Caption         =   "I&mport Invoices|Impor&t Invoices Details"
+         Caption         =   "I&mport Invoices|Impor&t Invoice Detail"
          Begin FACTFRMLib.FactorFrame efraTab2Back 
             Height          =   4356
             Left            =   14460
@@ -95,7 +95,7 @@ Begin VB.Form frmZZSEIMPT
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -105,7 +105,7 @@ Begin VB.Form frmZZSEIMPT
             BevelOuter      =   0
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -127,7 +127,7 @@ Begin VB.Form frmZZSEIMPT
                BackColor       =   8388608
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -138,7 +138,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   0
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -159,7 +159,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -173,7 +173,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -194,7 +194,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -208,7 +208,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -229,7 +229,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -243,7 +243,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -264,7 +264,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -278,7 +278,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -299,7 +299,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -309,7 +309,7 @@ Begin VB.Form frmZZSEIMPT
                BevelOuter      =   5
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -329,7 +329,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -339,7 +339,7 @@ Begin VB.Form frmZZSEIMPT
                   BevelOuter      =   6
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -380,7 +380,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -391,7 +391,7 @@ Begin VB.Form frmZZSEIMPT
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -430,7 +430,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -440,7 +440,7 @@ Begin VB.Form frmZZSEIMPT
                   BevelOuter      =   6
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -459,7 +459,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000.00"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -476,7 +476,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "000000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -484,10 +484,10 @@ Begin VB.Form frmZZSEIMPT
                         Strikethrough   =   0   'False
                      EndProperty
                      Height          =   216
-                     Left            =   5892
+                     Left            =   5688
                      TabIndex        =   45
                      Top             =   468
-                     Width           =   1008
+                     Width           =   984
                   End
                   Begin VB.Label Label12 
                      Caption         =   "Invoice #"
@@ -501,7 +501,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -526,7 +526,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "WWWWWWWWWW"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -543,7 +543,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "0000000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -568,7 +568,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "01/01/00"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -585,7 +585,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "WWWWWWWW"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -602,7 +602,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -640,7 +640,7 @@ Begin VB.Form frmZZSEIMPT
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -650,7 +650,7 @@ Begin VB.Form frmZZSEIMPT
             BevelOuter      =   0
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.6
+               Size            = 9.75 
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -670,7 +670,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -680,7 +680,7 @@ Begin VB.Form frmZZSEIMPT
                BevelOuter      =   5
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -700,7 +700,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -710,7 +710,7 @@ Begin VB.Form frmZZSEIMPT
                   BevelOuter      =   6
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -753,7 +753,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -763,7 +763,7 @@ Begin VB.Form frmZZSEIMPT
                   BevelOuter      =   6
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.6
+                     Size            = 9.75 
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -771,7 +771,7 @@ Begin VB.Form frmZZSEIMPT
                      Strikethrough   =   0   'False
                   EndProperty
                   Begin VB.CheckBox chkAllInvoice 
-                     Caption         =   "Include Processed Invoice"
+                     Caption         =   "Include Processed Invoices"
                      Height          =   300
                      HelpContextID   =   1308
                      Left            =   336
@@ -793,7 +793,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -804,7 +804,7 @@ Begin VB.Form frmZZSEIMPT
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -826,7 +826,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -837,7 +837,7 @@ Begin VB.Form frmZZSEIMPT
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -859,7 +859,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -871,7 +871,7 @@ Begin VB.Form frmZZSEIMPT
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -893,7 +893,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -904,7 +904,7 @@ Begin VB.Form frmZZSEIMPT
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.6
+                        Size            = 9.75 
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -915,7 +915,7 @@ Begin VB.Form frmZZSEIMPT
                   Begin VB.TextBox txtToPrftName 
                      Height          =   360
                      HelpContextID   =   1306
-                     Left            =   3696
+                     Left            =   3693
                      TabIndex        =   23
                      Top             =   948
                      Width           =   3960
@@ -926,12 +926,12 @@ Begin VB.Form frmZZSEIMPT
                      Left            =   1212
                      TabIndex        =   22
                      Top             =   948
-                     Width           =   2100
+                     Width           =   2062
                   End
                   Begin VB.TextBox txtFromPrftName 
                      Height          =   360
                      HelpContextID   =   1302
-                     Left            =   3696
+                     Left            =   3693
                      TabIndex        =   21
                      Top             =   300
                      Width           =   3960
@@ -942,7 +942,7 @@ Begin VB.Form frmZZSEIMPT
                      Left            =   1212
                      TabIndex        =   20
                      Top             =   300
-                     Width           =   2064
+                     Width           =   2062
                   End
                   Begin VB.Label lblToPrftName 
                      Caption         =   "Profit Center Name"
@@ -981,7 +981,7 @@ Begin VB.Form frmZZSEIMPT
                      Height          =   300
                      Left            =   336
                      TabIndex        =   15
-                     Top             =   948
+                     Top             =   1008
                      Width           =   840
                   End
                   Begin VB.Label lblFrom 
@@ -989,7 +989,7 @@ Begin VB.Form frmZZSEIMPT
                      Height          =   300
                      Left            =   336
                      TabIndex        =   14
-                     Top             =   300
+                     Top             =   348
                      Width           =   1056
                   End
                End
@@ -1007,7 +1007,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1021,7 +1021,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1042,7 +1042,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1056,7 +1056,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1077,7 +1077,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1091,7 +1091,7 @@ Begin VB.Form frmZZSEIMPT
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.6
+                  Size            = 9.75 
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1114,7 +1114,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1129,7 +1129,7 @@ Begin VB.Form frmZZSEIMPT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1150,7 +1150,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1165,7 +1165,7 @@ Begin VB.Form frmZZSEIMPT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.6
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1187,7 +1187,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1199,7 +1199,7 @@ Begin VB.Form frmZZSEIMPT
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1220,7 +1220,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1233,7 +1233,7 @@ Begin VB.Form frmZZSEIMPT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            = 9.75 
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1519,6 +1519,7 @@ Public Function fnValidCellValue(tgTable As TDBGrid, _
     fnValidCellValue = True
     
     If tgTable Is tblHeader Then
+        fnValidCellValue = True
         Exit Function
     End If
     
@@ -1732,12 +1733,12 @@ Private Sub subInitializeSpreadSheet()
     Dim vDetailWidth As Variant
     Dim vDetailNames As Variant
     Dim vDetailFields As Variant
-    Dim sDecimal12attern As String
+    Dim sDecimal12Pattern As String
     Dim sQuantityPattern As String
-
+    Dim sTotalAmountPattern  As String
     Dim i As Integer
     
-    vHeaderWidth = Array(0.12, 0.18, 0.11, 0.11, 0.16, 0.1, 0.14, 0.1)
+    vHeaderWidth = Array(0.12, 0.17, 0.12, 0.11, 0.16, 0.1, 0.14, 0.1)
     vHeaderNames = Array("Profit Cntr.", "Profit Cntr Name", "Date", "Vendor #", "Vendor Name", "Invoice #", "Invoice Total", "Processed")
     vHeaderFields = Array("rsphh_prft_ctr", "prft_name", "rsphh_rpt_date", "rsphh_vendor", "pn_name", "rsphh_invoice" _
                          , "rsphh_invoice_amt", "rsphh_status")
@@ -1747,7 +1748,8 @@ Private Sub subInitializeSpreadSheet()
                         "rsphd_retail", "Ext. Retail")
 
     
-    sDecimal12attern = tfnDecimalPattern(12, 3, False, True)
+    sTotalAmountPattern = tfnDecimalPattern(12, 2, False, True)
+    sDecimal12Pattern = tfnDecimalPattern(12, 3, False, True)
     sQuantityPattern = tfnDecimalPattern(12, 3, True, True)
     
     While tblHeader.Columns.Count > 0
@@ -1773,7 +1775,7 @@ Private Sub subInitializeSpreadSheet()
         Set .StatusBar = ffraStatusbar
         Set .Table = tblHeader
         
-        .AddEditColumn ColHeaderInvAmount, "Enter total Invoice Amount (can't edit if processed)", sDecimal12attern
+        .AddEditColumn ColHeaderInvAmount, "Enter total Invoice Amount (can't edit if processed)", sTotalAmountPattern
         ColHdnHeaderShift = .AddHiddenField("rsphh_shift")
         ColHdnHeaderTerm = .AddHiddenField("rsphh_std_term")
         ColHdnHeaderType = .AddHiddenField("rsphh_type")
@@ -1813,7 +1815,7 @@ Private Sub subInitializeSpreadSheet()
         .AddEditColumn ColDetailItemDesc, "Enter Item Description", "^P{0,18}$"
         .AddEditColumn ColDetailUOM, "Enter Unit of Measure", "^P{1,5}$"
         .AddEditColumn ColDetailQty, "Enter Quantity", sQuantityPattern
-        .AddEditColumn ColDetailCost, "Enter Cost", sDecimal12attern
+        .AddEditColumn ColDetailCost, "Enter Cost", sDecimal12Pattern
         colHdnDetailFlag = .AddHiddenField("cost flag")
     End With
     
@@ -1855,7 +1857,9 @@ Private Sub subInitFullText()
         Set .StatusBar = ffraStatusbar
         Set .Table = tblHeader
         .AddColumn ColHeaderPrftDesc, "Profit Cntr. Name"
+        .AddColumn ColHeaderVendor, "Vendor Number"
         .AddColumn ColHeaderVendorName, "Vendor Name"
+        .AddColumn ColHeaderInvoice, "Invoice Number"
     End With
     
     Set objFullDetailText = New clsColumnExtension
@@ -1910,10 +1914,12 @@ Private Sub cmdDetailDelete_Click()
     Dim lVendor As Long
     Dim lInvoice As Long
     Dim lLineNo As Long
+    Dim sProcessed As String
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
     lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    sProcessed = tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow)
     lCurDetailRow = tgmDetail.GetCurrentRowNumber
     lLineNo = tfnRound(tgmDetail.CellValue(ColDetailLine, lCurDetailRow))
         
@@ -1951,7 +1957,7 @@ Private Sub cmdDetailDelete_Click()
             Exit Sub
         End If
         
-        If fnDeleteData(lVendor, lInvoice) Then
+        If fnDeleteData(lVendor, lInvoice, sProcessed) Then
             subUnlockHeader
             etabMain.CurrTab = 0
             etabMain.TabEnabled(1) = False
@@ -1981,7 +1987,7 @@ Private Sub cmdExceptions_Click()
         subEnableDetailOKBtn False
     Else
         subEnableDetailDeleteBtn True
-        subEnableDetailOKBtn cmdOk.Enabled
+        subEnableDetailOKBtn cmdOK.Enabled
     End If
     
     subCheckButtonStatus
@@ -2018,6 +2024,7 @@ Private Sub cmdHeaderDelete_Click()
     Dim nPrftctr As Integer
     Dim dtRptDate As Date
     Dim lShiftNum As Long
+    Dim sProcessed As String
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
@@ -2025,6 +2032,7 @@ Private Sub cmdHeaderDelete_Click()
     nPrftctr = tfnRound(tgmHeader.CellValue(ColHeaderPrftctr, lCurHeaderRow))
     dtRptDate = tfnFormatDate(tgmHeader.CellValue(ColHeaderRptDate, lCurHeaderRow))
     lShiftNum = tfnRound(tgmHeader.CellValue(ColHdnHeaderShift, lCurHeaderRow))
+    sProcessed = tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow)
     
     If tgmHeader.RowCount > 0 Then
         
@@ -2032,7 +2040,7 @@ Private Sub cmdHeaderDelete_Click()
             Exit Sub
         End If
             
-        If fnDeleteData(lVendor, lInvoice) Then
+        If fnDeleteData(lVendor, lInvoice, sProcessed) Then
             
             If nPrftctr = g_nHoldSelectedPrftCtr And dtRptDate = g_dtHoldRptDate And lShiftNum = g_lHoldShiftNum Then
                 subUnlockHeader
@@ -2212,10 +2220,10 @@ Private Sub etabMain_GotFocus()
 
 End Sub
 
-Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, Cancel As Integer)
+Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Integer)
     
     If Not etabMain.TabEnabled(NewTab) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     
@@ -2257,7 +2265,7 @@ Private Sub tblDetail_FirstRowChange()
     tgfDropdown.FirstRowChange
 End Sub
 
-Private Sub tblDetail_Scroll(Cancel As Integer)
+Private Sub tblDetail_Scroll(CANCEL As Integer)
     tgfDropdown.Scroll
 End Sub
 
@@ -2281,8 +2289,8 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Sub tblDropDown_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDropDown_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -2309,8 +2317,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     tgcDropdown.RowColChange
 End Sub
 
-Private Sub tblComboDropDown_SelChange(Cancel As Integer)
-    tgcDropdown.SelChange Cancel
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+    tgcDropdown.SelChange CANCEL
 End Sub
 
 
@@ -2330,7 +2338,7 @@ Private Sub Form_Initialize() 'called before Form_Load
     App.HelpFile = szHelp7_11
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     tfnUnlockRow
     
     On Error Resume Next
@@ -2692,16 +2700,17 @@ Private Sub tblHeader_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Private Sub tblHeader_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     Dim lCurHeaderRow As Long
     
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
     If tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y" Then
-        Cancel = True
+        CANCEL = True
     End If
     
-    tgmHeader.BeforeColEdit ColIndex, KeyAscii, Cancel
+    tgmHeader.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    
 End Sub
 
 Private Sub tblHeader_Change()
@@ -2712,8 +2721,16 @@ Private Sub tblHeader_GotFocus()
     tgmHeader.GotFocus
 End Sub
 
+Private Sub tblHeader_KeyDown(KeyCode As Integer, Shift As Integer)
+    tgmHeader.KeyDown KeyCode, Shift
+End Sub
+
 Private Sub tblHeader_KeyPress(KeyAscii As Integer)
-    tgmHeader.Keypress KeyAscii
+    
+    If Not tgmHeader.Keypress(KeyAscii) Then
+        KeyAscii = 0
+    End If
+    
 End Sub
 
 Private Sub tblHeader_LostFocus()
@@ -2741,8 +2758,8 @@ Private Sub tblHeader_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblHeader_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblHeader_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblHeader_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2773,8 +2790,8 @@ Private Sub tblDetail_AfterColEdit(ByVal ColIndex As Integer)
     
 End Sub
 
-Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    tgmDetail.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub tblDetail_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
     subEnableDetailOKBtn False
 End Sub
 
@@ -2846,8 +2863,8 @@ Private Sub tblDetail_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
 End Sub
 
-Private Sub tblDetail_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblDetail_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblDetail_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -2896,7 +2913,7 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
 End Sub
 
 Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
-    cmdOk.Enabled = bOnOff
+    cmdOK.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
@@ -2904,7 +2921,16 @@ Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
 End Sub
 
 Private Sub subEnableDetailDeleteBtn(bOnOff As Boolean)
-    cmdDetailDelete.Enabled = bOnOff
+    Dim lCurHeaderRow As Long
+            
+    lCurHeaderRow = tgmHeader.GetCurrentRowNumber
+            
+    If tgmDetail.RowCount > 0 And tgmHeader.CellValue(ColHeaderStatus, lCurHeaderRow) = "Y" Then
+        cmdDetailDelete.Enabled = False
+    Else
+        cmdDetailDelete.Enabled = bOnOff
+    End If
+    
 End Sub
 
 Private Sub subEnableDetailExceptions(bOnOff As Boolean)
@@ -3490,7 +3516,7 @@ Private Function fnGetPriceFromItemCostMaint(lVendor As Long, sItemCode As Strin
         
 End Function
 
-Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
+Private Function fnDeleteData(lVendor As Long, lInvoice As Long, sProcessed As String) As Boolean
     Dim strSQL As String
     
     'delete in rs_b_hold_detail for this vendor and invoice
@@ -3507,6 +3533,17 @@ Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     
     If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteData") Then
         Exit Function
+    End If
+    
+    'not inserted, you can delete invoice link
+    If sProcessed = "N" Then
+        strSQL = "DELETE FROM p_nbr WHERE pno_vendor = " & lVendor
+        strSQL = strSQL & " AND pno_invoice = " & lInvoice
+    
+        If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteData") Then
+            Exit Function
+        End If
+    
     End If
     
     fnDeleteData = True

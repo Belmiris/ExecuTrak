@@ -499,7 +499,7 @@ Private Sub cmdProcess_Click()
         Exit Sub
     #End If
     
-    subSetExitCancelBtn "Cancel"
+'    subSetExitCancelBtn "Cancel"
     subEnableCancelBtn False
     subEnablePrintBtn False
     subEnableProcessBtn False
@@ -535,6 +535,7 @@ Private Sub cmdProcess_Click()
     subHideHourGlass
     subEnableCancelBtn True
     subEnablePrintBtn True
+    subEnableProcessBtn True
     DoEvents
     subSetFocus cmdPrintReport
     
@@ -686,9 +687,9 @@ Private Sub subExit()
     
     If t_bDataChanged Then
         
-        If Not tfnCancelExit(t_szEXIT_MESSAGE) Then
-            Exit Sub
-        End If
+'        If Not tfnCancelExit(t_szEXIT_MESSAGE) Then
+'            Exit Sub
+'        End If
     
     End If
     
