@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -482,32 +482,18 @@ Public Function tfnGetNamedString(sSource As String, sName As String) As String
 End Function
 
 Public Function tfnGetUserName() As String
-' return the current username as was logged into factmenu
-    Dim sTemp As String, sUser As String, nPosi As Integer
-    Const sKeyWord As String = "UID="
+    'return the current username as was logged into factmenu
     
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
         tfnGetUserName = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        sTemp = t_dbMainDatabase.Connect
-        
-        nPosi = InStr(sTemp, sKeyWord)
-        If nPosi = 0 Then
-            nPosi = InStr(sTemp, LCase(sKeyWord))
-        End If
-            
-        If nPosi = 0 Then Exit Function
-        
-        sTemp = Mid(sTemp, nPosi + Len(sKeyWord))
-        nPosi = InStr(sTemp, ";")
-        
-        If nPosi = 0 Then Exit Function
-        
-        tfnGetUserName = Mid(sTemp, 1, nPosi - 1)
+        tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
-            tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            If Not t_dbMainDatabase Is Empty Then
+                tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            End If
         Else
             tfnGetUserName = t_oleObject.UserName
         End If
@@ -1052,14 +1038,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1068,7 +1054,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1161,7 +1147,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1908,5 +1894,46 @@ ErrorRun:
     #Else
         tfnErrHandler "tfnRun"
     #End If
+End Function
+
+'david 09/28/00
+Public Function tfnGetHostName() As String
+    'return the current HostName as was logged into factmenu
+    #If DEVELOP Or (FACTOR_MENU >= 0) Then
+        tfnGetHostName = "ssfactor"
+        If t_dbMainDatabase Is Nothing Then Exit Function
+            
+        tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
+    #Else
+'        If t_oleObject Is Nothing Then
+            If Not t_dbMainDatabase Is Empty Then
+                tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
+            End If
+'        Else
+            'may be not implemented yet
+'            tfnGetHostName = t_oleObject.Host
+'        End If
+    #End If
+    
+End Function
+
+Public Function tfnGetPassword() As String
+    'return the current HostName as was logged into factmenu
+    #If DEVELOP Or (FACTOR_MENU >= 0) Then
+        tfnGetPassword = "ssfactor"
+        If t_dbMainDatabase Is Nothing Then Exit Function
+            
+        tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
+    #Else
+'        If t_oleObject Is Nothing Then
+            If Not t_dbMainDatabase Is Empty Then
+                tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
+            End If
+'        Else
+            'may be not implemented yet
+'            tfnGetPassword = t_oleObject.Password
+'        End If
+    #End If
+    
 End Function
 
