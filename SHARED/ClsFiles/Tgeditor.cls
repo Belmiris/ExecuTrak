@@ -892,7 +892,9 @@ Private Function fnCheckRowValid(ByVal nCol As Integer, _
     Else
         If Not bLocked Then
             fnShowStatus lRow, nEditColumns(nCol), True
-            Beep
+            If bAllowAddNew Then
+                Beep
+            End If
             nAddRowCount = nAddRowCount + 1
             If bHighlightInvalidCell Then
                 If nCol = nColumnCount - 1 Then
