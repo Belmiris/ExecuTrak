@@ -376,6 +376,7 @@ Public Const EXPORT_DOWN = 12850
 Public Const TSTPRINT_UP = 12900
 Public Const EDIVNDXR_UP = 13000
 Public Const EDIUOMXR_UP = 13100
+Public Const RPFZONMT_UP = 13200
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
