@@ -246,7 +246,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = val(vTemp)
+            fnParmIndex = Val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -512,7 +512,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = val(vDefault)
+        nWhatToUse = Val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
@@ -593,7 +593,8 @@ errRunShell:
     
 End Function
 
-Public Function fnRun4GLPricing(sCmdLine As String) As String
+Public Function fnRun4GLPricing(sCmdLine As String, _
+                                    Optional bAlwaysLunch As Boolean = False) As String
     
     Dim sHost As String
     Dim sUserID As String
@@ -606,7 +607,9 @@ Public Function fnRun4GLPricing(sCmdLine As String) As String
     Static staCmd As String
     Static staRtn As String
     
-    If staCmd = sCmdLine Then
+    'Vijaya on 07/09/03 needs always lunch the 4ge by default it will check
+    
+    If staCmd = sCmdLine And Not bAlwaysLunch Then
         fnRun4GLPricing = staRtn
         Exit Function
     Else
