@@ -402,6 +402,42 @@ Property Set Partner(tgcTemp As Object)
     Set m_tgcSelector = tgcTemp
 End Property
 
+Property Get RowIsSelected(ByVal lRow As Long) As Boolean
+
+    Dim i As Long
+    
+    For i = 0 To m_tgTable.SelBookmarks.Count - 1
+        If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
+            RowIsSelected = True
+            Exit Property
+        End If
+    Next i
+    RowIsSelected = False
+    
+End Property
+
+Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
+
+    Dim i As Long
+    
+    If bSelect Then
+        If Not RowIsSelected(lRow) Then
+            m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(lRow)
+        End If
+    Else
+        If RowIsSelected(lRow) Then
+            For i = 0 To m_tgTable.SelBookmarks.Count - 1
+                If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
+                    m_tgTable.SelBookmarks.Remove i
+                    Exit Property
+                End If
+            Next i
+        End If
+    End If
+    
+End Property
+
+
 Public Sub SelChange(CANCEL As Integer)
     CANCEL = True
 '    If Not m_tgcSelector Is Nothing Then
