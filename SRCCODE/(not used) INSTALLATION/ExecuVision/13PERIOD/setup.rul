@@ -1,0 +1,701 @@
+//*******************************************************************
+//
+// Installation script for the ExecuVision software release 3.00
+// Xijian, 9/7/199
+//
+//Setup log "EXVSETUP.TXT"
+//
+//*******************************************************************
+//
+// includes
+
+#include "winapi.h"
+
+// constants
+#define RUN_IQVISION_SETUP      1
+
+#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+
+#define DEINSTALL_KEY           "ExecuVision13P300" 
+#define UNINSTALL_NAME          "ExecuVision 13 Period Version 3.00"
+
+#define PROGRAM_SIZE            3
+
+#define APP_BASE_PATH           "Factor\\ExecVisn"
+#define APP_INI_PATH            "J:\\Factor\\ExecVisn"
+#define PROGRAM_GROUP           "ExecuVision"
+#define COMPANY_NAME            "FACTOR"
+#define PRODUCT_NAME            "ExecuVision 13 Period"
+
+#define KEY_EXECUVISION         "ExecuVision"
+
+#define PRODUCT_KEY             "iqfact.exe"
+#define KEY_IQ                  "iqvc32.exe"
+
+#define IQ_DEFAULT_DIR          "C:\\IQ\\VISION"
+
+#define KEY_DEFAULT             ""
+
+#define WELCOME_TITLE           "ExecuVision 13 Period Installation"
+
+
+declare
+
+// include files
+#include "sddialog.h"
+
+        //log setup variables and write log function prototype
+	NUMBER nvFileOut;
+        STRING INSTALL_OPTION;
+        STRING LOGMSG;
+
+	prototype LOGWRITE(STRING);
+
+        // global variables
+        NUMBER nReturn, nTemp, nStatus;
+
+        STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION;
+        STRING szBaseDirectory, szINIDirectory;
+        STRING szDestMsg, szId, szComponents, szProgram;
+        STRING szMsg, szNumber, szTemp, szFolder, szIQDir;
+        STRING szSCIcon, szSCExe, szSCWork, szAppDir, svUninstLogFile;
+        STRING szDBFrom, szDBTo, szForceInstall, svFileName;
+                
+        BOOL bZFailure, bTemp1, bTemp2, bExists16Bit, bCopyINI;
+        BOOL bAlreadyAsk;
+
+        LIST    listInfo, listINIDir;
+                                    
+        // function prototypes
+        prototype SetupScreen();
+        prototype CheckDiskSpace(NUMBER);
+
+        prototype CheckExistsDir(STRING);
+        prototype IsExists16BitVersion(STRING);
+
+	prototype fnFindFile(STRING, STRING);
+
+// the script starts here
+program
+
+StartHere:
+	 
+        // Set up the installation screen
+        SetupScreen();
+
+        // set registry keys
+        KEY_ROOT = "SOFTWARE\\" + COMPANY_NAME;
+        KEY_PRODUCT = KEY_ROOT + "\\" + PRODUCT_NAME;
+        KEY_VERSION = KEY_PRODUCT + "\\" + PRODUCT_VERSION;
+        
+        RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+        // set title for all dialog boxes
+        SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE);
+        SetDialogTitle(DLG_ASK_TEXT, WELCOME_TITLE);
+        SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
+        SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
+        SetDialogTitle(DLG_MSG_SEVERE, WELCOME_TITLE);
+        SetDialogTitle(DLG_MSG_WARNING, WELCOME_TITLE);
+        SetDialogTitle(DLG_USER_CAPTION, WELCOME_TITLE);
+
+
+        //**************************************************
+        //
+        //            MAIN INSTALLATION
+        //
+        //**************************************************
+
+MainInstallation:
+        // set installation information
+        InstallationInfo(COMPANY_NAME, PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_KEY);
+
+	Enable(DIALOGCACHE);
+
+        
+SayWelcome:
+        // welcome message and get desired target path
+        Disable(BACKBUTTON);
+
+        szMsg = "Welcome to the " + PRODUCT_NAME + " Setup program.  This " +
+            "program will install " + PRODUCT_NAME + " on your computer.";
+
+        SdWelcome(WELCOME_TITLE, szMsg);
+
+        Enable(BACKBUTTON);
+
+        // check the registry - if old installation exists.
+        if (RegDBGetKeyValueEx(KEY_VERSION, KEY_EXECUVISION, nReturn, szTemp, nTemp) = 0) then
+                szBaseDirectory = szTemp;
+                ParsePath(szTemp, szBaseDirectory, DISK);
+                szBaseDirectory = szTemp ^ APP_BASE_PATH;
+        else
+                szBaseDirectory = TARGETDISK ^ APP_BASE_PATH;
+        endif;
+
+        NumToStr(szNumber, PROGRAM_SIZE * 1024);
+
+
+GetTargetPath:
+        szDestMsg = "Setup will install " + PRODUCT_NAME + " in the Destination Directory.\n\n";
+        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
+        szDestMsg = szDestMsg + "directory.\n\n";
+        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to ";
+        szDestMsg = szDestMsg + "exit Setup.\n\n";
+        szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
+
+        if (AskDestPath("Choose " + PRODUCT_NAME + " Programs Location", szDestMsg, szBaseDirectory, 0) = BACK) then
+            goto SayWelcome;
+        endif;
+
+        // make sure destination directory is \factor\execvisn
+        szTemp = szBaseDirectory ^ "";
+        StrToLower(szTemp, szTemp);
+
+        ParsePath(szFolder, szBaseDirectory, DISK);
+        StrToLower(szFolder, szFolder);
+
+        nTemp = StrFind(szTemp, szFolder ^ "factor\\execvisn");
+
+        StrToUpper(szFolder, szFolder);
+
+        if (nTemp < 0) then   //incorrect directory
+                szMsg = PRODUCT_NAME + " Program Directory '" +
+                    szBaseDirectory ^ "" + "' is not valid.\n\n";
+                szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
+                    szFolder ^ APP_BASE_PATH + "' directory.";
+
+                MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+        endif;
+
+        szBaseDirectory = szFolder ^ APP_BASE_PATH;
+
+        // check available disk space
+        if (CheckDiskSpace(PROGRAM_SIZE * 1024 * 1024) = FALSE) then
+                goto GetTargetPath;
+        endif;
+
+FindExecuvisionInstallation:
+	szAppDir = szBaseDirectory ^ "BIN";
+        if (FindFile(szAppDir , "IQFACT.EXE", svFileName) < 0) then
+        	MessageBox("Execuvision must be installed before this installation can take place.", SEVERE);
+        	goto ZFailure;
+        else
+        	if (FindFile(szAppDir , "SPZIQUP7.FAC", svFileName) < 0) then
+        	else
+        		MessageBox("Execuvision 13 Period cannot be installed at the same system with Execuvision 40 Day Cycle. ", SEVERE);
+        		goto ZFailure;	
+        	endif;
+   	endif;
+
+Check16BitExecVisn:
+        bExists16Bit = IsExists16BitVersion(szBaseDirectory ^ "Bin");
+
+        if (bExists16Bit) then
+                if (AskYesNo( "32-Bit ExecuVision Installation will overwrite " +
+                   "the 16-Bit ExecuVision program. Are you sure you want to " +
+                   "continue?", NO) = NO) then
+                        szMsg = PRODUCT_NAME + " Installation terminates.";
+                        MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+                        abort;
+                endif;
+        endif;
+
+
+       // szINIDirectory = APP_INI_PATH;
+
+
+
+ConfirmCopy:
+        // Show SdStartCopy dialog to confirm file transfer operation.
+        listInfo = ListCreate( STRINGLIST );
+
+        //Construct the Info List
+        ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
+        ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
+        ListAddString(listInfo, "", AFTER);
+    //    ListAddString(listInfo, PRODUCT_NAME + " INI directory:", AFTER);
+    //    ListAddString(listInfo, "        " + szINIDirectory, AFTER);
+    //    ListAddString(listInfo, "", AFTER);
+
+        if (bExists16Bit) then
+                ListAddString(listInfo, "Overwrite 16-Bit ExecuVision Program:", AFTER);
+                ListAddString(listInfo, "        Yes", AFTER);
+                ListAddString(listInfo, "", AFTER);
+        endif;
+
+        ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
+        ListAddString(listInfo, "        Program\\Factor\\" + PROGRAM_GROUP, AFTER);
+
+        szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
+                "If you want to review or change any settings, click Back.  If you are " +
+                "satisfied with the settings, click Next to begin copying files.";
+        if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
+           ListDestroy( listInfo );
+           goto GetTargetPath;
+        endif;
+        ListDestroy( listInfo );
+
+
+        // Set the App Paths key for the main program.
+        szAppDir = szBaseDirectory ^ "BIN";
+        RegDBSetItem( REGDB_APPPATH, szAppDir );
+        szProgram = szAppDir + "\\iqfactmt.exe";
+        RegDBSetItem( REGDB_APPPATH_DEFAULT, szProgram );
+        
+
+StartCopy:
+
+        Enable(STATUS);
+        FileSetBeginDefine("All Files");  // begin of define fileset +++++++++++++++++
+        StatusUpdate(ON, 90);
+
+// *************************  FORCED INSTALLATION of ALL FILES
+
+
+        TARGETDIR = szBaseDirectory;
+
+        LOGMSG="START FORCED COPY OF factbin FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        // These go into the FACTOR\EXECVISN directory
+        if (CompressGet("factbin.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR) < 0) then
+                MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
+                goto ZFailure;
+        endif;
+
+        LOGMSG="END FORCED COPY OF factbin FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+
+       // TARGETDIR = szBaseDirectory ^ "OLE";
+
+       // LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+       // LOGWRITE(LOGMSG);
+
+       // if (CompressGet("factole.z", "*.*", COMP_NORMAL) < 0) then
+       //         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
+       //         goto ZFailure;
+       // endif;
+
+       // LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+	// LOGWRITE(LOGMSG);
+
+
+        //extract the local database into WINDOWS\TEMP directory
+        TARGETDIR = WINDIR ^ "TEMP";
+
+        LOGMSG="START FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
+                MessageBox("FACTDB.Z could not be decompressed", SEVERE);
+                goto ZFailure;
+        endif;
+
+        LOGMSG="END FORCED COPY OF FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);                       
+
+        FileSetEndDefine("All Files");  // end of define fileset +++++++++++++++++
+
+        SetStatusWindow(0, "Copying " + PRODUCT_NAME + " installation files...");
+ 
+        nReturn = FileSetPerformEz("All Files", 0);
+
+        //  write file problem to log
+        if (nReturn != FS_DONE) then
+                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+                LOGWRITE(LOGMSG);
+        endif;
+
+        switch (nReturn)
+                case FS_CREATEDIR:
+                        MessageBox("Failed to Create target directory", SEVERE);
+                        goto ZFailure;
+                case FS_PACKAGING:
+                        MessageBox("Unable to find file in package list", SEVERE);
+                        goto ZFailure;
+                case FS_FILENOTINLIB:
+                        MessageBox("Unable to find target file in compressed lib", INFORMATION);
+                        goto ZFailure;
+                case FS_OPERROR:
+                        MessageBox("An error occurred during the process of copying or decompressing files", INFORMATION);
+                        goto ZFailure;
+                case FS_DONE:
+                        // do nothing
+                default:
+                        MessageBox("General file copy failure", SEVERE);
+                        goto ZFailure;
+        endswitch;
+
+       
+        SetStatusWindow(93, "Copying Local Database...");
+
+        //copy factor.mdb and factor.ldb to BIN and WINDOWS\SYSTEM directory
+        SRCDIR = WINDIR ^ "TEMP";
+        szDBFrom = "\"" + SRCDIR + "\"";
+        TARGETDIR = szBaseDirectory ^ "bin";
+        szDBTo = "\"" + TARGETDIR + "\"";
+
+        LOGMSG="LAUNCHING " + szBaseDirectory + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
+        LOGWRITE(LOGMSG);
+        LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
+        LOGWRITE(LOGMSG);
+
+        LaunchAppAndWait(szBaseDirectory ^ "bin" ^ "cpylocal.exe", szForceInstall +
+                szDBFrom + " " + szDBTo, WAIT);
+
+        SetStatusWindow(96, "Copying Local Database...");
+
+        TARGETDIR = WINSYSDIR;
+        szDBTo = "\"" + TARGETDIR + "\"";
+
+        LOGMSG="LAUNCHING " + szBaseDirectory + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
+        LOGWRITE(LOGMSG);
+        LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
+        LOGWRITE(LOGMSG);
+
+        LaunchAppAndWait(szBaseDirectory ^ "bin" ^ "cpylocal.exe", szForceInstall +
+                szDBFrom + " " + szDBTo, WAIT);
+
+        SetStatusWindow(97, "Copying Local Database...");
+
+        // delete the local database from windows directory
+        TARGETDIR = SRCDIR;
+        LOGMSG="START DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+        DeleteFile("FACTOR.MDB");
+ //       DeleteFile("FACTOR.LDB");
+        LOGMSG="END DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);     
+
+        StatusUpdate(OFF, 0);
+	  
+
+
+
+CreateProgramFolder:
+        LOGMSG="START OF CREATE PROGRAM FOLDER";
+        LOGWRITE(LOGMSG);
+
+        // create folder shortcuts
+        szFolder = COMPANY_NAME ^ PRODUCT_NAME;
+        szAppDir = szBaseDirectory ^ "BIN";
+        szSCWork = szAppDir;
+        szSCIcon = "";
+
+        // uninstall shortcuts
+        //szProgram = UNINST;
+        //szProgram = szProgram + " -f\"" + svUninstLogFile + "\"";
+        //AddFolderIcon(szFolder, "Uninstall " + PRODUCT_NAME, szProgram,
+        //                          WINDIR, "", 0, "", REPLACE);
+
+        szSCExe = WINDIR ^ "notepad.exe " + TARGETDISK ^ "Factor" ^ "iqf_log.txt";
+        AddFolderIcon(szFolder, "ExecuVision Data Warehouse Update Log",
+                                  szSCExe, szBaseDirectory, szSCIcon, 0, "", REPLACE);
+
+        SetStatusWindow(94, "Creating program folder and icons...");
+
+        szSCExe = szAppDir ^ "runsql2.exe";
+        AddFolderIcon(szFolder, "Run SQL",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        szSCExe = szAppDir ^ "iqfact.hlp";
+        AddFolderIcon(szFolder, "ExecuVision Help",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        SetStatusWindow(95, "Creating program folder and icons...");
+
+        //szSCExe = "\"" + szAppDir ^ "iqfact.exe\" networknode:factor:/factor/company, username, password, I";
+        //AddFolderIcon(szFolder, "ExecuVision Data Warehouse Build",
+        //                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+        //
+        //instead of add folder item, now delete the folder item
+        DeleteFolderIcon(szFolder, "ExecuVision Data Warehouse Build");
+
+        szSCExe = szAppDir ^ "iqfactmt.exe";
+        AddFolderIcon(szFolder, "ExecuVision Reference File Maintenance",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        SetStatusWindow(96, "Creating program folder and icons...");
+
+        szSCExe = szAppDir ^ "iqfestrm.exe";
+        AddFolderIcon(szFolder, "ExecuVision Data Warehouse Process Maintenance",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        szSCExe = szAppDir ^ "iqffcpmt.exe";
+        AddFolderIcon(szFolder, "ExecuVision Company File Maintenance",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        SetStatusWindow(97, "Creating program folder and icons...");
+        
+        szSCExe = szAppDir ^ "iqferept.exe";
+        AddFolderIcon(szFolder, "ExecuVision OLAP Analysis",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        szSCExe = szAppDir ^ "iqefact.exe";
+        AddFolderIcon(szFolder, "Run Data Model Builder",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        LOGMSG="END OF CREATE PROGRAM FOLDER";
+        LOGWRITE(LOGMSG);
+
+        SetStatusWindow(98, "Creating program folder and icons...");
+
+
+        // add registry information
+        RegDBSetKeyValueEx(KEY_VERSION, KEY_EXECUVISION, REGDB_STRING, szBaseDirectory, -1);
+
+        goto Finished;
+
+
+ZFailure:
+        MessageBox("Installation incomplete.  Close any running\n" +
+                           "applications before intalling " + PRODUCT_NAME + ".",
+                           INFORMATION);
+        abort;
+        
+Finished:
+
+	if (LaunchApp(WINDIR ^ "NOTEPAD.EXE", szAppDir ^ "readme.txt") < 0) then
+      		MessageBox("Launching Readme.txt file failed.", SEVERE);
+      	else
+      		Delay( 3 );
+   	endif;
+
+        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+
+        Delay( 1 );
+
+        Disable(STATUS);
+        Disable(FEEDBACK_FULL);
+
+
+        szTemp  = "";
+
+        SdFinish(WELCOME_TITLE + " Complete",
+            WELCOME_TITLE + " has finished copying files to your computer.",
+            "Click Finish to complete " + WELCOME_TITLE,
+            szTemp, "", bTemp1, bTemp2);
+
+        exit;
+
+
+/*--------------- END OF SCRIPT --------------*\
+
+
+
+function SetupScreen()
+        number nDx, nDy;
+begin
+
+        GetExtents( nDx, nDy );
+
+        Enable( INDVFILESTATUS );
+
+        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;
+
+        //set installation header
+        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+                szMsg = "Installing " + PRODUCT_NAME;
+        else
+                szMsg = "Installing " + PRODUCT_NAME + "™";
+        endif; 
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+                szMsg = szMsg + "\nForced Installation";
+        endif;
+        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+        SetTitle(szMsg , 24, WHITE);
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+                szForceInstall = "1 ";
+        else
+                szForceInstall = "0 ";
+	endif;
+
+        if( CreateFile( nvFileOut, WINSYSDIR, "EXVSETUP.TXT" ) < 0 ) then
+
+    		MessageBeep( 0 );
+                MessageBox( "EXVSETUP.TXT could not be opened", SEVERE );
+            abort;
+	else
+                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+		LOGWRITE(LOGMSG);
+	endif;   
+
+        SetColor( BACKGROUND, BK_BLUE ); // Dark blue.
+        SetColor( STATUSBAR, BLUE );     // Bright blue.
+
+        Delay( 1 );
+
+end;
+        
+                
+/*---------------------------------------------*\
+*
+*       CheckDiskSpace
+*
+*       Checks the available disk space against the
+*       amount requested and returns TRUE if the
+*       requested space is available
+*
+\*---------------------------------------------*/
+        
+function CheckDiskSpace(nBytesRequired)
+        NUMBER nActualSize;
+        NUMBER nSpaceAvailable;
+        NUMBER nReturn;
+        STRING szNumber;
+        STRING szMessage;
+        BOOL bSpaceOK;
+begin
+        
+        nSpaceAvailable = GetDiskSpace(szBaseDirectory);
+    
+        if (nSpaceAvailable < nBytesRequired) then
+                NumToStr(szNumber, nBytesRequired / 1024);
+                szMessage = szNumber + " Kbytes of disk space is required for this installation.\nThe targe drive has ";
+                NumToStr(szNumber, nSpaceAvailable / 1024);
+                szMessage = szMessage + szNumber + " Kbytes available.\n\nContinuing may result in an incomplete installation.\n\n";
+                szMessage = szMessage + "Do you still want to install to \"" + szBaseDirectory + "\"?";
+                
+                nReturn = MessageBox(szMessage, MB_ICONEXCLAMATION + MB_TASKMODAL + MB_YESNO + MB_DEFBUTTON2);
+                
+                if (nReturn = IDYES) then
+                        bSpaceOK = TRUE;
+                else
+                        bSpaceOK = FALSE;
+                endif;
+    else
+        bSpaceOK = TRUE;
+    endif;
+    
+    return bSpaceOK;
+
+end;
+
+function SetupScreen()
+        number nDx, nDy;
+begin
+
+        GetExtents( nDx, nDy );
+
+        Enable( INDVFILESTATUS );
+
+        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;
+
+        //set installation header
+        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+                szMsg = "Installing " + PRODUCT_NAME;
+        else
+                szMsg = "Installing " + PRODUCT_NAME + "™";
+        endif; 
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+                szMsg = szMsg + "\nForced Installation";
+        endif;
+        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+        SetTitle(szMsg , 24, WHITE);
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+                szForceInstall = "1 ";
+        else
+                szForceInstall = "0 ";
+	endif;
+
+        if( CreateFile( nvFileOut, WINSYSDIR, "EXVSETUP.TXT" ) < 0 ) then
+
+    		MessageBeep( 0 );
+                MessageBox( "EXVSETUP.TXT could not be opened", SEVERE );
+            abort;
+	else
+                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+		LOGWRITE(LOGMSG);
+	endif;   
+
+        SetColor( BACKGROUND, BK_BLUE ); // Dark blue.
+        SetColor( STATUSBAR, BLUE );     // Bright blue.
+
+        Delay( 1 );
+
+end;
+
+function CheckExistsDir(szDirPath)
+        STRING svDisk;
+begin
+
+        ParsePath(svDisk, szDirPath, DISK);
+
+        if (ExistsDisk(svDisk) != EXISTS) then
+                MessageBox("The specify directory:\n\n'" + szDirPath +
+                    "'\n\nis invalid, incomplete or write protected." +
+                    "  Please type a full path with drive letter; for " +
+                    "example 'C:APPS'.", SEVERE);
+                    return NOTEXISTS;
+        endif;
+
+        return EXISTS;
+
+end;
+
+
+// write log function
+function LOGWRITE(logline)
+
+begin
+	logline=logline + "\n";
+	WriteLine( nvFileOut, logline);
+	return;
+end;
+
+
+//check 16- bit version
+function IsExists16BitVersion(szProgDir)
+
+        NUMBER nResult;
+        STRING svVersionNumber, szResult;
+
+begin
+
+        nResult = VerGetFileVersion(szProgDir ^ PRODUCT_KEY, svVersionNumber);
+        if(nResult = 0) then  //file version found
+                StrSub(szResult, svVersionNumber, 0, 1);
+                if (szResult = "1") then
+                        return TRUE;
+                else
+                        return FALSE;
+                endif;
+        else
+                return FALSE;
+        endif;
+end;
+
+
+
+function fnFindFile(szPath, szFile)
+
+        STRING svResult;
+
+begin
+
+        svResult = "";
+
+        FindFile(szPath, szFile, svResult);
+
+        if (svResult = "") then
+                return FALSE;
+        else
+                return TRUE;
+        endif;
+
+end;
+
+
+#include "sddialog.rul"
