@@ -289,21 +289,31 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
     Set pr_inv_master = finv_master(pr_inv_header!ivh_link, this_pc, t_dbMainDatabase)
     
     If pr_inv_master Is Nothing Then
-        found_error = True: error_found = 1
-        Exit Sub
-    Else
-        If pr_inv_master.RecordCount = 0 Then
-            Dim rsTemp As Recordset
-            'changed by junsong
-            If fnCheckNonStkMstr(rsTemp, pr_inv_header!ivh_link, this_pc) Then
-                bUseNonStkMstr = True
-                Set pr_inv_master = rsTemp
-            Else
-                found_error = True: error_found = 1
-                Exit Sub
-            End If
+        Dim rsTemp As Recordset
+        'changed by junsong
+        If fnCheckNonStkMstr(rsTemp, pr_inv_header!ivh_link, this_pc) Then
+            bUseNonStkMstr = True
+            Set pr_inv_master = rsTemp
+        Else
+            found_error = True: error_found = 1
+            Exit Sub
         End If
     End If
+      '  found_error = True: error_found = 1
+      '  Exit Sub
+    'Else
+    '    If pr_inv_master.RecordCount = 0 Then
+    '        Dim rsTemp As Recordset
+            'changed by junsong
+    '        If fnCheckNonStkMstr(rsTemp, pr_inv_header!ivh_link, this_pc) Then
+    '            bUseNonStkMstr = True
+    '            Set pr_inv_master = rsTemp
+    '        Else
+    '            found_error = True: error_found = 1
+    '            Exit Sub
+    '        End If
+    '    End If
+    ' End If
     
     If Not bUseNonStkMstr Then
         Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_sales, this_pc, t_dbMainDatabase)
