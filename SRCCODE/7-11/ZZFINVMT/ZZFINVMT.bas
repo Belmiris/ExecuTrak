@@ -3,7 +3,7 @@ Option Explicit
 
 Private Type RSINV_Header
     sRecId  As String
-    nProfctr As Integer
+    nPrftCtr As Integer
     dtReportDate As Date
     nShiftNum As Integer
     lVendor As Long
@@ -182,7 +182,7 @@ Private Function fnProcessHeaderLine(sLine As String, udtInvHeader As RSINV_Head
     
     With udtInvHeader
         .sRecId = Trim$(Mid$(sLine, 1, 3))
-        .nProfctr = CInt(Mid$(sLine, 4, 5))
+        .nPrftCtr = CInt(Mid$(sLine, 4, 5))
         .dtReportDate = CDate(Mid$(sLine, 9, 10))
         .nShiftNum = CInt(Mid$(sLine, 19, 5))
         .lVendor = CLng(Mid$(sLine, 24, 10))
@@ -243,7 +243,7 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
                                 
             strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
             strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt, rsphh_status)"
-            strSQL = strSQL & " VALUES(" & udtInvHeader.nProfctr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
+            strSQL = strSQL & " VALUES(" & udtInvHeader.nPrftCtr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
             strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
             strSQL = strSQL & tfnDateString(udtInvHeader.dtInvdate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
             strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
@@ -325,27 +325,27 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     End If
     
     If g_bNeedValidHeader Then
-        sErrMsg = fnValidPrftCtr(udtInvHeader.nProfctr)
+        sErrMsg = fnValidPrftCtr(udtInvHeader.nPrftCtr)
         
         If sErrMsg <> "" Then
             fnValidData = False
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
         
-        sErrMsg = fnValidReportDate(udtInvHeader.nProfctr, udtInvHeader.dtReportDate)
+        sErrMsg = fnValidReportDate(udtInvHeader.nPrftCtr, udtInvHeader.dtReportDate)
         
         If sErrMsg <> "" Then
             fnValidData = False
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
         
-        sErrMsg = fnValidShiftNum(udtInvHeader.nProfctr, udtInvHeader.nShiftNum, udtInvHeader.dtReportDate)
+        sErrMsg = fnValidShiftNum(udtInvHeader.nPrftCtr, udtInvHeader.nShiftNum, udtInvHeader.dtReportDate)
         
         If sErrMsg <> "" Then
             fnValidData = False
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
-                
+        
         sErrMsg = fnValidVendor(udtInvHeader.lVendor, sPayTerm)
         
         If sErrMsg <> "" Then
@@ -428,7 +428,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
         
-        sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nProfctr, udtInvHeader.dtInvdate)
+        sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nPrftCtr, udtInvHeader.dtInvdate)
             
         If sErrMsg <> "" Then
             fnValidData = False
@@ -467,7 +467,7 @@ Private Sub subWriteHeaderErrLog(udtInvHeader As RSINV_Header)
     sVendorName = fnGetVendorName(udtInvHeader.lVendor)
     
     Print #g_nErrorLogFile, ""
-    sLine = "Profit Center: " & CStr(udtInvHeader.nProfctr)
+    sLine = "Profit Center: " & CStr(udtInvHeader.nPrftCtr)
     Print #g_nErrorLogFile, sLine
     sLine = "Shift Number: " & CStr(udtInvHeader.nShiftNum)
     Print #g_nErrorLogFile, sLine
@@ -518,7 +518,7 @@ Private Sub subWriteHeaderProcLog(udtInvHeader As RSINV_Header)
     g_dTotalExtCost = 0#
     
     Print #g_nProcessingFile, ""
-    sLine = "Profit Center: " & udtInvHeader.nProfctr
+    sLine = "Profit Center: " & udtInvHeader.nPrftCtr
     Print #g_nProcessingFile, sLine
     sLine = "Shift Number: " & udtInvHeader.nShiftNum
     Print #g_nProcessingFile, sLine
@@ -797,8 +797,17 @@ Private Function fnValidReportDate(nPrftCtr As Integer, dtReportDate As Date) As
 End Function
 
 Private Function fnValidShiftNum(nPrftCtr As Integer, nShiftNum As Integer, dtReportDate As Date) As String
-    'implement later
-    fnValidShiftNum = ""
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT rssl_shift FROM rs_shiftlink, rs_shiftHold WHERE rssl_shl = rssh_shl AND rssl_shift = " & nShiftNum
+    strSQL = strSQL & " AND rssl_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND rssl_date = " & tfnDateString(dtReportDate, True)
+    
+    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidShiftNum") > 0 Then
+        fnValidShiftNum = "The profit center,report date and shift No. is used already."
+    End If
+    
 End Function
 
 Private Function fnValidVendor(lVendor As Long, sPayTerm As String) As String
@@ -873,11 +882,30 @@ Private Function fnValidPayType(sPayType As String) As String
 End Function
 
 Private Function fnValidDraftNum(sPayType As String, sDraftNum As String) As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Const FUNC_NAME As String = "fnValidDraftNum"
 
-    If sPayType = "D" Then
+    If sPayType = "D" Or sPayType = "M" Then
         
         If Trim(sDraftNum) = "" Then
             fnValidDraftNum = "The draft number can't empty for pay type 'D'."
+        End If
+        
+        'Check p_draft
+        strSQL = "SELECT pdr_draft_nbr FROM p_draft WHERE pdr_draft_nbr = " & CLng(sDraftNum)
+    
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) > 0 Then
+            fnValidDraftNum = "Draft number has been used by other file"
+            Exit Function
+        End If
+
+        'Check rs_shifthold
+        strSQL = "SELECT rssh_5 FROM rs_shifthold WHERE rssh_type = 'V' AND rssh_4 = 2 AND rssh_5 = " & CLng(sDraftNum)
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, FUNC_NAME) > 0 Then
+            fnValidDraftNum = "Draft number has been used by holding file"
+            Exit Function
         End If
         
     End If
