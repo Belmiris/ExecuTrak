@@ -1,3 +1,12 @@
+''''''''''''''''' DONE - 3.26.0007 - 04/22/2002 ''''''''''''''''''''''''
+version: 3.26.0007
+Date: 04/22/2002
+Description: 
+	Togl Custom.
+
+	alter table togljournal add iSeqNumber LONG;
+
+
 version: 3.26.????
 Date: 04/05/2002
 Description: 
@@ -6,13 +15,16 @@ Description:
 	add new table zzer_cntrt_data_bak
 	add new table zzer_contract_data
 
+
+(ROLLBACK, ROLLBACK, ROLLBACK) - 04/22/2002, REMOVED FROM 3.26.0007
 ''''''''''''''''' DONE - 3.26.0007 - 04/15/2002 ''''''''''''''''''''''''
-version: 3.26.0007
+version: 3.26.????
 Date: 04/15/2002
 Description: 
 	East River Heating System Custom.
 
 	alter table fd_delivery add fdd_tank_num text(5);
+(ROLLBACK, ROLLBACK, ROLLBACK) - 04/22/2002, REMOVED FROM 3.26.0007
 
 
 ''''''''''''''''' DONE - 3.26.0006 - 03/07/2002 ''''''''''''''''''''''''
