@@ -9,16 +9,13 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define PROGRAM_SIZE            5
 
 #define PRODUCT_NAME            "ExecuTrak Electronic Commerce Module"
 #define MODULE_NAME             "Electronic Commerce"
 
-#define PRODUCT_NAME_TLC        "EDI Trading Partner"
-#define MODULE_NAME_TLC         "EDI Trading Partner"
-#define PRODUCT_VERSION_TLC     "3.00"
 #define HELP_FILE               "EC.HLP"
 
 
@@ -28,7 +25,6 @@
 
 #define KEY_DEFAULT             ""
 #define KEY_EC_INVOICE          "Electronic Commerce"
-#define KEY_TLC                 "dediexc.exe"
 
 #define WELCOME_TITLE           "Electronic Commerce Installation"
 
@@ -49,7 +45,7 @@ declare
         NUMBER nReturn, nTemp, nStatus, nPosi;
 
         STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION
-        STRING KEY_PRODUCT_TLC, KEY_VERSION_TLC, szServerDisk, szLocalDisk;
+        STRING szServerDisk, szLocalDisk;
         STRING szBaseDirectory, szINIDirectory, szSRCDIR;
         STRING szDestMsg, szId, szComponents, szProgram;
         STRING szMsg, szNumber, szTemp, szFolder, szTLCDir;
@@ -63,9 +59,6 @@ declare
                                     
         // function prototypes
         prototype CheckDiskSpace(NUMBER);
-        prototype ConfirmCancelTLC();
-        prototype GetTLCPath();
-        prototype CheckTLCKey();
         prototype UpdateFactorIni();
         prototype WriteEDIprofile();
 
@@ -112,8 +105,6 @@ StartHere:
         KEY_ROOT = "SOFTWARE\\" + COMPANY_NAME;
         KEY_PRODUCT = KEY_ROOT + "\\" + PRODUCT_NAME;
         KEY_VERSION = KEY_PRODUCT + "\\" + PRODUCT_VERSION;
-        KEY_PRODUCT_TLC = KEY_ROOT + "\\" + PRODUCT_NAME_TLC;
-        KEY_VERSION_TLC = KEY_PRODUCT_TLC + "\\" + PRODUCT_VERSION_TLC;
         
         RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
 
@@ -219,31 +210,7 @@ GetTargetPath:
         endif;
 
 
-GetTLCInfo:
-        if (AskYesNo("Have you installed the TrustedLink Commerce software?",
-            YES) = NO) then
-                MessageBox("Please install TrustedLink Commerce software before " +
-                        "installing the " + PRODUCT_NAME + ".", INFORMATION);
-                abort;
-        endif;
-
-        // check the registry - if old trading partner setup exists.
-        if (RegDBGetKeyValueEx(KEY_VERSION_TLC, MODULE_NAME_TLC, nReturn, szTemp, nTemp) = 0) then
-                szTLCDir = szTemp;
-        else
-                szTLCDir = "C:\\HARB\\TLC";
-        endif;
-
-lblGetTLCPath1:
-        if (GetTLCPath() = BACK) then
-                goto GetTargetPath;
-        else
-                if (CheckTLCKey() = NOTEXISTS) then
-                        goto lblGetTLCPath1;
-                endif;
-        endif;
-
-        StrToUpper(szTLCDir, szTLCDir);
+        szTLCDir = "C:\\HARB\\TLC";
 
 ConfirmCopy:
         // Show SdStartCopy dialog to confirm file transfer operation.
@@ -253,9 +220,6 @@ ConfirmCopy:
         ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
         ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
         ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, "TrustedLink Commerce program direcotry:", AFTER);
-        ListAddString(listInfo, "        " + szTLCDir, AFTER);
-        ListAddString(listInfo, "", AFTER);
         ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
         ListAddString(listInfo, "        Program\\Factor" + "\\" + PRODUCT_NAME, AFTER);
 
@@ -264,7 +228,7 @@ ConfirmCopy:
                 "satisfied with the settings, click Next to begin copying files.";
         if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
            ListDestroy( listInfo );
-           goto GetTLCInfo;
+           goto GetTargetPath;
         endif;
 
         ListDestroy( listInfo );
@@ -464,7 +428,7 @@ StartCopy:
 
         SRCDIR = TARGETDIR;
 
-        //copy factor.mdb and factor.ldb to WINDOWS\SYSTEM directory
+        //copy factor.mdb from windows\temp to WINDOWS\SYSTEM directory
         szDBFrom = "\"" + SRCDIR + "\"";
         TARGETDIR = WINSYSDIR;
         szDBTo = "\"" + TARGETDIR + "\"";
@@ -476,6 +440,19 @@ StartCopy:
                 szDBFrom + " " + szDBTo, WAIT);
 
         SetStatusWindow(95, "Copying Local Database...");
+
+        //copy factor.mdb from windows\temp to \factor\exectrak\bin directory
+        szDBFrom = "\"" + SRCDIR + "\"";
+        TARGETDIR = szBaseDirectory ^ "BIN";
+        szDBTo = "\"" + TARGETDIR + "\"";
+
+        LOGMSG="LAUNCHING CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        LaunchAppAndWait(szBaseDirectory ^ "BIN" ^ "cpylocal.exe", szForceInstall +
+                szDBFrom + " " + szDBTo, WAIT);
+
+        SetStatusWindow(96, "Copying Local Database...");
 
         // delete the local database from WINDOWS\TEMP directory
         TARGETDIR = SRCDIR;
@@ -502,7 +479,7 @@ CreateProgramFolder:
         SetStatusWindow(96, "Creating program folder and icons...");
 
         CreateProgramFolder(szFolder ^ "ExecuTrak EFT Scheduler");
-        szSCExe = szAppDir ^ "syschdlr.exe";
+        szSCExe = szAppDir ^ "eceefsch.exe";
         LongPathToQuote(szSCExe, TRUE);
         AddFolderIcon(szFolder ^ "ExecuTrak EFT Scheduler", "EFT Scheduler",
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
@@ -529,31 +506,6 @@ CreateProgramFolder:
 
         Disable(HOURGLASS);
         SdShowMsg ("", FALSE);
-
-
-RegisterOLE:
-	//move TCLCOM32.EXE OLE server to \Factor\ExecTrak\OLE
-	//SRCDIR = szBaseDirectory ^ "Bin";
-	//TARGETDIR = szBaseDirectory ^ "Ole";
-	
-	//LOGMSG="MOVE TCLCOM32.EXE FROM " + SRCDIR + " TO " + TARGETDIR;
-	//LOGWRITE(LOGMSG);
-	
-	//nReturn = XCopyFile("tclcom32.exe", "tclcom32.exe", COMP_UPDATE_SAME);
-	
-	//TARGETDIR = SRCDIR;
-	//DeleteFile("tclcom32.exe");
-	
-	//TARGETDIR = szBaseDirectory ^ "OLE";
-	
-	//register OLE server
-	//LOGMSG="START REGISTER OF OLE SERVER IN " + TARGETDIR;
-	//LOGWRITE(LOGMSG);
-	
-	//LaunchAppAndWait(TARGETDIR ^ "tclcom32.exe", "", WAIT);
-	
-	//LOGMSG="END REGISTER OF OLE SERVER IN " + szAppDir;
-	//LOGWRITE(LOGMSG);
 	
 	//move ec.hlp to \Factor\ExecTrak
 	SRCDIR = szBaseDirectory ^ "Bin";
@@ -721,53 +673,6 @@ begin
     
     return bSpaceOK;
 
-end;
-
-
-
-/*---------------------------------------------------------------------------*\
- *
- * Function:  GetTLCPath
- *
- *  Purpose:  This function will ask user for TLC program path.
- *
- *
- *    Input: default TLC path
- *
- *  Returns: BACK or NEXT
- *
- * Comments: default TLC path will be changed upon return of the function.
-\*---------------------------------------------------------------------------*/
-
-function GetTLCPath()
-        STRING szMsg;
-begin
-
-        szMsg = "Setup will copy the Default Trading Partner document files to the Destination Directory.\n\n";
-        szMsg = szMsg + "To copy to this directory, click Next.\n\n";
-        szMsg = szMsg + "To copy to a different directory, click Browse and select another\n";
-        szMsg = szMsg + "directory.\n\n";
-
-        if (AskDestPath("Enter TrustedLink Commerce Program File Location", szMsg, szTLCDir, 0) = BACK) then
-                return BACK;
-        else
-                return NEXT;
-        endif;
-
-end;
-
-
-function CheckTLCKey()
-        STRING szTemp;
-begin
-
-        if (FindFile(szTLCDir, KEY_TLC, szTemp) = 0) then
-                return EXISTS;
-        else
-                MessageBox("Trusted Link Program directory:\n\n'" +
-                        szTLCDir + "' is not valid.", SEVERE);
-                return NOTEXISTS;
-        endif;
 end;
 
 
@@ -1287,12 +1192,20 @@ begin
                 WriteProfString("FACTOR.INI", "EDI", "TLC Inbound Directory", szNewValue);
         endif;
 
+        if (ExistsDir(szNewValue) = NOTEXISTS) then
+               CreateDir(szNewValue);
+        endif;
+
         szNewValue = szTLCDir ^ "EXPORT";
 
         if (GetProfString("FACTOR.INI", "EDI", "TLC Export Directory", szOldValue) = 0) then
                 ReplaceProfString("FACTOR.INI", "EDI", "TLC Export Directory", szOldValue, szNewValue);
         else
                 WriteProfString("FACTOR.INI", "EDI", "TLC Export Directory", szNewValue);
+        endif;
+
+        if (ExistsDir(szNewValue) = NOTEXISTS) then
+               CreateDir(szNewValue);
         endif;
 
         LOGMSG="END UPDATING LOCAL FACTOR.INI [EDI]";
