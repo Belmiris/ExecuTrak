@@ -36,6 +36,8 @@ Property Set EditorClass(tgm As clsTGSpreadSheet)
 End Property
 
 Public Sub AddColumn4CellColor(nCol As Integer, ParamArray aryColorCond() As Variant)
+    Static bAlreadyShowedMsg As Boolean
+    
     Dim i As Integer
     Dim j As Integer
     Dim n As Integer
@@ -59,22 +61,51 @@ Public Sub AddColumn4CellColor(nCol As Integer, ParamArray aryColorCond() As Var
     'X means old cell value
     'X can also be [col,row], means a cell value col,row
     'op can be (==, <>, >>, <<, GT, LT),
-    'Y can be COLHEADING means the cell value is a caption for column heading,
-    'Y can be ALIGNLEFT means the left justified the cell value,
     'Y can be ~ means new cell value,
     'Y can be a constant number,
     'Y can be [col,row] means a cell value in col,row
     
+    Dim sMsg As String
+    sMsg = "Invalid number of arguments. S/B: " + vbCrLf _
+        + "Col, condition1, forecolor1, backcolor1, condition2, , forecolor2, backcolor2, ..." + vbCrLf + vbCrLf _
+        + "Need to have 3 parm in a group, namely Condition, ForeColor, and BackColor" + vbCrLf _
+        + "Syntax for condition check: XopY" + vbCrLf _
+        + "X means old cell value" + vbCrLf _
+        + "X can also be [col,row], means a cell value col,row" + vbCrLf _
+        + "op can be (==, <>, >>, <<, GT, LT)," + vbCrLf _
+        + "Y can be ~ means new cell value" + vbCrLf _
+        + "Y can be a constant number" + vbCrLf _
+        + "Y can be [col,row] means a cell value in col,row"
+    
     If (i + 1) Mod 3 <> 0 Then
+        If Not bAlreadyShowedMsg Then
+            MsgBox sMsg
+            bAlreadyShowedMsg = True
+        End If
+        
         Exit Sub
+    Else
+        If Not IsNumeric(aryColorCond(1)) Then
+            If Not bAlreadyShowedMsg Then
+                MsgBox sMsg
+                bAlreadyShowedMsg = True
+            End If
+            
+            Exit Sub
+        End If
     End If
     
-    i = (i + 1) / 3
-    
-    Dim objColorCondition As New clsColorCondiition
+    Dim objColorCondition As New clsColorCondition
     objColorCondition.AddCondition nCol, aryColorCond
     
-    colColorCondition.Add objColorCondition, "C" & nCol
+    Dim objOldColorCondition As clsColorCondition
+    
+    If IsColConditionExists(nCol, objOldColorCondition) Then
+        'append the condition into the existing array
+        objOldColorCondition.AppendCondition objColorCondition
+    Else
+        colColorCondition.Add objColorCondition, "C" & nCol
+    End If
     
     m_tgTable.Columns(nCol).FetchStyle = True
     
@@ -84,9 +115,117 @@ errTrap:
     'do nothing
 End Sub
 
+Public Sub AddColumn4CellStyle(nCol As Integer, ParamArray aryStyleCond() As Variant)
+    Static bAlreadyShowedMsg As Boolean
+    
+    Dim i As Integer
+    Dim j As Integer
+    Dim n As Integer
+        
+    On Error GoTo errTrap
+    
+    i = -1
+    
+    On Error Resume Next
+    i = UBound(aryStyleCond)
+    On Error GoTo 0
+    
+    If i < 0 Then
+        Exit Sub
+    End If
+    
+    'need to have 2 parm in a group
+    'namely Condition and CellStyle constant (e.g. COLHEADING, ALIGNLEFT, FONTBOLD)
+    
+    'syntax for condition check: XopY,
+    'X means old cell value
+    'X can also be [col,row], means a cell value col,row
+    'op can be (==, <>, >>, <<, GT, LT),
+    'Y can be ~ means new cell value,
+    'Y can be a constant number,
+    'Y can be [col,row] means a cell value in col,row
+    'CellStyle:
+    'COLHEADING means the cell value is a caption for column heading
+    'ALIGNLEFT means the left justified the cell value
+    'FONTBOLD means show the fonts in bold typeface
+    
+    Dim sMsg As String
+    sMsg = "Invalid number of arguments. S/B: " + vbCrLf _
+        + "Col, condition1, cellstyle1, condition2, cellstyle2, ..." + vbCrLf + vbCrLf _
+        + "Need to have 2 parm in a group, namely Condition and CellStyle constant (e.g. COLHEADING, ALIGNLEFT, FONTBOLD)" + vbCrLf _
+        + "Syntax for condition check: XopY" + vbCrLf _
+        + "X means old cell value" + vbCrLf _
+        + "X can also be [col,row], means a cell value col,row" + vbCrLf _
+        + "op can be (==, <>, >>, <<, GT, LT)," + vbCrLf _
+        + "Y can be ~ means new cell value" + vbCrLf _
+        + "Y can be a constant number" + vbCrLf _
+        + "Y can be [col,row] means a cell value in col,row" + vbCrLf _
+        + "CellStyle:" + vbCrLf _
+        + "COLHEADING means the cell value is a caption for column heading" + vbCrLf _
+        + "ALIGNLEFT means the left justified the cell value" + vbCrLf _
+        + "FONTBOLD means show the fonts in bold typeface"
+    
+    If (i + 1) Mod 2 <> 0 Then
+        If Not bAlreadyShowedMsg Then
+            MsgBox sMsg
+            bAlreadyShowedMsg = True
+        End If
+        
+        Exit Sub
+    Else
+        If IsNumeric(aryStyleCond(1)) Then
+            If Not bAlreadyShowedMsg Then
+                MsgBox sMsg
+                bAlreadyShowedMsg = True
+            End If
+            
+            Exit Sub
+        End If
+    End If
+    
+    Dim objColorCondition As New clsColorCondition
+    objColorCondition.AddCondition nCol, aryStyleCond
+    
+    Dim objOldColorCondition As clsColorCondition
+    
+    If IsColConditionExists(nCol, objOldColorCondition) Then
+        'append the condition into the existing array
+        objOldColorCondition.AppendCondition objColorCondition
+    Else
+        colColorCondition.Add objColorCondition, "C" & nCol
+    End If
+    
+    m_tgTable.Columns(nCol).FetchStyle = True
+    
+    Exit Sub
+
+errTrap:
+    'do nothing
+End Sub
+
+Public Function IsColConditionExists(nCol As Integer, Optional objColorCondition As clsColorCondition = Nothing) As Boolean
+    On Error GoTo errNoExists
+    
+    If Not colColorCondition Is Nothing Then
+        Set objColorCondition = colColorCondition.Item("C" & nCol)
+        IsColConditionExists = True
+    End If
+    
+    Exit Function
+    
+errNoExists:
+    'do nothing, return false
+End Function
+
 Public Sub RemoveColumn4CellColor(nCol As Integer)
     On Error Resume Next
-    colColorCondition.Remove "C" & nCol
+    Dim objOldColorCondition As clsColorCondition
+    
+    If IsColConditionExists(nCol, objOldColorCondition) Then
+        Set objOldColorCondition = Nothing
+        colColorCondition.Remove "C" & nCol
+    End If
+    
     m_tgTable.Columns(nCol).FetchStyle = False
 End Sub
 
@@ -107,7 +246,7 @@ Property Let FetchStyle(nCol As Integer, bOnOff As Boolean)
 End Property
 
 Property Get IsColumnForCellColor(nCol As Integer) As Boolean
-    Dim objColorCondition As clsColorCondiition
+    Dim objColorCondition As clsColorCondition
     
     On Error Resume Next
     Set objColorCondition = colColorCondition.Item("C" & nCol)
@@ -139,17 +278,18 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     Dim sCondition As String
     Dim lForeColor As Long
     Dim lBackColor As Long
+    Dim sCellStyle As String
     Dim bSetCellColor As Boolean
     
     On Error GoTo errTrap
     
-    lRow = Val(Bookmark)
+    lRow = val(Bookmark)
     
     If lRow < 0 Then
         Exit Sub
     End If
     
-    Dim objColorCondition As clsColorCondiition
+    Dim objColorCondition As clsColorCondition
     'get the color condition
     On Error Resume Next
     Set objColorCondition = colColorCondition.Item("C" & Col)
@@ -157,7 +297,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     If Not objColorCondition Is Nothing Then
         For i = 0 To objColorCondition.ConditionCount
-            If Not objColorCondition.GetCondition(i, sCondition, lForeColor, lBackColor) Then
+            If Not objColorCondition.GetCondition(i, sCondition, lForeColor, lBackColor, sCellStyle) Then
                 Exit Sub
             End If
             
@@ -165,11 +305,13 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             'X means old cell value
             'X can also be [col,row], means a cell value col,row
             'op can be (==, <>, >>, <<, GT, LT),
-            'Y can be COLHEADING means the cell value is a caption for column heading,
-            'Y can be ALIGNLEFT means the left justified the cell value,
             'Y can be ~ means new cell value,
             'Y can be a constant number,
             'Y can be [col,row] means a cell value in col,row
+            'CellStyle:
+            'COLHEADING means the cell value is a caption for column heading
+            'ALIGNLEFT means the left justified the cell value
+            'FONTBOLD means show the fonts in bold typeface
             
             'get the op
             sOP = "=="
@@ -286,11 +428,11 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                         End If
                     'End If
                 Case "<<"  'numeric less than
-                    If Val(sLeftValue) < Val(sRightValue) Then
+                    If val(sLeftValue) < val(sRightValue) Then
                         Exit For
                     End If
                 Case ">>"  'numeric greater than
-                    If Val(sLeftValue) > Val(sRightValue) Then
+                    If val(sLeftValue) > val(sRightValue) Then
                         Exit For
                     End If
                 Case "LT"  'string/date less than
@@ -313,17 +455,29 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     'if condition is true, set the color
     If bSetCellColor Then
-        If UCase(sRightSide) = COLHEADING Then   'is a caption for column heading
-            CellStyle = m_tgTable.Styles("Heading")
-            CellStyle.Alignment = dbgLeft
-            CellStyle.Locked = True
-        ElseIf UCase(sRightSide) = ALIGNLEFT Then    'is a caption for column heading
-            CellStyle.Alignment = dbgLeft
-        ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
-            CellStyle.Font.Bold = True
+        If sCellStyle <> "" Then  'is a caption for column heading
+            If sCellStyle = COLHEADING Then   'is a caption for column heading
+                CellStyle = m_tgTable.Styles("Heading")
+                CellStyle.Alignment = dbgLeft
+                CellStyle.Locked = True
+            ElseIf sCellStyle = ALIGNLEFT Then    'is a caption for column heading
+                CellStyle.Alignment = dbgLeft
+            ElseIf sCellStyle = FONTBOLD Then     'is a caption for column heading
+                CellStyle.Font.Bold = True
+            End If
         Else
-            CellStyle.ForeColor = lForeColor
-            CellStyle.BackColor = lBackColor
+            If UCase(sRightSide) = COLHEADING Then   'is a caption for column heading
+                CellStyle = m_tgTable.Styles("Heading")
+                CellStyle.Alignment = dbgLeft
+                CellStyle.Locked = True
+            ElseIf UCase(sRightSide) = ALIGNLEFT Then    'is a caption for column heading
+                CellStyle.Alignment = dbgLeft
+            ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
+                CellStyle.Font.Bold = True
+            Else
+                CellStyle.ForeColor = lForeColor
+                CellStyle.BackColor = lBackColor
+            End If
         End If
     ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or _
        Condition = dbgSelectedRow Then    'selected row(s)
