@@ -1,4 +1,21 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Date: 01/25/2005,02/03/2005
+#470994
+
+Description:
+	change the field type of sm_gas_check_L.smg_fo_tank
+	from Long type to Text(10).
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+''''DONE - 3.28.0906 - 02/03/2005 ''''''''''''''''''''''''
+version 3.28.0906 davidc
+Date: 02/03/2005
+#458098
+
+Description:
+	change the index fields of fmfcdh_ndx2 on fmh_frgt_chgd 
+	from (fmfcdh_lad_del, fmfcdh_seq) 
+	to (fmfcdh_movement, fmfcdh_lad_del, fmfcdh_seq)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ''''DONE - 3.28.0905 - 01/19/2005 ''''''''''''''''''''''''
 version 3.28.0905 davidc
 Date: 01/19/2005

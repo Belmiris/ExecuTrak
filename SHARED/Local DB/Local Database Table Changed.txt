@@ -1,4 +1,13 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version 3.28.0906 davidc
+Date: 02/03/2005
+#458098
+
+Description:
+	change the index fields of fmfcdh_ndx2 on fmh_frgt_chgd 
+	from (fmfcdh_lad_del, fmfcdh_seq) 
+	to (fmfcdh_movement, fmfcdh_lad_del, fmfcdh_seq)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version 3.28.0905 davidc
 Date: 01/19/2005
 #470365
