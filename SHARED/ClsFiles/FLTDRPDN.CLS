@@ -112,6 +112,7 @@ Option Explicit
     Private m_nSeries As Integer
     Private m_nCurrentDropDown As Integer
     Private m_bDefaultCursorControl As Boolean
+    Private m_bLocked As Boolean
 
     #If Win32 Then
         Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
@@ -814,8 +815,15 @@ Public Sub KeyUp()
 End Sub
 
 Public Sub LeftColChange()
+    If m_bLocked Then
+        Exit Sub
+    End If
     fnMoveButton
 End Sub
+
+Property Let Locked(bTemp As Boolean)
+    m_bLocked = bTemp
+End Property
 
 Property Get NoCriteria() As Integer
     NoCriteria = TYPE_DRPDN_NO_CRITERIA
@@ -1017,6 +1025,9 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
 End Sub
 
 Public Sub Keypress(tgTable As Object, KeyAscii As Integer)
+    If m_bLocked Then
+        Exit Sub
+    End If
     If Not t_dbMainDatabase Is Nothing Then
         If frmParent.ActiveControl Is tgMain And tgTable Is tgDropDown Then
             'Work arround for true grid problems
@@ -1512,6 +1523,9 @@ Private Sub fnMoveButton()
 End Sub
 
 Public Sub GotFocus(Optional vCtrl As Variant)
+    If m_bLocked Then
+        Exit Sub
+    End If
     If IsMissing(vCtrl) Then
         fnMoveButton
         nLastColumn = tgMain.col
@@ -1545,6 +1559,11 @@ End Sub
 Public Sub LostFocus(objControl As Object)
     Dim nTab As Integer
     On Error Resume Next
+    
+    If m_bLocked Then
+        Exit Sub
+    End If
+    
     nTab = frmParent.ActiveControl.TabIndex
 
     If objControl.TabIndex = tgMain.TabIndex Then
@@ -1576,6 +1595,9 @@ Public Sub LostFocus(objControl As Object)
 End Sub
 
 Public Sub MouseUp(y As Single)
+    If m_bLocked Then
+        Exit Sub
+    End If
     nClickPointY = y
 End Sub
 Property Set Form(frmMain As Object)
@@ -1586,7 +1608,9 @@ Property Set Form(frmMain As Object)
     End If
 End Property
 Public Sub Scroll()
-    
+    If m_bLocked Then
+        Exit Sub
+    End If
 End Sub
 
 Property Set SearchButton(btn As Object)
@@ -1632,6 +1656,10 @@ Public Function RowColChange(tgTable As Object) As Boolean
     Dim lOldRow As Integer
     Dim lLastRow As Long
     
+    
+    If m_bLocked Then
+        Exit Function
+    End If
     If frmParent.ActiveControl Is Nothing Then
         Exit Function
     End If
@@ -1756,6 +1784,9 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     
 End Sub
 Public Sub TableClick(tgTable As Object)
+    If m_bLocked Then
+        Exit Sub
+    End If
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         Dim nRowTop As Integer
         Dim nRowBtm As Integer
@@ -1842,16 +1873,16 @@ Private Sub subInputSelected()
                 If colTemp.Item(1).CursorControl Then
                     m_clsEdit.GotoNextColumn nLastColumn
                     DoEvents
-                    If m_nSeries > 0 Then
                     If lLastRow = m_clsEdit.GetCurrentRowNumber Then
                         For i = 1 To colTemp.Count
                             If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
                                 m_clsEdit.subAddNewRow m_clsEdit.ColumnForNewRow
-                                colDropDowns.Item(m_nSeries).Item(1).Status = False
+                                If m_nSeries > 0 Then
+                                    colDropDowns.Item(m_nSeries).Item(1).Status = False
+                                End If
                                 Exit For
                             End If
                         Next
-                    End If
                     End If
                     On Error Resume Next
                     tgMain.SetFocus
@@ -1946,6 +1977,7 @@ Private Sub Class_Initialize()
     bKeyPressed = False
     bSearchOnReturn = False
     bAutoHide = True
+    m_bLocked = False
 End Sub
 Private Sub Class_Terminate()
     Dim colTemp As clsColumns
