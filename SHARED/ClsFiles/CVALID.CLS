@@ -645,24 +645,37 @@ Public Sub GotFocus(txtBox As Object)
     If bLocked Then
         If txtBox.TabIndex = ctrlForFocus.TabIndex Then
             SendKeys "{TAB}"
+        Else
+            'david 05/16/2002
+            'need to show some message on the status bar
+            lblStatus.ForeColor = STANDARD_TEXT_COLOR
+            lblStatus.Font.Bold = False
+            lblStatus.Caption = "This field cannot be changed"
+            lblStatus.Refresh
         End If
+        
         Exit Sub
     End If
+    
     If Not ctrlForFocus Is Nothing Then
         If txtBox.TabIndex = ctrlForFocus.TabIndex Then
             Dim ctrlFirst As Object
             Dim txtLast As Textbox
+            
             If txtLastAsscBox Is Nothing Then
                 Set txtLast = tpControls(nCount - 1).m_txtEdit
             Else
                 Set txtLast = txtLastAsscBox
             End If
+            
             Set ctrlFirst = fnGetFirstControl
+            
             If ctrlFirst Is Nothing Then
                 If nESCCount > 0 Then
                     Set ctrlFirst = arryESCControls(0).m_objControl
                 End If
             End If
+            
             If nFlagFocus = FOCUS_GOT Then
                 If LostFocus(txtLastBox) Then
                     If ctrlFirst Is Nothing Then
@@ -680,28 +693,35 @@ Public Sub GotFocus(txtBox As Object)
                     SendKeys "{TAB}", True
                 End If
             End If
+            
             Exit Sub
         End If
     End If
+    
     If Not txtLastAsscBox Is Nothing Then
         If txtBox.TabIndex = txtLastAsscBox.TabIndex Then
             nFlagFocus = FOCUS_GOT
         End If
     End If
+    
     If Not txtLastBox Is Nothing Then
         If txtBox.TabIndex = txtLastBox.TabIndex Then
             nFlagFocus = FOCUS_GOT
         End If
     End If
+    
     Dim nNum As Integer
     nNum = fnBoxNumber(txtBox.TabIndex)
+    
     If nNum >= 0 Then
         fnValidate nNum
+        
         If bDisplayMessage Then
             fnShowStatus nNum
         Else
             bDisplayMessage = True
         End If
+        
         nFlagFocus = FOCUS_GOT
     End If
 End Sub
