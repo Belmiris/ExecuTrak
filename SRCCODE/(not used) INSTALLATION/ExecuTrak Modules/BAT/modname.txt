@@ -1,0 +1,18 @@
+Accounts Payable
+Accounts Receivable
+Remote GJ Transaction
+C-Store Auditing System
+EDI Invoice Processing
+Fuel Dispatch
+Fuel Management
+Heating System
+Advanced Financials
+General Ledger
+Order Entry
+Payroll
+Petro South Custom
+Advanced C-Store
+Retail Sales
+Service and Maintenance
+Tax Control
+Wholesale

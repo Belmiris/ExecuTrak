@@ -1,0 +1,40 @@
+''''''''''''''''''''''''''''
+'Program Usage: BILDMSTR.EXE
+'
+''''''''''''''''''''''''''''
+'
+'    Command Line Arguments:
+'        BILDMSTR.EXE AP H:\PROJECT32\AP\APSERVER\DISK
+'
+
+''''''''''''''''''''''''''''
+'Program Usage: SETUPBMP.EXE
+'
+''''''''''''''''''''''''''''
+'
+'    Command Line Arguments:
+'       PATH="C:\PROJECT32\XX\XXSERVER\SETUP" MODULE="Test Installation" VERSION=2.03
+'       [COMPANY="Factor, W R Hess Company"] [COPYRIGHT=1997-2000] [TM=TRUE]
+'       [PATH2="C:\PROJECT32\XX\XXCLIENT\SETUP"]
+'
+'Note: [ ] is optional, use double quote if the string contains one or more spaces.
+'
+
+
+''''''''''''''''''''''''''''
+'Program Usage: DISKBILD.EXE
+'
+''''''''''''''''''''''''''''
+'
+'    Command Line Arguments:
+'        DiskBild.EXE AP 1.10 c:\project\setup\xxxfiles.lst
+'        DiskBild.EXE "Account Payable" 1.10 c:\project\setup\xxxfiles.lst
+'        Note: Double quote the module name if it contains one or more spaces.
+'
+'    Content of xxxfiles.lst
+'        DIR=C:\DIR1\DIR2 MASK=*.EXE
+'        DIR=..\APPFILES\BIN MASK=*.*
+'        DIR=\PROJECT\SYSFILES MASK=*.*
+'        DIR=D:\project\Profit Report Installation MASK=*.* RECURSION=FALSE
+'        Note: Subdirectories will be recursed if the key RECURSION= is omitted.
+'
