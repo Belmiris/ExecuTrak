@@ -533,7 +533,8 @@ End Sub
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
                            sSql As String, _
-                           Optional vShowMsg As Variant) As Boolean
+                           Optional vShowMsg As Variant, _
+                           Optional sLockedUser As String = "") As Boolean
 
     Const SUB_NAME = "tfnLockRow"
     Const sErrID = "Lock Row"
@@ -620,8 +621,13 @@ Public Function tfnLockRow(sProgramID As String, _
                 Else
                     bShowMsg = vShowMsg
                 End If
+                
+                'david 01/12/2001
+                'return the user id that locks the record(s)
+                sLockedUser = Trim(rsTemp.Fields(1))
+                
                 If bShowMsg Then
-                    MsgBox "The record you have selected is locked by " & Trim(rsTemp.Fields(1)) & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
+                    MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
                 End If
             End If
         End If
