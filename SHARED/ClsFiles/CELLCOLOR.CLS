@@ -70,10 +70,12 @@ Public Sub AddColumn4CellColor(nCol As Integer, ParamArray aryColorCond() As Var
     'namely Condition, ForeColor, and BackColor
     
     'syntax for condition check: XopY,
-    'X means old cell value, op can be (==, <>, >>, <<, GT, LT),
+    'X means old cell value
+    'X can also be [col,row], means a cell value col,row
+    'op can be (==, <>, >>, <<, GT, LT),
     'Y can be ~ means new cell value,
     'Y can be a constant number,
-    'Y can be [Z] means a cell value in ColZ
+    'Y can be [col,row] means a cell value in col,row
     
     If (i + 1) Mod 3 <> 0 Then
         Exit Sub
@@ -152,22 +154,29 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                           ByVal CellStyle As Object)
     
     Dim lRow As Long
+    Dim nPosi As Integer
+    Dim sLeftSide As String
+    Dim sOP As String
+    Dim sRightSide As String
     Dim sLeftValue As String
     Dim sRightValue As String
     
-    On Error GoTo errTrap
-    
-    lRow = Val(Bookmark)
-    
-    If lRow < 0 Then
-        Exit Sub
-    End If
+    Dim nCol2 As Integer
+    Dim lRow2 As Long
     
     Dim i As Integer
     Dim sCondition As String
     Dim lForeColor As Long
     Dim lBackColor As Long
     Dim bSetCellColor As Boolean
+    
+    On Error GoTo errTrap
+    
+    lRow = val(Bookmark)
+    
+    If lRow < 0 Then
+        Exit Sub
+    End If
     
     #If Not USE_ARRAY Then
         'david 02/07/2004
@@ -187,25 +196,96 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                     Exit Sub
                 End If
                 
-                If UCase(Mid(sCondition, 4, 1)) = "~" Then  'compare old value to a new value in the same cell
+                'syntax for condition check: XopY,
+                'X means old cell value
+                'X can also be [col,row], means a cell value col,row
+                'op can be (==, <>, >>, <<, GT, LT),
+                'Y can be ~ means new cell value,
+                'Y can be a constant number,
+                'Y can be [col,row] means a cell value in col,row
+                
+                'get the op
+                sOP = "=="
+                nPosi = InStr(sCondition, sOP)
+                If nPosi <= 0 Then
+                    sOP = "<>"
+                    nPosi = InStr(sCondition, sOP)
+                    If nPosi <= 0 Then
+                        sOP = ">>"
+                        nPosi = InStr(sCondition, sOP)
+                        If nPosi <= 0 Then
+                            sOP = "<<"
+                            nPosi = InStr(sCondition, sOP)
+                            If nPosi <= 0 Then
+                                sOP = "GT"
+                                nPosi = InStr(sCondition, sOP)
+                                If nPosi <= 0 Then
+                                    sOP = "LT"
+                                    nPosi = InStr(sCondition, sOP)
+                                End If
+                            End If
+                        End If
+                    End If
+                End If
+                
+                If nPosi <= 0 Then
+                    'op is not valid
+                    Exit Sub
+                End If
+                
+                'get left hand side and right hand side
+                sLeftSide = Left(sCondition, nPosi - 1)
+                sRightSide = Mid(sCondition, nPosi + 2)
+                
+                If UCase(Left(sRightSide, 1)) = "~" Then   'compare old value to a new value in the same cell
                     sLeftValue = m_tgcEditor.OldValue & ""
                     sRightValue = m_tgcEditor.CellValue(Col, lRow) & ""
                 Else  'compare to a cellvalue in another column [] or compare to a constant
-                    sLeftValue = m_tgcEditor.CellValue(Col, lRow) & ""
-                    sRightValue = Mid(sCondition, 5)
+                    If UCase(sLeftSide) = "X" Then
+                        sLeftValue = m_tgcEditor.CellValue(Col, lRow) & ""
+                    Else
+                        sLeftValue = sLeftSide
+                        
+                        If Left(sLeftValue, 1) = "[" Then
+                            'get another col, row
+                            'remove ]
+                            sLeftValue = Mid(sLeftValue, 2, Len(sLeftValue) - 2)
+                            
+                            nCol2 = InStr(sLeftValue, ",")
+                            
+                            If nCol2 > 0 Then
+                                If Mid(sLeftValue, nCol2 + 1) = "" Then
+                                    lRow2 = lRow
+                                Else
+                                    lRow2 = Mid(sLeftValue, nCol2 + 1)
+                                End If
+                                nCol2 = Left(sLeftValue, nCol2 - 1)
+                            Else
+                                lRow2 = lRow
+                                nCol2 = sLeftValue
+                            End If
+                        
+                            sLeftValue = m_tgcEditor.CellValue(nCol2, lRow2) & ""
+                        Else  'is a constant
+                            'okay
+                        End If
+                    End If
+                    
+                    sRightValue = sRightSide
                     
                     If UCase(Mid(sCondition, 4, 1)) = "[" Then
                         'get another col, row
-                        Dim nCol2 As Integer
-                        Dim lRow2 As Long
-                        
                         'remove ]
                         sRightValue = Left(sRightValue, Len(sRightValue) - 1)
                         
                         nCol2 = InStr(sRightValue, ",")
                         
                         If nCol2 > 0 Then
-                            lRow2 = Mid(sRightValue, nCol2 + 1)
+                            If Mid(sRightValue, nCol2 + 1) = "" Then
+                                lRow2 = lRow
+                            Else
+                                lRow2 = Mid(sRightValue, nCol2 + 1)
+                            End If
                             nCol2 = Left(sRightValue, nCol2 - 1)
                         Else
                             lRow2 = lRow
@@ -217,7 +297,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                         'okay
                     End If
                     
-                    Select Case UCase(Mid(sCondition, 2, 2))
+                    Select Case UCase(sOP)
                     Case "<>"  'string/numeric not equal
                         'If UCase(Mid(sCondition, 4, 1)) = "~" Then  'compare old value to a new value in the same cell
                         '    If m_tgcEditor.CellValueChanged(Col, lRow) Then
@@ -239,11 +319,11 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                             End If
                         'End If
                     Case "<<"  'numeric less than
-                        If Val(sLeftValue) < Val(sRightValue) Then
+                        If val(sLeftValue) < val(sRightValue) Then
                             Exit For
                         End If
                     Case ">>"  'numeric greater than
-                        If Val(sLeftValue) > Val(sRightValue) Then
+                        If val(sLeftValue) > val(sRightValue) Then
                             Exit For
                         End If
                     Case "LT"  'string/date less than
@@ -321,11 +401,11 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                         End If
                     End If
                 Case "<<"  'numeric less than
-                    If Val(sLeftValue) < Val(sRightValue) Then
+                    If val(sLeftValue) < val(sRightValue) Then
                         Exit For
                     End If
                 Case ">>"  'numeric greater than
-                    If Val(sLeftValue) > Val(sRightValue) Then
+                    If val(sLeftValue) > val(sRightValue) Then
                         Exit For
                     End If
                 Case "LT"  'string/date less than
