@@ -245,6 +245,9 @@ Private m_bCaseSensitive As Boolean
 Private lHeadClickDropDown As Long
 Private bHeaderClick As Boolean
 
+'david 01/30/2002
+Private m_bSortOnColumnClick As Boolean
+
 #If Win32 Then
     Private Declare Function GetParent Lib "user32" (ByVal hwnd As Long) As Long
     Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, lpRect As RECT) As Long
@@ -3200,14 +3203,38 @@ End Function
 Public Sub Click(objControl As Object)
     'Event call for all the controls
     If objControl.TabIndex = tgDropDown.TabIndex Then
-
-        If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
-            bTableClicked = True
-            RowColChange
+'david 01/30/2002
+'        If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+'            If m_bSortOnColumnClick Then
+'                bTableClicked = True
+'            End If
+'            RowColChange
+'        Else
+'            'Otherwise, set the flag
+'            If m_bSortOnColumnClick Then
+'                bTableClicked = True
+'            End If
+'        End If
+    
+        Dim nRowTop As Integer
+        
+        If tgDropDown.Row >= 0 Then
+            nRowTop = tgDropDown.RowTop(0)
+            
+            If nClickPointY >= nRowTop Then
+                bTableClicked = True
+            Else
+                If m_bSortOnColumnClick Then
+                    bTableClicked = True
+                End If
+            End If
         Else
             'Otherwise, set the flag
-            bTableClicked = True
+            If m_bSortOnColumnClick Then
+                bTableClicked = True
+            End If
         End If
+''''''''''''''''''''''''
     Else
         Dim lDropDown As Integer
         Dim nctrlType As Integer
@@ -3967,6 +3994,14 @@ Property Get CaseSensitive() As Boolean
      CaseSensitive = m_bCaseSensitive
 End Property
 
+Property Let SortOnColumnClick(bStatus As Boolean)
+    m_bSortOnColumnClick = bStatus
+End Property
+
+Property Get SortOnColumnClick() As Boolean
+     SortOnColumnClick = m_bSortOnColumnClick
+End Property
+
 Private Sub Class_Initialize()
     Set colComboControls = New Collection
     sPercentOrAster(0) = "%"
@@ -3977,6 +4012,7 @@ Private Sub Class_Initialize()
     m_bProtoType = False
     m_bCaseSensitive = False
     lHeadClickDropDown = -1
+    m_bSortOnColumnClick = False
 End Sub
 
 Private Sub Class_Terminate()
@@ -4005,6 +4041,10 @@ End Sub
 
 'david 01/28/2002
 Public Sub HeadClick(ByVal ColIndex As Integer)
+    If Not m_bSortOnColumnClick Then
+        Exit Sub
+    End If
+    
     If lHeadClickDropDown < 0 Then
         Exit Sub
     End If
