@@ -15,8 +15,8 @@ call buildlog.bat %1
 
 echo .
 echo Compress all files to factbin.z
-icomp G:\PROGRAM\RELEASE\ACCULINK\*.* ..\disk\factbin.z -i
-icomp g:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z BIN
+icomp G:\PROGRAM\RELEASE\ACCULINK\bin\*.* ..\disk\factbin.z 
+icomp g:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z
 
 echo .
 echo Run the PACKCALC and edit the SPLITZ.BAT/SETUP.LST

@@ -11,21 +11,22 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "ACCULINK307"
-#define UNINSTALL_NAME          "AccuLink Cross Reference Maintenance Version 3.07"
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "ACCULINK302"
+#define UNINSTALL_NAME          "AccuLink Cross Reference Maintenance Version 3.02"
 
 #define SIZE_REQ_LOCAL          6       // 6 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
 
 #define PROGRAM_GROUP   	"Factor Applications"
-#define APP_BASE_PATH		"Factor"
+#define APP_BASE_PATH		"pca"
 #define COMPANY_NAME		"FACTOR"
 #define PRODUCT_NAME            "AccuLink Cross Reference Maintenance Module"
 #define MODULE_NAME             "AccuLink Cross Reference Maintenance"
 #define PRODUCT_KEY             "acfelxrf.exe"
 #define CONFIG_KEY              "acfelxrf.exe"
-#define PRODUCT_SUBDIR		"ExecTrak"
+//#define PRODUCT_SUBDIR		"ExecTrak"
+#define PRODUCT_SUBDIR		"Factor"
 #define KEY_DEFAULT             ""
 #define HELP_FILE               ""
 
@@ -173,14 +174,14 @@ GetTargetPath:
                 goto SayWelcome;
         endif;
 	
-        // make sure destination directory is \factor
+        // make sure destination directory is \pca
         szTemp = szBaseDirectory ^ "";
         StrToLower(szTemp, szTemp);
 
         ParsePath(szDisk, szBaseDirectory, DISK);
         StrToLower(szDisk, szDisk);
 
-        nTemp = StrFind(szTemp, szDisk ^ "factor");
+        nTemp = StrFind(szTemp, szDisk ^ "pca");
 
         StrToUpper(szDisk, szDisk);
 
@@ -490,16 +491,20 @@ StartCopy:
                         goto ZFAILURE;
         endswitch;
 
+	StatusUpdate(OFF, 0);
+	
         //registering DLLs and OCXs
         
-        SetStatusWindow(93, "Registering DLLs...");
+        SetStatusWindow(93, "Registering DLLs and OCXs...");
 
 	Do(SELFREGISTRATIONPROCESS);
         
-        StatusUpdate(OFF, 0);
-
-       
-        SetStatusWindow(96, "Registering OLE Server...");
+	SetStatusWindow(96, "Creating folder shortcuts...");
+        SRCDIR = szBaseDirectory;
+        TARGETDIR = szDisk ^ APP_BASE_PATH;
+        CopyFile("*.hlp", "*.hlp");
+        TARGETDIR = szBaseDirectory;
+        DeleteFile("*.hlp");
 
   	szFolder = COMPANY_NAME ^ PRODUCT_NAME;
 
@@ -513,17 +518,16 @@ StartCopy:
         szSCWork = szBaseDirectory;
 
 
-        szSCExe = szAppDir ^ "BIN" ^ PRODUCT_KEY;
+        szSCExe = szAppDir ^ PRODUCT_KEY;
         LongPathToQuote(szSCExe, TRUE);
         AddFolderIcon(szFolder, PRODUCT_TITLE,
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
-        SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
-
-//        szSCExe = szAppDir ^ HELP_FILE;
-//	  LongPathToQuote(szSCExe, TRUE);
-//        AddFolderIcon(szFolder, MODULE_NAME + " Help",
-//				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+	szSCWork = szDisk ^ APP_BASE_PATH;
+        szSCExe = szDisk ^ APP_BASE_PATH ^ HELP_FILE;
+	LongPathToQuote(szSCExe, TRUE);
+        AddFolderIcon(szFolder, MODULE_NAME + " Help",
+				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 
 	LOGMSG="FOLDER SHORTCUTS CREATED";
 	LOGWRITE(LOGMSG);
@@ -660,11 +664,11 @@ function CopyLocalDB(szSetup)
 begin
         
 	if szSetup = "" then
-		szProgDir = szBaseDirectory ^ "BIN";
+		szProgDir = szBaseDirectory;
                 szForceNormal = szForceInstall;
         elseif szSetup = "First" then
 
-		szProgDir = szBaseDirectory ^ "BIN";
+		szProgDir = szBaseDirectory;
 		szFolder = "Startup";
                 szSCIcon = "";
                 szSCWork = WINDIR ^ "TEMP_SETUP";

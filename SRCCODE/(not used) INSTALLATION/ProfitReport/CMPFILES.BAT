@@ -42,6 +42,7 @@ icomp G:\program\release\exectrak\local_db\*.* ..\disk\factdb.z
 echo .
 echo Compress all files in release32\exectrak\Ole directory to factole.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\ole\tbkit.dll ..\disk\factole.z
+icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
 
 echo .
 echo Compress all files in release32\exectrak\Rtm directory to rtm.z
