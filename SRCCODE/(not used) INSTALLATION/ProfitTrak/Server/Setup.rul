@@ -4,8 +4,6 @@
 //  
 // This setup will run from Factmenu, or Standalocal, or Both (AutoCheck Factmenu)
 //
-// 3.00 - Aug. 26, 1999 Xijian
-//
 //********************************************************************************
 
 // includes
@@ -43,33 +41,32 @@ declare
 
 #include "sddialog.h"
 
-        //log setup variables and write log function prototype
+	//log setup variables and write log function prototype
 	NUMBER nvFileOut;
 	STRING INSTALL_OPTION,INSTALL_LINE;
 	STRING INSWARN,LOGMSG,RESULTLOG;
-
+	
 	prototype LOGWRITE(STRING);
-
-        NUMBER nReturn, nTemp;
-
-        STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION;
-        STRING szBaseDirectory, szDestMsg, svUninstLogFile;
-        STRING szMsg, szNumber, szTemp, szFolder, szDisk, szSource;
-        STRING szSCIcon, szSCExe, szSCWork, szAppDir;
-        STRING szOldRunValue, szNewRunValue, szComponents      
-        STRING szDBFrom, szDBTo, szForceInstall;
-
-        BOOL bRunStandAlone, bTemp1, bTemp2, bZFailure;
+	
+	NUMBER nReturn, nTemp;
+	
+	STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION;
+	STRING szBaseDirectory, szDestMsg, svUninstLogFile;
+	STRING szMsg, szNumber, szTemp, szFolder, szDisk, szSource;
+	STRING szSCIcon, szSCExe, szSCWork, szAppDir;
+	STRING szOldRunValue, szNewRunValue, szComponents      
+	STRING szDBFrom, szDBTo, szForceInstall;
+	
+	BOOL bRunStandAlone, bTemp1, bTemp2, bZFailure;
 	  BOOL bFactMenuExist;
-
-        LIST    listInfo;
-
-        // function prototypes
-        prototype CheckDiskSpace(number);
-        prototype Is16BitFactMenu();
-        prototype CheckTBKIT(STRING);
-
-        prototype CopySetup();
+	
+	LIST    listInfo;
+	
+	// function prototypes
+	prototype CheckDiskSpace(number);
+	prototype Is16BitFactMenu();
+	
+	prototype CopySetup();
 	prototype CopyLocalDB(STRING);
 	prototype fnFindFile(STRING, STRING);
 	prototype fnFinishReboot(STRING);
@@ -80,54 +77,53 @@ program
 
 StartHere:
 
-// the script starts here
+	// the script starts here
 	StrSub(szTemp, CMDLINE, 0, 8);
 	if szTemp = "CPYLOCAL" then
-        	CopyLocalDB("Second");
-
-        	exit;
+		CopyLocalDB("Second");
+		exit;
 	endif;
 
-        //set installation header
-        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
-                szMsg = "Installing " + PRODUCT_NAME;
-                if (CMDLINE = "-A" || CMDLINE = "-a") then
-                        szMsg = szMsg + "\nForced Installation";
-                endif;
-                szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
-                SetTitle(szMsg , 18, WHITE );
-        else
-                szMsg = "Installing " + "ExecuTrak" + "™ " + MODULE_NAME + " Module";
-                if (CMDLINE = "-A" || CMDLINE = "-a") then
-                        szMsg = szMsg + "\nForced Installation";
-                endif;
-                szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
-                SetTitle(szMsg, 18, WHITE );
- 
-        endif;
+	//set installation header
+	if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+	        szMsg = "Installing " + PRODUCT_NAME;
+	        if (CMDLINE = "-A" || CMDLINE = "-a") then
+	                szMsg = szMsg + "\nForced Installation";
+	        endif;
+	        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+	        SetTitle(szMsg , 18, WHITE );
+	else
+	        szMsg = "Installing " + "ExecuTrak" + "™ " + MODULE_NAME + " Module";
+	        if (CMDLINE = "-A" || CMDLINE = "-a") then
+	                szMsg = szMsg + "\nForced Installation";
+	        endif;
+	        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+	        SetTitle(szMsg, 18, WHITE );
+	
+	endif;
 
 // ************************* Check for user defined command line
 	INSTALL_OPTION=PRODUCT_NAME + " " + PRODUCT_VERSION;        
 	INSTALL_LINE=CMDLINE;
 
-      if( CreateFile( nvFileOut, WINSYSDIR, KEY_DEFAULT + "SETUP.TXT" ) < 0 ) then
-
-    		MessageBeep( 0 );
-                MessageBox( KEY_DEFAULT + "SETUP.TXT could not be opened", SEVERE );
-            abort;
+	if( CreateFile( nvFileOut, WINSYSDIR, KEY_DEFAULT + "SETUP.TXT" ) < 0 ) then
+	
+		MessageBeep( 0 );
+		MessageBox( KEY_DEFAULT + "SETUP.TXT could not be opened", SEVERE );
+		abort;
 	else
 		LOGMSG=INSTALL_OPTION + " SETUP PARAM= " + INSTALL_LINE;
 		LOGWRITE(LOGMSG);
 			
 	endif;   
 
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+		INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
 		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
-                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
-                szForceInstall = "1 ";
-        else
-                szForceInstall = "0 ";
+	                + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+	        szForceInstall = "1 ";
+	else
+	        szForceInstall = "0 ";
 	endif;
 // ************************* 
 
@@ -166,7 +162,7 @@ WelcomeScreen:
 	Disable(BACKBUTTON);
 	Welcome(WELCOME_TITLE, 0);
 
-        Enable(BACKBUTTON);
+        	Enable(BACKBUTTON);
 
 
 InstallationType:
@@ -175,37 +171,37 @@ InstallationType:
 		bFactMenuExist= TRUE;	
 	else
 		if (FindFile("J:" ^ APP_BASE_PATH ^ PRODUCT_SUBDIR, PRODUCT_KEY, szFolder) >= 0) then
-		    bFactMenuExist= TRUE;
-		    if (Is16BitFactMenu()) then
-          		MessageBeep(0);
-          		MessageBox("Please install the ExecuTrak 32-bit base system BEFORE installing this module.\n\nSetup will be terminated.", SEVERE);
-         	   	abort;
-      	    	    endif;
+			bFactMenuExist= TRUE;
+			if (Is16BitFactMenu()) then
+				MessageBeep(0);
+				MessageBox("Please install the ExecuTrak 32-bit base system BEFORE installing this module.\n\nSetup will be terminated.", SEVERE);
+				abort;
+			endif;
 		else
 			bFactMenuExist= FALSE;	
 		endif;
-        endif;
+	endif;
 
 	if (bFactMenuExist) then
 	// is this a stand-alone installation?
 		szComponents = "PC Server Installation";
 		ComponentAddItem(szComponents, "PC Server Installation", 1024, TRUE);
 		ComponentAddItem(szComponents, "Stand-alone PC Installation", 2000, FALSE);
-	
+		
 		szTemp = "";
-        	if (SdAskOptions("Select Installation Type", "Choose the installation type by clicking " +
-                 "the circle next to the appropriate option.",
-                 "Once you have selected the installation type, click the Next " +
-                 "button to continue.", szTemp, szComponents, EXCLUSIVE) = BACK) then
-
-           		goto WelcomeScreen;
-
-       	 	endif;
-
+		if (SdAskOptions("Select Installation Type", "Choose the installation type by clicking " +
+		 "the circle next to the appropriate option.",
+		 "Once you have selected the installation type, click the Next " +
+		 "button to continue.", szTemp, szComponents, EXCLUSIVE) = BACK) then
+		
+			goto WelcomeScreen;
+		
+		endif;
+	
 		if (ComponentIsItemSelected(szComponents,"PC Server Installation")) then
-                	bRunStandAlone = FALSE;
+		        	bRunStandAlone = FALSE;
 		else
-                	bRunStandAlone = TRUE;
+		        	bRunStandAlone = TRUE;
 		endif;
 	else
 		bRunStandAlone = TRUE;
@@ -213,110 +209,110 @@ InstallationType:
 
 	NumToStr(szNumber, SIZE_REQ_SERVER * 1024);
 
-        if (bRunStandAlone) then
-              szBaseDirectory = TARGETDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
-        else
-              szBaseDirectory = "J:" ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
-        endif;
+	if (bRunStandAlone) then
+	      	szBaseDirectory = TARGETDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+	else
+	      	szBaseDirectory = "J:" ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+	endif;
 
 
 // get target path for local installation
 GetTargetPath:
-        szDestMsg = "Setup will install " + PRODUCT_NAME + " server files in the Destination Directory.\n\n";
-        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
-        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another ";
-        szDestMsg = szDestMsg + "directory.\n\n";
-        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " server files by clicking Cancel to";
+	szDestMsg = "Setup will install " + PRODUCT_NAME + " server files in the Destination Directory.\n\n";
+	szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+	szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another ";
+	szDestMsg = szDestMsg + "directory.\n\n";
+	szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " server files by clicking Cancel to";
 	szDestMsg = szDestMsg + " exit Setup.\n\n";
 	szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
-    
-        if (AskDestPath("", szDestMsg, szBaseDirectory, 0) = BACK) then
-
-                goto InstallationType;
-
-        endif;
-
+	
+	if (AskDestPath("", szDestMsg, szBaseDirectory, 0) = BACK) then
+	
+	        goto InstallationType;
+	
+	endif;
+	
 	// check available disk space
 	if (CheckDiskSpace(SIZE_REQ_SERVER * 1024 * 1024) = FALSE) then
 		goto GetTargetPath;
 	endif;
-
-        ParsePath(szDisk, szBaseDirectory, DISK);
-        szBaseDirectory = szDisk ^ APP_BASE_PATH;
+	
+	ParsePath(szDisk, szBaseDirectory, DISK);
+	szBaseDirectory = szDisk ^ APP_BASE_PATH;
 
 
 ConfirmCopy:
-        // Show SdStartCopy dialog to confirm file transfer operation.
-        listInfo = ListCreate( STRINGLIST );
-
-        //Construct the Info List
-        ListAddString(listInfo, WELCOME_TITLE + ":", AFTER);
-        if (bRunStandAlone) then
-                ListAddString(listInfo, "        Stand-alone PC Installation", AFTER);
+	// Show SdStartCopy dialog to confirm file transfer operation.
+	listInfo = ListCreate( STRINGLIST );
+	
+	//Construct the Info List
+	ListAddString(listInfo, WELCOME_TITLE + ":", AFTER);
+	if (bRunStandAlone) then
+	        ListAddString(listInfo, "        Stand-alone PC Installation", AFTER);
 	else
-                ListAddString(listInfo, "        PC Server Installation", AFTER);
+	        ListAddString(listInfo, "        PC Server Installation", AFTER);
 	endif;
-        ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, "Intallation Type:", AFTER);
-        if (szForceInstall = "1 ") then
-                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
-        else
-                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
-        endif;
-        ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
-        szTemp = szBaseDirectory ^ PRODUCT_SUBDIR;
-        ListAddString(listInfo, "        " + szTemp, AFTER);
-        ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
-        if (bRunStandAlone) then
-                ListAddString(listInfo, "        Program\\Factor" + "\\ExecuTak", AFTER);
-        else
-                ListAddString(listInfo, "        None", AFTER);
-        endif;
-
-        szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
-                "If you want to review or change any settings, click Back.  If you are " +
-                "satisfied with the settings, click Next to begin copying files.";
-        if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
-            ListDestroy( listInfo );
-            goto GetTargetPath;
-        endif;
-
-        ListDestroy( listInfo );
+	ListAddString(listInfo, "", AFTER);
+	ListAddString(listInfo, "Intallation Type:", AFTER);
+	if (szForceInstall = "1 ") then
+	        ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
+	else
+	        ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
+	endif;
+	ListAddString(listInfo, "", AFTER);
+	ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
+	szTemp = szBaseDirectory ^ PRODUCT_SUBDIR;
+	ListAddString(listInfo, "        " + szTemp, AFTER);
+	ListAddString(listInfo, "", AFTER);
+	ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
+	if (bRunStandAlone) then
+	        ListAddString(listInfo, "        Program\\Factor" + "\\ExecuTak", AFTER);
+	else
+	        ListAddString(listInfo, "        None", AFTER);
+	endif;
+	
+	szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
+	        "If you want to review or change any settings, click Back.  If you are " +
+	        "satisfied with the settings, click Next to begin copying files.";
+	if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
+	    ListDestroy( listInfo );
+	    goto GetTargetPath;
+	endif;
+	
+	ListDestroy( listInfo );
 
 
 StartCopy:
-
-        if (!bFactMenuExist) then
+	
+	if (!bFactMenuExist) then
 		CopySetup();
-
-       		// Prepare InstallShield to record deinstallation information.
-        	DeinstallStart( szBaseDirectory, svUninstLogFile, DEINSTALL_KEY, 0 );
-        	RegDBSetItem( REGDB_UNINSTALL_NAME, UNINSTALL_NAME );
-
+		
+		// Prepare InstallShield to record deinstallation information.
+		DeinstallStart( szBaseDirectory, svUninstLogFile, DEINSTALL_KEY, 0 );
+		RegDBSetItem( REGDB_UNINSTALL_NAME, UNINSTALL_NAME );
+	
 	endif;
-
-        LOGMSG="INSTALLING IN : " + szBaseDirectory ^ PRODUCT_SUBDIR;
+	
+	LOGMSG="INSTALLING IN : " + szBaseDirectory ^ PRODUCT_SUBDIR;
 	LOGWRITE(LOGMSG);
-
-        Disable(HOURGLASS);
-        SdShowMsg("", FALSE);
-
+	
+	Disable(HOURGLASS);
+	SdShowMsg("", FALSE);
+	
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
 	Enable(STATUS);
-
-        StatusUpdate(ON, 50);
-
-        if (bRunStandAlone) then
-                LOGMSG="Stand-alone PC Installation";
+	
+	StatusUpdate(ON, 50);
+	
+	if (bRunStandAlone) then
+		LOGMSG="Stand-alone PC Installation";
 	else
-                LOGMSG="PC Server Installation";
+		LOGMSG="PC Server Installation";
 	endif;
 	LOGWRITE(LOGMSG);
-
+	
 	Enable(SELFREGISTERBATCH);
-        FileSetBeginDefine("All Files");
+	FileSetBeginDefine("All Files");
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 	StatusUpdate(ON, 90);
@@ -324,335 +320,334 @@ StartCopy:
 	TARGETDIR = WINDIR ^ "TEMP";
 	szSource = TARGETDIR;
 
-        LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
+	LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+	
+	nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*", COMP_NORMAL);
+	if (nReturn < 0) then
+		MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
+		goto DecompressError;
+	endif;
 
-        nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*", COMP_NORMAL);
-        if (nReturn < 0) then
-                MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
-                goto DecompressError;
-        endif;
-
-        LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
+        	LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
 	LOGWRITE(LOGMSG);
 
 
-        if (!bFactMenuExist) then
+	if (!bFactMenuExist) then
 
-        	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
+        		TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
  // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES       	
 	  
 		if (CMDLINE = "-A" || CMDLINE = "-a") then
 
 //common
 			
-                	// decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
-                	TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
+	                	// decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
+	                	TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
 //Shared files
-                	LOGMSG="START FORCED COPY OF shared.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("shared.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("SHARED.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END FORCED COPY OF shared.z FILES IN " + TARGETDIR;
+	                	LOGMSG="START FORCED COPY OF shared.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	
+	                	if (CompressGet("shared.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("SHARED.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+	                	endif;
+	
+			LOGMSG="END FORCED COPY OF shared.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
-                	TARGETDIR = WINSYSDIR;
+			
+			TARGETDIR = WINSYSDIR;
 //Dlls
-                	LOGMSG="START FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-        
-                	if (CompressGet("factdll.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-        
-                	LOGMSG="END FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
+	                	LOGMSG="START FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	        
+	                	if (CompressGet("factdll.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+		                        	MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
+		                        	goto DecompressError;
+	                	endif;
+	        
+	                	LOGMSG="END FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
 
 //Oles
-                	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
-
-                	LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+	                	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+	
+	                	LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	
+	                	if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+		                        	MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
+		                        	goto DecompressError;
+	                	endif;
+	
+	                	LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
-                	TARGETDIR = WINSYSDIR;
+	
+	                	TARGETDIR = WINSYSDIR;
 //custctl
-                	LOGMSG="START FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("custctl.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
+	                	LOGMSG="START FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	
+	                	if (CompressGet("custctl.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+		                        	MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
+		                        	goto DecompressError;
+	                	endif;
+	
+	                	LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 			
 //rtm
-                	LOGMSG="START FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-  
-                	if (CompressGet("rtm.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("RTM.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-                	LOGMSG="END FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
+	                	LOGMSG="START FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	  
+	                	if (CompressGet("rtm.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+		                        	MessageBox("RTM.Z could not be decompressed", SEVERE);
+		                        	goto DecompressError;
+	                	endif;
+	                	LOGMSG="END FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 			
 //crystal
-                	LOGMSG="START FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-  
-                	if (CompressGet("crystal.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("crystal.z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-                	LOGMSG="END FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
+	                	LOGMSG="START FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
+	                	LOGWRITE(LOGMSG);
+	  
+	                	if (CompressGet("crystal.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER ) < 0) then
+		                        	MessageBox("crystal.z could not be decompressed", SEVERE);
+		                        	goto DecompressError;
+	                	endif;
+	                	LOGMSG="END FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
 
 		else
 
 // ************************* Normal install
 
 //common
-                	// decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
-                	TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
+			// decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
+			TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
 //Shared files
-                	LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("SHARED.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
+			LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
-                	TARGETDIR = WINSYSDIR;
+			
+			if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+			COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("SHARED.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			TARGETDIR = WINSYSDIR;
 //Dlls
-                	LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-        
-                	if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-        
-                	LOGMSG="END NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
+			LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+			COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
 
 //Oles
-                	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
-
-                	LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
+			TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+			
+			LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
-
-                	TARGETDIR = WINSYSDIR;
+			
+			if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
+			
+			LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			
+			TARGETDIR = WINSYSDIR;
 //custctl
 	
-                	LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-
-                	if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
+			LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
+			
+			LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
         
 //rtm
+			LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("RTM.Z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
 			
-                	LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-                	if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("RTM.Z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-
-                	LOGMSG="END NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
+			LOGMSG="END NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 
 //crystal
-                	LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
-                	LOGWRITE(LOGMSG);
-  
-                	if (CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
-                        	MessageBox("crystal.z could not be decompressed", SEVERE);
-                        	goto DecompressError;
-                	endif;
-                	LOGMSG="END NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
+			LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
+			LOGWRITE(LOGMSG);
+			
+			if (CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER ) < 0) then
+				MessageBox("crystal.z could not be decompressed", SEVERE);
+				goto DecompressError;
+			endif;
+			LOGMSG="END NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);		
-
-        	endif;
+			
+		endif;
 	endif;
 
-        FileSetEndDefine("All Files");
-
-        nReturn = FileSetPerformEz("All Files", 0);
-
-        if (nReturn != FS_DONE) then
-                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
-                LOGWRITE(LOGMSG);
-        endif;
-
-        switch(nReturn)
-                case FS_CREATEDIR:
-                         MessageBox("Failed to Create target directory", SEVERE);
-                         goto ZFAILURE;
-                 case FS_PACKAGING:
-                         MessageBox("Unable to find file in package list", SEVERE);
-                         goto ZFAILURE;
-                 case FS_FILENOTINLIB:
-                         MessageBox("Unable to find target file in compressed lib", INFORMATION);
-                         goto ZFAILURE;
-                 case FS_DONE:
-                         // do nothing
+	FileSetEndDefine("All Files");
+	
+	nReturn = FileSetPerformEz("All Files", 0);
+	
+	if (nReturn != FS_DONE) then
+	        LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+	        LOGWRITE(LOGMSG);
+	endif;
+	
+	switch(nReturn)
+	        case FS_CREATEDIR:
+	                 MessageBox("Failed to Create target directory", SEVERE);
+	                 goto ZFAILURE;
+	         case FS_PACKAGING:
+	                 MessageBox("Unable to find file in package list", SEVERE);
+	                 goto ZFAILURE;
+	         case FS_FILENOTINLIB:
+	                 MessageBox("Unable to find target file in compressed lib", INFORMATION);
+	                 goto ZFAILURE;
+	         case FS_DONE:
+	                 // do nothing
 		 default:
-                         MessageBox("General file copy failure", SEVERE);
-                         goto ZFAILURE;
-        endswitch; 
+	                 MessageBox("General file copy failure", SEVERE);
+	                 goto ZFAILURE;
+	endswitch; 
 
-        //set Source directory to Target directory
+	//set Source directory to Target directory
 	
 	SRCDIR = szSource;
 	TARGETDIR = WINDIR ^ "TEMP";
-
-        //extract the local database into xxclient directory
-        LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);
-
-        if (CompressGet("localdb.z", "*.*", COMP_NORMAL) < 0) then
-                MessageBox(SRCDIR + " LOCALDB.Z could not be decompressed", SEVERE);
-                goto DecompressError;
-        endif;
-
-        LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
-        LOGWRITE(LOGMSG);	  
+	
+	//extract the local database into xxclient directory
+	LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+	
+	if (CompressGet("localdb.z", "*.*", COMP_NORMAL) < 0) then
+		MessageBox(SRCDIR + " LOCALDB.Z could not be decompressed", SEVERE);
+		goto DecompressError;
+	endif;
+	
+	LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);	  
 	
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
-        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
+	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
 	  
 
 	if (CMDLINE = "-A" || CMDLINE = "-a") then
 
-                LOGMSG="START FORCED COPY OF ptbin FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                nReturn = CompressGet("ptbin.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
-                if (nReturn < 0) then
-                        MessageBox("PTBIN.Z could not be decompressed", SEVERE);
-                        goto DecompressError;
-                endif;
-
-                LOGMSG="END FORCED COPY OF ptbin FILES IN " + TARGETDIR;
+		LOGMSG="START FORCED COPY OF ptbin FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		nReturn = CompressGet("ptbin.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
+		if (nReturn < 0) then
+		        MessageBox("PTBIN.Z could not be decompressed", SEVERE);
+		        goto DecompressError;
+		endif;
+		
+		LOGMSG="END FORCED COPY OF ptbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);   
 		
 	else     
 // ************************* Normal install
 
-                LOGMSG="START NORMAL COPY OF ptbin FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                nReturn = CompressGet("ptbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
-                if (nReturn < 0) then
-                        MessageBox("PTBIN.Z could not be decompressed", SEVERE);
-                        goto DecompressError;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF ptbin FILES IN " + TARGETDIR;
+		LOGMSG="START NORMAL COPY OF ptbin FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		nReturn = CompressGet("ptbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
+		if (nReturn < 0) then
+		        MessageBox("PTBIN.Z could not be decompressed", SEVERE);
+		        goto DecompressError;
+		endif;
+		
+		LOGMSG="END NORMAL COPY OF ptbin FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG); 
-
+		
 	endif;
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
 
-        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
-	  
-
+	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "OLE";
+	
 	if (CMDLINE = "-A" || CMDLINE = "-a") then
 		
-                LOGMSG="START FORCED COPY OF ptole FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("ptole.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR | SHAREDFILE | SELFREGISTER ) < 0) then
-                        MessageBox("PTOLE.Z could not be decompressed", SEVERE);
-                        goto ZFAILURE;
-                endif;
-
-                LOGMSG="END FORCED COPY OF ptole FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);		
+		LOGMSG="START FORCED COPY OF ptole FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		if (CompressGet("ptole.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR | SHAREDFILE | SELFREGISTER ) < 0) then
+			MessageBox("PTOLE.Z could not be decompressed", SEVERE);
+			goto ZFAILURE;
+		endif;
+		
+		LOGMSG="END FORCED COPY OF ptole FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);		
 	else     
 // ************************* Normal install
 
-                LOGMSG="START NORMAL COPY OF ptole FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                if (CompressGet("ptole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR | SHAREDFILE | SELFREGISTER ) < 0) then
-                        MessageBox("PTOLE.Z could not be decompressed", SEVERE);
-                        goto ZFAILURE;
-                endif;
-
-                LOGMSG="END NORMAL COPY OF ptole FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
+		LOGMSG="START NORMAL COPY OF ptole FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		if (CompressGet("ptole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR | SHAREDFILE | SELFREGISTER ) < 0) then
+		        MessageBox("PTOLE.Z could not be decompressed", SEVERE);
+		        goto ZFAILURE;
+		endif;
+		
+		LOGMSG="END NORMAL COPY OF ptole FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
 	endif;
 
         
 DecompressError:
-        if (nReturn < 0) then 
-                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
-                LOGWRITE(LOGMSG);
-
-                switch(nReturn)
-                        case COMP_DONE:
-                                MessageBox("Indicates the function successfully decompressed the files from the library.", SEVERE);
-                        case COMP_ERR_CREATEDIR:
-                                MessageBox("A target directory could not be created.  Make sure that the path in the TARGETDIR system variable is syntactically correct and you have access rights to the target drive.", SEVERE);
-                        case COMP_ERR_FILENOTINLIB:
-                                MessageBox("The specified target file does not exist in the specified compressed library.  Use the InstallShield Data Compression Program (ICOMP.EXE at the DOS system prompt) with the -L (listing) option to view the contents of the compressed library and determine if the file specified is located in the library.", SEVERE);
-                        case COMP_ERR_INCOMPATIBLE:
-                                MessageBox("The library file is not compatible with InstallShield's compression format.", SEVERE);
-                        case COMP_ERR_MEMORY:
-                                MessageBox("The function cannot allocate the memory needed to complete the process.", SEVERE);
-                        case COMP_ERR_NODISKSPACE:
-                                MessageBox("The function cannot locate enough free space on the target disk.", SEVERE);
-                        case COMP_ERR_OPENINPUT:
-                                MessageBox("The function cannot create input files in the target directory.", SEVERE);
-                        case COMP_ERR_OPENOUTPUT:
-                                MessageBox("The function cannot find or open the output file from the source directory.", SEVERE);
-                        case COMP_ERR_OPTIONS:
-                                MessageBox("The specified nOptions is invalid.", SEVERE);
-                        case COMP_ERR_TARGETREADONLY:
-                                MessageBox("The file in TARGETDIR is read-only.", SEVERE);
-                        default:
-                                MessageBox("General decompression failure", SEVERE);
-                endswitch;
-                goto ZFAILURE;
-        endif;
+	if (nReturn < 0) then 
+	        LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+	        LOGWRITE(LOGMSG);
+	
+	        switch(nReturn)
+	                case COMP_DONE:
+	                        MessageBox("Indicates the function successfully decompressed the files from the library.", SEVERE);
+	                case COMP_ERR_CREATEDIR:
+	                        MessageBox("A target directory could not be created.  Make sure that the path in the TARGETDIR system variable is syntactically correct and you have access rights to the target drive.", SEVERE);
+	                case COMP_ERR_FILENOTINLIB:
+	                        MessageBox("The specified target file does not exist in the specified compressed library.  Use the InstallShield Data Compression Program (ICOMP.EXE at the DOS system prompt) with the -L (listing) option to view the contents of the compressed library and determine if the file specified is located in the library.", SEVERE);
+	                case COMP_ERR_INCOMPATIBLE:
+	                        MessageBox("The library file is not compatible with InstallShield's compression format.", SEVERE);
+	                case COMP_ERR_MEMORY:
+	                        MessageBox("The function cannot allocate the memory needed to complete the process.", SEVERE);
+	                case COMP_ERR_NODISKSPACE:
+	                        MessageBox("The function cannot locate enough free space on the target disk.", SEVERE);
+	                case COMP_ERR_OPENINPUT:
+	                        MessageBox("The function cannot create input files in the target directory.", SEVERE);
+	                case COMP_ERR_OPENOUTPUT:
+	                        MessageBox("The function cannot find or open the output file from the source directory.", SEVERE);
+	                case COMP_ERR_OPTIONS:
+	                        MessageBox("The specified nOptions is invalid.", SEVERE);
+	                case COMP_ERR_TARGETREADONLY:
+	                        MessageBox("The file in TARGETDIR is read-only.", SEVERE);
+	                default:
+	                        MessageBox("General decompression failure", SEVERE);
+	        endswitch;
+	        goto ZFAILURE;
+	endif;
 
 
 DecompressSuccessful:
@@ -660,37 +655,37 @@ DecompressSuccessful:
 	SetStatusWindow(95, "Registering DLLs and Ocxes...");
 	
 	Do(SELFREGISTRATIONPROCESS);
-
-      	SRCDIR = WINDIR ^ "TEMP";
+	
+	SRCDIR = WINDIR ^ "TEMP";
 	szDBFrom = "\"" + SRCDIR + "\"";
-
+	
 	//copy factor.mdb and factor.ldb to BIN and WINDOWS\SYSTEM directory
-
+	
 	TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin";
 	szDBTo = "\"" + TARGETDIR + "\"";
-
+	
 	LOGMSG="LAUNCHING " + szBaseDirectory + "\\" + PRODUCT_SUBDIR + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
 	LOGWRITE(LOGMSG);
 	LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
 	LOGWRITE(LOGMSG);
-
+	
 	LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin" ^ "cpylocal.exe", szForceInstall +
-        	szDBFrom + " " + szDBTo, WAIT);
-
-
+		szDBFrom + " " + szDBTo, WAIT);
+	
+	
 	TARGETDIR = WINSYSDIR;
 	szDBTo = "\"" + TARGETDIR + "\"";
-
+	
 	LOGMSG="LAUNCHING " + szBaseDirectory + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
 	LOGWRITE(LOGMSG);
 	LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
 	LOGWRITE(LOGMSG);
-
+	
 	LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "Bin" ^ "cpylocal.exe", szForceInstall +
-        	szDBFrom + " " + szDBTo, WAIT);
-
+		szDBFrom + " " + szDBTo, WAIT);
+	
 	SetStatusWindow(97, "Copying Local Database...");
-
+	
 	// delete the local database from WINDOWS\TEMP directory
 	TARGETDIR = SRCDIR;
 	LOGMSG="START DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
@@ -699,176 +694,156 @@ DecompressSuccessful:
 //        	DeleteFile("FACTOR.LDB");
 	LOGMSG="END DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
 	LOGWRITE(LOGMSG);
-
-        StatusUpdate(OFF, 0);
-
-        if (!bFactMenuExist) then
-            LOGMSG="START REGISTER OF OLE SERVER";
-            LOGWRITE(LOGMSG);
-
-            LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szBaseDirectory ^ "OLE" ^ "OLECOMBO.DLL", WAIT);
-            LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szBaseDirectory ^ "OLE" ^ "TBKIT.DLL", WAIT);
-
-            LOGMSG="END REGISTER OF OLE SERVER";
-            LOGWRITE(LOGMSG);
-    
-            CheckTBKIT(szBaseDirectory);
-
-	endif;
-
+	
+		StatusUpdate(OFF, 0);
+	
 	// Run the client installation?
-        if (bRunStandAlone) then
+	if (bRunStandAlone) then
         
-       		TARGETDIR = WINDIR ^ "TEMP";
-
-                // remove the client z files because stand-alone installation is selected
-                LOGMSG="RUN STAND-ALONE, DELETE Z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                DeleteFile(KEY_DEFAULT + "bin.z");
+		TARGETDIR = WINDIR ^ "TEMP";
+		
+		// remove the client z files because stand-alone installation is selected
+		LOGMSG="RUN STAND-ALONE, DELETE Z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+		
+		DeleteFile(KEY_DEFAULT + "bin.z");
 		DeleteFile("localdb.z");
-
-                szFolder = COMPANY_NAME ^ "ProfitTrak";
-                szAppDir = szBaseDirectory ^ PRODUCT_SUBDIR;
-        
-                // create folder shortcuts
-                LOGMSG="CREATING FOLDER SHORTCUTS";
-                LOGWRITE(LOGMSG);
-        
-                SetStatusWindow(98, "Create shortcuts...");
-
+		
+		szFolder = COMPANY_NAME ^ "ProfitTrak";
+		szAppDir = szBaseDirectory ^ PRODUCT_SUBDIR;
+		
+		// create folder shortcuts
+		LOGMSG="CREATING FOLDER SHORTCUTS";
+		LOGWRITE(LOGMSG);
+		
+		SetStatusWindow(98, "Create shortcuts...");
+		
 		szSCWork = szAppDir;
 		szSCExe = szAppDir ^ HELP_FILE;
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "ProfitTrak Guide",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 		
 		szSCWork = szAppDir ^ "bin";
 		szSCExe = szAppDir ^ "bin\\ptfsermt.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Series Name Maintenance",
-		                    szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                    
+		            szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		            
 		szSCExe = szAppDir ^ "bin\\ptfslspd.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Sales Posted Date Maintenance",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                          
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  
 		szSCExe = szAppDir ^ "bin\\ptecklst.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "User Daily Checklist",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                          
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  
 		szSCExe = szAppDir ^ "bin\\ptfrulmt.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Rules Maintenance",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                          
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  
 		szSCExe = szAppDir ^ "bin\\ptvpybud.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Period To Date Prior Year/Month Report",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 		
 		szSCExe = szAppDir ^ "bin\\ptvpymon.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Period To Date Prior Year/Month",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                          
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  
 		szSCExe = szAppDir ^ "bin\\ptvnbemb.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Needed To Break Even And Make Budget Report",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
-		                          
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+		                  
 		szSCExe = szAppDir ^ "bin\\ptvexbud.exe";
 		LongPathToQuote(szSCExe, TRUE);
 		AddFolderIcon(szFolder, "Expense Budget Exception Report",
-		                          szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);                 
-
-                LOGMSG="FOLDER SHORTCUTS CREATED";
-                LOGWRITE(LOGMSG);
-        else
+		                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);                 
+		
+		LOGMSG="FOLDER SHORTCUTS CREATED";
+		LOGWRITE(LOGMSG);
+	else
 		TARGETDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
 		SRCDIR = WINDIR ^ "TEMP";
 		XCopyFile(KEY_DEFAULT + "bin.z", KEY_DEFAULT + "bin.z", COMP_NORMAL);
- 		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
+		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
 		
-                LOGMSG="NO FOLDER SHORTCUTS NEEDED FOR SERVER INSTALLATION";
-                LOGWRITE(LOGMSG);
-        endif;
+		        LOGMSG="NO FOLDER SHORTCUTS NEEDED FOR SERVER INSTALLATION";
+		        LOGWRITE(LOGMSG);
+	endif;
         
         
 
-        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
-
-        // add registry information
+	SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
+	
+	// add registry information
 	LOGMSG="ADDING REGISTRY INFORMATION";
 	LOGWRITE(LOGMSG);
+	
+	if (bRunStandAlone) then
+		RegDBSetKeyValueEx(KEY_ROOT, KEY_CLIENT_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
+		RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, "", -1);
+	else
+		RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
+	endif;
 
-        if (bRunStandAlone) then
-                RegDBSetKeyValueEx(KEY_ROOT, KEY_CLIENT_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
-                RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, "", -1);
-        else
-                RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
-        endif;
-
-        RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
-
-        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
-
-        Delay( 1 );
+	RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
+	
+	SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+	
+	Delay( 1 );
 	Disable(STATUS);
 	Disable(FEEDBACK_FULL);
+	
+	// display finished dialog
+	LOGMSG="INSTALLATION COMPLETE";
+	LOGWRITE(LOGMSG);
 
-        // display finished dialog
-        LOGMSG="INSTALLATION COMPLETE";
-        LOGWRITE(LOGMSG);
-
-        if (bRunStandAlone) then
+	if (bRunStandAlone) then
 		if (bFactMenuExist) then
-                	SdFinish(WELCOME_TITLE + " Complete",
-                        	 WELCOME_TITLE + " has finished copying files to your computer.",
-                        	 "Click Finish to complete " + WELCOME_TITLE,
-                        	 "", "", bTemp1, bTemp2);
+			fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+				"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+				"your computer.");
 		else
-				if (BATCH_INSTALL) then
-        
-					CopyLocalDB("First");    
-        				LOGMSG="MUST REBOOT BEFORE RUNNING";
-        				LOGWRITE(LOGMSG);
-
-        				Disable(BACKBUTTON);
-        				fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
-               					"  Before you can use " + PRODUCT_NAME + ", you must restart " +
-               					"your computer.");
-
-				else
-
-        				CopyLocalDB("");
-        				SdFinish(WELCOME_TITLE + " Complete",
-               					WELCOME_TITLE + " has finished copying files to your computer.",
-               					"Click Finish to complete " + WELCOME_TITLE,
-               					"", "", bTemp1, bTemp2);
-				endif;   
-
+			if (BATCH_INSTALL) then
+			
+				CopyLocalDB("First");    
+			
+			else
+			
+				CopyLocalDB("");
+			endif;   
+			
+			LOGMSG="MUST REBOOT BEFORE RUNNING";
+			LOGWRITE(LOGMSG);
+			
+			Disable(BACKBUTTON);
+			fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+				"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+				"your computer.");
+		
 		endif;
-        else
-                SdFinish(WELCOME_TITLE + " Complete",
-                    WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
-                    "You may now run the " + PRODUCT_NAME + " Client Installation " +
-                    "program on any PC requiring access to the " + PRODUCT_NAME + ".",
-                    "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
-        endif;
+	else
+		fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+			"  Before you can use " + PRODUCT_NAME + ", you must restart " +
+			"your computer.");
+	endif;
 
 	exit;
 
 ZFAILURE:
-        LOGMSG="INSTALLATION FAILED";
-        LOGWRITE(LOGMSG);
-
+	LOGMSG="INSTALLATION FAILED";
+	LOGWRITE(LOGMSG);
+	
 	MessageBox("Installation incomplete.  Close any running\n" +
 			   "applications before intalling " + PRODUCT_NAME + " Server Installation.",
 			   INFORMATION);
-        abort;
+	abort;
 	
 /*--------------- END OF PROGRAM --------------*\
 	
@@ -937,80 +912,6 @@ begin
                 endif;
         else
                 return FALSE;
-        endif;
-end;
-
-
-//check and move tbkit.dll from BIN to OLE and register it.
-function CheckTBKIT(szDir)
-
-        STRING szTemp;
-        BOOL bCopySuccess;
-
-begin
-
-        if (FindFile(szDir ^ PRODUCT_SUBDIR ^ "BIN", "TBKIT.DLL", szTemp) >= 0) then
-                if (szTemp != "") then
-                        SetStatusWindow(97, "Updating OLE Server...");
-
-                        VarSave(SRCTARGETDIR);
-
-                        SRCDIR = szDir ^ PRODUCT_SUBDIR ^ "BIN";
-                        TARGETDIR = szDir ^ PRODUCT_SUBDIR ^ "OLE";
-
-                        if (szForceInstall = "1 ") then
-                                LOGMSG="START OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-
-                                if (CopyFile("TBKIT.DLL", "TBKIT.DLL") < 0) then
-                                        MessageBeep(0);
-                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
-
-                                        bCopySuccess = FALSE;
-
-                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                        LOGWRITE(LOGMSG);
-                                else
-                                        bCopySuccess = TRUE;
-                                endif;
-
-                                LOGMSG="END OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-                        else
-                                LOGMSG="START OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-
-                                if (XCopyFile("TBKIT.DLL", "TBKIT.DLL", COMP_UPDATE_DATE | COMP_UPDATE_VERSION) < 0) then
-                                        MessageBeep(0);
-                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
-
-                                        bCopySuccess = FALSE;
-
-                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                        LOGWRITE(LOGMSG);
-                                else
-                                        bCopySuccess = TRUE;
-                                endif;
-
-                                LOGMSG="END OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
-                                LOGWRITE(LOGMSG);
-                        endif;
-
-                        if (bCopySuccess && bRunStandAlone) then
-                                LOGMSG="START REGISTER OF TBKIT.DLL OLE SERVER";
-                                LOGWRITE(LOGMSG);
-
-                                LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + TARGETDIR ^ "TBKIT.DLL", WAIT);
-
-                                LOGMSG="END REGISTER OF TBKIT.DLL OLE SERVER";
-                                LOGWRITE(LOGMSG);
-                        endif;
-
-                        TARGETDIR = SRCDIR;
-                        DeleteFile("TBKIT.DLL");
-
-                        VarRestore(SRCTARGETDIR);
-                endif;
         endif;
 end;
 
@@ -1187,5 +1088,6 @@ begin
         System(SYS_BOOTMACHINE);
 
 end;
+
 
 #include "sddialog.rul"
