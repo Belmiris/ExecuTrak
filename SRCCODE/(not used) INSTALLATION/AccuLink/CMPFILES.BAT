@@ -20,8 +20,8 @@ del ..\disk\*.z
 
 echo .
 echo Compress all files to factbin.z
-icomp G:\PROGRAM\RELEASE\ACCULINK\*.* ..\disk\factbin.z -i
-icomp g:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z BIN
+icomp G:\PROGRAM\RELEASE\ACCULINK\BIN\*.* ..\disk\factbin.z
+icomp g:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z
 
 echo .
 echo Compress all files in Ole directory to factole.z

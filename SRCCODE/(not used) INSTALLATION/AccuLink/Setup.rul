@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "ACCULINK300"
-#define UNINSTALL_NAME          "AccuLink Cross Reference Maintenance Version 3.00"
+#define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "ACCULINK307"
+#define UNINSTALL_NAME          "AccuLink Cross Reference Maintenance Version 3.07"
 
 #define SIZE_REQ_LOCAL          6       // 6 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
