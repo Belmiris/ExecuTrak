@@ -2587,9 +2587,10 @@ End Property
 Property Get ValidCell(ByVal nCol As Integer, ByVal lRow As Long) As Boolean
     If lRow < 0 Or nRowCount < 0 Or lRow >= nRowCount Then
         If IsNull(GridArray(nCol, lRow)) Then
-            If Trim(GridArray(nCol, lRow)) = "" Then
-                Exit Property
-            End If
+            Exit Property
+        End If
+        If Trim(GridArray(nCol, lRow)) = "" Then
+            Exit Property
         End If
     End If
     
