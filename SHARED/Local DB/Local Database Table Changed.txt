@@ -1,3 +1,8 @@
+version: 3.25.14
+Date: 10/08/2001
+Description: 
+	alter table MDelivery add column (szSalesmanCode char(4)).
+
 version: 3.25.13
 Date: 10/02/2001
 Description: 
