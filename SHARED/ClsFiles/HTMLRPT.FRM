@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "shdocvw.dll"
-Begin VB.Form HtmlReport 
+Begin VB.Form clsHtmlReport 
    Caption         =   "Report Browser"
    ClientHeight    =   7620
    ClientLeft      =   45
@@ -39,7 +39,7 @@ Begin VB.Form HtmlReport
       Location        =   ""
    End
 End
-Attribute VB_Name = "HtmlReport"
+Attribute VB_Name = "clsHtmlReport"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -81,8 +81,6 @@ Public Sub BuildInternetReport(frmMain As Form, _
                                     Optional sReportID As String = "", _
                                     Optional nOrientation As Integer = vbPRORPortrait)
     
-    Dim sStatusbarMsg As String
-    
     Dim sHeaderLine As String
     Dim nFileNum As Long
     Dim i As Long
@@ -98,15 +96,12 @@ Public Sub BuildInternetReport(frmMain As Form, _
     Dim sHeader2 As String
     Dim nPosi As Integer
     
-    On Error Resume Next
-    sStatusbarMsg = frmMain.ffraStatusbar.Caption
-    frmMain.tfnSetStatusBarMessage "Creating Report. Please wait..."
-    On Error GoTo 0
-    
     On Error GoTo EXITHERE
 
     Dim nPageWidth As Integer
     Dim nLinesPerPage As Integer
+    
+    Screen.MousePointer = vbHourglass
     
     If nOrientation = vbPRORPortrait Then
         nPageWidth = 104
@@ -140,6 +135,8 @@ Public Sub BuildInternetReport(frmMain As Form, _
     Dim sRptTitle1 As String
     Dim sRptTitle2 As String
 
+    Screen.MousePointer = vbHourglass
+    
     nPosi = InStr(sReportTitle, vbCrLf)
     If nPosi > 0 Then
         sRptTitle1 = Left(sReportTitle, nPosi - 1)
@@ -192,6 +189,8 @@ Public Sub BuildInternetReport(frmMain As Form, _
     lLineNum = 6
     
     For i = 0 To UBound(aryBody)
+        Screen.MousePointer = vbHourglass
+        
         If lLineNum > nLinesPerPage Then
             lLineNum = 3
             Print #nFileNum, "<DIV CLASS=""PAGEBREAK""></DIV>"
@@ -203,6 +202,7 @@ Public Sub BuildInternetReport(frmMain As Form, _
         sHeaderLine = aryBody(i)
         Print #nFileNum, sHeaderLine
         lLineNum = lLineNum + 1
+        Screen.MousePointer = vbHourglass
     Next
 
     sHeaderLine = "</PRE></body></html>"
@@ -212,23 +212,22 @@ Public Sub BuildInternetReport(frmMain As Form, _
     bFileOpen = False
 
     If bBrowseIt Then
+        Screen.MousePointer = vbHourglass
         BrowseInternetReport m_sURL
         
         If bPrintIt Then
+            Screen.MousePointer = vbHourglass
             PrintInternetReport
         End If
     End If
     
-    On Error Resume Next
-    If sStatusbarMsg <> "" Then
-        frmMain.tfnSetStatusBarMessage sStatusbarMsg
-    End If
-    On Error GoTo 0
-    
 EXITHERE:
+    
     If bFileOpen Then
         Close #nFileNum
     End If
+
+    Screen.MousePointer = vbDefault
 End Sub
 
 Public Sub BrowseInternetReport(sURL As String)
@@ -236,17 +235,15 @@ Public Sub BrowseInternetReport(sURL As String)
     Const navNoReadFromCache As Integer = 4
     Const navNoWriteToCache As Integer = 8
 
-    Dim byteData() As Byte
-    
     If sURL = "" Then
         Exit Sub
     End If
     
     'WebBrowser1.Navigate "http://ether4/cgi-bin/reportsrv.cgi?USERNAME=ssfactor&PASSWORD=menus&DATABASE=/factor/vbdev&CATEGORY=R&REPORTNAME=smrworpt&REPORTTITLE=Work%20Order%20Maintenance&REPORTEXE=smrrun01&REPORT=Work%20Order%20Maintenance|smrworpt|smmenu|&COLCOUNT=10&PRINTSEL=1&ENTRYTYPE=STANDARD|DATE|STANDARD|STANDARD|STANDARD|STANDARD|STANDARD|STANDARD|STANDARD|STANDARD|&ENTRYORDER=PARMa|PARMb|PARMc|PARMd|PARMe|PARMf|PARMg|PARMh|PARMi|PARMj|&PARMa=101&COMPRESS=1&ACTION=GO"
-    WebBrowser1.Navigate sURL, navNoHistory + navNoReadFromCache + navNoWriteToCache, "_self", byteData
+    WebBrowser1.Navigate sURL, navNoHistory + navNoReadFromCache + navNoWriteToCache, "_self"
 End Sub
 
-Public Sub PrintInternetReport()
+Public Sub PrintInternetReport(Optional bPreview As Boolean = True)
     Dim oleTemp As OLECMDF
     Dim i As Integer
     Dim bPrintIt As Boolean
@@ -277,7 +274,11 @@ Public Sub PrintInternetReport()
     
     If bPrintIt Then
         'WebBrowser1.ExecWB OLECMDID_PAGESETUP, OLECMDEXECOPT_DONTPROMPTUSER, Null, Null
-        WebBrowser1.ExecWB OLECMDID_PRINTPREVIEW, OLECMDEXECOPT_PROMPTUSER, Null, Null
+        If bPreview Then
+            WebBrowser1.ExecWB OLECMDID_PRINTPREVIEW, OLECMDEXECOPT_PROMPTUSER, 0, 0  'Null, Null
+        Else
+            WebBrowser1.ExecWB OLECMDID_PRINT, OLECMDEXECOPT_DONTPROMPTUSER, 0, 0
+        End If
     Else
         '"The internet Browser Print command is currently disabled."
         MsgBox "Can't print report right now."
