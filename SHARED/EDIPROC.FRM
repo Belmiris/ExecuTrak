@@ -260,10 +260,14 @@ Public Function LaunchEDIPROC() As String
         
     sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
     subAddLog sMsg
-        
+    
+    m_frmParent.Enabled = False
+    Screen.MousePointer = vbHourglass
+    
     'busy waiting for EDI Translation Processor to finish
     dfTimer = Timer
     Do
+        Screen.MousePointer = vbHourglass
         DoEvents
         If Timer - dfTimer > 2100 Then
             m_ErrorMessage = "EDI Translation Processor time out."
@@ -272,6 +276,9 @@ Public Function LaunchEDIPROC() As String
             Exit Function
         End If
     Loop While fnExeIsRunning(sExeFile)
+    
+    Screen.MousePointer = vbDefault
+    m_frmParent.Enabled = True
     
     sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
     subAddLog sMsg
