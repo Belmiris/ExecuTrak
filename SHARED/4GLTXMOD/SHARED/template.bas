@@ -590,11 +590,11 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwAvailPageFile: Indicates the number of bytes available in the paging file.
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
-    Dim sMSG As String
-    sMSG = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMSG = sMSG & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
-    sMSG = sMSG & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
-    fnMemoryString = sMSG
+    Dim sMsg As String
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
+    fnMemoryString = sMsg
 End Function
 Public Sub checkMemory()
 'this sub is called from a timer
@@ -603,7 +603,7 @@ Public Sub checkMemory()
 'if certain memory thresholds are met, the information is logged to the error log
 'and a message is displayed to the user.
     Dim psLogMemoryStatus As LOG_MEMORY_STATUS 'structure to hold mem values
-    Dim sMSG As String, sIniValue As String
+    Dim sMsg As String, sIniValue As String
     Static bolQueriedINI As Boolean
     Static iInterval As Single
     Static iMemTime As Single
@@ -623,17 +623,17 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
-            sMSG = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+            sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
-                    Err.Description = sMSG 'need to do this so msg will get written in the error log
-                    tfnErrHandler "checkMemory", sMSG, False 'write to the error log
+                    Err.Description = sMsg 'need to do this so msg will get written in the error log
+                    tfnErrHandler "checkMemory", sMsg, False 'write to the error log
                     Err.Clear 'clear the workaround
                 End If
             #End If
             MsgBox "Please save your work, close ExecuTrak for Windows, and restart ExecuTrak." & _
-            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMSG, vbExclamation, "SYSTEM MEMORY IS LOW"
+            vbCr & vbCr & "If you continue to see this message, close all applications and restart Windows." & vbCr & vbCr & sMsg, vbExclamation, "SYSTEM MEMORY IS LOW"
         End If
 
     End If
@@ -835,7 +835,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1135,7 +1135,7 @@ Public Function tfnExecuteProgram(oleObject As Object, szProgram As String) As B
         End If
     Else
         If Trim(oleObject.ErrorMessage) = "" Then
-            MsgBox "This program is not configured on the main menu.", vbCritical, szProgram  'display oleObject error message
+            MsgBox "This user ID has not been given access to this program on the main menu.", vbExclamation, szProgram    'display oleObject error message
         Else
             MsgBox oleObject.ErrorMessage, vbCritical, szRUNEXE_TITLE 'display oleObject error message
         End If
@@ -1276,12 +1276,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1360,7 +1360,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1412,9 +1412,9 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1538,7 +1538,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -1936,7 +1936,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     For nIndex = 0 To frmWindow.Controls.Count
         
-        If Left(CStr(frmWindow.Controls(nIndex).tag), 6) = "LOOKUP" Then
+        If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
         End If
     
@@ -2943,7 +2943,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
 End Function
@@ -3075,7 +3075,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
  
 errSQL:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     
     Err.Clear
