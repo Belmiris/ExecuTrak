@@ -61,7 +61,7 @@ Global Const szHelpGasCheck As String = "ZZEFOGCK.HLP" 'Gas Check Data Entry
 Global Const szHelpDrakeOil As String = "ZZEDPCLU.HLP" 'Card Lock Processing
 Global Const szHelpSalesMark As String = "SaleMark.HLP" 'Sales and Marketing
 Global Const szHelpDrakeOilFile As String = "ZZFDPEDT.HLP"  'Card Lock File Maintenance     'Vijaya 12/06/01...
-
+Global Const szHelpZZFMURMT As String = "ZZFMURMT.HLP"  'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
