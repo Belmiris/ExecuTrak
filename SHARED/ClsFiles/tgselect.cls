@@ -198,7 +198,6 @@ Property Get EditorClass() As Object
     Set EditorClass = m_tgcEditor
 End Property
 
-
 Public Sub Click()
     If m_bTableGotFocus Then
         If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
@@ -323,7 +322,6 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
     End If
 End Function
 
-
 Private Function fnRowSelected(vBkMark As Variant) As Integer
     Dim bFound As Boolean
     Dim i As Integer
@@ -433,14 +431,20 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     End If
 End Sub
 
-
-Public Sub LostFocus()
+'david 04/24/2002
+'when the grid lost focus, the highlighted rows always be reset
+'sometime we want to keep the rows highlighted... Pass in False to keep it.
+Public Sub LostFocus(Optional bClearHighlight As Boolean = True)
     If m_nSelectMode = MODE_NO_KEY_CONTROL Then
         m_bTableGotFocus = False
     End If
+    
     m_bTableClicked = False
+    
     If Not m_tgcEditor Is Nothing Then
-        SetRowHighLighted False
+        If bClearHighlight Then
+            SetRowHighLighted False
+        End If
     End If
 End Sub
 
@@ -454,7 +458,6 @@ Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal y As I
         DoEvents
     End If
 End Sub
-
 
 Property Set Partner(tgcTemp As Object)
     Set m_tgcSelector = tgcTemp
@@ -498,16 +501,14 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
 End Property
 
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If
 End Sub
 
-
 Public Sub SelectAll()
-
     'changed for two variables from integer type to long by junsong Oct. 9, 2000
     Dim i As Long
     Dim nRows As Long
@@ -515,19 +516,18 @@ Public Sub SelectAll()
     If Not m_tgcEditor Is Nothing Then
         nRows = m_tgcEditor.RowCount
     End If
+    
     With m_tgTable.SelBookmarks
         For i = 0 To nRows - 1
             .Add m_tgcEditor.MakeBookmark(i)
             SetRowHighLighted m_bRowHighLighted
         Next
     End With
-
 End Sub
 
 Property Get Count() As Long
     Count = m_tgTable.SelBookmarks.Count
 End Property
-
 
 Property Let RowHighLighted(bStatus As Boolean)
     m_bRowHighLighted = bStatus
@@ -543,67 +543,120 @@ Property Let SelectCurrRow(ByVal bTemp As Boolean)
 End Property
 
 Public Sub SelectRow(ByVal lRow As Long)
-    subMarkSelected m_tgcEditor.MakeBookmark(lRow)
+    'david 04/24/2002
+    'subMarkSelected m_tgcEditor.MakeBookmark(lRow)
+    
+    If Not m_tgcEditor Is Nothing Then
+        With m_tgTable.SelBookmarks
+            .Add m_tgcEditor.MakeBookmark(lRow)
+            SetRowHighLighted m_bRowHighLighted
+        End With
+    End If
+End Sub
+
+'david 04/24/2002
+'Invert Select
+Public Sub InvertSelect()
+    Dim i As Long
+    Dim j As Long
+    Dim nRows As Long
+    Dim lSelected() As Long
+    Dim lCountSelected As Long
+    Dim lMidPoint As Long
+    Dim bAdd As Boolean
+    
+    If m_tgcEditor Is Nothing Then
+        Exit Sub
+    End If
+    
+    nRows = m_tgcEditor.RowCount
+    
+    If nRows <= 0 Then
+        Exit Sub
+    End If
+    
+    GetSelected lSelected, lCountSelected
+    
+    If lCountSelected > 0 Then
+        Clear
+        lMidPoint = (lCountSelected \ 2) - 1
+    End If
+    
+    With m_tgTable.SelBookmarks
+        For i = 0 To nRows - 1
+            bAdd = True
+            
+            If lCountSelected > 0 Then
+                If lSelected(lMidPoint) = i Then
+                    bAdd = False
+                ElseIf lSelected(lMidPoint) > i Then
+                    For j = lMidPoint - 1 To 0 Step -1
+                        If lSelected(j) = i Then
+                            bAdd = False
+                        End If
+                    Next j
+                Else
+                    For j = lMidPoint + 1 To lCountSelected - 1
+                        If lSelected(j) = i Then
+                            bAdd = False
+                        End If
+                    Next j
+                End If
+            End If
+            
+            If bAdd Then
+                .Add m_tgcEditor.MakeBookmark(i)
+                SetRowHighLighted m_bRowHighLighted
+            End If
+        Next
+    End With
 End Sub
 
 Private Sub subMarkSelected(vBkMark As Variant)
-    If m_tgcEditor.RowCount <= 0 Then
-        Exit Sub
-    End If
     Dim i As Integer
     Dim nEnd As Integer
     Dim nStart As Integer
     Dim bFound As Boolean
+    
+    If m_tgcEditor.RowCount <= 0 Then
+        Exit Sub
+    End If
 
     If m_nSelectMode = MODE_KEY_CONTROL Then
         nStart = m_nLastClickedRow
+        
         If m_tgcEditor Is Nothing Then
             nEnd = m_tgTable.Row
         Else
             nEnd = m_tgcEditor.GetCurrentRowNumber
         End If
+        
         If m_nShiftControl = vbShiftMask Then
             Clear
+            
             If nStart > nEnd Then
                 i = nStart
                 nStart = nEnd
                 nEnd = i
             End If
+            
             If nStart < 0 Then
                 nStart = 0
             End If
+            
             For i = nStart To nEnd
                 m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(i)
             Next
-            'm_nLastClickedRow = -1
         ElseIf m_nShiftControl = vbCtrlMask Then
             subToggleSelected vBkMark
-'        ElseIf m_nShiftControl = MyShiftMask Then
-'            If nStart = nEnd Then
-'                Clear
-'                m_tgTable.SelBookmarks.Add vBkMark
-'            End If
-'            subToggleSelected vBkMark
-'            Stop
         Else
             Clear
+            
             If m_bSelectCurrRow Then
                 If fnLong(vBkMark) >= 0 Then
                     m_tgTable.SelBookmarks.Add vBkMark
                 End If
             End If
-            
-'            subToggleSelected vBkMark
-'            If nStart = nEnd Then
-'                If Count > 0 Then
-'                    Clear
-'                Else
-'                    m_tgTable.SelBookmarks.Add vBkMark
-'                End If
-'            Else
-'                Clear
-'                m_tgTable.SelBookmarks.Add vBkMark
-'            End If
         End If
     Else
         Clear
@@ -631,21 +684,19 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     SetRowHighLighted m_bRowHighLighted
 End Sub
 
-
 Private Sub subSetCurrentRow()
-'    If m_nLastClickedRow < 0 Then
-        If m_tgcEditor Is Nothing Then
-            m_nLastClickedRow = m_tgTable.Row
-        Else
-            m_nLastClickedRow = m_tgcEditor.GetCurrentRowNumber
-        End If
-'    End If
+    If m_tgcEditor Is Nothing Then
+        m_nLastClickedRow = m_tgTable.Row
+    Else
+        m_nLastClickedRow = m_tgcEditor.GetCurrentRowNumber
+    End If
 End Sub
 
 Private Sub subToggleSelected(vBkMark As Variant)
     Dim i As Integer
 
     i = fnRowSelected(vBkMark)
+    
     With m_tgTable
         If i >= 0 Then
             .SelBookmarks.Remove i
@@ -655,12 +706,11 @@ Private Sub subToggleSelected(vBkMark As Variant)
             End If
         End If
     End With
-
 End Sub
-
 
 Property Set Table(objTemp As Object)
     Set m_tgTable = objTemp
+    
     If m_bAvoidBeep Then
         With m_tgTable.Columns
             If .Item(.Count - 1).Visible Then
