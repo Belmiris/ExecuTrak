@@ -47,7 +47,7 @@ Public Sub AddCondition(nCol As Integer, ParamArray aryColorCond() As Variant)
     'syntax for condition check: XopY,
     'X means old cell value
     'X can also be [col,row], means a cell value col,row
-    'op can be (==, <>, >>, <<, GT, LT),
+    'op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT),
     'Y can be ~ means new cell value,
     'Y can be a constant number,
     'Y can be [col,row] means a cell value in col,row

@@ -60,7 +60,7 @@ Public Sub AddColumn4CellColor(nCol As Integer, ParamArray aryColorCond() As Var
     'syntax for condition check: XopY,
     'X means old cell value
     'X can also be [col,row], means a cell value col,row
-    'op can be (==, <>, >>, <<, GT, LT),
+    'op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT),
     'Y can be ~ means new cell value,
     'Y can be a constant number,
     'Y can be [col,row] means a cell value in col,row
@@ -72,7 +72,7 @@ Public Sub AddColumn4CellColor(nCol As Integer, ParamArray aryColorCond() As Var
         + "Syntax for condition check: XopY" + vbCrLf _
         + "X means old cell value" + vbCrLf _
         + "X can also be [col,row], means a cell value col,row" + vbCrLf _
-        + "op can be (==, <>, >>, <<, GT, LT)," + vbCrLf _
+        + "op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT)," + vbCrLf _
         + "Y can be ~ means new cell value" + vbCrLf _
         + "Y can be a constant number" + vbCrLf _
         + "Y can be [col,row] means a cell value in col,row"
@@ -140,7 +140,7 @@ Public Sub AddColumn4CellStyle(nCol As Integer, ParamArray aryStyleCond() As Var
     'syntax for condition check: XopY,
     'X means old cell value
     'X can also be [col,row], means a cell value col,row
-    'op can be (==, <>, >>, <<, GT, LT),
+    'op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT),
     'Y can be ~ means new cell value,
     'Y can be a constant number,
     'Y can be [col,row] means a cell value in col,row
@@ -156,7 +156,7 @@ Public Sub AddColumn4CellStyle(nCol As Integer, ParamArray aryStyleCond() As Var
         + "Syntax for condition check: XopY" + vbCrLf _
         + "X means old cell value" + vbCrLf _
         + "X can also be [col,row], means a cell value col,row" + vbCrLf _
-        + "op can be (==, <>, >>, <<, GT, LT)," + vbCrLf _
+        + "op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT)," + vbCrLf _
         + "Y can be ~ means new cell value" + vbCrLf _
         + "Y can be a constant number" + vbCrLf _
         + "Y can be [col,row] means a cell value in col,row" + vbCrLf _
@@ -280,6 +280,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     Dim lBackColor As Long
     Dim sCellStyle As String
     Dim bSetCellColor As Boolean
+    Dim bColorIsSet As Boolean
     
     On Error GoTo errTrap
     
@@ -296,6 +297,8 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     On Error GoTo 0
     
     If Not objColorCondition Is Nothing Then
+        bColorIsSet = False
+        
         For i = 0 To objColorCondition.ConditionCount
             If Not objColorCondition.GetCondition(i, sCondition, lForeColor, lBackColor, sCellStyle) Then
                 Exit Sub
@@ -304,7 +307,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             'syntax for condition check: XopY,
             'X means old cell value
             'X can also be [col,row], means a cell value col,row
-            'op can be (==, <>, >>, <<, GT, LT),
+            'op can be (==, <>, <=, >=, =, <, >, NE, EQ, LE, GE, LT, GT),
             'Y can be ~ means new cell value,
             'Y can be a constant number,
             'Y can be [col,row] means a cell value in col,row
@@ -314,29 +317,80 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             'FONTBOLD means show the fonts in bold typeface
             
             'get the op
-            sOP = "=="
+
+'            'same logic as the if blocks below
+'            'the "if block" logic may have better performance
+'            Dim aryOP()
+'            aryOP = Array("<>", "==", "<=", ">=", "=", "<", ">", "NE", "EQ", "LE", "GE", "LT", "GT")
+'
+'            sOP = ""
+'
+'            For nCol2 = 0 To UBound(aryOP)
+'                nPosi = InStr(sCondition, aryOP(nCol2))
+'                If nPosi > 0 Then
+'                    sOP = aryOP(nCol2)
+'                    Exit For
+'                End If
+'            Next nCol2
+'
+'            If sOP = "" Then
+'                'op is not valid
+'                Exit Sub
+'            End If
+
+            'same logic as the for loop above
+            'but the "if block" logic may have better performance
+            sOP = "<>"
             nPosi = InStr(sCondition, sOP)
             If nPosi <= 0 Then
-                sOP = "<>"
+                sOP = "=="
                 nPosi = InStr(sCondition, sOP)
                 If nPosi <= 0 Then
-                    sOP = ">>"
+                    sOP = "<="
                     nPosi = InStr(sCondition, sOP)
                     If nPosi <= 0 Then
-                        sOP = "<<"
+                        sOP = ">="
                         nPosi = InStr(sCondition, sOP)
                         If nPosi <= 0 Then
-                            sOP = "GT"
+                            sOP = "="
                             nPosi = InStr(sCondition, sOP)
                             If nPosi <= 0 Then
-                                sOP = "LT"
+                                sOP = "<"
                                 nPosi = InStr(sCondition, sOP)
+                                If nPosi <= 0 Then
+                                    sOP = ">"
+                                    nPosi = InStr(sCondition, sOP)
+                                    If nPosi <= 0 Then
+                                        sOP = "NE"
+                                        nPosi = InStr(sCondition, sOP)
+                                        If nPosi <= 0 Then
+                                            sOP = "EQ"
+                                            nPosi = InStr(sCondition, sOP)
+                                            If nPosi <= 0 Then
+                                                sOP = "LE"
+                                                nPosi = InStr(sCondition, sOP)
+                                                If nPosi <= 0 Then
+                                                    sOP = "GE"
+                                                    nPosi = InStr(sCondition, sOP)
+                                                    If nPosi <= 0 Then
+                                                        sOP = "LT"
+                                                        nPosi = InStr(sCondition, sOP)
+                                                        If nPosi <= 0 Then
+                                                            sOP = "GT"
+                                                            nPosi = InStr(sCondition, sOP)
+                                                        End If
+                                                    End If
+                                                End If
+                                            End If
+                                        End If
+                                    End If
+                                End If
                             End If
                         End If
                     End If
                 End If
             End If
-            
+
             If nPosi <= 0 Then
                 'op is not valid
                 Exit Sub
@@ -344,7 +398,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             
             'get left hand side and right hand side
             sLeftSide = Left(sCondition, nPosi - 1)
-            sRightSide = Mid(sCondition, nPosi + 2)
+            sRightSide = Mid(sCondition, nPosi + Len(sOP))
             
             If UCase(Left(sRightSide, 1)) = "~" Then   'compare old value to a new value in the same cell
                 sLeftValue = m_tgcEditor.OldValue & ""
@@ -405,88 +459,165 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 Else  'is a constant
                     'okay
                 End If
-                
-                Select Case UCase(sOP)
-                Case "<>"  'string/numeric not equal
-                    'If UCase(Mid(sCondition, 4, 1)) = "~" Then  'compare old value to a new value in the same cell
-                    '    If m_tgcEditor.CellValueChanged(Col, lRow) Then
-                    '        Exit For
-                    '    End If
-                    'Else
-                        If Trim(sLeftValue) <> Trim(sRightValue) Then
-                            Exit For
-                        End If
-                    'End If
-                Case "=="  'string/numeric equal
-                    'If UCase(Mid(sCondition, 4, 1)) = "~" Then  'compare old value to a new value in the same cell
-                    '    If Not m_tgcEditor.CellValueChanged(Col, lRow) Then
-                    '        Exit For
-                    '    End If
-                    'Else
-                        If Trim(sLeftValue) = Trim(sRightValue) Then
-                            Exit For
-                        End If
-                    'End If
-                Case "<<"  'numeric less than
+            End If
+            
+            bSetCellColor = False
+            
+            Select Case UCase(sOP)
+            Case "<>"  'numeric/date/string not equal to
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
+                    If val(sLeftValue) <> val(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) <> CDate(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                Else  'string compare
+                    If Trim(sLeftValue) <> Trim(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                End If
+            Case "==", "=" 'numeric/date/string equal to
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
+                    If val(sLeftValue) = val(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) = CDate(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                Else  'string compare
+                    If Trim(sLeftValue) = Trim(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                End If
+            Case "<="  'numeric/date/string less than and equal to
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
+                    If val(sLeftValue) <= val(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) <= CDate(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                Else  'string compare
+                    If Trim(sLeftValue) <= Trim(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                End If
+            Case ">="  'numeric/date/string greater than and equal to
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
+                    If val(sLeftValue) >= val(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) >= CDate(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                Else  'string compare
+                    If Trim(sLeftValue) >= Trim(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                End If
+            Case "<"  'numeric/date/string less than
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
                     If val(sLeftValue) < val(sRightValue) Then
-                        Exit For
+                        bSetCellColor = True
                     End If
-                Case ">>"  'numeric greater than
-                    If val(sLeftValue) > val(sRightValue) Then
-                        Exit For
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) < CDate(sRightValue) Then
+                        bSetCellColor = True
                     End If
-                Case "LT"  'string/date less than
+                Else  'string compare
                     If Trim(sLeftValue) < Trim(sRightValue) Then
-                        Exit For
+                        bSetCellColor = True
                     End If
-                Case "GT"  'string/date greater than
+                End If
+            Case ">"  'numeric/date/string greater than
+                If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
+                    If val(sLeftValue) > val(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
+                    If CDate(sLeftValue) > CDate(sRightValue) Then
+                        bSetCellColor = True
+                    End If
+                Else  'string compare
                     If Trim(sLeftValue) > Trim(sRightValue) Then
-                        Exit For
+                        bSetCellColor = True
                     End If
-                End Select
+                End If
+            Case "NE"  'string not equal to
+                If Trim(sLeftValue) <> Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            Case "EQ"  'string equal to
+                If Trim(sLeftValue) = Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            Case "LE"  'string less than and equal to
+                If Trim(sLeftValue) <= Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            Case "GE"  'string greater than and equal to
+                If Trim(sLeftValue) >= Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            Case "LT"  'string less than
+                If Trim(sLeftValue) < Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            Case "GT"  'string greater than
+                If Trim(sLeftValue) > Trim(sRightValue) Then
+                    bSetCellColor = True
+                End If
+            End Select
+        
+            'if condition is true, set the color or cellstyle
+            If bSetCellColor Then
+                If sCellStyle <> "" Then  'is a caption for column heading
+                    If sCellStyle = COLHEADING Then   'is a caption for column heading
+                        CellStyle = m_tgTable.Styles("Heading")
+                        CellStyle.Alignment = dbgLeft
+                        CellStyle.Locked = True
+                    ElseIf sCellStyle = ALIGNLEFT Then    'is a caption for column heading
+                        CellStyle.Alignment = dbgLeft
+                    ElseIf sCellStyle = FONTBOLD Then     'is a caption for column heading
+                        CellStyle.Font.Bold = True
+                    End If
+                Else
+                    If UCase(sRightSide) = COLHEADING Then   'is a caption for column heading
+                        CellStyle = m_tgTable.Styles("Heading")
+                        CellStyle.Alignment = dbgLeft
+                        CellStyle.Locked = True
+                    ElseIf UCase(sRightSide) = ALIGNLEFT Then    'is a caption for column heading
+                        CellStyle.Alignment = dbgLeft
+                    ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
+                        CellStyle.Font.Bold = True
+                    Else
+                        If lForeColor >= 0 Then
+                            CellStyle.ForeColor = lForeColor
+                        End If
+                        If lBackColor >= 0 Then
+                            CellStyle.BackColor = lBackColor
+                        End If
+                    End If
+                End If
             End If
         Next
-    
-        'if condition is true, set the color
-        If i <= objColorCondition.ConditionCount Then
-            bSetCellColor = True
-        End If
     End If
     
-    'if condition is true, set the color
-    If bSetCellColor Then
-        If sCellStyle <> "" Then  'is a caption for column heading
-            If sCellStyle = COLHEADING Then   'is a caption for column heading
-                CellStyle = m_tgTable.Styles("Heading")
-                CellStyle.Alignment = dbgLeft
-                CellStyle.Locked = True
-            ElseIf sCellStyle = ALIGNLEFT Then    'is a caption for column heading
-                CellStyle.Alignment = dbgLeft
-            ElseIf sCellStyle = FONTBOLD Then     'is a caption for column heading
-                CellStyle.Font.Bold = True
-            End If
-        Else
-            If UCase(sRightSide) = COLHEADING Then   'is a caption for column heading
-                CellStyle = m_tgTable.Styles("Heading")
-                CellStyle.Alignment = dbgLeft
-                CellStyle.Locked = True
-            ElseIf UCase(sRightSide) = ALIGNLEFT Then    'is a caption for column heading
-                CellStyle.Alignment = dbgLeft
-            ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
-                CellStyle.Font.Bold = True
-            Else
-                CellStyle.ForeColor = lForeColor
-                CellStyle.BackColor = lBackColor
-            End If
+    If Not bSetCellColor Then
+        If Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or _
+           Condition = dbgSelectedRow Then    'selected row(s)
+            CellStyle.ForeColor = &H8000000E
+            CellStyle.BackColor = &H8000000D
         End If
-    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or _
-       Condition = dbgSelectedRow Then    'selected row(s)
-        CellStyle.ForeColor = &H8000000E
-        CellStyle.BackColor = &H8000000D
     End If
     
     Exit Sub
-    
+
 errTrap:
     'do nothing
 End Sub
