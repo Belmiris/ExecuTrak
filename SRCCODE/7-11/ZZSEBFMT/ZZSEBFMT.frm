@@ -1,7 +1,7 @@
 VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "SQAOTE32.OCX"
 Begin VB.Form frmZZSEBFMT 
    BackColor       =   &H00C0C0C0&
@@ -576,7 +576,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -612,7 +612,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -648,7 +648,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -684,7 +684,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -720,7 +720,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -756,7 +756,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -877,7 +877,7 @@ Begin VB.Form frmZZSEBFMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -890,7 +890,7 @@ Begin VB.Form frmZZSEBFMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1243,17 +1243,13 @@ End Sub
 Private Sub cmdUpdateInsertBtn_Click()
     
     If t_nFormMode = ADD_MODE Then
-        If Not fnInsertBonusFormula(txtBonusCode, txtLevel, Val(txtPercent), Val(txtDollar), Val(txtAmount1), _
-                Val(txtAmount2), txtFormula, txtCondition, txtVariable1, txtVariable2, _
-                txtVariable3, Val(txtMaxTotal), txtAdjFormula, txtAdjCond) Then
-            MsgBox "Failed to insert the Commission formula", vbExclamation
+        If Not fnInsertBonusFormula() Then
+            tfnSetStatusBarError "Failed to insert the Commission formula"
             Exit Sub
         End If
     Else
-        If Not fnUpdateBonusFormula(txtBonusCode, txtLevel, Val(txtPercent), Val(txtDollar), Val(txtAmount1), _
-                Val(txtAmount2), txtFormula, txtCondition, txtVariable1, txtVariable2, _
-                txtVariable3, Val(txtMaxTotal), txtAdjFormula, txtAdjCond) Then
-            MsgBox "Failed to update the Commission formula", vbExclamation
+        If Not fnUpdateBonusFormula() Then
+            tfnSetStatusBarError "Failed to update the Commission formula"
             Exit Sub
         End If
     End If
@@ -2088,13 +2084,7 @@ Private Function fnValidBonusCode(Box As Textbox) As Boolean
 
 End Function
 
-Private Function fnInsertBonusFormula(sCode As String, nLevel As Integer, _
-                                      dPercent As Double, dDollar As Double, _
-                                      dAmount1 As Double, dAmount2 As Double, _
-                                      sFormula As String, sCondition As String, _
-                                      sVariable1 As String, sVariable2 As String, _
-                                      sVariable3 As String, dMaxTotal As Double, _
-                                      sAdjustment As String, sAdjCondition As String) As Boolean
+Private Function fnInsertBonusFormula() As Boolean
     
     Const SUB_NAME As String = "fnInsertBonusFormula"
     Dim strSQL As String
@@ -2104,20 +2094,20 @@ Private Function fnInsertBonusFormula(sCode As String, nLevel As Integer, _
     strSQL = "INSERT INTO bonus_formula(bf_bonus_code, bf_level, bf_percent, bf_dollar,"
     strSQL = strSQL & " bf_amount1, bf_amount2, bf_formula, bf_condition, bf_variable1,"
     strSQL = strSQL & " bf_variable2, bf_variable3, bf_max_total, bf_adj_formula, "
-    strSQL = strSQL & " bf_adj_condition) VALUES(" & tfnSQLString(Trim(sCode)) & ","
-    strSQL = strSQL & tfnRound(nLevel) & ", "
-    strSQL = strSQL & tfnRound(dPercent, DEFAULT_DECIMALS) & ", "
-    strSQL = strSQL & tfnRound(dDollar, 2) & ", "
-    strSQL = strSQL & tfnRound(dAmount1, DEFAULT_DECIMALS) & ", "
-    strSQL = strSQL & tfnRound(dAmount2, DEFAULT_DECIMALS) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sFormula)) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sCondition)) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sVariable1)) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sVariable2)) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sVariable3)) & ", "
-    strSQL = strSQL & tfnRound(dMaxTotal, 2) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sAdjustment)) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(sAdjCondition)) & ")"
+    strSQL = strSQL & " bf_adj_condition) VALUES(" & tfnSQLString(Trim(txtBonusCode)) & ","
+    strSQL = strSQL & tfnRound(txtLevel) & ", "
+    strSQL = strSQL & tfnRound(txtPercent, DEFAULT_DECIMALS) & ", "
+    strSQL = strSQL & tfnRound(txtDollar, 2) & ", "
+    strSQL = strSQL & tfnRound(txtAmount1, DEFAULT_DECIMALS) & ", "
+    strSQL = strSQL & tfnRound(txtAmount2, DEFAULT_DECIMALS) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtFormula)) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtCondition)) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtVariable1)) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtVariable2)) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtVariable3)) & ", "
+    strSQL = strSQL & tfnRound(txtMaxTotal, 2) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtAdjFormula)) & ", "
+    strSQL = strSQL & tfnSQLString(Trim(txtAdjCond)) & ")"
     
     If fnExecuteSQL(strSQL, , SUB_NAME) Then
         fnInsertBonusFormula = True
@@ -2125,13 +2115,7 @@ Private Function fnInsertBonusFormula(sCode As String, nLevel As Integer, _
     
 End Function
 
-Private Function fnUpdateBonusFormula(sCode As String, nLevel As Integer, _
-                                      dPercent As Double, dDollar As Double, _
-                                      dAmount1 As Double, dAmount2 As Double, _
-                                      sFormula As String, sCondition As String, _
-                                      sVariable1 As String, sVariable2 As String, _
-                                      sVariable3 As String, dMaxTotal As Double, _
-                                      sAdjustment As String, sAdjCondition As String) As Boolean
+Private Function fnUpdateBonusFormula() As Boolean
     
     Const SUB_NAME As String = "fnUpdateBonusFormula"
     Dim strSQL As String
@@ -2139,19 +2123,19 @@ Private Function fnUpdateBonusFormula(sCode As String, nLevel As Integer, _
     fnUpdateBonusFormula = False
     
     strSQL = "UPDATE bonus_formula SET"
-    strSQL = strSQL & " bf_level = " & tfnRound(nLevel, DEFAULT_DECIMALS) & ","
-    strSQL = strSQL & " bf_percent = " & tfnRound(dPercent, DEFAULT_DECIMALS) & ","
-    strSQL = strSQL & " bf_dollar = " & tfnRound(dDollar, 2) & ","
-    strSQL = strSQL & " bf_amount1 = " & tfnRound(dAmount1, DEFAULT_DECIMALS) & ","
-    strSQL = strSQL & " bf_amount2 = " & tfnRound(dAmount2, DEFAULT_DECIMALS) & ","
-    strSQL = strSQL & " bf_formula = " & tfnSQLString(Trim(sFormula)) & ","
-    strSQL = strSQL & " bf_condition = " & tfnSQLString(Trim(sCondition)) & ","
-    strSQL = strSQL & " bf_variable1 = " & tfnSQLString(Trim(sVariable1)) & ","
-    strSQL = strSQL & " bf_variable2 = " & tfnSQLString(Trim(sVariable2)) & ","
-    strSQL = strSQL & " bf_variable3 = " & tfnSQLString(Trim(sVariable3)) & ","
-    strSQL = strSQL & " bf_max_total = " & tfnRound(dMaxTotal, 2) & ","
-    strSQL = strSQL & " bf_adj_formula = " & tfnSQLString(Trim(sAdjustment)) & ","
-    strSQL = strSQL & " bf_adj_condition = " & tfnSQLString(Trim(sAdjCondition))
+    strSQL = strSQL & " bf_level = " & tfnRound(txtLevel, DEFAULT_DECIMALS) & ","
+    strSQL = strSQL & " bf_percent = " & tfnRound(txtPercent, DEFAULT_DECIMALS) & ","
+    strSQL = strSQL & " bf_dollar = " & tfnRound(txtDollar, 2) & ","
+    strSQL = strSQL & " bf_amount1 = " & tfnRound(txtAmount1, DEFAULT_DECIMALS) & ","
+    strSQL = strSQL & " bf_amount2 = " & tfnRound(txtAmount2, DEFAULT_DECIMALS) & ","
+    strSQL = strSQL & " bf_formula = " & tfnSQLString(Trim(txtFormula)) & ","
+    strSQL = strSQL & " bf_condition = " & tfnSQLString(Trim(txtCondition)) & ","
+    strSQL = strSQL & " bf_variable1 = " & tfnSQLString(Trim(txtVariable1)) & ","
+    strSQL = strSQL & " bf_variable2 = " & tfnSQLString(Trim(txtVariable2)) & ","
+    strSQL = strSQL & " bf_variable3 = " & tfnSQLString(Trim(txtVariable3)) & ","
+    strSQL = strSQL & " bf_max_total = " & tfnRound(txtMaxTotal, 2) & ","
+    strSQL = strSQL & " bf_adj_formula = " & tfnSQLString(Trim(txtAdjFormula)) & ","
+    strSQL = strSQL & " bf_adj_condition = " & tfnSQLString(Trim(txtAdjCond))
     strSQL = strSQL & " WHERE bf_bonus_code = " & tfnSQLString(txtBonusCode.Tag)
     strSQL = strSQL & " AND bf_level = " & tfnRound(txtLevel.Tag)
     
