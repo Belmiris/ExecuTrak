@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -668,7 +668,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1165,18 +1165,21 @@ Public Function tfnRound(vTemp As Variant, _
             If IsNumeric(vTemp) Then
                 If nPrec >= 0 Then
                     sFmt = "#0." & String(nPrec, "#")
-                    If VarType(vTemp) = vbDouble And vTemp <> 0 And Abs(vTemp) < 100000 And nPrec = 2 Then
-                        'If format with 2 decimal point places, we suppose that it is dealing with money
-                        fTempD = CDbl(vTemp)
-                        fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
-                    Else
+'david 03/24/2003  #393886
+'rounding error: 123.124999 round to 2 decimal places = 123.13 (WRONG!!!). S/B 123.12
+'                    If VarType(vTemp) = vbDouble And vTemp <> 0 And Abs(vTemp) < 100000 And nPrec = 2 Then
+'                        'If format with 2 decimal point places, we suppose that it is dealing with money
+'                        fTempD = CDbl(vTemp)
+'                        fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
+'                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+'                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
-                    End If
+                        tfnRound = val(Format(sTemp, sFmt))
+'                    End If
+''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1186,7 +1189,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1307,7 +1310,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1780,12 +1783,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2309,7 +2312,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
