@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Begin VB.Form clsCRITERIA 
    Caption         =   "Criteria"
@@ -1506,6 +1506,7 @@ Private Sub subShowFilterPopup()
     'To set the Regular Expression for Operation Text Box
     SubSetOpRegExp
     
+    nClickCol = 2
     txtOp = ""
     txtValue = ""
     cValidate.ResetFlags
@@ -1721,6 +1722,11 @@ Private Sub txtOp_KeyPress(KeyAscii As Integer)
     End If
     If KeyAscii = vbKeyReturn Then
         subLoadOpSQL
+        
+        If txtOp <> "" Then
+            KeyAscii = 0
+            subSetFocus txtValue
+        End If
     End If
     If Not tgcDropdown.Keypress(txtOp, KeyAscii) Then
         If KeyAscii = vbKeyReturn Then
@@ -1748,8 +1754,13 @@ Private Sub cmdOp_Click()
     #If ProtoType Then
         Exit Sub
     #End If
-    subLoadOpSQL
-    tgcDropdown.Click cmdOp
+    
+    If txtOp = "" Then
+        subLoadOpSQL
+        tgcDropdown.Click cmdOp
+    Else
+        subSetFocus txtValue
+    End If
 End Sub
 
 Private Sub txtValue_Click()
@@ -2119,7 +2130,7 @@ Private Function fnValidFilter() As String
             End Select
             
             If sOP = "<" Or sOP = ">" Then
-                If Left(tgmCriteria(nCol_FieldType, m_nCurrRow), 1) = TYPE_STRING Then
+                If Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1) = TYPE_STRING Then
                     fnValidFilter = sOP + " is not allow for char type column"
                     Exit Function
                 End If
@@ -2198,6 +2209,12 @@ Private Function fnValidOperator(txtBox As Textbox) As Boolean
     
     If fnCStr(txtBox) <> "" Then
         strSQL = "SELECT op FROM temp_operator WHERE op=" & tfnSQLString(fnCStr(txtBox))
+        
+        Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
+        Case TYPE_DATE, TYPE_STRING, TYPE_PHONE
+            strSQL = strSQL & " AND op IN ('=','<>')"
+        End Select
+        
         If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 1 Then
             cValidate.SetErrorMessage txtBox, "Invalid Operator"
             Exit Function
