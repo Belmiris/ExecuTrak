@@ -342,6 +342,7 @@ Private Const PARM_HOST = "HostName"
 Private Const PARM_SERVERNAME = "ServerName"
 Private Const PARM_DATABASE = "Database"
 Private Const PARM_USERID = "LogonID"
+Private Const PARM_USERID2 = "UID"
 Private Const PARM_SERVICE = "Service"
 Private Const PARM_PROTOCOL = "Protocol"
 Private Const PARM_YIELDPROC = "YieldProc"
@@ -525,7 +526,7 @@ Private Const gszSPACE As String = " "
 Private Const szDRIVER_DESCRIPTION As String = "INFORMIX"
 Private Const szHENV_ERROR As String = "Cannot Allocation Environment Handle"
 Private Const gszCOMMA As String = ","
-Private Const szFORM_NAME As String = "FRMGENRL.FRM"
+Private Const szFORM_NAME As String = "FRMSPLASH.FRM"
 Private Const gszMODULE_ERROR As String = "Module Error"
 
 Private colDrivers As Collection
@@ -560,11 +561,6 @@ Private Function fnAllBoxFilled() As Boolean
     End If
 End Function
 
-Private Function fnDatabase(lODBCKey As Long, _
-                            sODBCPath As String) As String
-    fnDatabase = QueryValue(lODBCKey, sODBCPath, PARM_DATABASE)
-End Function
-
 Private Function fnParentDir(sCurr As String) As String
 
     Dim I As Integer
@@ -583,20 +579,33 @@ Private Function fnParentDir(sCurr As String) As String
     End If
 End Function
 
-Private Function fnUserID(lODBCKey As Long, _
-                          sODBCPath As String) As String
-    fnUserID = QueryValue(lODBCKey, sODBCPath, PARM_USERID)
-End Function
-
-Private Function fnHost(lODBCKey As Long, _
-                        sODBCPath As String) As String
+Private Sub subGetDSN_INFO(sDSN As String, sDatabase As String, _
+                           sHost As String, _
+                           sUserID As String)
     
-    fnHost = QueryValue(lODBCKey, sODBCPath, PARM_SERVERNAME)
-    If Trim(fnHost) = "" Then
-        fnHost = QueryValue(lODBCKey, sODBCPath, PARM_HOST)
+    Dim sODBCKey As String
+    
+    If Not fnSetODBCINIPath(sDSN) Then
+        Exit Sub
     End If
-
-End Function
+    
+    sODBCKey = m_sODBC_INI_Path & sDSN
+    
+    sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
+    
+    sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
+    If Trim(sHost) = "" Then
+        sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
+    End If
+    If Trim(sHost) = "" Then
+        sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
+    End If
+    
+    sUserID = QueryValue(m_lODBC_INI_Key, sODBCKey, PARM_USERID)
+    If Trim(sUserID) = "" Then
+        sUserID = QueryValue(m_lODBC_INI_Key, sODBCKey, PARM_USERID2)
+    End If
+End Sub
 
 Private Function QueryValue(ByVal lKey As Long, _
                            sKeyName As String, _
@@ -798,54 +807,6 @@ Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     End If
 End Function
 
-Private Sub subLoadDSSection(aryDS() As String, _
-                             nCount As Integer, _
-                             lKey As Long, _
-                             sSubKey As String)
-    Const ARY_INC = 5
-    Const BUFFER_SIZE = 1024
-    
-    Dim lRet As Long
-    Dim lKeyHandle As Long
-    Dim lIndx As Long
-    Dim sKeyName As String
-    Dim sKeyValue As String
-    Dim lDataLength As Long
-    Dim lNameLength As Long
-    Dim sData As String
-    Dim sTemp As String
-    
-    lRet = RegOpenKeyEx(lKey, sSubKey, 0&, KEY_READ, lKeyHandle)
-    If lRet = ERROR_NONE Then
-        ReDim aryDS(ARY_INC)
-        nCount = 0
-        lIndx = 0
-        Do
-            lNameLength = BUFFER_SIZE
-            lDataLength = BUFFER_SIZE
-            sKeyName = Space(lNameLength)
-            sKeyValue = Space(lDataLength)
-            lRet = RegEnumValue(lKeyHandle, lIndx, sKeyName, lNameLength, 0&, REG_DWORD, ByVal sKeyValue, lDataLength)
-            If lRet = ERROR_NONE Then
-                sData = Left(sKeyValue, lDataLength)
-                If InStr(sData, INFORMIX_DATA_SOURCE) > 0 Then
-                    If UBound(aryDS) < nCount Then
-                        ReDim Preserve aryDS(nCount + ARY_INC)
-                    End If
-                    sTemp = Left(sKeyName, lNameLength)
-                    sData = QueryValue(lKey, fnParentDir(sSubKey) & sTemp, PARM_DATABASE)
-                    If Trim(sData) <> "" Then
-                        aryDS(nCount) = sTemp
-                        nCount = nCount + 1
-                    End If
-                End If
-            End If
-            lIndx = lIndx + 1
-        Loop While lRet = ERROR_NONE
-        RegCloseKey lKeyHandle
-    End If
-End Sub
-
 Private Sub subSelectText(txtBox As TextBox)
 
     txtBox.SelStart = 0
@@ -913,132 +874,6 @@ errNext:
         Resume tryNext
     Else
         Resume extSetFocus
-    End If
-End Sub
-
-Private Sub subLoadDataSources()
-
-    Dim aryBuffer() As String
-    Dim nCount As Integer
-    Dim I As Integer
-    Dim j As Integer
-    Dim bInList As Boolean
-    
-    subLoadDSSection aryBuffer, nCount, HKEY_LOCAL_MACHINE, szODBC_REG_KEY2 & SECTION_REG_DS
-    For I = 0 To nCount - 1
-        If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
-            cmbDataSet.AddItem aryBuffer(I)
-        End If
-    Next I
-    subLoadDSSection aryBuffer, nCount, HKEY_CURRENT_USER, szODBC_REG_KEY2 & SECTION_REG_DS
-    For I = 0 To nCount - 1
-        bInList = False
-        For j = 0 To cmbDataSet.ListCount - 1
-            If aryBuffer(I) = cmbDataSet.List(j) Then
-                bInList = True
-                Exit For
-            End If
-        Next j
-        If Not bInList Then
-            If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
-                cmbDataSet.AddItem aryBuffer(I)
-            End If
-        End If
-    Next I
-    subLoadDSSection aryBuffer, nCount, HKEY_USERS, szODBC_REG_KEY1 & SECTION_REG_DS
-    For I = 0 To nCount - 1
-        bInList = False
-        For j = 0 To cmbDataSet.ListCount - 1
-            If aryBuffer(I) = cmbDataSet.List(j) Then
-                bInList = True
-                Exit For
-            End If
-        Next j
-        If Not bInList Then
-            If UCase(aryBuffer(I)) <> SECURITY_DATABASE Then
-                cmbDataSet.AddItem aryBuffer(I)
-            End If
-        End If
-    Next I
-    If cmbDataSet.ListCount > 0 Then
-        cmbDataSet.ListIndex = 0
-    End If
-
-    If Trim(cmbDataSet.Text) <> "" And cmbDataSet.ListCount = 1 Then
-        subSetFocus txtPassword
-    Else
-        subSetFocus cmbDataSet
-    End If
-End Sub
-
-Public Function DBConnect(sDSN As String, _
-                             sUID As String, _
-                             sPWD As String, _
-                             Optional vHost As Variant) As String
-
-    Dim sFile As String
-    Dim sConnect As String
-    Dim sTemp As String
-    
-    Dim sODBCPath As String
-    Dim sODBCRoot As String
-    Dim lODBCKey As Long
-    Dim sDatabase As String
-    Dim m_sHost As String
-    
-    GetODBCINIPath lODBCKey, sODBCRoot, sDSN
-    sODBCPath = sODBCRoot & sDSN
-    If IsMissing(vHost) Then
-        m_sHost = fnHost(lODBCKey, sODBCPath)
-    Else
-        m_sHost = vHost
-    End If
-    If Trim(m_sHost) = "" Then
-        m_sHost = txtHost.Text
-    End If
-    sConnect = "ODBC;DSN=" & sDSN & ";UID=" & sUID _
-            & ";PWD=" & sPWD
-    If Trim(sDSN) = "" Then
-        sDatabase = txtDatabase.Text
-    Else
-        sDatabase = fnDatabase(lODBCKey, sODBCPath)
-    End If
-    sConnect = sConnect & ";DB=" & sDatabase & ";HOST=" & m_sHost
-    sTemp = QueryValue(lODBCKey, sODBCPath, PARM_SERVICE)
-    sConnect = sConnect & ";SERV=" & sTemp
-    sTemp = QueryValue(lODBCKey, sODBCPath, PARM_YIELDPROC)
-    If sTemp <> "" Then
-        sConnect = sConnect & ";YLD=" & sTemp
-    End If
-    sTemp = QueryValue(lODBCKey, sODBCPath, PARM_CB)
-    If sTemp <> "" Then
-        sConnect = sConnect & ";CB=" & sTemp
-    End If
-    sTemp = QueryValue(lODBCKey, sODBCPath, PARM_PROTOCOL)
-    If sTemp <> "" Then
-        sConnect = sConnect & ";PRO=" & sTemp
-    End If
-    
-    DBConnect = sConnect
-End Function
-
-Public Sub GetODBCINIPath(lODBCKey As Long, _
-                           sODBCPath As String, _
-                           sDSN As String)
-    Dim sTemp As String
-    
-    sODBCPath = szODBC_REG_KEY2
-    lODBCKey = HKEY_CURRENT_USER
-    sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
-    If sTemp = "" Then
-        sODBCPath = szODBC_REG_KEY1
-        lODBCKey = HKEY_USERS
-        sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
-        If sTemp = "" Then
-            sODBCPath = szODBC_REG_KEY2
-            lODBCKey = HKEY_LOCAL_MACHINE
-            sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
-        End If
     End If
 End Sub
 
@@ -1172,34 +1007,38 @@ Private Sub btnOK_Click()
     If sPWD = "" Then
         sPWD = "fakePPP"
     End If
-    t_szConnect = DBConnect(cmbDataSet.Text, txtUserName.Text, sPWD, txtHost.Text)
+    
+    m_sDSN = cmbDataSet.Text
+    m_sDriver = colDrivers(m_sDSN)
+    m_sUID = txtUserName.Text
+    m_sPWD = sPWD
+    
+    If Not fnSetODBCINIPath(m_sDSN) Then
+        subCriticalMsg "Cannot find ODBC.INI in the Windows registry. Contact Factor.", szFORM_NAME
+        Unload Me
+    End If
+    
+    t_szConnect = fnConnectString(m_sDSN)
+    
     subShowMainForm
 End Sub
 
 Private Sub cmbDataSet_Click()
 
-    Dim lODBCKey As Long
-    Dim sODBCPath As String
-    Dim sODBCRoot As String
     Dim sDSN As String
+    Dim sDatabase As String
+    Dim sHost As String
+    Dim sUserID As String
     
     sDSN = Trim(cmbDataSet.Text)
-    GetODBCINIPath lODBCKey, sODBCRoot, sDSN
-    sODBCPath = sODBCRoot & sDSN
     
-    txtDatabase.Text = fnDatabase(lODBCKey, sODBCPath)
-    txtHost.Text = fnHost(lODBCKey, sODBCPath)
-    txtUserName.Text = fnUserID(lODBCKey, sODBCPath)
+    subGetDSN_INFO sDSN, sDatabase, sHost, sUserID
+    
+    txtDatabase.Text = Trim(sDatabase)
+    txtHost.Text = Trim(sHost)
+    txtUserName.Text = Trim(sUserID)
     
     If Not ActiveControl Is cmbDataSet Then Exit Sub
-        
-'    If Not fnNeedFocus(txtDatabase) Then
-'        If Not fnNeedFocus(txtHost) Then
-'            If Not fnNeedFocus(txtUserName) Then
-'                subSetFocus txtPassword
-'            End If
-'        End If
-'    End If
     
 End Sub
 
@@ -1218,7 +1057,6 @@ End Sub
 Private Sub Form_Load()
     tfnDisableFormSystemClose Me
     tfnCenterForm Me
-    'subLoadDataSources
     If fnGetDataSources(cmbDataSet) = 0 Then
         MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
         End
@@ -1312,38 +1150,6 @@ Public Sub Connect(sDSN As String, sUID As String, sPWD As String)
     btnOK_Click
 End Sub
 
-'david 10/30/00
-'THIS FUNCTION IS NOT USED IN ANYWHERE OF THIS PROGRAM
-'FOR FUTURE USED ONLY!!!
-Private Function fnConnectString(sDSN As String) As String
-
-    Dim sTemp As String
-    Dim sODBCKey As String
-    Dim sDatabase As String
-    
-    sODBCKey = m_sODBC_INI_Path & sDSN
-    m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
-    If Trim(m_sHost) = "" Then
-        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
-    End If
-    If Trim(m_sHost) = "" Then
-        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
-    End If
-    fnConnectString = "ODBC;DSN=" & sDSN & ";UID=" & m_sUID _
-            & ";PWD=" & m_sPWD
-    sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
-    fnConnectString = fnConnectString & ";DB=" & sDatabase & ";HOST=" & m_sHost
-    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVICE)
-    fnConnectString = fnConnectString & ";SERV=" & sTemp
-    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_YIELDPROC)
-    fnConnectString = fnConnectString & ";YLD=" & sTemp
-    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_CB)
-    fnConnectString = fnConnectString & ";CB=" & sTemp
-    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_PROTOCOL)
-    fnConnectString = fnConnectString & ";PRO=" & sTemp
-    
-End Function
-
 '
 'This routine fills a list or combo box with all available
 'ODBC Data Source Names (DSN's) found in ODBC.INI matching
@@ -1418,4 +1224,56 @@ Private Sub subCriticalMsg(sMsg As String, _
     
 End Sub
 
+'david 10/30/00
+Private Function fnConnectString(sDSN As String) As String
+
+    Dim sTemp As String
+    Dim sODBCKey As String
+    Dim sDatabase As String
+    
+    sODBCKey = m_sODBC_INI_Path & sDSN
+    m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
+    End If
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
+    End If
+    fnConnectString = "ODBC;DSN=" & sDSN & ";UID=" & m_sUID _
+            & ";PWD=" & m_sPWD
+    sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
+    fnConnectString = fnConnectString & ";DB=" & sDatabase & ";HOST=" & m_sHost
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVICE)
+    fnConnectString = fnConnectString & ";SERV=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_YIELDPROC)
+    fnConnectString = fnConnectString & ";YLD=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_CB)
+    fnConnectString = fnConnectString & ";CB=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_PROTOCOL)
+    fnConnectString = fnConnectString & ";PRO=" & sTemp
+    
+End Function
+
+Private Function fnSetODBCINIPath(sDSN As String) As Boolean
+    Dim sTemp As String
+    
+    m_sODBC_INI_Path = szODBC_REG_KEY2
+    m_lODBC_INI_Key = HKEY_CURRENT_USER
+    sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    If sTemp = "" Then
+        m_sODBC_INI_Path = szODBC_REG_KEY2
+        m_lODBC_INI_Key = HKEY_LOCAL_MACHINE
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    End If
+    If sTemp = "" Then
+        m_sODBC_INI_Path = szODBC_REG_KEY1
+        m_lODBC_INI_Key = HKEY_USERS
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    End If
+    If sTemp = "" Then
+        fnSetODBCINIPath = False
+    Else
+        fnSetODBCINIPath = True
+    End If
+End Function
 
