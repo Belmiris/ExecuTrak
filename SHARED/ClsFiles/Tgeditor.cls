@@ -472,6 +472,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
     m_nOldValue = GridArray(ColIndex, lEditingRow)
 
     nCellChanged(nCol, lEditingRow) = STATUS_CHANGED
+    GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
     
     With tgTable.Columns(ColIndex)
         If .ValueItems.Count > 0 Then
@@ -2881,7 +2882,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As DataBase, _
+Public Function FillWithSQL(dbSource As Database, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
