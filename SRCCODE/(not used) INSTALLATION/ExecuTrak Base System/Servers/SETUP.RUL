@@ -6,12 +6,12 @@
 #include "winapi.h"
 
 // constants
-#define DEVELOP			TRUE
+#define DEVELOP			FALSE
 
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
-#define DEINSTALL_KEY           "ExecuTrak300"
-#define UNINSTALL_NAME          "ExecuTrak Main Module3.00"
+#define DEINSTALL_KEY           "ExecuTrak302"
+#define UNINSTALL_NAME          "ExecuTrak Main Module3.02"
 
 #define SIZE_REQ_SERVER         15
 
@@ -250,7 +250,7 @@ ConfirmCopy:
                 ListAddString(listInfo, "        PC Server Installation", AFTER);
 	endif;
         ListAddString(listInfo, "", AFTER);
-//        ListAddString(listInfo, "Intallation Type:", AFTER);
+//        ListAddString(listInfo, "Installation Type:", AFTER);
 //        if (szForceInstall = "1 ") then
 //                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
 //        else
@@ -777,7 +777,7 @@ CreateFolder:
 
         Delay( 1 );
 
-        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System intallation...");
+        SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System installation...");
 
         Disable(STATUS);
         StatusUpdate(OFF, 0);
@@ -806,19 +806,23 @@ CreateFolder:
 
                 CopyLocalDB("");
 
-                if (bRunStandAlone) then
-                        SdFinish(WELCOME_TITLE + " Complete",
-                                 WELCOME_TITLE + " has finished copying files to your computer.",
-                                 "Click Finish to complete " + WELCOME_TITLE,
-                                 "", "", bTemp1, bTemp2);
-                else
-                        SdFinish(WELCOME_TITLE + " Complete",
-                                 WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
-                                 "You may now run the " + PRODUCT_NAME + " Client Installation " +
-                                 "program on any PC requiring access to the " + PRODUCT_NAME +
-                                 " system.",
-                                 "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
-                endif;
+                fnFinishReboot(WELCOME_TITLE + " has finished copying files to your computer." +
+                       "  Before you can use " + PRODUCT_NAME + ", you must restart " +
+                       "your computer.");
+
+//                if (bRunStandAlone) then
+//                        SdFinish(WELCOME_TITLE + " Complete",
+//                                 WELCOME_TITLE + " has finished copying files to your computer.",
+//                                 "Click Finish to complete " + WELCOME_TITLE,
+//                                 "", "", bTemp1, bTemp2);
+//                else
+//                        SdFinish(WELCOME_TITLE + " Complete",
+//                                 WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
+//                                 "You may now run the " + PRODUCT_NAME + " Client Installation " +
+//                                 "program on any PC requiring access to the " + PRODUCT_NAME +
+//                                 " system.",
+//                                 "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
+//                endif;
         endif;   
 
         exit;
@@ -829,7 +833,7 @@ ZFAILURE:
         LOGWRITE(LOGMSG);
 
         MessageBox("Installation incomplete.  Close any running\n" +
-			   "applications before intalling " + PRODUCT_NAME + " Server Installation.",
+			   "applications before installing " + PRODUCT_NAME + " Server Installation.",
 			   INFORMATION);
         abort;
 	
