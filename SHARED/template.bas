@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -392,11 +392,9 @@ Public Const EDIUOMXR_UP = 13100
 Public Const RPFZONMT_UP = 13200
 Public Const REEXPORT_UP = 13300
 
-'david 12/08/00
 Public Const RECURRING_AP_UP = 13350
 Public Const RECURRING_GRP_UP = 13400
 
-'david 06/29/2001
 'new toolbar buttons id in FOFSITE
 Public Const ROUTE_CODE_UP = 13450
 Public Const FO_PRODUCT_UP = 13500
@@ -410,7 +408,6 @@ Public Const CUST_ACCESS_UP = 13750
 Public Const SALESMAN_UP = 13800
 Public Const DISPATCH_ZONE_UP = 13850
 
-'''
 'note: these button does not launch EXE program
 'require callback when add button
 Public Const DRIVER_DIRECTION_UP = 13900
@@ -423,8 +420,6 @@ Public Const TOGGLE_TRUCK_UP = 14100
 Public Const TRUCK_UP = 14150
 Public Const DRIVER_UP = 14200
 Public Const DELV_REASON_UP = 14250
-
-'david 08/07/2001
 Public Const CONTRACT_TYPE_UP = 14300
 
 'note: these button does not launch EXE program
@@ -442,33 +437,19 @@ Public Const VIEWCUSTINFO_UP = 14600
 Public Const POERCVER_UP = 14650
 Public Const WSERCVER_UP = 14700
 
-'david 10/19/2001
 Public Const RPT_SECURITY_UP = 14750
-'''''''''''''''''
-
-'david 01/23/2001
 Public Const MASS_BESTBUY_UP = 14800
-'''''''''''''''''
-
-'david 03/21/2002
 Public Const PRINT_SINGLE_ORDER_UP = 14850
-'''''''''''''''''
-
-'david 03/27/2002
 Public Const VENDOR_CATEGORY_UP = 14900
 Public Const CSTORE_TIER_MAINT_UP = 14950
-'''''''''''''''''
-
-'david 04/09/2002
 Public Const NO_DELIVERY_REASON_UP = 15000
-'''''''''''''''''
-
-'Vijaya  04/09/2002
 Public Const NEW_COMPANY_UP = 15050
 Public Const QUALIFICATION_UP = 15100
-'''''''''''''''''
 
-'''
+'david 06/26/2002
+Public Const CUSTOMER_CONTRACT_UP = 15150
+Public Const CONTRACT_SELECTION_UP = 15200
+'''''''''''''''''
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -671,7 +652,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1309,14 +1290,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1326,7 +1307,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1447,7 +1428,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1911,12 +1892,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2420,7 +2401,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
