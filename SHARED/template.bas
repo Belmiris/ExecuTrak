@@ -1986,10 +1986,24 @@ ERROR_BadResource:
     tfnSetButtonPic = True 'error reading resource file
 End Function
 
-Public Function tfnSQLString(ByVal vTemp As Variant, Optional vNoQuotes As Variant) As String
-'
-' Properly quotes and formats an SQL string.  If vNoQuotes is present, the result WILL NOT BE QUOTED
-' for each ' character found, insert a double ''.  Leave "%* alone
+'##############################################################################
+' Function/Subroutine: tfnSQLString
+' Author:               David Chai
+' Date:                 2002/09/09
+' Project Number:       N/A
+' Program Version:      N/A
+' ARGS:                 vTemp: variant, input string/field data
+'                       bQuotes: boolean, if true, the result will be quoted (begin-end)
+'                       bConvertCRLFToCaret: boolean, if true, the CRLF in the resultant
+'                       string will be convert to caret (^)
+' Returns:              string, the string good to for SQL query
+' Description:          to convert a string so that it is okay (properly quoted)
+'                       to be used in the SQL statement
+'-
+'##############################################################################
+Public Function tfnSQLString(ByVal vTemp As Variant, _
+                             Optional bQuotes As Boolean = True, _
+                             Optional bConvertCRLFToCaret As Boolean = True) As String
     
     Dim nIdx As Integer
     Dim nPos As Integer
@@ -2001,6 +2015,7 @@ Public Function tfnSQLString(ByVal vTemp As Variant, Optional vNoQuotes As Varia
         szParameter = vTemp
     End If
 
+    ' for each ' character found, insert a double ''.  Leave "%* alone
     nIdx = 1
     nPos = InStr(nIdx, szParameter, "'")
     
@@ -2009,17 +2024,19 @@ Public Function tfnSQLString(ByVal vTemp As Variant, Optional vNoQuotes As Varia
         nIdx = nPos + 2
         nPos = InStr(nIdx, szParameter, "'")
     Wend
-    'Robert Atwood 02-08-23 373550 modified function to replace all carets with CR's
-    'using tfnCRToCaret
-    szParameter = tfnCRToCaret(szParameter)
+    
+    If bConvertCRLFToCaret Then
+        'Robert Atwood 02-08-23 373550 modified function to replace all carets with CR's
+        'using tfnCRToCaret
+        szParameter = tfnCRToCaret(szParameter)
+    End If
     
     ' quote the whole string - optional
-    If IsMissing(vNoQuotes) Then
+    If bQuotes Then
         tfnSQLString = "'" & szParameter & "'"
     Else
         tfnSQLString = szParameter
     End If
-
 End Function
 
 Public Function tfnSQLCheckPercent(ByRef szParameter As String) As String
