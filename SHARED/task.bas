@@ -27,18 +27,18 @@ Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hwnd As Lo
 Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
 Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
     
-Private Declare Function CreateToolhelp32Snapshot Lib "Kernel32.dll" _
+Private Declare Function CreateToolhelp32Snapshot Lib "kernel32.dll" _
             (ByVal dwFlags As Long, _
              ByVal th32ProcessID As Long) As Long
 
-Private Declare Function CloseHandle Lib "Kernel32.dll" _
+Private Declare Function CloseHandle Lib "kernel32.dll" _
         (ByVal hSnapshot As Long) As Boolean
              
-Private Declare Function Process32First Lib "Kernel32.dll" _
+Private Declare Function Process32First Lib "kernel32.dll" _
             (ByVal hSnapshot As Long, _
              lppe As PROCESSENTRY32) As Long
 
-Private Declare Function Process32Next Lib "Kernel32.dll" _
+Private Declare Function Process32Next Lib "kernel32.dll" _
             (ByVal hSnapshot As Long, _
              lppe As PROCESSENTRY32) As Long
 
@@ -184,8 +184,8 @@ Public Function fnRunExe(sExe As String, _
                          Optional nMode As Integer = vbNormalFocus, _
                          Optional bForcedRun As Boolean = False, _
                          Optional bCheckRun As Boolean = True, _
-                         Optional bShowMsg As Boolean = True) As Boolean
-    Dim szErrorMessage As String
+                         Optional bShowMsg As Boolean = True, _
+                         Optional szErrorMessage As String = "") As Boolean
     
     If Not bForcedRun Then
         If fnExeIsRunning(sExe) Then
@@ -225,38 +225,54 @@ Public Function fnRunExe(sExe As String, _
     Exit Function
 
 errLaunching:
+    szErrorMessage = "Unable to launch program " & sExe & " (" & Err.Description & ")"
+    
     If bShowMsg Then
-        MsgBox "Unable to launch program " & sExe & " (" & Err.Description & ")", vbOKOnly + vbCritical, "Error"
+        MsgBox szErrorMessage, vbOKOnly + vbCritical
     End If
 End Function
 
-Private Function fnExtractFileName(sPath As String) As String
+Private Function fnExtractFileName(ByVal sPath As String) As String
 
     Dim i As Integer
     Dim sTemp As String
     Dim sChar As String * 1
     
-    i = Len(sPath)
-    Do
-        sChar = Mid(sPath, i, 1)
-        i = i - 1
-        If sChar = "." Then
-            Exit Do
+    'david 01/03/2001
+    sPath = UCase(sPath)
+    i = InStr(sPath, ".EXE")
+    If i > 0 Then
+        sTemp = Left(sPath, i - 1)
+        i = InStrRev(sTemp, "\")
+        
+        If i > 0 Then
+            fnExtractFileName = Mid(sTemp, i + 1)
+        Else
+            fnExtractFileName = sTemp
         End If
-    Loop Until i = 0
-    If i = 0 Then
-        fnExtractFileName = sPath
     Else
-        sTemp = ""
-        Do While i > 0
+        i = Len(sPath)
+        Do
             sChar = Mid(sPath, i, 1)
-            If sChar = "\" Then
+            i = i - 1
+            If sChar = "." Then
                 Exit Do
             End If
-            sTemp = sChar & sTemp
-            i = i - 1
-        Loop
-        fnExtractFileName = sTemp
+        Loop Until i = 0
+        If i = 0 Then
+            fnExtractFileName = sPath
+        Else
+            sTemp = ""
+            Do While i > 0
+                sChar = Mid(sPath, i, 1)
+                If sChar = "\" Then
+                    Exit Do
+                End If
+                sTemp = sChar & sTemp
+                i = i - 1
+            Loop
+            fnExtractFileName = sTemp
+        End If
     End If
 End Function
 
