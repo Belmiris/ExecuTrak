@@ -37,6 +37,14 @@ Option Explicit
     Private ary_PROCESS_REPORT() As String
     Private INDEX_PROCESS_REPORT As Integer
    
+    'david 02/15/2001
+    'allow to override the ReportID, it was always using App.Title before
+    Private sReportID As String
+    
+Public Sub subSetReportID(sID As String)
+    sReportID = Trim(sID)
+End Sub
+
 Private Function fnGetTitle(sReportType As String, _
                            Optional nPageNo, _
                            Optional vPrint) As String
@@ -66,6 +74,9 @@ Private Function fnGetTitle(sReportType As String, _
         sPage = ""
     End If
     sModName = App.Title '"CMFARMS" 'CC_INFO.Program_ID
+    If sReportID <> "" Then
+        sModName = sReportID
+    End If
     sCompanyName = fnGetCompany 'CC_INFO.Company_Name
     
     sReportName = sReportType '& " REPORT"
@@ -161,7 +172,7 @@ Public Function fnOpenRecord(strSQL As String, _
                               Optional vDB As Variant) As Recordset
     Const SUB_NAME = "fnOpenRecord"
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -200,7 +211,7 @@ Public Function fnExecuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
     Const SUB_NAME = "fnExecuteSQL"
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -236,7 +247,7 @@ Private Function fnGetUbound(AryIn() As String) As Long
     Exit Function
 ErrorTrap:
     fnGetUbound = -1
-    Err.Clear
+    err.Clear
     On Error GoTo 0
 End Function
 Public Function fnSendToPrinter(AryIn() As String, _
@@ -388,11 +399,10 @@ errSetup:
 
      sErrMsg = "Due to the following error, the system Cannot print the report." & vbCrLf
 '     sErrMsg = sErrMsg & "However the report will be write to the log file '" & sLogFile & "':" & vbCrLf
-     sErrMsg = sErrMsg & vbCrLf & "Error Number = " & Err.Number & vbCrLf & "Error Message = " & Err.Description
+     sErrMsg = sErrMsg & vbCrLf & "Error Number = " & err.Number & vbCrLf & "Error Message = " & err.Description
      MsgBox sErrMsg, vbExclamation
  
 End Function
-
 
 Private Sub subPrinterEndDocument()
     Printer.NewPage
@@ -407,5 +417,197 @@ Public Sub subSetTitle(sTitle As String)
         nCharPerLine = CHAR_PERLINE_110
     End If
 End Sub
+
+Public Function fnSendToFile(AryIn() As String, _
+                             sReportTitle As String, _
+                             sPathFileName As String, _
+                             Optional nOrientation As Integer = vbPRORPortrait) As Boolean
+    
+    Const SUB_NAME As String = "fnSendToFile"
+    Const nDefaultLineHeight As Integer = 192
+    
+    Dim nPageNumber As Integer
+    Dim nLineCount As Integer
+    Dim nLinePerPage As Integer
+    Dim lUBound As Long
+    Dim i As Long
+    
+    Dim nptrFile As Integer
+    
+    On Error Resume Next
+    Printer.KillDoc
+    Printer.EndDoc
+    
+    On Error GoTo errTrap
+    
+    nPageNumber = 1
+    nLineCount = 0
+    
+    lUBound = fnGetUbound(AryIn)
+    If lUBound < 0 Then
+        Exit Function
+    End If
+    
+    If fnSetupPrinter(nOrientation) Then
+        nLinePerPage = nTextHeight \ Printer.TextHeight("q")
+    Else
+        nLinePerPage = 66
+    End If
+    
+    nptrFile = FreeFile
+    
+    Open sPathFileName For Output As nptrFile
+            
+    If Not fnWriteTitleToFile(nptrFile, sReportTitle, nPageNumber, nLineCount) Then
+        On Error Resume Next
+        Close nptrFile
+        Printer.KillDoc
+        Printer.EndDoc
+        Exit Function
+    End If
+    
+    i = 0
+    
+    Do While i <= lUBound
+        If nLineCount >= nLinePerPage Then
+            'Printer.NewPage
+            Print #nptrFile, ""
+            Print #nptrFile, ""
+            Print #nptrFile, ""
+            
+            nLineCount = 0
+            nPageNumber = nPageNumber + 1
+            
+            If Not fnWriteTitleToFile(nptrFile, sReportTitle, nPageNumber, nLineCount) Then
+                On Error Resume Next
+                Close nptrFile
+                Printer.KillDoc
+                Printer.EndDoc
+                Exit Function
+            End If
+        Else
+            Print #nptrFile, AryIn(i)
+            nLineCount = nLineCount + 1
+            i = i + 1
+        End If
+        
+    Loop
+    
+    fnSendToFile = True
+    
+    Close nptrFile
+    
+    On Error Resume Next
+    Printer.KillDoc
+    Printer.EndDoc
+    
+    Exit Function
+
+errTrap:
+    MsgBox "An error has occurred in function " + SUB_NAME + "()." + vbCrLf + vbCrLf _
+        + "Error Code: " & err.Number & vbCrLf & "Error Desc: " & err.Description _
+        + vbCrLf + vbCrLf + "Please report this to support."
+End Function
+
+Private Function fnWriteTitleToFile(nptrFile As Integer, sReportType As String, _
+                           Optional nPageNo, Optional nLineCount As Integer) As Boolean
+    
+    Const SUB_NAME As String = "fnWriteTitleToFile"
+    
+    Dim sLine1 As String
+    Dim sLine2 As String
+    Dim sLine3 As String
+    Dim sLine4 As String
+    Dim sLine5 As String
+    Dim nPos As Integer
+    Dim sTemp As String
+    
+    Dim sModName As String
+    Dim sCompanyName As String
+    Dim sReportName As String
+    Dim sRunDate As String
+    Dim sRunTime As String
+    Dim sPage As String
+    Dim nLeft As Integer 'starting point of report Name
+    Dim nMax As Integer
+    
+    Dim n1 As Integer
+    Dim n2 As Integer
+    
+    On Error GoTo errTrap
+    
+    If Not IsMissing(nPageNo) Then
+        sPage = fnFormatPage(nPageNo)
+    Else
+        sPage = ""
+    End If
+    sModName = App.Title
+    If sReportID <> "" Then
+        sModName = sReportID
+    End If
+    sCompanyName = fnGetCompany
+    
+    sReportName = sReportType
+    sRunDate = "DATE " & CStr(Date)
+    sRunTime = "TIME " & Format(Now, "hh:mm AMPM")
+    
+    nLeft = nCharPerLine - Len(sModName) - Len(sPage)
+        
+    sLine1 = sModName & fnTranc(sCompanyName, nLeft, vbCenter) & sPage
+    nLeft = nCharPerLine
+    sLine2 = fnTranc(sRunDate, nLeft, vbLeftJustify)
+    sLine3 = fnTranc(sRunTime, nLeft, vbLeftJustify)
+    nPos = InStr(sReportName, vbCrLf)
+    If nPos > 0 Then
+        sLine4 = fnTranc(Left(sReportName, nPos - 1), nLeft, vbCenter)
+        sLine5 = fnTranc(Right(sReportName, Len(sReportName) - nPos - 1), nLeft, vbCenter)
+    Else
+        sLine4 = fnTranc(sReportName, nLeft, vbCenter)
+    End If
+    
+    Print #nptrFile, sLine1
+    Print #nptrFile, sLine2
+    Print #nptrFile, sLine3
+    Print #nptrFile, sLine4
+    nLineCount = nLineCount + 4
+    
+    If nPos > 0 Then
+        Print #nptrFile, sLine5
+        nLineCount = nLineCount + 1
+    End If
+    Print #nptrFile, ""
+    nLineCount = nLineCount + 1
+    
+    Print #nptrFile, String(nCharPerLine, "=")
+    Print #nptrFile, ""
+    nLineCount = nLineCount + 2
+    
+    If Trim(HEADER_PT) <> "" Then
+        n1 = 1
+        Do
+            n2 = InStr(n1, HEADER_PT, vbCrLf)
+            If n2 > n1 Then
+                Print #nptrFile, Mid(HEADER_PT, n1, n2 - n1)
+                nLineCount = nLineCount + 1
+                n1 = n2 + 2
+            End If
+        Loop Until n2 = 0
+        If n1 <= Len(HEADER_PT) Then
+            Print #nptrFile, Mid(HEADER_PT, n1, Len(HEADER_PT) - n1 + 1)
+            nLineCount = nLineCount + 1
+        End If
+        Print #nptrFile, ""
+        nLineCount = nLineCount + 1
+    End If
+    
+    fnWriteTitleToFile = True
+    
+    Exit Function
+
+errTrap:
+    MsgBox "An error has occurred in function " + SUB_NAME + "()." + vbCrLf + vbCrLf _
+        + "Error Code: " & err.Number & vbCrLf & "Error Desc: " & err.Description _
+        + vbCrLf + vbCrLf + "Please report this to support."
+End Function
 
 
