@@ -65,7 +65,6 @@ Begin VB.Form frmZZSEMPNS
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -101,7 +100,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -138,7 +136,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -176,7 +173,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -213,7 +209,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -250,7 +245,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -287,7 +281,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -319,7 +312,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -364,7 +356,6 @@ Begin VB.Form frmZZSEMPNS
             Picture         =   "ZZSEMPNS.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -405,7 +396,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -446,7 +436,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -522,7 +511,6 @@ Begin VB.Form frmZZSEMPNS
       Align           =   2
       CaptionPos      =   1
       Style           =   5
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -557,7 +545,6 @@ Begin VB.Form frmZZSEMPNS
       FMName          =   "ZZSEMPNS"
       CaptionPos      =   4
       Style           =   6
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -766,12 +753,11 @@ Private Const DATA_CHANGED = 3
 
 Private t_nCurrentOptBtn As Integer
 Private t_nCurrentRpt As String
+Private t_nYTD As Long
 
 Public dbLocal As DataBase
 Public tgmDetail As clsTGSpreadSheet
 Public cValidate As cValidateInput
-
-Private bInHere As Boolean
     
 Public tgcDropdown As Object
 Private Const t_szoptRptBtnGotFocus As String = "Select a report type for Add or Edit, then press Enter key"
@@ -1444,27 +1430,11 @@ End Sub
 Private Sub tgTable_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     Dim lRow As Long
     
-    lRow = tgmDetail.GetCurrentRowNumber
     tgmDetail.RowColChange LastRow, LastCol
     
-    If tgTable.col = COL_YTD Then
-       'tgTable.col = COL_PERIOD
-       'If t_nFormMode = EDIT_MODE Then
-       '   If lRow < tgmDetail.RowCount - 1 Then
-       '      tgTable.Row = lRow + 1
-       '   End If
-       'End If
-       'If t_nFormMode = ADD_MODE Then
-       '   If lRow < tgmDetail.RowCount Then
-       '      tgTable.Row = lRow + 1
-       '   End If
-       'End If
-    End If
     If t_nFormMode = EDIT_MODE And tgTable.col = 0 Then
         tgTable.col = 1
     End If
-    
-    
     
     subCheckDelete
 End Sub
@@ -1998,9 +1968,6 @@ Private Sub subLoadScreen()
 'nm
     Const SUB_NAME = "subLoadScreen"
 
-    'If nDataStatus <> DATA_INITIAL Then
-    '    Exit Sub
-    'End If
     subSetBusyState True
     nDataStatus = DATA_LOADING
     If fnLoadData Then
@@ -2228,9 +2195,9 @@ Private Sub txtSeries_Change()
     tgcDropdown.Change txtSeries
     cValidate.Change txtSeries
     
-    If txtSeries.Text = "" Then
-       tgmDetail.ClearData
-    End If
+    'If txtSeries.Text = "" Then
+    '   tgmDetail.ClearData
+    'End If
 End Sub
 
 Private Sub txtSeries_Click()
@@ -2259,7 +2226,6 @@ Private Sub txtSeries_KeyPress(KeyAscii As Integer)
     Select Case t_nFormMode
         Case EDIT_MODE
             bCode = tgcDropdown.Keypress(txtSeries, KeyAscii)
-            Screen.MousePointer = vbDefault
         
             If Not bCode Then
                 If KeyAscii = vbKeyReturn Then
@@ -2273,18 +2239,19 @@ Private Sub txtSeries_KeyPress(KeyAscii As Integer)
                 KeyAscii = 0
             Else
                 cValidate.Keypress txtSeries, KeyAscii
+                tfnRegExpControlKeyPress txtSeries, KeyAscii, "^P{0,5}$"
             End If
-    Case Else
-        If KeyAscii = vbKeyReturn Then
-            If cValidate.ValidInput(txtSeries) Then
-               subEnableTgTable True
-             '  subLoadScreen
+        Case Else
+            If KeyAscii = vbKeyReturn Then
+                If cValidate.ValidInput(txtSeries) Then
+                   subEnableTgTable True
+                   subLoadScreen
+                End If
+                KeyAscii = 0
+            Else
+                cValidate.Keypress txtSeries, KeyAscii
+                tfnRegExpControlKeyPress txtSeries, KeyAscii, "^P{0,5}$"
             End If
-            KeyAscii = 0
-        Else
-            cValidate.Keypress txtSeries, KeyAscii
-            tfnRegExpControlKeyPress txtSeries, KeyAscii, "^P{0,5}$"
-        End If
     
     End Select
 End Sub
@@ -2310,24 +2277,4 @@ Private Sub subEnableTgTable(bFlag As Boolean)
     End If
 End Sub
 
-Private Function fnSeriesIsNew() As Boolean
-    Const SUB_NAME = "fnSeriesIsNew"
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-
-    fnSeriesIsNew = False
-
-    strSQL = "SELECT * FROM zzse_gf_store_data " _
-            & " WHERE gfsd_flag = " & tfnSQLString(t_nCurrentRpt) _
-            & "  AND gfsd_series = " & tfnSQLString(txtSeries.Text)
- 
-    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "")
-    If Not rsTemp Is Nothing Then
-        With rsTemp
-            If .RecordCount <= 0 Then
-               fnSeriesIsNew = True
-            End If
-        End With
-    End If
-End Function
 
