@@ -304,6 +304,11 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
     Dim lColor As Long
     Dim bBold As Boolean
     
+#If FACTOR_MENU = 1 Then
+    fnValidate = True
+    Exit Function
+#End If
+    
     'david 12/20/99
     'comment out DoEvents
     'fixed the validation issue in IQFFCPMT
@@ -330,7 +335,7 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
         If bShowBusyMessage Then
             sMsg = lblStatus.Caption
             lColor = lblStatus.ForeColor
-            bBold = lblStatus.Font.Bold
+            bBold = lblStatus.Font.bOld
             subShowMessage "Validating entry. Please wait . . ."
         End If
     End If
@@ -350,7 +355,7 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
         If bShowBusyMessage Then
             lblStatus.Caption = sMsg
             lblStatus.ForeColor = lColor
-            lblStatus.Font.Bold = bBold
+            lblStatus.Font.bOld = bBold
             lblStatus.Refresh
         End If
     End If
@@ -366,7 +371,7 @@ Private Sub subShowMessage(sMsg As String)
 '    frmContext.ShowSBMessage sMsg
 'Exit Sub
     lblStatus.ForeColor = STANDARD_TEXT_COLOR
-    lblStatus.Font.Bold = False
+    lblStatus.Font.bOld = False
     lblStatus.Caption = sMsg
     lblStatus.Refresh
 End Sub
@@ -603,21 +608,21 @@ Private Sub fnShowStatus(nControlNumber As Integer)
         If .m_nStatusFlag > STATUS_ERRORS And .m_nInputFlag > 0 Then
             sAddMessage = "Invalid input; " & .m_sPrompt
             lblStatus.ForeColor = ERROR_TEXT_COLOR
-            lblStatus.Font.Bold = True
+            lblStatus.Font.bOld = True
             If .m_sErrorMsgs <> "" Then
                 sAddMessage = .m_sErrorMsgs
             End If
 '            frmContext.ShowSBError sAddMessage
         Else
             If .m_nInputFlag > 0 And .m_nStatusFlag = STATUS_ERROR_FREE And .m_bValidMessage Then
-                lblStatus.Font.Bold = False
+                lblStatus.Font.bOld = False
                 lblStatus.ForeColor = &H8000&  'Green text
                 sAddMessage = "Data is valid"
 '                frmContext.ShowSBRight sAddMessage
             Else
                 sAddMessage = .m_sPrompt
                 lblStatus.ForeColor = STANDARD_TEXT_COLOR
-                lblStatus.Font.Bold = False
+                lblStatus.Font.bOld = False
 '                frmContext.ShowSBMessage sAddMessage
             End If
         End If
@@ -693,7 +698,7 @@ Public Sub GotFocus(txtBox As Object)
         nFlagFocus = FOCUS_GOT
     End If
 End Sub
-Public Sub KeyPress(txtBox As Object, nKeyAscii As Integer, Optional bMsg As Variant)
+Public Sub Keypress(txtBox As Object, nKeyAscii As Integer, Optional bMsg As Variant)
     Dim nNum As Integer
     If Not bLocked Then
         nNum = fnBoxNumber(txtBox.TabIndex)

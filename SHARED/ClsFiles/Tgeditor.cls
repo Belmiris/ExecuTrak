@@ -434,19 +434,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     
     DataEdited = False
     If bLocked Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        Cancel = True
+        CANCEL = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
@@ -1765,6 +1765,11 @@ Private Function fnValidate(nCurrCol As Integer, _
                             vText As Variant) As Boolean
 
     Dim szText As String
+
+#If FACTOR_MENU = 1 Then
+    fnValidate = True
+    Exit Function
+#End If
     
     If bValidating And Not m_bAllowRevalidate Then
         Exit Function
@@ -3794,7 +3799,7 @@ errKeyDown:
     nKeyProcessing = KEY_P_FINISHED
 
 End Sub
-Public Function KeyPress(KeyAscii As Integer) As Boolean
+Public Function Keypress(KeyAscii As Integer) As Boolean
 
 '
 ' Check the key pressed against the regular expression
@@ -3806,7 +3811,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
     Dim sTemp As String
     Dim lRow As Long
     
-    KeyPress = False
+    Keypress = False
     
     If tgTable Is Nothing Then
         Exit Function
@@ -3819,7 +3824,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
 
     ' check enter, backspace, escape
     If KeyAscii = vbKeyReturn Or KeyAscii = vbKeyBack Or KeyAscii = vbKeyEscape Then
-        KeyPress = True
+        Keypress = True
         If bHighlightInvalidCell Then
             If bAllowAddNew Then
                 If GetCurrentRowNumber = RowCount - 1 Then
@@ -3839,7 +3844,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
 
     ' check for cut/copy/paste keys
     If KeyAscii = ASC_CTRL_C Or KeyAscii = ASC_CTRL_V Or KeyAscii = ASC_CTRL_X Then
-        KeyPress = True
+        Keypress = True
         Exit Function
     ElseIf KeyAscii = vbKeyCtrlY Then
         If bCtrlYClearRow Then
@@ -3856,13 +3861,13 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
             End If
             subClearRow lRow
         End If
-        KeyPress = False
+        Keypress = False
         Exit Function
     End If
         
     fnCheckForValueItem KeyAscii
     If sPatternCode(nCol) = "" Then
-        KeyPress = True
+        Keypress = True
         If bHighlightInvalidCell Then
             If lEditingRow >= 0 And lEditingRow < nMaxRow Then
                 nCellChanged(nCol, lEditingRow) = STATUS_CHANGED
@@ -3890,10 +3895,10 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
     #End If
     
     If nCode < 0 Or (nCode <> 0 And nCode <> tgTable.SelStart + 2) Then
-        KeyPress = False
+        Keypress = False
         Beep
     Else
-        KeyPress = True
+        Keypress = True
         If bForcedEditing Then
             BeforeColEdit tgTable.col, 0, False
             bForcedEditing = False
