@@ -1062,7 +1062,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
             strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
             
-        Case sarrVariable(12)  'inventory shortage ratio
+        Case sarrVariable(11)  'inventory shortage ratio
             strSQL = "SELECT bs_sales_amount AS var_value "
             strSQL = strSQL & " FROM bonus_sales"
             strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
@@ -1070,7 +1070,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
             strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sRatio)
             
-        Case sarrVariable(13)  'not used
+        Case sarrVariable(12)  'not used
             Exit Function
         
         Case Else
