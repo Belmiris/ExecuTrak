@@ -1766,7 +1766,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    'nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -1985,61 +1985,19 @@ Public Sub tfnFixBackColor(ByRef frmMain As Form)
 End Sub
 
 'david 10/27/00
-Private Sub subDisableSystemClose(frmMain As Form)
-        Dim Ret As Long
+Public Sub subDisableSystemClose(frmMain As Form)
+    Dim Ret As Long
+    
+    hMenu = GetSystemMenu(frmMain.hwnd, 0)
+    MII.cbSize = Len(MII)
+    MII.dwTypeData = String(80, 0)
+    MII.cch = Len(MII.dwTypeData)
+    MII.fMask = MIIM_STATE
+    MII.wID = SC_CLOSE
+    MII.fState = MFS_GRAYED
+    
+    MII.fMask = MIIM_STATE
+    Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
 
-          hMenu = GetSystemMenu(frmMain.hwnd, 0)
-          MII.cbSize = Len(MII)
-          MII.dwTypeData = String(80, 0)
-          MII.cch = Len(MII.dwTypeData)
-          MII.fMask = MIIM_STATE
-          MII.wID = SC_CLOSE
-          Ret = GetMenuItemInfo(hMenu, MII.wID, False, MII)
-        
-        
-        Ret = SetId(SwapID)
-        If Ret <> 0 Then
-
-            If MII.fState = (MII.fState Or MFS_GRAYED) Then
-                MII.fState = MII.fState - MFS_GRAYED
-            Else
-                MII.fState = (MII.fState Or MFS_GRAYED)
-            End If
-
-            MII.fMask = MIIM_STATE
-            Ret = SetMenuItemInfo(hMenu, MII.wID, False, MII)
-            If Ret = 0 Then
-                Ret = SetId(ResetID)
-            End If
-
-            Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
-        End If
+    Ret = SendMessage(frmMain.hwnd, WM_NCACTIVATE, True, 0)
 End Sub
-
-      Public Function SetId(Action As Long) As Long
-          Dim MenuID As Long
-          Dim Ret As Long
-
-          MenuID = MII.wID
-          If MII.fState = (MII.fState Or MFS_GRAYED) Then
-              If Action = SwapID Then
-                  MII.wID = SC_CLOSE
-              Else
-                  MII.wID = xSC_CLOSE
-              End If
-          Else
-              If Action = SwapID Then
-                  MII.wID = xSC_CLOSE
-              Else
-                  MII.wID = SC_CLOSE
-              End If
-          End If
-
-          MII.fMask = MIIM_ID
-          Ret = SetMenuItemInfo(hMenu, MenuID, False, MII)
-          If Ret = 0 Then
-              MII.wID = MenuID
-          End If
-          SetId = Ret
-      End Function
-
