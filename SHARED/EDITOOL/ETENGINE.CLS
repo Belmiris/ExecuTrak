@@ -1408,9 +1408,12 @@ Private Sub subCarrierInfo(sName As String, _
     Dim nIdx As Integer
     
     strSQL = "SELECT pn_name info1, pm_fed_id info2, ' ' info3 FROM p_altname, p_vendor" _
-           & " WHERE pn_vendor = " & sCarrier _
-           & " AND pm_vendor = pn_vendor "
-
+                & "WHERE pn_alt = " & sCarrier _
+                & " AND pm_vendor = pn_vendor "
+'Modified 6-18-02 RCA
+'WAS:
+' & " WHERE pn_vendor = " & sCarrier
+'               & " AND pm_vendor = pn_vendor "
     nIdx = fnGetInfoLink(aryCarrier, nCarrierCount, strSQL, sCarrier)
     If nIdx >= 0 Then
         sName = aryCarrier(nIdx).m_sInfo1
