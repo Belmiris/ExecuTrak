@@ -2,6 +2,9 @@ Attribute VB_Name = "modTXMODDLL"
 Option Explicit
 #Const DEBUGGING = False
 #Const HARD_CODED_TX_LD_FEE = False
+'# 2/26/04 Robert Atwood
+'Added compile-time flag NO_DST to turn off or on Date Sensitive Taxes.  If it
+'exists, will compile without date sensitivity, otherwise compiles with.
 
 Private Const ERROR_LOADING1 = 1201
 Private Const ERROR_LOADING2 = 1202
@@ -38,6 +41,11 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
+    'Vijaya 02/10/2004  #395302
+    Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+    ''''''''''''''''''''''''''''
+
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, _
@@ -69,6 +77,11 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
+    'Vijaya 02/10/2004  #395302
+    Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+    ''''''''''''''''''''''''''''
+
 #End If
 
 ' Error codes
@@ -289,6 +302,9 @@ Public Function fnCalculateTaxes(sProduct As String, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -986,6 +1002,10 @@ Public Function fnGetTaxAmount(szProduct As String, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1100,6 +1120,10 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1229,14 +1253,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + round(fGross)
+            lInternalFuel = lInternalFuel + Round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + round(fGross)
+            lInternalFuel = lInternalFuel + Round(fGross)
         End If
     End If
     
@@ -1428,6 +1452,10 @@ Public Function fnTaxInformation(sProduct As String, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1524,6 +1552,10 @@ Public Function fnTaxInformation1(sProduct As String, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1619,6 +1651,10 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         
@@ -1745,6 +1781,10 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     'david 08/29/2003  #393678-4
     subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals, bShowMsgBox, sErrMsg
     ''''''''''''''''''''''''''''
+    'Vijaya on 02/10/04 Magic#395302
+    subSet_tx_date t_tax_date
+    ''''''''''''''''''''''''''''''''
+    
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -1825,7 +1865,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = val(lLimit)
+                .m_lLimit = Val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -1947,8 +1987,8 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
         'new dll
         Do
-            hld_miles = round(hld_miles)
-            hld_tot_gals = round(hld_tot_gals, 1)
+            hld_miles = Round(hld_miles)
+            hld_tot_gals = Round(hld_tot_gals, 1)
             nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2005,4 +2045,77 @@ Private Function fnGetSystemDir(Optional vAddSlash As Variant) As String
     
     fnGetSystemDir = szSystemDir 'return system directory back to the caller
 End Function
+
+
+'##############################################################################
+'   subSet_tx_date:
+'   Author: Vijaya Alla
+'   Date: 02/10/04
+'   Project Number: 395302-Factor-Date Sensitive Taxes
+'   Description: if tx_date is empty then use todays date
+'   INPUT: t_tax_date
+'   OUTPUT: None.
+'##############################################################################
+Private Sub subSet_tx_date(ByVal sDate As String, _
+                              Optional bShowMsgBox As Boolean = True, _
+                              Optional sErrMsg As String = "")
+#If Not NO_DST Then
+    Static bAlreadyShowMsg As Boolean
+    Static bAlreadyShowErr As Boolean
+    
+    Dim nRet As Long
+    Dim nTries As Integer
+    Dim i As Integer
+
+    Dim sTxMod32 As String
+    
+    On Error GoTo errTrap
+        
+    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+    'if the date is empty we don't need to initialize the date
+    'Taxmod32.dll consider is todays date.
+    If Trim(sDate & "") = "" Then
+        Exit Sub
+    End If
+    sDate = tfnFormatDate(sDate)
+    If frmContext.GetProductVersion(sTxMod32) > "3.28.1.0" Then
+        Do
+            nRet = TXMOD_tx_date(App.hInstance, Forms(0).hwnd, sDate)
+            If i = TXMOD_TASKBLOCKED Then
+                DoEvents
+            End If
+            nTries = nTries - 1
+        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+        
+        If nRet <> TXMOD_OK Then
+            subTaxModErrors nRet, bShowMsgBox, sErrMsg
+            Exit Sub
+        End If
+    Else
+        'old dll
+        If Not bAlreadyShowMsg Then
+            bAlreadyShowMsg = True
+            MsgBox "In order to use the Date Sensitive Taxes feature, the latest version of TXMOD32.DLL is required.", vbExclamation
+        End If
+    End If
+    
+    Exit Sub
+    
+errTrap:
+    If Not bAlreadyShowErr Then
+        bAlreadyShowErr = True
+        
+        If bShowMsgBox Then
+            MsgBox "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL." _
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+        Else
+            sErrMsg = "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL"
+        End If
+    End If
+#Else
+    'Do nothing to avoid date sensitivity
+#End If
+
+End Sub
+''''''''''''''''''''''''''''''''
 

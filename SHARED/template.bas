@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -546,7 +546,13 @@ Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 
 Private m_Saved_GL_Batch As Long
-'
+
+'Vijaya on 02/05/04 Magic#395302
+Public t_tax_date As String     'pass the value into this variable if You have date
+''''''''''''''''''''''''''''''''
+'# 2/26/04 Robert Atwood
+'Added compile-time flag NO_DST to turn off or on Date Sensitive Taxes.  If it
+'exists, will compile without date sensitivity, otherwise compiles with.
 
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
@@ -565,7 +571,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -588,7 +594,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -909,100 +915,10 @@ End Sub
 
 'update program version
 Public Sub tfnUpdateVersion()
-#If FACTOR_MENU < 0 Then
-    Dim sProgramName As String, sMajorVersion As String, sSql As String, rsTemp As Recordset
-    Dim sMinorVersion As String, sRevision As String, sUserName As String
-    #If DEVELOP Then
-        Dim nSpot As Integer
-    #End If
-    On Error GoTo ErrorInMakeExeOption
-    #If DEVELOP Then
-        nSpot = 1
-    #End If
-    
-    sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.Major))
-    sMinorVersion = Trim(CStr(App.Minor))
-    sRevision = Trim(CStr(App.Revision))
-    
-    On Error GoTo 0
-    
-    If sProgramName = "" Then
-        #If DEVELOP Then
-            nSpot = 2
-        #End If
-        GoTo ErrorInMakeExeOption
-    Else
-        If InStr(sProgramName, ".") > 1 Then
-            sProgramName = Mid(sProgramName, 1, InStr(sProgramName, ".") - 1)
-        End If
-    End If
-    
-    If sMajorVersion = "" Or sMinorVersion = "" Then
-        #If DEVELOP Then
-            nSpot = 3
-        #End If
-        GoTo ErrorInMakeExeOption
-    End If
-    
-    If sProgramName <> UCase(Trim(App.EXEName)) Then
-        #If FACTOR_MENU >= 0 Then
-            MsgBox "Error in tfnUpdateVersion(): EXE file name and File Description in VB Make Exe Option are NOT match.", vbCritical
-        #Else
-            #If DEVELOP Then
-                nSpot = 4
-            #End If
-            GoTo ErrorExecuteSQL
-        #End If
-        Exit Sub
-    End If
-    
-    sUserName = tfnGetUserName()
-    
-    sSql = "EXECUTE PROCEDURE pro_versions ( '" & UCase(sProgramName) & "', "
-    sSql = sSql & "'" & sMajorVersion & "." & sMinorVersion & "." & sRevision
-    sSql = sSql & "', 'P', '" & sUserName & "')"
-    
-    On Error GoTo ErrorExecuteSQL
-    #If DEVELOP Then
-        nSpot = 5
-    #End If
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(sSql, dbOpenSnapshot, dbSQLPassThrough)
-    On Error GoTo 0
-    
-    If rsTemp.RecordCount = 0 Then
-        #If DEVELOP Then
-            nSpot = 6
-        #End If
-        GoTo ErrorExecuteSQL
-    Else
-        If rsTemp.Fields(0) = 0 Then
-            #If Not NO_ERROR_HANDLER Then
-                tfnErrHandler "tfnUpdateVersion", sSql, rsTemp.Fields(1)
-            #End If
-            MsgBox "Version Update Failed! " & vbCrLf & vbCrLf & "pro_version Error.", vbExclamation
-        End If
-    End If
-
-    Exit Sub
-    
-ErrorInMakeExeOption:
-#If FACTOR_MENU >= 0 Then
-    MsgBox "Error in tfnUpdateVersion(): Make Exe Option parameter(s) has not been setup.", vbCritical
-    Exit Sub
-#End If
-ErrorExecuteSQL:
-    #If DEVELOP Then
-        MsgBox "Version Update Failed! " & vbCrLf & vbCrLf & "pro_version Error. at spot: " & CStr(nSpot), vbExclamation
-        If nSpot = 4 Then
-            MsgBox "The program Name is : " & sProgramName & vbCrLf & vbCrLf & "but the application name is : " & UCase(Trim(App.EXEName))
-        End If
-    #Else
-        #If Not NO_ERROR_HANDLER Then
-            tfnErrHandler "tfnUpdateVersion", sSql
-        #End If
-    #End If
-#End If
+'# 438502 2/17/04 Robert Atwood- Weigong has removed (stubbed) the update version
+'# stored procedure in spzprovr.sql I am removing the code (can be retrieved from
+'# Source Safe (Heaven forfend it be needed!)
+'# Function has no return value, so we're safe.
 End Sub
 '
 'Function : tfnUpdateStatusBar - updates the status bar CAPS, NUM, and SCRL panes
@@ -1096,7 +1012,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1127,7 +1043,12 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     
     tfnOpenDatabase = True
     '# Added 7-23-03 Robert Atwood for logging system
-    fnGet_Log_Lvl
+    If InStr(t_szConnect, "/factor/factor") Then
+        '# 2/16/04 Robert Atwood
+        '#Do nothing- we must bypass logging here, we're connected to security db
+    Else
+        fnGet_Log_Lvl
+    End If
     Exit Function
 
 ERROR_CONNECTING:
@@ -1150,7 +1071,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1158,8 +1079,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1226,7 +1147,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1492,7 +1413,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1500,7 +1421,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -1696,7 +1617,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.path 'use the App object to retrieve the path
+    szTemp = App.Path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -1820,12 +1741,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -1994,7 +1915,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2250,14 +2171,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2349,7 +2270,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2454,7 +2375,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2476,7 +2397,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -2577,7 +2498,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim i As Long
+    Dim I As Long
     
     sText = vText & ""
     
@@ -2585,13 +2506,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For i = 1 To Len(sText)
-                sChar = Mid(sText, i, 1)
+            For I = 1 To Len(sText)
+                sChar = Mid(sText, I, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next i
+            Next I
         
             sTemp = RTrim(sText)
         Else
@@ -2681,7 +2602,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -2735,12 +2656,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -2778,7 +2699,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -2789,8 +2710,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(i).m_sTable = sTemp
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_sTable = sTemp
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -2849,7 +2770,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -2986,19 +2907,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Long
+        Dim I As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For i = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(i).m_sTable = ""
-                        arryLockHandles(i).m_lHandle = -1
+                        arryLockHandles(I).m_sTable = ""
+                        arryLockHandles(I).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -3011,10 +2932,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next i
+        Next I
         
-        If i < UBound(arryLockHandles) Then
-            For j = i + 1 To UBound(arryLockHandles)
+        If I < UBound(arryLockHandles) Then
+            For j = I + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -3066,7 +2987,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3202,7 +3123,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3242,22 +3163,22 @@ Public Function tfnGetDbName() As String
     
     Dim sDBPath As String
     Dim sDBName As String
-    Dim i As Integer
+    Dim I As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    i = InStrRev(sDBPath, "/")
+    I = InStrRev(sDBPath, "/")
     
-    If i > 1 Then
-        sDBPath = Left(sDBPath, i - 1)
+    If I > 1 Then
+        sDBPath = Left(sDBPath, I - 1)
     
-        i = InStrRev(sDBPath, "/")
+        I = InStrRev(sDBPath, "/")
     
-        If i > 1 Then
-            sDBName = Mid(sDBPath, i + 1)
+        If I > 1 Then
+            sDBName = Mid(sDBPath, I + 1)
         End If
     End If
     
@@ -3305,7 +3226,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3313,7 +3234,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3354,7 +3275,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
@@ -3375,7 +3296,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     t_dbMainDatabase.ExecuteSQL strSQL
     Exit Function
 
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -3568,3 +3489,148 @@ Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Bo
 ErrorTrap:
     tfnLog_Event = False
 End Function
+
+'Vijaya on 02/05/04 Magic#395302
+Public Function tfnFix_tx_table(sSql As String, _
+                                    Optional bUseDate As Boolean = True) As String
+    Const FUNC_NAME As String = "tfnFix_tx_table"
+#If Not NO_DST Then
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim strSQL1 As String
+    Dim sAllFields As String
+    Dim I As Integer
+    Dim nPos As Integer
+    Dim bAllFields As Boolean
+    Dim bStar As Boolean
+    Const soldTable As String = "tx_table"
+    Const sNewTableHeader As String = "tx_header"
+    Const sNewTableDet As String = "tx_detail"
+    Static vColumArr(14, 1)
+    
+    If sSql = "" Then Exit Function
+    On Error GoTo SQLError
+
+    If vColumArr(0, 0) = "" Then
+        vColumArr(0, 0) = "tt_code"
+        vColumArr(0, 1) = "txh_code"
+        vColumArr(1, 0) = "tt_descr"
+        vColumArr(1, 1) = "txh_descr"
+        vColumArr(2, 0) = "tt_level"
+        vColumArr(2, 1) = "txh_level"
+        vColumArr(3, 0) = "tt_where"
+        vColumArr(3, 1) = "txh_where"
+        vColumArr(4, 0) = "tt_trn"
+        vColumArr(4, 1) = "txh_trn"
+        vColumArr(5, 0) = "tt_date"
+        vColumArr(5, 1) = "txd_beg_date"
+        vColumArr(6, 0) = "tt_order"
+        vColumArr(6, 1) = "txd_order"
+        vColumArr(7, 0) = "tt_gl_acct"
+        vColumArr(7, 1) = "txd_gl_acct"
+        vColumArr(8, 0) = "tt_rate"
+        vColumArr(8, 1) = "txd_rate"
+        vColumArr(9, 0) = "tt_charge"
+        vColumArr(9, 1) = "txd_charge"
+        vColumArr(10, 0) = "tt_basis"
+        vColumArr(10, 1) = "txd_basis"
+        vColumArr(11, 0) = "tt_limit"
+        vColumArr(11, 1) = "txd_limit"
+        vColumArr(12, 0) = "tt_lmt_type"
+        vColumArr(12, 1) = "txd_lmt_type"
+        vColumArr(13, 0) = "tt_terms"
+        vColumArr(13, 1) = "txd_terms"
+        vColumArr(14, 0) = "tt_chart_nbr"
+        vColumArr(14, 1) = "txd_chart_nbr"
+    End If
+    
+    nPos = InStr(1, LCase(sSql), " where ")
+    If nPos > 0 Then
+        strSQL = Mid(sSql, 1, nPos - 1)
+        strSQL1 = Mid(sSql, nPos)
+    Else
+        strSQL = sSql
+        strSQL1 = ""
+    End If
+    bAllFields = InStr(1, strSQL, " * ") > 0
+    bStar = bAllFields
+    If Not bAllFields Then
+        bAllFields = InStr(1, LCase(strSQL), "tx_table.*") > 0
+    End If
+    If bAllFields Then
+        sAllFields = ""
+        For I = 0 To UBound(vColumArr()) - 1
+            sAllFields = sAllFields & vColumArr(I, 1) & " AS " & vColumArr(I, 0) & ","
+            
+            'Here I am taking care about this situation tx_table.tt_basis
+            If Trim(strSQL1 & "") <> "" Then
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
+                    IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+            End If
+        Next I
+        'We need to remove the last ,
+        sAllFields = Left(sAllFields, Len(sAllFields) - 1)
+        'Here i need to take care '*' and tx_table.*
+        If bStar Then
+            strSQL = Replace(strSQL, "*", sAllFields)
+        Else
+            strSQL = Replace(strSQL, "tx_table.*", sAllFields)
+        End If
+    Else
+        For I = 0 To UBound(vColumArr())
+            'Checking some of them already alias name
+            'if already alias name we don't need to put alias name
+            'just we need to change the column name
+            nPos = InStr(1, LCase(strSQL), vColumArr(I, 0) & " as ")
+            If nPos > 0 Then
+                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1))
+            Else
+                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1) & " AS " & vColumArr(I, 0))
+            End If
+            'Here I am taking care about this situation tx_table.tt_basis
+            If Trim(strSQL1 & "") <> "" Then
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
+                        IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+            End If
+        Next I
+    End If
+    
+    If Trim(strSQL1 & "") <> "" Then
+        strSQL = strSQL & strSQL1
+    End If
+    
+    'If we have don't have detail we don't need to link tx_detail table
+    If InStr(1, LCase(strSQL), "txd_") > 0 Then
+        strSQL = Replace(strSQL, soldTable, sNewTableHeader & "," & sNewTableDet)
+        strSQL = strSQL & " AND txd_trn = txh_trn"
+        'we need to make sure server system date
+        If bUseDate Then
+            If Trim(t_tax_date & "") = "" Then
+                strSQL = strSQL & " AND today"
+            Else
+                strSQL = strSQL & " AND " & tfnDateString(t_tax_date, True)
+            End If
+            strSQL = strSQL & " BETWEEN txd_beg_date AND txd_end_date"
+        End If
+    Else
+        strSQL = Replace(strSQL, soldTable, sNewTableHeader)
+    End If
+    tfnFix_tx_table = strSQL
+quitfunc:
+    On Error GoTo 0
+    Exit Function
+SQLError:
+    #If Not NO_ERROR_HANDLER Then
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler FUNC_NAME, strSQL, False
+        End If
+    #End If
+    tfnFix_tx_table = sSql
+    Resume quitfunc
+#Else
+    tfnFix_tx_table = sSql
+#End If
+End Function
+''''''''''''''''''''''''''''''''

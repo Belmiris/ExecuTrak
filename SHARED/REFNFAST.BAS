@@ -3242,75 +3242,6 @@ fsys_prft_ctrRedim:
 
 End Function    ''fsys_prft_ctr
 
-Public Function ftx_table( _
-                                sParm1 As Long, _
-                                db As DataBase _
-                                ) As Recordset
-    Const SUB_NAME = "ftx_table"
-    'returning pr_tx_table As Recordset
-        
-    Dim sSql As String
-    Dim iIndex As Integer
-    Dim rs As Recordset
-    Static rsArray() As Recordset
-
-    On Error GoTo ftx_tableRedim
-    iIndex = 1
-    Do While Not (rsArray(iIndex) Is Nothing)
-        If rsArray(iIndex)!tt_trn = sParm1 Then
-            Set ftx_table = rsArray(iIndex)
-            Exit Function   'return now with this "buffered" recordset
-        End If
-        iIndex = iIndex + 1
-        If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
-    Loop 'While
-    
-    sSql = "SELECT * FROM tx_table WHERE tt_trn = " & QStr(sParm1)
-    Set rs = fnMainmodsOpenRecordset(sSql, SUB_NAME, db)
-    If rs Is Nothing Then
-        Exit Function
-    End If
-    If rs.RecordCount > 0 Then
-        rs.MoveFirst    'populate with first record
-        #If cDEBUG Then
-            On Error Resume Next
-            While Not rs.EOF
-                Debug.Print "ftx_table(" & QStr(sParm1) & ") = " & rs.Fields(0)
-                rs.MoveNext    ' Locate next record
-            Wend
-            On Error GoTo 0
-            rs.MoveFirst
-        #End If
-        If iIndex > conDimension Then
-            ' shuffle array elements up (lose oldest -- highest -- element)
-            For iIndex = conDimension - 1 To 1 Step -1
-                Set rsArray(iIndex + 1) = rsArray(iIndex)
-            Next
-            iIndex = 1 'the current recordset will be placed as the first element
-        End If
-        Set rsArray(iIndex) = rs        'buffer this recordset (which also gets returned)
-    Else
-        iIndex = conDimension
-        ReDim rsArray(iIndex)           'this will cause "Nothing" to be returned
-    End If
-    
-    Set ftx_table = rsArray(iIndex)
-    Exit Function
-    
-ftx_tableRedim:
-    If Err.Number = 9 Then 'Subscript out of range
-        ' this is the expected error on the FIRST call to this function; we
-        ' must dimension the static array and retry the first reference to it.
-        Err.Clear
-        ReDim rsArray(conDimension)
-        On Error GoTo 0
-        Resume
-    Else
-        Err.Raise Err.Number
-    End If
-    
-End Function    ''ftx_table
-
 Public Function ftx_use_g( _
                                 sParm1 As String, _
                                 sParm2 As String, _
@@ -3670,14 +3601,89 @@ Public Function uround(val As Double, uom As String, db As DataBase) As Double
 End Function    ''uround
 
 Private Function roundf(amt As Double, rnd As Integer) As Double
-    Dim i As Integer
+    Dim I As Integer
     Dim rstg As String
 
     'rndf = 0.5
     rstg = "############0."     '"-------------."
-    For i = 1 To rnd
+    For I = 1 To rnd
         rstg = RTrim(rstg) & "#"
     Next
     roundf = Format(amt, rstg)
 End Function    ''roundf
 
+'Vijaya on 02/05/04 Magic#395302
+Public Function ftx_Header_detail( _
+                            sParm1 As Long, _
+                            sParm2 As Date, _
+                            db As DataBase _
+                            ) As Recordset
+    Const SUB_NAME = "ftx_Header_detail"
+    'returning pa_tx_detail As Recordset
+        
+    Dim strSQL As String
+    Dim iIndex As Integer
+    Dim rs As Recordset
+    Static rsArray() As Recordset
+
+    On Error GoTo ftx_Header_detailRedim
+    iIndex = 1
+    Do While Not (rsArray(iIndex) Is Nothing)
+        If rsArray(iIndex)!txh_trn = sParm1 Then
+            Set ftx_Header_detail = rsArray(iIndex)
+            Exit Function   'return now with this "buffered" recordset
+        End If
+        iIndex = iIndex + 1
+        If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
+    Loop 'While
+    
+    strSQL = "SELECT * from tx_header,tx_detail"
+    strSQL = strSQL & " WHERE txd_trn = txh_trn"
+    strSQL = strSQL & " AND txd_trn = " & QStr(sParm1)
+    strSQL = strSQL & " AND " & tfnDateString(sParm2, True)
+    strSQL = strSQL & " BETWEEN txd_beg_date AND txd_end_date"
+    
+    Set rs = fnMainmodsOpenRecordset(strSQL, SUB_NAME, db)
+    If rs Is Nothing Then
+        Exit Function
+    End If
+    If rs.RecordCount > 0 Then
+        rs.MoveFirst    'populate with first record
+        #If cDEBUG Then
+            On Error Resume Next
+            While Not rs.EOF
+                Debug.Print "ftx_Header_detail(" & QStr(sParm1) & ") = " & rs.Fields(0)
+                rs.MoveNext    ' Locate next record
+            Wend
+            On Error GoTo 0
+            rs.MoveFirst
+        #End If
+        If iIndex > conDimension Then
+            ' shuffle array elements up (lose oldest -- highest -- element)
+            For iIndex = conDimension - 1 To 1 Step -1
+                Set rsArray(iIndex + 1) = rsArray(iIndex)
+            Next
+            iIndex = 1 'the current recordset will be placed as the first element
+        End If
+        Set rsArray(iIndex) = rs        'buffer this recordset (which also gets returned)
+    Else
+        iIndex = conDimension
+        ReDim rsArray(iIndex)           'this will cause "Nothing" to be returned
+    End If
+    
+    Set ftx_Header_detail = rsArray(iIndex)
+    Exit Function
+    
+ftx_Header_detailRedim:
+    If Err.Number = 9 Then 'Subscript out of range
+        ' this is the expected error on the FIRST call to this function; we
+        ' must dimension the static array and retry the first reference to it.
+        Err.Clear
+        ReDim rsArray(conDimension)
+        On Error GoTo 0
+        Resume
+    Else
+        Err.Raise Err.Number
+    End If
+End Function    ''ftx_Header_detail
+''''''''''''''''''''''''''''''''
