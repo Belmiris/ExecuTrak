@@ -65,6 +65,7 @@ Begin VB.Form frmZZMPNSMT
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -100,6 +101,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -136,6 +138,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -173,6 +176,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -209,6 +213,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -245,6 +250,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -281,6 +287,7 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -312,6 +319,7 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -344,7 +352,7 @@ Begin VB.Form frmZZMPNSMT
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            =   9.89
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -356,6 +364,7 @@ Begin VB.Form frmZZMPNSMT
             Picture         =   "zzmpnsmt.frx":0000
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   12
@@ -396,6 +405,7 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -436,6 +446,7 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -511,6 +522,7 @@ Begin VB.Form frmZZMPNSMT
       Align           =   2
       CaptionPos      =   1
       Style           =   5
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -545,6 +557,7 @@ Begin VB.Form frmZZMPNSMT
       FMName          =   "ZZMPNSMT"
       CaptionPos      =   4
       Style           =   6
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -1274,7 +1287,10 @@ Private Sub tfnResetScreen()
     tgTable.Enabled = False
     t_nCurrentOptBtn = C_M
     
+    
     nDataStatus = DATA_INITIAL
+    cValidate.ResetFlags
+    tgcDropdown.ResetFlags
     'set focus
     optRptBtn(t_nCurrentOptBtn).SetFocus
      tfnSetStatusBarMessage t_szoptRptBtnGotFocus
@@ -1690,7 +1706,7 @@ Private Sub subInitValidation()
     
          .AddEditBox txtSeries, "Enter series here"
          .MinTabIndex = tbToolbar.TabIndex
-
+         .MaxTabIndex = tgTable.TabIndex
         .SetFirstControls cmdUpdateInsertBtn, cmdExitCancelBtn
         .ESCControl = tgTable
         .ESCControl = cmdExitCancelBtn
@@ -1705,8 +1721,11 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
 End Function
 
 Private Function fnValidSeries(txtBox As Textbox) As Boolean
-    fnValidSeries = True
-
+    If Trim(txtBox.Text) = "" Then
+       fnValidSeries = False
+    Else
+       fnValidSeries = True
+    End If
 End Function
 Public Function fnValidCellValue(tgTDTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Long, sText As String) As Boolean
     Dim strSQL As String
