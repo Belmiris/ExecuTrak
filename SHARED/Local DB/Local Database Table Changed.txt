@@ -1,3 +1,8 @@
+version: 3.26.1
+Date: 11/02/2001
+Description: 
+	For ExecuTrak for Windows version 3.26 release.
+
 version: 3.25.15
 Date: 10/24/2001
 Description: 
