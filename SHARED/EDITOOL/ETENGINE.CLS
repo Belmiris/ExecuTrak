@@ -1903,6 +1903,10 @@ Private Function fnBuildFileHeaderID() As String
     Const sFG As String = "TF"
     Const sDOC_ID As String = "813"
     
-    fnBuildFileHeaderID = fnFixLength(sFG & sDOC_ID & fnFixLength(m_sTheirID, 15) & m_sMode, _
-        m_nLineLength)
+    'david 02/10/2003  #373807
+    'add the database name column so that the edi translator
+    'can handle multi company outgoing edi translation
+    fnBuildFileHeaderID = fnFixLength(sFG & sDOC_ID & fnFixLength(m_sTheirID, 15) _
+        & m_sMode & fnFixLength(tfnGetDbName(), 16), m_nLineLength)
+    ''''''''''''''''''''''''''
 End Function
