@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.05"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "PO305"
-#define UNINSTALL_NAME          "Purchase Order Version 3.05"
+#define PRODUCT_VERSION         "3.06"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "PO306"
+#define UNINSTALL_NAME          "Purchase Order Version 3.06"
 
 
 #define SIZE_REQ_SERVER         9
@@ -449,7 +449,7 @@ DecompressSuccessful:
                 LOGWRITE(LOGMSG);
                 
 		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
-		XCopyFile("servole.z", "servole.z", COMP_NORMAL);
+		//XCopyFile("servole.z", "servole.z", COMP_NORMAL);
 		
 		XCopyFile(KEY_DEFAULT + "bin.z", KEY_DEFAULT + "bin.z", COMP_NORMAL);
 	endif;

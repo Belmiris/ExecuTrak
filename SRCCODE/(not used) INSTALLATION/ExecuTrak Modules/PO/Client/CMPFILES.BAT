@@ -10,13 +10,10 @@ call buildlog %1 %2
 
 echo .
 echo Compress Application files
-icomp G:\PROGRAM\RELEASE\Exectrak\PO-Beta\*.* ..\disk\disk1\%1bin.z 
-icomp G:\PROGRAM\RELEASE\Exectrak\PO-Beta\BIN\*.* ..\disk\disk1\%1bin.z Bin
+icomp G:\PROGRAM\RELEASE\Exectrak\PO\*.* ..\disk\disk1\%1bin.z 
+icomp G:\PROGRAM\RELEASE\Exectrak\PO\BIN\*.* ..\disk\disk1\%1bin.z Bin
 icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\disk1\%1bin.z Bin
 
-echo .
-echo Compress updated ole files
-icomp G:\PROGRAM\RELEASE\Exectrak\PO-Beta\OLE\*.* ..\disk\disk1\servole.z 
 
 echo .
 echo Compress Local Database

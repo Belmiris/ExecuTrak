@@ -1,5 +1,4 @@
-DIR=G:\PROGRAM\RELEASE\Exectrak\PO-Beta MASK=*.HLP
-DIR=G:\PROGRAM\RELEASE\Exectrak\PO-Beta\bin MASK=*.*
-DIR=G:\PROGRAM\RELEASE\Exectrak\PO-Beta\ole MASK=*.*
+DIR=G:\PROGRAM\RELEASE\Exectrak\PO MASK=*.HLP
+DIR=G:\PROGRAM\RELEASE\Exectrak\PO\bin MASK=*.*
 DIR=G:\program\release\exectrak\common MASK=cpylocal.exe
 DIR=G:\program\release\exectrak\local_db MASK=*.MDB

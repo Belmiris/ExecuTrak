@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "PO300"
-#define UNINSTALL_NAME          "Purchase Order Version 3.00"
+#define PRODUCT_VERSION         "3.05"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "PO305"
+#define UNINSTALL_NAME          "Purchase Order Version 3.05"
 
 
 #define SIZE_REQ_SERVER         9
@@ -523,7 +523,7 @@ DecompressSuccessful:
                 LOGMSG="FOLDER SHORTCUTS CREATED";
                 LOGWRITE(LOGMSG);
         else
-		//TARGETDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
+		TARGETDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
 		//SRCDIR = WINDIR ^ "TEMP";
 		
         	//LOGMSG="COPY LOCALDB.Z AND FACTDB.Z TO " + TARGETDIR;
