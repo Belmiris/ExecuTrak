@@ -58,81 +58,113 @@ Attribute VB_Exposed = False
 '           f. Prompt Set prompt
 '           g. Style: Set the style indicating what text to show
 '           h. StyleDefault: Set the default style
+'   David Chai: 09/14/2004  #434264-2
+'       Add Multi-line tooltip feature
+'           AddColumn nCol, [vPrompt], [vPos], [nFlag], [vMsg], [bMultiLineTooltip=False], _
+                [sStringForCrLf=vbCrLf], [nMaxLinesInTooltip=15]
+'
+'   David 09/14/2004  #434264-2
+'   Fixed to allow the tooltip picture box control to be put
+'   into a container that is not same as the true grid control
+'   NOTE: However, the container control of tooltip picture box must be
+'   a parent container control of the true grid if they are not same.
+
 
 Option Explicit
-    Private Const POS_TOP As Integer = 1
-    Private Const POS_BOTTOM As Integer = 2
-    Private Const POS_LEFT As Integer = 3
-    Private Const POS_RIGHT As Integer = 4
     
-    Private Const EXTN_RIGHT As Integer = 0
-    Private Const EXTN_LEFT As Integer = 1
+Private Const POS_TOP As Integer = 1
+Private Const POS_BOTTOM As Integer = 2
+Private Const POS_LEFT As Integer = 3
+Private Const POS_RIGHT As Integer = 4
 
-    Private Const SHOW_DELAY = 0.5
-    Private Const SHOW_DELAY_INITIAL = 1
+Private Const EXTN_RIGHT As Integer = 0
+Private Const EXTN_LEFT As Integer = 1
 
-    Private Const STYLE_CELLTEXT As Integer = 1  'Show cell text
-    Private Const STYLE_MESSAGE As Integer = 2   'Show message
-    Private Const STYLE_GETTEXT As Integer = 3   'Show text from fnGetText
-    
-    Private Const MODE_TIMER = 1
-    Private Const MODE_MOUSE = 2
+Private Const SHOW_DELAY = 0.5
+Private Const SHOW_DELAY_INITIAL = 1
 
-    Private Type tpColumns
-        m_nColumn As Integer
-        m_sMessage As String
-        m_sPrompt As String
-        m_nPosition As Integer
-        m_nExtension As Integer
-        m_nFlag As Integer
-    End Type
-    
-    Private frmParent As Form
-    Private lblStatusbar As Control
-    Private tgTable As Object
-    Private picTextFrame As PictureBox
-    
-    Private arryColumns() As tpColumns
-    Private nColumnCount As Integer
+Private Const STYLE_CELLTEXT As Integer = 1  'Show cell text
+Private Const STYLE_MESSAGE As Integer = 2   'Show message
+Private Const STYLE_GETTEXT As Integer = 3   'Show text from fnGetText
 
-    Private nLastRow As Integer
-    Private nLastColumn As Integer
-    Private nLastMessageCol As Integer
-    Private nLastMessageRow As Integer
-    Private nPositionDefault As Integer
-    Private nStyleDefault As Integer
-    Private m_lOriginalRow As Integer
-    Private m_lOriginalCol As Integer
-    Private m_sSavePropmt As String
-    Private m_bExternalPrompt As Boolean
-    Private m_bMouseDown As Boolean
-    Private m_nMode As Integer
-    Private m_fLastTimeShow As Single
-    Private m_bUseEditorRow As Boolean
-    Private m_fShowDelay As Single
-    Private m_fEditDelay As Single
-    Private m_bClicked As Boolean
-    Private m_lLastFirstRow As Long
-    
-    #If Win32 Then
-        Private Declare Function ScreenToClient Lib "user32" _
-                (ByVal hwnd As Long, _
-                 lpPoint As POINTAPI) As Long
-    #Else
-        Private Declare Function ScreenToClient Lib "USER" _
-                (ByVal hwnd As Integer, _
-                 lpPoint As POINTAPI) As Boolean
-    #End If
+Private Const MODE_TIMER = 1
+Private Const MODE_MOUSE = 2
+
+Private Type tpColumns
+    m_nColumn As Integer
+    m_sMessage As String
+    m_sPrompt As String
+    m_nPosition As Integer
+    m_nExtension As Integer
+    m_nFlag As Integer
+    m_bMultiLine As Boolean
+    m_sCrLf As String
+    m_nMaxLines As Integer
+End Type
+
+Private frmParent As Form
+Private lblStatusbar As Control
+Private tgTable As Object
+Private picTextFrame As PictureBox
+
+Private arryColumns() As tpColumns
+Private nColumnCount As Integer
+
+Private nLastRow As Integer
+Private nLastColumn As Integer
+Private nLastMessageCol As Integer
+Private nLastMessageRow As Integer
+Private nPositionDefault As Integer
+Private nStyleDefault As Integer
+Private m_lOriginalRow As Integer
+Private m_lOriginalCol As Integer
+Private m_sSavePropmt As String
+Private m_bExternalPrompt As Boolean
+Private m_bMouseDown As Boolean
+Private m_nMode As Integer
+Private m_fLastTimeShow As Single
+Private m_bUseEditorRow As Boolean
+Private m_fShowDelay As Single
+Private m_fEditDelay As Single
+Private m_bClicked As Boolean
+Private m_lLastFirstRow As Long
+
+Private m_sngToolTipTopOffset As Single
+Private m_sngToolTipLeftOffset As Single
+
+#If Win32 Then
+    Private Declare Function ScreenToClient Lib "user32" _
+            (ByVal hwnd As Long, _
+             lpPoint As POINTAPI) As Long
+#Else
+    Private Declare Function ScreenToClient Lib "USER" _
+            (ByVal hwnd As Integer, _
+             lpPoint As POINTAPI) As Boolean
+#End If
 
 Public Sub AddColumn(ByVal nCol As Integer, _
                      Optional vPrompt As Variant, _
                      Optional ByVal vPos As Variant, _
                      Optional ByVal nFlag As Variant, _
-                     Optional vMsg As Variant)
+                     Optional vMsg As Variant, _
+                     Optional bMultiLineTooltip As Boolean = False, _
+                     Optional sStringForCrLf As String = vbCrLf, _
+                     Optional nMaxLinesInTooltip As Integer = 15)
 
-    ReDim Preserve arryColumns(nColumnCount)
+    'add change property on the fly feature
+    Dim nIndex As Integer
+    Dim bColFound As Boolean
     
-    With arryColumns(nColumnCount)
+    nIndex = fnColumn(nCol)
+    
+    If nIndex >= 0 Then
+        bColFound = True
+    Else
+        nIndex = nColumnCount
+        ReDim Preserve arryColumns(nIndex)
+    End If
+    
+    With arryColumns(nIndex)
         .m_nColumn = nCol
         If IsMissing(vPos) Then
             .m_nPosition = nPositionDefault
@@ -154,19 +186,25 @@ Public Sub AddColumn(ByVal nCol As Integer, _
         Else
             .m_nFlag = nFlag
         End If
+        
+        .m_bMultiLine = bMultiLineTooltip
+        .m_sCrLf = sStringForCrLf
+        .m_nMaxLines = nMaxLinesInTooltip
     End With
-    nColumnCount = nColumnCount + 1
+    
+    If Not bColFound Then
+        nColumnCount = nColumnCount + 1
+    End If
 
 End Sub
 
-
 Public Sub Click(objCtrl As Object)
-    Dim y As Integer
+    Dim Y As Integer
     Dim nRow As Integer
     
     If objCtrl Is picTextFrame Then
-        y = objCtrl.Top + objCtrl.Height / 2
-        nRow = fnCurrentRow(y)
+        Y = objCtrl.Top + objCtrl.Height / 2
+        nRow = fnCurrentRow(Y)
 '        m_fLastTimeShow = Timer + m_fEditDelay
         m_bClicked = True
         'On Error Resume Next
@@ -174,8 +212,8 @@ Public Sub Click(objCtrl As Object)
         If nRow >= 0 Then
             tgTable.Row = nRow
         End If
-        y = objCtrl.Left + Screen.TwipsPerPixelX * 2
-        nRow = fnCurrentColumn(y)
+        Y = objCtrl.Left + Screen.TwipsPerPixelX * 2
+        nRow = fnCurrentColumn(Y)
         If nRow >= 0 Then
             tgTable.Col = nRow
         End If
@@ -183,9 +221,26 @@ Public Sub Click(objCtrl As Object)
     End If
 End Sub
 
-
 Property Let EditDelay(ByVal fDelay As Single)
     m_fEditDelay = fDelay
+End Property
+
+Public Property Let MultiLine(nCol As Integer, bSet As Boolean)
+    Dim nIndex As Integer
+    
+    nIndex = fnColumn(nCol)
+    If nIndex >= 0 Then
+        arryColumns(nIndex).m_bMultiLine = bSet
+    End If
+End Property
+
+Public Property Let NewLineCharacter(nCol As Integer, sStringForCrLf As String)
+    Dim nIndex As Integer
+    
+    nIndex = fnColumn(nCol)
+    If nIndex >= 0 Then
+        arryColumns(nIndex).m_sCrLf = sStringForCrLf
+    End If
 End Property
 
 Private Function fnColWidth(nCol As Integer) As Integer
@@ -283,36 +338,36 @@ Public Sub ShowColumnExt()
     End If
     
     Dim lpPoint As POINTAPI
-    Dim x As Single
-    Dim y As Single
+    Dim X As Single
+    Dim Y As Single
     Dim nRow As Integer
     Dim lFirstRow As Long
     
     GetCursorPos lpPoint
     ScreenToClient tgTable.hwnd, lpPoint
-    x = lpPoint.x * Screen.TwipsPerPixelX
-    y = lpPoint.y * Screen.TwipsPerPixelY
+    X = lpPoint.X * Screen.TwipsPerPixelX
+    Y = lpPoint.Y * Screen.TwipsPerPixelY
     With tgTable
-        If y < 0 Or y > .Height Then
+        If Y < 0 Or Y > .Height Then
             m_fLastTimeShow = Timer + SHOW_DELAY_INITIAL
             picTextFrame.Visible = False
             Exit Sub
         End If
-        If x < 0 Or x > .Width Then
+        If X < 0 Or X > .Width Then
             m_fLastTimeShow = Timer + SHOW_DELAY_INITIAL
             picTextFrame.Visible = False
             Exit Sub
         End If
     End With
     If Not IsNull(tgTable.FirstRow) Then
-        lFirstRow = val(tgTable.FirstRow)
+        lFirstRow = Val(tgTable.FirstRow)
     End If
     If lFirstRow <> m_lLastFirstRow Then
         m_lLastFirstRow = lFirstRow
         picTextFrame.Visible = False
         Exit Sub
     End If
-    nRow = fnCurrentRow(y)
+    nRow = fnCurrentRow(Y)
     If nRow < 0 Then
         picTextFrame.Visible = False
         Exit Sub
@@ -334,7 +389,7 @@ Public Sub ShowColumnExt()
 
     Dim nCol As Integer
 '    Dim bFlag As Boolean
-    nCol = fnCurrentColumn(x)
+    nCol = fnCurrentColumn(X)
     If nCol >= tgTable.LeftCol Then
         nCol = fnColumn(nCol)
     Else
@@ -343,8 +398,8 @@ Public Sub ShowColumnExt()
     
     If nCol >= 0 Then
         fnShowText nCol, nRow
-        m_lOriginalRow = y
-        m_lOriginalCol = x
+        m_lOriginalRow = Y
+        m_lOriginalCol = X
     Else
         picTextFrame.Visible = False
     End If
@@ -400,17 +455,17 @@ Private Function fnColumn(ByVal nCol As Integer) As Integer
     Next
 End Function
 
-Private Function fnCurrentRow(ByVal y As Single) As Integer
+Private Function fnCurrentRow(ByVal Y As Single) As Integer
 
-    fnCurrentRow = tgTable.RowContaining(y)
+    fnCurrentRow = tgTable.RowContaining(Y)
 Exit Function
 
     Dim i As Integer
     
     fnCurrentRow = -1
     For i = 0 To tgTable.VisibleRows - 1
-        If y > tgTable.RowTop(i) Then
-            If y < tgTable.RowTop(i) + tgTable.RowHeight Then
+        If Y > tgTable.RowTop(i) Then
+            If Y < tgTable.RowTop(i) + tgTable.RowHeight Then
                 fnCurrentRow = i
                 Exit For
             End If
@@ -432,13 +487,15 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
     Dim nLeft As Integer
     Dim nWidth As Integer
     Dim nTop As Integer
+    Dim nLines As Integer
     Dim nColWidth As Integer
     Dim nHeight As Integer
     
     Dim nColT As Integer
     Dim vMsg As Variant
     Dim lRow As Long
-
+    Dim sNewMsg As String
+    
     If IsNull(tgTable.RowBookmark(nRow)) Then
         picTextFrame.Visible = False
         Exit Sub
@@ -474,7 +531,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
                 If IsNull(tgTable.FirstRow) Then
                     lRow = nRow
                 Else
-                    lRow = val(tgTable.FirstRow) + nRow
+                    lRow = Val(tgTable.FirstRow) + nRow
                 End If
                 sMsg = frmParent.fnGetText(tgTable, arryColumns(nCol).m_nColumn, lRow)
             Else
@@ -488,16 +545,37 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
     If sMsg <> "" Then
         nWidth = picTextFrame.TextWidth(sMsg) + 72
         nColWidth = fnColWidth(nColT)
-        If arryColumns(nCol).m_nFlag <> STYLE_CELLTEXT Or nWidth > nColWidth Then
-            nHeight = tgTable.RowHeight + Screen.TwipsPerPixelY
-            nTop = tgTable.Top
-            nLeft = tgTable.Left
+        
+        If arryColumns(nCol).m_nFlag <> STYLE_CELLTEXT Or nWidth > nColWidth Or _
+           arryColumns(nCol).m_bMultiLine Then
+            If arryColumns(nCol).m_bMultiLine Then
+                'get the multi-line message info, reset the tooltiop's width and height
+                subGetMultiLineInfo sMsg, arryColumns(nCol).m_sCrLf, nWidth, _
+                    nLines, sNewMsg, arryColumns(nCol).m_nMaxLines
+                
+                If sNewMsg <> "" Then
+                    sMsg = sNewMsg
+                End If
+                
+                nHeight = (tgTable.RowHeight - Screen.TwipsPerPixelY) * nLines '+ Screen.TwipsPerPixelY
+            Else
+                nHeight = tgTable.RowHeight + Screen.TwipsPerPixelY
+            End If
+            
+            If tgTable.Container Is picTextFrame.Container Then
+                nTop = tgTable.Top
+                nLeft = tgTable.Left
+            Else
+                nTop = tgTable.Top + m_sngToolTipTopOffset
+                nLeft = tgTable.Left + m_sngToolTipLeftOffset
+            End If
+            
             Select Case arryColumns(nCol).m_nPosition
                 Case POS_TOP
-                    nTop = nTop + tgTable.RowTop(nRow) - picTextFrame.Height
+                    nTop = nTop + tgTable.RowTop(nRow) - nHeight
                     nLeft = nLeft + tgTable.Columns(nColT).Left
                 Case POS_BOTTOM
-                    nTop = nTop + tgTable.RowTop(nRow) + picTextFrame.Height
+                    nTop = nTop + tgTable.RowTop(nRow) + tgTable.RowHeight + Screen.TwipsPerPixelY
                     nLeft = nLeft + tgTable.Columns(nColT).Left
                 Case POS_LEFT
                     nTop = nTop + tgTable.RowTop(nRow)
@@ -506,6 +584,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
                     nTop = nTop + tgTable.RowTop(nRow)
                     nLeft = nLeft + tgTable.Columns(nColT).Left + nColWidth   'tgTable.Columns(nColT).Width
             End Select
+            
             If arryColumns(nCol).m_nExtension = EXTN_LEFT Then
                 If arryColumns(nCol).m_nPosition = POS_RIGHT Then
                     nLeft = nLeft - nWidth
@@ -524,6 +603,7 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nRow As Integer)
             End If
             picTextFrame.Move nLeft, nTop, nWidth, nHeight
             picTextFrame.Cls
+            picTextFrame.Refresh
             picTextFrame.Visible = True
             picTextFrame.ZOrder 0
             DoEvents
@@ -550,16 +630,16 @@ Property Let message(ByVal nCol As Integer, sMsg As String)
 
 End Property
 
-Public Sub MouseMove(ByVal x As Single, ByVal y As Single)
+Public Sub MouseMove(ByVal X As Single, ByVal Y As Single)
     Dim nCol As Integer
     Dim bFlag As Boolean
     
     If m_nMode = MODE_TIMER Then
-        If Abs(m_lOriginalRow - y) >= 60 Then
+        If Abs(m_lOriginalRow - Y) >= 60 Then
             picTextFrame.Visible = False
             Exit Sub
         End If
-        If Abs(m_lOriginalCol - x) >= 60 Then
+        If Abs(m_lOriginalCol - X) >= 60 Then
             picTextFrame.Visible = False
         End If
     ElseIf m_nMode = MODE_MOUSE Then
@@ -569,11 +649,11 @@ Public Sub MouseMove(ByVal x As Single, ByVal y As Single)
         End If
         
         With tgTable
-            If x > .Columns(nLastColumn).Left Then
-                If x < .Columns(nLastColumn).Left + .Columns(nLastColumn).Width Then
+            If X > .Columns(nLastColumn).Left Then
+                If X < .Columns(nLastColumn).Left + .Columns(nLastColumn).Width Then
                     If nLastRow >= 0 Then
-                        If y > .RowTop(nLastRow) Then
-                            If y < .RowTop(nLastRow) + .RowHeight Then
+                        If Y > .RowTop(nLastRow) Then
+                            If Y < .RowTop(nLastRow) + .RowHeight Then
                                 bFlag = False
                             End If
                         End If
@@ -584,7 +664,7 @@ Public Sub MouseMove(ByVal x As Single, ByVal y As Single)
         If bFlag Then
             picTextFrame.Visible = False
         End If
-        fnShowPrompt fnCurrentColumn(x), fnCurrentRow(y)
+        fnShowPrompt fnCurrentColumn(X), fnCurrentRow(Y)
     End If
 End Sub
 
@@ -627,7 +707,7 @@ Public Sub MouseUp()
 End Sub
 
 
-Public Sub MouseDown(ByVal Button As Integer, ByVal x As Single, ByVal y As Single)
+Public Sub MouseDown(ByVal Button As Integer, ByVal X As Single, ByVal Y As Single)
     If m_nMode <> MODE_MOUSE Then
         Exit Sub
     End If
@@ -642,17 +722,17 @@ Public Sub MouseDown(ByVal Button As Integer, ByVal x As Single, ByVal y As Sing
     Dim nCol As Integer
     Dim bFlag As Boolean
 
-    nLastColumn = fnCurrentColumn(x)
+    nLastColumn = fnCurrentColumn(X)
     
     nCol = fnColumn(nLastColumn)
     bFlag = True
     If nCol >= 0 Then
         With tgTable.Columns(nLastColumn)
-            If x >= .Left Then
-                If x <= .Left + .Width Then
+            If X >= .Left Then
+                If X <= .Left + .Width Then
                     m_lOriginalRow = tgTable.Row
                     m_lOriginalCol = tgTable.Col
-                    fnShowText nCol, y
+                    fnShowText nCol, Y
                     m_bMouseDown = True
                     bFlag = False
                 End If
@@ -688,25 +768,49 @@ Property Get PositionBottom() As Integer
 End Property
 
 Property Set PictureBox(oPic As Object)
+    Dim ctrl As Control
+    Dim bContainerFound As Boolean
+    
     Set picTextFrame = oPic
     picTextFrame.Visible = False
     picTextFrame.BackColor = &HC0FFFF    'Light Yellow
                              '&H80000005  ' White
     If Not tgTable Is Nothing Then
         Set picTextFrame.Font = tgTable.Font
+    
+        Set ctrl = tgTable.Container
+        bContainerFound = False
+        
+        Do While Not ctrl Is Nothing
+            If ctrl Is picTextFrame.Container Then
+                bContainerFound = True
+                Exit Do
+            End If
+            
+            m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
+            m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
+            
+            Set ctrl = ctrl.Container
+        Loop
+        
+        If Not bContainerFound Then
+            MsgBox "Tooltip is not set on proper container.", vbCritical
+            m_sngToolTipTopOffset = 0
+            m_sngToolTipLeftOffset = 0
+        End If
     End If
 End Property
 
-Private Function fnCurrentColumn(ByVal x As Single) As Integer
+Private Function fnCurrentColumn(ByVal X As Single) As Integer
     
-    fnCurrentColumn = tgTable.ColContaining(x)
+    fnCurrentColumn = tgTable.ColContaining(X)
 'Exit Function
     Dim i As Integer
     
     fnCurrentColumn = -1
     For i = 0 To tgTable.Columns.Count - 1
-        If x > tgTable.Columns(i).Left Then
-            If x < tgTable.Columns(i).Left + tgTable.Columns(i).Width Then
+        If X > tgTable.Columns(i).Left Then
+            If X < tgTable.Columns(i).Left + tgTable.Columns(i).Width Then
                 fnCurrentColumn = i
                 Exit For
             End If
@@ -729,9 +833,33 @@ Property Set StatusBar(oBar As Object)
 End Property
 
 Property Set Table(tgTemp As Object)
+    Dim ctrl As Control
+    Dim bContainerFound As Boolean
+    
     Set tgTable = tgTemp
     If Not picTextFrame Is Nothing Then
         Set picTextFrame.Font = tgTable.Font
+        
+        Set ctrl = tgTable.Container
+        bContainerFound = False
+        
+        Do While Not ctrl Is Nothing
+            If ctrl Is picTextFrame.Container Then
+                bContainerFound = True
+                Exit Do
+            End If
+            
+            m_sngToolTipTopOffset = m_sngToolTipTopOffset + ctrl.Top
+            m_sngToolTipLeftOffset = m_sngToolTipLeftOffset + ctrl.Left
+            
+            Set ctrl = ctrl.Container
+        Loop
+        
+        If Not bContainerFound Then
+            MsgBox "Tooltip is not set on proper container.", vbCritical
+            m_sngToolTipTopOffset = 0
+            m_sngToolTipLeftOffset = 0
+        End If
     End If
 End Property
 
@@ -752,6 +880,9 @@ Private Sub Class_Initialize()
     m_bExternalPrompt = True
     m_bUseEditorRow = False
     m_nMode = MODE_TIMER
+
+    m_sngToolTipTopOffset = 0
+    m_sngToolTipLeftOffset = 0
 End Sub
 
 Private Sub Class_Terminate()
@@ -761,4 +892,75 @@ Private Sub Class_Terminate()
     Set picTextFrame = Nothing
 End Sub
 
+Private Sub subGetMultiLineInfo(ByVal sMsg As String, ByVal sCrLf As String, ByRef nMaxTextWidth As Integer, _
+                                ByRef nLines As Integer, Optional ByRef sNewMsg As String = "", _
+                                Optional ByVal nMaxLines As Integer = 5)
+    
+    Const sDotDotDot As String = " ....."
+    
+    Dim i As Integer
+    Dim aryString() As String
+    Dim nWidth As Integer
+    Dim bCrLfRemoved As Boolean
+    Dim bLinesExceeded As Boolean
+    
+    nLines = 1
+    nMaxTextWidth = 1000
+    sNewMsg = ""
+    
+    On Error GoTo ErrTrap
+    aryString = Split(sMsg, sCrLf)
+    
+    nLines = UBound(aryString) + 1
+    
+    If nLines = 1 Then
+        nMaxTextWidth = picTextFrame.TextWidth(sMsg) + 72
+        Exit Sub
+    End If
+    
+    'remove the crlf from the bottom of the text
+    i = nLines - 1
+    For i = i To 0 Step -1
+        If Trim(aryString(i)) <> "" Then
+            Exit For
+        End If
 
+        nLines = nLines - 1
+        bCrLfRemoved = True
+    Next i
+    
+    If nLines > nMaxLines Then
+        bLinesExceeded = True
+        nLines = nMaxLines
+        sNewMsg = ""
+    End If
+    
+    nMaxTextWidth = -1
+    
+    For i = 0 To nLines - 1
+        If Trim(aryString(i)) <> "" Then
+            nWidth = picTextFrame.TextWidth(aryString(i)) + 72
+            
+            If nWidth > nMaxTextWidth Then
+                nMaxTextWidth = nWidth
+            End If
+        End If
+    Next i
+    
+    If bLinesExceeded Or bCrLfRemoved Then
+        sNewMsg = Trim(aryString(0))
+        
+        For i = 1 To nLines - 1
+            sNewMsg = sNewMsg + vbCrLf + Trim(aryString(i))
+        Next i
+        
+        If bLinesExceeded Then
+            sNewMsg = sNewMsg + sDotDotDot
+            nMaxTextWidth = nMaxTextWidth + picTextFrame.TextWidth(sDotDotDot) + 50
+        End If
+    End If
+    
+    Exit Sub
+ErrTrap:
+    'do nothing
+End Sub
