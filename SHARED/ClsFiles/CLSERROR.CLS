@@ -88,13 +88,14 @@ Public Function ErrorHandler(sProcName As String, _
         Exit Function
     End If
     
+    #If FACTOR_MENU <> 1 Then
     If m_UseDBEngin Then
         If m_engFactor Is Nothing Then
             MsgBox "DatabaseEngine not set.  Error Handler function calls failed.", vbCritical
             Exit Function
         End If
     End If
-    
+    #End If
 '    #If DEVELOP Then
 '        If m_dbLocal Is Nothing Then
 '                MsgBox "Local Database not set.  Error Handler function calls failed.", vbCritical
