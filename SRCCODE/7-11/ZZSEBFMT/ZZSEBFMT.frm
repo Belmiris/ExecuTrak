@@ -1803,6 +1803,10 @@ Private Sub subSetupCombos()
         .AddCombo
         .AddComboBox txtBonusCode, cmdBonusCode, "bc_bonus_code", .SQL_STRING_TYPE(4)
         .AddComboBox txtBonusCodeDesc, cmdBonusCodeDesc, "bc_code_desc", .SQL_STRING_TYPE(40)
+        .AddExtraColumn "bc_type"
+        'david 02/12/2001
+        'ole combo not working???
+        .SetColumnCaptions "Bonus Code", "Bonus Code Description", "Type"
         
         .AddCombo
         .AddComboBox txtLevel, cmdLevel, "bf_level", .SQL_INT_TYPE
@@ -1962,13 +1966,13 @@ Private Function fnSetComboSQL(nTabIndex) As String
     Select Case nTabIndex
         Case txtBonusCode.TabIndex, txtBonusCodeDesc.TabIndex
             If t_nFormMode = ADD_MODE Then
-                strSQL = "SELECT DISTINCT bc_bonus_code, bc_code_desc FROM bonus_codes"
+                strSQL = "SELECT DISTINCT bc_bonus_code, bc_code_desc, bc_type FROM bonus_codes"
                 If tfnRound(txtLevel) > 0 Then
                     strSQL = strSQL + " WHERE bc_bonus_code NOT IN (SELECT bf_bonus_code FROM"
                     strSQL = strSQL + " bonus_formula WHERE bf_level = " & tfnRound(txtLevel) & ")"
                 End If
             Else
-                strSQL = "SELECT DISTINCT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_formula"
+                strSQL = "SELECT DISTINCT bc_bonus_code, bc_code_desc, bc_type FROM bonus_codes, bonus_formula"
                 strSQL = strSQL + " WHERE bc_bonus_code = bf_bonus_code"
             End If
         Case txtLevel.TabIndex
@@ -2032,6 +2036,15 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
             fnInvalidData = False
     End Select
     
+    If Not fnInvalidData Then
+        If Not (txtBox Is txtCondition Or txtBox Is txtFormula Or txtBox Is txtAdjCond Or txtBox Is txtAdjFormula) Then
+            cValidate.ResetFlags txtCondition
+            cValidate.ResetFlags txtFormula
+            cValidate.ResetFlags txtAdjCond
+            cValidate.ResetFlags txtAdjFormula
+            cValidate.ResetFlags txtCondition
+        End If
+    End If
 End Function
 
 Private Function fnValidBonusCode(Box As Textbox) As Boolean
@@ -2047,7 +2060,7 @@ Private Function fnValidBonusCode(Box As Textbox) As Boolean
     fnValidBonusCode = False
     
     If Trim(Box.Text) = "" Then
-        cValidate.SetErrorMessage Box, "Commission Code cannot be left blank."
+        cValidate.SetErrorMessage Box, "Commission Code cannot be blank."
         Exit Function
     End If
    
@@ -2989,6 +3002,13 @@ Private Function fnValidVariables(Box As Textbox) As Boolean
         End If
     End If
     
+    Box = Trim(Box)
+    
+    If Trim(Box) = "" Then
+        fnValidVariables = True
+        Exit Function
+    End If
+    
     strSQL = "SELECT * FROM tmpVariable WHERE variable = " & tfnSQLString(Trim(Box))
     
     If GetRecordCount(strSQL, , SUB_NAME) <> 1 Then
@@ -3032,7 +3052,7 @@ Private Function fnValidFormula(Box As Textbox) As Boolean
     End If
     
     If Trim(Box) = "" Then
-        cValidate.SetErrorMessage Box, "Commission formula cannot be left blank"
+        cValidate.SetErrorMessage Box, "Commission formula cannot be blank"
         Exit Function
     End If
     
@@ -3337,11 +3357,11 @@ End Sub
 
 'return error message if any
 Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As String) As String
-    Dim i As Integer
     Dim sErrMsg As String
-    Dim aryVariables As Variant
-    Dim aryValues As Variant
     Dim objEvaluate As clsEquation
+    Dim V1 As Double
+    Dim V2 As Double
+    Dim V3 As Double
     
     On Error GoTo errTrap
     
@@ -3356,19 +3376,35 @@ Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As St
     End If
     
     'start formula evaluation
-    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
-    aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
-
-    
     Set objEvaluate = New clsEquation
     
-    For i = 0 To UBound(aryVariables)
-        objEvaluate.Var(CStr(aryVariables(i))) = aryValues(i)
-    Next i
+    objEvaluate.Var("pct") = tfnRound(txtPercent, DEFAULT_DECIMALS)
+    objEvaluate.Var("dol") = tfnRound(txtDollar, 2)
+    objEvaluate.Var("amt1") = tfnRound(txtAmount1, DEFAULT_DECIMALS)
+    objEvaluate.Var("amt2") = tfnRound(txtAmount2, DEFAULT_DECIMALS)
+    objEvaluate.Var("mxt") = tfnRound(txtMaxTotal, DEFAULT_DECIMALS)
+    If Trim(txtVariable1) <> "" Then
+        V1 = fnGetVarValue("v1", txtVariable1, sErrMsg)
+        If sErrMsg = "" Then
+            objEvaluate.Var("v1") = V1
+        End If
+    End If
+    If Trim(txtVariable2) <> "" Then
+        V2 = fnGetVarValue("v2", txtVariable2, sErrMsg)
+        If sErrMsg = "" Then
+            objEvaluate.Var("v2") = V2
+        End If
+    End If
+    If Trim(txtVariable3) <> "" Then
+        V3 = fnGetVarValue("v3", txtVariable3, sErrMsg)
+        If sErrMsg = "" Then
+            objEvaluate.Var("v3") = V3
+        End If
+    End If
     
     objEvaluate.Equation = sFormula
     
-    fnCheckFormula = objEvaluate.Solve()
+    fnCheckFormula = tfnFixAmpersand(objEvaluate.Solve())
     
     Set objEvaluate = Nothing
     
@@ -3382,11 +3418,11 @@ End Function
 
 'return error message if any
 Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As String) As String
-    Dim i As Integer
     Dim sErrMsg As String
-    Dim aryVariables As Variant
-    Dim aryValues As Variant
     Dim objCondition As clsCondition
+    Dim V1 As Double
+    Dim V2 As Double
+    Dim V3 As Double
     
     On Error GoTo errTrap
     
@@ -3405,19 +3441,35 @@ Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As Str
     End If
     
     'start formula evaluation
-    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
-    aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
-
-    
     Set objCondition = New clsCondition
     
-    For i = 0 To UBound(aryVariables)
-        objCondition.Var(CStr(aryVariables(i))) = aryValues(i)
-    Next i
+    objCondition.Var("pct") = tfnRound(txtPercent, DEFAULT_DECIMALS)
+    objCondition.Var("dol") = tfnRound(txtDollar, 2)
+    objCondition.Var("amt1") = tfnRound(txtAmount1, DEFAULT_DECIMALS)
+    objCondition.Var("amt2") = tfnRound(txtAmount2, DEFAULT_DECIMALS)
+    objCondition.Var("mxt") = tfnRound(txtMaxTotal, DEFAULT_DECIMALS)
+    If Trim(txtVariable1) <> "" Then
+        V1 = fnGetVarValue("v1", txtVariable1, sErrMsg)
+        If sErrMsg = "" Then
+            objCondition.Var("v1") = V1
+        End If
+    End If
+    If Trim(txtVariable2) <> "" Then
+        V2 = fnGetVarValue("v2", txtVariable2, sErrMsg)
+        If sErrMsg = "" Then
+            objCondition.Var("v2") = V2
+        End If
+    End If
+    If Trim(txtVariable3) <> "" Then
+        V3 = fnGetVarValue("v3", txtVariable3, sErrMsg)
+        If sErrMsg = "" Then
+            objCondition.Var("v3") = V3
+        End If
+    End If
     
     objCondition.Equation = sCond
     
-    fnCheckCondition = objCondition.Solve()
+    fnCheckCondition = tfnFixAmpersand(objCondition.Solve())
     
     Set objCondition = Nothing
     
@@ -3462,6 +3514,81 @@ Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As 
     Next i
 
     fnCheckVarAllowed = ""
+End Function
+
+Private Function fnGetVarValue(sV As String, _
+                               ByVal sVariable As String, _
+                               sErrMsg As String) As Double
+                               
+    Const SUB_NAME As String = "fnGetVarValue"
+    
+    Dim i As Long
+    Dim sarrVariable()
+    
+    'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
+    sarrVariable = Array("inside_sales", _
+                         "gallons_sold", _
+                         "day_off_slip_day", _
+                         "total_pay", _
+                         "months_in_grade", _
+                         "months_as_manager", _
+                         "years_as_manager", _
+                         "months_employed", _
+                         "shortage_amount", _
+                         "check_amount", _
+                         "pay_hours", _
+                         "not used")
+    
+    fnGetVarValue = 0#
+    sErrMsg = ""
+    
+    sVariable = LCase(Trim(sVariable))
+    
+    If sVariable = "" Then
+        sErrMsg = "Variable is not defined in " + sV
+        Exit Function
+    End If
+    
+    Select Case sVariable
+        Case sarrVariable(0)  'inside sales
+            fnGetVarValue = 1.1
+        Case sarrVariable(1)  'gallons sold
+            fnGetVarValue = 2.2
+        Case sarrVariable(2)  'day off slip days
+            fnGetVarValue = 3.3
+        
+        Case sarrVariable(3)  'total pay
+            fnGetVarValue = 4.4
+            
+        Case sarrVariable(4)  'months in grade
+            fnGetVarValue = 5.5
+        
+        Case sarrVariable(5)  'months as manager
+            fnGetVarValue = 6.6
+        
+        Case sarrVariable(6)  'years as manager
+            fnGetVarValue = 7.7
+        
+        Case sarrVariable(7)  'months employed
+            fnGetVarValue = 8.8
+            
+        Case sarrVariable(8)  'shortage amount
+            fnGetVarValue = 9.9
+            
+        Case sarrVariable(9)  'check_amount
+            fnGetVarValue = 10.12
+            
+        Case sarrVariable(10)  'pay hours
+            fnGetVarValue = 11.21
+            
+        Case sarrVariable(11)  'not used
+            Exit Function
+        
+        Case Else
+            sErrMsg = "Variable '" + sVariable + "' in " + sV + " is not valid"
+            Exit Function
+    
+    End Select
 End Function
 
 'will be call in textbox lostfocus event ONLY
