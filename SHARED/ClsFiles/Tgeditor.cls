@@ -4587,6 +4587,7 @@ Public Sub SortCol(nSortCol As Integer, _
     Dim i As Integer
     Dim vTemp As Variant
     Dim bCompareExp As Boolean
+    Dim sSortCols As String
     
     On Error GoTo errTrap
     
@@ -4603,6 +4604,23 @@ Public Sub SortCol(nSortCol As Integer, _
     If nIndex < 0 Then
         Exit Sub
     End If
+    
+    For j = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
+        sSortCols = sSortCols + "Col " & m_arySortCol(j, nIndex).nColIndex & " "
+        If m_arySortCol(j, nIndex).nSortOrder = ASCENDING Then
+            sSortCols = sSortCols + " ASCENDING, "
+        Else  'descending
+            sSortCols = sSortCols + " DESCENDING, "
+        End If
+    Next j
+    
+    sSortCols = Mid(sSortCols, 1, Len(sSortCols) - 2)
+    lblStatusbar.ForeColor = STANDARD_TEXT_COLOR
+    lblStatusbar.Font.Bold = False
+    lblStatusbar = "Sorting " + sSortCols + " ..."
+    lblStatusbar.Refresh
+    
+    Screen.MousePointer = vbHourglass
     
     'read data
     GetRecords vData, lDummyRow, szEMPTY
@@ -4628,7 +4646,8 @@ Public Sub SortCol(nSortCol As Integer, _
     FillWithArray vData, True, Not bReValidate
     
 errTrap:
-
+    
+    Screen.MousePointer = vbDefault
 End Sub
 
 Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Long) As Boolean
