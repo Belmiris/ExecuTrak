@@ -136,7 +136,7 @@ Public Sub Copy(Optional vSelIndex As Variant)
     If IsMissing(vSelIndex) Then
         'store the selected bookmarks
         For i = 0 To nRows - 1
-            j = val(bmTemp.Item(i))
+            j = Val(bmTemp.Item(i))
             m_tgcEditor.GetRow vBuffer, nCol, j
             For j = 0 To nColCount - 1
                 If j <> m_nIdleColumn Then
@@ -148,7 +148,7 @@ Public Sub Copy(Optional vSelIndex As Variant)
     Else
         If IsNumeric(vSelIndex) Then
             If vSelIndex >= 0 And vSelIndex < nRows Then
-                i = val(bmTemp.Item(vSelIndex))
+                i = Val(bmTemp.Item(vSelIndex))
                 ReDim vData(nColCount - 1, 0)
                 m_tgcEditor.GetRow vBuffer, nCol, i
                 For j = 0 To nColCount - 1
@@ -170,7 +170,7 @@ Public Sub Delete(Optional vRowIndex As Variant)
             Dim nRow As Long
             ReDim vBkMark(Count - 1) As Variant
             For i = 0 To Count - 1
-                nRow = val(m_tgTable.SelBookmarks.Item(i))
+                nRow = Val(m_tgTable.SelBookmarks.Item(i))
                 vBkMark(i) = m_tgcEditor.Bookmark(nRow)
             Next
             For i = Count - 1 To 0 Step -1
@@ -179,9 +179,9 @@ Public Sub Delete(Optional vRowIndex As Variant)
             m_tgcEditor.Rebind
         Else
             If IsNumeric(vRowIndex) Then
-                i = val(vRowIndex)
+                i = Val(vRowIndex)
                 If i >= 0 And i < Count Then
-                    nRow = val(m_tgTable.SelBookmarks.Item(i))
+                    nRow = Val(m_tgTable.SelBookmarks.Item(i))
                     m_tgcEditor.DeleteRow m_tgcEditor.Bookmark(nRow), False
                 End If
             End If
@@ -235,7 +235,7 @@ Private Function fnLong(vTemp As Variant) As Long
     If IsNull(vTemp) Then
         fnLong = -1
     Else
-        fnLong = val(vTemp)
+        fnLong = Val(vTemp)
     End If
 End Function
 
@@ -299,8 +299,8 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                         m_tgTable.SelBookmarks.Remove i
                     Next
                 Else
-                    nCurrent = val(vCurrent)
-                    nLast = val(m_vLastRow)
+                    nCurrent = Val(vCurrent)
+                    nLast = Val(m_vLastRow)
                     If nCurrent < nLast Then
                         nStart = nCurrent
                         nEnd = nLast - 1
@@ -350,7 +350,7 @@ Public Sub GetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = val(.Item(i))
+                lTemp(i) = Val(.Item(i))
             Next i
         End If
     End With
@@ -396,7 +396,8 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
             'subSetCurrentRow
         Else
             'david 02/01/2001
-            If Shift = 0 And KeyCode <> 0 Then
+            'david 03/11/2002 add 'And KeyCode <> vbKeyTab'
+            If Shift = 0 And KeyCode <> 0 And KeyCode <> vbKeyTab Then
                 Dim i As Integer
                 
                 'david 10/19/2001
@@ -464,7 +465,7 @@ Property Get RowIsSelected(ByVal lRow As Long) As Boolean
     Dim i As Long
     
     For i = 0 To m_tgTable.SelBookmarks.Count - 1
-        If lRow = val(m_tgTable.SelBookmarks.Item(i)) Then
+        If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
             RowIsSelected = True
             Exit Property
         End If
@@ -486,7 +487,7 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     Else
         If RowIsSelected(lRow) Then
             For i = 0 To m_tgTable.SelBookmarks.Count - 1
-                If lRow = val(m_tgTable.SelBookmarks.Item(i)) Then
+                If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
                     m_tgTable.SelBookmarks.Remove i
                     Exit Property
                 End If
