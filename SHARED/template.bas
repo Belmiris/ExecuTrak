@@ -70,6 +70,8 @@ Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
 Public Const sHelpTABLECHG  As String = "SYFTBCHG.HLP"  'Junsong 02/24/03 call 373319-1
 Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 call 379860-5
 Global Const szHelpPapco As String = "PAPCO.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-2
+Global Const szHelpBankRec As String = "BANKREC.HLP"  '387361-The Wills Group-Deposit Reconciliation
+
 '#######################################################################################
 '# Logging constants
 Global Const LE_SQL As Integer = 1 'Log level for SQL Only
@@ -484,6 +486,12 @@ Public Const TANK_INFO_UP = 15360  'no program
 Public Const FO_RESCHEDULE_UP = 15370  'FOESCHCH.EXE
 ''''''''''''''''''''''''''''
 
+'#387361
+Public Const CSTORE_AUDIT_UP = 15380  'CSTORMNT.EXE
+Public Const AR_PAYMENT_UP = 15390  'AREPAYMT.EXE
+Public Const MISC_BANK_DEPOSIT_UP = 15400  'GLEBNKDP.EXE
+'''''''''''''''''
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -557,7 +565,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -580,7 +588,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -1688,7 +1696,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.Path 'use the App object to retrieve the path
+    szTemp = App.path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2446,7 +2454,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2468,7 +2476,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -2841,7 +2849,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3058,7 +3066,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3194,7 +3202,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-errTrap:
+ErrTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3267,7 +3275,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFilename As String, _
+Public Function tfn_Read_SYS_INI(sFileName As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3282,8 +3290,8 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     'ini_file_name,ini_user_id may be null
     
-    If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFilename))
+    If sFileName <> "" Then
+        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFileName))
     Else
         strSQL = strSQL & " ini_file_name is Null"
     End If
@@ -3297,7 +3305,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3305,7 +3313,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     End If
     Exit Function
     
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3329,7 +3337,7 @@ End Function
 '             Return error message if any
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFilename As String, _
+Public Function tfn_Write_SYS_INI(sFileName As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3344,20 +3352,20 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sUserID)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
@@ -3367,7 +3375,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     t_dbMainDatabase.ExecuteSQL strSQL
     Exit Function
 
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
