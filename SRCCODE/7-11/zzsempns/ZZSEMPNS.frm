@@ -65,7 +65,6 @@ Begin VB.Form frmZZSEMPNS
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            = 9.75  
@@ -101,7 +100,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -138,7 +136,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -176,7 +173,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -213,7 +209,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -250,7 +245,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -287,7 +281,6 @@ Begin VB.Form frmZZSEMPNS
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -319,7 +312,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -364,7 +356,6 @@ Begin VB.Form frmZZSEMPNS
             Picture         =   "ZZSEMPNS.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            = 9.75  
@@ -405,7 +396,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -446,7 +436,6 @@ Begin VB.Form frmZZSEMPNS
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            = 9.75  
@@ -522,7 +511,6 @@ Begin VB.Form frmZZSEMPNS
       Align           =   2
       CaptionPos      =   1
       Style           =   5
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            = 9.75  
@@ -557,7 +545,6 @@ Begin VB.Form frmZZSEMPNS
       FMName          =   "ZZSEMPNS"
       CaptionPos      =   4
       Style           =   6
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            = 9.75  
@@ -977,14 +964,14 @@ Private Sub subAfterAddEditClick()
         cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
         mnuUpdateInsert.Caption = t_szCAPTION_INSERT
         tgmDetail.AllowAddNew = True
-        tgTable.Columns(COL_PERIOD).Locked = False
+        tgmDetail.AddEditColumn COL_PERIOD, "Enter a period", szLongPattern
     End If
     
     If t_nFormMode = EDIT_MODE Then
         cmdUpdateInsertBtn.Caption = t_szCAPTION_UPDATE
         mnuUpdateInsert.Caption = t_szCAPTION_UPDATE
         tgmDetail.AllowAddNew = False
-        tgTable.Columns(COL_PERIOD).Locked = True
+        tgmDetail.RemoveEditColumn COL_PERIOD
     End If
        
     cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH
@@ -1371,19 +1358,13 @@ Private Sub tgTable_AfterColEdit(ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tgTable_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    Dim lRow As Long
-    
     tgmDetail.BeforeColEdit ColIndex, KeyAscii, CANCEL
-    
      subEnableUpdateBtn False
-          
 End Sub
 
 Private Sub tgTable_Change()
     tgmDetail.Change
- 
 End Sub
-
 
 Private Sub tgTable_FirstRowChange()
     tgmDetail.FirstRowChange
@@ -1422,10 +1403,7 @@ Private Sub tgTable_LostFocus()
 End Sub
 
 Private Sub tgTable_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-    Dim lRow As Long
-    
     tgmDetail.RowColChange LastRow, LastCol
-    
     subCheckDelete
 End Sub
 
@@ -1691,11 +1669,6 @@ Private Function fnValidSeries(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
        Exit Function
     End If
-    
-   nTemp = txtBox.Text
-   If nTemp < 1 Or nTemp > 3000 Then
-      Exit Function
-   End If
    
     strSQL = "SELECT gfsd_series, SUM(gfsd_nbr) ytd_nbr FROM zzse_gf_store_data " _
             & " WHERE gfsd_flag = " & tfnSQLString(t_nCurrentRpt) _
@@ -2193,9 +2166,6 @@ Private Sub txtSeries_Change()
     tgcDropdown.Change txtSeries
     cValidate.Change txtSeries
     
-    'If txtSeries.Text = "" Then
-    '   tgmDetail.ClearData
-    'End If
 End Sub
 
 Private Sub txtSeries_Click()
@@ -2243,7 +2213,6 @@ Private Sub txtSeries_KeyPress(KeyAscii As Integer)
             If KeyAscii = vbKeyReturn Then
                 If cValidate.ValidInput(txtSeries) Then
                    subEnableTgTable True
-                   'subLoadScreen
                 End If
                 KeyAscii = 0
             Else
