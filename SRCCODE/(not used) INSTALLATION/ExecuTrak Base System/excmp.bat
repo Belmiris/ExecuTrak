@@ -34,7 +34,7 @@ echo .
 cd ..\..\
 cd
 
-rem COMPRESS/MAKE Z FILES (factmenu.z,sybin,factdb.z,crystal.z,
+rem COMPRESS/MAKE Z FILES (factmenu.z,sybin,localdb.z,crystal.z,
 rem custctl,factdll,rtm,shared)
 
 if "%2" == "ALL" goto cmpfiles_all

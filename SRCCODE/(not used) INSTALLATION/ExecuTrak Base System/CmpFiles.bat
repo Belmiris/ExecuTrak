@@ -50,7 +50,7 @@ icomp G:\program\release\exectrak\dll\*.* .\clients\exectrak\zfiles\factdll.z
 
 echo .
 echo 2e -- Compress Local Database
-icomp G:\program\release\exectrak\local_db\*.* .\clients\exectrak\zfiles\factdb.z
+icomp G:\program\release\exectrak\local_db\*.* .\clients\exectrak\zfiles\localdb.z
 
 echo .
 echo 2f -- Compress all files in Ole directory to factole.z

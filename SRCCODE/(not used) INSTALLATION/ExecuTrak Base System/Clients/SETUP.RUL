@@ -132,14 +132,14 @@ StartHere:
 	     
 	endif;   
 
-//        if (CMDLINE = "-A" || CMDLINE = "-a") then
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
         	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
-//            MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
-//                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+            MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
                 szForceInstall = "1 ";
-//        else
-//                szForceInstall = "0 ";
-//        endif;
+        else
+                szForceInstall = "0 ";
+        endif;
 // ************************* 
 
 	// set registry keys
@@ -368,12 +368,12 @@ ConfirmCopy:
 	endif;
 	ListAddString(listInfo, "", AFTER);
 
-//        ListAddString(listInfo, "Installation Type:", AFTER);
-//        if (szForceInstall = "1 ") then
-//                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
-//        else
-//                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
-//        endif;
+        ListAddString(listInfo, "Installation Type:", AFTER);
+        if (szForceInstall = "1 ") then
+                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
+        else
+                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
+        endif;
 
 	ListAddString(listInfo, "Installation Option:", AFTER);
 
@@ -606,15 +606,20 @@ StartCopy:
 		endif;
 	endif;  //(bRunLocal && (nvClientOption = BASE_AND_MOD || nvClientOption = BASE_ONLY))
 	
-	//set Source directory to Target directory
+	//set Target directory to Source directory
+	TARGETDIR = SRCDIR;
+	//DELETE THE FACTDB.Z David - 03/09/00
+	//KEEP ONLY ONE COPY LOCALDB.Z
+        DeleteFile("FACTDB.Z");
+
 	TARGETDIR = WINDIR ^ "TEMP";
 	
 	//extract the local database into clients directory
 	LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
 	LOGWRITE(LOGMSG);
 	
-	if (CompressGet("factdb.z", "*.*", COMP_NORMAL) < 0) then
-	        MessageBox("FACTDB.Z could not be decompressed. " + szErrorMessage, SEVERE);
+	if (CompressGet("localdb.z", "*.*", COMP_NORMAL) < 0) then
+	        MessageBox("LOCALDB.Z could not be decompressed. " + szErrorMessage, SEVERE);
 	        goto ZFAILURE;
 	endif;
 	
@@ -625,7 +630,7 @@ StartCopy:
 		// copy Crystal Report files to windows\system
 		TARGETDIR = WINSYSDIR;
 		
-		if (szForceInstall = "1 ") then
+//		if (szForceInstall = "1 ") then
 	
 			LOGMSG="START FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
@@ -639,25 +644,25 @@ StartCopy:
 			LOGMSG="END FORCED COPY OF crystal.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 	
-		else
+//		else
 	
 		// ************************* Normal install
 	
-			LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-			
-			nReturn = CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER);
-			if (nReturn < 0) then
-				MessageBox("CRYSTAL.Z could not be decompressed. " + szErrorMessage, SEVERE);
-				goto ZFAILURE;
-			endif;
-			
-			LOGMSG="END NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-		endif;
+//			LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//			
+//			nReturn = CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER);
+//			if (nReturn < 0) then
+//				MessageBox("CRYSTAL.Z could not be decompressed. " + szErrorMessage, SEVERE);
+//				goto ZFAILURE;
+//			endif;
+//			
+//			LOGMSG="END NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
 	
 		// These go into the user's system directory always
-		if (szForceInstall = "1 ") then
+//		if (szForceInstall = "1 ") then
 		
 			LOGMSG="START FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
@@ -670,23 +675,23 @@ StartCopy:
 			LOGMSG="END FORCED COPY OF custctl.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 	
-		else
+//		else
 	
 		// ************************* Normal install
 	
-			LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-			
-			if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-			        MessageBox("CUSTCTL.Z could not be decompressed. " + szErrorMessage, SEVERE);
-			        goto ZFAILURE;
-			endif;
-			
-			LOGMSG="END NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-		endif;
+//			LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//			
+//			if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+//			        MessageBox("CUSTCTL.Z could not be decompressed. " + szErrorMessage, SEVERE);
+//			        goto ZFAILURE;
+//			endif;
+//			
+//			LOGMSG="END NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
 	
-		if (szForceInstall = "1 ") then
+//		if (szForceInstall = "1 ") then
 	
 			LOGMSG="START FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
@@ -699,23 +704,23 @@ StartCopy:
 			LOGMSG="END FORCED COPY OF factdll.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 	
-		else
+//		else
 		
 		// ************************* Normal install
 	
-			LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-			
-			if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-			        MessageBox("FACTDLL.Z could not be decompressed. " + szErrorMessage, SEVERE);
-			        goto ZFAILURE;
-			endif;
-			
-			LOGMSG="END NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-		endif;
+//			LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//			
+//			if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+//			        MessageBox("FACTDLL.Z could not be decompressed. " + szErrorMessage, SEVERE);
+//			        goto ZFAILURE;
+//			endif;
+//			
+//			LOGMSG="END NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
 	 
-		if (szForceInstall = "1 ") then
+//		if (szForceInstall = "1 ") then
 		
 			LOGMSG="START FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
@@ -728,26 +733,26 @@ StartCopy:
 			LOGMSG="END FORCED COPY OF rtm.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 	
-		else
+//		else
 			
 		// ************************* Normal install
 	
-			LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-			
-			if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-			        MessageBox("RTM.Z could not be decompressed. " + szErrorMessage, SEVERE);
-			        goto ZFAILURE;
-			endif;
-			
-			LOGMSG="END NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-		endif;
+//			LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//			
+//			if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+//			        MessageBox("RTM.Z could not be decompressed. " + szErrorMessage, SEVERE);
+//			        goto ZFAILURE;
+//			endif;
+//			
+//			LOGMSG="END NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
 	
 		// decompress dao3032.dll to \Program Files\Common Files\Microsoft Shared\DAO and register it.
 		TARGETDIR = WINSYSDISK ^ "Program Files\\Common Files\\Microsoft Shared\\DAO";
 		
-		if (szForceInstall = "1 ") then
+//		if (szForceInstall = "1 ") then
 	
 			LOGMSG="START FORCED COPY OF shared.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
@@ -760,21 +765,21 @@ StartCopy:
 			LOGMSG="END FORCED COPY OF shared.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 	
-		else
+//		else
 		
 		// ************************* Normal install
 	
-			LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-			
-			if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
-			        MessageBox("SHARED.Z could not be decompressed. " + szErrorMessage, SEVERE);
-			        goto ZFAILURE;
-			endif;
-			
-			LOGMSG="END NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
-			LOGWRITE(LOGMSG);
-		endif;
+//			LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//			
+//			if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+//			        MessageBox("SHARED.Z could not be decompressed. " + szErrorMessage, SEVERE);
+//			        goto ZFAILURE;
+//			endif;
+//			
+//			LOGMSG="END NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
+//			LOGWRITE(LOGMSG);
+//		endif;
 
 	endif;  //nvClientOption = BASE_ONLY || nvClientOption = BASE_AND_MOD
 
@@ -2290,7 +2295,7 @@ begin
 				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
 				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
-			elseif szName = "SERVDB.Z" then
+			elseif szName = "LOCALDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
 	        		szDest = WINSYSDISK ^ "Program Files" ^ "Common Files" ^ 
@@ -2319,7 +2324,8 @@ begin
 		                nResult = FindAllFiles(szPath, "*.*", svFileName, CONTINUE);
 		        endwhile;
 			
-			if (bRunLocal || (bRunRemote && szName != "SERVOLE.Z")) then
+			if (bRunLocal || (bRunRemote && (szName != "SERVOLE.Z" && 
+			   szName != "SERVBIN.Z" && szName != "LOCALDB.Z"))) then
 				CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, bSelfRegister);
 			endif;
 	        endif;
