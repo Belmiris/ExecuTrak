@@ -56,6 +56,10 @@ Public nWhatToUse As Integer
     Private Declare Function RCmdEvents Lib "RCMD.DLL" () As Integer
 #End If
 
+Private Const SEC_SETUP_4GE = "SETUP OF 4GL PROGRAMS"
+Private Const KEY_PROGPATH_4GE = "PROG PATH"
+Private Const DEFAULT_PROGPATH_4GE = "/usr/factor"
+    
 Private Function fnCStr(vTemp As Variant) As String
     Dim nPos As Integer
     
@@ -311,10 +315,10 @@ Private Function fnRunRCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If err.Number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
     End If
 End Function
 
@@ -354,14 +358,8 @@ Private Function fnVariables(sHost As String) As String
     sTemp = sTemp & "INFORMIXDIR=/usr/informix; export INFORMIXDIR;"
     sTemp = sTemp & "INFORMIXSERVER=" & sHost & "; export INFORMIXSERVER;"
     
-    '***********************************************************
-    'WJ
-    #If DEVELOP Then
-        sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
-    #Else
-        sTemp = sTemp & "PROGPATH=/usr/factor; export PROGPATH;"
-    #End If
-    '************************************************************
+    sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
+    
     sTemp = sTemp & "SQLEXEC=/usr/informix/lib/sqlrm;export SQLEXEC;"
     'Took out because these may cause problem on different systems. Ma. 2/5/99
     sTemp = sTemp & "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
@@ -369,38 +367,34 @@ Private Function fnVariables(sHost As String) As String
     fnVariables = sTemp
 End Function
 
-Private Function fnGetProgPath() As String
+Private Function fnDefaultParm(sSection As String, _
+                              sKey As String, _
+                              sDefault As String) As String
+    Dim sIniFileName As String
     
-    Const PARM_PROG_PATH = -1
-    Dim strSQL As String
-    Dim sPathOut As String
-    Dim RsTemp As Recordset
+    Dim nLength As Long 'length of the value returned for api call
+    Dim sBuffer As String
+    Dim bStatus As Boolean 'status returned from api call
+
+    sIniFileName = tfnGetWindowsDir(True) & szFACTOR_INI
     
-    '****************************************
-    'This function is added by WJ on 12/28/00
-    'It will normally return "/usr/factor". But for debug the
-    'program, wemay need another Prog Path. This function
-    'will query DB each time. This, although might be slower,
-    'will give you a chance to run the 4GE wiout quiting VB
-    'program.
-    '****************************************
-    sPathOut = "/usr/factor"
-    On Error GoTo errGetParm
+    sBuffer = Space(MAX_STRING_LENGTH) 'clear and make the string fixed length
     
-    strSQL = "SELECT parm_field FROM sys_parm" _
-        & " WHERE parm_nbr = " & PARM_PROG_PATH
+    'get the [value] for the [section], [key], and ini file sent
+    nLength = GetPrivateProfileString(sSection, sKey, szEMPTY, sBuffer, MAX_STRING_LENGTH, sIniFileName)
     
-    Set RsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If RsTemp.RecordCount > 0 Then
-        If Trim(fnCStr(RsTemp!parm_field)) <> "" Then
-            sPathOut = Trim(fnCStr(RsTemp!parm_field))
-        End If
+    If nLength <> 0 Then 'if length positive [value] has been found
+        fnDefaultParm = Left(sBuffer, nLength) 'make it a basic string
+    Else
+        'write the [value] for the [section], [key], and ini file sent
+        WritePrivateProfileString sSection, sKey, sDefault, sIniFileName
+        fnDefaultParm = sDefault
     End If
-    
-    fnGetProgPath = sPathOut
-    Exit Function
-errGetParm:
-    fnGetProgPath = sPathOut
+
+End Function
+
+Private Function fnGetProgPath() As String
+    fnGetProgPath = Trim(fnDefaultParm(SEC_SETUP_4GE, KEY_PROGPATH_4GE, DEFAULT_PROGPATH_4GE))
 End Function
 Public Function fnSetParmForUnixCmd(vFlag As Variant, _
                                     Optional vDefault As Variant) As Boolean
@@ -433,6 +427,9 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
             End If
         End If
     End If
+    
+    fnGetProgPath ' WJ 01/09/01, this will set the program path in the factor.ini
+    
     fnSetParmForUnixCmd = True
     Exit Function
 errGetParm:
@@ -484,10 +481,10 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If err.Number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
-        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, err.Description
+        tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
     End If
     
     
