@@ -2318,8 +2318,10 @@ begin
 		                endif;
 		                nResult = FindAllFiles(szPath, "*.*", svFileName, CONTINUE);
 		        endwhile;
-
-			CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, bSelfRegister);
+			
+			if (bRunLocal || (bRunRemote && szName != "SERVOLE.Z")) then
+				CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, bSelfRegister);
+			endif;
 	        endif;
 
                 nReturn = ListSetIndex (lstZDir, LISTNEXT);
