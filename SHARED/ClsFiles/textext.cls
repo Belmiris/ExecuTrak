@@ -175,19 +175,43 @@ Private Function fnColWidth(nCol As Integer) As Integer
     Dim nLastCol As Integer
     Dim nWidth As Integer
 
-    With tgTable
-        For i = 0 To .Columns.Count - 1
-            If .Columns(i).Visible Then
-                nLastCol = i
+    If tgTable.Splits.Count = 0 Or (tgTable.Splits.Count > 0 And tgTable.Split = tgTable.Splits.Count - 1) Then
+        With tgTable
+            For i = 0 To .Columns.Count - 1
+                If .Columns(i).Visible Then
+                    nLastCol = i
+                End If
+            Next
+            nWidth = .Columns(nCol).Width
+            If nCol = nLastCol Then
+                nWidth = .Width - .Columns(nCol).Left
             End If
-        Next
-        nWidth = .Columns(nCol).Width
-        If nCol = nLastCol Then
-            nWidth = .Width - .Columns(nCol).Left
-        End If
-    End With
+        End With
+    Else
+        nWidth = tgTable.Columns(nCol).Width
+    End If
     fnColWidth = nWidth
 End Function
+
+Private Function fnLastCol() As Integer
+    Dim i As Integer
+    Dim nWidth As Integer
+    
+    With tgTable
+        fnLastCol = .Columns.Count - 1
+        nWidth = .Columns(tgTable.LeftCol).Left
+        For i = tgTable.LeftCol To .Columns.Count - 1
+            If .Columns(i).Visible Then
+                nWidth = nWidth + .Columns(i).Width
+                If nWidth > .Width Then
+                    fnLastCol = i
+                    Exit For
+                End If
+            End If
+        Next
+    End With
+End Function
+
 
 Property Let PositionDefault(nDef As Integer)
     nPositionDefault = nDef
@@ -449,6 +473,9 @@ Private Sub fnShowText(ByVal nCol As Integer, ByVal nY As Integer)
                 If nLeft < 0 Then
                     nLeft = 0
                 End If
+            End If
+            If nColT = fnLastCol Then
+                nLeft = nLeft - 180
             End If
             picTextFrame.Move nLeft, nTop, nWidth, nHeight
             picTextFrame.Cls
