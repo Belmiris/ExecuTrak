@@ -43,6 +43,10 @@ Private txtEHPayCodeDesc As Textbox
 Private cmdEHPayCode As FactorFrame
 Private cmdEHPayCodeDesc As FactorFrame
 ''''''''
+'Vijaya on 12/12/03 Magic#421627
+Private txtEHMgrHours As Textbox
+Private bMgrHoursValid As Boolean
+''''''''''''''''''''''''''''''''
 Private lblEHTotalHours As Label
 Private lblEHTotalPayCode1 As Label
 Private lblEHTotalPayCode2 As Label
@@ -190,6 +194,12 @@ End Property
 Property Set EHDATEButton(cmdButton As FactorFrame)
     Set cmdEHDate = cmdButton
 End Property
+
+'Vijaya on 12/12/03 Magic#421627
+Property Set EHMGRHOURSTextBox(txtMgrHours As Textbox)
+    Set txtEHMgrHours = txtMgrHours
+End Property
+''''''''''''''''''''''''''''''''
 
 Property Set EHTotalHoursLabel(lbl As Label)
     Set lblEHTotalHours = lbl
@@ -372,6 +382,11 @@ Public Sub cmdAddBtn_Click()
     fnEnableControls True
     subSetEditColumns ADD_MODE
     tblTimeCard.Enabled = False
+    'Vijaya on 12/12/03 Magic#421627
+    If txtEHMgrHours.Visible Then
+        txtEHMgrHours.Enabled = False
+    End If
+    ''''''''''''''''''''''''''''''''
     txtEHPrftCtr.SetFocus
     
 End Sub
@@ -397,8 +412,12 @@ Public Sub cmdEditBtn_Click()
     fnEnableControls True
     subSetEditColumns EDIT_MODE
     tblTimeCard.Enabled = False
+    'Vijaya on 12/12/03 Magic#421627
+    If txtEHMgrHours.Visible Then
+        txtEHMgrHours.Enabled = False
+    End If
+    ''''''''''''''''''''''''''''''''
     txtEHPrftCtr.SetFocus
-    
 End Sub
 
 Public Sub cmdDeleteBtn_Click()
@@ -571,7 +590,7 @@ Public Sub tblTimeCard_Change()
     tgcEditor.Change
     cmdUpdateInsertBtn.Enabled = False
     
-    If tblTimeCard.col = COL_EMPNO Then
+    If tblTimeCard.Col = COL_EMPNO Then
         tgcEditor.CellValue(COL_EMPNAME, tgcEditor.GetCurrentRowNumber) = ""
     End If
     
@@ -609,7 +628,7 @@ Public Sub tblTimeCard_KeyDown(KeyCode As Integer, Shift As Integer)
     
     Dim bKeyReturnEntered As Boolean
     
-    If tblTimeCard.col = COL_HOUR Then
+    If tblTimeCard.Col = COL_HOUR Then
 
         If KeyCode = vbKeyReturn Then
 
@@ -641,7 +660,7 @@ Public Sub tblTimeCard_KeyDown(KeyCode As Integer, Shift As Integer)
     
     tgcEditor.KeyDown KeyCode, Shift
     
-    If tblTimeCard.col = COL_HOUR Then
+    If tblTimeCard.Col = COL_HOUR Then
 
         If bKeyReturnEntered Then
             
@@ -680,7 +699,7 @@ End Sub
 
 Public Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     
-    If tblTimeCard.col = 1 And Button = RIGHT_BUTTON Then
+    If tblTimeCard.Col = 1 And Button = RIGHT_BUTTON Then
         frmContext.MouseDown Button, EMP_MST_UP
     End If
     
@@ -702,7 +721,7 @@ Public Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     
     If t_nFormMode = ADD_MODE Then
     
-        If tblTimeCard.col <= COL_EMPNAME Then
+        If tblTimeCard.Col <= COL_EMPNAME Then
                     
             If lCurRow <= g_lOriginalRowCount Then
                 tgcEditor.GotoNextColumn COL_EMPNO
@@ -710,7 +729,7 @@ Public Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer
         
         End If
         
-        nCurCol = tblTimeCard.col
+        nCurCol = tblTimeCard.Col
         
         If tgcEditor.ValidCell(COL_EMPNO, lCurRow) Then
             
@@ -951,6 +970,9 @@ Public Sub txtEHDate_LostFocus()
             If fnFillTimeCard() Then
                 subEnableProfitCtr False
                 tblTimeCard.Enabled = True
+                'Vijaya on 12/12/03 Magic#421627
+                txtEHMgrHours.Enabled = tblTimeCard.Enabled
+                ''''''''''''''''''''''''''''''''
                 subSetFocus tblTimeCard
             End If
             
@@ -1026,6 +1048,7 @@ Public Sub txtEHPayCodeDesc_Change()
 End Sub
 
 Public Sub txtEHPayCodeDesc_GotFocus()
+    Set cValidate.LastBox = txtEHPayCodeDesc
     tgcDropdown.GotFocus txtEHPayCodeDesc
     cValidate.GotFocus txtEHPayCodeDesc
     Screen.MousePointer = vbDefault
@@ -1055,7 +1078,7 @@ Private Sub subSetPaycodeToHeader()
     subSetFocus tblTimeCard
     
     If txtEHDate.Tag <> "" Then
-        tblTimeCard.col = txtEHDate.Tag
+        tblTimeCard.Col = txtEHDate.Tag
     End If
     
 End Sub
@@ -1117,20 +1140,21 @@ End Sub
 Public Function fnValidCellValue(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Long, sText As String) As Boolean
     
     Select Case tgTable.TabIndex
-    
         Case tblTimeCard.TabIndex
             Select Case nCol
                 Case COL_EMPNO
                     fnValidCellValue = fnValidEmpNo(sText, nCol, nRow)
                 Case COL_EMPNAME
-                    fnValidCellValue = True
+                    'Make sure we have valid Employee Number
+                    If tgcEditor.ValidCell(COL_EMPNO, nRow) Then
+                        fnValidCellValue = True
+                    Else
+                        fnValidCellValue = False
+                    End If
                 Case COL_HOUR, COL_PAYCODE1, COL_PAYCODE2, COL_PAYCODE3
                     fnValidCellValue = fnValidHours(sText, nCol, nRow)
-                    
             End Select
-            
     End Select
-    
 End Function
 
 Public Function fnInValidData(txtBox As Textbox) As Boolean
@@ -1146,6 +1170,10 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
             fnInValidData = Not fnValidPayCode(txtBox)
         Case txtEHPayCodeDesc.TabIndex
             fnInValidData = False
+        'Vijaya on 12/12/03 Magic#421627
+        Case txtEHMgrHours.TabIndex
+            fnInValidData = Not fnValidMgrHours(txtBox)
+        ''''''''''''''''''''''''''''''''
     End Select
 End Function
 
@@ -1313,7 +1341,7 @@ Private Function fnFillTimeCard() As Boolean
         If t_nFormMode = ADD_MODE Then
             'STILL DOESN'T WORK
             'This follwoing code work with the code in the tfnresetScreen, see comment there
-            tblTimeCard.col = COL_EMPNO
+            tblTimeCard.Col = COL_EMPNO
             GoTo SKIPLoadData
         Else
             MsgBox "NO record selected.", vbInformation
@@ -1406,6 +1434,32 @@ Private Function fnFillTimeCard() As Boolean
             tgcEditor.GotoNextColumn COL_EMPNO
         End If
         
+        'Vijaya on 12/12/03 Magic#421627
+        Dim sDate As String
+        Dim sMsg As String
+        strSQL = "SELECT zzsemh_empno, zzsemh_date, zzsemh_hours FROM zzse_manager_hour"
+        strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
+        If GetRecordSet(rsTemp, strSQL, , "fnFillTimeCard") > 0 Then
+            txtEHMgrHours = Format(fnGetField(rsTemp!zzsemh_hours), "0.00")
+            sDate = fnGetField(rsTemp!zzsemh_date)
+            strSQL = "SELECT prm_date_termed FROM  pr_master"
+            strSQL = strSQL & " WHERE prm_empno=" & tfnRound(fnGetField(rsTemp!zzsemh_empno))
+            If GetRecordSet(rsTemp, strSQL, , "fnFillTimeCard") > 0 Then
+                If fnGetField(rsTemp!prm_date_termed) <> "" Then
+                    If CDate(rsTemp!prm_date_termed) >= CDate(sDate) Then
+                        DoEvents
+                        sMsg = "Existing Manager has been terminated prior to the reporting date."
+                        sMsg = sMsg & " Re-enter manager's hour or enter zero to update"
+                        MsgBox sMsg, vbExclamation
+                        bMgrHoursValid = True
+                    End If
+                Else
+                    bMgrHoursValid = True
+                End If
+            End If
+        End If
+        ''''''''''''''''''''''''''''''''
         subCalculateTotal
         g_lOriginalRowCount = i
     End If
@@ -1441,6 +1495,11 @@ Private Sub fnEnableControls(beOff As Boolean)
     End If
     
     tblTimeCard.Enabled = beOff
+    
+    'Vijaya on 12/12/03 Magic#421627
+    txtEHMgrHours.Enabled = beOff
+    ''''''''''''''''''''''''''''''''
+    
     subEnableSearchButton cmdEHPayCode, beOff
     subEnableSearchButton cmdEHPayCodeDesc, beOff
     efraEHPayCode.Visible = False
@@ -1507,13 +1566,18 @@ Private Sub subSetValidtion()
     .AddEditBox txtEHDate, "Enter the Clock-In Date."
     .AddEditBox txtEHPayCode, "Enter Pay Code"
     .AddEditBox txtEHPayCodeDesc, "Enter Pay Code Description"
+    
+    'Vijaya on 12/12/03 Magic#421627
+    .AddEditBox txtEHMgrHours, "Enter Manager Hours"
+    ''''''''''''''''''''''''''''''''
+    
     '.ESCControl = tblComboDropdown
     .ESCControl = cmdUpdateInsertBtn
     .ESCControl = cmdExitCancelBtn
     .MinTabIndex = tbToolbar.TabIndex
     .MaxTabIndex = efraBridge.TabIndex + 1
     Set .ControlForFocus = efraBridge
-    Set .LastBox = txtEHPayCodeDesc
+    Set .LastBox = txtEHMgrHours        'txtEHPayCodeDesc
     .SetFirstControls cmdDeleteBtn, cmdUpdateInsertBtn
     End With
 End Sub
@@ -1527,6 +1591,7 @@ Private Sub subSetGrid()
         sDecimalString = tfnDecimalPattern(8, 2)
         .AddEditColumn COL_EMPNO, "Enter Employee Number", szLongPattern
         .AddEditColumn COL_EMPNAME, "Enter Employee Name", "^P{1,60}$"
+        .AddESCColumn COL_EMPNAME, COL_EMPNO
         .AddEditColumn COL_HOUR, "Enter Hours", sDecimalString
         .AddEditColumn COL_PAYCODE1, "Enter Hour", sDecimalString
         .AddEditColumn COL_PAYCODE2, "Enter Hour", sDecimalString
@@ -1613,7 +1678,12 @@ Private Function fnInsertUpdate() As Boolean
     If t_nFormMode = EDIT_MODE Then
         fnInsertUpdate = fnUpdate
     End If
-    
+        
+    'Vijaya on 12/12/03 Magic#421627
+    If fnInsertUpdate Then
+        fnInsertUpdate = fnInsertzzse_manager_hour
+    End If
+    ''''''''''''''''''''''''''''''''
 End Function
 
 Private Function fnCheckGridDuplicate() As Boolean
@@ -1804,6 +1874,12 @@ Private Sub tfnResetScreen()
     txtEHPrftCtr.Text = ""
     txtEHPrftName.Text = ""
     txtEHDate.Text = ""
+    
+    'Vijaya on 12/12/03 Magic#421627
+    If txtEHMgrHours.Visible Then
+        txtEHMgrHours = ""
+    End If
+    ''''''''''''''''''''''''''''''''
     
     nDataStatus = DATA_INI
     cmdDeleteBtn.Enabled = False
@@ -2087,7 +2163,7 @@ Private Sub subSetFormStatus()
         subEnableRefresh True
     End If
     
-    If tgcEditor.ValidData And fnGetField(tgcEditor.CellValue(0, 0)) <> "" And _
+    If cValidate.FirstInvalidInput < 0 And tgcEditor.ValidData And fnGetField(tgcEditor.CellValue(0, 0)) <> "" And _
         nDataStatus = DATA_CHANGED Then
         
         cmdUpdateInsertBtn.Enabled = True
@@ -2467,3 +2543,159 @@ Private Sub subCalculateTotal()
     lblEHTotalPayCode2.Caption = CStr(Format(dTotalPayCode2, "#,##0.00"))
     lblEHTotalPayCode3.Caption = CStr(Format(dTotalPayCode3, "#,##0.00"))
 End Sub
+
+'Vijaya on 12/12/03 Magic#421627
+Public Sub txtEHMgrHours_Change()
+    cValidate.Change txtEHMgrHours
+    tfnRegExpControlChange txtEHMgrHours, tfnDecimalPattern(8, 2)
+    cmdUpdateInsertBtn.Enabled = False
+    nDataStatus = DATA_CHANGED
+End Sub
+
+Public Sub txtEHMgrHours_GotFocus()
+    Set cValidate.LastBox = txtEHMgrHours
+    cValidate.GotFocus txtEHMgrHours
+    subSelectIt txtEHMgrHours
+End Sub
+
+Public Sub txtEHMgrHours_KeyPress(KeyAscii As Integer)
+    If KeyAscii = vbKeyReturn Then
+        subSetFormStatus
+        If cmdUpdateInsertBtn.Enabled = True Then
+            subSetFocus cmdUpdateInsertBtn
+        Else
+            subSetFocus efraBridge
+        End If
+        KeyAscii = 0
+    Else
+        tfnRegExpControlKeyPress txtEHMgrHours, KeyAscii, tfnDecimalPattern(8, 2)
+        cValidate.Keypress txtEHMgrHours, KeyAscii
+    End If
+End Sub
+
+Public Sub txtEHMgrHours_LostFocus()
+    cValidate.LostFocus txtEHMgrHours
+    subSetFormStatus
+    If frmZZSEBPRC.ActiveControl Is cmdExitCancelBtn Then
+        If cmdUpdateInsertBtn.Enabled Then
+            subSetFocus cmdUpdateInsertBtn
+        End If
+    End If
+End Sub
+
+Private Sub subSelectIt(v As Textbox)
+    On Error Resume Next
+    v.SelStart = 0
+    v.SelLength = Len(Trim(v.Text))
+End Sub
+
+Private Function fnValidMgrHours(txtBox As Textbox) As Boolean
+    Const FUNC_NAME As String = "fnValidMgrHours"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sMsg As String
+    Dim slistPrftCtr As String
+    
+    fnValidMgrHours = False
+    'This control is Optional, Null or 0 valid
+    If Trim(txtBox) = "" Or Trim(txtBox) = 0 Then
+        fnValidMgrHours = True
+        Exit Function
+    End If
+    If Not IsNumeric(txtBox) Then
+        cValidate.SetErrorMessage txtBox, "Manager Hours must be a numeric"
+        Exit Function
+    End If
+    If bMgrHoursValid Then
+        fnValidMgrHours = True
+        Exit Function
+    End If
+    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
+    strSQL = strSQL & " AND prm_emp_level  = 3 AND prm_date_termed IS NULL"
+    strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
+    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) <= 0 Then
+        sMsg = "No manager was found for the profit center."
+        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a manager"
+        sMsg = sMsg & " for the profit center. Manager's hours cannot be entered until"
+        sMsg = sMsg & " one manager exists."
+        DoEvents
+        MsgBox sMsg, vbExclamation
+        cValidate.SetErrorMessage txtBox, "Manager not found"
+        Exit Function
+    End If
+    If rsTemp.RecordCount > 1 Then
+        While Not rsTemp.EOF
+            If slistPrftCtr = "" Then
+                slistPrftCtr = tfnRound(fnGetField(rsTemp!prm_empno))
+            Else
+                slistPrftCtr = slistPrftCtr & "," & tfnRound(fnGetField(rsTemp!prm_empno))
+            End If
+            rsTemp.MoveNext
+        Wend
+        sMsg = "There is more than one manager assigned to this profit center."
+        sMsg = sMsg & " Use the Payroll Employee Master Maintenance to add a termination"
+        sMsg = sMsg & " date for the invalid manager(s). Manager's hours cannot be inserted"
+        sMsg = sMsg & " until only one manager exists."
+        DoEvents
+        MsgBox sMsg, vbExclamation
+        cValidate.SetErrorMessage txtBox, "More than one manager (" & slistPrftCtr & ") found"
+        Exit Function
+    End If
+    fnValidMgrHours = True
+End Function
+
+Public Function fnInsertzzse_manager_hour() As Boolean
+    Const FUNC_NAME As String = "fnInsertzzse_manager_hour"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lEmpNo As Long
+    
+    fnInsertzzse_manager_hour = False
+    
+    If Trim(txtEHMgrHours) = "" Or Trim(txtEHMgrHours) = 0 Then
+        strSQL = "DELETE FROM zzse_manager_hour"
+        strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
+        If fnExecuteSQL(strSQL, FUNC_NAME) < 0 Then
+            Exit Function
+        End If
+    End If
+    'Empty or 0 we don't need to Insert..
+    If Trim(txtEHMgrHours) = "" Or Trim(txtEHMgrHours) = 0 Then
+        fnInsertzzse_manager_hour = True
+        Exit Function
+    End If
+    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_job_class  = 'A'"
+    strSQL = strSQL & " AND prm_emp_level  = 3 AND prm_date_termed IS NULL"
+    strSQL = strSQL & " AND prm_prft_ctr1 = " & tfnRound(txtEHPrftCtr)
+    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) > 0 Then
+        lEmpNo = rsTemp!prm_empno
+    End If
+    strSQL = "SELECT zzsemh_empno FROM zzse_manager_hour"
+    strSQL = strSQL & " WHERE zzsemh_prft_ctr = " & tfnRound(txtEHPrftCtr)
+    strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
+    If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 0 Then
+        Exit Function
+    End If
+    If rsTemp.RecordCount > 0 Then
+        strSQL = "UPDATE zzse_manager_hour SET"
+        If Not bMgrHoursValid Then
+            strSQL = strSQL & " zzsemh_empno=" & lEmpNo & ","
+        End If
+        strSQL = strSQL & " zzsemh_hours=" & Format(txtEHMgrHours, "0.00")
+        strSQL = strSQL & " WHERE zzsemh_prft_ctr=" & tfnRound(txtEHPrftCtr)
+        strSQL = strSQL & " AND zzsemh_date=" & tfnDateString(txtEHDate, True)
+    Else
+        strSQL = "INSERT INTO zzse_manager_hour (zzsemh_empno, zzsemh_prft_ctr,"
+        strSQL = strSQL & " zzsemh_date,zzsemh_hours) VALUES (" & lEmpNo
+        strSQL = strSQL & " ," & tfnRound(txtEHPrftCtr) & "," & tfnDateString(txtEHDate, True)
+        strSQL = strSQL & "," & Format(txtEHMgrHours, "0.00") & ")"
+    End If
+    If fnExecuteSQL(strSQL, FUNC_NAME) < 0 Then
+        Exit Function
+    End If
+    fnInsertzzse_manager_hour = True
+End Function
+'End of Vijaya code
