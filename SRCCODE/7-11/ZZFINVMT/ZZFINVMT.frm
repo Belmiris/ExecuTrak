@@ -263,7 +263,7 @@ Begin VB.Form frmZZFINVMT
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75
+            Size            = 9.75 
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -822,15 +822,11 @@ Private Sub tfnResetScreen()
     mnuCopy.Enabled = False
     mnuPaste.Enabled = False
 #If PROTOTYPE Then
-    cmdProcess.Enabled = False
-    mnuProcess.Enabled = False
-    cmdPrintReport.Enabled = False
-    mnuPrint.Enabled = False
-    frmContext.ButtonEnabled(PRINT_UP) = False
+    subEnableProcessBtn False
 #Else
-    cmdProcess.Enabled = True
-    mnuProcess.Enabled = True
+    subEnableProcessBtn True
 #End If
+    subEnablePrintBtn False
     PbProgressBar.Visible = False
 End Sub
 
