@@ -611,6 +611,18 @@ Begin VB.Form frmZZSEPIMT
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.PictureBox picText 
+                  Appearance      =   0  'Flat
+                  BackColor       =   &H80000005&
+                  ForeColor       =   &H80000008&
+                  Height          =   324
+                  Left            =   0
+                  ScaleHeight     =   300
+                  ScaleWidth      =   1020
+                  TabIndex        =   31
+                  Top             =   0
+                  Width           =   1044
+               End
                Begin DBTrueGrid.TDBGrid tblGrid 
                   Height          =   3045
                   HelpContextID   =   1403
@@ -1056,6 +1068,7 @@ Private tgmSpreadsheet As clsTGSpreadSheet
 Public tgmGrid As clsTGSpreadSheet
 Private strHourCode As String
 Private strOverCode As String
+Private objText As clsColumnExtension
 '===============================
 'spreadsheet field
 '===============================
@@ -1217,6 +1230,7 @@ Private Sub cmdProcess_Click(Index As Integer)
         subEnableUpdateBtn True
         cmdPrint(1).Enabled = True
         cmdPrint(1).SetFocus
+        subEnablePrint True
     End If
     
 End Sub
@@ -1340,6 +1354,7 @@ Private Sub etabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Inte
         t_bTabSwitch = True
     End If
     cmdPrint(1).Enabled = False
+    subEnablePrint False
     subEnableUpdateBtn False
     subEnableCancelBtn True, 0
     subEnableCancelBtn True, 1
@@ -1431,6 +1446,7 @@ Private Sub Form_Load()
     subSetupCombos  'Set up the combo dropdowns
     subInitializeSpreadSheet 'set up true grid
     subInitGrid
+    subInitText     'tooltips
     subInitValidation  'set up validation object
     Screen.MousePointer = vbHourglass
     
@@ -1713,7 +1729,8 @@ Private Sub mnuExit_Click()
 End Sub
 
 Private Sub mnuPrint_Click()
-    cmdTBPrint_Click
+'    cmdTBPrint_Click
+    subPrintRpt
 End Sub
 
 Private Sub mnuAdd_Click()
@@ -1867,6 +1884,7 @@ Private Sub tfnResetScreen(Optional vInitial)
     subEnableCancelBtn False
     subEnableOKBtn False
     cmdPrint(1).Enabled = False
+    subEnablePrint False
   
     tblGrid.Enabled = False
     tblSpreadsheet.Enabled = False
@@ -1988,6 +2006,7 @@ End Sub
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
     objCursor.SetMousePointer
+    objText.ShowColumnExt
 End Sub
 
 Private Sub subInitErrorHandler()
@@ -2106,7 +2125,7 @@ End Sub
 Private Sub subSetupToolBar()
     With frmContext
         .BeginSetupToolbar Me
-'        .AddButton "Add Pro&fit Center", PRFTCNTR_UP
+'        .AddButton "Print Report", PRFTCNTR_UP
 '        .AddButton "Add &G/L Period/Series", GLPD_UP
 '        .AddButton "Add Custome&r", CUSTOMER_UP
 '        .AddButton "Add &Product", PRODUCT_UP
@@ -2117,9 +2136,14 @@ Private Sub subSetupToolBar()
         .HelpFile = szHelpFileName
     End With
 End Sub
-
+Private Sub subEnablePrint(bFlag As Boolean)
+    frmContext.ButtonEnabled(PRINT_UP) = bFlag
+    mnuPrint.Enabled = bFlag
+End Sub
 Public Sub TBButtonCallBack(ByVal nID As Integer)
     Select Case nID
+        Case PRINT_UP
+            subPrintRpt
         Case CANCEL_UP
             cmdTBCancel_Click
         Case EXIT_UP
@@ -2440,13 +2464,13 @@ Private Function fnValidNumberForAdd(sText As String, ByVal lCurrRow As Long) As
             End If
         End If
      'check screen to find duplicated data
-        Dim I As Integer
-        For I = 0 To tgmSpreadsheet.RowCount - 1
-            If Trim(tgmSpreadsheet.CellValue(COL_DAYS, I)) = sCode And I <> lCurrRow Then
+        Dim i As Integer
+        For i = 0 To tgmSpreadsheet.RowCount - 1
+            If Trim(tgmSpreadsheet.CellValue(COL_DAYS, i)) = sCode And i <> lCurrRow Then
                 tgmSpreadsheet.ErrorMessage(COL_DAYS) = "Duplicated Days Employed encountered."
                 Exit Function
             End If
-        Next I
+        Next i
         'tgmSpreadsheet.BeforeColEdit COL_DAYS, 0, False
         tgmSpreadsheet.BeforeColEdit COL_RATE, 0, False
         fnValidNumberForAdd = True
@@ -2484,7 +2508,7 @@ Private Function fnUpdateInsert1() As Boolean
     Dim vData() As Variant
     Dim lRowCount As Long
     Dim nColCount As Integer
-    Dim I As Long
+    Dim i As Long
     
     Screen.MousePointer = vbHourglass
     'delete the data of same account number
@@ -2501,11 +2525,11 @@ Private Function fnUpdateInsert1() As Boolean
     End If
     
     'insert true grid sceen data into database
-    For I = 0 To lRowCount - 1
+    For i = 0 To lRowCount - 1
         If t_nFormMode = EDIT_MODE Then
-            tgmSpreadsheet.GetRow vData, nColCount, I
+            tgmSpreadsheet.GetRow vData, nColCount, i
         Else
-            tgmSpreadsheet.GetChangedRow vData, nColCount, I
+            tgmSpreadsheet.GetChangedRow vData, nColCount, i
         End If
         If fnGetField(vData(COL_DAYS)) <> "" Then
 
@@ -2528,7 +2552,7 @@ Private Function fnUpdateInsert2() As Boolean
     Dim vData() As Variant
     Dim lRowCount As Long
     Dim nColCount As Integer
-    Dim I As Long
+    Dim i As Long
     
     Screen.MousePointer = vbHourglass
 
@@ -2536,9 +2560,9 @@ Private Function fnUpdateInsert2() As Boolean
     
     lRowCount = tgmGrid.RowCount
     'insert true grid sceen data into database
-    For I = 0 To lRowCount - 1
+    For i = 0 To lRowCount - 1
         'tgmGrid.GetChangedRow vData, nColCount, i
-        tgmGrid.GetRow vData, nColCount, I
+        tgmGrid.GetRow vData, nColCount, i
         If fnGetField(vData(COL_EMPNO)) <> "" Then
 
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
@@ -2550,7 +2574,7 @@ Private Function fnUpdateInsert2() As Boolean
                 Exit Function
             End If
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-               & vData(COL_NEW_RATE) * 1.5
+               & tfnRound(vData(COL_NEW_RATE) * 1.5, 2)
             strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
             strSQL = strSQL & " AND prep_pay_code='" & strOverCode & "'"
             If Not fnExecuteSQL(strSQL, SUB_NAME) Then
@@ -2624,10 +2648,51 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
         MsgBox "No employee needs to increase pay.", vbExclamation
         Exit Function
     End If
+    Dim strTemp As String
+    'Dim vData() As Variant
+    Dim nRowCount As Long
+    Const GRID_COL_COUNT = 10
+    Dim i As Long
+    i = -1
+    
+    If rsTemp.RecordCount > 0 Then
+        nRowCount = rsTemp.RecordCount
+        ReDim vData(GRID_COL_COUNT, nRowCount - 1)
+        rsTemp.MoveFirst
+        Do
+            i = i + 1
+            vData(COL_EMPNO, i) = rsTemp!empno
+
+            vData(COL_LEVEL, i) = rsTemp!emp_level
+            vData(COL_DESC, i) = rsTemp!emp_level_desc
+            vData(COL_HIRE_DATE, i) = rsTemp!date_hired
+            vData(COL_DAYS_WORKED, i) = rsTemp!days_worked
+            vData(COL_OLD_RATE, i) = rsTemp!old_rate
+            vData(COL_NEW_RATE, i) = rsTemp!new_rate
+            vData(COL_DIFF, i) = rsTemp!rate_diff
             
-    tgmGrid.FillWithRecordset rsTemp
+            If (fnRSToString(rsTemp!fname) = "") And (fnRSToString(rsTemp!mname) = "") Then
+                strTemp = fnRSToString(rsTemp!lname)
+                vData(COL_NAME, i) = strTemp
+            Else
+                strTemp = fnRSToString(rsTemp!lname) & ", " & fnRSToString(rsTemp!fname) & " " & fnRSToString(rsTemp!mname)
+                vData(COL_NAME, i) = strTemp
+            End If
+            rsTemp.MoveNext
+        Loop Until rsTemp.EOF
+    
+    
+    End If
+    tgmGrid.FillWithArray vData
     
     fnProcess = True
+End Function
+Private Function fnRSToString(ByVal vTemp As Variant) As String
+    If IsNull(vTemp) Then
+        fnRSToString = ""
+    Else
+        fnRSToString = vTemp
+    End If
 End Function
 Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As String, sLineHeader As String, Optional sFileName As String = "ZZSEPILG", Optional bAppend As Boolean = False) As Boolean
     Const LINES As Integer = 30
@@ -2645,8 +2710,8 @@ Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As 
     Else
         Open sFileName For Output As #nFilePtr
     End If
-    Dim I As Integer
-    I = 0
+    Dim i As Integer
+    i = 0
     'Print #nFilePtr, "Program ID: ZZSEPILG"
     Print #nFilePtr, sProgName
     Print #nFilePtr, sRptTitle
@@ -2655,10 +2720,10 @@ Private Function fnWriteLog(vData As Variant, sProgName As String, sRptTitle As 
     Print #nFilePtr, String(CHAR_PER_LINE, "-")
     Print #nFilePtr, sLineHeader
     
-    Do While I <= INDEX_REPORT
+    Do While i <= INDEX_REPORT
         'print title and time
-        Print #nFilePtr, vData(I)
-        I = I + 1
+        Print #nFilePtr, vData(i)
+        i = i + 1
     Loop
     
     Close #nFilePtr
@@ -2762,16 +2827,30 @@ Private Sub subInitGrid()
     tgmGrid.ClearData
 
 End Sub
-Public Sub subPrintRpt()
-    
+'initialization of Extension for grid tool tips
+Private Sub subInitText()
 
+   Set objText = New clsColumnExtension
+   With objText
+       Set .Form = Me
+       Set .PictureBox = picText
+       Set .StatusBar = ffraStatusbar
+       Set .Table = tblGrid
+   End With
+   objText.AddColumn COL_EMPNO, "Employee Number"
+   objText.AddColumn COL_NAME, "Employee Name"
+   objText.AddColumn COL_DESC, "Employee Level Description"
+'   objText.AddColumn COL_AcctDesc, "Gl Account Description"
+'   objText.AddColumn COL_Amount, "Amount"
+End Sub
+Public Sub subPrintRpt()
     Dim sProgName As String
     Dim sRptTitle As String
     Dim sLineHeader As String
     Dim sExtraLine As String
     
     Dim lCount As Long
-    Dim I As Long
+    Dim i As Long
     Dim sLine As String
     
     sProgName = "Program ID: ZZSEPIMT"
@@ -2797,17 +2876,17 @@ Public Sub subPrintRpt()
     End If
     
     
-    For I = 0 To lCount - 1
+    For i = 0 To lCount - 1
         With tgmGrid
-           sLine = fnTranc(.CellValue(COL_EMPNO, I), 10, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NAME, I), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_LEVEL, I), 6, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DESC, I), 21, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_HIRE_DATE, I), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DAYS_WORKED, I), 12, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_OLD_RATE, I), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NEW_RATE, I), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DIFF, I), 15, LEFT_JUSTIFY)
+           sLine = fnTranc(.CellValue(COL_EMPNO, i), 10, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NAME, i), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_LEVEL, i), 6, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DESC, i), 21, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_HIRE_DATE, i), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DAYS_WORKED, i), 12, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_OLD_RATE, i), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NEW_RATE, i), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DIFF, i), 15, LEFT_JUSTIFY)
           'put in the array report
           subLineFeed sLine
        End With
