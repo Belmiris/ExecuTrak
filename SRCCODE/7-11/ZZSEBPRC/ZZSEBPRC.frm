@@ -2635,7 +2635,7 @@ Private Sub cmdApprove_Click()
     End If
     
     tgmApprove.Rebind
-    cmdOK.Enabled = fnHasApprove()
+    cmdOk.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2672,7 +2672,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2681,8 +2681,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2781,7 +2781,7 @@ Private Sub eTabMain_Click()
             frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
                 
-            cmdOK.Enabled = fnHasApprove()
+            cmdOk.Enabled = fnHasApprove()
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
             #If PROTOTYPE Then
@@ -3268,7 +3268,7 @@ Private Sub tfnResetScreen(Index As Integer)
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
-                        cmdOK.Enabled = fnHasApprove()
+                        cmdOk.Enabled = fnHasApprove()
                     End If
                 End If
             End If
@@ -3714,7 +3714,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    cmdOK.Enabled = fnHasApprove()
+    cmdOk.Enabled = fnHasApprove()
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -4249,7 +4249,7 @@ Private Function fnValidEmpProcess(txtBox As Textbox) As Boolean
     End If
             
     If rsTemp.RecordCount = 0 Then
-        cValidate.SetErrorMessage txtBox, "Employee is not set up in Bonus Master"
+        cValidate.SetErrorMessage txtBox, "Employee is not set up in Commission Master"
         Exit Function
     End If
     

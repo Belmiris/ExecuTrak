@@ -324,7 +324,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
                     & fnTranc(tgmApprove.CellValue(colADate, i), 10, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colABonusAmt, i), 10, vbRightJustify)
             Next i
-            sReportTitle = "Employee Bonus Approval Report"
+            sReportTitle = "Employee Commission Approval Report"
             sHeadTitle = fnTranc("", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee", 9, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("", 46, vbLeftJustify) & Space(1)
@@ -362,12 +362,12 @@ Public Function fnCreateReport(Index As Integer) As Boolean
                     sArrReport(j) = Space(7) & "Formula: (" & sFormula & ")" & vbCrLf
                 End If
             Next j
-            sReportTitle = "Employee Bonus Details"
+            sReportTitle = "Employee Commission Details"
             If frmZZSEBPRC.txtEmployee <> "" Then
-                sReportTitle = frmZZSEBPRC.txtEmployee & "-" & frmZZSEBPRC.txtEmpName & " Bonus Details"
+                sReportTitle = frmZZSEBPRC.txtEmployee & "-" & frmZZSEBPRC.txtEmpName & " Commission Details"
             End If
             sHeadTitle = fnTranc("Bonus", 5, vbLeftJustify) & Space(2)
-            sHeadTitle = sHeadTitle & fnTranc("Bonus Code Description", 49, vbCenter) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Commission Code Description", 49, vbCenter) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Level", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Type", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Frequency", 9, vbLeftJustify) & Space(2)
@@ -468,7 +468,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
     strSQL = strSQL & " AND bf_level = " & tfnRound(nLevel)
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <> 1 Then
-        subLogErrMsg Space(7) & "No record found for the bonus formula"
+        subLogErrMsg Space(7) & "No record found for the commission formula"
         Exit Function
     End If
     
@@ -1546,7 +1546,7 @@ Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As 
         If aryInvalidVar(i) <> "" Then
             If InStr(sFormula, aryInvalidVar(i)) > 0 Then
                 fnCheckVarAllowed = tfnSQLString(aryInvalidVar(i)) + _
-                    " is not valid for Bonus Type " + tfnSQLString(sBonusType)
+                    " is not valid for Commission Type " + tfnSQLString(sBonusType)
                 Exit Function
             End If
         End If
@@ -1764,7 +1764,7 @@ Private Function fnValidGetBAmountEmp(lEmpNo As Long, _
     End If
     
     If rsTemp.RecordCount = 0 Then
-        fnValidGetBAmountEmp = "Bonus Grade " + tfnSQLString(sBGrade) + " does not exist"
+        fnValidGetBAmountEmp = "Commission Grade " + tfnSQLString(sBGrade) + " does not exist"
         Exit Function
     End If
     
@@ -1777,7 +1777,7 @@ Private Function fnValidGetBAmountEmp(lEmpNo As Long, _
     Next i
     
     If rsTemp.EOF Then
-        fnValidGetBAmountEmp = "Employee Level " & nEmpLevel & " is not valid for Bonus Grade " + tfnSQLString(sBGrade)
+        fnValidGetBAmountEmp = "Employee Level " & nEmpLevel & " is not valid for Commission Grade " + tfnSQLString(sBGrade)
         Exit Function
     End If
     

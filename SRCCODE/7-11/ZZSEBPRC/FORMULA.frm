@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Begin VB.Form frmFORMULA 
    BorderStyle     =   3  'Fixed Dialog
-   Caption         =   "Bonus Formula Details"
+   Caption         =   "Commission Formula Details"
    ClientHeight    =   3840
    ClientLeft      =   2760
    ClientTop       =   3756
@@ -503,7 +503,7 @@ Begin VB.Form frmFORMULA
       BackColor       =   12632256
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.46
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -540,7 +540,7 @@ Private Sub cmdClose_Click()
 End Sub
 
 Private Sub cmdClose_GotFocus()
-    frmZZSEBPRC.tfnSetStatusBarMessage "Close Bonus Formula Details"
+    frmZZSEBPRC.tfnSetStatusBarMessage "Close Commission Formula Details"
 End Sub
 
 Private Sub Form_Activate()
@@ -610,7 +610,7 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
     
     fnLoadBonusFormula = True
     'subSetFocus cmdClose
-    Me.Caption = "Bonus Formula Details ('" + sCode + "', " & nLevel & ", '" + sType + "')"
+    Me.Caption = "Commission Formula Details ('" + sCode + "', " & nLevel & ", '" + sType + "')"
 End Function
 
 Private Sub subEnableVariables(sBonusType As String, rsTemp As Recordset)
