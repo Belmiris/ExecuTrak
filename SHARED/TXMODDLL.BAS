@@ -907,7 +907,7 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
                             Optional sErrMsg As String = "")
     
     Static nLastError As Integer
-    Dim sMsg As String
+    Dim sMSG As String
         
     If nLastError = nMsgNo Then
         Exit Sub
@@ -920,31 +920,31 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
     Select Case nMsgNo
         Case TXMOD_LINETAX_OK = 0           ' All's well
         Case TXMOD_LINETAX_NOMEM         ' Out of memory
-            sMsg = "Out of memory for tax calculation"
+            sMSG = "Out of memory for tax calculation"
         Case TXMOD_LINETAX_NODBASE       ' No database available
-            sMsg = "No database availble for tax calculation"
+            sMSG = "No database availble for tax calculation"
         Case TXMOD_LINETAX_NOTAXRECS     ' No tax records in the dbase
-            sMsg = "No tax records for the customer/product"
+            sMSG = "No tax records for the customer/product"
         Case TXMOD_LINETAX_NOINVHEAD     ' No inventory header record
-            sMsg = "No inventory header record available"
+            sMSG = "No inventory header record available"
         Case TXMOD_LINETAX_NOINVCLASS    ' No inventory class record
-            sMsg = "No inventory class record available"
+            sMSG = "No inventory class record available"
         Case TXMOD_LINETAX_BADSQL        ' SQL statement error
-            sMsg = "An error exists in the SQL statement for tax calculations"
+            sMSG = "An error exists in the SQL statement for tax calculations"
         Case TXMOD_LINETAX_BADBASIS      ' Bad basis flag
-            sMsg = "Bad basis flag from tax mods"
+            sMSG = "Bad basis flag from tax mods"
         Case TXMOD_LINETAX_BADBILLED     ' Bad billed units flag
-            sMsg = "Bad billed units flag"
+            sMSG = "Bad billed units flag"
         Case TXMOD_LINETAX_BADLTYPE      ' Bad line type (int/ext bl/del)
-            sMsg = "Bad line type"
+            sMSG = "Bad line type"
         Case TXMOD_LINETAX_BADPARMS     ' Bad parameters passed
-            sMsg = "Bad parameters for tax calculation"
+            sMSG = "Bad parameters for tax calculation"
     End Select
 
     If bShowMsgBox Then
-        MsgBox sMsg + ".", nButtons
+        MsgBox sMSG + ".", nButtons
     Else
-        sErrMsg = sMsg + "."
+        sErrMsg = sMSG + "."
     End If
 
 End Sub
@@ -2190,6 +2190,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim lDelGal As Long
     
     Dim sIEFlag As String
+    Dim bBOL_External As Boolean
     
     '#Make sure it is FM or Its Editor
     If m_Disable_A_Taxes Then
@@ -2397,10 +2398,20 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 End If
                 
                 If Not bTexasTax Then
-                     If rsDelD!bExternal = False Then
+                     '#determine if Internal or extLad
+                     bBOL_External = True
+                     rsLadHeader.MoveFirst
+                     Do While Not rsLadHeader.EOF
+                        If rsLadHeader!lLading = rsMvBal!lLading Then
+                            bBOL_External = rsLadHeader!bExternal
+                            Exit Do
+                        End If
+                        rsLadHeader.MoveNext
+                     Loop
+                     If bBOL_External = False Then
                          bTexasTax = True
                          bTexasDiverted = False
-                     Else
+                     ElseIf rsDelD!bExternal = True Then
                          strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(rsDelD!lDestination)
                          Set rsTemp = txMod_OpenRecord(strSQL)
                          If Not rsTemp Is Nothing Then
@@ -2518,7 +2529,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
 End Sub
 
 Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
-                               ByVal lMvmtNo As Long, ByVal sState As String, _
+                               ByVal lmvmtNo As Long, ByVal sState As String, _
                                ByVal lGal As Long, ByRef sTxCode As String, _
                                ByRef sTaxDesc As String, ByRef fTaxRate As Double)
     
@@ -2541,7 +2552,7 @@ Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
     'Get the Tax Use Group and Product Class
     strSQL = " SELECT lProductLink,szTaxUseGroup"
     strSQL = strSQL & " FROM mdeliverydetail"
-    strSQL = strSQL & " WHERE lMovement = " & tfnRound(lMvmtNo)
+    strSQL = strSQL & " WHERE lMovement = " & tfnRound(lmvmtNo)
     strSQL = strSQL & " AND lDelivery = " & tfnRound(lDeliveryNo)
     
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2856,7 +2867,7 @@ End Sub
 '#Then prorate it
 Private Sub subProrateBOLATax(ByVal lBOL As Long, _
                               ByVal nLadDCnt As Integer, _
-                              ByRef bTexasLDFee As Boolean, _
+                              ByRef Texas_Tax As Boolean, _
                               ByRef sTaxState As String)
     Dim i As Integer
     Dim j As Integer
@@ -2913,9 +2924,11 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
                                 End If
                                 If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
                                     sParm1055 = sSysParm1055
-                                    bTexasLDFee = True
                                 End If
                             End If
+                        End If
+                        If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS And .m_Taxes(i).m_cCharge <> vbKeyN Then
+                            Texas_Tax = True
                         End If
                     Next i
                     
@@ -2938,7 +2951,7 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
             End If
             lTaxableAmount = lFuelAmount
             
-            If bTexasLDFee Then
+            If Texas_Tax Then
                 If lGasAmount = lFuelAmount Then
                     If lGasAmount >= 7000 And lGasAmount < 8000 Then
                         lTaxableAmount = 8000
