@@ -1,0 +1,9 @@
+DIR=G:\PROGRAM\RELEASE\prft_rpt MASK=*.*
+DIR=G:\program\release\exectrak\common MASK=*.*
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\crystal MASK=*.*
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\custctl MASK=*.*
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\dll MASK=*.*
+DIR=G:\program\release\exectrak\local_db MASK=*.*
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\ole MASK=tbkit.dll
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\rtm MASK=*.*
+DIR=G:\PROGRAM\RELEASE\EXECTRAK\shared MASK=*.*
