@@ -1818,6 +1818,7 @@ Private Sub subInputSelected()
                 If colTemp.Item(1).CursorControl Then
                     m_clsEdit.GotoNextColumn nLastColumn
                     DoEvents
+                    If m_nSeries > 0 Then
                     If lLastRow = m_clsEdit.GetCurrentRowNumber Then
                         For i = 1 To colTemp.Count
                             If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
@@ -1826,6 +1827,7 @@ Private Sub subInputSelected()
                                 Exit For
                             End If
                         Next
+                    End If
                     End If
                     On Error Resume Next
                     tgMain.SetFocus
