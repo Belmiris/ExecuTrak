@@ -1258,7 +1258,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1580,9 +1580,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1753,7 +1753,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -2022,7 +2022,17 @@ Public Function RowColChange(tgTable As Object) As Boolean
                     End If
                 Else
                     If m_nSeries > 0 Then
+                        'david 02/25/2005  #474654
+                        'Fixed RTE 9 Subscript out of range
+                        'VERY SPECIAL CASE that happens in RSEPRCH0
+                        'is long story to explain how it happens...
+                        'Error occurred in Invoices tab. When C-Store Purchases option
+                        'is selected, and the focus is in "Inv Code" column of the grid
+                        'Then mouse-click on the Unit Inventory Purchases radio button
+                        On Error Resume Next
                         colDropDowns.Item(m_nSeries).Item(1).Status = False
+                        On Error GoTo 0
+                        ''''''''''''''''''''''''''
                         'RowColChange = False
                     End If
                 End If
@@ -2035,6 +2045,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
         m_nSeries = lDropDown
     End If
 End Function
+
 Property Let DropDownSQL(ByVal nIndex As Integer, SQL As String)
     Dim colColumn As Collection
 
@@ -2065,7 +2076,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2082,7 +2093,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2597,7 +2608,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
 End Function
 
