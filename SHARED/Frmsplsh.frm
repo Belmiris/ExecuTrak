@@ -667,7 +667,7 @@ Private Function fnIsPath(sPath As String) As Boolean
 
     On Error Resume Next
     ChDir sPath
-    If Err.Number > 0 Then
+    If err.Number > 0 Then
         fnIsPath = False
     Else
         fnIsPath = True
@@ -693,7 +693,7 @@ Private Function fnIsFile(ByVal szFilename As String) As Boolean
     Exit Function
 errNotFile:
     #If DEVELOP Then
-        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
+        MsgBox "Error # " & err.Number & vbCrLf & "Error Message: " & err.Description & " - " & szFilename
     #End If
 End Function
 
@@ -721,9 +721,9 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
             sPath = sPath & "\" & sDirs(i)
         End If
         If Not fnIsPath(sPath) Then
-            Err.Clear
+            err.Clear
             MkDir sPath
-            If Err.Number <> 0 Then
+            If err.Number <> 0 Then
                 Exit Function
             End If
         End If
@@ -1002,11 +1002,13 @@ Private Sub btnOK_Click()
     Dim sPWD As String
     
     Screen.MousePointer = vbHourglass
-    Me.Hide
+    
     sPWD = txtPassword.Text
     If sPWD = "" Then
         sPWD = "fakePPP"
     End If
+    
+    On Error GoTo errTrap
     
     m_sDSN = cmbDataSet.Text
     m_sDriver = colDrivers(m_sDSN)
@@ -1014,13 +1016,30 @@ Private Sub btnOK_Click()
     m_sPWD = sPWD
     
     If Not fnSetODBCINIPath(m_sDSN) Then
-        subCriticalMsg "Cannot find ODBC.INI in the Windows registry. Contact Factor.", szFORM_NAME
-        Unload Me
+        subCriticalMsg "Cannot find ODBC.INI in the Windows registry. Please report this message to support.", szFORM_NAME
+        Exit Sub
     End If
     
     t_szConnect = fnConnectString(m_sDSN)
     
+    Me.Hide
+    
     subShowMainForm
+    
+    Exit Sub
+    
+errTrap:
+    Screen.MousePointer = vbDefault
+    
+    If err.Number = 5 Then
+        subCriticalMsg "Data Source Name is not valid.", szFORM_NAME
+        subSetFocus cmbDataSet
+    Else
+        subCriticalMsg "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
+            err.Number & vbCrLf & "Error Desc: " + err.Description + "." + vbCrLf + vbCrLf + _
+            "Please report this message to support.", szFORM_NAME
+        subSetFocus txtPassword
+    End If
 End Sub
 
 Private Sub cmbDataSet_Click()
