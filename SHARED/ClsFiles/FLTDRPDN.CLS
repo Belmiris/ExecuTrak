@@ -472,7 +472,7 @@ End Sub
     GetWindowRect n_hWnd, myRect
 
     myPoint.x = myRect.Left
-    myPoint.Y = myRect.Top
+    myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
@@ -481,7 +481,7 @@ End Sub
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -1037,7 +1037,7 @@ Public Sub Resize()
     Dim nColumn As Integer
     Dim colTemp As Collection
 
-    fnResizeTable tgMain
+'    fnResizeTable tgMain
 
     nMainTableTop = -1
     DoEvents
@@ -1539,8 +1539,8 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(Y As Single)
-    nClickPointY = Y
+Public Sub MouseUp(y As Single)
+    nClickPointY = y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
