@@ -207,6 +207,7 @@ Private Const MAX_COL_arySortKeysCount As Integer = 1
 
 Private m_arySortKeysCount() As Integer
 Private m_bSortOnCol As Boolean
+Private m_bSortWhenGridNotvalid As Boolean
 '
 '
 
@@ -4429,6 +4430,10 @@ Private Sub Class_Initialize()
     m_bAllowRevalidate = False
     lMaxRows = -1
     sDownArrowMessage = "No new rows can be added unless previous input is valid"
+
+    m_bSortOnCol = False
+    m_bSortWhenGridNotvalid = False
+
 End Sub
 
 Private Sub Class_Terminate()
@@ -4447,6 +4452,14 @@ End Property
 
 Property Get SortByColumn() As Boolean
     SortByColumn = m_bSortOnCol
+End Property
+
+Property Let SortIgnoreGridValidation(bStatus As Boolean)
+    m_bSortWhenGridNotvalid = bStatus
+End Property
+
+Property Get SortIgnoreGridValidation() As Boolean
+    SortIgnoreGridValidation = m_bSortWhenGridNotvalid
 End Property
 
 Property Get NUMERIC_TYPE() As Integer
@@ -4590,6 +4603,12 @@ Public Sub SortCol(nSortCol As Integer, _
     Dim sSortCols As String
     
     On Error GoTo errTrap
+    
+    If Not m_bSortWhenGridNotvalid Then
+        If Not ValidData Then
+            Exit Sub
+        End If
+    End If
     
     'check the exists of sort column
     nIndex = -1
