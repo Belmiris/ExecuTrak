@@ -45,11 +45,12 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************'
-' Call:        373319-1
-' Description: This is the form that will laungh the report server for
-'              report syrtbchg
-' Programmer:  Junsong Qiu
-' Date:        02/25/2003
+' Call:         447166
+' Description:  This form is used to preview/print the html style
+'               report
+' Programmer:   David Chai,
+'               Clone the Form (frmBrowser) that was done by Junsong Qiu
+' Date:         05/26/2004
 '**************************************************************'
 
 Option Explicit
@@ -99,7 +100,7 @@ Public Sub BuildInternetReport(frmMain As Form, _
     
     On Error Resume Next
     sStatusbarMsg = frmMain.ffraStatusbar.Caption
-    frmMain.tfnSetStatusBarCorrect "Creating Report. Please wait..."
+    frmMain.tfnSetStatusBarMessage "Creating Report. Please wait..."
     On Error GoTo 0
     
     On Error GoTo EXITHERE
@@ -217,6 +218,12 @@ Public Sub BuildInternetReport(frmMain As Form, _
             PrintInternetReport
         End If
     End If
+    
+    On Error Resume Next
+    If sStatusbarMsg <> "" Then
+        frmMain.tfnSetStatusBarMessage sStatusbarMsg
+    End If
+    On Error GoTo 0
     
 EXITHERE:
     If bFileOpen Then
