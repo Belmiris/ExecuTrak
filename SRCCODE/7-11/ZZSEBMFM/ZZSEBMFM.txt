@@ -8,9 +8,10 @@ Help ID's Range(400-500)
 403	Employee Name Search Button
 
 404	Table True Grid Control
+	Profit Center Column
 	Bonus Code Column
 	Code Description Column
-	Eligible Profit Center Column
 	Eligible Date Column
 	Eligible Class Column
 	Stop Date Column
+	Override Column
