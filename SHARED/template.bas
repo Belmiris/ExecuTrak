@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -66,6 +66,8 @@ Global Const szHelpZZFPCAFM As String = "ZZFPCAFM.HLP"  'Retail Sales Export Fil
 Global Const szHelpTouchStar As String = "TCHSTAR.HLP"  'TocuhStar     'Vijaya 02/24/01...
 Global Const szHelpMgntRpt As String = "MRPT.HLP"  'Management Reports File Maintenance     'Vijaya on 07/12/02
 Public Const szHelpMANNATEC As String = "MANNATEC.HLP"
+Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
+
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
 Public Const t_szCANCEL_MESSAGE = "All changes will be lost! Do you want to cancel anyway ?"
 Public Const t_szREFRESH_MESSAGE = "All changes will be lost! Do you want to refresh anyway ?"
@@ -1314,7 +1316,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2418,7 +2420,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
