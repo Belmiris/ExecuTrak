@@ -628,7 +628,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -651,7 +651,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -2445,7 +2445,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2467,7 +2467,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3193,7 +3193,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3261,8 +3261,7 @@ End Function
 'Date       : 07/22/03
 'Magic#     : 412821-1
 'Description: This functions is used to Read the SYS_INI TABLE.
-'             if any value it will return other wise it will send null
-'             Return error message if any
+'             if any value it will return otherwise it will return empty string
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
@@ -3290,13 +3289,13 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     If sUserID <> "" Then
         strSQL = strSQL & " AND ini_user_id = " + tfnSQLString(UCase(sUserID))
     Else
-        strSQL = strSQL & " AND ini_user_id is Null"
+        strSQL = strSQL & " AND (ini_user_id is Null OR ini_user_id = '')"
     End If
     
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3304,7 +3303,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3325,7 +3324,6 @@ End Function
 'Description: This functions is used to Write the SYS_INI TABLE.
 '             it will check the data is exist or not
 '             if it exits it will update other wise insert into table
-'             Return error message if any
 '*****************************************************************************************
 
 Public Function tfn_Write_SYS_INI(sFileName As String, _
@@ -3345,7 +3343,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
@@ -3364,9 +3362,10 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     End If
     
     t_dbMainDatabase.ExecuteSQL strSQL
+    tfn_Write_SYS_INI = True
     Exit Function
 
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
