@@ -95,7 +95,7 @@ smg_vent_position2  text (10),
 smg_protected       text (10),
 smg_protected2      text (10));
 
-CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank);
+CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank, smg_customer);
 
 
 Notes:  This change was done from ZZEFOGCK 3.25.1201.
