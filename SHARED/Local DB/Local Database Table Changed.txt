@@ -1,3 +1,9 @@
+version: 3.25.13
+Date: 10/02/2001
+Description: 
+	add new tables: sm_purchases_rpt, sm_travel_rpt, sm_work_performed_rpt.
+	alter table sm_wo_rpt add columns (smwr_project_nbr, smwr_org_wo_nbr, smwr_promised_date).
+
 version: 3.25.12
 Date: 09/19/2001
 Description: 
