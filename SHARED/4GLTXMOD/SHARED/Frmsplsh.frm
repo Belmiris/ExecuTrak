@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Begin VB.Form frmSplash 
    Appearance      =   0  'Flat
    BackColor       =   &H00800000&
@@ -21,208 +20,173 @@ Begin VB.Form frmSplash
    ForeColor       =   &H00800000&
    Icon            =   "Frmsplsh.frx":0000
    LinkTopic       =   "Form1"
-   LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   2835
    ScaleWidth      =   7545
-   Begin FACTFRMLib.FactorFrame FactorFrame1 
-      Height          =   2844
-      Left            =   0
-      TabIndex        =   8
+   Begin VB.PictureBox picMain 
+      Height          =   2604
+      Left            =   132
+      ScaleHeight     =   2550
+      ScaleWidth      =   5670
+      TabIndex        =   9
       TabStop         =   0   'False
-      Top             =   0
-      Width           =   7548
-      _Version        =   65536
-      _ExtentX        =   13314
-      _ExtentY        =   5016
-      _StockProps     =   77
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+      Top             =   120
+      Width           =   5724
+      Begin VB.ComboBox cmbDataSet 
+         Appearance      =   0  'Flat
+         BackColor       =   &H8000000F&
+         Height          =   324
+         Left            =   1860
+         TabIndex        =   0
+         Top             =   180
+         Width           =   1992
+      End
+      Begin VB.TextBox txtDatabase 
+         Height          =   336
+         Left            =   1860
+         TabIndex        =   1
+         Top             =   636
+         Width           =   1995
+      End
+      Begin VB.TextBox txtHost 
+         Height          =   336
+         Left            =   1860
+         TabIndex        =   2
+         Top             =   1056
+         Width           =   1995
+      End
+      Begin VB.TextBox txtUserName 
+         Height          =   336
+         Left            =   1860
+         TabIndex        =   3
+         Top             =   1476
+         Width           =   1995
+      End
+      Begin VB.TextBox txtPassword 
+         Height          =   336
+         IMEMode         =   3  'DISABLE
+         Left            =   1860
+         PasswordChar    =   "*"
+         TabIndex        =   4
+         Top             =   1896
+         Width           =   1995
+      End
+      Begin VB.Image Image1 
+         Appearance      =   0  'Flat
+         BorderStyle     =   1  'Fixed Single
+         Height          =   2055
+         Left            =   4035
+         Picture         =   "Frmsplsh.frx":030A
+         Top             =   180
+         Width           =   1530
+      End
+      Begin VB.Label lblStatic 
+         Appearance      =   0  'Flat
+         Caption         =   "Data Set Name :"
+         ForeColor       =   &H80000008&
+         Height          =   312
+         Index           =   0
+         Left            =   144
+         TabIndex        =   8
+         Top             =   228
+         Width           =   1776
+      End
+      Begin VB.Label lblStatic 
+         Appearance      =   0  'Flat
+         Caption         =   "Password :"
+         ForeColor       =   &H80000008&
+         Height          =   312
+         Index           =   1
+         Left            =   156
+         TabIndex        =   13
+         Top             =   1956
+         Width           =   1308
+      End
+      Begin VB.Label lblStatic 
+         Appearance      =   0  'Flat
+         Caption         =   "User Name :"
+         ForeColor       =   &H80000008&
+         Height          =   312
+         Index           =   4
+         Left            =   144
+         TabIndex        =   12
+         Top             =   1524
+         Width           =   1428
+      End
+      Begin VB.Label lblStatic 
+         Appearance      =   0  'Flat
+         Caption         =   "Host Name :"
+         ForeColor       =   &H80000008&
+         Height          =   312
+         Index           =   3
+         Left            =   144
+         TabIndex        =   11
+         Top             =   1092
+         Width           =   1416
+      End
+      Begin VB.Label lblStatic 
+         Appearance      =   0  'Flat
+         Caption         =   "Database Name :"
+         ForeColor       =   &H80000008&
+         Height          =   312
+         Index           =   2
+         Left            =   144
+         TabIndex        =   10
+         Top             =   672
+         Width           =   1704
+      End
+   End
+   Begin VB.CommandButton btnOK 
+      Caption         =   "O&K"
+      BeginProperty Font 
          Name            =   "Arial"
-         Size            =   10.48
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      BevelOuter      =   0
-      BorderWidth     =   0
-      TitleBarHeight  =   24
-      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "MS Sans Serif"
-         Size            =   12
+      Height          =   360
+      Left            =   6084
+      TabIndex        =   5
+      Top             =   516
+      Width           =   1308
+   End
+   Begin VB.CommandButton btnCancel 
+      Caption         =   "&Cancel"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Begin VB.PictureBox picMain 
-         Height          =   2604
-         Left            =   132
-         ScaleHeight     =   2550
-         ScaleWidth      =   5670
-         TabIndex        =   9
-         TabStop         =   0   'False
-         Top             =   120
-         Width           =   5724
-         Begin VB.ComboBox cmbDataSet 
-            Appearance      =   0  'Flat
-            BackColor       =   &H8000000F&
-            Height          =   324
-            Left            =   1860
-            TabIndex        =   0
-            Top             =   180
-            Width           =   1992
-         End
-         Begin VB.TextBox txtDatabase 
-            Height          =   336
-            Left            =   1860
-            TabIndex        =   1
-            Top             =   636
-            Width           =   1995
-         End
-         Begin VB.TextBox txtHost 
-            Height          =   336
-            Left            =   1860
-            TabIndex        =   2
-            Top             =   1056
-            Width           =   1995
-         End
-         Begin VB.TextBox txtUserName 
-            Height          =   336
-            Left            =   1860
-            TabIndex        =   3
-            Top             =   1476
-            Width           =   1995
-         End
-         Begin VB.TextBox txtPassword 
-            Height          =   336
-            IMEMode         =   3  'DISABLE
-            Left            =   1860
-            PasswordChar    =   "*"
-            TabIndex        =   4
-            Top             =   1896
-            Width           =   1995
-         End
-         Begin VB.Image Image1 
-            Appearance      =   0  'Flat
-            BorderStyle     =   1  'Fixed Single
-            Height          =   1932
-            Left            =   4188
-            Picture         =   "Frmsplsh.frx":030A
-            Stretch         =   -1  'True
-            Top             =   252
-            Width           =   1404
-         End
-         Begin VB.Label lblStatic 
-            Appearance      =   0  'Flat
-            Caption         =   "Data Set Name :"
-            ForeColor       =   &H80000008&
-            Height          =   312
-            Index           =   0
-            Left            =   144
-            TabIndex        =   14
-            Top             =   228
-            Width           =   1776
-         End
-         Begin VB.Label lblStatic 
-            Appearance      =   0  'Flat
-            Caption         =   "Password :"
-            ForeColor       =   &H80000008&
-            Height          =   312
-            Index           =   1
-            Left            =   156
-            TabIndex        =   13
-            Top             =   1956
-            Width           =   1308
-         End
-         Begin VB.Label lblStatic 
-            Appearance      =   0  'Flat
-            Caption         =   "User Name :"
-            ForeColor       =   &H80000008&
-            Height          =   312
-            Index           =   4
-            Left            =   144
-            TabIndex        =   12
-            Top             =   1524
-            Width           =   1428
-         End
-         Begin VB.Label lblStatic 
-            Appearance      =   0  'Flat
-            Caption         =   "Host Name :"
-            ForeColor       =   &H80000008&
-            Height          =   312
-            Index           =   3
-            Left            =   144
-            TabIndex        =   11
-            Top             =   1092
-            Width           =   1416
-         End
-         Begin VB.Label lblStatic 
-            Appearance      =   0  'Flat
-            Caption         =   "Database Name :"
-            ForeColor       =   &H80000008&
-            Height          =   312
-            Index           =   2
-            Left            =   144
-            TabIndex        =   10
-            Top             =   672
-            Width           =   1704
-         End
-      End
-      Begin VB.CommandButton btnOK 
-         Caption         =   "O&K"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   9.75
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   360
-         Left            =   6084
-         TabIndex        =   5
-         Top             =   516
-         Width           =   1308
-      End
-      Begin VB.CommandButton btnCancel 
-         Caption         =   "&Cancel"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   9.75
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   360
-         Left            =   6084
-         TabIndex        =   6
-         Top             =   1236
-         Width           =   1308
-      End
-      Begin VB.CommandButton btnHelp 
-         Caption         =   "&Help"
-         BeginProperty Font 
-            Name            =   "Arial"
-            Size            =   9.75
-            Charset         =   0
-            Weight          =   400
-            Underline       =   0   'False
-            Italic          =   0   'False
-            Strikethrough   =   0   'False
-         EndProperty
-         Height          =   360
-         Left            =   6084
-         TabIndex        =   7
-         Top             =   1980
-         Width           =   1308
-      End
+      Height          =   360
+      Left            =   6084
+      TabIndex        =   6
+      Top             =   1236
+      Width           =   1308
+   End
+   Begin VB.CommandButton btnHelp 
+      Caption         =   "&Help"
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   360
+      Left            =   6084
+      TabIndex        =   7
+      Top             =   1980
+      Width           =   1308
    End
 End
 Attribute VB_Name = "frmSplash"
@@ -907,7 +871,7 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub btnHelp_Click()
-    WinHelp Me.hwnd, szHelpFileName, HELP_CONTENTS, CLng(0)
+    WinHelp Me.hWnd, szHelpFileName, HELP_CONTENTS, CLng(0)
 End Sub
 
 Private Sub btnOK_Click()
