@@ -467,6 +467,15 @@ Public Const FM_FO_INTERFACE_UP = 15250
 Public Const VIEW_SYS_TBL_CHG_UP = 15300
 '''''''''''''''''
 
+'david 07/26/2003
+'Note: From this point the next id will be last id + 10
+'#412821-1
+Public Const SEWALL_CUSTOM_PROGRAM_UP = 15310  'no program
+'#379860-3
+Public Const AR_ALTNAME_UP = 15320  'ARFALTNM.EXE
+Public Const ENTER_DELIVERIES_UP = 15330  'no program
+'''''''''''''''''
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -2841,7 +2850,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3058,7 +3067,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
