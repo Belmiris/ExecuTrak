@@ -143,7 +143,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     On Error GoTo errTrap
     
-    lRow = val(Bookmark)
+    lRow = Val(Bookmark)
     
     If lRow < 0 Then
         Exit Sub
@@ -240,10 +240,10 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 
                 sRightValue = sRightSide
                 
-                If UCase(Mid(sCondition, 4, 1)) = "[" Then
+                If Left(sRightValue, 1) = "[" Then
                     'get another col, row
                     'remove ]
-                    sRightValue = Left(sRightValue, Len(sRightValue) - 1)
+                    sRightValue = Mid(sRightValue, 2, Len(sRightValue) - 2)
                     
                     nCol2 = InStr(sRightValue, ",")
                     
@@ -286,11 +286,11 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                         End If
                     'End If
                 Case "<<"  'numeric less than
-                    If val(sLeftValue) < val(sRightValue) Then
+                    If Val(sLeftValue) < Val(sRightValue) Then
                         Exit For
                     End If
                 Case ">>"  'numeric greater than
-                    If val(sLeftValue) > val(sRightValue) Then
+                    If Val(sLeftValue) > Val(sRightValue) Then
                         Exit For
                     End If
                 Case "LT"  'string/date less than
