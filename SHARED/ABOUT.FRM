@@ -27,7 +27,7 @@ Begin VB.Form frmAbout
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   7.68
+         Size            =   7.8
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -74,7 +74,7 @@ Begin VB.Form frmAbout
    Begin VB.Image imgFactor 
       Height          =   672
       Left            =   96
-      Picture         =   "ABOUT.frx":0000
+      Picture         =   "About.frx":0000
       Top             =   60
       Width           =   504
    End
@@ -110,7 +110,13 @@ Private Sub Form_Load()
 '    lblCompany.Caption = App.CompanyName
     lblCompany.Caption = App.LegalCopyright  ' Change to copy right for VB6. Ma 07/30/99
     lblModuleName.Caption = "Module Name: " & App.FileDescription
-    lblProduct.Caption = "Version: " & CStr(App.Major) & "." & CStr(App.Minor) & "." & CStr(App.Revision)
+    'david 10/09/00
+    If Val(App.Minor) >= 20 Then
+        lblProduct.Caption = "Version: " & Format(App.Major, "#0") & "." _
+            & Format(App.Minor, "00") & "." & Format(App.Revision, "0000")
+    Else
+        lblProduct.Caption = "Version: " & CStr(App.Major) & "." & CStr(App.Minor) & "." & CStr(App.Revision)
+    End If
     Screen.MousePointer = vbDefault
 End Sub
 
