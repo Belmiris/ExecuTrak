@@ -1326,7 +1326,7 @@ Private Sub Form_Load()
         
         'open the database, ODBC Dialog Box during developemnt, oleObject Connection String when not
         If Not tfnOpenDatabase(False, sErrorMessage) Then
-            MsgBox sErrorMessage & vbCrLf & "**System Error: Unable to open Database, Program was terminated", vbCritical
+            MsgBox "Unable to open Database. Program terminates.", vbCritical
             Unload Me
             Exit Sub
         End If
@@ -1334,7 +1334,7 @@ Private Sub Form_Load()
         'connect to local database
         Set dbLocal = tfnOpenLocalDatabase(False, sErrorMessage)
         If dbLocal Is Nothing Then
-            MsgBox sErrorMessage & vbCrLf & "**System Error: Unable to open Local Database, Program was terminated"
+            MsgBox "Unable to open Local Database. Program terminates.", vbCritical
             Unload Me
             Exit Sub
         End If
@@ -2967,9 +2967,9 @@ Continue:
     strSQL = "CREATE TEMP TABLE tmpVariable (Variable char(18))"
     fnExecuteSQL strSQL, , SUB_NAME
     
-    sarrVariable = Array("inside_sales", "gallons_gas", "day_off_slip_days", "total_pay", _
-        "months_in_grade", "years_as_manager", "months_employed", "shortage_amount", _
-        "check_amount", "pay_hours", "min_pay")
+    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
+        "months_as_manager", "years_as_manager", "months_employed", "shortage_amount", _
+        "check_amount", "pay_hours")
     
     For i = 0 To UBound(sarrVariable)
         strSQL = "INSERT INTO tmpvariable VALUES(" & tfnSQLString(sarrVariable(i)) & ")"
