@@ -162,6 +162,8 @@ Global group_amount As Double
 Global tax_amount As Single
 Global true_sign As Double
 
+Private bUseNonStkMstr As Boolean
+
 Private Const nDBInformix As Integer = 1
 
 Public Sub initialize_tax_buffers()
@@ -213,7 +215,6 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
     If pr_gl_master Is Nothing Then
         pr_gl_master_glm_account = buckt
         pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
         found_error = True: error_found = 10
         Exit Sub
     End If
@@ -229,7 +230,6 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
     If pr_gl_master Is Nothing Then
         pr_gl_master_glm_account = clearing_acct
         pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
         found_error = True: error_found = 10
         Exit Sub
     End If
@@ -269,7 +269,6 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
     If pr_gl_master Is Nothing Then
         pr_gl_master_glm_account = ap_cntl
         pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
         found_error = True: error_found = 10
         Exit Sub
     End If
@@ -280,45 +279,54 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
             found_error = True: error_found = 1020
             Exit Sub
         End If
-'        return true, 1
         found_error = True: error_found = 1
         Exit Sub
     End If
+
+    bUseNonStkMstr = False
 
     Set pr_inv_header = finv_header(prod, t_dbMainDatabase)
     Set pr_inv_master = finv_master(pr_inv_header!ivh_link, this_pc, t_dbMainDatabase)
+    
     If pr_inv_master Is Nothing Then
-'        return true,1
-        found_error = True: error_found = 1
-        Exit Sub
+        'david 03/22/00
+        'try PO_NON_STOCK_MSTR to obtain the G/L accounts
+        If fnCheckNonStkMstr(pr_inv_master, pr_inv_header!ivh_link, this_pc) Then
+                bUseNonStkMstr = True
+        Else
+            found_error = True: error_found = 1
+            Exit Sub
+        End If
     End If
-    Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_sales, this_pc, t_dbMainDatabase)
-    If pr_gl_master Is Nothing Then
-        pr_gl_master_glm_account = pr_inv_master!invt_gl_sales
-        pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
-        found_error = True: error_found = 10
-        Exit Sub
+    
+    If Not bUseNonStkMstr Then
+        Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_sales, this_pc, t_dbMainDatabase)
+        If pr_gl_master Is Nothing Then
+            pr_gl_master_glm_account = pr_inv_master!invt_gl_sales
+            pr_gl_master_glm_prft_ctr = this_pc
+            found_error = True: error_found = 10
+            Exit Sub
+        End If
     End If
-
+    
     Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_cost, this_pc, t_dbMainDatabase)
     If pr_gl_master Is Nothing Then
         pr_gl_master_glm_account = pr_inv_master!invt_gl_cost
         pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
         found_error = True: error_found = 10
         Exit Sub
     End If
 
-    Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_invt, this_pc, t_dbMainDatabase)
-    If pr_gl_master Is Nothing Then
-        pr_gl_master_glm_account = pr_inv_master!invt_gl_invt
-        pr_gl_master_glm_prft_ctr = this_pc
-'        return true, 10
-        found_error = True: error_found = 10
-        Exit Sub
+    If Not bUseNonStkMstr Then
+        Set pr_gl_master = fgl_master(sSeries, pr_inv_master!invt_gl_invt, this_pc, t_dbMainDatabase)
+        If pr_gl_master Is Nothing Then
+            pr_gl_master_glm_account = pr_inv_master!invt_gl_invt
+            pr_gl_master_glm_prft_ctr = this_pc
+            found_error = True: error_found = 10
+            Exit Sub
+        End If
     End If
-
+    
     If tb_buckt = 0 Then
         tb_buckt = pr_inv_master!invt_gl_cost
     End If
@@ -328,12 +336,10 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
 
     Set pr_inv_classes = finv_classes(pr_inv_header!ivh_prodtcl, "T", t_dbMainDatabase)
     If pr_inv_classes Is Nothing Then
-'        return true,12
         found_error = True: error_found = 12
         Exit Sub
     End If
 
-'    return false,0    { thats good }
     found_error = False: error_found = 0
 End Sub
 
@@ -373,23 +379,13 @@ Public Sub filter_trn()
 
     fltr_arry_cnt = 0
     ReDim fltr_arry(trn_max)
-'    For i = 1 To trn_max
-'        initialize fltr_arry(i).* to null
-'    Next
 
     If trn_arry_cnt < 1 Then
         Exit Sub
     End If
 
     i = 1
-'------------- david
-'    Dim ntemp As Integer
-'    ntemp = trn_arry_cnt
-'    While i <= ntemp
-'-------------------
-'============= original
     While i <= trn_arry_cnt
-'======================
         If (trn_arry(i).charge = "Y" Or trn_arry(i).charge = "N") And (trn_arry(i).limit = 0 Or trn_arry(i).extn <> 0) Then
             i = i + 1
             GoTo continue_while
@@ -402,12 +398,9 @@ Public Sub filter_trn()
             k = j + 1
             trn_arry(j) = trn_arry(k)
         Next
-'------------- david
-'        ntemp = ntemp - 1
-'-------------------
-'============= original
+        
         trn_arry_cnt = trn_arry_cnt - 1
-'======================
+
 continue_while:
     Wend
 End Sub
@@ -512,7 +505,6 @@ Public Sub extrn_bl_gl(this_pc As Long, _
     End If   '{end of tax check }
 
     filter_trn
-'    return false,0  { thats good }
     found_error = False: error_found = 0
 
 End Sub
@@ -536,7 +528,6 @@ Public Sub extrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
     End If
 
     filter_trn
-'    return false,0  { thats good }
     found_error = False: error_found = 0
 
 End Sub
@@ -560,7 +551,6 @@ Public Sub intrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
     End If
 
     filter_trn
-'    return false,0  { thats good }
     found_error = False: error_found = 0
 
 End Sub
@@ -577,7 +567,6 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     
     setup_for_gl product, this_pc, tax_acct
     If found_error Then
-'        return found_error,error_found
         Exit Sub
     End If
 
@@ -670,7 +659,6 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     End If              '{end of tax check }
 
     filter_trn
-'    return false,0  { thats good }
     found_error = False: error_found = 0
     
 End Sub
@@ -765,7 +753,6 @@ Public Sub intrn_del_gl(this_pc As Long, _
     If pr_inv_classes!icl_fuel_tax = "Y" And tunits <> 0 Then  '{  No taxes anyway }
         For L = 1 To trn_arry_cnt
             If trn_arry(L).charge = "Y" Then
-'                return true,11
                 found_error = True: error_found = 11
                 Exit Sub
             End If
@@ -775,7 +762,6 @@ Public Sub intrn_del_gl(this_pc As Long, _
     End If   '{end of tax check }
 
     filter_trn
-'    return false,0  { thats good }
     found_error = False: error_found = 0
 
 End Sub
@@ -807,24 +793,19 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     If pr_cust_ctr Is Nothing Then
         Set pr_altname = far_altname(cust, t_dbMainDatabase)
         If pr_altname Is Nothing Then
-'            return true,5
             found_error = True: error_found = 5
             Exit Sub
         End If
         Set pr_customer = far_customer(pr_altname!an_cust, t_dbMainDatabase)
         If pr_customer Is Nothing Then
-'            return true,5
             found_error = True: error_found = 5
             Exit Sub
         End If
         Set pr_ar_class = far_class(pr_customer!cust_cust_class, t_dbMainDatabase)
     Else
-'        pr_customer!cust_cust_class = "PRFTC"
         Set pr_ar_class = far_class("PRFTC", t_dbMainDatabase)
     End If
-'Set pr_ar_class = far_class(pr_customer!cust_cust_class, t_dbMainDatabase)
     If pr_ar_class Is Nothing Then
-'        return true,6
             found_error = True: error_found = 6
             Exit Sub
     End If
@@ -922,8 +903,6 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     End If   '{end of tax check }
 
     filter_trn
-    
-'    return false,0  { thats good }
     found_error = False: error_found = 0
     
 End Sub
@@ -1111,8 +1090,9 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
     Wend
     bParam1 = False
     nParam2 = 0
-'    return false,0    {Thats good}
+
 Exit Sub
+
 For si = 1 To trn_arry_cnt
 With trn_arry(si)
 Debug.Print .ttype; " ";
@@ -1491,7 +1471,6 @@ Public Sub detax(use_group As String, tclass As String, _
         End If
     End If
 
-'    return false, 0   { thats good  }
     found_error = False: error_found = 0
 
 End Sub
@@ -1785,6 +1764,7 @@ Private Function dround(v As Variant) As Variant
     End If
 '    Debug.Print "dround = "; dround
 End Function    ''dround
+
 'Next function WJ added on 1/11/99
 'Returns: "I" or "L" ----Cal Tax by Invoice or Line by Line
 'Originally this is determined by parm110031 but now it related to trn number
@@ -1841,6 +1821,7 @@ FieldNotExit:
     Err.Clear
     On Error GoTo 0
 End Function
+
 Private Function fnGetRecord(rsTemp As Recordset, strSQL As String, _
            nDB As Integer, szCallingFunction As String, Optional vShowMsg) As Long
 
@@ -1891,3 +1872,16 @@ Private Function fnCStr(vTemp As Variant) As String
     
 End Function
 
+Private Function fnCheckNonStkMstr(rsIn As Recordset, _
+                                   lProdlnk As Long, _
+                                   lPrftCtr As Long) As Boolean
+    
+    Const SUB_NAME As String = "fnCheckNonStkMstr"
+    Dim sSql As String
+    
+    sSql = "SELECT ponsm_gl_cost AS invt_gl_cost, 0 AS invt_gl_sales, " _
+        + "0 AS invt_gl_invt FROM po_non_stock_mstr WHERE ponsm_link = " & lProdlnk _
+        & " AND ponsm_prft_ctr = " & lPrftCtr
+        
+    fnCheckNonStkMstr = fnGetRecord(rsIn, sSql, nDBInformix, SUB_NAME, False) > 0
+End Function
