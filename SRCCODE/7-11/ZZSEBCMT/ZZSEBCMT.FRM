@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmZZSEBCMT 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Commission Code File Maintenance"
@@ -50,9 +50,9 @@ Begin VB.Form frmZZSEBCMT
       TabIndex        =   19
       TabStop         =   0   'False
       Top             =   6000
-      Width           =   8970
+      Width           =   8964
       _Version        =   65536
-      _ExtentX        =   15822
+      _ExtentX        =   15811
       _ExtentY        =   635
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -134,15 +134,15 @@ Begin VB.Form frmZZSEBCMT
          TabsPerPage     =   4
          Caption         =   "Co&mmission Code|Comm &Type / Freq|Commission &Grades"
          Begin FACTFRMLib.FactorFrame efraBaseGrades 
-            Height          =   5085
-            Left            =   18150
+            Height          =   5124
+            Left            =   14520
             TabIndex        =   29
             TabStop         =   0   'False
             Top             =   0
-            Width           =   8910
+            Width           =   8916
             _Version        =   65536
-            _ExtentX        =   15716
-            _ExtentY        =   8969
+            _ExtentX        =   15727
+            _ExtentY        =   9038
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -447,15 +447,15 @@ Begin VB.Form frmZZSEBCMT
             End
          End
          Begin FACTFRMLib.FactorFrame efraBaseType 
-            Height          =   5085
-            Left            =   18075
+            Height          =   5124
+            Left            =   14460
             TabIndex        =   28
             TabStop         =   0   'False
             Top             =   0
-            Width           =   8910
+            Width           =   8916
             _Version        =   65536
-            _ExtentX        =   15716
-            _ExtentY        =   8969
+            _ExtentX        =   15727
+            _ExtentY        =   9038
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -583,15 +583,15 @@ Begin VB.Form frmZZSEBCMT
             End
          End
          Begin FACTFRMLib.FactorFrame efraBaseBCode 
-            Height          =   5055
-            Left            =   15
+            Height          =   5100
+            Left            =   12
             TabIndex        =   26
             TabStop         =   0   'False
-            Top             =   15
-            Width           =   8880
+            Top             =   12
+            Width           =   8892
             _Version        =   65536
-            _ExtentX        =   15663
-            _ExtentY        =   8916
+            _ExtentX        =   15684
+            _ExtentY        =   8996
             _StockProps     =   77
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -628,7 +628,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -665,7 +665,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -702,7 +702,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -739,7 +739,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -776,7 +776,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -830,6 +830,20 @@ Begin VB.Form frmZZSEBCMT
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.PictureBox picFullText 
+                  Appearance      =   0  'Flat
+                  BackColor       =   &H80000005&
+                  ForeColor       =   &H80000008&
+                  Height          =   432
+                  Left            =   708
+                  ScaleHeight     =   408
+                  ScaleWidth      =   1380
+                  TabIndex        =   35
+                  TabStop         =   0   'False
+                  Top             =   2508
+                  Visible         =   0   'False
+                  Width           =   1404
+               End
                Begin VB.PictureBox cmdDropdown 
                   Appearance      =   0  'Flat
                   BackColor       =   &H00C0C0C0&
@@ -871,7 +885,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.46
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -910,7 +924,7 @@ Begin VB.Form frmZZSEBCMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -923,7 +937,7 @@ Begin VB.Form frmZZSEBCMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -944,8 +958,8 @@ Begin VB.Form frmZZSEBCMT
          Width           =   3396
          _ExtentX        =   5990
          _ExtentY        =   656
-         ButtonWidth     =   609
-         ButtonHeight    =   582
+         ButtonWidth     =   614
+         ButtonHeight    =   572
          _Version        =   393216
       End
    End
@@ -1131,7 +1145,6 @@ Private Const t_szCAPTION_REFRESH As String = "&Refresh"
 Private Const t_szCAPTION_SELECT As String = "&Select"
 Private Const t_szCAPTION_CANCEL As String = "&Cancel"
 Private Const t_szCAPTION_EXIT As String = "E&xit"
-Private Const szHelpEDI As String = "EDI888.HLP"
 
 '==========================
 'Status Bar Default Strings
@@ -1157,24 +1170,25 @@ Private Const DATA_INIT = 0
 Private Const DATA_LOADED = 1
 Private Const DATA_CHANGED = 2
 
-Private Const TabBonusCode As Integer = 0
-Private Const TabBonusMaint As Integer = 1
-Private Const TabBonusGrade As Integer = 2
+Private Const TABBONUSCODE As Integer = 0
+Private Const TABBONUSMAINT As Integer = 1
+Private Const TABBONUSGRADE As Integer = 2
 
 Private nDataStatus As Integer
 Private tgmBonus(1) As clsTGSpreadSheet
 Private tgmView(1) As clsTGSpreadSheet
 Private tgfDropdown(1) As clsFloatingDropDown
+Private objFullText As clsColumnExtension
 
-Private Const nColCode As Integer = 0
-Private Const nColDesc As Integer = 1
+Private Const nCOLCODE As Integer = 0
+Private Const nCOLDESC As Integer = 1
 
-Private Const nColBCGrade As Integer = 2
-Private Const nColBCType As Integer = 3
-Private Const nColBCFreq As Integer = 4
-Private Const nColBCOverride As Integer = 5
+Private Const nCOLBCGRADE As Integer = 2
+Private Const nCOLBCTYPE As Integer = 3
+Private Const nCOLBCFREQ As Integer = 4
+Private Const nCOLBCOVERRIDE As Integer = 5
 
-Private Const nColBGLevel As Integer = 2
+Private Const nCOLBGLEVEL As Integer = 2
 
 Private nxColBCDuplicates As Integer
 
@@ -1182,10 +1196,10 @@ Private nxColBGOldLevel As Integer
 Private nxColBGDuplicates As Integer
 Private nxColBGDescEditable As Integer
 
-Private Const nFrequency As Integer = 0
-Private Const nBonusCode As Integer = 0
-Private Const nGrade As Integer = 1
-Private Const nType As Integer = 1
+Private Const nFREQUENCY As Integer = 0
+Private Const nBONUSCODE As Integer = 0
+Private Const nGRADE As Integer = 1
+Private Const nVIEWTYPE As Integer = 1
 
 Private szCommFreqPattern As String
 '
@@ -1195,37 +1209,43 @@ Public Function fnValidCellValue(tgTable As TDBGrid, ByVal nCol As Integer, _
     Dim strSQL As String
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
-    If Index = nBonusCode Then
+    If Index = nBONUSCODE Then
         Select Case nCol
-        Case nColCode, nColDesc
-            fnValidCellValue = fnValidBonusCode(sText, lRow, nCol)
-        Case nColBCGrade
-            fnValidCellValue = fnValidBonusGrade(sText, lRow)
-        Case nColBCType
+        
+            Case nCOLCODE, nCOLDESC
+                fnValidCellValue = fnValidBonusCode(sText, lRow, nCol)
+            Case nCOLBCGRADE
+                fnValidCellValue = fnValidBonusGrade(sText, lRow)
+            Case nCOLBCTYPE
                 fnValidCellValue = fnValidBonusType(sText, lRow)
-        Case nColBCFreq
-            fnValidCellValue = fnValidBonusFreq(sText, lRow)
-        Case nColBCOverride
-            If sText <> "" And InStr("YN", UCase(sText)) > 0 Then
-                fnValidCellValue = True
-            Else
-                tgmBonus(nBonusCode).ErrorMessage(nColBCOverride) = "Override amount for pay code must be Y or N"
-            End If
+            Case nCOLBCFREQ
+                fnValidCellValue = fnValidBonusFreq(sText, lRow)
+            Case nCOLBCOVERRIDE
+                
+                If sText <> "" And InStr("YN", UCase(sText)) > 0 Then
+                    fnValidCellValue = True
+                Else
+                    tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCOVERRIDE) = "Override amount for pay code must be Y or N"
+                End If
+                
         End Select
-    Else  'nGrade
+    Else  'nGRADE
         Select Case nCol
-        Case nColCode, nColDesc
-            fnValidCellValue = fnValidGradeCode(sText, lRow, nCol)
-        Case nColBGLevel
-            fnValidCellValue = fnValidGradeLevel(sText, lRow)
+            Case nCOLCODE, nCOLDESC
+                fnValidCellValue = fnValidGradeCode(sText, lRow, nCol)
+                    
+            Case nCOLBGLEVEL
+                fnValidCellValue = fnValidGradeLevel(sText, lRow)
         End Select
+        
     End If
+    
 End Function
 
 Private Sub subSetupMousePointer()
@@ -1251,7 +1271,7 @@ Private Sub cmdDeleteBtn_Click(Index As Integer)
         Exit Sub
     End If
     
-    sCode = tgmBonus(Index).CellValue(nColCode, tgmBonus(Index).GetCurrentRowNumber)
+    sCode = tgmBonus(Index).CellValue(nCOLCODE, tgmBonus(Index).GetCurrentRowNumber)
     
     If t_nFormMode = EDIT_MODE Then
         If Not fnCheckDelete(sCode, Index) Then
@@ -1281,9 +1301,9 @@ End Sub
 Private Sub cmdDropDown_Click(Index As Integer)
 '    Dim Index As Integer
 '    If eTabMain.CurrTab = TabBonusCode Then
-'        Index = nBonusCode
+'        Index = nBONUSCODE
 '    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-'        Index = nGrade
+'        Index = nGRADE
 '    End If
     subSetFloatingSQL Index
     tgfDropdown(Index).ButtonClick
@@ -1298,31 +1318,31 @@ Private Sub cmdDropDown_LostFocus(Index As Integer)
 End Sub
 
 Private Sub efraBaseIICode_GotFocus()
-    subSetFocus tblBonus(nBonusCode)
+    subSetFocus tblBonus(nBONUSCODE)
 End Sub
 
 Private Sub efraBaseIIGrades_GotFocus()
-    subSetFocus tblBonus(nGrade)
+    subSetFocus tblBonus(nGRADE)
 End Sub
 
 Private Sub eTabMain_Click()
     Dim i As Integer
 
-    If eTabMain.CurrTab = TabBonusCode Then
-        If cmdAddBtn(nBonusCode).Enabled Then
-            subSetFocus cmdAddBtn(nBonusCode)
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        If cmdAddBtn(nBONUSCODE).Enabled Then
+            subSetFocus cmdAddBtn(nBONUSCODE)
         Else
             subSetFocus efraBaseIICode
         End If
-    ElseIf eTabMain.CurrTab = TabBonusMaint Then
+    ElseIf eTabMain.CurrTab = TABBONUSMAINT Then
         For i = 0 To 1
             If optView(i).Value Then
                 subSetFocus optView(i)
             End If
         Next
     Else
-        If cmdAddBtn(nGrade).Enabled Then
-            subSetFocus cmdAddBtn(nGrade)
+        If cmdAddBtn(nGRADE).Enabled Then
+            subSetFocus cmdAddBtn(nGRADE)
         Else
             subSetFocus efraBaseIIGrades
         End If
@@ -1340,10 +1360,10 @@ Private Sub eTabMain_Switch(OldTab As Integer, NewTab As Integer, CANCEL As Inte
         Exit Sub
     End If
     
-    If OldTab = TabBonusCode And NewTab = TabBonusMaint Then
-        If tblBonus(nBonusCode).col = nColBCType Then
+    If OldTab = TABBONUSCODE And NewTab = TABBONUSMAINT Then
+        If tblBonus(nBONUSCODE).col = nCOLBCTYPE Then
             optView(1).Value = True
-        ElseIf tblBonus(nBonusCode).col = nColBCFreq Then
+        ElseIf tblBonus(nBONUSCODE).col = nCOLBCFREQ Then
             optView(0).Value = True
         End If
     End If
@@ -1436,20 +1456,22 @@ Private Sub Form_Load()
     tmrKeyBoard.Enabled = False
     tfnCenterForm Me
     
-    subSetGridWidth tblBonus(nBonusCode)
-    subSetGridWidth tblBonus(nGrade)
-    subSetGridWidth tblView(nFrequency)
-    subSetGridWidth tblView(nType)
+    subSetGridWidth tblBonus(nBONUSCODE)
+    subSetGridWidth tblBonus(nGRADE)
+    subSetGridWidth tblView(nFREQUENCY)
+    subSetGridWidth tblView(nVIEWTYPE)
     
     subMakeCommFrequencyPattern
     
-    subInitSpreadsheets nBonusCode
-    subInitSpreadsheets nGrade
+    subInitSpreadsheets nBONUSCODE
+    subInitSpreadsheets nGRADE
     subInitViewGrid
-    subSetFloatingDropDown nBonusCode
-    subSetFloatingDropDown nGrade
+    subSetFloatingDropDown nBONUSCODE
+    subSetFloatingDropDown nGRADE
     
     subLoadViewData
+    
+    subInitFullText
     
     Me.Show
     Screen.MousePointer = vbHourglass
@@ -1460,8 +1482,8 @@ Private Sub Form_Load()
     t_bStartupFlag = False
     
     Me.Enabled = True
-    tfnResetScreen nBonusCode
-    tfnResetScreen nGrade
+    tfnResetScreen nBONUSCODE
+    tfnResetScreen nGRADE
     
     tmrKeyBoard.Enabled = True
     tfnSetStatusBarMessage t_szADDEDIT
@@ -1534,19 +1556,19 @@ Private Sub cmdAddBtn_Click(Index As Integer)
     subEnableUpdateBtn False, Index
     subEnableRefreshBtn False, Index
     subEnableCancel True, Index
-    If Index = nBonusCode Then
-        eTabMain.TabEnabled(TabBonusGrade) = False
-    ElseIf Index = nGrade Then
-        eTabMain.TabEnabled(TabBonusCode) = False
+    If Index = nBONUSCODE Then
+        eTabMain.TabEnabled(TABBONUSGRADE) = False
+    ElseIf Index = nGRADE Then
+        eTabMain.TabEnabled(TABBONUSCODE) = False
     End If
     
 '    subInitSpreadsheets Index
 '    subSetFloatingDropDown Index
     With tgmBonus(Index)
-        If Index = nBonusCode Then
-            .AddEditColumn nColCode, "Enter Commission Code", "^P{1,4}$"
+        If Index = nBONUSCODE Then
+            .AddEditColumn nCOLCODE, "Enter Commission Code", "^P{1,4}$"
         Else
-            .AddEditColumn nColCode, "Enter Grade Code", "^([A-Z])$"
+            .AddEditColumn nCOLCODE, "Enter Grade Code", "^([A-Z])$"
         End If
     End With
     tgmBonus(Index).AllowAddNew = True
@@ -1582,19 +1604,19 @@ Private Sub cmdEditBtn_Click(Index As Integer)
     subEnableUpdateBtn False, Index
     subEnableRefreshBtn False, Index
     subEnableCancel True, Index
-    If Index = nBonusCode Then
-        eTabMain.TabEnabled(TabBonusGrade) = False
-    ElseIf Index = nGrade Then
-        eTabMain.TabEnabled(TabBonusCode) = False
+    If Index = nBONUSCODE Then
+        eTabMain.TabEnabled(TABBONUSGRADE) = False
+    ElseIf Index = nGRADE Then
+        eTabMain.TabEnabled(TABBONUSCODE) = False
     End If
     
 '    subInitSpreadsheets Index
 '    subSetFloatingDropDown Index
     With tgmBonus(Index)
-        If Index = nBonusCode Then
-            .RemoveEditColumn nColCode
+        If Index = nBONUSCODE Then
+            .RemoveEditColumn nCOLCODE
         Else
-            .RemoveEditColumn nColCode
+            .RemoveEditColumn nCOLCODE
         End If
     End With
     tgmBonus(Index).AllowAddNew = False
@@ -1628,7 +1650,7 @@ Private Sub cmdUpdateInsertBtn_Click(Index As Integer)
             End If
         Next i
     Else
-        If Index = nBonusCode Then
+        If Index = nBONUSCODE Then
             For i = 0 To tgmBonus(Index).RowCount - 1
                 If Not fnUpdateBonusCode(i) Then
                     MsgBox "Failed to update the record", vbCritical
@@ -1862,10 +1884,10 @@ Private Sub tfnResetScreen(Index As Integer)
     subEnableDeleteBtn False, Index
     subEnableRefreshBtn False, Index
     subEnableCancel False, Index
-    eTabMain.TabEnabled(TabBonusCode) = True
-    eTabMain.TabEnabled(TabBonusGrade) = True
+    eTabMain.TabEnabled(TABBONUSCODE) = True
+    eTabMain.TabEnabled(TABBONUSGRADE) = True
     
-    tblBonus(Index).col = nColCode
+    tblBonus(Index).col = nCOLCODE
     tblBonus(Index).Enabled = False
     tfnUnlockRow
     
@@ -1882,7 +1904,7 @@ Private Sub tfnResetScreen(Index As Integer)
     mnuPaste.Enabled = False
     
     tgmBonus(Index).ClearData
-    tblBonus(Index).col = nColCode
+    tblBonus(Index).col = nCOLCODE
     
     nDataStatus = DATA_INIT
     subSetFocus cmdAddBtn(Index)
@@ -1904,7 +1926,7 @@ End Sub
 
 Private Sub optView_GotFocus(Index As Integer)
     
-    If Index = nFrequency Then
+    If Index = nFREQUENCY Then
         tfnSetStatusBarMessage "View Commission Frequency Codes"
     Else
         tfnSetStatusBarMessage "View Commission Types"
@@ -1913,7 +1935,7 @@ Private Sub optView_GotFocus(Index As Integer)
 End Sub
 
 Private Sub tblBonus_HeadClick(Index As Integer, ByVal ColIndex As Integer)
-    If Index = nGrade Then
+    If Index = nGRADE Then
         tgmBonus(Index).HeadClick ColIndex, nDataStatus = DATA_CHANGED
         subResetDescEditableFlag
     End If
@@ -1930,6 +1952,11 @@ End Sub
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
     objCursor.SetMousePointer
+    
+    If eTabMain.CurrTab = 0 Then
+        objFullText.ShowColumnExt
+    End If
+    
 End Sub
 
 Private Sub subInitErrorHandler()
@@ -2022,6 +2049,19 @@ Public Sub subHideHourGlass()
     tmrKeyBoard.Enabled = True
     Screen.MousePointer = vbDefault
 End Sub
+Private Sub subInitFullText()
+   Set objFullText = New clsColumnExtension
+   
+   With objFullText
+        Set .Form = Me
+        Set .PictureBox = picFullText
+        Set .StatusBar = ffraStatusbar
+        Set .Table = tblBonus(0)
+        .AddColumn nCOLDESC, "Code Description", .PositionTop
+    End With
+        
+End Sub
+
 
 Private Sub subSetGridWidth(tbl As TDBGrid)
     Dim myWidth As Variant
@@ -2029,17 +2069,17 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     
     Dim i As Integer
     
-    If tbl.Name = "tblBonus" And tbl.Index = nGrade Then
+    If tbl.Name = "tblBonus" And tbl.Index = nGRADE Then
         myWidth = Array(0.25, 0.5, 0.25)
         myField = Array("bg_grade", "bg_grade_desc", "bg_emp_level")
-    ElseIf tbl.Name = "tblBonus" And tbl.Index = nBonusCode Then
+    ElseIf tbl.Name = "tblBonus" And tbl.Index = nBONUSCODE Then
         myWidth = Array(0.12, 0.42, 0.12, 0.12, 0.12, 0.1)
         myField = Array("bc_bonus_code", "bc_code_desc", "bc_grade", "bc_type", "bc_frequency", "bc_override")
     Else ' tblView
         myWidth = Array(0.25, 0.75)
-        If tbl.Index = nFrequency Then
+        If tbl.Index = nFREQUENCY Then
             myField = Array("bfq_frequency", "bfq_freq_desc")
-        ElseIf tbl.Index = nType Then
+        ElseIf tbl.Index = nVIEWTYPE Then
             myField = Array("bt_type", "bt_type_desc")
         End If
     End If
@@ -2060,35 +2100,35 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
         End With
     Next
     
-    If tbl.Name = "tblBonus" And tbl.Index = nGrade Then
+    If tbl.Name = "tblBonus" And tbl.Index = nGRADE Then
         tbl.Caption = "Commission Grades"
-        tbl.Columns(nColCode).Caption = "Grade Code"
-        tbl.Columns(nColCode).Alignment = vbCenter
-        tbl.Columns(nColDesc).Caption = "Grade Description"
-        tbl.Columns(nColBGLevel).Caption = "Grade Level"
-    ElseIf tbl.Name = "tblBonus" And tbl.Index = nBonusCode Then
+        tbl.Columns(nCOLCODE).Caption = "Grade Code"
+        tbl.Columns(nCOLCODE).Alignment = vbCenter
+        tbl.Columns(nCOLDESC).Caption = "Grade Description"
+        tbl.Columns(nCOLBGLEVEL).Caption = "Grade Level"
+    ElseIf tbl.Name = "tblBonus" And tbl.Index = nBONUSCODE Then
         tbl.Caption = "Commission Codes"
-        tbl.Columns(nColCode).Caption = "Comm. Code"
-        tbl.Columns(nColDesc).Caption = "Commission Code Description"
-        tbl.Columns(nColBCGrade).Caption = "Comm. Grade"
-        tbl.Columns(nColBCGrade).Alignment = vbCenter
-        tbl.Columns(nColBCType).Caption = "Comm. Type"
-        tbl.Columns(nColBCType).Alignment = vbCenter
-        tbl.Columns(nColBCFreq).Caption = "Comm. Frequency"
-        tbl.Columns(nColBCFreq).Alignment = vbCenter
-        tbl.Columns(nColBCOverride).Caption = "Override"
-        tbl.Columns(nColBCOverride).Alignment = vbCenter
+        tbl.Columns(nCOLCODE).Caption = "Comm. Code"
+        tbl.Columns(nCOLDESC).Caption = "Commission Code Description"
+        tbl.Columns(nCOLBCGRADE).Caption = "Comm. Grade"
+        tbl.Columns(nCOLBCGRADE).Alignment = vbCenter
+        tbl.Columns(nCOLBCTYPE).Caption = "Comm. Type"
+        tbl.Columns(nCOLBCTYPE).Alignment = vbCenter
+        tbl.Columns(nCOLBCFREQ).Caption = "Comm. Frequency"
+        tbl.Columns(nCOLBCFREQ).Alignment = vbCenter
+        tbl.Columns(nCOLBCOVERRIDE).Caption = "Override"
+        tbl.Columns(nCOLBCOVERRIDE).Alignment = vbCenter
     Else ' tblView
-        If tbl.Index = nFrequency Then
+        If tbl.Index = nFREQUENCY Then
             tbl.Caption = "Commission Frequency"
-            tbl.Columns(nColCode).Caption = "Commission Frequency"
-            tbl.Columns(nColDesc).Caption = "Frequency Description"
-        ElseIf tbl.Index = nType Then
+            tbl.Columns(nCOLCODE).Caption = "Commission Frequency"
+            tbl.Columns(nCOLDESC).Caption = "Frequency Description"
+        ElseIf tbl.Index = nVIEWTYPE Then
             tbl.Caption = "Commission Type"
-            tbl.Columns(nColCode).Caption = "Commission Type"
-            tbl.Columns(nColDesc).Caption = "Type Description"
+            tbl.Columns(nCOLCODE).Caption = "Commission Type"
+            tbl.Columns(nCOLDESC).Caption = "Type Description"
         End If
-        tbl.Columns(nColCode).Alignment = vbCenter
+        tbl.Columns(nCOLCODE).Alignment = vbCenter
     End If
     
 End Sub
@@ -2106,35 +2146,35 @@ Private Sub subInitSpreadsheets(Index As Integer)
     Set tgmBonus(Index).engFactor = t_engFactor
     
     With tgmBonus(Index)
-        If Index = nBonusCode Then
-            .AddEditColumn nColCode, "Enter Commission Code", "^P{1,4}$"
-            .AddEditColumn nColDesc, "Enter Code Description", "^P{1,40}$"
-            .AddEditColumn nColBCGrade, "Enter Commission Grade", "^([A-Z])$"
-            .AddEditColumn nColBCType, "Enter Commission Type", "^(([T])([123])([CEX]))$"
-            .AddEditColumn nColBCFreq, "Enter Commission Frequency", szCommFreqPattern
-            .AddEditColumn nColBCOverride, "Override the amount of this pay code in payroll (Y or N)", "^[YNyn]$"
+        If Index = nBONUSCODE Then
+            .AddEditColumn nCOLCODE, "Enter Commission Code", "^P{1,4}$"
+            .AddEditColumn nCOLDESC, "Enter Code Description", "^P{1,40}$"
+            .AddEditColumn nCOLBCGRADE, "Enter Commission Grade", "^([A-Z])$"
+            .AddEditColumn nCOLBCTYPE, "Enter Commission Type", "^(([T])([123])([CEX]))$"
+            .AddEditColumn nCOLBCFREQ, "Enter Commission Frequency", szCommFreqPattern
+            .AddEditColumn nCOLBCOVERRIDE, "Override the amount of this pay code in payroll (Y or N)", "^[YNyn]$"
             nxColBCDuplicates = .AddHiddenField("duplicates")
             .ColumnForNewRow = 0
-            .RemoveEditColumn nColCode
-        Else  'nGrade
-            .AddEditColumn nColCode, "Enter Grade Code", "^([A-Z])$"
-            .AddEditColumn nColDesc, "Enter Grade Description", "^P{1,20}$"
-            .AddEditColumn nColBGLevel, "Enter Grade Level", szIntegerPattern
+            .RemoveEditColumn nCOLCODE
+        Else  'nGRADE
+            .AddEditColumn nCOLCODE, "Enter Grade Code", "^([A-Z])$"
+            .AddEditColumn nCOLDESC, "Enter Grade Description", "^P{1,20}$"
+            .AddEditColumn nCOLBGLEVEL, "Enter Grade Level", szIntegerPattern
             nxColBGOldLevel = .AddHiddenField("old_level")
             nxColBGDuplicates = .AddHiddenField("duplicates")
             nxColBGDescEditable = .AddHiddenField("desc_editable")
             .ColumnForNewRow = 0
-            .RemoveEditColumn nColCode
+            .RemoveEditColumn nCOLCODE
         
-            .AddSortColumn nColCode, nColCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
-            
-            .AddSortColumn nColBGLevel, nColBGLevel, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
+            .AddSortColumn nCOLCODE, nCOLCODE, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+            .AddSortColumn nCOLDESC, nCOLDESC, .STRING_TYPE, .ASCENDING, .CASE_INSENSITIVE
+            .AddSortColumn nCOLBGLEVEL, nCOLBGLEVEL, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
                 
             .SortByColumn = True
         End If
     End With
     'add by Ning
-    With tblBonus(nGrade).Columns(nColBGLevel)
+    With tblBonus(nGRADE).Columns(nCOLBGLEVEL)
         .DataField = "bg_emp_level"
     End With
 End Sub
@@ -2159,28 +2199,28 @@ Private Sub subSetFloatingDropDown(Index As Integer)
         .SearchOnReturn = False
         .DefaultCursorControl = True
         
-        If Index = nBonusCode Then
+        If Index = nBONUSCODE Then
             .AddDropDown 1
-            .AddColumn nColCode, "prpa_pay_code", .COLUMN_TYPE_STRING
+            .AddColumn nCOLCODE, "prpa_pay_code", .COLUMN_TYPE_STRING
             .AddExtraColumn "Pay Code Description", "prpa_desc", 3000
             .VisibleRows = 10
             
             .AddDropDown 2
-            .AddColumn nColBCGrade, "bg_grade", .COLUMN_TYPE_STRING
+            .AddColumn nCOLBCGRADE, "bg_grade", .COLUMN_TYPE_STRING
             .AddExtraColumn "Description", "bg_grade_desc", 2000
             
             .AddDropDown 3
-            .AddColumn nColBCType, "bt_type", .COLUMN_TYPE_STRING
+            .AddColumn nCOLBCTYPE, "bt_type", .COLUMN_TYPE_STRING
             .AddExtraColumn "Description", "bt_type_desc", 5000
             .SetExtendLeft
             
             .AddDropDown 4
-            .AddColumn nColBCFreq, "bfq_frequency", .COLUMN_TYPE_STRING
+            .AddColumn nCOLBCFREQ, "bfq_frequency", .COLUMN_TYPE_STRING
             .AddExtraColumn "Description", "bfq_freq_desc", 2100
             .SetExtendLeft
-        ElseIf Index = nGrade Then
+        ElseIf Index = nGRADE Then
             .AddDropDown 1
-            .AddColumn nColBGLevel, "grade_level", .COLUMN_TYPE_INTEGER
+            .AddColumn nCOLBGLEVEL, "grade_level", .COLUMN_TYPE_INTEGER
             .VisibleRows = 10
         End If
     End With
@@ -2192,30 +2232,30 @@ Private Sub subSetFloatingSQL(Index As Integer)
     Dim sCheckDubInGrid As String
     
     
-    If Index = nBonusCode Then
-        sCheckDubInGrid = fnCheckDubInGrid(nColCode, tgmBonus(Index).GetCurrentRowNumber, Index)
+    If Index = nBONUSCODE Then
+        sCheckDubInGrid = fnCheckDubInGrid(nCOLCODE, tgmBonus(Index).GetCurrentRowNumber, Index)
         Select Case tblBonus(Index).col
-            Case nColCode
+            Case nCOLCODE
                 sSql = "SELECT prpa_pay_code, prpa_desc FROM pr_pay WHERE prpa_type = 'P'"
                 sSql = sSql + " AND prpa_pay_code NOT IN (SELECT bc_bonus_code FROM"
                 sSql = sSql + " bonus_codes)"
                 If sCheckDubInGrid <> "" Then
                     sSql = sSql + " AND prpa_pay_code NOT IN (" + sCheckDubInGrid + ")"
                 End If
-                tgfDropdown(Index).SetSQL nColCode, sSql
-            Case nColBCGrade
+                tgfDropdown(Index).SetSQL nCOLCODE, sSql
+            Case nCOLBCGRADE
                 sSql = "SELECT DISTINCT bg_grade, bg_grade_desc FROM bonus_grades"
-                tgfDropdown(Index).SetSQL nColBCGrade, sSql
-            Case nColBCType
+                tgfDropdown(Index).SetSQL nCOLBCGRADE, sSql
+            Case nCOLBCTYPE
                 sSql = "SELECT bt_type, bt_type_desc FROM bonus_types"
-                tgfDropdown(Index).SetSQL nColBCType, sSql
-            Case nColBCFreq
+                tgfDropdown(Index).SetSQL nCOLBCTYPE, sSql
+            Case nCOLBCFREQ
                 sSql = "SELECT bfq_frequency, bfq_freq_desc FROM bonus_frequency"
-                tgfDropdown(Index).SetSQL nColBCFreq, sSql
+                tgfDropdown(Index).SetSQL nCOLBCFREQ, sSql
         End Select
         
-    ElseIf Index = nGrade Then
-        sCheckDubInGrid = fnCheckDubInGrid(nColBGLevel, tgmBonus(Index).GetCurrentRowNumber, Index)
+    ElseIf Index = nGRADE Then
+        sCheckDubInGrid = fnCheckDubInGrid(nCOLBGLEVEL, tgmBonus(Index).GetCurrentRowNumber, Index)
         sSql = "SELECT grade_level FROM tmpGradeLevel"
         If sCheckDubInGrid <> "" Then
             sSql = sSql & " WHERE grade_level NOT IN ( "
@@ -2228,7 +2268,7 @@ Private Sub subSetFloatingSQL(Index As Integer)
                 sSql = sSql & " WHERE grade_level NOT IN ( SELECT bg_emp_level FROM bonus_grades ) "
             End If
         End If
-        tgfDropdown(Index).SetSQL nColBGLevel, sSql
+        tgfDropdown(Index).SetSQL nCOLBGLEVEL, sSql
     End If
 
 End Sub
@@ -2236,10 +2276,10 @@ End Sub
 Private Sub tblDropDown_Click()
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
     tgfDropdown(Index).TableClick tblDropDown
@@ -2249,10 +2289,10 @@ End Sub
 Private Sub tblDropDown_KeyPress(KeyAscii As Integer)
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
     tgfDropdown(Index).Keypress tblDropDown, KeyAscii
@@ -2261,10 +2301,10 @@ End Sub
 Private Sub tblDropDown_LostFocus()
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
     tgfDropdown(Index).LostFocus tblDropDown
@@ -2273,10 +2313,10 @@ End Sub
 Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
     tgfDropdown(Index).MouseUp y
@@ -2285,10 +2325,10 @@ End Sub
 Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     Dim Index As Integer
     
-    If eTabMain.CurrTab = TabBonusCode Then
-        Index = nBonusCode
-    ElseIf eTabMain.CurrTab = TabBonusGrade Then
-        Index = nGrade
+    If eTabMain.CurrTab = TABBONUSCODE Then
+        Index = nBONUSCODE
+    ElseIf eTabMain.CurrTab = TABBONUSGRADE Then
+        Index = nGRADE
     End If
     
     tgfDropdown(Index).RowColChange tblDropDown
@@ -2305,9 +2345,9 @@ Private Function fnValidBonusCode(szText As String, ByVal lRow As Long, _
 
     fnValidBonusCode = False
     
-    If nCol = nColDesc Then
+    If nCol = nCOLDESC Then
         If Trim(szText) = "" Then
-            tgmBonus(nBonusCode).ErrorMessage(nCol) = "You must enter a description"
+            tgmBonus(nBONUSCODE).ErrorMessage(nCol) = "You must enter a description"
         Else
             fnValidBonusCode = True
         End If
@@ -2321,31 +2361,31 @@ Private Function fnValidBonusCode(szText As String, ByVal lRow As Long, _
     End If
     
     If Trim(szText) = "" Then
-        tgmBonus(nBonusCode).ErrorMessage(nColCode) = "You must enter a code"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLCODE) = "You must enter a code"
         Exit Function
     End If
     
     'Check Dublication in the Table.
     strSQL = "SELECT * FROM bonus_codes WHERE bc_bonus_code = " & tfnSQLString(szText)
     If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
-        tgmBonus(nBonusCode).ErrorMessage(nColCode) = "Code already exists in the table"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLCODE) = "Code already exists in the table"
         Exit Function
     End If
     
     'check for duplication
     bFoundDuplicate = False
-    For i = 0 To tgmBonus(nBonusCode).RowCount - 1
+    For i = 0 To tgmBonus(nBONUSCODE).RowCount - 1
         If i <> lRow Then
-            If fnGetField(tgmBonus(nBonusCode).CellValue(nColCode, i)) = szText Then
-                tgmBonus(nBonusCode).CellValue(nxColBCDuplicates, i) = "Y"
-                tgmBonus(nBonusCode).ValidCell(nColCode, i) = False
+            If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLCODE, i)) = szText Then
+                tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, i) = "Y"
+                tgmBonus(nBONUSCODE).ValidCell(nCOLCODE, i) = False
                 bFoundDuplicate = True
             Else
-                If fnGetField(tgmBonus(nBonusCode).CellValue(nxColBCDuplicates, i)) = "Y" Then
-                    If fnGetField(tgmBonus(nBonusCode).CellValue(nColCode, i)) = fnGetField(tgmBonus(nBonusCode).OldValue) Then
+                If fnGetField(tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, i)) = "Y" Then
+                    If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLCODE, i)) = fnGetField(tgmBonus(nBONUSCODE).OldValue) Then
                         'reset the duplication flag
-                        tgmBonus(nBonusCode).CellValue(nxColBCDuplicates, i) = ""
-                        tgmBonus(nBonusCode).ValidCell(nColCode, i) = True
+                        tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, i) = ""
+                        tgmBonus(nBONUSCODE).ValidCell(nCOLCODE, i) = True
                     End If
                 End If
             End If
@@ -2353,8 +2393,8 @@ Private Function fnValidBonusCode(szText As String, ByVal lRow As Long, _
     Next i
     
     If bFoundDuplicate Then
-        tgmBonus(nBonusCode).CellValue(nxColBCDuplicates, lRow) = "Y"
-        tgmBonus(nBonusCode).ErrorMessage(nColCode) = "Duplicate Bonus Code encountered"
+        tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, lRow) = "Y"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLCODE) = "Duplicate Bonus Code encountered"
         Exit Function
     End If
     
@@ -2362,10 +2402,10 @@ Private Function fnValidBonusCode(szText As String, ByVal lRow As Long, _
         Exit Function
     End If
     
-    tgmBonus(nBonusCode).CellValue(nxColBCDuplicates, lRow) = ""
+    tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, lRow) = ""
     
-    If fnGetField(tgmBonus(nBonusCode).CellValue(nColBCOverride, lRow)) = "" Then
-        tgmBonus(nBonusCode).CellValue(nColBCOverride, lRow) = "N"
+    If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow)) = "" Then
+        tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow) = "N"
     End If
     
     fnValidBonusCode = True
@@ -2383,10 +2423,11 @@ Private Function fnValidGradeCode(szText As String, ByVal lRow As Long, _
     Dim i As Long
 
     fnValidGradeCode = False
+     
+    If nCol = nCOLDESC Then
     
-    If nCol = nColDesc Then
         If Trim(szText) = "" Then
-            tgmBonus(nGrade).ErrorMessage(nCol) = "You must enter a description"
+            tgmBonus(nGRADE).ErrorMessage(nCol) = "You must enter a description"
         Else
             fnValidGradeCode = True
         End If
@@ -2401,31 +2442,38 @@ Private Function fnValidGradeCode(szText As String, ByVal lRow As Long, _
     End If
     
     If Trim(szText) = "" Then
-        tgmBonus(nGrade).ErrorMessage(nColCode) = "You must enter a code"
+        tgmBonus(nGRADE).ErrorMessage(nCOLCODE) = "You must enter a code"
         Exit Function
     End If
     
     strSQL = "SELECT bg_grade_desc FROM bonus_grades WHERE bg_grade = " & tfnSQLString(szText)
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
-        tgmBonus(nGrade).CellValue(nColDesc, lRow) = fnGetField(rsTemp!bg_grade_desc)
-        tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "N"
-        tblBonus(nGrade).col = nColDesc
+        tgmBonus(nGRADE).CellValue(nCOLDESC, lRow) = fnGetField(rsTemp!bg_grade_desc)
+        tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "N"
+        tblBonus(nGRADE).col = nCOLDESC
     Else
-        tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "Y"
+        tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "Y"
     End If
     
     'check the grid
-    If tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "Y" Then
+    If tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "Y" Then
+        
         For i = 0 To lRow - 1
-            If fnGetField(tgmBonus(nGrade).CellValue(nColCode, i)) = szText Then
-                If tgmBonus(nGrade).ValidCell(nColDesc, i) Then
-                    tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "N"
-                    tgmBonus(nGrade).CellValue(nColDesc, lRow) = fnGetField(tgmBonus(nGrade).CellValue(nColDesc, i))
-                    tblBonus(nGrade).col = nColDesc
+            
+            If fnGetField(tgmBonus(nGRADE).CellValue(nCOLCODE, i)) = szText Then
+                
+                If tgmBonus(nGRADE).ValidCell(nCOLDESC, i) Then
+                    tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "N"
+                    tgmBonus(nGRADE).CellValue(nCOLDESC, lRow) = fnGetField(tgmBonus(nGRADE).CellValue(nCOLDESC, i))
+                    tblBonus(nGRADE).col = nCOLDESC
                     Exit For
                 End If
+                
             End If
+            
         Next i
+        
     End If
     
     fnValidGradeCode = True
@@ -2438,7 +2486,7 @@ Private Function fnDeleteCode(sCode As String, Index As Integer) As Boolean
     
     fnDeleteCode = False
     
-    If Index = nBonusCode Then
+    If Index = nBONUSCODE Then
         strSQL = "DELETE FROM bonus_codes WHERE bc_bonus_code = "
     Else
         strSQL = "DELETE FROM bonus_grades WHERE bg_grade = "
@@ -2446,7 +2494,7 @@ Private Function fnDeleteCode(sCode As String, Index As Integer) As Boolean
     
     strSQL = strSQL & tfnSQLString(Trim(sCode))
     
-    If Index = nGrade Then
+    If Index = nGRADE Then
         strSQL = strSQL & " AND bg_emp_level = "
         strSQL = strSQL & tfnRound(tgmBonus(Index).CellValue(nxColBGOldLevel, _
             tgmBonus(Index).GetCurrentRowNumber))
@@ -2465,26 +2513,26 @@ Private Function fnInsertGrdOrBonusCode(lRow As Long, Index As Integer) As Boole
     
     fnInsertGrdOrBonusCode = False
     
-    If tgmBonus(Index).CellValue(nColCode, lRow) = "" Then
+    If tgmBonus(Index).CellValue(nCOLCODE, lRow) = "" Then
         fnInsertGrdOrBonusCode = True
         Exit Function
     End If
     
-    If Index = nBonusCode Then
+    If Index = nBONUSCODE Then
         strSQL = "INSERT INTO bonus_codes (bc_bonus_code, bc_code_desc,"
         strSQL = strSQL & " bc_grade, bc_type, bc_frequency, bc_override) VALUES("
-        strSQL = strSQL & tfnSQLString(tgmBonus(Index).CellValue(nColCode, lRow)) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColDesc, lRow))) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColBCGrade, lRow))) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColBCType, lRow))) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColBCFreq, lRow))) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColBCOverride, lRow)))
+        strSQL = strSQL & tfnSQLString(tgmBonus(Index).CellValue(nCOLCODE, lRow)) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLDESC, lRow))) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLBCGRADE, lRow))) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLBCTYPE, lRow))) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLBCFREQ, lRow))) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLBCOVERRIDE, lRow)))
         strSQL = strSQL & ")"
-    Else 'nGrade
+    Else 'nGRADE
         strSQL = "INSERT INTO bonus_grades(bg_grade, bg_grade_desc, bg_emp_level)"
-        strSQL = strSQL & " VALUES(" & tfnSQLString(tgmBonus(Index).CellValue(nColCode, lRow)) & ","
-        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nColDesc, lRow))) & ","
-        strSQL = strSQL & tfnRound(tgmBonus(Index).CellValue(nColBGLevel, lRow))
+        strSQL = strSQL & " VALUES(" & tfnSQLString(tgmBonus(Index).CellValue(nCOLCODE, lRow)) & ","
+        strSQL = strSQL & tfnSQLString(Trim(tgmBonus(Index).CellValue(nCOLDESC, lRow))) & ","
+        strSQL = strSQL & tfnRound(tgmBonus(Index).CellValue(nCOLBGLEVEL, lRow))
         strSQL = strSQL & ")"
     End If
     
@@ -2510,14 +2558,14 @@ Private Function fnLoadData(Index As Integer, Optional bRefresh As Boolean = Fal
     
     If Not bRefresh Then
         'lock the records for editing
-        If Index = nBonusCode Then
+        If Index = nBONUSCODE Then
             strSQL = "bc_bonus_code"
             If Not tfnLockRow("ZZSEBCMT", "bonus_codes", strSQL, , sLockedUser) Then
                 tfnSetStatusBarError "Bonus code record(s) is locked by " + sLockedUser
                 subHideHourGlass
                 Exit Function
             End If
-        Else 'nGrade
+        Else 'nGRADE
             strSQL = "bg_grade"
             If Not tfnLockRow("ZZSEBCMT", "bonus_grades", strSQL, , sLockedUser) Then
                 tfnSetStatusBarError "Bonus grade record(s) is locked by " + sLockedUser
@@ -2527,9 +2575,9 @@ Private Function fnLoadData(Index As Integer, Optional bRefresh As Boolean = Fal
         End If
     End If
     
-    If Index = nBonusCode Then
+    If Index = nBONUSCODE Then
         strSQL = "SELECT * FROM bonus_codes ORDER BY bc_bonus_code"
-    Else 'nGrade
+    Else 'nGRADE
         strSQL = "SELECT * FROM bonus_grades ORDER BY bg_grade, bg_emp_level"
     End If
     
@@ -2549,12 +2597,12 @@ Private Function fnLoadData(Index As Integer, Optional bRefresh As Boolean = Fal
     
     tgmBonus(Index).FillWithRecordset rsTemp
     
-    If Index = nGrade Then
-        If tgmBonus(nGrade).RowCount > 0 Then
+    If Index = nGRADE Then
+        If tgmBonus(nGRADE).RowCount > 0 Then
             'save the old grade level
-            For lRow = 1 To tgmBonus(nGrade).RowCount - 1
-                tgmBonus(nGrade).CellValue(nxColBGOldLevel, lRow) = _
-                    tgmBonus(nGrade).CellValue(nColBGLevel, lRow)
+            For lRow = 1 To tgmBonus(nGRADE).RowCount - 1
+                tgmBonus(nGRADE).CellValue(nxColBGOldLevel, lRow) = _
+                    tgmBonus(nGRADE).CellValue(nCOLBGLEVEL, lRow)
             Next lRow
         End If
         
@@ -2563,7 +2611,7 @@ Private Function fnLoadData(Index As Integer, Optional bRefresh As Boolean = Fal
     
     fnLoadData = True
     
-    tblBonus(Index).col = nColDesc
+    tblBonus(Index).col = nCOLDESC
     subHideHourGlass
         
 End Function
@@ -2576,12 +2624,12 @@ Private Function fnUpdateBonusCode(lRow As Long) As Boolean
     fnUpdateBonusCode = False
     
     strSQL = "UPDATE bonus_codes SET"
-    strSQL = strSQL & " bc_code_desc = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColDesc, lRow)))
-    strSQL = strSQL & ", bc_type = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColBCType, lRow)))
-    strSQL = strSQL & ", bc_grade = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColBCGrade, lRow)))
-    strSQL = strSQL & ", bc_frequency = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColBCFreq, lRow)))
-    strSQL = strSQL & ", bc_override = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColBCOverride, lRow)))
-    strSQL = strSQL & " WHERE bc_bonus_code = " & tfnSQLString(Trim(tgmBonus(nBonusCode).CellValue(nColCode, lRow)))
+    strSQL = strSQL & " bc_code_desc = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLDESC, lRow)))
+    strSQL = strSQL & ", bc_type = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLBCTYPE, lRow)))
+    strSQL = strSQL & ", bc_grade = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLBCGRADE, lRow)))
+    strSQL = strSQL & ", bc_frequency = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLBCFREQ, lRow)))
+    strSQL = strSQL & ", bc_override = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow)))
+    strSQL = strSQL & " WHERE bc_bonus_code = " & tfnSQLString(Trim(tgmBonus(nBONUSCODE).CellValue(nCOLCODE, lRow)))
     
     fnUpdateBonusCode = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
@@ -2599,8 +2647,8 @@ Private Function fnUpdateBonusGrade() As Boolean
         Exit Function
     End If
     
-    For i = 0 To tgmBonus(nGrade).RowCount - 1
-        If Not fnInsertGrdOrBonusCode(i, nGrade) Then
+    For i = 0 To tgmBonus(nGRADE).RowCount - 1
+        If Not fnInsertGrdOrBonusCode(i, nGRADE) Then
             Exit Function
         End If
     Next i
@@ -2624,16 +2672,16 @@ Private Function fnCheckDubInGrid(nCol_Nbr As Integer, lCurrRow As Long, _
         For k = 0 To lRowCount - 1
             If k <> lCurrRow Then
                 If sTemp = "" Then
-                    If nCol_Nbr = nColBGLevel Then
-                        sTemp = tgmBonus(Index).CellValue(nColBGLevel, k)
+                    If nCol_Nbr = nCOLBGLEVEL Then
+                        sTemp = tgmBonus(Index).CellValue(nCOLBGLEVEL, k)
                     Else
-                        sTemp = tfnSQLString(tgmBonus(Index).CellValue(nColCode, k))
+                        sTemp = tfnSQLString(tgmBonus(Index).CellValue(nCOLCODE, k))
                     End If
                 Else
-                    If nCol_Nbr = nColBGLevel Then
-                        sTemp = sTemp & "," & tgmBonus(Index).CellValue(nColBGLevel, k)
+                    If nCol_Nbr = nCOLBGLEVEL Then
+                        sTemp = sTemp & "," & tgmBonus(Index).CellValue(nCOLBGLEVEL, k)
                     Else
-                        sTemp = sTemp & "," & tfnSQLString(tgmBonus(Index).CellValue(nColCode, k))
+                        sTemp = sTemp & "," & tfnSQLString(tgmBonus(Index).CellValue(nCOLCODE, k))
                     End If
                 End If
             End If
@@ -2726,7 +2774,7 @@ Private Sub subSetStdBtn(Index As Integer)
 End Sub
 
 Private Sub tblView_GotFocus(Index As Integer)
-    If Index = nFrequency Then
+    If Index = nFREQUENCY Then
         tfnSetStatusBarMessage "Commission Frequency"
     Else
         tfnSetStatusBarMessage "Commission Type"
@@ -2747,11 +2795,11 @@ Private Sub subLoadViewData()
     
     'load frequency...
     strSQL = "SELECT * FROM bonus_frequency ORDER BY bfq_frequency"
-    tgmView(nFrequency).FillWithSQL t_dbMainDatabase, strSQL, , True
+    tgmView(nFREQUENCY).FillWithSQL t_dbMainDatabase, strSQL, , True
     
     'Load Types...
     strSQL = "SELECT * FROM bonus_types ORDER BY bt_type"
-    tgmView(nType).FillWithSQL t_dbMainDatabase, strSQL, , True
+    tgmView(nVIEWTYPE).FillWithSQL t_dbMainDatabase, strSQL, , True
     
 End Sub
 
@@ -2764,15 +2812,15 @@ Private Sub tblBonus_AfterColEdit(Index As Integer, ByVal ColIndex As Integer)
     
     'when a description for a Grade changed
     'change all description for the same Grade
-    If Index = nGrade Then
-        If ColIndex = nColDesc Then
+    If Index = nGRADE Then
+        If ColIndex = nCOLDESC Then
             If fnGetField(tgmBonus(Index).CellValue(ColIndex, lRow)) <> _
                fnGetField(tgmBonus(Index).OldValue) Then
                 If tgmBonus(Index).ValidCell(ColIndex, lRow) Then
                     For i = 0 To tgmBonus(Index).RowCount - 1
                         If i <> lRow Then
-                            If fnGetField(tgmBonus(Index).CellValue(nColCode, lRow)) = _
-                               fnGetField(tgmBonus(Index).CellValue(nColCode, i)) Then
+                            If fnGetField(tgmBonus(Index).CellValue(nCOLCODE, lRow)) = _
+                               fnGetField(tgmBonus(Index).CellValue(nCOLCODE, i)) Then
                                 tgmBonus(Index).CellValue(ColIndex, i) = _
                                     tgmBonus(Index).CellValue(ColIndex, lRow)
                             End If
@@ -2791,30 +2839,36 @@ Private Sub tblBonus_AfterColEdit(Index As Integer, ByVal ColIndex As Integer)
             subEnableRefreshBtn False, Index
         End If
     End If
+    
+    subSetStdBtn Index
 End Sub
 
 Private Sub tblBonus_BeforeColEdit(Index As Integer, ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    If Index = nGrade And ColIndex = nColDesc Then
+    
+    If Index = nGRADE And ColIndex = nCOLDESC Then
+        
         If tgmBonus(Index).CellValue(nxColBGDescEditable, tgmBonus(Index).GetCurrentRowNumber) = "N" Then
             CANCEL = True
             Exit Sub
         End If
+        
     End If
+    
     tgmBonus(Index).BeforeColEdit ColIndex, KeyAscii, CANCEL
     
-    If t_nFormMode = ADD_MODE And Index = nBonusCode Then
-        If Trim(tgmBonus(Index).CellValue(nColBCOverride, tgmBonus(Index).GetCurrentRowNumber)) = "" Then
-            tgmBonus(Index).CellValue(nColBCOverride, tgmBonus(Index).GetCurrentRowNumber) = "N"
+    If t_nFormMode = ADD_MODE And Index = nBONUSCODE Then
+    
+        If Trim(tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber)) = "" Then
+            tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber) = "N"
         End If
+        
     End If
     
-
 
 End Sub
 
 Private Sub tblBonus_Change(Index As Integer)
     tgmBonus(Index).Change
-    
     subEnableUpdateBtn False, Index
     nDataStatus = DATA_CHANGED
 End Sub
@@ -2826,17 +2880,17 @@ Private Sub tblBonus_FirstRowChange(Index As Integer)
     If tblBonus(Index).Row = -1 Then
         subEnableDeleteBtn False, Index
     End If
+    
 End Sub
 
 Private Sub tblBonus_GotFocus(Index As Integer)
-    If Index = nBonusCode Then
-        tfnSetStatusBarMessage "Commission Codes"
-    Else
-        tfnSetStatusBarMessage "Commission Grades"
-    End If
-
     tgmBonus(Index).GotFocus
     tgfDropdown(Index).GotFocus
+    
+    If tgfDropdown(Index).ValidSelection Then
+        subSetStdBtn Index
+    End If
+    
 End Sub
 
 Private Sub tblBonus_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
@@ -2844,54 +2898,31 @@ Private Sub tblBonus_KeyDown(Index As Integer, KeyCode As Integer, Shift As Inte
     tgfDropdown(Index).KeyDown tblBonus(Index), KeyCode
     
     If KeyCode = vbKeyDelete Then
+        
         If Not tblBonus(Index).EditActive Then
             tgmBonus(Index).CellValue(tblBonus(Index).col, tgmBonus(Index).GetCurrentRowNumber) = ""
             tgmBonus(Index).ResetFlags tgmBonus(Index).GetCurrentRowNumber, tblBonus(Index).col
+            
             If t_nFormMode = EDIT_MODE Then
                 subEnableRefreshBtn True, Index
             End If
+            
         End If
+        
     End If
 End Sub
 
 Private Sub tblBonus_KeyPress(Index As Integer, KeyAscii As Integer)
-    Dim lRow As Long
     
-    If tblBonus(Index).col = nColCode Or tblBonus(Index).col = nColBCOverride Or tblBonus(Index).col = nColBCType _
-       Or tblBonus(Index).col = nColBCGrade Or tblBonus(Index).col = nColBCFreq Then
+    If tblBonus(Index).col = nCOLCODE Or tblBonus(Index).col = nCOLBCOVERRIDE Or tblBonus(Index).col = nCOLBCTYPE _
+       Or tblBonus(Index).col = nCOLBCGRADE Or tblBonus(Index).col = nCOLBCFREQ Then
         KeyAscii = Asc(UCase$(Chr$(KeyAscii)))
     End If
     
     tgfDropdown(Index).Keypress tblBonus(Index), KeyAscii
     
-    lRow = tgmBonus(Index).GetCurrentRowNumber
-    
     If Not tgmBonus(Index).Keypress(KeyAscii) Then
         KeyAscii = 0
-    End If
-    
-    If t_nFormMode = EDIT_MODE Then
-        If KeyAscii = vbKeyReturn And tgmBonus(Index).RowCount - 1 = lRow Then
-            If Index = nBonusCode Then
-                If tblBonus(Index).col = nColBCOverride Then
-                    subSetStdBtn Index
-                    If cmdUpdateInsertBtn(Index).Enabled Then
-                        subSetFocus cmdUpdateInsertBtn(Index)
-                    Else
-                        subSetFocus cmdExitCancelBtn(Index)
-                    End If
-                End If
-            Else
-                If tblBonus(Index).col = nColBGLevel Then
-                    subSetStdBtn Index
-                    If cmdUpdateInsertBtn(Index).Enabled Then
-                        subSetFocus cmdUpdateInsertBtn(Index)
-                    Else
-                        subSetFocus cmdExitCancelBtn(Index)
-                    End If
-                End If
-            End If
-        End If
     End If
     
 End Sub
@@ -2901,34 +2932,15 @@ Private Sub tblBonus_LeftColChange(Index As Integer)
 End Sub
 
 Private Sub tblBonus_LostFocus(Index As Integer)
-    Dim lRow As Long
-    lRow = tgmBonus(Index).GetCurrentRowNumber
     tgmBonus(Index).LostFocus
     tgfDropdown(Index).LostFocus tblBonus(Index)
-    If Not tgmBonus(Index).ValidData(lRow) And lRow = 0 Then
-        Exit Sub
-    End If
-    subSetStdBtn Index
-    If ActiveControl Is cmdExitCancelBtn Then
-        subSetFocus cmdUpdateInsertBtn(Index)
-    End If
-End Sub
-
-Private Sub tblBonus_MouseDown(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
-'    If Index = nTabUOM Then
-'        frmContext.MouseDown Button, UOM_UP
-'    End If
 End Sub
 
 Private Sub tblBonus_RowColChange(Index As Integer, LastRow As Variant, ByVal LastCol As Integer)
-    Dim lRow As Long
-    Dim sValue As String
     
     If tgfDropdown(Index).RowColChange(tblBonus(Index)) Then
         tgmBonus(Index).RowColChange LastRow, LastCol
     End If
-    
-    lRow = tgmBonus(Index).GetCurrentRowNumber
     
     If tgmBonus(Index).RowCount > 0 Then
         subEnableDeleteBtn True, Index
@@ -2936,13 +2948,6 @@ Private Sub tblBonus_RowColChange(Index As Integer, LastRow As Variant, ByVal La
         subEnableDeleteBtn False, Index
     End If
 
-    If Not tgmBonus(Index).ValidData(lRow) And lRow = 0 Then
-        Exit Sub
-    End If
-    
-    
-    subSetStdBtn Index
-    
 End Sub
 
 Private Sub tblBonus_SelChange(Index As Integer, CANCEL As Integer)
@@ -2979,24 +2984,24 @@ Private Function fnValidBonusPayCode(szText As String, ByVal lRow As Long) As Bo
     fnValidBonusPayCode = False
 
     If Trim(szText) = "" Then
-        tgmBonus(nBonusCode).ErrorMessage(nBonusCode) = "You must enter a pay code"
+        tgmBonus(nBONUSCODE).ErrorMessage(nBONUSCODE) = "You must enter a pay code"
         Exit Function
     End If
 
     strSQL = "SELECT prpa_desc, prpa_type FROM pr_pay WHERE prpa_pay_code = " & tfnSQLString(szText)
 
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
-        tgmBonus(nBonusCode).ErrorMessage(nBonusCode) = "Pay code does not exist"
+        tgmBonus(nBONUSCODE).ErrorMessage(nBONUSCODE) = "Pay code does not exist"
         Exit Function
     End If
 
     If fnGetField(rsTemp!prpa_type) <> "P" Then
-        tgmBonus(nBonusCode).ErrorMessage(nBonusCode) = "Pay code Type is not 'P'"
+        tgmBonus(nBONUSCODE).ErrorMessage(nBONUSCODE) = "Pay code Type is not 'P'"
         Exit Function
     End If
 
-    If fnGetField(tgmBonus(nBonusCode).CellValue(nColDesc, lRow)) = "" Then
-        tgmBonus(nBonusCode).CellValue(nColDesc, lRow) = fnGetField(rsTemp!prpa_desc)
+    If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLDESC, lRow)) = "" Then
+        tgmBonus(nBONUSCODE).CellValue(nCOLDESC, lRow) = fnGetField(rsTemp!prpa_desc)
     End If
 
     fnValidBonusPayCode = True
@@ -3009,14 +3014,14 @@ Private Function fnValidBonusGrade(szText As String, ByVal lRow As Long) As Bool
     fnValidBonusGrade = False
     
     If Trim(szText) = "" Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCGrade) = "You must enter a commission grade"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCGRADE) = "You must enter a commission grade"
         Exit Function
     End If
     
     strSQL = "SELECT bg_grade FROM bonus_grades WHERE bg_grade = " & tfnSQLString(szText)
     
     If GetRecordCount(strSQL, , SUB_NAME) = 0 Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCGrade) = "Commission grade does not exist"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCGRADE) = "Commission grade does not exist"
         Exit Function
     End If
     
@@ -3035,12 +3040,12 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     fnValidGradeLevel = False
     
     If Trim(szText) = "" Then
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "You must enter a Grade Level"
+        tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "You must enter a Grade Level"
         Exit Function
     End If
     
     If tfnRound(szText) < 0 Then
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level must be greater than 0"
+        tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "Grade Level can't be less than 0"
         Exit Function
     End If
     
@@ -3050,7 +3055,7 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
         strSQL = "SELECT prm_emp_level FROM pr_master WHERE prm_emp_level = " & tfnRound(szText)
         strSQL = strSQL + " GROUP BY prm_emp_level"
         If GetRecordCount(strSQL, , SUB_NAME) = 0 Then
-            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level does not exist"
+            tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "Grade Level does not exist"
             Exit Function
         End If
     #End If
@@ -3059,31 +3064,31 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     If t_nFormMode = ADD_MODE Then
         strSQL = "SELECT bg_grade FROM bonus_grades WHERE bg_emp_level = " & tfnRound(szText)
         If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
-            tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level already been assigned to Grade " + tfnSQLString(fnGetField(rsTemp!bg_grade))
+            tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "Grade Level already been assigned to Grade " + tfnSQLString(fnGetField(rsTemp!bg_grade))
             Exit Function
         End If
     End If
     'check pr_master table for valid values
     strSQL = "SELECT grade_level FROM tmpGradeLevel WHERE grade_level = " & tfnRound(szText)
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) = 0 Then
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Grade Level is not a valid value. "
+        tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "Grade Level is not a valid value. "
         Exit Function
     End If
     
     'check for duplication
     bFoundDuplicate = False
-    For i = 0 To tgmBonus(nGrade).RowCount - 1
+    For i = 0 To tgmBonus(nGRADE).RowCount - 1
         If i <> lRow Then
-            If tfnRound(tgmBonus(nGrade).CellValue(nColBGLevel, i)) = tfnRound(szText) Then
-                tgmBonus(nGrade).CellValue(nxColBGDuplicates, i) = "Y"
-                tgmBonus(nGrade).ValidCell(nColBGLevel, i) = False
+            If tfnRound(tgmBonus(nGRADE).CellValue(nCOLBGLEVEL, i)) = tfnRound(szText) Then
+                tgmBonus(nGRADE).CellValue(nxColBGDuplicates, i) = "Y"
+                tgmBonus(nGRADE).ValidCell(nCOLBGLEVEL, i) = False
                 bFoundDuplicate = True
             Else
-                If fnGetField(tgmBonus(nGrade).CellValue(nxColBGDuplicates, i)) = "Y" Then
-                    If tfnRound(tgmBonus(nGrade).CellValue(nColBGLevel, i)) = tfnRound(tgmBonus(nGrade).OldValue) Then
+                If fnGetField(tgmBonus(nGRADE).CellValue(nxColBGDuplicates, i)) = "Y" Then
+                    If tfnRound(tgmBonus(nGRADE).CellValue(nCOLBGLEVEL, i)) = tfnRound(tgmBonus(nGRADE).OldValue) Then
                         'reset the duplication flag
-                        tgmBonus(nGrade).CellValue(nxColBGDuplicates, i) = ""
-                        tgmBonus(nGrade).ValidCell(nColBGLevel, i) = True
+                        tgmBonus(nGRADE).CellValue(nxColBGDuplicates, i) = ""
+                        tgmBonus(nGRADE).ValidCell(nCOLBGLEVEL, i) = True
                     End If
                 End If
             End If
@@ -3091,14 +3096,14 @@ Private Function fnValidGradeLevel(szText As String, ByVal lRow As Long) As Bool
     Next i
 
     If bFoundDuplicate Then
-        tgmBonus(nGrade).CellValue(nxColBGDuplicates, lRow) = "Y"
-        tgmBonus(nGrade).ErrorMessage(nColBGLevel) = "Duplicate Grade level encountered"
+        tgmBonus(nGRADE).CellValue(nxColBGDuplicates, lRow) = "Y"
+        tgmBonus(nGRADE).ErrorMessage(nCOLBGLEVEL) = "Duplicate Grade level encountered"
         Exit Function
     End If
     
-    subRevalidate nColBGLevel
+    subRevalidate nCOLBGLEVEL
 
-    tgmBonus(nGrade).CellValue(nxColBGDuplicates, lRow) = ""
+    tgmBonus(nGRADE).CellValue(nxColBGDuplicates, lRow) = ""
     fnValidGradeLevel = True
 
 End Function
@@ -3106,8 +3111,8 @@ End Function
 Private Sub subRevalidate(ByVal nCol As Integer)
     Dim i As Long
     
-    For i = 0 To tgmBonus(nGrade).RowCount - 1
-        If Not tgmBonus(nGrade).Revalidate(nCol, i) Then
+    For i = 0 To tgmBonus(nGRADE).RowCount - 1
+        If Not tgmBonus(nGRADE).Revalidate(nCol, i) Then
             Exit For
         End If
     Next
@@ -3120,14 +3125,14 @@ Private Function fnValidBonusType(szText As String, ByVal lRow As Long) As Boole
     fnValidBonusType = False
     
     If Trim(szText) = "" Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCType) = "You must enter a Commission type"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCTYPE) = "You must enter a Commission type"
         Exit Function
     End If
     
     strSQL = "SELECT bt_type FROM bonus_types WHERE bt_type = " & tfnSQLString(szText)
     
     If GetRecordCount(strSQL, , SUB_NAME) = 0 Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCType) = "Commission type does not exist"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCTYPE) = "Commission type does not exist"
         Exit Function
     End If
     
@@ -3142,14 +3147,14 @@ Private Function fnValidBonusFreq(szText As String, ByVal lRow As Long) As Boole
     fnValidBonusFreq = False
     
     If Trim(szText) = "" Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCFreq) = "You must enter a commission frequency"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCFREQ) = "You must enter a commission frequency"
         Exit Function
     End If
     
     strSQL = "SELECT * FROM bonus_frequency WHERE bfq_frequency = " & tfnSQLString(szText)
     
     If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
-        tgmBonus(nBonusCode).ErrorMessage(nColBCFreq) = "Commission frequency does not exist"
+        tgmBonus(nBONUSCODE).ErrorMessage(nCOLBCFREQ) = "Commission frequency does not exist"
         Exit Function
     End If
     
@@ -3183,14 +3188,14 @@ Private Function fnCheckDelete(sCode As String, Index As Integer) As Boolean
     Dim i As Long
     Dim nCount As Integer
     
-    If Index = nBonusCode Then
+    If Index = nBONUSCODE Then
         sTitle = "Bonus code"
         sByWhom = "Bonus Formula"
         strSQL = "SELECT bf_bonus_code FROM bonus_formula WHERE bf_bonus_code = "
     Else
         'count GradeCode
-        For i = 0 To tgmBonus(nGrade).RowCount - 1
-            If fnGetField(tgmBonus(nGrade).CellValue(nColCode, i)) = sCode Then
+        For i = 0 To tgmBonus(nGRADE).RowCount - 1
+            If fnGetField(tgmBonus(nGRADE).CellValue(nCOLCODE, i)) = sCode Then
                 nCount = nCount + 1
                 If nCount > 1 Then
                     Exit For
@@ -3211,10 +3216,23 @@ Private Function fnCheckDelete(sCode As String, Index As Integer) As Boolean
     strSQL = strSQL & tfnSQLString(Trim(sCode))
     
     If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
-        MsgBox sTitle + " is in used by " + sByWhom + ", and cannot be deleted.", vbExclamation
+        MsgBox sTitle + " is used by " + sByWhom + ", and cannot be deleted.", vbExclamation
         Exit Function
     End If
-
+    
+    If Index = nBONUSCODE Then
+        sTitle = "Bonus code"
+        sByWhom = "Bonus Master"
+        strSQL = "SELECT bm_empno FROM bonus_master WHERE bm_bonus_code = "
+        strSQL = strSQL & tfnSQLString(Trim(sCode))
+        
+        If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
+            MsgBox sTitle + " is used by " + sByWhom + ", and cannot be deleted.", vbExclamation
+            Exit Function
+        End If
+        
+    End If
+    
     fnCheckDelete = True
 End Function
 
@@ -3247,20 +3265,20 @@ Private Sub subResetDescEditableFlag(Optional bChangeDesc As Boolean = False)
     Dim sGrade As String
     Dim sDesc As String
     
-    If tgmBonus(nGrade).RowCount = 0 Then
+    If tgmBonus(nGRADE).RowCount = 0 Then
         Exit Sub
     End If
     
     
-    For lRow = 0 To tgmBonus(nGrade).RowCount - 1
-        sDesc = fnGetField(tgmBonus(nGrade).CellValue(nColDesc, lRow))
+    For lRow = 0 To tgmBonus(nGRADE).RowCount - 1
+        sDesc = fnGetField(tgmBonus(nGRADE).CellValue(nCOLDESC, lRow))
         
         For i = 0 To lRow - 1
-            If fnGetField(tgmBonus(nGrade).CellValue(nColCode, lRow)) = _
-               fnGetField(tgmBonus(nGrade).CellValue(nColCode, i)) Then
-                tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "N"
+            If fnGetField(tgmBonus(nGRADE).CellValue(nCOLCODE, lRow)) = _
+               fnGetField(tgmBonus(nGRADE).CellValue(nCOLCODE, i)) Then
+                tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "N"
                 If bChangeDesc Then
-                    tgmBonus(nGrade).CellValue(nColDesc, lRow) = sDesc
+                    tgmBonus(nGRADE).CellValue(nCOLDESC, lRow) = sDesc
                 End If
                 Exit For
             End If
@@ -3268,12 +3286,12 @@ Private Sub subResetDescEditableFlag(Optional bChangeDesc As Boolean = False)
             
         'this is the first grade code
         If i > lRow - 1 Then
-            tgmBonus(nGrade).CellValue(nxColBGDescEditable, lRow) = "Y"
+            tgmBonus(nGRADE).CellValue(nxColBGDescEditable, lRow) = "Y"
         End If
     Next lRow
     
     If bChangeDesc Then
-        tgmBonus(nGrade).Rebind
+        tgmBonus(nGRADE).Rebind
     End If
 End Sub
 
