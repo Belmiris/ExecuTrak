@@ -1791,6 +1791,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
                 If IsValidDate(sDateStart) Then
                     If i <= rsTemp.RecordCount - 1 Then
                         rsTemp.MoveNext
+                        i = i + 1
                         sDateEnd = fnGetField(rsTemp!prhs_effective_dt)
                         If Not IsValidDate(sDateEnd) Then
                             sErrMsg = "Effective Date is not valid for " & sVinV
@@ -1810,6 +1811,7 @@ Private Function fnMonthsInGrade(sVinV As String, _
             Else
                 sDateStart = ""
                 rsTemp.MoveNext
+                i = i + 1
             End If
         Loop Until rsTemp.EOF
         
@@ -1871,7 +1873,6 @@ Private Function fnMonthsEmployed(sVinV As String, _
     Dim sDateStart As String
     Dim sDateEnd As String
     Dim dDiff As Double
-    Dim i As Long
 
     fnMonthsEmployed = 0#
             
@@ -1936,7 +1937,6 @@ Private Function fnMonthsEmployed(sVinV As String, _
         End If
     Else
         dDiff = 0
-        i = 1
         Do
             sDateStart = fnGetField(rsTemp!prhs_date_hired)
             sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
