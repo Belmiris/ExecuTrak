@@ -81,20 +81,20 @@ End Function
 Private Function fnDBPath() As String
     Dim sDBPath As String
     Dim sStatus As String
-    Dim I As Integer
+    Dim i As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
-    I = Len(sDBPath)
+    i = Len(sDBPath)
     sStatus = " "
-    While I > 0 And sStatus <> "/"
-        sStatus = Mid(sDBPath, I, 1)
-        I = I - 1
+    While i > 0 And sStatus <> "/"
+        sStatus = Mid(sDBPath, i, 1)
+        i = i - 1
     Wend
-    If I > 0 Then
-        fnDBPath = Left(sDBPath, I)
+    If i > 0 Then
+        fnDBPath = Left(sDBPath, i)
     Else
         fnDBPath = sDBPath
     End If
@@ -136,12 +136,20 @@ Public Function fnExecute4GE(sCmdLine As String, _
     
     'david 10/23/00
     If Trim(sHost) = "" Then
-        sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST2)
+        If Not t_dbMainDatabase Is Nothing Then
+            sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST2)
+        End If
     End If
     
     If Trim(sHost) = "" Then
         If Not t_oleObject Is Nothing Then
             sHost = t_oleObject.ConnectHost
+        End If
+    End If
+    
+    If Trim(sPassWD) = "" Then
+        If Not t_oleObject Is Nothing Then
+            sPassWD = t_oleObject.Password
         End If
     End If
     
@@ -170,16 +178,16 @@ Public Function fnExecute4GE(sCmdLine As String, _
              & "$PROGPATH/" & sCmdLine
         
         Dim strSQL As String
-        Dim RsTemp As Recordset
+        Dim rsTemp As Recordset
         
         strSQL = "EXECUTE PROCEDURE execute_unix_cmd (" & tfnSQLString(sCmd) & ")"
         On Error GoTo errExecuteProcedure
-        Set RsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        If RsTemp.RecordCount > 0 Then
-            If tfnRound(RsTemp.Fields(0)) = 0 Then
-                sTemp = fnCStr(RsTemp.Fields(1))
-                If RsTemp.Fields.Count > 2 Then
-                    sTemp = sTemp & vbCrLf & "System command: " & fnCStr(RsTemp.Fields(2))
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If rsTemp.RecordCount > 0 Then
+            If tfnRound(rsTemp.Fields(0)) = 0 Then
+                sTemp = fnCStr(rsTemp.Fields(1))
+                If rsTemp.Fields.Count > 2 Then
+                    sTemp = sTemp & vbCrLf & "System command: " & fnCStr(rsTemp.Fields(2))
                 End If
                 tfnErrHandler SUB_NAME, -1, sTemp
             Else
@@ -402,7 +410,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     Const SUB_NAME = "fnSetParmForUnixCmd"
     
     Dim sTemp As String
-    Dim RsTemp As Recordset
+    Dim rsTemp As Recordset
     Dim nParmIdx As Integer
     
     fnSetParmForUnixCmd = False
@@ -417,9 +425,9 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
                & " WHERE parm_nbr = " & PARM_RUN_4GE
     
         On Error GoTo errGetParm
-        Set RsTemp = t_dbMainDatabase.OpenRecordset(sTemp, dbOpenSnapshot, dbSQLPassThrough)
-        If RsTemp.RecordCount > 0 Then
-            sTemp = fnCStr(RsTemp!parm_field)
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(sTemp, dbOpenSnapshot, dbSQLPassThrough)
+        If rsTemp.RecordCount > 0 Then
+            sTemp = fnCStr(rsTemp!parm_field)
             If nParmIdx <= Len(sTemp) Then
                 If UCase(Mid(sTemp, nParmIdx, 1)) = "D" Then
                     nWhatToUse = USE_RCMD
