@@ -624,14 +624,14 @@ Begin VB.Form frmZZSEPIMT
                   Width           =   1044
                End
                Begin DBTrueGrid.TDBGrid tblGrid 
-                  Height          =   3045
+                  Height          =   3480
                   HelpContextID   =   1403
-                  Left            =   90
+                  Left            =   96
                   OleObjectBlob   =   "zzsepimt.frx":154A
                   TabIndex        =   24
                   TabStop         =   0   'False
-                  Top             =   165
-                  Width           =   8475
+                  Top             =   168
+                  Width           =   8472
                End
             End
             Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
