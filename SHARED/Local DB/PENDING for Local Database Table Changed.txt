@@ -1,3 +1,16 @@
+''''''''''''''''' DONE - 3.26.0012 - 09/26/2002 ''''''''''''''''''''''''
+version: 3.26.0012 davidc
+Date: 09/13/2002
+#382294-2
+
+Description: 
+	Service and Maintenance module (SM report).
+
+	1. drop smwr_esc_line1, smwr_desc_line2, smwr_desc_line3, 
+	   smwr_desc_line4, smwr_desc_line5 fields from sm_wo_rpt table.
+	2. add new column smwr_wo_long_desc (memo) field to sm_wo_rpt table.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 ''''''''''''''''' DONE - 3.26.0011 - 07/01/2002 ''''''''''''''''''''''''
 
 version: 3.26.0011
