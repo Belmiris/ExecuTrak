@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -641,7 +641,7 @@ Public Sub tfnStoreFontInfo(frmForm As Form, arrayFontSizes() As Integer)
 
 End Sub
 
-Public Function tfnUnlockRow() As Boolean
+Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     Const SUB_NAME = "tfnUnlockRow"
     
     If nHandleCount <= 0 Then
@@ -653,22 +653,47 @@ Public Function tfnUnlockRow() As Boolean
     
     tfnUnlockRow = False
     On Error GoTo errUnlock
-    While nHandleCount > 0
-        strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        If rsTemp.RecordCount > 0 Then
-            If rsTemp.Fields(0) > 0 Then
-                nHandleCount = nHandleCount - 1
+    If IsMissing(vTable) Then
+        While nHandleCount > 0
+            strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            If rsTemp.RecordCount > 0 Then
+                If rsTemp.Fields(0) > 0 Then
+                    nHandleCount = nHandleCount - 1
+                Else
+                    rsTemp.Close
+                    Exit Function
+                End If
             Else
                 rsTemp.Close
                 Exit Function
             End If
-        Else
-            rsTemp.Close
-            Exit Function
-        End If
-    Wend
-    rsTemp.Close
+        Wend
+        rsTemp.Close
+    Else
+        Dim sTable As String
+        Dim i As Integer
+        
+        sTable = LCase(Trim(vTemp))
+        For i = 0 To nHandleCount
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+                If rsTemp.RecordCount > 0 Then
+                    If rsTemp.Fields(0) > 0 Then
+                        nHandleCount = nHandleCount - 1
+                    Else
+                        rsTemp.Close
+                        Exit Function
+                    End If
+                Else
+                    rsTemp.Close
+                    Exit Function
+                End If
+                Exit For
+            End If
+        Next i
+    End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
     Exit Function
@@ -970,7 +995,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
