@@ -2848,10 +2848,14 @@ Private Sub tblBonus_AfterColEdit(Index As Integer, ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblBonus_BeforeColEdit(Index As Integer, ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    If Index = nGRADE Then
-        If tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, tgmBonus(Index).GetCurrentRowNumber) = "H" Then
-            CANCEL = True
-            Exit Sub
+    If Index = nBONUSCODE Then
+        If ColIndex = nCOLBCOVERRIDE Then
+            If tgmBonus(Index).CellValue(nxColCalcMethod, tgmBonus(Index).GetCurrentRowNumber) = "H" And _
+               tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber) = "Y" Then
+                tfnSetStatusBarMessage "Override will always be 'Y' when Calc Method of the pay code is 'H'"
+                CANCEL = True
+                Exit Sub
+            End If
         End If
     Else
         If ColIndex = nCOLDESC Then
@@ -2950,6 +2954,14 @@ Private Sub tblBonus_RowColChange(Index As Integer, LastRow As Variant, ByVal La
         subEnableDeleteBtn False, Index
     End If
 
+    If Index = nBONUSCODE Then
+        If tblBonus(Index).col = nCOLBCOVERRIDE Then
+            If tgmBonus(Index).CellValue(nxColCalcMethod, tgmBonus(Index).GetCurrentRowNumber) = "H" And _
+               tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber) = "Y" Then
+                tfnSetStatusBarMessage "Override will always be 'Y' when Calc Method of the pay code is 'H'"
+            End If
+        End If
+    End If
 End Sub
 
 Private Sub tblBonus_SelChange(Index As Integer, CANCEL As Integer)

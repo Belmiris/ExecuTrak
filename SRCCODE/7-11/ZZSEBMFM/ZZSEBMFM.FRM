@@ -844,8 +844,9 @@ Private nxColSeqValid As Integer
 Private nxColOldValidPrftCtr As Integer
 Private nxColOldValidBonusCode As Integer
 Private nxColOldValidSeq As Integer
-Private nxColBGDuplPrftCtrSeq As Integer
 Private nxColBGDuplPrftCtrBonusCode As Integer
+Private nxColBGDuplPrftCtrSeq As Integer
+Private nxColCalcMethod As Integer
 
 Private sEmpFirstPrftCtr As String
 Private sEmpPrftCtrList As String
@@ -1521,6 +1522,15 @@ Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblBonus_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    If ColIndex = ColOverride Then
+        If tgmBonus.CellValue(nxColCalcMethod, tgmBonus.GetCurrentRowNumber) = "H" And _
+           tgmBonus.CellValue(ColOverride, tgmBonus.GetCurrentRowNumber) = "Y" Then
+            tfnSetStatusBarMessage "Override will always be 'Y' when Calc Method of the pay code is 'H'"
+            CANCEL = True
+            Exit Sub
+        End If
+    End If
+    
     tgmBonus.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
@@ -1655,6 +1665,13 @@ Private Sub tblBonus_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 
     tgsBonus.RowColChange LastRow, LastCol
+
+    If tblBonus.col = ColOverride Then
+        If tgmBonus.CellValue(nxColCalcMethod, tgmBonus.GetCurrentRowNumber) = "H" And _
+           tgmBonus.CellValue(ColOverride, tgmBonus.GetCurrentRowNumber) = "Y" Then
+            tfnSetStatusBarMessage "Override will always be 'Y' when Calc Method of the pay code is 'H'"
+        End If
+    End If
 End Sub
 
 Private Sub tblBonus_SelChange(CANCEL As Integer)
@@ -1838,6 +1855,7 @@ Private Sub subInitSpreadsheets()
         nxColOldValidSeq = .AddHiddenField("valid_seq")
         nxColBGDuplPrftCtrBonusCode = .AddHiddenField("dup_prft_bonus_code")
         nxColBGDuplPrftCtrSeq = .AddHiddenField("dup_prft_seq")
+        nxColCalcMethod = .AddHiddenField("prpa_calc_method")
         
         .AddSortColumn ColPrftCtr, ColPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             ColSequence, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
@@ -2159,8 +2177,9 @@ Private Function fnLoadData() As String
     
     tgmBonus.Rebind
     
+    subFillCalcMethod
+    
     fnLoadData = ""
-        
 End Function
 
 Private Function fnUpdateBonusCode() As Boolean
@@ -2535,6 +2554,8 @@ Private Sub subEnterPhaseTwo()
     If Not tfnLockRow(efraToolBar.FMName, "bm_master", txtEmployee) Then
         Exit Sub
     End If
+    
+    subSetFocus efraBackground
     
     Screen.MousePointer = vbHourglass
     subEnableEmployee False
@@ -3260,3 +3281,24 @@ Private Function fnDateOverlap(sDateStart1 As String, _
 errTrap:
     'do nothing
 End Function
+
+Private Sub subFillCalcMethod()
+    Const SUB_NAME As String = "subFillCalcMethod"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sPayCode As String
+    Dim lRow As Long
+
+    strSQL = "SELECT prpa_calc_method FROM pr_pay WHERE prpa_pay_code = "
+    
+    For lRow = 0 To tgmBonus.RowCount - 1
+        sPayCode = tfnSQLString(tgmBonus.CellValue(ColBCode, lRow))
+        If GetRecordSet(rsTemp, strSQL + sPayCode, , SUB_NAME, False) > 0 Then
+            tgmBonus.CellValue(nxColCalcMethod, lRow) = UCase(fnGetField(rsTemp!prpa_calc_method))
+        Else
+            tgmBonus.CellValue(nxColCalcMethod, lRow) = "H"
+        End If
+    Next lRow
+End Sub
+
