@@ -992,14 +992,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1101,7 +1101,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1172,13 +1172,16 @@ Public Function tfnBuildMultiLines(sParam() As String, _
     tfnBuildMultiLines = UBound(sParam) + 1
 End Function
 
-Public Function tfnGetMultiLines(rsTemp As Recordset) As String
+Public Function tfnGetMultiLines(rsTemp As Recordset, fieldNum As Variant) As String
     Dim sTemp As String
     
     If rsTemp.RecordCount > 0 Then
+        If IsMissing(fieldNum) Then
+            fieldNum = 0
+        End If
         'first line
-        If Not IsNull(rsTemp.Fields(0)) Then
-            sTemp = RTrim$(rsTemp.Fields(0))
+        If Not IsNull(rsTemp.Fields(fieldNum)) Then
+            sTemp = RTrim$(rsTemp.Fields(fieldNum))
         Else
             sTemp = ""
         End If
@@ -1187,13 +1190,14 @@ Public Function tfnGetMultiLines(rsTemp As Recordset) As String
         
         'the rest
         While Not rsTemp.EOF
-            If Not IsNull(rsTemp.Fields(0)) Then
-                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(0))
+            If Not IsNull(rsTemp.Fields(fieldNum)) Then
+                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(fieldNum))
             Else
                 sTemp = sTemp + vbCrLf + ""
             End If
             rsTemp.MoveNext
         Wend
+        
     End If
     
     tfnGetMultiLines = sTemp
