@@ -424,7 +424,7 @@ Public Function fnGetTypeATax() As Double
     fnGetTypeATax = 0
     For i = 0 To nInfoCount - 1
         For j = 0 To aryTaxInfo(i).m_nRecord - 1
-            If aryTaxInfo(i).m_Taxes(j).m_cCharge = vbKeyY Then
+            If aryTaxInfo(i).m_Taxes(j).m_cCharge <> vbKeyN Then
                 If aryTaxInfo(i).m_Taxes(j).m_cBasis = vbKeyA Then
                     fnGetTypeATax = fnGetTypeATax + aryTaxInfo(i).m_Taxes(j).m_dAmount
                 End If
@@ -907,7 +907,7 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
                             Optional sErrMsg As String = "")
     
     Static nLastError As Integer
-    Dim sMSG As String
+    Dim sMsg As String
         
     If nLastError = nMsgNo Then
         Exit Sub
@@ -920,31 +920,31 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
     Select Case nMsgNo
         Case TXMOD_LINETAX_OK = 0           ' All's well
         Case TXMOD_LINETAX_NOMEM         ' Out of memory
-            sMSG = "Out of memory for tax calculation"
+            sMsg = "Out of memory for tax calculation"
         Case TXMOD_LINETAX_NODBASE       ' No database available
-            sMSG = "No database availble for tax calculation"
+            sMsg = "No database availble for tax calculation"
         Case TXMOD_LINETAX_NOTAXRECS     ' No tax records in the dbase
-            sMSG = "No tax records for the customer/product"
+            sMsg = "No tax records for the customer/product"
         Case TXMOD_LINETAX_NOINVHEAD     ' No inventory header record
-            sMSG = "No inventory header record available"
+            sMsg = "No inventory header record available"
         Case TXMOD_LINETAX_NOINVCLASS    ' No inventory class record
-            sMSG = "No inventory class record available"
+            sMsg = "No inventory class record available"
         Case TXMOD_LINETAX_BADSQL        ' SQL statement error
-            sMSG = "An error exists in the SQL statement for tax calculations"
+            sMsg = "An error exists in the SQL statement for tax calculations"
         Case TXMOD_LINETAX_BADBASIS      ' Bad basis flag
-            sMSG = "Bad basis flag from tax mods"
+            sMsg = "Bad basis flag from tax mods"
         Case TXMOD_LINETAX_BADBILLED     ' Bad billed units flag
-            sMSG = "Bad billed units flag"
+            sMsg = "Bad billed units flag"
         Case TXMOD_LINETAX_BADLTYPE      ' Bad line type (int/ext bl/del)
-            sMSG = "Bad line type"
+            sMsg = "Bad line type"
         Case TXMOD_LINETAX_BADPARMS     ' Bad parameters passed
-            sMSG = "Bad parameters for tax calculation"
+            sMsg = "Bad parameters for tax calculation"
     End Select
 
     If bShowMsgBox Then
-        MsgBox sMSG + ".", nButtons
+        MsgBox sMsg + ".", nButtons
     Else
-        sErrMsg = sMSG + "."
+        sErrMsg = sMsg + "."
     End If
 
 End Sub
@@ -2177,6 +2177,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim sum_atax As Double
     Dim this_tax As Double
     Dim i As Integer
+    Dim k As Integer
     Dim this_units As Long
     Dim dsl_fuel_group As String
     
@@ -2191,6 +2192,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     
     Dim sIEFlag As String
     Dim bBOL_External As Boolean
+    Dim lDest As Long
     
     '#Make sure it is FM or Its Editor
     If m_Disable_A_Taxes Then
@@ -2285,7 +2287,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         lTotATaxGal = 0
         nLine = 0
         
-        strSQL = "SELECT dPickupDate FROM mlading"
+        strSQL = "SELECT dPickupDate FROM mLading"
         strSQL = strSQL & " WHERE lMovement=" & lMovement
         strSQL = strSQL & " AND lLading=" & tfnRound(rsLadHeader!lLading)
         Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2300,25 +2302,41 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         With rsLadD
             If .RecordCount > 0 Then
                 While Not .EOF
-                    If !bGross Then
-                        sNGU = "G"
-                        fBase = !lGross * !fCost
-                        lTotATaxGal = lTotATaxGal + !lGross
-                    Else
-                        sNGU = "N"
-                        fBase = !lNet * !fCost
-                        lTotATaxGal = lTotATaxGal + !lNet
-                    End If
-                    If Not fnAddTaxInfoItem(rsLadHeader!lLading, nLine, _
-                            !szProductCode, !szTaxUseGroup, _
-                            fBase, 0, _
-                            CDbl(!lGross), CDbl(!lNet), _
-                            sNGU) Then
+                    
+                    strSQL = "SELECT SUM(MBalance.lGross) AS G_GAL, SUM(MBalance.lNet) AS N_GAL,MDelivery.lDestination"
+                    strSQL = strSQL & " FROM MBalance, MDelivery WHERE MBalance.lDelivery= MDelivery.lDelivery"
+                    strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
+                    strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
+                    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
+                    strSQL = strSQL & " GROUP BY MDelivery.lDestination"
+                    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+                    If rsTemp Is Nothing Then
                         Exit Sub
                     End If
-                    nLine = nLine + 1
+                            
+                    Do While Not rsTemp.EOF
+                        If !bGross Then
+                            sNGU = "G"
+                            fBase = rsTemp!G_GAL * !fCost
+                            lTotATaxGal = lTotATaxGal + rsTemp!G_GAL
+                        Else
+                            sNGU = "N"
+                            fBase = rsTemp!N_GAL * !fCost
+                            lTotATaxGal = lTotATaxGal + rsTemp!N_GAL
+                        End If
+                        lDest = tfnRound(rsTemp!lDestination)
+                        If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, rsLadHeader!lLading, nLine, _
+                                !szProductCode, !szTaxUseGroup, _
+                                fBase, 0, _
+                                CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), _
+                                sNGU) Then
+                            Exit Sub
+                        End If
+                        nLine = nLine + 1
+                        rsTemp.MoveNext
+                    Loop
                     .MoveNext
-                Wend
+                Wend '#Lading D
                 subProrateBOLATax rsLadHeader!lLading, _
                                    nLine, _
                                    bTexasTax, sTaxState
@@ -2346,11 +2364,11 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     End If
                     aryATax(BOL_atx_ptr).a_tax_used = 0
                     .MoveNext
-                Wend
+                Wend '#Lading D
             End If
         End With
         rsLadHeader.MoveNext
-    Wend
+    Wend '#Lading
     If BOL_atx_ptr < 0 Then
         Exit Sub
     End If
@@ -2465,23 +2483,37 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         '#We do not need to populate Internal Loading Fees
         If aryLDF(i).dv_nbr <> 0 And tfnRound(aryLDF(i).dv_atax, 2) <> 0 And aryLDF(i).dv_IE = "E" Then
             '#Try to Get the same desc as 4GL does.
-            subGetATaxCodeDesc m_local, aryLDF(i).dv_nbr, lMovement, sTaxState, _
-                                aryLDF(i).dv_vol, sTaxCode, sTaxDesc, fTaxRate
-            If aryLDF(i).dv_nbr * aryLDF(i).dv_atax < 0 Then
-                aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
+            If fnGetATaxCodeDesc(rsDelD, aryLDF(i).dv_nbr, _
+                                 aryLDF(i).dv_vol, _
+                                 sTaxCode, sTaxDesc, fTaxRate) Then
+                If sTaxDesc = "**Loading Fees**" Then
+                    '#Exceeds limit
+                    sTaxDesc = "Loading Fees"
+                    fTaxRate = 0
+                    For k = 0 To ldf_cnt
+                        If aryLDF(k).dv_nbr = aryLDF(i).dv_nbr And aryLDF(i).dv_IE = "E" Then
+                            fTaxRate = fTaxRate + aryLDF(k).dv_atax
+                        End If
+                    Next
+                    fTaxRate = tfnRound(Abs(fTaxRate))
+                End If
+                
+                If aryLDF(i).dv_nbr * aryLDF(i).dv_atax < 0 Then
+                    aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
+                End If
+                strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
+                         & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
+                strSQL = strSQL & CStr(lMovement) & ","
+                strSQL = strSQL & CStr(aryLDF(i).dv_nbr) & ","
+                strSQL = strSQL & CStr(aryLDF(i).dv_line) & ","
+                strSQL = strSQL & tfnSQLString(sTaxCode) & ","
+                strSQL = strSQL & tfnSQLString(sTaxDesc) & ","
+                strSQL = strSQL & aryLDF(i).dv_vol & ","
+                strSQL = strSQL & CStr(fTaxRate) & ","
+                strSQL = strSQL & tfnRound(aryLDF(i).dv_atax, 2) & ",'A')"
+                
+                txMod_ExeCuteSQL strSQL, , , m_local
             End If
-            strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
-                     & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
-            strSQL = strSQL & CStr(lMovement) & ","
-            strSQL = strSQL & CStr(aryLDF(i).dv_nbr) & ","
-            strSQL = strSQL & CStr(aryLDF(i).dv_line) & ","
-            strSQL = strSQL & tfnSQLString(sTaxCode) & ","
-            strSQL = strSQL & tfnSQLString(sTaxDesc) & ","
-            strSQL = strSQL & aryLDF(i).dv_vol & ","
-            strSQL = strSQL & CStr(fTaxRate) & ","
-            strSQL = strSQL & tfnRound(aryLDF(i).dv_atax, 2) & ",'A')"
-            
-            txMod_ExeCuteSQL strSQL, , , m_local
         End If
     Next
     
@@ -2528,10 +2560,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     ''''''''''''''''''''''''''''''''
 End Sub
 
-Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
-                               ByVal lmvmtNo As Long, ByVal sState As String, _
+Private Function fnGetATaxCodeDesc(ByVal rsDD As Recordset, _
+                               ByVal lDelNbr As Long, _
                                ByVal lGal As Long, ByRef sTxCode As String, _
-                               ByRef sTaxDesc As String, ByRef fTaxRate As Double)
+                               ByRef sTaxDesc As String, ByRef fTaxRate As Double) As Boolean
     
     Const SUB_NAME As String = "subGetATaxCodeDesc"
     
@@ -2543,32 +2575,22 @@ Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
     Dim i As Integer
     Dim j As Integer
     
-    sTxCode = sState & "LDF"
-    sTaxDesc = "Loading Fees"
+    fnGetATaxCodeDesc = False
     
-    'Vijaya on 11/24/04 Magic#465810
-    sTrnCode = ""
-    
-    'Get the Tax Use Group and Product Class
-    strSQL = " SELECT lProductLink,szTaxUseGroup"
-    strSQL = strSQL & " FROM mdeliverydetail"
-    strSQL = strSQL & " WHERE lMovement = " & tfnRound(lmvmtNo)
-    strSQL = strSQL & " AND lDelivery = " & tfnRound(lDeliveryNo)
-    
-    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
-    If rsTemp Is Nothing Then
-        Exit Sub
-    End If
-    If rsTemp.RecordCount > 0 Then
-        While Not rsTemp.EOF
+    sTxCode = "LDF"
+    sTaxDesc = "**Loading Fees**"
+    rsDD.MoveFirst
+    sTrnCode = szEMPTY
+    Do While Not rsDD.EOF
+        If lDelNbr = rsDD!lDelivery Then
             strSQL = "SELECT tul_trn FROM tx_use_g,tx_use_link,inv_header"
-            strSQL = strSQL & " WHERE ivh_link =" & tfnRound(rsTemp!lProductLink)
-            strSQL = strSQL & " AND tu_use_g = " & tfnSQLString(rsTemp!szTaxUseGroup)
+            strSQL = strSQL & " WHERE ivh_link =" & tfnRound(rsDD!lProductLink)
+            strSQL = strSQL & " AND tu_use_g = " & tfnSQLString(rsDD!szTaxUseGroup)
             strSQL = strSQL & " AND tu_link = tul_link"
             strSQL = strSQL & " AND tu_prodtcl = ivh_prodtcl"
             Set rsTrnCode = txMod_OpenRecord(strSQL, SUB_NAME)
             If rsTrnCode Is Nothing Then
-                Exit Sub
+                Exit Function
             End If
             If rsTrnCode.RecordCount > 0 Then
                 While Not rsTrnCode.EOF
@@ -2580,36 +2602,36 @@ Private Sub subGetATaxCodeDesc(m_local As DataBase, ByVal lDeliveryNo As Long, _
                     rsTrnCode.MoveNext
                 Wend
             End If
-            rsTemp.MoveNext
-        Wend
+        End If
+        rsDD.MoveNext
+    Loop
+    If sTrnCode = szEMPTY Then
+        Exit Function
     End If
-    
-    'Modified the sql to get exact Tax Description and rate
+    If lGal > 0 Then
+        lGal = lGal * (-1)
+    End If
     strSQL = "SELECT tt_code,tt_descr,tt_rate,tt_limit FROM tx_table"
-    strSQL = strSQL & " WHERE tt_level = 'S' AND tt_where =" & tfnSQLString(sState)
-    strSQL = strSQL & " AND tt_charge = 'Y'"
-    If sTrnCode <> "" Then
-        strSQL = strSQL & " AND tt_trn IN (" & sTrnCode & ")"
-    End If
+    strSQL = strSQL & " WHERE tt_level = 'S' "
+    strSQL = strSQL & " AND tt_charge = 'Y' AND tt_basis = 'A'"
+    strSQL = strSQL & " AND tt_trn IN (" & sTrnCode & ")"
+    strSQL = strSQL & " AND tt_limit < " & CStr(lGal)
     strSQL = strSQL & " ORDER BY tt_limit DESC"
     strSQL = tfnFix_tx_table(strSQL)
     
     Set rsTemp = txMod_OpenRecord(strSQL)
     If rsTemp Is Nothing Then
-        Exit Sub
+        Exit Function
     ElseIf rsTemp.RecordCount = 0 Then
-        Exit Sub
+        Exit Function
     End If
-    Do While Not rsTemp.EOF
-        If Abs(tfnRound(rsTemp!tt_limit)) >= Abs(lGal) Then
-            sTxCode = rsTemp!tt_code & ""
-            sTaxDesc = rsTemp!tt_descr & ""
-            fTaxRate = tfnRound(rsTemp!tt_rate, 2)
-            Exit Do
-        End If
-        rsTemp.MoveNext
-    Loop
-End Sub
+    sTxCode = rsTemp!tt_code & ""
+    sTaxDesc = rsTemp!tt_descr & ""
+    fTaxRate = tfnRound(rsTemp!tt_rate, 2)
+    
+    fnGetATaxCodeDesc = True
+End Function
+
 Private Sub start_ldfee_rec()
     ldf_cnt = -1
     ReDim aryLDF(0)
@@ -2973,6 +2995,11 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
         
     Next nLadDIdx
     
+    fTaxes = 0
+    For nLadDIdx = 0 To UBound(fTypeATaxes)
+        fTaxes = fTaxes + tfnRound(fTypeATaxes(nLadDIdx), 2)
+    Next
+    
     If fTaxes <> 0 Then
         'Now Need to redistribute to the individual line amount
         For nLadDIdx = 0 To nLadDCnt - 1
@@ -2986,7 +3013,7 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
                     With aryTaxInfo(nIdx)
                         If .m_lInvoice = lBOL Then
                             For i = 0 To .m_nRecord - 1
-                                If .m_Taxes(i).m_cCharge = vbKeyY Then
+                                If .m_Taxes(i).m_cCharge <> vbKeyN Then
                                     If .m_Taxes(i).m_cBasis = vbKeyA Then
                                             If .m_Taxes(i).m_dAmount <> 0 Then
                                                 .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
@@ -3003,6 +3030,338 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
     End If
 End Sub
 
+Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
+                                 ByVal nOrig As Integer, _
+                                 ByVal lDest As Long, _
+                                 ByVal lInv As Long, _
+                                 ByVal nLine As Integer, _
+                                 sProduct As String, _
+                                 sTaxUseGroup As String, _
+                                 fDollarBase As Double, _
+                                 fFreight As Double, _
+                                 fGross As Double, _
+                                 fNet As Double, _
+                                 sBillFlag As String, _
+                                 Optional vLineType As Variant, _
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "", _
+                                 Optional hld_vessel As Integer = -1, _
+                                 Optional hld_gals As Double = 0#, _
+                                 Optional hld_miles As Double = 0#, _
+                                 Optional hld_tot_gals As Double = 0#) As Boolean
+    
+    Dim Taxes() As CApplicableTaxes
+    Dim myStruct As CMovementLineItem
+    Dim nRet As Long
+    Dim i As Integer
+    Dim j As Integer
+    Dim nIdx As Integer
+    Dim nTries As Integer
+    Dim nRecords As Long
+    Dim k As Integer
+    
+    fnATaxInfoItem = False
+    If Not fnLoadTaxMods Then
+        Exit Function
+    End If
+
+    With myStruct
+        .m_sProduct = sProduct
+        .m_sUseGroup = sTaxUseGroup
+        .m_dDollarBase = fDollarBase
+        .m_dFreight = 0
+        .m_dNetUnits = fNet
+        .m_dGrossUnits = fGross
+        .m_dFreight = fFreight
+        If sBillFlag <> "" Then
+        .m_cBilledUnitsFlag = Asc(sBillFlag)
+        Else
+        .m_cBilledUnitsFlag = vbKeyN
+        End If
+        If IsMissing(vLineType) Then
+            .m_tLineType = TXMOD_EXTDEL
+        Else
+            .m_tLineType = vLineType
+        End If
+    End With
+    nTries = TAXMOD_TRIES
+    subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
+    subSet_tx_date t_tax_date
+    
+    Do
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Function
+    End If
+        
+    ReDim Taxes(nRecords - 1)
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Function
+    End If
+        
+    For nIdx = 0 To nInfoCount - 1
+        If aryTaxInfo(nIdx).m_lInvoice = lInv Then
+            If aryTaxInfo(nIdx).m_nLine = nLine Then
+                Exit For
+            End If
+        End If
+    Next nIdx
+    If nIdx >= nInfoCount Then
+        If UBound(aryTaxInfo) < nInfoCount Then
+            ReDim Preserve aryTaxInfo(UBound(aryTaxInfo) + ARRAY_SIZE_INC)
+        End If
+        nInfoCount = nInfoCount + 1
+    End If
+    
+    aryTaxInfo(nIdx).m_nRecord = nRecords
+    aryTaxInfo(nIdx).m_lInvoice = lInv
+    aryTaxInfo(nIdx).m_nLine = nLine
+    aryTaxInfo(nIdx).m_InputParms = myStruct
+    ReDim aryTaxInfo(nIdx).m_Taxes(nRecords - 1)
+    For i = 0 To nRecords - 1
+        aryTaxInfo(nIdx).m_Taxes(i) = Taxes(i)
+    Next i
+    
+    Dim sIE As String
+    Dim vTaxUseG As Variant
+    Dim FoundIdx As Integer
+
+    If bExt Then
+        sIE = "E"
+    Else
+        sIE = "I"
+    End If
+    
+    vTaxUseG = interstate_use_groups(sIE, nOrig, lDest, sProduct, sTaxUseGroup)
+    If Trim(vTaxUseG) <> szEMPTY Then
+        vTaxUseG = Split(vTaxUseG, "|")
+        For i = 0 To UBound(vTaxUseG)
+            myStruct.m_sUseGroup = vTaxUseG(i)
+            Do
+                nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+                
+                If i = TXMOD_TASKBLOCKED Then
+                    DoEvents
+                End If
+                nTries = nTries - 1
+            Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+            If nRet <> TXMOD_OK Then
+                subTaxModErrors nRet, bShowMsgBox, sErrMsg
+                Exit Function
+            End If
+                
+            ReDim Taxes(nRecords - 1)
+            nTries = TAXMOD_TRIES
+            Do
+                nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+                If i = TXMOD_TASKBLOCKED Then
+                    DoEvents
+                End If
+                nTries = nTries - 1
+            Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+            
+            If nRet <> TXMOD_OK Then
+                subTaxModErrors nRet, bShowMsgBox, sErrMsg
+                Exit Function
+            End If
+                
+            For nIdx = 0 To nInfoCount - 1
+                If aryTaxInfo(nIdx).m_lInvoice = lInv Then
+                    If aryTaxInfo(nIdx).m_nLine = nLine Then
+                        Exit For
+                    End If
+                End If
+            Next nIdx
+            If nIdx >= nInfoCount Then
+                If UBound(aryTaxInfo) < nInfoCount Then
+                    ReDim Preserve aryTaxInfo(UBound(aryTaxInfo) + ARRAY_SIZE_INC)
+                End If
+                nInfoCount = nInfoCount + 1
+            End If
+            
+            aryTaxInfo(nIdx).m_lInvoice = lInv
+            aryTaxInfo(nIdx).m_nLine = nLine
+            aryTaxInfo(nIdx).m_InputParms = myStruct
+                        
+            For j = 0 To nRecords - 1
+                FoundIdx = -1
+                For k = 0 To aryTaxInfo(nIdx).m_nRecord - 1
+                    If aryTaxInfo(nIdx).m_Taxes(k).m_lTrn = Taxes(j).m_lTrn Then
+                        FoundIdx = k
+                        Exit For
+                    End If
+                Next
+                If FoundIdx < 0 Then
+                    aryTaxInfo(nIdx).m_nRecord = aryTaxInfo(nIdx).m_nRecord + 1
+                    ReDim Preserve aryTaxInfo(nIdx).m_Taxes(aryTaxInfo(nIdx).m_nRecord - 1)
+                    aryTaxInfo(nIdx).m_Taxes(aryTaxInfo(nIdx).m_nRecord - 1) = Taxes(j)
+                Else
+                    aryTaxInfo(nIdx).m_Taxes(FoundIdx) = Taxes(j)
+                End If
+                
+            Next
+        Next
+    End If
+    
+    fnATaxInfoItem = True
+End Function
+
+Private Function interstate_use_groups(ByVal sIE As String, _
+                                     ByVal nOrig As Integer, _
+                                     ByVal lDest As Long, _
+                                     ByVal sProd As String, _
+                                     ByVal sTaxUseG) As String
+        Dim strSQL As String
+        Dim or_state As String
+        Dim ds_state As String
+        Dim rsTemp As Recordset
+        Dim n_flag As Integer
+        Static staParm10032 As String
+        Dim inter_use As String
+        Dim sTaxUseOut As String
+         
+         
+        interstate_use_groups = szEMPTY
+        
+        strSQL = "SELECT icl_fuel_tax FROM inv_classes,inv_header WHERE ivh_prodtcl=icl_code AND icl_type = 'T'"
+        Set rsTemp = txMod_OpenRecord(strSQL)
+        If rsTemp Is Nothing Then
+            Exit Function
+        ElseIf rsTemp.RecordCount = 0 Then
+            Exit Function
+        End If
+        If Trim(rsTemp!icl_fuel_tax & szEMPTY) <> "Y" Then
+            Exit Function
+        End If
+        
+        If sIE = "E" Then
+            strSQL = "SELECT city_state FROM fm_terminal,sys_city WHERE fmt_city = city_code AND fmt_code=" & CStr(nOrig)
+        Else
+            strSQL = "SELECT city_state FROM sys_prft_ctr,sys_city WHERE prft_city = city_code AND prft_ctr=" & CStr(nOrig)
+        End If
+        Set rsTemp = txMod_OpenRecord(strSQL)
+        If rsTemp Is Nothing Then
+            Exit Function
+        ElseIf rsTemp.RecordCount = 0 Then
+            Exit Function
+        End If
+        or_state = Trim(rsTemp!city_state & szEMPTY)
+        
+        strSQL = "SELECT city_state FROM sys_prft_ctr,sys_city WHERE prft_city = city_code AND prft_ctr=" & CStr(lDest)
+        Set rsTemp = txMod_OpenRecord(strSQL)
+        If rsTemp Is Nothing Then
+            Exit Function
+        ElseIf rsTemp.RecordCount = 0 Then
+            strSQL = "SELECT city_state FROM ar_altname,sys_city WHERE an_customer=" & CStr(lDest) & " AND an_city = city_code"
+            Set rsTemp = txMod_OpenRecord(strSQL)
+            If rsTemp Is Nothing Then
+                Exit Function
+            ElseIf rsTemp.RecordCount = 0 Then
+                Exit Function
+            End If
+        End If
+        ds_state = Trim(rsTemp!city_state & szEMPTY)
+            
+        
+        n_flag = 0
+        If staParm10032 = szEMPTY Then
+            staParm10032 = "N"
+            strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 10032"
+            Set rsTemp = txMod_OpenRecord(strSQL)
+            If rsTemp Is Nothing Then
+                Exit Function
+            End If
+            If rsTemp.RecordCount > 0 Then
+                If Trim(rsTemp!parm_field & szEMPTY) = "A" Or Trim(rsTemp!parm_field & szEMPTY) = "M" Then
+                    staParm10032 = Trim(rsTemp!parm_field & szEMPTY)
+                End If
+            End If
+        End If
+        If staParm10032 <> "N" Then
+            If sTaxUseG <> szEMPTY And sIE = "E" Then
+                n_flag = fnTaxOrigin_is_PhysicalDest(sTaxUseG, sProd, ds_state)
+            End If
+        End If
+        If or_state = ds_state Then
+            Exit Function
+        End If
+                
+        sTaxUseOut = szEMPTY
+        
+        inter_use = or_state & Space(2) & "SSSS"
+        If n_flag = 1 Then
+            inter_use = or_state & "RRSSSS"
+        End If
+        sTaxUseOut = inter_use
+        
+        inter_use = "SSSS" & Space(2) & ds_state
+        If n_flag = 1 Then
+            inter_use = "SSSSRR" & ds_state
+        End If
+        sTaxUseOut = sTaxUseOut & "|" & inter_use
+        
+        interstate_use_groups = sTaxUseOut
+End Function
+
+Private Function fnTaxOrigin_is_PhysicalDest(ByVal c_use_g As String, _
+                                     ByVal prodcode As String, _
+                                     ByVal ds_state As String) As Integer
+   Dim strSQL As String
+   Dim rsTemp As Recordset
+   Dim tax_origin As String
+   Dim n_flag As Integer
+  
+   strSQL = "SELECT * FROM tx_header" _
+        & " WHERE txh_level = 'S' and txh_trn IN " _
+        & "(SELECT tul_trn FROM tx_use_link, tx_use_g, inv_header" _
+        & " WHERE tul_link = tu_link AND tu_use_g = " & tfnSQLString(c_use_g) _
+        & " AND tu_prodtcl = ivh_prodtcl AND ivh_product = " & tfnSQLString(prodcode) & ")"
+
+   tax_origin = szEMPTY
+   Set rsTemp = txMod_OpenRecord(strSQL)
+   If rsTemp Is Nothing Then
+        Exit Function
+   ElseIf rsTemp.RecordCount = 0 Then
+        Exit Function
+   End If
+   n_flag = 0
+   Do While Not rsTemp.EOF
+      If tax_origin = szEMPTY Then
+         tax_origin = Trim(rsTemp.txh_where & szEMPTY)
+         n_flag = 1
+      Else
+         If tax_origin <> Trim(rsTemp.txh_where & szEMPTY) Then
+            n_flag = 0
+            Exit Do
+         End If
+      End If
+      rsTemp.MoveNext
+   Loop
+   
+   If n_flag = 1 And tax_origin = ds_state Then
+      fnTaxOrigin_is_PhysicalDest = 1
+   Else
+      fnTaxOrigin_is_PhysicalDest = 0
+   End If
+
+End Function
 Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vCaller As Variant, _
                              Optional vMsg As Variant, _
