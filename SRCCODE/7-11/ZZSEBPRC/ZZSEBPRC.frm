@@ -2685,7 +2685,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     #End If
     
-    cmdOk.Enabled = False
+    cmdOK.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2694,8 +2694,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOk.Enabled = True
-        subSetFocus cmdOk
+        cmdOK.Enabled = True
+        subSetFocus cmdOK
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -5168,10 +5168,11 @@ Private Sub cmdDelete_Click(Index As Integer)
                 Exit Sub
             End If
             
+            If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
+                Exit Sub
+            End If
+                
             If t_nFormMode = EDIT_MODE Then
-                If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
-                    Exit Sub
-                End If
                 sPrftCtr = fnCstr(tgmSales.CellValue(colSPrftCtr, tgmSales.GetCurrentRowNumber))
                 If Not fnDeleteSales(fnGetSalesType(), sPrftCtr, txtToDate, txtFromDate) Then
                     tfnSetStatusBarError "Failed to delete the sales record"
@@ -5888,10 +5889,15 @@ Private Sub tblSales_FirstRowChange()
     tgmSales.FirstRowChange
     tgfDropdown(TabSales).FirstRowChange
     
-    If tblSales.Row = -1 And tgsSales.Count = 0 Then
-        SubEnableDeleteBtn False, TabSales
+    If tblSales.Row = -1 Then
+        If tgsSales.Count = 0 Then
+            SubEnableDeleteBtn False, TabSales
+        Else
+            SubEnableDeleteBtn True, TabSales
+        End If
+    Else
+        SubEnableDeleteBtn True, TabSales
     End If
-    
 End Sub
 
 Private Sub tblSales_GotFocus()
