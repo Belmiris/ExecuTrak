@@ -21,6 +21,7 @@ Class=cValidateInput; ..\..\..\SHARED\ClsFiles\Cvalid.cls
 Class=clsTGSpreadSheet; ..\..\..\SHARED\ClsFiles\Tgeditor.cls
 Class=clsTGSelector; ..\..\..\SHARED\ClsFiles\tgselect.cls
 Class=clsEquation; ..\..\..\SHARED\ClsFiles\Equation.cls
+Class=clsCondition; ..\..\..\SHARED\ClsFiles\Condition.cls
 IconForm="frmZZSEBFMT"
 Startup="frmZZSEBFMT"
 HelpFile="FACTOR.HLP"
