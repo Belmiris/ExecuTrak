@@ -168,8 +168,8 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     End If
     
     If sFile = "" Then
-        'search local bin
-        m_ProgramPath = sLocalBin
+        'check current directory
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -177,13 +177,23 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
         On Error GoTo 0
         
         If sFile = "" Then
-            'search remote bin
-            m_ProgramPath = sRemoteBin
+            'search local bin
+            m_ProgramPath = sLocalBin
             sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
             On Error Resume Next
             sFile = ""
             sFile = Dir(sExeFile)
             On Error GoTo 0
+            
+            If sFile = "" Then
+                'search remote bin
+                m_ProgramPath = sRemoteBin
+                sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+                On Error Resume Next
+                sFile = ""
+                sFile = Dir(sExeFile)
+                On Error GoTo 0
+            End If
         End If
     End If
     
