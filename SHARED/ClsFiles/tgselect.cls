@@ -1324,7 +1324,11 @@ notfound:
 End Property
 
 Property Get SelectedCellCount() As Long
-    SelectedCellCount = m_colMultiSelectedCells.Count
+    If m_colMultiSelectedCells.Count Is Nothing Then
+        SelectedCellCount = 0
+    Else
+        SelectedCellCount = m_colMultiSelectedCells.Count
+    End If
 End Property
 
 'return the selectedcellcount and put the selected cell "col,row" into the string array
