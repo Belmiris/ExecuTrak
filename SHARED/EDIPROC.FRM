@@ -2,20 +2,20 @@ VERSION 5.00
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
-   ClientHeight    =   1368
-   ClientLeft      =   48
-   ClientTop       =   336
-   ClientWidth     =   2124
+   ClientHeight    =   1380
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   2130
    LinkTopic       =   "Form1"
    LockControls    =   -1  'True
-   ScaleHeight     =   1368
-   ScaleWidth      =   2124
+   ScaleHeight     =   1380
+   ScaleWidth      =   2130
    StartUpPosition =   3  'Windows Default
    Begin MSComDlg.CommonDialog cdlgOpen 
       Left            =   276
       Top             =   192
-      _ExtentX        =   677
-      _ExtentY        =   677
+      _ExtentX        =   688
+      _ExtentY        =   688
       _Version        =   393216
       CancelError     =   -1  'True
       DialogTitle     =   "Select EDI Translator Program"
@@ -157,7 +157,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     m_ErrorMessage = ""
     
     'get the EDIPROC program path from factor.ini
-    m_ProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, szFACTOR_INI))
+    m_ProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, tfnGetWindowsDir + szFACTOR_INI))
     
     If m_ProgramPath <> "" Then
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
@@ -394,7 +394,7 @@ ERROR_CONNECTING:
     Set tfnOpenEdiXlateDatabase = Nothing
 End Function
 
-Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQl As String, _
+Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
                             dbLocal As Database, sCalledFrom As String, _
                             Optional bShowError, _
                             Optional vMoveLast) As Long
@@ -408,7 +408,7 @@ Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQl As String, _
     End If
 
     On Error GoTo SQLError
-    Set rsTemp = dbLocal.OpenRecordset(strSQl, dbOpenSnapshot)
+    Set rsTemp = dbLocal.OpenRecordset(strSQL, dbOpenSnapshot)
     
     If bMoveLast Then
         If rsTemp.RecordCount > 0 Then
@@ -421,7 +421,7 @@ Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQl As String, _
     Exit Function
 
 SQLError:
-    tfnErrHandler "fnGetEdiXlateRecord," & sCalledFrom, strSQl, bShowError
+    tfnErrHandler "fnGetEdiXlateRecord," & sCalledFrom, strSQL, bShowError
     fnGetEdiXlateRecord = -9999
 End Function
 
