@@ -9,7 +9,7 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.01B"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define PROGRAM_SIZE            5
 
@@ -18,7 +18,7 @@
 
 #define PRODUCT_NAME_TLC        "EDI Trading Partner"
 #define MODULE_NAME_TLC         "EDI Trading Partner"
-#define PRODUCT_VERSION_TLC     "3.00"
+#define PRODUCT_VERSION_TLC     "3.01B"
 #define HELP_FILE               "EC.HLP"
 
 
@@ -502,7 +502,7 @@ CreateProgramFolder:
         SetStatusWindow(96, "Creating program folder and icons...");
 
         CreateProgramFolder(szFolder ^ "ExecuTrak EFT Scheduler");
-        szSCExe = szAppDir ^ "syschdlr.exe";
+        szSCExe = szAppDir ^ "eceefsch.exe";
         LongPathToQuote(szSCExe, TRUE);
         AddFolderIcon(szFolder ^ "ExecuTrak EFT Scheduler", "EFT Scheduler",
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
