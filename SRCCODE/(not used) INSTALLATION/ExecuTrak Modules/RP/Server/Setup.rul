@@ -1,0 +1,713 @@
+//***************************************************************************
+//
+// Installation script for the ExecuTrak Advanced C-Store Module release
+//
+// Server
+//
+// 2.02 - March 5, 1999 Irving
+// 2.01 - February 2, 1999 Irving
+// 2.00 - January 26, 1999 Irving
+//
+//***************************************************************************
+
+// includes
+
+#include "winapi.h"
+
+// constants
+#define PRODUCT_VERSION         "3.02"  //CHANGE THE VESION BEFORE BUILDING DISK
+
+#define SIZE_REQ_SERVER         3
+
+#define PRODUCT_NAME            "ExecuTrak Advanced C-Store Module"
+#define MODULE_NAME             "Advanced C-Store"
+#define APP_KEY_FILE            "rpfbitem.exe"
+#define KEY_DEFAULT             "RP"
+#define HELP_FILE               "advcstor.hlp"
+#define KEY_CLIENT_PATH         "RP Client Path"
+#define KEY_SERVER_PATH         "RP Server Path"
+#define KEY_REMOTE              "RPRemote"
+#define WELCOME_TITLE           "ExecuTrak Advanced C-Store Module Server Installation"
+
+#define COMPANY_NAME		"FACTOR"
+#define APP_BASE_PATH		"Factor"
+#define PRODUCT_SUBDIR		"ExecTrak"
+
+#define PRODUCT_KEY             "FACTMENU.EXE"
+
+
+// global variables
+
+declare
+
+#include "sddialog.h"
+
+        //log setup variables and write log function prototype
+	NUMBER nvFileOut;
+	STRING INSTALL_OPTION,INSTALL_LINE;
+	STRING INSWARN,LOGMSG,RESULTLOG;
+
+	prototype LOGWRITE(STRING);
+
+        NUMBER nReturn, nTemp;
+
+        STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION;
+        STRING szBaseDirectory, szDestMsg;
+        STRING szMsg, szNumber, szTemp, szFolder, szDisk;
+        STRING szSCIcon, szSCExe, szSCWork, szAppDir;
+        STRING szOldRunValue, szNewRunValue, szComponents      
+        STRING szDBFrom, szDBTo, szForceInstall;
+
+        BOOL bRunStandAlone, bTemp1, bTemp2, bZFailure;;
+
+        LIST    listInfo;
+
+        // function prototypes
+        prototype CheckDiskSpace(number);
+        prototype Is16BitFactMenu();
+        prototype CheckTBKIT(STRING);
+
+
+// the script starts here
+program
+
+StartHere:
+
+        //set installation header
+        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+                szMsg = "Installing " + PRODUCT_NAME;
+                if (CMDLINE = "-A" || CMDLINE = "-a") then
+                        szMsg = szMsg + "\nForced Installation";
+                endif;
+                szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+                SetTitle(szMsg , 18, WHITE );
+        else
+                szMsg = "Installing " + "ExecuTrak" + "™ " + MODULE_NAME + " Module";
+                if (CMDLINE = "-A" || CMDLINE = "-a") then
+                        szMsg = szMsg + "\nForced Installation";
+                endif;
+                szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+                SetTitle(szMsg, 18, WHITE );
+ 
+        endif;
+
+// ************************* Check for user defined command line
+	INSTALL_OPTION=PRODUCT_NAME + " " + PRODUCT_VERSION;        
+	INSTALL_LINE=CMDLINE;
+
+        if( CreateFile( nvFileOut, WINSYSDIR, KEY_DEFAULT + "SETUP.TXT" ) < 0 ) then
+
+    		MessageBeep( 0 );
+                MessageBox( KEY_DEFAULT + "SETUP.TXT could not be opened", SEVERE );
+            abort;
+	else
+		LOGMSG=INSTALL_OPTION + " SETUP PARAM= " + INSTALL_LINE;
+		LOGWRITE(LOGMSG);
+			
+	endif;   
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+                szForceInstall = "1 ";
+        else
+                szForceInstall = "0 ";
+	endif;
+// ************************* 
+
+	// set registry keys
+	KEY_ROOT = "SOFTWARE\\" + COMPANY_NAME;
+	KEY_PRODUCT = KEY_ROOT + "\\" + PRODUCT_NAME;
+	KEY_VERSION = KEY_PRODUCT + "\\" + PRODUCT_VERSION;
+	
+	RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+	// set title for all dialog boxes
+	SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE);
+	SetDialogTitle(DLG_ASK_TEXT, WELCOME_TITLE);
+	SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_SEVERE, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_WARNING, WELCOME_TITLE);
+	SetDialogTitle(DLG_USER_CAPTION, WELCOME_TITLE);
+
+	//**************************************************
+	//
+	//		         MAIN INSTALLATION
+	//
+	//**************************************************
+
+	// set some stuff
+	Enable(INDVFILESTATUS);
+
+
+WelcomeScreen:
+
+	// welcome message and get desired target path
+	Disable(BACKBUTTON);
+	Welcome(WELCOME_TITLE, 0);
+
+        Enable(BACKBUTTON);
+
+
+InstallationType:
+
+	// is this a stand-alone installation?
+	szComponents = "PC Server Installation";
+	ComponentAddItem(szComponents, "PC Server Installation", 1024, TRUE);
+	ComponentAddItem(szComponents, "Stand-alone PC Installation", 2000, FALSE);
+	
+	szTemp = "";
+        if (SdAskOptions("Select Installation Type", "Choose the installation type by clicking " +
+                 "the circle next to the appropriate option.",
+                 "Once you have selected the installation type, click the Next " +
+                 "button to continue.", szTemp, szComponents, EXCLUSIVE) = BACK) then
+
+           goto WelcomeScreen;
+
+        endif;
+
+	if (ComponentIsItemSelected(szComponents,"PC Server Installation")) then
+                bRunStandAlone = FALSE;
+	else
+                bRunStandAlone = TRUE;
+	endif;
+
+	NumToStr(szNumber, SIZE_REQ_SERVER * 1024);
+
+        if (bRunStandAlone) then
+                szBaseDirectory = TARGETDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+        else
+                szBaseDirectory = "J:" ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+        endif;
+
+
+// get target path for local installation
+GetTargetPath:
+        szDestMsg = "Setup will install " + PRODUCT_NAME + " server files in the Destination Directory.\n\n";
+        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another ";
+        szDestMsg = szDestMsg + "directory.\n\n";
+        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " server files by clicking Cancel to";
+	szDestMsg = szDestMsg + " exit Setup.\n\n";
+	szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
+    
+        if (AskDestPath("", szDestMsg, szBaseDirectory, 0) = BACK) then
+
+                goto InstallationType;
+
+        endif;
+
+	// check available disk space
+	if (CheckDiskSpace(SIZE_REQ_SERVER * 1024 * 1024) = FALSE) then
+		goto GetTargetPath;
+	endif;
+
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        szBaseDirectory = szDisk ^ APP_BASE_PATH;
+
+
+// search for factmenu.exe
+Find_FactMenu:
+        if (FindFile(szBaseDirectory ^ PRODUCT_SUBDIR, PRODUCT_KEY, szFolder) >= 0) then
+                if (Is16BitFactMenu()) then
+                        MessageBeep(0);
+                        MessageBox("Please install the ExecuTrak 32-bit base system BEFORE installing this module.\n\nSetup will be terminated.", SEVERE);
+                        abort;
+                endif;
+
+                goto ConfirmCopy;
+        endif;
+
+
+FactMenuNotFound:
+        Disable(HOURGLASS);
+        SdShowMsg("", FALSE);
+
+        Disable(BACKBUTTON);            // disable < Back button
+
+        szMsg   = "Setup cannot find ExecuTrak Base System Program '" + PRODUCT_KEY + "'\n\n" +
+                "Setup will be terminated.";
+
+        MessageBox(szMsg,SEVERE);
+        abort;
+
+
+ConfirmCopy:
+        // Show SdStartCopy dialog to confirm file transfer operation.
+        listInfo = ListCreate( STRINGLIST );
+
+        //Construct the Info List
+        ListAddString(listInfo, WELCOME_TITLE + ":", AFTER);
+        if (bRunStandAlone) then
+                ListAddString(listInfo, "        Stand-alone PC Installation", AFTER);
+	else
+                ListAddString(listInfo, "        PC Server Installation", AFTER);
+	endif;
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, "Intallation Type:", AFTER);
+        if (szForceInstall = "1 ") then
+                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
+        else
+                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
+        endif;
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
+        szTemp = szBaseDirectory ^ PRODUCT_SUBDIR;
+        ListAddString(listInfo, "        " + szTemp, AFTER);
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
+        if (bRunStandAlone) then
+                ListAddString(listInfo, "        Program\\Factor" + "\\ExecuTak", AFTER);
+        else
+                ListAddString(listInfo, "        None", AFTER);
+        endif;
+
+        szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
+                "If you want to review or change any settings, click Back.  If you are " +
+                "satisfied with the settings, click Next to begin copying files.";
+        if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
+           ListDestroy( listInfo );
+           goto GetTargetPath;
+        endif;
+
+        ListDestroy( listInfo );
+
+
+StartCopy:
+        LOGMSG="INSTALLING IN : " + szBaseDirectory ^ PRODUCT_SUBDIR;
+	LOGWRITE(LOGMSG);
+
+        Disable(HOURGLASS);
+        SdShowMsg("", FALSE);
+
+	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " server files...");
+	Enable(STATUS);
+
+        StatusUpdate(ON, 50);
+
+        if (bRunStandAlone) then
+                LOGMSG="Stand-alone PC Installation";
+	else
+                LOGMSG="PC Server Installation";
+	endif;
+	LOGWRITE(LOGMSG);
+
+        FileSetBeginDefine("All Files");
+
+	TARGETDIR = WINDIR ^ "TEMP";
+
+        LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "client FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        nReturn = CompressGet(KEY_DEFAULT + "client.z", "*.*", COMP_NORMAL);
+        if (nReturn < 0) then
+                MessageBox(KEY_DEFAULT + "CLIENT.Z could not be decompressed", SEVERE);
+                goto DecompressError;
+	endif;
+
+        LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "client.z FILES IN " + TARGETDIR;
+	LOGWRITE(LOGMSG);
+
+        FileSetEndDefine("All Files");
+
+        nReturn = FileSetPerformEz("All Files", 0);
+
+        if (nReturn != FS_DONE) then
+                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+                LOGWRITE(LOGMSG);
+        endif;
+
+        switch(nReturn)
+                case FS_CREATEDIR:
+                         MessageBox("Failed to Create target directory", SEVERE);
+                         goto ZFAILURE;
+                 case FS_PACKAGING:
+                         MessageBox("Unable to find file in package list", SEVERE);
+                         goto ZFAILURE;
+                 case FS_FILENOTINLIB:
+                         MessageBox("Unable to find target file in compressed lib", INFORMATION);
+                         goto ZFAILURE;
+                 case FS_DONE:
+                         // do nothing
+		 default:
+                         MessageBox("General file copy failure", SEVERE);
+                         goto ZFAILURE;
+        endswitch;
+
+        //set Source directory to Target directory
+        SRCDIR = TARGETDIR;
+
+        StatusUpdate(ON, 93);
+
+        //extract the local database into xxclient directory
+        LOGMSG="START FORCED COPY OF localdb FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        if (CompressGet("localdb.z", "*.*", COMP_NORMAL) < 0) then
+                MessageBox("LOCALDB.Z could not be decompressed", SEVERE);
+                goto ZFAILURE;
+        endif;
+
+        LOGMSG="END FORCED COPY OF localdb FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
+
+        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR;
+
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+
+                LOGMSG="START FORCED COPY OF " + KEY_DEFAULT + "bin.z FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                nReturn = CompressGet(KEY_DEFAULT + "bin.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR);
+                if (nReturn < 0) then
+                        MessageBox(KEY_DEFAULT + "bin.z could not be decompressed", SEVERE);
+                        goto DecompressError;
+                endif;
+
+                LOGMSG="END FORCED COPY OF " + KEY_DEFAULT + "bin.z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+
+	else
+
+// ************************* Normal install
+
+                LOGMSG="START NORMAL COPY OF " + KEY_DEFAULT + "bin.z FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                nReturn = CompressGet(KEY_DEFAULT + "bin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
+                if (nReturn < 0) then
+                        MessageBox(KEY_DEFAULT + "bin.z could not be decompressed", SEVERE);
+                        goto DecompressError;
+                endif;
+
+                LOGMSG="END NORMAL COPY OF " + KEY_DEFAULT + "bin.z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+        endif;
+
+        StatusUpdate(ON, 94);
+
+
+DecompressError:
+        if (nReturn < 0) then 
+                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+                LOGWRITE(LOGMSG);
+
+                switch(nReturn)
+                        case COMP_DONE:
+                                MessageBox("Indicates the function successfully decompressed the files from the library.", SEVERE);
+                        case COMP_ERR_CREATEDIR:
+                                MessageBox("A target directory could not be created.  Make sure that the path in the TARGETDIR system variable is syntactically correct and you have access rights to the target drive.", SEVERE);
+                        case COMP_ERR_FILENOTINLIB:
+                                MessageBox("The specified target file does not exist in the specified compressed library.  Use the InstallShield Data Compression Program (ICOMP.EXE at the DOS system prompt) with the -L (listing) option to view the contents of the compressed library and determine if the file specified is located in the library.", SEVERE);
+                        case COMP_ERR_INCOMPATIBLE:
+                                MessageBox("The library file is not compatible with InstallShield's compression format.", SEVERE);
+                        case COMP_ERR_MEMORY:
+                                MessageBox("The function cannot allocate the memory needed to complete the process.", SEVERE);
+                        case COMP_ERR_NODISKSPACE:
+                                MessageBox("The function cannot locate enough free space on the target disk.", SEVERE);
+                        case COMP_ERR_OPENINPUT:
+                                MessageBox("The function cannot create input files in the target directory.", SEVERE);
+                        case COMP_ERR_OPENOUTPUT:
+                                MessageBox("The function cannot find or open the output file from the source directory.", SEVERE);
+                        case COMP_ERR_OPTIONS:
+                                MessageBox("The specified nOptions is invalid.", SEVERE);
+                        case COMP_ERR_TARGETREADONLY:
+                                MessageBox("The file in TARGETDIR is read-only.", SEVERE);
+                        default:
+                                MessageBox("General decompression failure", SEVERE);
+                endswitch;
+                goto ZFAILURE;
+        endif;
+
+
+DecompressSuccessful:
+        SetStatusWindow(95, "Copying Local Database...");
+
+        //copy factor.mdb and factor.ldb to BIN and WINDOWS\SYSTEM directory
+        szDBFrom = "\"" + SRCDIR + "\"";
+        TARGETDIR = szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin";
+        szDBTo = "\"" + TARGETDIR + "\"";
+
+        LOGMSG="LAUNCHING " + szBaseDirectory + "\\" + PRODUCT_SUBDIR + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
+        LOGWRITE(LOGMSG);
+        LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
+        LOGWRITE(LOGMSG);
+
+        LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin" ^ "cpylocal.exe", szForceInstall +
+                szDBFrom + " " + szDBTo, WAIT);
+
+        SetStatusWindow(96, "Copying Local Database...");
+
+        TARGETDIR = WINSYSDIR;
+        szDBTo = "\"" + TARGETDIR + "\"";
+
+        LOGMSG="LAUNCHING " + szBaseDirectory + "\\" + PRODUCT_SUBDIR + "\\Bin\\CPYLOCAL.EXE TO COPY FACTOR.MDB and FACTOR.LDB ";
+        LOGWRITE(LOGMSG);
+        LOGMSG="From " + SRCDIR + " To " + TARGETDIR + ", Force Installation=" + szForceInstall;
+        LOGWRITE(LOGMSG);
+
+        LaunchAppAndWait(szBaseDirectory ^ PRODUCT_SUBDIR ^ "bin" ^ "cpylocal.exe", szForceInstall +
+                szDBFrom + " " + szDBTo, WAIT);
+
+        SetStatusWindow(97, "Copying Local Database...");
+
+        // delete the local database from xxclient directory
+        TARGETDIR = SRCDIR;
+        LOGMSG="START DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+        DeleteFile("FACTOR.MDB");
+        DeleteFile("FACTOR.LDB");
+        LOGMSG="END DELETE FILE: FACTOR.MDB and FACTOR.LDB IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        StatusUpdate(OFF, 0);
+
+        CheckTBKIT(szBaseDirectory);
+
+	// Run the client installation?
+        if (bRunStandAlone) then
+                //TARGETDIR = szBaseDirectory ^ "Clients";
+		TARGETDIR = WINDIR ^ "TEMP";
+
+                // remove the client z files because stand-alone installation is selected
+                LOGMSG="RUN STAND-ALONE, DELETE Z FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                DeleteFile(KEY_DEFAULT + "bin.z");
+		DeleteFile("localdb.z");
+
+                szFolder = COMPANY_NAME ^ "ExecuTrak";
+                szAppDir = szBaseDirectory ^ PRODUCT_SUBDIR;
+        
+                // create folder shortcuts
+                LOGMSG="CREATING FOLDER SHORTCUTS";
+                LOGWRITE(LOGMSG);
+        
+                SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
+
+                szSCWork = szAppDir;
+                szSCExe = szAppDir ^ HELP_FILE;
+                LongPathToQuote(szSCExe, TRUE);
+                AddFolderIcon(szFolder, MODULE_NAME + " Module Help",
+                                  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+                LOGMSG="FOLDER SHORTCUTS CREATED";
+                LOGWRITE(LOGMSG);
+        else
+		TARGETDIR = szBaseDirectory ^ "Clients" ^ PRODUCT_SUBDIR;
+		SRCDIR = WINDIR ^ "TEMP";
+		XCopyFile(KEY_DEFAULT + "bin.z", KEY_DEFAULT + "bin.z", COMP_NORMAL);
+ 		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
+		
+                LOGMSG="NO FOLDER SHORTCUTS NEEDED FOR SERVER INSTALLATION";
+                LOGWRITE(LOGMSG);
+        endif;
+        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
+
+        // add registry information
+	LOGMSG="ADDING REGISTRY INFORMATION";
+	LOGWRITE(LOGMSG);
+
+        if (bRunStandAlone) then
+                RegDBSetKeyValueEx(KEY_ROOT, KEY_CLIENT_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
+                RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, "", -1);
+        else
+                RegDBSetKeyValueEx(KEY_ROOT, KEY_SERVER_PATH, REGDB_STRING, szBaseDirectory ^ PRODUCT_SUBDIR, -1);
+        endif;
+
+        RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
+
+        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+
+        Delay( 1 );
+	Disable(STATUS);
+	Disable(FEEDBACK_FULL);
+
+        // display finished dialog
+        LOGMSG="INSTALLATION COMPLETE";
+        LOGWRITE(LOGMSG);
+
+        if (bRunStandAlone) then
+                SdFinish(WELCOME_TITLE + " Complete",
+                         WELCOME_TITLE + " has finished copying files to your computer.",
+                         "Click Finish to complete " + WELCOME_TITLE,
+                         "", "", bTemp1, bTemp2);
+        else
+                SdFinish(WELCOME_TITLE + " Complete",
+                    WELCOME_TITLE + " has finished copying files to your computer.\n\n" +
+                    "You may now run the " + PRODUCT_NAME + " Client Installation " +
+                    "program on any PC requiring access to the " + PRODUCT_NAME + ".",
+                    "Click Finish to complete Setup", "", "", bTemp1, bTemp2);
+        endif;
+
+	exit;
+
+ZFAILURE:
+        LOGMSG="INSTALLATION FAILED";
+        LOGWRITE(LOGMSG);
+
+	MessageBox("Installation incomplete.  Close any running\n" +
+			   "applications before intalling " + PRODUCT_NAME + " Server Installation.",
+			   INFORMATION);
+        abort;
+	
+/*--------------- END OF PROGRAM --------------*\
+	
+		
+/*---------------------------------------------*\
+*
+*	CheckDiskSpace
+*
+*	Checks the available disk space against the
+*	amount requested and returns TRUE if the
+*	requested space is available
+*
+\*---------------------------------------------*/
+	
+function CheckDiskSpace(nBytesRequired)
+
+    number nActualSize;
+	number nSpaceAvailable;
+	number nReturn;
+	string szNumber;
+	string szMessage;
+	BOOL bSpaceOK;
+		    
+begin
+	
+    nSpaceAvailable = GetDiskSpace(szBaseDirectory);
+    
+	if (nSpaceAvailable < nBytesRequired) then
+		NumToStr(szNumber, nBytesRequired / 1024);
+		szMessage = szNumber + " Kbytes of disk space is required for this installation.\nThe targe drive has ";
+		NumToStr(szNumber, nSpaceAvailable / 1024);
+		szMessage = szMessage + szNumber + " Kbytes available.\n\nContinuing may result in an incomplete installation.\n\n";
+		szMessage = szMessage + "Do you still want to install to \"" + szBaseDirectory + "\"?";
+		
+		nReturn = MessageBox(szMessage, MB_ICONEXCLAMATION + MB_TASKMODAL + MB_YESNO + MB_DEFBUTTON2);
+		
+		if (nReturn = IDYES) then
+			bSpaceOK = TRUE;
+		else
+			bSpaceOK = FALSE;
+		endif;
+    else
+    	bSpaceOK = TRUE;
+    endif;
+    
+    return bSpaceOK;
+
+end;
+
+
+//check factmenu.exe version
+function Is16BitFactMenu()
+
+        NUMBER nResult;
+        STRING svVersionNumber, szResult;
+
+begin
+
+        nResult = VerGetFileVersion(szBaseDirectory ^ PRODUCT_SUBDIR ^ PRODUCT_KEY, svVersionNumber);
+        if(nResult = 0) then  //file version found
+                StrSub(szResult, svVersionNumber, 0, 1);
+                if (szResult = "1") then
+                        return TRUE;
+                else
+                        return FALSE;
+                endif;
+        else
+                return FALSE;
+        endif;
+end;
+
+
+//check and move tbkit.dll from BIN to OLE and register it.
+function CheckTBKIT(szDir)
+
+        STRING szTemp;
+        BOOL bCopySuccess;
+
+begin
+
+        if (FindFile(szDir ^ PRODUCT_SUBDIR ^ "BIN", "TBKIT.DLL", szTemp) >= 0) then
+                if (szTemp != "") then
+                        SetStatusWindow(97, "Updating OLE Server...");
+
+                        VarSave(SRCTARGETDIR);
+
+                        SRCDIR = szDir ^ PRODUCT_SUBDIR ^ "BIN";
+                        TARGETDIR = szDir ^ PRODUCT_SUBDIR ^ "OLE";
+
+                        if (szForceInstall = "1 ") then
+                                LOGMSG="START OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                LOGWRITE(LOGMSG);
+
+                                if (CopyFile("TBKIT.DLL", "TBKIT.DLL") < 0) then
+                                        MessageBeep(0);
+                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
+
+                                        bCopySuccess = FALSE;
+
+                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                        LOGWRITE(LOGMSG);
+                                else
+                                        bCopySuccess = TRUE;
+                                endif;
+
+                                LOGMSG="END OF FORCED COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                LOGWRITE(LOGMSG);
+                        else
+                                LOGMSG="START OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                LOGWRITE(LOGMSG);
+
+                                if (XCopyFile("TBKIT.DLL", "TBKIT.DLL", COMP_UPDATE_DATE | COMP_UPDATE_VERSION) < 0) then
+                                        MessageBeep(0);
+                                        MessageBox("Setup failed to copy TBKIT.DLL OLE Server file.", WARNING);
+
+                                        bCopySuccess = FALSE;
+
+                                        LOGMSG="FAILED TO COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                        LOGWRITE(LOGMSG);
+                                else
+                                        bCopySuccess = TRUE;
+                                endif;
+
+                                LOGMSG="END OF NORMAL COPY TBKIT.DLL FROM " + SRCDIR + " TO " + TARGETDIR;
+                                LOGWRITE(LOGMSG);
+                        endif;
+
+                        if (bCopySuccess && bRunStandAlone) then
+                                LOGMSG="START REGISTER OF TBKIT.DLL OLE SERVER";
+                                LOGWRITE(LOGMSG);
+
+                                LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + TARGETDIR ^ "TBKIT.DLL", WAIT);
+
+                                LOGMSG="END REGISTER OF TBKIT.DLL OLE SERVER";
+                                LOGWRITE(LOGMSG);
+                        endif;
+
+                        TARGETDIR = SRCDIR;
+                        DeleteFile("TBKIT.DLL");
+
+                        VarRestore(SRCTARGETDIR);
+                endif;
+        endif;
+end;
+
+
+// write log function
+function LOGWRITE(logline)
+
+begin
+	logline=logline + "\n";
+	WriteLine( nvFileOut, logline);
+	return;
+end;
+
+
+#include "sddialog.rul"
