@@ -2453,9 +2453,12 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                          End If
                     End If
                End If
+                
+                'david 03/23/2005  #478014
+                'fixed RTE 9 subscript out of range
+                sum_atax = sum_atax + tfnRound(this_tax, 2)
+                aryATax(i).a_tax_used = aryATax(i).a_tax_used + this_tax
             End If
-            sum_atax = sum_atax + tfnRound(this_tax, 2)
-            aryATax(i).a_tax_used = aryATax(i).a_tax_used + this_tax
             
             rsMvBal.MoveNext
         Loop
