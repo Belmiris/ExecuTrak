@@ -573,8 +573,8 @@ Public Sub AddEditBox(Box As Object, _
         If nMinTabIndex > Box.TabIndex - 1 Then
             nMinTabIndex = Box.TabIndex - 1
         End If
-        If nMaxTabIndex < Box.TabIndex Then
-            nMaxTabIndex = Box.TabIndex
+        If nMaxTabIndex < Box.TabIndex + 1 Then
+            nMaxTabIndex = Box.TabIndex + 1
         End If
     End With
     nCount = nCount + 1
