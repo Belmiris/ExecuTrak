@@ -97,15 +97,15 @@ Private Function Let_Val(szChar1 As String, szChar2 As String) As Long
 End Function
 Private Function GetMaxAr(nFrom As Long, nTo As Long) As Long
     Dim szSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     
     szSQL = "SELECT MAX(an_customer) max_ar FROM ar_altname WHERE an_customer BETWEEN " _
             & nFrom & " AND " & nTo
-    On Error GoTo Errtrap
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rsTemp.RecordCount > 0 Then
-        If Not IsNull(rsTemp!max_ar) Then
-            GetMaxAr = Val(rsTemp!max_ar)
+    On Error GoTo errTrap
+    Set rstemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rstemp.RecordCount > 0 Then
+        If Not IsNull(rstemp!max_ar) Then
+            GetMaxAr = Val(rstemp!max_ar)
         Else
             GetMaxAr = nFrom
         End If
@@ -113,18 +113,18 @@ Private Function GetMaxAr(nFrom As Long, nTo As Long) As Long
        GetMaxAr = nFrom
     End If
     Exit Function
-Errtrap:
+errTrap:
     tfnErrHandler szSQL, "GetMaxAr"
 End Function
 Private Function GetMaxAp(nFrom As Long, nTo As Long) As Long
     Dim szSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     szSQL = "SELECT MAX(pn_alt) ap_max FROM p_altname WHERE pn_alt BETWEEN " & CStr(nFrom) & " AND " & CStr(nTo)
-    On Error GoTo Errtrap
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rsTemp.RecordCount > 0 Then
-        If Not IsNull(rsTemp!ap_max) Then
-           GetMaxAp = Val(rsTemp!ap_max)
+    On Error GoTo errTrap
+    Set rstemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rstemp.RecordCount > 0 Then
+        If Not IsNull(rstemp!ap_max) Then
+           GetMaxAp = Val(rstemp!ap_max)
         Else
             GetMaxAp = nFrom
         End If
@@ -132,13 +132,13 @@ Private Function GetMaxAp(nFrom As Long, nTo As Long) As Long
        GetMaxAp = nFrom
     End If
     Exit Function
-Errtrap:
+errTrap:
     tfnErrHandler szSQL, "GetMaxAp"
 End Function
 
 Public Function IsInDatabase(nNumber As Long, nArAp As Integer) As Boolean
     Dim szSQL As String
-    Dim rsTemp As Recordset
+    Dim rstemp As Recordset
     Dim bFound As Boolean
     
     IsInDatabase = False
@@ -148,13 +148,13 @@ Public Function IsInDatabase(nNumber As Long, nArAp As Integer) As Boolean
     ElseIf nArAp = CHECK_AR Then
         szSQL = "INSERT INTO ar_altname(an_customer) VALUES (" & CStr(nNumber) & ")"
     End If
-    On Error GoTo Errtrap
+    On Error GoTo errTrap
     t_dbMainDatabase.ExecuteSQL szSQL
     
     lLockedAR_AP_NBR = nNumber
     
     Exit Function
-Errtrap:
+errTrap:
     lLockedAR_AP_NBR = -1
     If t_engFactor.Errors(0).Number = -239 Then
         'Duplicate record found
@@ -167,11 +167,14 @@ End Function
 Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim x As Long
-    Dim y As Long
+    Dim X As Long
+    Dim Y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
+    Dim bfirst_time As Boolean
+    Dim sold_aval As String
+    Dim sold_bval As String
     
     If IsMissing(vLock) Then
         LOCK_RECORD = False
@@ -188,30 +191,80 @@ Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Lo
        a = Mid(szLastname, 1, 1)
        b = Mid(szLastname, 2, 1)
     End If
-    x = Let_Val(a, b)
-    y = 100000000 '9_digit
+    
+    'I need to save the old value because when we come back in the loop
+    'Iam checking if it be same or not. if it same we don't need to continue
+    'we already check so it give back GetNextAr = -1
+    'Only one time it will start aa.
+    bfirst_time = False
+    If (Asc(a) <> Asc("a")) Or (Asc(b) <> Asc("a")) Then
+        bfirst_time = True
+    End If
+    sold_aval = a
+    sold_bval = b
+    
+cust_continue:
+    X = Let_Val(a, b)
+    Y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           y = Let_Val(a, Letter(i + 1).ch)
+           Y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAr(x, y)
+    z = GetMaxAr(X, Y)
+
+cust_cont2:
     subCheckTheNumber z, CHECK_AR
+    If fncheck_cust_exits(z) Then
+        If z > Y Then
+            'Here checking if a,b are both reached zz
+            'and one more time it will start aa when bfirst_time true
+            'because if the first time a <> "a"
+            If Asc(b) = Asc("z") And Asc(b) = Asc("z") Then
+                If bfirst_time Then
+                    a = "a"
+                    b = "a"
+                    bfirst_time = False
+                    GoTo cust_continue
+                Else
+                    z = -1
+                End If
+            Else
+                'Checking b reached z
+                If Asc(b) = Asc("z") Then
+                    a = Chr(Asc(a) + 1)
+                    b = "a"
+                Else
+                    b = Chr(Asc(b) + 1)
+                End If
+                If sold_aval = a And sold_bval = b Then
+                    z = -1
+                Else
+                    GoTo cust_continue
+                End If
+            End If
+        Else
+            z = z + 1
+            GoTo cust_cont2
+        End If
+    End If
+    
     If LOCK_RECORD Then
         While IsInDatabase(z, CHECK_AR)
             subCheckTheNumber z, CHECK_AR
         Wend
     End If
+    
     GetNextAr = z
     
 End Function
 Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim x As Long
-    Dim y As Long
+    Dim X As Long
+    Dim Y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
@@ -230,16 +283,16 @@ Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Lo
        a = Mid(szLastname, 1, 1)
        b = Mid(szLastname, 2, 1)
     End If
-    x = Let_Val(a, b)
-    y = 100000000 '9_digit
+    X = Let_Val(a, b)
+    Y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           y = Let_Val(a, Letter(i + 1).ch)
+           Y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAp(x, y)
+    z = GetMaxAp(X, Y)
     subCheckTheNumber z, CHECK_AP
     If LOCK_RECORD Then
         While IsInDatabase(z, CHECK_AP)
@@ -279,7 +332,7 @@ End Sub
 Public Function UnlockAr(Optional nAR) As Boolean
     Const SUB_NAME = "UnlockAr"
     
-    Dim strSQL As String
+    Dim strsql As String
     
     UnlockAr = True
     
@@ -291,11 +344,11 @@ Public Function UnlockAr(Optional nAR) As Boolean
     End If
     
     'make sure all null but an_customer
-    strSQL = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
-    strSQL = strSQL & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
+    strsql = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
+    strsql = strsql & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
     
     On Error GoTo errUnlockAr
-    t_dbMainDatabase.ExecuteSQL strSQL
+    t_dbMainDatabase.ExecuteSQL strsql
     
     lLockedAR_AP_NBR = -1
     
@@ -309,7 +362,7 @@ End Function
 Public Function UnlockAp(Optional nAP) As Boolean
     Const SUB_NAME = "UnlockAp"
     
-    Dim strSQL As String
+    Dim strsql As String
     
     UnlockAp = True
     
@@ -321,12 +374,12 @@ Public Function UnlockAp(Optional nAP) As Boolean
     End If
     'make sure all null but pn_alt
     
-    strSQL = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
-    strSQL = strSQL & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
-    strSQL = strSQL & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
+    strsql = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
+    strsql = strsql & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
+    strsql = strsql & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
     
     On Error GoTo errUnlockAp
-    t_dbMainDatabase.ExecuteSQL strSQL
+    t_dbMainDatabase.ExecuteSQL strsql
     lLockedAR_AP_NBR = -1
     Exit Function
 errUnlockAp:
@@ -334,3 +387,20 @@ errUnlockAp:
     UnlockAp = False
 End Function
 
+Public Function fncheck_cust_exits(MastCustomerNo As Long) As Boolean
+    Const FUNC_NAME As String = "fncheck_cust_exits"
+    
+    Dim strsql As String
+    Dim rstemp As Recordset
+    
+    fncheck_cust_exits = True
+    If MastCustomerNo < 1 Then
+        Exit Function
+    End If
+    
+    strsql = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(MastCustomerNo)
+    If fnGetRecord(rstemp, strsql, nDBRemote, FUNC_NAME) > 0 Then
+        Exit Function
+    End If
+    fncheck_cust_exits = False
+End Function
