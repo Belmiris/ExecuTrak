@@ -2782,7 +2782,8 @@ Private Sub eTabMain_Click()
                 
             cmdOk.Enabled = tgmApprove.RowCount > 0
         Case TabDetails
-            frmContext.ButtonEnabled(FO_HOLD_UP) = True
+            frmContext.ButtonEnabled(FO_HOLD_UP) = (tgmDetail.RowCount > 0) 'True
+            
             #If PROTOTYPE Then
                 tblDetails.Enabled = False
                 Exit Sub
@@ -3230,7 +3231,6 @@ Private Sub tfnResetScreen(Index As Integer)
             txtPrftCtrName = ""
             txtEmpProcess = ""
             txtEmpNameProcess = ""
-            lstProcess.Clear
             bLoadingBonusDetail = False
             
             cValidate.ResetFlags
@@ -3257,6 +3257,7 @@ Private Sub tfnResetScreen(Index As Integer)
             subEnableDPrftCtr True
             
             If eTabMain.CurrTab = TabProcess Then
+                subLogErrMsg "", True
                 subFillStartEndDateFreq
                 subSetFocus txtStartDate
             End If
@@ -3384,7 +3385,7 @@ Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     tgsApprove.MouseUp Button, Shift, Y
 End Sub
 
@@ -3530,7 +3531,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3604,11 +3605,24 @@ Private Sub cmdProcess_Click()
         Exit Sub
     #End If
     
-    If Not fnCheckBonusHold() Then
+    If Not tfnCancelExit("Processing may take several minutes. Are you sure you want to continue?") Then
         Exit Sub
     End If
     
-    If Not tfnCancelExit("Processing may take several minutes. Are you sure you want to continue?") Then
+    subLogErrMsg "", True
+    
+    subLogErrMsg "Started processing commission formulas..."
+    subLogErrMsg " "
+    
+    i = fnCheckBonusHold()
+    
+    If i = vbCancel Then
+        subLogErrMsg "Processing terminates."
+        Exit Sub
+    End If
+    
+    If i = vbNo Then
+        subLogErrMsg "Processing terminated on user's request."
         Exit Sub
     End If
     
@@ -3621,10 +3635,6 @@ Private Sub cmdProcess_Click()
     eTabMain.TabEnabled(TabDetails) = False
     subEnablePrint TabProcess, False
     subEnableFirstLineProcess False
-    
-    lstProcess.Clear
-    subLogErrMsg "Started processing commission formulas..."
-    subLogErrMsg " "
     
     strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bc_code_desc, bf_level, "
     strSQL = strSQL & " bm_eligible_pc, bm_sequence, bm_override, prft_name"
@@ -3650,13 +3660,13 @@ Private Sub cmdProcess_Click()
     Screen.MousePointer = vbHourglass
     nCount = GetRecordSet(rsTemp, strSQL, , SUB_NAME)
     If nCount < 0 Then
-        subLogErrMsg "Failed to access the database"
+        subLogErrMsg "Failed to access the database."
         bError = True
         GoTo TERMINATE_PROCESS
     End If
     
     If nCount = 0 Then
-        subLogErrMsg "No record found to process"
+        subLogErrMsg "No record found to process."
         bError = True
         GoTo TERMINATE_PROCESS
     End If
@@ -3676,9 +3686,9 @@ Private Sub cmdProcess_Click()
         
         nLevel = tfnRound(rsTemp!bf_level)
         
-        subLogErrMsg "Calculating commission for employee " & tfnSQLString(rsTemp!bm_empno) _
-                   & ", commission code " & tfnSQLString(rsTemp!bc_bonus_code) _
-                   & " and level " & nLevel
+        subLogErrMsg "Calculating commission for employee " & tfnRound(rsTemp!bm_empno) _
+            & ", profit center " & tfnRound(rsTemp!bm_eligible_pc) & ", commission code " _
+            & tfnSQLString(rsTemp!bc_bonus_code) & ", level " & nLevel
         
         If sEmpNo <> fnGetField(rsTemp!bm_empno) Or _
            sPrftCtr <> fnGetField(rsTemp!bm_eligible_pc) Or _
@@ -3744,7 +3754,7 @@ TERMINATE_PROCESS:
     subLogErrMsg " "
     
     If bCancelProcess Then
-        subLogErrMsg "Processing terminated on user's request"
+        subLogErrMsg "Processing terminated on user's request."
         cmdProcess.Enabled = True
     End If
     
@@ -3756,7 +3766,7 @@ TERMINATE_PROCESS:
     Screen.MousePointer = vbDefault
     
     subSetProgress 0
-    subEnablePrint TabProcess, True
+    subEnablePrint TabProcess, (tgmApprove.RowCount > 0)  'True
     
     If bError Then
         subSetFocus cmdProcess
@@ -3844,7 +3854,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colAApprove).Caption = "Approve"
             tbl.Columns(colAEmpNo).Caption = "Employee Number"
             tbl.Columns(colAEmpName).Caption = "Employee Name"
-            tbl.Columns(colADate).Caption = "Date"
+            tbl.Columns(colADate).Caption = "Process Date"
             tbl.Columns(colAPrftCtr).Caption = "Profit Center"
             tbl.Columns(colAPayCode).Caption = "Pay Code"
             tbl.Columns(colAPayHours).Caption = "Pay Hours"
@@ -4377,7 +4387,7 @@ Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     tgcDropdown.TableMouseUp Y
 End Sub
 
@@ -4539,7 +4549,7 @@ Private Sub subEnterBonusPhaseII()
     End If
     
     frmContext.ButtonEnabled(FO_HOLD_UP) = True
-    subEnablePrint TabDetails, True
+    subEnablePrint TabDetails, (tgmDetail.RowCount > 0)  'True
     subSetFocus tblDetails
     Screen.MousePointer = vbDefault
     
@@ -4697,8 +4707,9 @@ Private Sub txtPrftCtr_Change()
     cValidate.Change txtPrftCtr
     tgcDropdown.Change txtPrftCtr
     cmdProcess.Enabled = False
-    lstProcess.Clear
-    txtPrftCtrName = ""
+    If ActiveControl Is txtPrftCtr Then
+        subLogErrMsg "", True
+    End If
 End Sub
 
 Private Sub txtPrftCtr_GotFocus()
@@ -5404,9 +5415,9 @@ Private Sub tblDropDown_LostFocus(Index As Integer)
     End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, Y As Single)
     If Index = nTabHours Then
-        objHours.tblFloating_MouseUp Button, Shift, X, Y
+        objHours.tblFloating_MouseUp Button, Shift, x, Y
     Else
         tgfDropdown(Index).MouseUp Y
     End If
@@ -6025,7 +6036,7 @@ Private Sub tblSales_LostFocus()
     tgfDropdown(TabSales).LostFocus tblSales
 End Sub
 
-Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     tgsSales.MouseUp Button, Shift, Y
 End Sub
 
@@ -6737,8 +6748,8 @@ Private Sub tblTimeCard_LostFocus()
     objHours.tblTimeCard_LostFocus
 End Sub
 
-Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, x, Y
 End Sub
 
 Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)

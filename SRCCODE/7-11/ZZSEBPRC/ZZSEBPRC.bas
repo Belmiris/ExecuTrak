@@ -175,12 +175,28 @@ Public Function fnAddFwSlash(ByVal sIn As String) As String
     If Right(sIn, 1) <> "/" Then fnAddFwSlash = sIn + "/" Else fnAddFwSlash = sIn
 End Function
 
-Public Sub subLogErrMsg(sErrorMessage As String)
+Public Sub subLogErrMsg(sMsg As String, Optional bClear As Boolean = False)
     Dim nFileNumber As Integer
     Dim sLineContents As String
     Dim sTimeStamp As String
     Dim sArrMsg() As String
     Dim i As Integer
+    
+    Dim x As Long
+    
+    If bClear Then
+        frmZZSEBPRC!lstProcess.Clear
+        
+        'hide the scrollbar
+        x = frmZZSEBPRC.TextWidth("  ")
+        frmZZSEBPRC!lstProcess.Tag = "0"
+        If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+        SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+        
+        DoEvents
+        
+        Exit Sub
+    End If
     
     'Put the time stamp if the sLogFilePath is empty
     On Error Resume Next
@@ -198,11 +214,22 @@ Public Sub subLogErrMsg(sErrorMessage As String)
     End If
     
     'Writing the log to the file...
-    tfnLog sErrorMessage, sLogFilePath
+    tfnLog sMsg, sLogFilePath
     
-    sArrMsg = Split(sErrorMessage, vbCrLf)
+    sArrMsg = Split(sMsg, vbCrLf)
     For i = 0 To UBound(sArrMsg)
         frmZZSEBPRC.lstProcess.AddItem sArrMsg(i)
+        
+        If sArrMsg(i) <> "" Then
+            x = frmZZSEBPRC.TextWidth(sMsg & "  ")
+            If x > Val(frmZZSEBPRC!lstProcess.Tag) Then
+                frmZZSEBPRC!lstProcess.Tag = x
+                If frmZZSEBPRC.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
+                SendMessageByNum frmZZSEBPRC!lstProcess.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+            End If
+        End If
+            
+        frmZZSEBPRC!lstProcess.ListIndex = frmZZSEBPRC!lstProcess.ListCount - 1
     Next i
     
     DoEvents
@@ -356,7 +383,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
         Case TabDetails
             sReportID = "ZZSEBPRD"
             
-            nArSize = ((tgmDetail.RowCount - 1) * 4)
+            nArSize = tgmDetail.RowCount * 4 - 1
             j = 0
             ReDim sArrReport(nArSize)
             For i = 0 To tgmDetail.RowCount - 1
@@ -678,7 +705,8 @@ Private Function fnChkLinkIsZero(lEmpNo As Long, _
     fnChkLinkIsZero = True
 End Function
 
-Public Function fnCheckBonusHold() As Boolean
+'return vbYes, vbNo, or vbCancel
+Public Function fnCheckBonusHold() As Integer
     Const SUB_NAME As String = "fnChkLinkIsZero"
     
     Dim strSQL As String
@@ -708,7 +736,7 @@ Public Function fnCheckBonusHold() As Boolean
     nBonusMasterCount = rsTemp.RecordCount
     
     If nBonusMasterCount = 0 Then
-        fnCheckBonusHold = True
+        fnCheckBonusHold = vbYes
         Exit Function
     End If
     
@@ -759,23 +787,32 @@ Public Function fnCheckBonusHold() As Boolean
         End If
         
         MsgBox sMsg, vbExclamation
+
+        fnCheckBonusHold = vbCancel
+        
+        subLogErrMsg sMsg
+        subLogErrMsg " "
+
         Exit Function
     Else
         If nChkLinkNotZero > 0 Then
             If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
                 sMsg = "Some Commission Records have been selected into Payroll Print " _
-                    + "Group, and cannot be processed. Are you sure you want to continue?"
+                    + "Group, and cannot be processed. "
             ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
                 sMsg = "Some Commission Records for the Employee Number have been " _
-                    + "selected into Payroll Print Group, and cannot not be processed. " _
-                    + "Are you sure you want to continue?"
+                    + "selected into Payroll Print Group, and cannot not be processed. "
             Else
                 sMsg = "Some Commission Records for the Profit Center have been selected " _
-                    + "into Payroll Print Group, and cannot not be processed. " _
-                    + "Are you sure you want to continue?"
+                    + "into Payroll Print Group, and cannot not be processed. "
             End If
             
-            fnCheckBonusHold = MsgBox(sMsg, vbQuestion + vbYesNo + vbDefaultButton2) = vbYes
+            fnCheckBonusHold = MsgBox(sMsg + "Are you sure you want to continue?", vbQuestion _
+                + vbYesNo + vbDefaultButton2)
+            
+            subLogErrMsg sMsg
+            subLogErrMsg " "
+            
             Exit Function
         End If
     End If
@@ -803,10 +840,14 @@ Public Function fnCheckBonusHold() As Boolean
     End If
     
     If sMsg <> "" Then
-        sMsg = sMsg + " have been processed, and will be replaced! " _
-            + "Are you sure you want to continue?"
+        sMsg = sMsg + " have been processed, and will be replaced! "
 
-        fnCheckBonusHold = MsgBox(sMsg, vbQuestion + vbYesNo + vbDefaultButton2) = vbYes
+        fnCheckBonusHold = MsgBox(sMsg + "Are you sure you want to continue?", vbQuestion _
+            + vbYesNo + vbDefaultButton2)
+        
+        subLogErrMsg sMsg
+        subLogErrMsg " "
+        
         Exit Function
     End If
     
