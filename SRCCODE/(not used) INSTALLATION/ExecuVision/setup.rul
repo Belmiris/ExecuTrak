@@ -1378,37 +1378,39 @@ begin
 		      szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
 		
 		return;
-        	else
-        		StrSub(szTemp, CMDLINE, 0, 8);
+	else
+		StrSub(szTemp, CMDLINE, 0, 8);
 
-        		if szTemp = "CPYLOCAL" then
-            		
-	            		szTemp = CMDLINE;
-	            		nvPosi = StrFind(szTemp, " ");
-	
-	            		if nvPosi < 0 then
-                			return;
-	            		endif;
-	
-	            		//skip CPYLOCAL
-	            		StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
-	
-	            		//get force or normal installation
-	            		nvPosi = StrFind(szTemp, " ");
-	
-	            		if nvPosi < 0 then
-               			return;
-	            		endif;
-	            		StrSub(szForceNormal, szTemp, 0, 1);
-	
-	            		szForceNormal = szForceNormal + " ";
+		if szTemp = "CPYLOCAL" then
+    		
+            		szTemp = CMDLINE;
+            		nvPosi = StrFind(szTemp, " ");
 
-	                        	//skip ForceNormal flag
-	                        	StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
+            		if nvPosi < 0 then
+        			return;
+            		endif;
 
-	            		//get cpylocal.exe program directory
-	            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
-        		endif;
+            		//skip CPYLOCAL
+            		StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
+
+            		//get force or normal installation
+            		nvPosi = StrFind(szTemp, " ");
+
+            		if nvPosi < 0 then
+       			return;
+            		endif;
+            		StrSub(szForceNormal, szTemp, 0, 1);
+
+            		szForceNormal = szForceNormal + " ";
+
+                        //skip ForceNormal flag
+                        StrSub(szTemp, szTemp, nvPosi + 1, StrLength(szTemp));
+
+            		//get cpylocal.exe program directory
+            		StrSub(szProgDir, szTemp, nvPosi + 1, StrLength(szTemp));
+            	else
+            		return;
+		endif;
 	endif;
 
         VarSave(SRCTARGETDIR);
@@ -1438,7 +1440,30 @@ begin
           
         endif;
 	
-	  // register ole files  
+	if !fnFindFile(szProgDir, "FACTOR.MDB") then
+                TARGETDIR = szProgDir;
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                    TARGETDIR + "'. Please wait...", TRUE);
+
+                CopyFile("FACTOR.MDB", "FACTOR.MDB");
+
+        else          
+                //copy FACTOR.MDB from WINDOWS\TEMP to BIN directory
+                szDBFrom = "\"" + SRCDIR + "\"";
+                TARGETDIR = szProgDir;
+                szDBTo = "\"" + TARGETDIR + "\"";
+
+                SdShowMsg("Copying Database from '" + SRCDIR + "' to '" +
+                TARGETDIR + "'. Please wait...", TRUE);
+
+                LaunchAppAndWait(szProgDir ^ "cpylocal.exe", szForceNormal +
+                    szDBFrom + " " + szDBTo, WAIT);
+	endif;
+	
+	SdShowMsg("", FALSE);
+	
+	// register ole files  
         StrToUpper(szProgDir, szProgDir);
         nvPosi = StrFind(szProgDir, "\\BIN");
                         
