@@ -8,7 +8,7 @@
 #include "winapi.h"
 
 //constants
-#define PRODUCT_VERSION         "3.00"
+#define PRODUCT_VERSION         "3.01"
 #define COMPANY_NAME		"FACTOR"
 #define PRODUCT_NAME            "FACTOR Software"
 #define PRODUCT_KEY             "CDinstallation"
@@ -34,7 +34,7 @@ declare
         LIST    ListApp, ListExe, ListFail;
 
         BOOL bTemp1, bTemp2, bInstalled, bRun, bRun00, bIsBaseInstall, bContinue;
-        BOOL bBaseInstallFailed;
+        BOOL bBaseInstallFailed, bIsExecVisionInstall;
 
         //function prototypes
 
@@ -124,12 +124,16 @@ SayWelcome:
 	while (nResult != END_OF_LIST && bContinue)
 
                bRun = TRUE;
+	bIsBaseInstall = FALSE;
+	bIsExecVisionInstall = FALSE;
 
 	StrToUpper(szTemp, szAppName); 
                if (StrFind(szTemp, "EXECUTRAK BASE SYSTEM") >= 0) then
 		bIsBaseInstall = TRUE;
-	else
-		bIsBaseInstall = FALSE;
+	endif;
+               if (StrFind(szTemp, "EXECUVISION") >= 0) then
+		bIsBaseInstall = TRUE;
+		bIsExecVisionInstall = TRUE;
 	endif;
 
 	if (bRun00 || ((!bRun00) && (!bIsBaseInstall))) then
@@ -203,8 +207,10 @@ SayWelcome:
 	endwhile;
 
 	if (bBaseInstallFailed) then
-		MessageBox("ExecurTrak Base System Installation Failed.\n\n" +
-			"All other modules were not installed into your system.", SEVERE);
+		if (!bIsExecVisionInstall) then
+			MessageBox("ExecurTrak Base System Installation Failed.\n\n" +
+				"All other modules were not installed into your system.", SEVERE);
+		endif;
 	else
 		if (bContinue) then
 			if (nFailApp > 0) then
@@ -225,18 +231,21 @@ SayWelcome:
 		
 			endif;
 		else
-		      //add shortcut to startup group for re-run after base system installation reboot!
-	                    szFolder = "Startup";
-	                    szSCIcon = "";
-	                    szSCWork = SRCDIR;
-	                    szSCExe = szSCWork ^ "SETUP.EXE";
-	                    szSCExe = szSCExe + " 2";
-	                
-	                    AddFolderIcon(szFolder, "CDINSTALL",
-	                      szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+			if (!bIsExecVisionInstall) then
+				//add shortcut to startup group for re-run after base system installation reboot!
+				szFolder = "Startup";
+				szSCIcon = "";
+				szSCWork = SRCDIR;
+				szSCExe = szSCWork ^ "SETUP.EXE";
+				szSCExe = szSCExe + " 2";
+				
+				AddFolderIcon(szFolder, "CDINSTALL",
+				szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+				
+			endif;
 
-		    //force reboot system
-	                  System(SYS_BOOTMACHINE);
+			//force reboot system
+			System(SYS_BOOTMACHINE);
 		endif;
 	endif;
 

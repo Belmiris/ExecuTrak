@@ -1,4 +1,5 @@
 DIR=G:\program\release\execlink MASK=*.*
+DIR=g:\program\release\exectrak\common MASK=cpylocal.exe
 DIR=G:\program\release\exectrak\ole MASK=tbkit.dll
 DIR=G:\program\release\exectrak\ole MASK=olecombo.dll
 DIR=G:\program\release\exectrak\custctl MASK=*.*

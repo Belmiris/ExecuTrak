@@ -9,8 +9,28 @@ if exist ..\disk\disk7\factdb.2 goto disk7
 if exist ..\disk\disk7\factdb.z goto disk7
 if exist ..\disk\disk6\factdb.2 goto disk6
 if exist ..\disk\disk6\factdb.z goto disk6
+if exist ..\disk\disk5\factdb.2 goto disk5
+if exist ..\disk\disk5\factdb.z goto disk5
+if exist ..\disk\disk4\factdb.2 goto disk4
+if exist ..\disk\disk4\factdb.z goto disk4
 
-echo Total Distribution Diskette Required = unknown
+echo Total Distribution Diskette Required = 1
+goto start
+
+:disk2
+echo Total Distribution Diskette Required = 2
+goto start
+
+:disk3
+echo Total Distribution Diskette Required = 3
+goto start
+
+:disk4
+echo Total Distribution Diskette Required = 4
+goto start
+
+:disk5
+echo Total Distribution Diskette Required = 5
 goto start
 
 :disk6
@@ -19,11 +39,6 @@ goto start
 
 :disk7
 echo Total Distribution Diskette Required = 7
-
-goto start
-
-:disk8
-echo Total Distribution Diskette Required = 8
 
 :start
 
