@@ -42,7 +42,7 @@ Public Const TEMP_p_altname As String = "tmp_p_altname"
 
 Public Const SCROLL_BAR_WIDTH As Integer = 250
 
-Public dbLocal As Database
+Public dbLocal As DataBase
 Public Const nDB_LOCAL As Integer = 0
 Public Const nDB_REMOTE As Integer = 1
 
@@ -405,6 +405,14 @@ Public Function fnCreateTempAR_CUSTOMER(szNumber As String, szName As String) As
     strSQL = "INSERT INTO " & TEMP_ar_customer & " SELECT an_customer, an_first_name FROM ar_altname, ar_customer WHERE (an_customer = cust_customer) AND (an_name IS NULL OR TRIM(an_name) ='') AND (TRIM(an_first_name) <>'')"
     t_dbMainDatabase.ExecuteSQL strSQL
     
+    'Sam Zheng on 07/29/2004: Only get active customers.
+    'But for those master customers, they should be always active according to
+    'the current design. The user has no way to set them inactive in
+    'VB program ARFALTNM.
+    'I put this one line of code here in case later we change the mind!
+    'tfnGetActiveAltCustomers TEMP_ar_customer, szNumber  '<<<---
+    'end of Sam's message
+    
     fnCreateTempAR_CUSTOMER = True
 extCreateSearchTable:
     On Error GoTo 0
@@ -428,7 +436,9 @@ End Function
 
 'create a temp table for ar_altname
 ' two fields only:szNumber(an_customer(unique)),szName (first + last Name)
-Public Function fnCreateTempAR_ALTNAME(szNumber As String, szName As String) As Boolean
+Public Function fnCreateTempAR_ALTNAME(szNumber As String, _
+                                       szName As String, _
+                                       Optional szExcludeInactiveFlag As String = "N") As Boolean
     
     Dim szSQL As String
     On Error GoTo LetUsGo:
@@ -455,6 +465,16 @@ LetUsGo:
         & "(an_name IS NULL OR TRIM(an_name) ='') AND (TRIM(an_first_name) <>'')"
     szSQL = "INSERT INTO " & TEMP_ar_altname & szSQL
     t_dbMainDatabase.ExecuteSQL szSQL
+    
+    'Sam Zheng on 07/29/2004: Exclude inactive customers
+    'the normal value is 'N', 'O', 'B'.
+    ' 'I' simply means not exclude--> 'I'nclude every number!
+    If szExcludeInactiveFlag = "I" Then
+        tfnGetActiveAltCustomers
+    Else
+        tfnGetActiveAltCustomers TEMP_ar_altname, szNumber, szExcludeInactiveFlag
+    End If
+    '''''
     
     fnCreateTempAR_ALTNAME = True
 extCreateSearchTable:
@@ -614,7 +634,7 @@ End Function
     ' the following subroutines depend on template form
     Public Sub subEnableAdd(bYesNo As Boolean)
         With myForm
-            .cmdaddbtn.Enabled = bYesNo
+            .cmdAddBtn.Enabled = bYesNo
             .mnuAdd.Enabled = bYesNo
         End With
     End Sub
@@ -622,7 +642,7 @@ End Function
     Public Sub subEnableDelete(bYesNo As Boolean)
         With myForm
             .cmdDeleteBtn.Enabled = bYesNo
-            .mnudelete.Enabled = bYesNo
+            .mnuDelete.Enabled = bYesNo
         End With
     End Sub
     Public Sub subEnableEdit(bYesNo As Boolean)
@@ -637,4 +657,6 @@ End Function
     End Sub
 
 #End If
+
+
 
