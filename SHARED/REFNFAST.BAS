@@ -1907,6 +1907,8 @@ Public Function fproduct( _
     Dim rs As Recordset
     Static rsArray() As Recordset
 
+AGAIN:
+
     On Error GoTo fproductRedim
     iIndex = 1
     Do While Not (rsArray(iIndex) Is Nothing)
@@ -1959,7 +1961,14 @@ fproductRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.Number
+        If Err.Number = 3420 Then 'Object invalid or no longer set.
+        Err.Clear
+        ReDim rsArray(conDimension)
+        On Error GoTo 0
+        Resume AGAIN
+        Else
+            Err.Raise Err.Number
+        End If
     End If
     
 End Function    ''fproduct
@@ -3601,12 +3610,12 @@ Public Function uround(val As Double, uom As String, db As DataBase) As Double
 End Function    ''uround
 
 Private Function roundf(amt As Double, rnd As Integer) As Double
-    Dim I As Integer
+    Dim i As Integer
     Dim rstg As String
 
     'rndf = 0.5
     rstg = "############0."     '"-------------."
-    For I = 1 To rnd
+    For i = 1 To rnd
         rstg = RTrim(rstg) & "#"
     Next
     roundf = Format(amt, rstg)
