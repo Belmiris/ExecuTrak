@@ -388,20 +388,6 @@ Private Function Parse() As String
             t = EQ_NONE
             isNeg = False
             
-         Case ",":
-            If t <> EQ_NONE Then
-               EquParsed.Add s, , j
-               EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
-               j = j + 1
-               s = ""
-            End If
-            
-            EquParsed.Add Null, , j
-            EquPriority.Add 0, , j
-            j = j + 1
-            t = EQ_NONE
-            isNeg = False
-            
          Case ")":
             If t <> EQ_NONE Then
                EquParsed.Add s, , j
@@ -417,42 +403,6 @@ Private Function Parse() As String
             t = EQ_NONE
             isNeg = True
       
-         Case "!"
-            If t <> EQ_NONE Then
-               EquParsed.Add s, , j
-               EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
-               j = j + 1
-               s = ""
-            End If
-            
-            If Len(Equ) - i > 0 Then
-                If Mid$(Equ, i + 1, 1) = "=" Then
-                    sTmp = sTmp + Mid$(Equ, i + 1, 1)
-                    i = i + 1
-                End If
-            End If
-            
-            If Len(sTmp) = 2 Then
-                EquParsed.Add sTmp, , j
-                EquPriority.Add p + PRI_MUL, , j
-                j = j + 1
-                t = EQ_NONE
-            Else
-                If isNeg Then
-                   EquParsed.Add sTmp, , j
-                   EquPriority.Add p + PRI_ADD, , j
-                   j = j + 1
-                   t = EQ_NONE
-                Else
-                   EquParsed.Add "~", , j
-                   EquPriority.Add p + PRI_NEG, , j
-                   j = j + 1
-                   t = EQ_NONE
-                End If
-            End If
-            
-            isNeg = False
-            
          Case "=", "<", ">":
             If t <> EQ_NONE Then
                EquParsed.Add s, , j
@@ -488,8 +438,8 @@ Private Function Parse() As String
             End If
             isNeg = False
         
-        Case "[", "]", "{", "}", "'", """", _
-             ";", "`", "~", "@", "#", "$", "&"
+        Case "=", "!", "<", ">", "[", "]", "{", "}", "'", """", _
+             ";", "`", "~", "@", "#", "$", "&", ",", ".", "?"
             Parse = "Invalid token '" + sTmp + "' found"
             Exit Function
       End Select
@@ -784,9 +734,9 @@ Public Function Solve() As String
                      
                   Case "sin("
                      If Degrees Then
-                        Temp(m) = sIn(X * DEG_TO_RAD)
+                        Temp(m) = Sin(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = sIn(X)
+                        Temp(m) = Sin(X)
                      End If
                      
                   Case "sqr("
@@ -829,9 +779,9 @@ Public Function Solve() As String
                      
                   Case "cosec("
                      If Degrees Then
-                        Temp(m) = (1 / sIn(X * DEG_TO_RAD))
+                        Temp(m) = (1 / Sin(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / sIn(X)
+                        Temp(m) = 1 / Sin(X)
                      End If
                      
                   Case "cotan("
@@ -958,16 +908,16 @@ Public Function Solve() As String
    Exit Function
    
 SolveError:
-   Select Case err
+   Select Case Err
       'Overflow, division by 0, internal errors...
       Case 6, 11, EQ_PAREN To EQ_NAME
-         Solve = err.Description
+         Solve = Err.Description
       Case 5:
          Select Case eSpace
             Case ER_VAR
                Solve = "Undefined Variable: " & v
             Case Else
-               Solve = err.Description
+               Solve = Err.Description
          End Select
       Case Else
          Solve = "Invalid Equation"

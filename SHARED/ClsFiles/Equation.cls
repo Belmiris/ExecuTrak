@@ -304,20 +304,6 @@ Private Function Parse() As String
             t = EQ_NONE
             isNeg = False
             
-         Case ",":
-            If t <> EQ_NONE Then
-               EquParsed.Add s, , j
-               EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
-               j = j + 1
-               s = ""
-            End If
-            
-            EquParsed.Add Null, , j
-            EquPriority.Add 0, , j
-            j = j + 1
-            t = EQ_NONE
-            isNeg = False
-            
          Case ")":
             If t <> EQ_NONE Then
                EquParsed.Add s, , j
@@ -333,7 +319,7 @@ Private Function Parse() As String
             t = EQ_NONE
             isNeg = True
         Case "=", "!", "<", ">", "[", "]", "{", "}", "'", """", _
-             ";", "`", "~", "@", "#", "$", "&"
+             ";", "`", "~", "@", "#", "$", "&", ",", ".", "?"
             Parse = "Invalid token '" + sTmp + "' found"
             Exit Function
       End Select
@@ -410,8 +396,8 @@ Public Function Solve() As String
    Dim r As Long
    Dim m As Long
    Dim n As Long
-   Dim x As Double
-   Dim y As Double
+   Dim X As Double
+   Dim Y As Double
    Dim v As Variant
    Dim eSpace As Integer
    Dim Temp() As Variant
@@ -530,14 +516,14 @@ Public Function Solve() As String
                   Solve = "Invalid arguments to function: " & v & ")"
                   Exit Function
                Else
-                  x = CDbl(Temp(l))
+                  X = CDbl(Temp(l))
                End If
                
                If r <= m Then
                   Solve = "Invalid arguments to function: " & v & ")"
                   Exit Function
                Else
-                  y = CDbl(Temp(r))
+                  Y = CDbl(Temp(r))
                End If
                
                Temp(r) = Null
@@ -548,192 +534,192 @@ Public Function Solve() As String
                Select Case v
                   ' Standard functions
                   Case "abs("
-                     Temp(m) = Abs(x)
+                     Temp(m) = Abs(X)
                      
                   Case "atn("
                      If Degrees Then
-                        Temp(m) = Atn(x) * RAD_TO_DEG
+                        Temp(m) = Atn(X) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x)
+                        Temp(m) = Atn(X)
                      End If
                      
                   Case "arctan("
                      If Degrees Then
-                        Temp(m) = Atn(x) * RAD_TO_DEG
+                        Temp(m) = Atn(X) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x)
+                        Temp(m) = Atn(X)
                      End If
                      
                   Case "cos("
                      If Degrees Then
-                        Temp(m) = Cos(x * DEG_TO_RAD)
+                        Temp(m) = Cos(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Cos(x)
+                        Temp(m) = Cos(X)
                      End If
                      
                   Case "exp("
-                     Temp(m) = Exp(x)
+                     Temp(m) = Exp(X)
                      
                   Case "fix("
-                     Temp(m) = Fix(x)
+                     Temp(m) = Fix(X)
                      
                   Case "int("
-                     Temp(m) = Int(x)
+                     Temp(m) = Int(X)
                      
                   Case "log("
-                     Temp(m) = Log(x)
+                     Temp(m) = Log(X)
                      
                   Case "rnd("
-                     Temp(m) = Rnd(x)
+                     Temp(m) = Rnd(X)
                      
                   Case "sgn("
-                     Temp(m) = Sgn(x)
+                     Temp(m) = Sgn(X)
                      
                   Case "sin("
                      If Degrees Then
-                        Temp(m) = Sin(x * DEG_TO_RAD)
+                        Temp(m) = Sin(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Sin(x)
+                        Temp(m) = Sin(X)
                      End If
                      
                   Case "sqr("
-                     Temp(m) = Sqr(x)
+                     Temp(m) = Sqr(X)
                      
                   Case "tan("
                      If Degrees Then
-                        Temp(m) = Tan(x * DEG_TO_RAD)
+                        Temp(m) = Tan(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Tan(x)
+                        Temp(m) = Tan(X)
                      End If
                      
                      ' 2 variable functions
                   Case "min("
-                     Temp(m) = IIf(x < y, x, y)
+                     Temp(m) = IIf(X < Y, X, Y)
                      
                   Case "max("
-                     Temp(m) = IIf(x > y, x, y)
+                     Temp(m) = IIf(X > Y, X, Y)
                      
                   Case "random("
-                     Temp(m) = (Rnd * (y - x)) + x
+                     Temp(m) = (Rnd * (Y - X)) + X
                      
                   Case "mod("
-                     Temp(m) = x Mod y
+                     Temp(m) = X Mod Y
                      
                   Case "logn("
-                     Temp(m) = Log(x) / Log(y)
+                     Temp(m) = Log(X) / Log(Y)
                      
                      ' Misc equations
                   Case "rand("
-                     Temp(m) = Int(Rnd * x)
+                     Temp(m) = Int(Rnd * X)
                      
                      ' Derived functions
                   Case "sec("
                      If Degrees Then
-                        Temp(m) = (1 / Cos(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Cos(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Cos(x)
+                        Temp(m) = 1 / Cos(X)
                      End If
                      
                   Case "cosec("
                      If Degrees Then
-                        Temp(m) = (1 / Sin(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Sin(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Sin(x)
+                        Temp(m) = 1 / Sin(X)
                      End If
                      
                   Case "cotan("
                      If Degrees Then
-                        Temp(m) = (1 / Tan(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Tan(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Tan(x)
+                        Temp(m) = 1 / Tan(X)
                      End If
                      
                   Case "arcsin("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(-x * x + 1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(-X * X + 1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(-x * x + 1))
+                        Temp(m) = Atn(X / Sqr(-X * X + 1))
                      End If
                      
                   Case "arccos("
                      If Degrees Then
-                        Temp(m) = (Atn(-x / Sqr(-x * x + 1)) + 2 * Atn(1)) * RAD_TO_DEG
+                        Temp(m) = (Atn(-X / Sqr(-X * X + 1)) + 2 * Atn(1)) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(-x / Sqr(-x * x + 1)) + 2 * Atn(1)
+                        Temp(m) = Atn(-X / Sqr(-X * X + 1)) + 2 * Atn(1)
                      End If
                      
                   Case "arcsec("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))
+                        Temp(m) = Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))
                      End If
                      
                   Case "arccosec("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))
+                        Temp(m) = Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))
                      End If
                      
                   Case "arccotan("
                      If Degrees Then
-                        Temp(m) = (Atn(x * DEG_TO_RAD) + 2 * Atn(1)) * RAD_TO_DEG
+                        Temp(m) = (Atn(X * DEG_TO_RAD) + 2 * Atn(1)) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x) + 2 * Atn(1)
+                        Temp(m) = Atn(X) + 2 * Atn(1)
                      End If
                      
                   Case "sinh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / 2
+                     Temp(m) = (Exp(X) - Exp(-X)) / 2
                      
                   Case "cosh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / (Exp(x) + Exp(-x))
+                     Temp(m) = (Exp(X) - Exp(-X)) / (Exp(X) + Exp(-X))
                      
                   Case "tanh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / (Exp(x) + Exp(-x))
+                     Temp(m) = (Exp(X) - Exp(-X)) / (Exp(X) + Exp(-X))
                      
                   Case "sech("
-                     Temp(m) = 2 / (Exp(x) + Exp(-x))
+                     Temp(m) = 2 / (Exp(X) + Exp(-X))
                      
                   Case "cosech("
-                     Temp(m) = 2 / (Exp(x) - Exp(-x))
+                     Temp(m) = 2 / (Exp(X) - Exp(-X))
                      
                   Case "cotanh("
-                     Temp(m) = (Exp(x) + Exp(-x)) / (Exp(x) - Exp(-x))
+                     Temp(m) = (Exp(X) + Exp(-X)) / (Exp(X) - Exp(-X))
                      
                   Case "arcsinh("
-                     Temp(m) = Log(x + Sqr(x * x + 1))
+                     Temp(m) = Log(X + Sqr(X * X + 1))
                      
                   Case "arccosh("
-                     Temp(m) = Log(x + Sqr(x * x - 1))
+                     Temp(m) = Log(X + Sqr(X * X - 1))
                      
                   Case "arctanh("
-                     Temp(m) = Log((1 + x) / (1 - x)) / 2
+                     Temp(m) = Log((1 + X) / (1 - X)) / 2
                      
                   Case "arcsech("
-                     Temp(m) = Log((Sqr(-x * x + 1) + 1) / x)
+                     Temp(m) = Log((Sqr(-X * X + 1) + 1) / X)
                      
                   Case "arccosech("
-                     Temp(m) = Log((Sgn(x) * Sqr(x * x + 1) + 1) / x)
+                     Temp(m) = Log((Sgn(X) * Sqr(X * X + 1) + 1) / X)
                      
                   Case "arccotanh("
-                     Temp(m) = Log((x + 1) / (x - 1)) / 2
+                     Temp(m) = Log((X + 1) / (X - 1)) / 2
                      
                   Case "log10("
-                     Temp(m) = Log(x) / Log(10)
+                     Temp(m) = Log(X) / Log(10)
                      
                   Case "log2("
-                     Temp(m) = Log(x) / Log(2)
+                     Temp(m) = Log(X) / Log(2)
                      
                   Case "ln("    'A macro to Log
-                     Temp(m) = Log(x)
+                     Temp(m) = Log(X)
                      
                      ' conversion functions
                   Case "deg("   ' Radians to degrees
-                     Temp(m) = x * RAD_TO_DEG
+                     Temp(m) = X * RAD_TO_DEG
                      
                   Case "rad("   ' Degrees to radians
-                     Temp(m) = x * DEG_TO_RAD
+                     Temp(m) = X * DEG_TO_RAD
                      
                   Case Else
                      Solve = "Undefined Function: " & v & ")"
