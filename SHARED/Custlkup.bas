@@ -58,7 +58,7 @@ Public Function CustNewNumber() As Long
         CustNewNumber = objCustomerLookup.FactorNumber
     Else
         #If INCLUDE_SOURCE Then
-            CustNewNumber = Val(frmCustLookUp.txtCustomerNumber)
+            CustNewNumber = val(frmCustLookUp.txtCustomerNumber)
         #End If
     End If
 End Function
@@ -135,9 +135,10 @@ End Function
 
 Public Sub CustKeyDown(KeyCode As Integer, _
                        Shift As Integer, _
-                       Optional txtCust As Variant)
+                       Optional txtCust As Variant, _
+                       Optional sCriteria As String = "")
     If KeyCode = vbKeyF3 Then
-        ShowCustLookup txtCust
+        ShowCustLookup txtCust, sCriteria
     End If
 
 End Sub
@@ -200,10 +201,11 @@ Public Function CustLookupAvailable() As Boolean
     End If
 End Function
 
-Public Sub ShowCustLookup(Optional txtCust As Variant)
+Public Sub ShowCustLookup(Optional txtCust As Variant, _
+                            Optional sCriteria As String = "")
     If Not objCustomerLookup Is Nothing Then
         On Error GoTo tryOld1
-        objCustomerLookup.ShowLookup txtCust
+        objCustomerLookup.ShowLookup txtCust, sCriteria
     End If
     Exit Sub
 
