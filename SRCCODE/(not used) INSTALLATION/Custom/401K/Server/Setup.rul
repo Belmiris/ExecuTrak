@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.09.06"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "309.06"
-#define UNINSTALL_NAME          "Payroll 3.09.06"
+#define PRODUCT_VERSION         "3.09.07"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "309.07"
+#define UNINSTALL_NAME          "Payroll 3.09.07"
 
 
 #define SIZE_REQ_SERVER         1
