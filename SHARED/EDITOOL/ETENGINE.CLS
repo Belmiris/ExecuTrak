@@ -741,18 +741,22 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         Else
             sType = "I"
         End If
-    
+
+        'NEW SQL 04/03/00 15:00
         strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
         strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
         strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
         strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
 
-        strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
-        strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
-        strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
-        strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
+        strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
+        strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
+        strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
+        strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
+        strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
+        strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
+        strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
+        strSQL = strSQL & " ssfactor.inv_header inv_header,"
         strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
-
         strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
         strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
         strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
@@ -768,9 +772,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
         strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
         strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-        strSQL = strSQL & " AND fm_delvr_d.fmdd_invoice = fm_lad_tax.fmldt_bl_nbr"
         strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-        strSQL = strSQL & " AND fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line"
+        strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
+        strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
         
         strSQL = strSQL & " AND fm_movement.fmm_dispatch_flag='C'"
         strSQL = strSQL & " AND (fm_lad_tax.fmldt_type='" + sType + "')"
@@ -780,6 +784,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
     
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+        
+        
         
         m_nErrorNumber = EC_GET_RECORD_R
 
