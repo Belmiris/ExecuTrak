@@ -369,7 +369,7 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
                 End If
             Else
                 If Count = 0 Then
-                    m_tgTable.SelBookmarks.Add m_tgcEditor.Bookmark
+                    m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
                 Else
                     fnMarkCurrent KeyCode, m_nShiftControl
                 End If
