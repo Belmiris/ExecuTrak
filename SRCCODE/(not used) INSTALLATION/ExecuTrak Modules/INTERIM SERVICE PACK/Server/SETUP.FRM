@@ -83,7 +83,7 @@ Begin VB.Form Form1
             Width           =   1668
          End
          Begin VB.Label Label3 
-            Caption         =   "Copyright© 1999"
+            Caption         =   "Copyright© 2000"
             BeginProperty Font 
                Name            =   "Arial"
                Size            =   7.8
