@@ -22,6 +22,7 @@ Private m_frmFormMain As Form
 Private m_sFormID As String
 
 Private m_lLockedSerial As Long
+Private m_sLockedData As String
 '
 
 Public Sub Initialize(formMain As Form, sID As String)
@@ -43,7 +44,7 @@ Private Sub Class_Terminate()
     Set m_frmFormMain = Nothing
 End Sub
 
-Public Function LockLocalTable(ByRef bStealTheLock As Boolean) As Boolean
+Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData As String) As Boolean
     Const SUB_NAME As String = "LockLocalTable"
     
     Dim strSQL As String
@@ -59,6 +60,7 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean) As Boolean
     
     m_lLockedSerial = 0
     bStealTheLock = False
+    sExtraData = ""
     
     If m_frmFormMain Is Nothing Then
         MsgBox "Main Form not set.", vbExclamation
@@ -104,28 +106,38 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean) As Boolean
         Beep
         Beep
         
-        m_lLockedSerial = tfnRound(rsTemp!srl_nbr)
+        #If DEBUG_LOG Then
+            If Not objDebugLog Is Nothing Then
+                objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                    fnCStr(rsTemp!srl_table) + "]"
+            End If
+        #End If
         
-        If MsgBox("Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
-            fnCStr(rsTemp!srl_table) + "]." + vbCrLf + vbCrLf + "This may be caused by a Data" + _
-            " Source Name has already been use to login to the Factor Menu and run this program." + _
-            " Choose 'No', then exit from the Factor Menu and login again using different Data Source" + _
-            " Name." + vbCrLf + vbCrLf + "Do you want to continue?", _
-            vbExclamation + vbYesNo + vbDefaultButton2) = vbYes Then
-                Beep
-                Beep
-                Beep
-                
-                If MsgBox("WARNING:" + vbCrLf + vbCrLf + "IF PROCEED, ANOTHER INSTANCE OF THE PROGRAM WILL BE TERMINATED! " + _
-                   "ANY CHANGES MADE IN THAT PROGRAM WILL BE LOST." + vbCrLf + vbCrLf + "Are you sure you want to continue?", _
-                   vbExclamation + vbYesNo + vbDefaultButton2) = vbNo Then
-                        m_lLockedSerial = 0
-                        Exit Function
-                End If
-        Else
-            m_lLockedSerial = 0
-            Exit Function
-        End If
+        m_lLockedSerial = tfnRound(rsTemp!srl_nbr)
+        sExtraData = GetLockData(fnCStr(rsTemp!srl_criteria))
+        
+        Do While True
+            If MsgBox("Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                fnCStr(rsTemp!srl_table) + "]." + vbCrLf + vbCrLf + "This means that " + fnCStr(rsTemp!srl_user_id) + _
+                " has already logged on to this Data Source and is running this program.  Choose 'No' to leave the" + _
+                " program now.  Choose 'Yes' to overwrite the lock from " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                fnCStr(rsTemp!srl_table) + "]." + vbCrLf + vbCrLf + "Do you want to continue?", _
+                vbExclamation + vbYesNo + vbDefaultButton2) = vbYes Then
+                    Beep
+                    Beep
+                    Beep
+                    
+                    If MsgBox("WARNING:" + vbCrLf + vbCrLf + "IF PROCEED, ANOTHER INSTANCE OF THE PROGRAM WILL BE TERMINATED! " + _
+                       "ANY CHANGES MADE IN THAT PROGRAM WILL BE LOST." + vbCrLf + vbCrLf + "Are you sure you want to continue?", _
+                       vbExclamation + vbYesNo + vbDefaultButton2) = vbYes Then
+                            Exit Do
+                    End If
+            Else
+                m_lLockedSerial = 0
+                sExtraData = ""
+                Exit Function
+            End If
+        Loop
         
         'steal the lock
         bStealTheLock = True
@@ -148,6 +160,7 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean) As Boolean
         '**********************
         ' STEAL THE LOCK!!!
         '**********************
+        m_sLockedData = sCriteria + "-" + sDateTime
         LockLocalTable = True
     Else
         'insert the lock entry
@@ -199,6 +212,7 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean) As Boolean
                 '**********************
                 ' GOT THE LOCK!!!
                 '**********************
+                m_sLockedData = sCriteria + "-" + sDateTime
                 LockLocalTable = True
             End If
         End If
@@ -303,6 +317,118 @@ Public Function CheckLockLocalTable() As Boolean
 errTrap:
     'SOMETHING WRONG???!!!
     MsgBox "Failed to check the lock." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
+End Function
+
+Public Function SetLockData(sExtraData As String) As Boolean
+    Const SUB_NAME As String = "SetLockData"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sCriteria As String
+    
+    If m_lLockedSerial = 0 Then
+        MsgBox "You don't have the lock!", vbExclamation
+        Exit Function
+    End If
+    
+    If sExtraData = "" Then
+        MsgBox "Extra Data is required!", vbExclamation
+        Exit Function
+    End If
+    
+    If m_sLockedData = "" Then
+        #If Not FACTOR_MENU Then
+            MsgBox "m_sLockedData is empty???", vbExclamation
+            Exit Function
+        #End If
+        
+        'rebuild the lock string
+        m_sLockedData = m_sFormID + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+        m_sLockedData = m_sLockedData + "-" + Format(Now, "yyyymmdd-hhmmss")
+    End If
+    
+    sCriteria = m_sLockedData + "(" + sExtraData + ")"
+    
+    strSQL = "UPDATE sys_row_lock SET srl_criteria = " + tfnSQLString(sCriteria)
+    strSQL = strSQL + " WHERE srl_nbr = " & m_lLockedSerial
+
+    If Not fnExecuteSQL(strSQL, SUB_NAME, False) Then
+        MsgBox "Local Database Lock is lost!", vbCritical
+        
+        m_lLockedSerial = 0
+        Exit Function
+    End If
+    
+    SetLockData = True
+End Function
+
+Public Sub ClearLockData()
+    Const SUB_NAME As String = "ClearLockData"
+    
+    Dim strSQL As String
+    
+    If m_lLockedSerial = 0 Then
+        MsgBox "You don't have the lock!", vbExclamation
+        Exit Sub
+    End If
+    
+    If m_sLockedData = "" Then
+        #If Not FACTOR_MENU Then
+            MsgBox "m_sLockedData is empty???", vbExclamation
+            Exit Sub
+        #End If
+        
+        'rebuild the lock string
+        m_sLockedData = m_sFormID + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+        m_sLockedData = m_sLockedData + "-" + Format(Now, "yyyymmdd-hhmmss")
+    End If
+    
+    strSQL = "UPDATE sys_row_lock SET srl_criteria = " + tfnSQLString(m_sLockedData)
+    strSQL = strSQL + " WHERE srl_nbr = " & m_lLockedSerial
+
+    fnExecuteSQL strSQL, SUB_NAME, False
+End Sub
+
+Public Function GetLockData(Optional sCriteria As String = "") As String
+    Const SUB_NAME As String = "GetLockData"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim nPosi As Integer
+    
+    If sCriteria = "" Then
+        'get the criteria
+        If m_lLockedSerial = 0 Then
+            MsgBox "You don't have the lock!", vbExclamation
+            Exit Function
+        End If
+        
+        strSQL = "SELECT * FROM sys_row_lock"
+        strSQL = strSQL + " WHERE srl_nbr = " & m_lLockedSerial
+        
+        If fnGetRecord(rsTemp, strSQL, SUB_NAME, False) <= 0 Then
+            MsgBox "Local Database Lock is lost!", vbCritical
+            m_lLockedSerial = 0
+            Exit Function
+        End If
+        
+        If tfnRound(rsTemp!srl_table) <> m_frmFormMain.hwnd Then
+            MsgBox "Local Database Lock is lost! " + vbCrLf + vbCrLf + "Local Database is now in use by " + _
+                fnCStr(rsTemp!srl_user_id) + "[" + fnCStr(rsTemp!srl_table) + "].", vbCritical
+            
+            m_lLockedSerial = 0
+            Exit Function
+        Else
+            'get the extra data
+            sCriteria = fnCStr(rsTemp!srl_criteria)
+        End If
+    End If
+    
+    nPosi = InStrRev(sCriteria, "(")
+    
+    If nPosi > 0 Then
+        GetLockData = Replace(Mid(sCriteria, nPosi + 1), ")", "")
+    End If
 End Function
 
 Private Sub subDeleteOldLocks()
