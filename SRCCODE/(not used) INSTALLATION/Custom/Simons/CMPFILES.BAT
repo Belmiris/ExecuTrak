@@ -7,9 +7,6 @@ if "%1" == "" goto parm_missing
 rem CREATE SETUP.BMP AND CHANGE VERSION
 call buildbmp.bat %1
 
-echo Delete z files
-del ..\disk\*.z
-
 echo .
 echo call DISKBILD.BAT
 call buildlog.bat SIMONS %1
@@ -17,6 +14,9 @@ call buildlog.bat SIMONS %1
 echo .
 choice /c:yn /t:y,7 Do you want to CONTINUE the DISK BUILD PROCESS
 if errorlevel 2 goto quitbuild
+
+echo Delete z files
+del ..\disk\*.z
 
 echo .
 echo Compress Application files
