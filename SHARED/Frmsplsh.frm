@@ -519,44 +519,111 @@ End Function
 
 
 Public Function RegisterDll(sPathName As String, bCheck As Boolean) As Boolean
+    Const LOCAL_PATH = "C:\FACTOR\OLE\"
 
-    Dim sRegDateTime As String
-    Dim lRegSize As Long
-    Dim sFileDateTime As String
-    Dim lFileSize As Long
-    Dim sKeySize As String
-    Dim sKeyDate As String
+    Dim sFileDateTime1 As String
+    Dim lFileSize1 As Long
+    Dim sFileDateTime2 As String
+    Dim lFileSize2 As Long
+    Dim sLoaclPathName As String
     
     On Error GoTo errRegDll
-    sKeySize = fnExtractName(sPathName) & "Size"
-    sKeyDate = fnExtractName(sPathName) & "DateTime"
-    lFileSize = FileLen(sPathName)
-    sFileDateTime = Trim(FileDateTime(sPathName))
-    If bCheck Then
-        lRegSize = Val(QueryValue(HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeySize))
-        If lRegSize = lFileSize Then
-            sRegDateTime = Trim(QueryValue(HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate))
-            If sRegDateTime = sFileDateTime Then
-                RegisterDll = True
-                Exit Function
+    If fnPreparePath(LOCAL_PATH) Then
+        If bCheck Then
+            sLoaclPathName = LOCAL_PATH & fnExtractName(sPathName, True)
+            lFileSize1 = FileLen(sPathName)
+            sFileDateTime1 = Trim(FileDateTime(sPathName))
+            If fnIsFile(sLoaclPathName) Then
+                lFileSize2 = FileLen(sLoaclPathName)
+                sFileDateTime2 = Trim(FileDateTime(sLoaclPathName))
+                If lFileSize1 = lFileSize2 Then
+                    If sFileDateTime1 = sFileDateTime2 Then
+                        RegisterDll = True
+                        Exit Function
+                    End If
+                End If
             End If
         End If
-    End If
-    If fnRegisterDll(sPathName) = 0 Then
-        RegisterDll = True
-        RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeySize, REG_SZ, lFileSize
-        RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate, REG_SZ, sFileDateTime
-    Else
-        RegisterDll = False
+        FileCopy sPathName, sLoaclPathName
+        If fnRegisterDll(sLoaclPathName) = 0 Then
+            RegisterDll = True
+        Else
+            RegisterDll = False
+        End If
     End If
     Exit Function
 errRegDll:
-'    If Err.Number = 53 Then
-'        MsgBox "OLE server file: '" & sPathName & "' not found. Please contact Factor."
-'    Else
-'        MsgBox "Can not register OLE server (" & sPathName & "). Please contact Factor."
-'    End If
 End Function
+
+Private Function fnIsPath(sPath As String) As Boolean
+
+    On Error Resume Next
+    ChDir sPath
+    If Err.Number > 0 Then
+        fnIsPath = False
+    Else
+        fnIsPath = True
+    End If
+End Function
+
+Private Function fnIsFile(ByVal szFilename As String) As Boolean
+    
+    On Error GoTo errNotFile
+
+    fnIsFile = False
+    If InStr(szFilename, "?") > 0 Then
+        Exit Function
+    End If
+    If InStr(szFilename, "*") > 0 Then
+        Exit Function
+    End If
+    If Trim(szFilename) <> "" Then
+        Open szFilename For Input As #29
+        Close #29
+        fnIsFile = True
+    End If
+    Exit Function
+errNotFile:
+    #If DEVELOP Then
+        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
+    #End If
+End Function
+
+
+Private Function fnPreparePath(sOrigPath As String) As Boolean
+
+    Dim sDirs() As String
+    Dim sPath As String
+    Dim i As Integer
+    Dim i1 As Integer
+    
+    subParseString sDirs, sOrigPath, "\"
+    If Right(sDirs(0), 1) = ":" Then
+        i1 = 1
+        sDirs(1) = sDirs(0) & "\" & sDirs(1)
+    Else
+        i1 = 0
+    End If
+    fnPreparePath = False
+    On Error Resume Next
+    sPath = ""
+    For i = i1 To UBound(sDirs)
+        If i = i1 Then
+            sPath = sDirs(i)
+        Else
+            sPath = sPath & "\" & sDirs(i)
+        End If
+        If Not fnIsPath(sPath) Then
+            Err.Clear
+            MkDir sPath
+            If Err.Number <> 0 Then
+                Exit Function
+            End If
+        End If
+    Next i
+    fnPreparePath = True
+End Function
+
 
 Private Function RegSetValue(ByVal lKey As Long, _
                             sKeyName As String, _
@@ -590,7 +657,8 @@ Private Function RegSetValue(ByVal lKey As Long, _
     End If
 End Function
 
-Private Function fnExtractName(sFile As String) As String
+Private Function fnExtractName(sFile As String, _
+                               bIncludeExt As Boolean) As String
     
     Dim nPos As Integer
     Dim sTemp As String
@@ -606,20 +674,24 @@ Private Function fnExtractName(sFile As String) As String
     If nPos > 0 Then
         sTemp = Right(sFile, nPos)
     End If
-    nPos = Len(sTemp)
-    Do While nPos > 0
-        If Mid(sTemp, nPos, 1) = "." Then
-            Exit Do
-        End If
-        nPos = nPos - 1
-    Loop
-    If nPos > 1 Then
-        fnExtractName = Left(sTemp, nPos - 1)
-    Else
+    If bIncludeExt Then
         fnExtractName = sTemp
+    Else
+        nPos = Len(sTemp)
+        Do While nPos > 0
+            If Mid(sTemp, nPos, 1) = "." Then
+                Exit Do
+            End If
+            nPos = nPos - 1
+        Loop
+        If nPos > 1 Then
+            fnExtractName = Left(sTemp, nPos - 1)
+        Else
+            fnExtractName = sTemp
+        End If
     End If
-    
 End Function
+
 
 Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
