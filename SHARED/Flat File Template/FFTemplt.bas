@@ -89,3 +89,31 @@ Public Sub subProcessFile(sFile As String)
     
 End Sub
 
+Public Sub subSetHelpInfo()
+    App.HelpFile = szHelpFileName
+    With LogForm
+        .lstOutput.HelpContextID = 100
+        .optRunModeIO(0).HelpContextID = 101
+        .optRunModeIO(1).HelpContextID = 102
+        .txtWorkPath.HelpContextID = 103
+        .cmdWorkPath.HelpContextID = 104
+        .optWriteLog(0).HelpContextID = 105
+        .optWriteLog(1).HelpContextID = 106
+        .txtLogPath.HelpContextID = 107
+        .cmdLogPath.HelpContextID = 108
+        .txtLogFile.HelpContextID = 109
+        .txtFilePath.HelpContextID = 110
+        .cmdInputPath.HelpContextID = 111
+        .txtFileName.HelpContextID = 112
+        .optBKFInput(0).HelpContextID = 113
+        .optBKFInput(1).HelpContextID = 114
+        .optRMFInput(0).HelpContextID = 115
+        .optRMFInput(1).HelpContextID = 116
+        .txtBackupPath.HelpContextID = 117
+        .cmdBackupPath.HelpContextID = 118
+        .txtBackupName.HelpContextID = 119
+        .cmdProcess.HelpContextID = 120
+    End With
+End Sub
+
+

@@ -20,6 +20,7 @@ Begin VB.Form LogForm
    EndProperty
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
+   LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   6036
@@ -70,7 +71,7 @@ Begin VB.Form LogForm
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -83,7 +84,7 @@ Begin VB.Form LogForm
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -155,7 +156,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -191,7 +192,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -393,7 +394,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -418,7 +419,7 @@ Begin VB.Form LogForm
       End
       Begin FACTFRMLib.FactorFrame cmdOK 
          Height          =   396
-         HelpContextID   =   3005
+         HelpContextID   =   16
          Left            =   6048
          TabIndex        =   11
          Top             =   4716
@@ -429,7 +430,7 @@ Begin VB.Form LogForm
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1989,6 +1990,8 @@ Private Sub Form_Initialize() 'called before Form_Load
     
     ' ** change the help file for this application
 '    App.HelpFile = szHelpElecCommerce
+    App.HelpFile = szHelpFileName
+    subSetHelpInfo
     sInitAppPath = App.Path
     subGoLevelUp sInitAppPath
     subAddSlash sInitAppPath
