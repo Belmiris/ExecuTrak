@@ -258,21 +258,29 @@ Public Sub Click()
         If m_bTableGotFocus Then
             Clear
             
-            If m_nClickPointY < m_tgTable.RowTop(0) Then
-                'header click, do nothing
-            Else
-                If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
-                    If m_tgcEditor.RowCount > 0 Then
-                        Dim sColRow As String
+            If IsIDE() Then
+                If m_nClickPointY < m_tgTable.RowTop(0) Then
+                    'header click, do nothing
+                Else
+                    If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
+                        If m_tgcEditor.RowCount > 0 Then
+                            Dim sColRow As String
+                            
+                            sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
+                            
+                            If Not m_tgTable.EditActive Then
+                                subMarkCellSelected sColRow
+                            End If
                         
-                        sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
-                        
-                        If Not m_tgTable.EditActive Then
-                            subMarkCellSelected sColRow
+                            subSetLastClickedCell sColRow
                         End If
-                    
-                        subSetLastClickedCell sColRow
+                    Else
+                        m_bTableClicked = True
                     End If
+                End If
+            Else
+                If m_nClickPointY < m_tgTable.RowTop(0) Then
+                    'header click, do nothing
                 Else
                     m_bTableClicked = True
                 End If
@@ -723,15 +731,6 @@ End Sub
 
 'david 04/12/2004  #401172-1
 Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    m_nClickPointX = X
-End Sub
-''''''''''''''''''''''''''''
-
-'david 02/09/2004  #401172-1
-'NEED TO ADD THE X parameter into this function
-'The calls made to this function need to be changed
-'Sorry for the inconvinence
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Integer)
     Dim ShiftTest As Integer
    
     If Button = vbLeftButton Then
@@ -748,7 +747,7 @@ Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As S
         'End Select
         
         'david 02/09/2004  #401172-1
-        If IsMultiSelectCellColumn(m_tgTable.ColContaining(m_nClickPointX)) Then
+        If IsMultiSelectCellColumn(m_tgTable.ColContaining(X)) Then
             If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
                 If ShiftTest <> vbShiftMask Then
                     m_nLastClickedRow = -1
@@ -762,7 +761,19 @@ Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As S
         m_nShiftControl = Shift
         m_nClickPointX = X
         m_nClickPointY = Y
-        DoEvents
+    End If
+End Sub
+''''''''''''''''''''''''''''
+
+'david 02/09/2004  #401172-1
+'NEED TO ADD THE X parameter into this function
+'The calls made to this function need to be changed
+'Sorry for the inconvinence
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Integer)
+    If Button = vbLeftButton Then
+        m_nShiftControl = Shift
+        m_nClickPointX = X
+        m_nClickPointY = Y
     End If
 End Sub
 
@@ -1005,7 +1016,7 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
         ClearSelectedCells
     End If
 
-    'm_nClickCol = m_tgTable.Col
+    m_nClickCol = m_tgTable.Col
 
     If IsMultiSelectCellColumn(m_nClickCol) Then
         If m_tgcEditor.RowCount > 0 Then
@@ -1013,7 +1024,7 @@ Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
                 Dim sColRow As String
                 sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
                 
-                subMarkCellSelected sColRow, IIf(CStr(LastRow) <> CStr(m_tgTable.Row), True, False)
+                subMarkCellSelected sColRow, True  'IIf(CStr(LastRow) <> CStr(m_tgTable.Row), True, False)
                 m_bTableClicked = False
                 subSetLastClickedCell
             End If
@@ -1589,4 +1600,24 @@ Private Sub subToggleCellSelected(ByVal nCol As Integer, ByVal lRow As Long)
     End If
 End Sub
 '''''''''''''''''''''''''''''''''''''
+
+' ***************************************************************************
+' * Instructions: Paste the lines below into a module, or into your form, and
+' *               call using the example below.
+' * Example:
+' *          MsgBox "Is Running In VB IDE: " & IsIDE()
+' ***************************************************************************
+Private Function IsIDE() As Boolean
+    On Error GoTo ExitHandler
+    
+    ' in a compiled VB program, the Debug.Print line would not
+    ' be compiled.  So on this function being called, there would be
+    ' no Error (Err=0) and the return value would be False
+    ' If however, it was design time, an error would be generated due to
+    ' "Divide by Zero" and non-false (True) would be returned
+    Debug.Print 1 / 0
+
+ExitHandler:
+    IsIDE = Err
+End Function
 
