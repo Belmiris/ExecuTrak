@@ -5,6 +5,24 @@ Date: 12/17/2002
 Description: 
 	ExecuTrak 3.27 release.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version: 3.26.0014 davidc
+Date: 01/16/2003
+#
+
+Description: 
+	Fuel Movement Entry Program fixed. Preserve the decimal places when storing
+	the movement data.
+
+	Change the Decimal Places property from 'Auto' to '8' for the following fields:
+		MDeliveryDetail
+			fCost, fSalePrice, fFreightRate, fSurchargeRate
+		MLadingDetail
+			fCost, fFreightRate, fSurchargeRate
+		MBalance
+			fFreightIn, fFreightOut, fSurchargeIn, fSurchargeOut
+		MInvoiceLine
+			fUnitPrice, fSalePrice
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version: 3.26.0013 davidc
 Date: 11/22/2002
 #383715
