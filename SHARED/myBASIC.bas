@@ -35,14 +35,14 @@ Public Const DATA_CHANGED As Integer = 2
 Public nDataStatus As Integer 'data loaded,inti,changed flag
 Public bUpdateTable As Boolean  'almost never used
 Public Const SCROLL_BAR_WIDTH As Integer = 250
-Public dbLocal As DataBase
+Public dbLocal As Database
 Public Const nDB_LOCAL As Integer = 0
 Public Const nDB_REMOTE As Integer = 1
 Public Const DB_REMOTE = 1
 Public Const DB_LOCAL = 0
 Global t_engFactor2nd As DBEngine
 Global t_wsWorkSpace2nd As Workspace
-Global t_dbMainDatabase2nd As DataBase
+Global t_dbMainDatabase2nd As Database
 '======================================================
 
 
@@ -70,7 +70,7 @@ End Type
 '==========================below from Ma' printer project==============
 
 Public Declare Function GetDeviceCaps Lib "GDI32" ( _
-   ByVal hdc As Long, ByVal iCapabilitiy As Long) As Long
+   ByVal hDC As Long, ByVal iCapabilitiy As Long) As Long
 
 'Private Declare Function GetDeviceCaps Lib "GDI" _
 '   (ByVal hDC As Integer, ByVal nIndex As Integer) As Integer '2 integer
@@ -103,7 +103,7 @@ Public Declare Function DeleteObject Lib "GDI32" _
 '         ByVal hObject As Integer) As Integer
          
 Public Declare Function SelectObject Lib "GDI32" ( _
-   ByVal hdc As Long, ByVal hObject As Long) As Long
+   ByVal hDC As Long, ByVal hObject As Long) As Long
    
 Public Declare Function CreateFontIndirect Lib "GDI32" _
     Alias "CreateFontIndirectA" (lpLogFont As LOGFONT) As Long
@@ -400,21 +400,21 @@ End Sub
 Public Function LinkListedData(vData(), nThisRow As Long, _
                nTotalRows As Long) As String
      Dim sLinks As String
-     Dim i As Long
+     Dim I As Long
      sLinks = ""
-     For i = 0 To nTotalRows - 1
-        If i <> nThisRow Then
+     For I = 0 To nTotalRows - 1
+        If I <> nThisRow Then
             If sLinks = "" Then
-                If Trim(vData(i)) <> "" Then
-                    sLinks = MyStr(vData(i))
+                If Trim(vData(I)) <> "" Then
+                    sLinks = MyStr(vData(I))
                 End If
             Else
-                If Trim(vData(i)) <> "" Then
-                    sLinks = sLinks & ", " & MyStr(vData(i))
+                If Trim(vData(I)) <> "" Then
+                    sLinks = sLinks & ", " & MyStr(vData(I))
                 End If
             End If
         End If
-     Next i
+     Next I
      If sLinks = "" Then
         sLinks = Chr(34) & Chr(34)
      End If
@@ -426,17 +426,17 @@ End Function
 Public Function IsAlreadyListed(vData(), ByVal nTerms As Long, _
                          ByVal nThisRow As Long, ByVal szTest As String) As Boolean
                           
-     Dim i As Long
+     Dim I As Long
      
      IsAlreadyListed = False
-     For i = 0 To nTerms - 1
-        If i <> nThisRow Then
-            If Trim(vData(i)) = Trim(szTest) Then
+     For I = 0 To nTerms - 1
+        If I <> nThisRow Then
+            If Trim(vData(I)) = Trim(szTest) Then
                IsAlreadyListed = True
                Exit For
             End If
         End If
-     Next i
+     Next I
 End Function
 '=====================================================
 
@@ -736,63 +736,6 @@ Public Function fnParseString(ByRef szMainString As String, Optional vDelimiter 
 End Function
 '=====================================================
 '
-'Function : fnGetSystemDir - gets the windows system directory
-'Variables: optional variable to add a slash to the end of the path
-'Return   : the path to the windows system directory
-'
-Public Function fnGetSystemDir(Optional vAddSlash As Variant) As String
-    
-    Dim nLength As Integer     'length returned from API call
-    Dim szSystemDir As String  'temp string to hold system directory
-    Dim MAX_STRING_LENGTH As Integer
-    MAX_STRING_LENGTH = 50
-    Dim gszSLASH As String
-    gszSLASH = "/"
-    szSystemDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
-    
-    nLength = GetSystemDirectory(szSystemDir, MAX_STRING_LENGTH) 'call the API function to get the system directory
-  
-    szSystemDir = Left(szSystemDir, nLength) 'trim off the excess spaces
-    
-    If Not IsMissing(vAddSlash) Then
-        If Right(szSystemDir, 1) <> gszSLASH And vAddSlash = True Then 'add a slash if it needs one
-            szSystemDir = szSystemDir + gszSLASH
-        End If
-    End If
-    
-    fnGetSystemDir = szSystemDir 'return system directory back to the caller
-
-End Function
-'=====================================================
-'
-'Function : fnGetWindowsDir - gets the windows directory
-'Variables: optional variable to add a slash to the end of the path
-'Return   : the path to the windows directory
-'
-Public Function fnGetWindowsDir(Optional vAddSlash As Variant) As String
-    
-    Dim nLength As Integer      'length returned from API call
-    Dim szWindowsDir As String  'temp string to hold windows directory
-    Dim gszSLASH As String
-    gszSLASH = "/"
-        
-    szWindowsDir = Space(MAX_STRING_LENGTH) 'set the string to a fixed length for API call, pad with spaces
-    
-    nLength = GetWindowsDirectory(szWindowsDir, MAX_STRING_LENGTH) 'get the current windows directory
-  
-    szWindowsDir = Left(szWindowsDir, nLength) 'trim off the excess spaces
-    
-    If Not IsMissing(vAddSlash) Then
-        If Right(szWindowsDir, 1) <> gszSLASH And vAddSlash = True Then 'add a slash if it needs one
-            szWindowsDir = szWindowsDir + gszSLASH
-        End If
-    End If
-    
-    fnGetWindowsDir = szWindowsDir 'return windows directory back to the caller
-
-End Function
-'=====================================================
-'
 'Function : fnGetAppDir - returns the application directory path
 'Variables: optional variable to add a slash to the end of the path
 'Return   : directory path
@@ -961,7 +904,7 @@ Public Function fnGetExeSQLCount(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -1004,7 +947,7 @@ Public Function fnExecuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -1092,7 +1035,7 @@ End Sub
 
 Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
 
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1109,9 +1052,9 @@ Private Sub subShowODBCError(Optional vMsg As Variant, Optional vSQL As Variant)
     If Err.Number = 3146 Or t_engFactor.Errors.Count > 2 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) _
-                        & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) _
+                        & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1391,7 +1334,7 @@ Public Sub subSetFont(sFontName As String, _
     
     ''font.lfEscapement = nRotate * 10   ' 180-degree rotation
     font.lfFaceName = sFontName & Chr$(0) 'Null character at end
-    font.lfHeight = -FONTSIZE * GetDeviceCaps(Printer.hdc, 90) / 72 'LOGPIXELSY) / 72 ' one inch contains 72 points.
+    font.lfHeight = -FONTSIZE * GetDeviceCaps(Printer.hDC, 90) / 72 'LOGPIXELSY) / 72 ' one inch contains 72 points.
     'LOGPIXELSY
     If bBold Then
         font.lfWeight = 700
@@ -1405,9 +1348,9 @@ Public Sub subSetFont(sFontName As String, _
     hCurrFont = CreateFontIndirect(font)
     
     If hPrevFont = 0 Then
-        hPrevFont = SelectObject(Printer.hdc, hCurrFont)
+        hPrevFont = SelectObject(Printer.hDC, hCurrFont)
     Else
-        SelectObject Printer.hdc, hCurrFont
+        SelectObject Printer.hDC, hCurrFont
     End If
 
 End Sub
@@ -1429,7 +1372,7 @@ End Sub
 '===========================================
 
 'open local database, need to reset sInifilename
-Public Function fnOpenLocalDatabase() As DataBase
+Public Function fnOpenLocalDatabase() As Database
     
     Dim sDataBasePath As String
     Dim sIniFileName As String
