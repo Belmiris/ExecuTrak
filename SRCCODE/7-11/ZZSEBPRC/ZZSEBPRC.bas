@@ -30,8 +30,8 @@ Public Const nTabHours As Integer = 4
 Public Const colSPrftCtr As Integer = 0
 Public Const colSPrftName As Integer = 1
 Public Const colSAmount As Integer = 2
-'Public Const colSFromDate As Integer = 3
-'Public Const colSToDate As Integer = 4
+Public Const colSFromDate As Integer = 3
+Public Const colSToDate As Integer = 4
 
 'Time Card Grid Column Names
 Public Const colHClockIn As Integer = 0
@@ -68,7 +68,8 @@ Public Const colDElgDate As Integer = 5
 Public Const colDBAmt As Integer = 6
 
 Public vArrBonus() As Variant
-Public clsMath As clsEquation
+Public objMath As clsEquation
+Public objCond As clsCondition
 '
 
 Public Function fnConCat(MyPath As String, MyName As String) As String
@@ -95,10 +96,17 @@ Public Sub subLogErrMsg(sErrorMessage As String)
     'Put the time stamp if the sLogFilePath is empty
     On Error Resume Next
     sTimeStamp = "Error Log Created on : " & Date & " at " & Time & vbCrLf
+    
     nFileNumber = FreeFile
     Open sLogFilePath For Input As #nFileNumber
-    If Not EOF(nFileNumber) Then Line Input #nFileNumber, sLineContents: Close nFileNumber
-    If sLineContents = "" Then tfnLog sTimeStamp, sLogFilePath
+    If Not EOF(nFileNumber) Then
+        Line Input #nFileNumber, sLineContents
+        Close nFileNumber
+    End If
+    
+    If sLineContents = "" Then
+        tfnLog sTimeStamp, sLogFilePath
+    End If
     
     'Writing the log to the file...
     tfnLog sErrorMessage, sLogFilePath
@@ -107,6 +115,7 @@ Public Sub subLogErrMsg(sErrorMessage As String)
     For i = 0 To UBound(sArrMsg)
         frmZZSEBPRC.lstProcess.AddItem sArrMsg(i)
     Next i
+    
     DoEvents
     
 End Sub
@@ -447,7 +456,7 @@ Private Function fnCalculateBonus(PCT As Double, DOL As Double, AMT1 As Double, 
     Next i
     
     'Get the bonus amount based on the formula...
-    dBonusAmt = tfnRound(clsMath.Calculate(sActualVal, sErrMsg), DEFAULT_DECIMALS)
+    dBonusAmt = tfnRound(objMath.Calculate(sActualVal, sErrMsg), DEFAULT_DECIMALS)
     If sErrMsg <> "" Then
         subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
         Exit Function
@@ -651,8 +660,8 @@ Public Function fnInsertUpdateSales() As Boolean
     For i = 0 To tgmSales.RowCount - 1
         If tgmSales.ValidCell(colSPrftCtr, i) And fnGetField(tgmSales.CellValue(colSPrftCtr, i)) <> "" Then
             nPrftCtr = tfnRound(tgmSales.CellValue(colSPrftCtr, i))
-    '        sFrmDt = tfnDateString(tgmSales.CellValue(colSFromDate, i), True)
-    '        sToDt = tfnDateString(tgmSales.CellValue(colSToDate, i), True)
+'            sFrmDt = tfnDateString(tgmSales.CellValue(colSFromDate, i), True)
+'            sToDt = tfnDateString(tgmSales.CellValue(colSToDate, i), True)
             sFrmDt = tfnDateString(frmZZSEBPRC!txtFromDate, True)
             sToDt = tfnDateString(frmZZSEBPRC!txtToDate, True)
             dSlsAmt = tfnRound(tgmSales.CellValue(colSAmount, i), 2)
@@ -703,3 +712,39 @@ Public Function fnDeleteSales(sSType As String, nPrftCtr As Integer, sToDt As St
     End If
 
 End Function
+
+
+Public Function fnCreateTempTableVar() As Boolean
+    Const SUB_NAME As String = "fnCreateTempTableVar"
+    Dim strSQL As String
+    Dim sarrVariable() As Variant
+    Dim i As Integer
+    
+    fnCreateTempTableVar = False
+    
+    On Error GoTo Continue
+    strSQL = "DROP TABLE tmpvariable"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+Continue:
+    strSQL = "CREATE TEMP TABLE tmpVariable (Variable char(20))"
+    
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+    
+    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
+        "months_as_manager", "years_as_manager", "months_employed", "shortage_amount", _
+        "check_amount", "pay_hours")
+    
+    For i = 0 To UBound(sarrVariable)
+        strSQL = "INSERT INTO tmpvariable VALUES(" & tfnSQLString(sarrVariable(i)) & ")"
+        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+            Exit Function
+        End If
+    Next
+    
+    fnCreateTempTableVar = True
+End Function
+
+

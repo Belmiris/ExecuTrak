@@ -466,6 +466,7 @@ Begin VB.Form frmZZSEBPRC
                   ForeColor       =   &H00000000&
                   Height          =   2400
                   HelpContextID   =   536
+                  IntegralHeight  =   0   'False
                   ItemData        =   "ZZSEBPRC.frx":1502
                   Left            =   72
                   List            =   "ZZSEBPRC.frx":1504
@@ -480,7 +481,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   527
                   Left            =   1596
-                  TabIndex        =   32
+                  TabIndex        =   34
                   Tag             =   "pn_name"
                   Top             =   276
                   Width           =   4176
@@ -491,7 +492,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   525
                   Left            =   60
-                  TabIndex        =   28
+                  TabIndex        =   32
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1104
@@ -519,13 +520,13 @@ Begin VB.Form frmZZSEBPRC
                   Width           =   732
                End
                Begin MSComctlLib.ProgressBar pbBarMain 
-                  Height          =   348
+                  Height          =   312
                   Left            =   72
                   TabIndex        =   75
-                  Top             =   3756
+                  Top             =   3780
                   Width           =   8532
                   _ExtentX        =   15050
-                  _ExtentY        =   614
+                  _ExtentY        =   550
                   _Version        =   393216
                   Appearance      =   1
                End
@@ -533,7 +534,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   526
                   Left            =   1176
-                  TabIndex        =   30
+                  TabIndex        =   33
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -569,7 +570,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   528
                   Left            =   5784
-                  TabIndex        =   34
+                  TabIndex        =   35
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -1298,7 +1299,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   4
                      Left            =   7128
-                     TabIndex        =   31
+                     TabIndex        =   29
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1335,7 +1336,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   4
                      Left            =   5712
-                     TabIndex        =   29
+                     TabIndex        =   28
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1372,7 +1373,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   4
                      Left            =   2868
-                     TabIndex        =   35
+                     TabIndex        =   31
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1409,7 +1410,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   4
                      Left            =   4296
-                     TabIndex        =   33
+                     TabIndex        =   30
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -2713,6 +2714,11 @@ Private Sub Form_Unload(CANCEL As Integer)
     
     Set objCurrTabControl = Nothing
     
+    Set objMath = Nothing
+    Set objCond = Nothing
+    
+    Unload frmFORMULA
+    Unload frmSplash
     Unload frmContext
     Unload frmAbout
     
@@ -2746,9 +2752,12 @@ Private Sub Form_Load()
         'End If
         
         'open the database, ODBC Dialog Box during developemnt, oleObject Connection String when not
+        Screen.MousePointer = vbHourglass
+        
         If Not tfnOpenDatabase(False, sErrorMessage) Then
-            subLogErrMsg sErrorMessage
-            subLogErrMsg "**System Error: Unable to open Database, Program was terminated"
+            sErrorMessage = "Unable to open Database, Program terminates"
+            subLogErrMsg "**System Error: " + sErrorMessage
+            MsgBox sErrorMessage + ".", vbCritical
             Unload Me
             Exit Sub
         End If
@@ -2756,18 +2765,34 @@ Private Sub Form_Load()
         'connect to local database
         Set dbLocal = tfnOpenLocalDatabase(False, sErrorMessage)
         If dbLocal Is Nothing Then
-            subLogErrMsg sErrorMessage
-            subLogErrMsg "**System Error: Unable to open Local Database, Program was terminated"
+            sErrorMessage = "Unable to open Local Database, Program terminates"
+            subLogErrMsg "**System Error: " + sErrorMessage
+            MsgBox sErrorMessage + ".", vbCritical
             Unload Me
             Exit Sub
         End If
     
+        Screen.MousePointer = vbHourglass
+    
         If Not fnCreateSearchTable("prm_empno", "prm_empname") Then
-            MsgBox "Failed to create temporary employee table", vbCritical
+            sErrorMessage = "Failed to create temporary Employee Table"
+            subLogErrMsg "**System Error: " + sErrorMessage
+            MsgBox sErrorMessage + ".", vbCritical
             Unload Me
-            End
+            Exit Sub
+        End If
+    
+        If Not fnCreateTempTableVar() Then
+            sErrorMessage = "Failed to create temporary Variable Table, Program terminates"
+            subLogErrMsg "**System Error: " + sErrorMessage
+            MsgBox sErrorMessage + ".", vbCritical
+            Unload Me
+            Exit Sub
         End If
     #End If
+    
+    tfnSetInitializingMessage
+    Screen.MousePointer = vbHourglass
     
     subSetExitCancelBtn "EXIT"
     Screen.MousePointer = vbHourglass
@@ -2782,23 +2807,32 @@ Private Sub Form_Load()
     subSetupCombos
     subInitValidation
     
+    tfnDisableFormSystemClose Me
+    subSetupToolBar
+    
+    tmrKeyBoard.Enabled = False
+    tfnCenterForm Me
+    
+    Me.Show
+    DoEvents
+    
+    tfnSetInitializingMessage
+    Screen.MousePointer = vbHourglass
+    
     'initialize the PRFHOURS class
     If Not fnInitialPRFHOURSclass() Then
         Unload Me
         Exit Sub
     End If
     
-    Set clsMath = New clsEquation
+    Screen.MousePointer = vbHourglass
+    
+    Set objMath = New clsEquation
+    Set objCond = New clsCondition
     
     #If Not PROTOTYPE Then
         tfnUpdateVersion
     #End If
-    
-    tfnDisableFormSystemClose Me
-    subSetupToolBar
-    
-    tmrKeyBoard.Enabled = False
-    tfnCenterForm Me
 
     Me.Enabled = True
     
@@ -3061,7 +3095,7 @@ Private Sub tfnResetScreen(Index As Integer)
             subEnablePrint Index, False
             subEnableFirstLineProcess True
             bCancelProcess = False
-            cmdProcess.Enabled = True
+            cmdProcess.Enabled = False
             subSetProgress 0
             subSetFocus txtPrftCtr
         Case TabApprove
@@ -3320,7 +3354,11 @@ Private Sub subSetProgress(sngPercent As Single)
             pbBarMain.Visible = True
         End If
     Else
-        pbBarMain.Visible = False
+        'pbBarMain.Visible = False
+        pbBarMain.Value = 0
+        If pbBarMain.ToolTipText = "" Then
+            pbBarMain.ToolTipText = "Process Checks progress bar"
+        End If
     End If
     
     pbBarMain.Value = sngPercent
@@ -3483,10 +3521,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     
     Select Case tbl.Name
         Case "tblSales"
-'            myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
-'            myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
-            myWidth = Array(0.22, 0.58, 0.2)
-            myField = Array("prft_ctr", "prft_name", "amount")
+            myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
+            myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
         Case "tblTimeCard"
             myWidth = Array(0.21, 0.21, 0.16, 0.16, 0.26)
             myField = Array("prh_date", "prh_prft_ctr", "prh_pay_code", "prh_pay_type", "prh_hours")
@@ -3526,8 +3562,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colSPrftName).Caption = "Profit Center Name"
             tbl.Columns(colSAmount).Caption = "Amount"
             tbl.Columns(colSAmount).Alignment = vbRightJustify
-'            tbl.Columns(colSFromDate).Caption = "From Date"
-'            tbl.Columns(colSToDate).Caption = "To Date"
+            tbl.Columns(colSFromDate).Caption = "From Date"
+            tbl.Columns(colSToDate).Caption = "To Date"
         Case "tblTimeCard"
             tbl.Caption = "Time Card Entry"
             tbl.Columns(colHClockIn).Caption = "Clock-In Date"
@@ -3661,7 +3697,6 @@ End Sub
 Private Sub txtEmployee_Change()
     cValidate.Change txtEmployee
     tgcDropdown.Change txtEmployee
-    txtEmpName = ""
 End Sub
 
 Private Sub txtEmployee_GotFocus()
@@ -3766,6 +3801,7 @@ Private Sub subInitValidation()
     cValidate.AddEditBox txtPrftCtr, "Enter Profit Center Number"
     cValidate.AddEditBox txtDate, "Enter Eligible Date"
     cValidate.AddEditBox txtFrequency, "Enter Frequency"
+    cValidate.AddEditBox txtEmpProcess, "Enter Employee Number"
     cValidate.AddEditBox txtEmployee, "Enter Employee Number"
     cValidate.MinTabIndex = txtPrftCtr.TabIndex
     cValidate.MaxTabIndex = txtEmpName.TabIndex
@@ -3792,9 +3828,9 @@ Private Function fnSetComboSQL(nTabIndex As Integer) As String
             strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr WHERE prft_ctr IN "
             strSQL = strSQL & "(SELECT DISTINCT bm_eligible_pc FROM bonus_master)"
         Case txtFrequency.TabIndex
-            strSQL = "SELECT bf_frequency, bf_freq_desc FROM bonus_frequency"
-        Case txtEmployee.TabIndex, txtEmpName.TabIndex
-            strSQL = "SELECT prm_empno, prm_empname FROM sTmpCustTable"
+            strSQL = "SELECT bfq_frequency, bfq_freq_desc FROM bonus_frequency"
+        Case txtEmployee.TabIndex, txtEmpName.TabIndex, txtEmpProcess.TabIndex, txtEmpNameProcess.TabIndex
+            strSQL = "SELECT prm_empno, prm_empname FROM sTmpEmpTable"
             strSQL = strSQL & " WHERE prm_empno IN (SELECT bm_empno FROM bonus_master)"
         Case txtFromDate.TabIndex
             strSQL = fnGetSalesSQL(txtFromDate)
@@ -3809,52 +3845,103 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
         Exit Function
     #End If
 
+    fnInValidData = True
+
     Select Case txtBox.TabIndex
         Case txtPrftCtr.TabIndex
             fnInValidData = Not fnValidPrftCtr(txtBox)
         Case txtDate.TabIndex
-            fnInValidData = Not IsValidDate(txtBox)
+            If txtDate = "" Then
+                cValidate.SetErrorMessage txtBox, "You must enter a Process Date"
+                Exit Function
+            End If
+            If Not IsValidDate(txtBox) Then
+                cValidate.SetErrorMessage txtBox, "Process Date is not valid"
+                Exit Function
+            End If
+            
+            fnInValidData = False
+        Case txtFrequency.TabIndex
+            fnInValidData = Not fnValidBonusFreq(txtBox)
+        Case txtEmployee.TabIndex, txtEmpProcess.TabIndex
+            fnInValidData = fnValidEmployee(txtBox)
+        Case txtEmpProcess.TabIndex
         Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
             fnInValidData = objHours.fnInValidData(txtBox)
         Case txtFromDate.TabIndex, txtToDate.TabIndex
             fnInValidData = Not fnValidSalesDate(txtBox)
     End Select
-    
 End Function
 
-Private Function fnValidEmployee(Box As Textbox) As Boolean
+Private Function fnValidBonusFreq(txtBox As Textbox) As Boolean
+    Const SUB_NAME As String = "fnValidBonusFreq"
+    Dim strSQL As String
+
+    fnValidBonusFreq = False
+    
+    If Trim(txtBox) = "" Then
+        cValidate.SetErrorMessage txtBox, "You must enter a Commission frequency"
+        Exit Function
+    End If
+    
+    strSQL = "SELECT * FROM bonus_frequency WHERE bfq_frequency = " & tfnSQLString(txtBox)
+    
+    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
+        cValidate.SetErrorMessage txtBox, "Commission frequency does not exist"
+        Exit Function
+    End If
+    
+    fnValidBonusFreq = True
+
+End Function
+
+Private Function fnValidEmployee(txtBox As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidEmployee"
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim sEmpName As String
     
     fnValidEmployee = False
     
-    If eTabMain.CurrTab = TabProcess Then
-        fnValidEmployee = True
+    If Trim(txtBox.Text) = "" Then
+        If eTabMain.CurrTab = TabProcess Then
+            fnValidEmployee = True
+        Else
+            cValidate.SetErrorMessage txtBox, "You must enter an Employee Number"
+        End If
         Exit Function
     End If
     
-    If Trim(Box.Text) = "" Then
-        cValidate.SetErrorMessage Box, "You Must Enter a Employee Number"
+    If Not IsNumeric(Trim(txtBox.Text)) Then
+        cValidate.SetErrorMessage txtBox, "Employee Number does not exist"
         Exit Function
     End If
     
-    If Not IsNumeric(Trim(Box.Text)) Then
-        cValidate.SetErrorMessage Box, "Employee Number does not exist"
-        Exit Function
-    End If
-    
-    strSQL = "SELECT prm_empno FROM pr_master WHERE prm_empno IN("
-    strSQL = strSQL & " SELECT DISTINCT bm_empno FROM bonus_master"
-    strSQL = strSQL & " ) AND prm_empno = " & Box.Text
+    strSQL = "SELECT * FROM sTmpEmpTable WHERE prm_empno = " & tfnRound(txtBox)
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        cValidate.SetErrorMessage Box, "Failed to access Database"
+        cValidate.SetErrorMessage txtBox, "Failed to access Database"
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        cValidate.SetErrorMessage txtBox, "Employee Number does not exist"
+        Exit Function
+    End If
+    
+    sEmpName = fnCstr(rsTemp!prm_empname)
+    
+    strSQL = "SELECT bm_empno FROM bonus_master"
+    strSQL = strSQL & " WHERE bm_empno = " & tfnRound(txtBox)
+    strSQL = strSQL & " GROUP BY bm_empno"
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        cValidate.SetErrorMessage txtBox, "Failed to access Database"
         Exit Function
     End If
             
     If rsTemp.RecordCount = 0 Then
-        cValidate.SetErrorMessage Box, "Employee Number does not exist"
+        cValidate.SetErrorMessage txtBox, "Employee is not set up in Bonus Master"
         Exit Function
     End If
     
@@ -3917,8 +4004,12 @@ Private Sub subSetupCombos()
         .AddComboBox txtPrftCtrName, cmdPrftCtrName, "prft_name", .SQL_STRING_TYPE(40)
      
         .AddCombo
-        .AddComboBox txtFrequency, cmdFrequency, "bf_frequency", .SQL_STRING_TYPE(1)
-        .AddExtraColumn "bf_freq_desc", 1300
+        .AddComboBox txtEmpProcess, cmdEmpProcess, "prm_empno", .SQL_LONG_TYPE
+        .AddComboBox txtEmpNameProcess, cmdEmpNameProcess, "prm_empname", .SQL_STRING_TYPE(60)
+     
+        .AddCombo
+        .AddComboBox txtFrequency, cmdFrequency, "bfq_frequency", .SQL_STRING_TYPE(1)
+        .AddExtraColumn "bfq_freq_desc", 1300
         .SetExtend txtFrequency, 2
         
         .AddCombo
@@ -4094,12 +4185,9 @@ End Sub
 
 Private Sub txtPrftCtr_LostFocus()
     tgcDropdown.LostFocus txtPrftCtr
-    cValidate.LostFocus txtPrftCtr, cmdPrftCtr
-    
-    If cValidate.FirstInvalidInput < 0 Then
-        cmdProcess.Enabled = True
+    If cValidate.LostFocus(txtPrftCtr, cmdPrftCtr, txtPrftCtrName, cmdPrftCtrName) Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
     End If
-    
 End Sub
 
 Private Sub txtPrftCtrName_Change()
@@ -4140,6 +4228,13 @@ Private Sub txtPrftCtrName_KeyPress(KeyAscii As Integer)
 
 End Sub
 
+Private Sub txtPrftCtrName_LostFocus()
+    tgcDropdown.LostFocus txtPrftCtrName
+    If cValidate.LostFocus(txtPrftCtr, cmdPrftCtr, txtPrftCtrName, cmdPrftCtrName) Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+    End If
+End Sub
+
 Private Sub cmdPrftCtr_Click()
     Screen.MousePointer = vbHourglass
     tgcDropdown.ComboSQL(txtPrftCtr) = fnSetComboSQL(txtPrftCtr.TabIndex)
@@ -4150,67 +4245,6 @@ End Sub
 Private Sub cmdPrftCtrName_Click()
     tgcDropdown.ComboSQL(txtPrftCtrName) = fnSetComboSQL(txtPrftCtrName.TabIndex)
     tgcDropdown.Click cmdPrftCtrName
-End Sub
-
-Private Sub txtFrequency_Change()
-    cValidate.Change txtFrequency
-    tgcDropdown.Change txtFrequency
-    cmdProcess.Enabled = False
-End Sub
-
-Private Sub txtFrequency_GotFocus()
-    tgcDropdown.GotFocus txtFrequency
-    cValidate.GotFocus txtFrequency
-    
-    If tgcDropdown.SingleRecordSelected Then
-        If cmdProcess.Enabled Then
-            subSetFocus cmdProcess
-        Else
-            subSetFocus cmdCancel(TabProcess)
-        End If
-    End If
-    
-End Sub
-
-Private Sub txtFrequency_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    KeyAscii = Asc(UCase$(Chr$(KeyAscii)))
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtFrequency) = fnSetComboSQL(txtFrequency.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-        
-    bKeyCode = tgcDropdown.Keypress(txtFrequency, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-       If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                If cmdProcess.Enabled Then
-                    subSetFocus cmdProcess
-                Else
-                    subSetFocus cmdCancel(TabProcess)
-                End If
-                Screen.MousePointer = vbDefault
-          End If
-          KeyAscii = 0
-       End If
-    Else
-        cValidate.Keypress txtFrequency, KeyAscii
-    End If
-
-End Sub
-
-Private Sub txtFrequency_LostFocus()
-    tgcDropdown.LostFocus txtFrequency
-    cValidate.LostFocus txtFrequency, cmdFrequency
-    
-    If cValidate.FirstInvalidInput < 0 Then
-        cmdProcess.Enabled = True
-    End If
-    
 End Sub
 
 Private Sub txtDate_Change()
@@ -4235,14 +4269,181 @@ End Sub
 
 Private Sub txtDate_LostFocus()
     cValidate.LostFocus txtDate
-    If cValidate.FirstInvalidInput < 0 Then
-        cmdProcess.Enabled = True
+    cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+End Sub
+
+Private Sub txtFrequency_Change()
+    cValidate.Change txtFrequency
+    tgcDropdown.Change txtFrequency
+    cmdProcess.Enabled = False
+End Sub
+
+Private Sub txtFrequency_GotFocus()
+    tgcDropdown.GotFocus txtFrequency
+    cValidate.GotFocus txtFrequency
+    
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus txtEmpProcess
+    End If
+    
+End Sub
+
+Private Sub txtFrequency_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    KeyAscii = Asc(UCase$(Chr$(KeyAscii)))
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtFrequency) = fnSetComboSQL(txtFrequency.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtFrequency, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+       If KeyAscii = vbKeyReturn Then
+          If tgcDropdown.SingleRecordSelected Then
+                subSetFocus txtEmpProcess
+                Screen.MousePointer = vbDefault
+          End If
+          KeyAscii = 0
+       End If
+    Else
+        cValidate.Keypress txtFrequency, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtFrequency_LostFocus()
+    tgcDropdown.LostFocus txtFrequency
+    If cValidate.LostFocus(txtFrequency, cmdFrequency) Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
     End If
 End Sub
 
 Private Sub cmdFrequency_Click()
     tgcDropdown.ComboSQL(txtFrequency) = fnSetComboSQL(txtFrequency.TabIndex)
     tgcDropdown.Click cmdFrequency
+End Sub
+
+Private Sub txtEmpProcess_Change()
+    cmdProcess.Enabled = False
+    cValidate.Change txtEmpProcess
+    tgcDropdown.Change txtEmpProcess
+End Sub
+
+Private Sub txtEmpProcess_GotFocus()
+    tgcDropdown.GotFocus txtEmpProcess
+    cValidate.GotFocus txtEmpProcess
+    
+    If tgcDropdown.SingleRecordSelected Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+        If cmdProcess.Enabled Then
+            subSetFocus cmdProcess
+        End If
+        Screen.MousePointer = vbDefault
+    End If
+    
+End Sub
+
+Private Sub txtEmpProcess_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtEmpProcess) = fnSetComboSQL(txtEmpProcess.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtEmpProcess, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+       If KeyAscii = vbKeyReturn Then
+          If tgcDropdown.SingleRecordSelected Then
+                cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+                If cmdProcess.Enabled Then
+                    subSetFocus cmdProcess
+                End If
+                Screen.MousePointer = vbDefault
+          End If
+          KeyAscii = 0
+       End If
+    Else
+        cValidate.Keypress txtEmpProcess, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtEmpProcess_LostFocus()
+    tgcDropdown.LostFocus txtEmpProcess
+    If cValidate.LostFocus(txtEmpProcess, cmdEmpProcess, txtEmpNameProcess, cmdEmpName) Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+    End If
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtEmpNameProcess_Change()
+    tgcDropdown.Change txtEmpNameProcess
+End Sub
+
+Private Sub txtEmpNameProcess_GotFocus()
+    tfnSetStatusBarMessage "Enter EmpProcess Name"
+    tgcDropdown.GotFocus txtEmpNameProcess
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+        If cmdProcess.Enabled Then
+            subSetFocus cmdProcess
+        End If
+        Screen.MousePointer = vbDefault
+    End If
+End Sub
+
+Private Sub txtEmpNameProcess_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtEmpNameProcess) = fnSetComboSQL(txtEmpNameProcess.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+    
+    bKeyCode = tgcDropdown.Keypress(txtEmpNameProcess, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+                If cmdProcess.Enabled Then
+                    subSetFocus cmdProcess
+                End If
+                Screen.MousePointer = vbDefault
+            End If
+        KeyAscii = 0
+        End If
+    End If
+End Sub
+
+Private Sub txtEmpNameProcess_LostFocus()
+    tgcDropdown.LostFocus txtEmpNameProcess
+    If cValidate.LostFocus(txtEmpProcess, cmdEmpProcess, txtEmpNameProcess, cmdEmpName) Then
+        cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
+    End If
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdEmpProcess_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.ComboSQL(txtEmpProcess) = fnSetComboSQL(txtEmpProcess.TabIndex)
+    tgcDropdown.Click cmdEmpProcess
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdEmpNameProcess_Click()
+    tgcDropdown.ComboSQL(txtEmpNameProcess) = fnSetComboSQL(txtEmpNameProcess.TabIndex)
+    tgcDropdown.Click cmdEmpNameProcess
 End Sub
 
 Private Function fnValidPrftCtr(Box As Textbox) As Boolean
@@ -4343,7 +4544,7 @@ Private Function fnGetEmployeeName(sEmpNo As String) As String
     
     fnGetEmployeeName = ""
     
-    strSQL = "SELECT prm_empname FROM sTmpCustTable WHERE"
+    strSQL = "SELECT prm_empname FROM sTmpEmpTable WHERE"
     strSQL = strSQL & " prm_empno = " & tfnRound(sEmpNo)
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
@@ -4351,7 +4552,7 @@ Private Function fnGetEmployeeName(sEmpNo As String) As String
         Exit Function
     End If
     
-    If rsTemp.RecordCount = 1 Then
+    If rsTemp.RecordCount > 0 Then
         fnGetEmployeeName = fnGetField(rsTemp!prm_empname)
     End If
     
@@ -4413,8 +4614,8 @@ Public Function fnValidCellValue(Table As TDBGrid, ByVal nCol As Integer, _
                     Else
                         fnValidCellValue = True
                     End If
-'                Case colSFromDate, colSToDate
-'                    fnValidCellValue = fnValidGridFromToDate(sText, nCol, lRow)
+                Case colSFromDate, colSToDate
+                    fnValidCellValue = fnValidGridFromToDate(sText, nCol, lRow)
             End Select
         Case tblTimeCard.TabIndex
             fnValidCellValue = objHours.fnValidCellValue(Table, nCol, lRow, sText)
@@ -4804,6 +5005,17 @@ Private Function fnValidGridPrftCtr(sText As String, nCol As Integer, lRow As Lo
     
     tgmSales.CellValue(colSPrftName, lRow) = fnGetField(rsTemp!prft_name)
     
+    If fnCstr(tgmSales.CellValue(colSFromDate, lRow)) = "" Then
+        tgmSales.CellValue(colSFromDate, lRow) = txtFromDate
+        tgmSales.CellValue(colSToDate, lRow) = txtToDate
+    End If
+    
+    If ActiveControl Is tblDropDown(TabSales) Then
+        tblSales.col = colSPrftName
+    Else
+        tblSales.col = colSAmount
+    End If
+    
     fnValidGridPrftCtr = True
     
 End Function
@@ -5025,6 +5237,9 @@ Private Sub tblSales_AfterColEdit(ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    If ColIndex = colSPrftCtr Then
+        tgmSales.CellValue(colSPrftName, tgmSales.GetCurrentRowNumber) = ""
+    End If
     tgmSales.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
@@ -5177,45 +5392,45 @@ Private Sub subSetStdBtn(Index As Integer, tgmEditor As clsTGSpreadSheet)
     
 End Sub
 
-'Private Function fnValidGridFromToDate(sText As String, nCol As Integer, lRow As Long) As Boolean
-'    Const SUB_NAME As String = "fnValidGridFromToDate"
-'    Dim strSQL As String
-'    Dim rsTemp As Recordset
-'    Dim sTemp As String
-'
-'    fnValidGridFromToDate = True
-'    Exit Function
-'
-'    If nCol = colSFromDate Then
-'        sTemp = "From Date"
-'    Else
-'        sTemp = "To Date"
-'    End If
-'
-'    If Trim(sText) = "" Then
-'        tgmSales.ErrorMessage(nCol) = "You must enter a " & sTemp
-'        Exit Function
-'    End If
-'
-'    If Len(Trim(sText)) < 6 Then
-'        tgmSales.ErrorMessage(nCol) = "Invalid date format"
-'        Exit Function
-'    End If
-'
-'    If nCol = colSFromDate Then
-'        tgmSales.CellValue(colSFromDate, lRow) = CDate(tfnFormatDate(sText))
-'    Else
-'        tgmSales.CellValue(colSToDate, lRow) = CDate(tfnFormatDate(sText))
-'    End If
-'
-'    If Not IsDate(Trim(sText)) Then
-'        tgmSales.ErrorMessage(nCol) = "Invalid date format"
-'        Exit Function
-'    End If
-'
-'    fnValidGridFromToDate = True
-'
-'End Function
+Private Function fnValidGridFromToDate(sText As String, nCol As Integer, lRow As Long) As Boolean
+    Const SUB_NAME As String = "fnValidGridFromToDate"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sTemp As String
+
+    fnValidGridFromToDate = True
+    Exit Function
+
+    If nCol = colSFromDate Then
+        sTemp = "From Date"
+    Else
+        sTemp = "To Date"
+    End If
+
+    If Trim(sText) = "" Then
+        tgmSales.ErrorMessage(nCol) = "You must enter a " & sTemp
+        Exit Function
+    End If
+
+    If Len(Trim(sText)) < 6 Then
+        tgmSales.ErrorMessage(nCol) = "Invalid date format"
+        Exit Function
+    End If
+
+    If nCol = colSFromDate Then
+        tgmSales.CellValue(colSFromDate, lRow) = CDate(tfnFormatDate(sText))
+    Else
+        tgmSales.CellValue(colSToDate, lRow) = CDate(tfnFormatDate(sText))
+    End If
+
+    If Not IsDate(Trim(sText)) Then
+        tgmSales.ErrorMessage(nCol) = "Invalid date format"
+        Exit Function
+    End If
+
+    fnValidGridFromToDate = True
+
+End Function
 
 Private Function fnLoadSales() As String
     Const SUB_NAME As String = "fnLoadSales"
@@ -5232,7 +5447,9 @@ Private Function fnLoadSales() As String
     
     If rsTemp.RecordCount = 0 Then
         If t_nFormMode = ADD_MODE Then
-            fnLoadSales = "No Sales record available to Add"
+            If MsgBox("Sales record not available for the From Date and To Date. Do you want to continue?", vbQuestion + vbYesNo) = vbNo Then
+                fnLoadSales = "No Sales record available to Add"
+            End If
         Else
             fnLoadSales = "No Sales record available to Edit"
         End If
@@ -5242,18 +5459,18 @@ Private Function fnLoadSales() As String
     tgmSales.FillWithRecordset rsTemp
     
     'fill the date??
-'    For i = 0 To tgmSales.RowCount - 1
-'        If t_nFormMode = ADD_MODE Then
-'            tgmSales.CellValue(colSFromDate, i) = txtFromDate
-'            tgmSales.CellValue(colSToDate, i) = txtToDate
-'        Else
-'            tgmSales.CellValue(colSFromDate, i) = tfnFormatDate(tgmSales.CellValue(colSFromDate, i))
-'            tgmSales.CellValue(colSToDate, i) = tfnFormatDate(tgmSales.CellValue(colSToDate, i))
-'        End If
-'    Next i
-'
-'    tgmSales.Rebind
-'    DoEvents
+    For i = 0 To tgmSales.RowCount - 1
+        If t_nFormMode = ADD_MODE Then
+            tgmSales.CellValue(colSFromDate, i) = txtFromDate
+            tgmSales.CellValue(colSToDate, i) = txtToDate
+        Else
+            tgmSales.CellValue(colSFromDate, i) = tfnFormatDate(tgmSales.CellValue(colSFromDate, i))
+            tgmSales.CellValue(colSToDate, i) = tfnFormatDate(tgmSales.CellValue(colSToDate, i))
+        End If
+    Next i
+
+    tgmSales.Rebind
+    DoEvents
     
     fnLoadSales = ""
 
@@ -5468,6 +5685,12 @@ Private Function fnCheckDuplicateInGrid() As Boolean
     Next lRow
 
     fnCheckDuplicateInGrid = True
+End Function
+
+Private Function fnCstr(v) As String
+    If Not IsNull(v) Then
+        fnCstr = Trim(v)
+    End If
 End Function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
