@@ -3194,6 +3194,7 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
     End If
     lblStatusbar.Refresh
 End Sub
+
 Public Function Change() As Boolean
 '
 ' Check the changed text against the regular expression for that column
@@ -4870,4 +4871,17 @@ errTrap:
     'error, no sort
 End Function
 
+Public Function GetErrorMessage(lRow As Long, nCol As Integer) As String
+    Dim nECol As Integer
+    Dim bFlag As Boolean
+    
+    nECol = fnColumnNumber(nCol)
+    
+    If nECol < 0 Or lRow < 0 Then
+        Exit Function
+    End If
+
+    'fnValidate nCol, lRow, fnGetUserData(MakeBookmark(lRow), nCol)
+    GetErrorMessage = sErrMessage(nECol)
+End Function
 
