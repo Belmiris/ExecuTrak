@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1339,6 +1339,7 @@ Begin VB.Form frmZZSEBPRC
                         Left            =   6036
                         OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
                         TabIndex        =   24
+                        TabStop         =   0   'False
                         Top             =   696
                         Width           =   2268
                      End
@@ -1875,7 +1876,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1912,7 +1913,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1949,7 +1950,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1986,7 +1987,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2023,7 +2024,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2060,7 +2061,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2430,7 +2431,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2443,7 +2444,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2590,7 +2591,7 @@ Attribute VB_Exposed = False
 'Copyright (c) 1999 FACTOR, A Division of W.R.Hess Company             *
 'Program ID     : ZZSEBPRC                                             *
 'Date Compiled  : 28 Dec 00                                            *
-'Programmer     : David Chai                                           *
+'Programmer     : David Chai, Junsong Qiu                                           *
 '***********************************************************************
 Option Explicit
 
@@ -2648,7 +2649,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -2688,7 +2689,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2697,8 +2698,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2798,10 +2799,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -3330,10 +3331,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -3358,9 +3359,11 @@ Private Sub tfnResetScreen(Index As Integer)
             tblDetails.Enabled = True
             subEnablePrint Index, False
             cValidDetail.ResetFlags
+           
             If eTabMain.CurrTab = TabDetails Then
                 subSetFocus txtEmployee
             End If
+    
     End Select
     
     frmContext.ButtonEnabled(COPY_UP) = False
@@ -3390,10 +3393,10 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOK.Enabled = True
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -3695,6 +3698,7 @@ Private Sub cmdProcess_Click()
     If bShowDetail Then
         subLogErrMsg "Log will be saved in " + sLogFilePath
     End If
+    
     subLogErrMsg " "
     
     subLogErrMsg "Started processing commission formulas..."
@@ -3714,6 +3718,7 @@ Private Sub cmdProcess_Click()
     
     'get sysparm#30854
     strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 30854"
+    
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
         subLogErrMsg "Failed to access the database."
         subLogErrMsg "Processing terminates."
@@ -3721,10 +3726,13 @@ Private Sub cmdProcess_Click()
     End If
     
     If rsTemp.RecordCount > 0 Then
+        
         If IsNull(rsTemp!parm_field) Then
+            
             If bShowDetail Then
                 subLogErrMsg "SysParm#30854 is NULL"
             End If
+        
         Else
             sSysParm30854 = UCase(rsTemp!parm_field)
             
@@ -3735,6 +3743,7 @@ Private Sub cmdProcess_Click()
             If Len(sSysParm30854) >= 4 Then
                 sPayCode_RegHrs = Left(sSysParm30854, 4)
             End If
+            
             If Len(sSysParm30854) >= 9 Then
                 sPayCode_OtHrs = Trim(Mid(sSysParm30854, 6, 4))
             End If
@@ -3944,8 +3953,10 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             myWidth = Array(0.12, 0.43, 0.15, 0.15, 0.15)
             myField = Array("prft_ctr", "prft_name", "amount", "from_date", "to_date")
         Case "tblTimeCard"
-            myWidth = Array(0.21, 0.21, 0.16, 0.16, 0.26)
-            myField = Array("prh_date", "prh_prft_ctr", "prh_pay_code", "prh_pay_type", "prh_hours")
+'            myWidth = Array(0.21, 0.21, 0.16, 0.16, 0.26)
+'            myField = Array("prh_date", "prh_prft_ctr", "prh_pay_code", "prh_pay_type", "prh_hours")
+            myWidth = Array(0.25, 0.25, 0.2, 0.3)
+            myField = Array("bh_date", "bh_prft_ctr", "bh_pay_code", "bh_hours")
         Case "tblProfitCenter"
             myWidth = Array(0.5, 0.5)
             myField = Array("", "")
@@ -3965,6 +3976,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     
     For i = 0 To UBound(myWidth)
         tbl.Columns.Add i
+        
         With tbl.Columns(i)
             .Width = myWidth(i) * (tbl.Width - 255)
             .DataField = myField(i)
@@ -3987,7 +3999,6 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colHClockIn).Caption = "Clock-In Date"
             tbl.Columns(colHPrftCtr).Caption = "Profit Center"
             tbl.Columns(colHPayCode).Caption = "Pay Code"
-            tbl.Columns(colHPayType).Caption = "Pay Type"
             tbl.Columns(colHHrsDol).Caption = "Hours/Dollars"
             tbl.Columns(colHHrsDol).Alignment = vbRightJustify
         Case "tblProfitCenter"

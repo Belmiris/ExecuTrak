@@ -40,8 +40,7 @@ Public ColxSOldPrftCtr As Integer
 Public Const colHClockIn As Integer = 0
 Public Const colHPrftCtr As Integer = 1
 Public Const colHPayCode As Integer = 2
-Public Const colHPayType As Integer = 3
-Public Const colHHrsDol As Integer = 4
+Public Const colHHrsDol As Integer = 3
 Public ColHHdnSource As Integer
 
 'Profit Center Grid Column Names
@@ -720,7 +719,6 @@ End Function
 'return vbYes, vbNo, or vbCancel
 Public Function fnCheckBonusHold() As Integer
     Const SUB_NAME As String = "fnCheckBonusHold"
-    
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sMsg As String
@@ -777,6 +775,11 @@ Public Function fnCheckBonusHold() As Integer
 
     strSQL = "SELECT bh_chk_link FROM bonus_hold"
     strSQL = strSQL & " WHERE bh_chk_link = 0"
+    'do not include pay code is hoursly
+    strSQL = strSQL & " AND bh_pay_code NOT IN (SELECT prpa_pay_code FROM pr_pay "
+    strSQL = strSQL & " WHERE (prpa_type = 'P' AND prpa_calc_method = 'H') "
+    strSQL = strSQL & " OR (prpa_type = 'N' AND prpa_calc_method = 'D'))"
+    
     
     If frmZZSEBPRC!txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
@@ -883,7 +886,7 @@ Public Function fnCheckBonusHold() As Integer
         Exit Function
     End If
     
-    fnCheckBonusHold = True
+    fnCheckBonusHold = vbYes
 End Function
 
 'This function will calculate the amount for 1 Employee, 1 BCode and 1 Level at a time
@@ -1260,15 +1263,19 @@ Private Function fnGetVarValue(lEmpNo As Long, _
                 Exit Function
             End If
             
-            strSQL = "SELECT SUM (prh_hours) AS var_value "
-            strSQL = strSQL & " FROM pr_hours"
-            'changed by junsong 03/19/01
-'            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
-            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
-            strSQL = strSQL & " AND prh_empno = " & lEmpNo
-            'end changed
+            strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
+            strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+            strSQL = strSQL & " AND bh_empno = " & lEmpNo
+            
+'            strSQL = "SELECT SUM (prh_hours) AS var_value "
+'            strSQL = strSQL & " FROM pr_hours"
+'            'changed by junsong 03/19/01
+''            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+''            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+'            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
+'            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_OtHrs)
+'            strSQL = strSQL & " AND prh_empno = " & lEmpNo
+'            'end changed
             
         Case "regular_hours"
             If sPayCode_RegHrs = "" Then
@@ -1276,15 +1283,19 @@ Private Function fnGetVarValue(lEmpNo As Long, _
                 Exit Function
             End If
             
-            strSQL = "SELECT SUM (prh_hours) AS var_value "
-            strSQL = strSQL & " FROM pr_hours"
-            'changed by junsong 03/19/01
-'            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-'            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
-            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
-            strSQL = strSQL & " AND prh_empno = " & lEmpNo
-            'end changed
+            strSQL = "SELECT SUM(bh_hours) AS var_value  FROM bonus_hold "
+            strSQL = strSQL & " WHERE bh_chk_link = 0 AND bh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+            strSQL = strSQL & " AND bh_empno = " & lEmpNo
+            
+'            strSQL = "SELECT SUM (prh_hours) AS var_value "
+'            strSQL = strSQL & " FROM pr_hours"
+'            'changed by junsong 03/19/01
+''            strSQL = strSQL & " WHERE prh_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+''            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+'            strSQL = strSQL & " WHERE prh_chk_lnk = 0 "
+'            strSQL = strSQL & " AND prh_pay_code = " & tfnSQLString(sPayCode_RegHrs)
+'            strSQL = strSQL & " AND prh_empno = " & lEmpNo
+'            'end changed
             
         Case "two_week_sales"
             fnGetVarValue = fnTwoWeekSales(sVinV, sErrMsg, lEmpNo)
