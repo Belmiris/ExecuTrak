@@ -1,4 +1,12 @@
-''''''''''''''''' DONE - 3.25.15 - 11/12/2001 ''''''''''''''''''''''''
+version: 3.26.3
+Date: 12/05/2001
+Description: 
+	Fuel Movement Changing Invoice Terms Fixed.
+	alter table MDelivery ADD szTerms text(5);
+
+
+
+''''''''''''''''' DONE - 3.26.2 - 11/12/2001 ''''''''''''''''''''''''
 version: 3.26.2
 Date: 11/12/2001
 Description: 
