@@ -1435,27 +1435,30 @@ Private Function fnFillTimeCard() As Boolean
         End If
         
         'Vijaya on 12/12/03 Magic#421627
-        Dim sDate As String
-        Dim sMsg As String
-        strSQL = "SELECT zzsemh_empno, zzsemh_date, zzsemh_hours FROM zzse_manager_hour"
-        strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
-        strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
-        If GetRecordSet(rsTemp, strSQL, , "fnFillTimeCard") > 0 Then
-            txtEHMgrHours = Format(fnGetField(rsTemp!zzsemh_hours), "0.00")
-            sDate = fnGetField(rsTemp!zzsemh_date)
-            strSQL = "SELECT prm_date_termed FROM  pr_master"
-            strSQL = strSQL & " WHERE prm_empno=" & tfnRound(fnGetField(rsTemp!zzsemh_empno))
+        If txtEHMgrHours.Visible Then
+            Dim sDate As String
+            Dim sMsg As String
+            strSQL = "SELECT zzsemh_empno, zzsemh_date, zzsemh_hours FROM zzse_manager_hour"
+            strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)
+            strSQL = strSQL & " AND zzsemh_date =" & tfnDateString(txtEHDate, True)
             If GetRecordSet(rsTemp, strSQL, , "fnFillTimeCard") > 0 Then
-                If fnGetField(rsTemp!prm_date_termed) <> "" Then
-                    If CDate(rsTemp!prm_date_termed) >= CDate(sDate) Then
-                        DoEvents
-                        sMsg = "Existing Manager has been terminated prior to the reporting date."
-                        sMsg = sMsg & " Re-enter manager's hour or enter zero to update"
-                        MsgBox sMsg, vbExclamation
+                txtEHMgrHours = Format(fnGetField(rsTemp!zzsemh_hours), "0.00")
+                sDate = fnGetField(rsTemp!zzsemh_date)
+                strSQL = "SELECT prm_date_termed FROM  pr_master"
+                strSQL = strSQL & " WHERE prm_empno=" & tfnRound(fnGetField(rsTemp!zzsemh_empno))
+                If GetRecordSet(rsTemp, strSQL, , "fnFillTimeCard") > 0 Then
+                    If fnGetField(rsTemp!prm_date_termed) <> "" Then
+                        If CDate(rsTemp!prm_date_termed) < CDate(sDate) Then
+                            DoEvents
+                            sMsg = "Existing Manager has been terminated prior to the reporting date."
+                            sMsg = sMsg & " Re-enter manager's hour or enter zero to update"
+                            MsgBox sMsg, vbExclamation
+                        Else
+                            bMgrHoursValid = True
+                        End If
+                    Else
                         bMgrHoursValid = True
                     End If
-                Else
-                    bMgrHoursValid = True
                 End If
             End If
         End If
@@ -1675,8 +1678,10 @@ Private Function fnInsertUpdate() As Boolean
         fnInsertUpdate = fnInsert
     End If
     
-    If t_nFormMode = EDIT_MODE Then
+    If t_nFormMode = EDIT_MODE And tgcEditor.GetChangedRowCount > 0 Then
         fnInsertUpdate = fnUpdate
+    Else
+        fnInsertUpdate = True
     End If
         
     'Vijaya on 12/12/03 Magic#421627
@@ -1876,9 +1881,8 @@ Private Sub tfnResetScreen()
     txtEHDate.Text = ""
     
     'Vijaya on 12/12/03 Magic#421627
-    If txtEHMgrHours.Visible Then
-        txtEHMgrHours = ""
-    End If
+    txtEHMgrHours = ""
+    bMgrHoursValid = False
     ''''''''''''''''''''''''''''''''
     
     nDataStatus = DATA_INI
@@ -2652,8 +2656,12 @@ Public Function fnInsertzzse_manager_hour() As Boolean
     Dim rsTemp As Recordset
     Dim lEmpNo As Long
     
-    fnInsertzzse_manager_hour = False
+    If Not txtEHMgrHours.Visible Then
+        fnInsertzzse_manager_hour = True
+        Exit Function
+    End If
     
+    fnInsertzzse_manager_hour = False
     If Trim(txtEHMgrHours) = "" Or Trim(txtEHMgrHours) = 0 Then
         strSQL = "DELETE FROM zzse_manager_hour"
         strSQL = strSQL & " WHERE zzsemh_prft_ctr =" & tfnRound(txtEHPrftCtr)

@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
-Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
+Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "facttab.ocx"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmZZSEBPRC 
@@ -586,7 +586,7 @@ Begin VB.Form frmZZSEBPRC
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            = 9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -973,7 +973,7 @@ Begin VB.Form frmZZSEBPRC
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            = 9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -3161,7 +3161,7 @@ Begin VB.Form frmZZSEBPRC
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            = 9.75
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -3398,7 +3398,7 @@ Begin VB.Form frmZZSEBPRC
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            = 9.75
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -3750,10 +3750,6 @@ Private objOTProcessor As clsOTProcessor
 Private bLoadingBonusDetail As Boolean
 Private bProcessing As Boolean
 Private bCancelProcess As Boolean
-
-'Vijaya on 12/12/03 Magic#421627
-Private bZZSE_MANAGER_HOUR_TableExits As Boolean
-''''''''''''''''''''''''''''''''
 '
 
 Private Sub chkHourly_GotFocus()
@@ -4145,8 +4141,7 @@ Private Sub Form_Load()
     #End If
     
     'Vijaya on 12/12/03 Magic#421627
-    bZZSE_MANAGER_HOUR_TableExits = fnCheckFieldExist("zzse_manager_hour", "zzsemh_hours")
-    If Not bZZSE_MANAGER_HOUR_TableExits Then
+    If Not fnCheckFieldExist("zzse_manager_hour", "zzsemh_hours") Then
         lblMgrHours.Visible = False
         txtMgrHours.Visible = False
     End If
