@@ -20,6 +20,7 @@ Module=modWJBASIC; ..\..\..\Shared\WJBASIC.bas
 Class=cValidateInput; ..\..\..\SHARED\ClsFiles\Cvalid.cls
 Class=clsTGSpreadSheet; ..\..\..\SHARED\ClsFiles\Tgeditor.cls
 Class=clsTGSelector; ..\..\..\SHARED\ClsFiles\tgselect.cls
+Class=clsEquation; ..\..\..\SHARED\ClsFiles\Equation.cls
 IconForm="frmZZSEBFMT"
 Startup="frmZZSEBFMT"
 HelpFile="FACTOR.HLP"
@@ -42,7 +43,7 @@ VersionFileDescription="ZZSEBFMT.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : CANCEL_EDIT = -1 : SELECT_ON_ENTER = -1 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : CANCEL_EDIT = -1 : SELECT_ON_ENTER = -1 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0

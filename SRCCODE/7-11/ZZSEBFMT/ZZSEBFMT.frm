@@ -576,7 +576,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -612,7 +612,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -648,7 +648,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -684,7 +684,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -720,7 +720,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -756,7 +756,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.46
+            Size            =   9.6
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -877,7 +877,7 @@ Begin VB.Form frmZZSEBFMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -890,7 +890,7 @@ Begin VB.Form frmZZSEBFMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1317,10 +1317,10 @@ Private Sub Form_Load()
     Dim sErrorMessage As String
     
     #If Not PROTOTYPE Then
-        'If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
-        '    Unload Me
-        '    Exit Sub
-        'End If
+        If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
+            Unload Me
+            Exit Sub
+        End If
         
         'open the database, ODBC Dialog Box during developemnt, oleObject Connection String when not
         If Not tfnOpenDatabase(False, sErrorMessage) Then
@@ -1613,6 +1613,8 @@ Private Sub tfnResetScreen()
     txtAdjFormula = ""
     txtAdjCond = ""
     
+    tblEditSelect.Enabled = False
+    
     t_bDataChanged = False
     bDataLoaded = False
     
@@ -1638,6 +1640,8 @@ Private Sub tfnResetScreen()
     Screen.MousePointer = vbDefault
     
     subSetFocus cmdAddBtn
+
+    Set cValidate.LastBox = txtBonusCode
 End Sub
 
 Private Sub tblComboDropDown_Click()
@@ -1656,8 +1660,8 @@ Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -1733,7 +1737,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1798,6 +1802,14 @@ Private Sub txtBonusCode_Change()
 End Sub
 
 Private Sub txtBonusCode_GotFocus()
+    If txtAdjCond.Enabled Then
+        Set cValidate.LastBox = txtAdjCond
+    ElseIf txtLevel.Enabled Then
+        Set cValidate.LastBox = txtLevel
+    Else
+        Set cValidate.LastBox = txtBonusCode
+    End If
+    
     tgcDropdown.GotFocus txtBonusCode
     cValidate.GotFocus txtBonusCode
     
@@ -1860,7 +1872,15 @@ Private Sub txtBonusCodeDesc_Change()
 End Sub
 
 Private Sub txtBonusCodeDesc_GotFocus()
-    tfnSetStatusBarMessage "Enter BonusCode Description"
+    If txtAdjCond.Enabled Then
+        Set cValidate.LastBox = txtAdjCond
+    ElseIf txtLevel.Enabled Then
+        Set cValidate.LastBox = txtLevel
+    Else
+        Set cValidate.LastBox = txtBonusCode
+    End If
+    
+'    tfnSetStatusBarMessage "Enter BonusCode Description"
     tgcDropdown.GotFocus txtBonusCodeDesc
     Screen.MousePointer = vbDefault
     
@@ -1906,26 +1926,30 @@ Private Sub cmdBonusCodeDesc_Click()
 End Sub
 
 Private Function fnSetComboSQL(nTabIndex) As String
-    Dim sSql As String
+    Dim strSQL As String
     
     Select Case nTabIndex
         Case txtBonusCode.TabIndex, txtBonusCodeDesc.TabIndex
             If t_nFormMode = ADD_MODE Then
-                sSql = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes"
+                strSQL = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes"
+                If tfnRound(txtLevel) > 0 Then
+                    strSQL = strSQL + " WHERE bc_bonus_code NOT IN (SELECT bf_bonus_code FROM"
+                    strSQL = strSQL + " bonus_formula WHERE bf_level = " & tfnRound(txtLevel) & ")"
+                End If
             Else
-                sSql = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_formula"
-                sSql = sSql + " WHERE bc_bonus_code = bf_bonus_code"
+                strSQL = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_formula"
+                strSQL = strSQL + " WHERE bc_bonus_code = bf_bonus_code"
             End If
         Case txtLevel.TabIndex
-            sSql = "SELECT bf_level FROM bonus_formula"
+            strSQL = "SELECT bf_level FROM bonus_formula"
             If txtBonusCode <> "" Then
-                sSql = sSql & " WHERE bf_bonus_code = " & tfnSQLString(Trim(txtBonusCode))
+                strSQL = strSQL & " WHERE bf_bonus_code = " & tfnSQLString(Trim(txtBonusCode))
             End If
         Case txtVariable1.TabIndex, txtVariable2.TabIndex, txtVariable3.TabIndex
-            sSql = "SELECT variable FROM tmpVariable"
+            strSQL = "SELECT variable FROM tmpVariable"
     End Select
     
-    fnSetComboSQL = sSql
+    fnSetComboSQL = strSQL
 End Function
 
 Private Sub subInitValidation()
@@ -1973,6 +1997,12 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
             fnInvalidData = Not fnValidFormula(txtBox)
         Case txtCondition.TabIndex, txtAdjCond.TabIndex
             fnInvalidData = Not fnValidCondition(txtBox)
+        Case txtPercent.TabIndex, txtDollar.TabIndex, txtAmount1.TabIndex, txtAmount2.TabIndex
+            If t_nFormMode <> IDLE_MODE Then
+                If txtBox = "" Then
+                    txtBox = "0.00"
+                End If
+            End If
         Case Else
             fnInvalidData = False
     End Select
@@ -2019,7 +2049,7 @@ Private Function fnValidBonusCode(Box As Textbox) As Boolean
         
         If GetRecordCount(strSQL, , SUB_NAME) = 1 Then
             If t_nFormMode = ADD_MODE Then
-                cValidate.SetErrorMessage Box, "Commission formula already exists for this combination"
+                cValidate.SetErrorMessage Box, "Comm. formula, Level " & txtLevel & " already exists"
                 Exit Function
             End If
         End If
@@ -2131,9 +2161,9 @@ Private Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boole
     If rsTemp.RecordCount = 1 Then
         txtBonusCodeDesc = fnGetBonusCodeDesc(sCode)
         txtPercent = tfnRound(rsTemp!bf_percent, DEFAULT_DECIMALS)
-        txtDollar = tfnRound(rsTemp!bf_dollar, 2)
-        txtAmount1 = tfnRound(rsTemp!bf_amount1, DEFAULT_DECIMALS)
-        txtAmount2 = tfnRound(rsTemp!bf_amount2, DEFAULT_DECIMALS)
+        txtDollar = tfnFormatDecimal(rsTemp!bf_dollar, 2)
+        txtAmount1 = tfnFormatDecimal(rsTemp!bf_amount1, 2, DEFAULT_DECIMALS)
+        txtAmount2 = tfnFormatDecimal(rsTemp!bf_amount2, 2, DEFAULT_DECIMALS)
         txtMaxTotal = tfnRound(rsTemp!bf_max_total, 2)
         txtVariable1 = fnGetField(rsTemp!bf_variable1)
         txtVariable2 = fnGetField(rsTemp!bf_variable2)
@@ -2158,6 +2188,10 @@ Private Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boole
         txtCondition.Tag = txtCondition
         txtAdjFormula.Tag = txtAdjFormula
         txtAdjCond.Tag = txtAdjCond
+    End If
+    
+    If txtBonusType.Caption <> "" Then
+        subEnableVariables Trim(txtBonusType)
     End If
     
     t_bDataChanged = False
@@ -2254,6 +2288,14 @@ Private Sub txtlevel_Change()
 End Sub
 
 Private Sub txtlevel_GotFocus()
+    If txtAdjCond.Enabled Then
+        Set cValidate.LastBox = txtAdjCond
+    ElseIf txtLevel.Enabled Then
+        Set cValidate.LastBox = txtLevel
+    Else
+        Set cValidate.LastBox = txtBonusCode
+    End If
+    
     tgcDropdown.GotFocus txtLevel
     cValidate.GotFocus txtLevel
     
@@ -2290,6 +2332,9 @@ Private Sub txtlevel_KeyPress(KeyAscii As Integer)
             subEnterStageII
             subSetFocus txtPercent
             KeyAscii = 0
+            If Not txtPercent.Enabled Then
+                SendKeys "{TAB}", True
+            End If
         Else
             tfnRegExpControlKeyPress txtLevel, KeyAscii, szIntegerPattern
             cValidate.Keypress txtLevel, KeyAscii
@@ -2323,9 +2368,6 @@ Private Sub subEnterStageII()
     Else
         If fnLoadBonusFormula(txtBonusCode, txtLevel) Then
             cmdDelete.Enabled = True
-            If txtBonusType.Caption <> "" Then
-                subEnableVariables Trim(txtBonusType)
-            End If
         End If
     End If
 
@@ -2350,7 +2392,7 @@ Private Function fnValidLevel(Box As Textbox) As Boolean
         strSQL = strSQL & " AND bf_level = " & tfnRound(Box)
         
         If GetRecordCount(strSQL, , SUB_NAME) = 1 Then
-            cValidate.SetErrorMessage Box, "Commission formula already exists for this combination"
+            cValidate.SetErrorMessage Box, "Comm. formula for this Level already exists"
             Exit Function
         End If
     End If
@@ -2370,6 +2412,14 @@ Private Sub txtPercent_Change()
 End Sub
 
 Private Sub txtPercent_GotFocus()
+    If txtAdjCond.Enabled Then
+        Set cValidate.LastBox = txtAdjCond
+    ElseIf txtLevel.Enabled Then
+        Set cValidate.LastBox = txtLevel
+    Else
+        Set cValidate.LastBox = txtBonusCode
+    End If
+    
     SelectIt txtPercent
     cValidate.GotFocus txtPercent
 End Sub
@@ -2472,7 +2522,11 @@ End Sub
 
 Private Sub txtAmount2_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then
-        subSetFocus txtMaxTotal
+        If txtMaxTotal.Enabled Then
+            subSetFocus txtMaxTotal
+        Else
+            subSetFocus txtVariable1
+        End If
         KeyAscii = 0
     Else
         tfnRegExpControlKeyPress txtAmount2, KeyAscii, tfnDecimalPattern(10, 6, , True)
@@ -2574,7 +2628,7 @@ End Sub
 Private Sub txtVariable1_LostFocus()
     tgcDropdown.LostFocus txtVariable1
     cValidate.LostFocus txtVariable1, cmdVariable1
-    cValidate.ResetFlags
+    'cValidate.ResetFlags
 End Sub
 
 Private Sub txtVariable2_Change()
@@ -2703,7 +2757,7 @@ Private Sub txtFormula_KeyPress(KeyAscii As Integer)
         subSetFocus txtCondition
         KeyAscii = 0
     Else
-        tfnRegExpControlKeyPress txtFormula, KeyAscii, sRxFmla
+        'tfnRegExpControlKeyPress txtFormula, KeyAscii, sRxFmla
         cValidate.Keypress txtFormula, KeyAscii
     End If
 End Sub
@@ -2735,7 +2789,7 @@ Private Sub txtCondition_KeyPress(KeyAscii As Integer)
         subSetFocus txtAdjFormula
         KeyAscii = 0
     Else
-        tfnRegExpControlKeyPress txtCondition, KeyAscii, sRxCnd
+        'tfnRegExpControlKeyPress txtCondition, KeyAscii, sRxCnd
         cValidate.Keypress txtCondition, KeyAscii
     End If
 End Sub
@@ -2767,7 +2821,7 @@ Private Sub txtAdjFormula_KeyPress(KeyAscii As Integer)
         subSetFocus txtAdjCond
         KeyAscii = 0
     Else
-        tfnRegExpControlKeyPress txtAdjFormula, KeyAscii, sRxFmla
+        'tfnRegExpControlKeyPress txtAdjFormula, KeyAscii, sRxFmla
         cValidate.Keypress txtAdjFormula, KeyAscii
     End If
 End Sub
@@ -2803,7 +2857,7 @@ Private Sub txtAdjCond_KeyPress(KeyAscii As Integer)
         End If
         KeyAscii = 0
     Else
-        tfnRegExpControlKeyPress txtAdjCond, KeyAscii, sRxCnd
+        'tfnRegExpControlKeyPress txtAdjCond, KeyAscii, sRxCnd
         cValidate.Keypress txtAdjCond, KeyAscii
     End If
 End Sub
@@ -2898,7 +2952,8 @@ End Function
 
 Private Function fnValidFormula(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidFormula"
-    Dim p1 As Integer
+    
+    Dim sErrMsg As String
     
     fnValidFormula = False
     
@@ -2922,9 +2977,10 @@ Private Function fnValidFormula(Box As Textbox) As Boolean
         Exit Function
     End If
     
-    p1 = InStr(1, Box, "(")
-    If InStr(1, Box, ")") <> p1 Then
-        cValidate.SetErrorMessage Box, "Invalid commission formula, check parenthesis '()'"
+    sErrMsg = fnCheckFormula(Box)
+    
+    If sErrMsg <> "" Then
+        cValidate.SetErrorMessage Box, sErrMsg
         Exit Function
     End If
     
@@ -2959,13 +3015,16 @@ Private Sub subEnableVariables(sBonusType As String)
         Exit Sub
     End If
     
+    On Error GoTo errTrap
+    
+    'number of variables allowed
     nVarAllowed = Mid(sBonusType, 2, 1)
     Select Case nVarAllowed
         Case 1
             txtVariable2 = "Not Used"
-            txtVariable3 = "Not Used"
             txtVariable2.Enabled = False
             subEnableSearchbtn cmdVariable2, False
+            txtVariable3 = "Not Used"
             txtVariable3.Enabled = False
             subEnableSearchbtn cmdVariable3, False
         Case 2
@@ -2974,8 +3033,18 @@ Private Sub subEnableVariables(sBonusType As String)
             subEnableSearchbtn cmdVariable3, False
     End Select
     
-    subBuildRegExp nVarAllowed
+    'subBuildRegExp nVarAllowed
+    
+    'max total allowed
+    If UCase(Right(sBonusType, 1)) <> "E" Then
+        txtMaxTotal = "Not Used"
+        txtMaxTotal.Enabled = False
+    End If
 
+    Exit Sub
+    
+errTrap:
+    tfnErrHandler "subEnableVariables"
 End Sub
 
 Private Sub subBuildRegExp(nVariableInUse As Integer)
@@ -3041,7 +3110,7 @@ Private Sub subSetGridWidth()
     
     myWidth = Array(600, 2500, 560, 3250, 3250, 630, 630, 850, 850, 850, 920, _
         920, 920, 920, 3250, 3250)
-    myField = Array("bf_bonus_code", "bf_code_desc", "bf_level", "bf_formula", "bf_condition", _
+    myField = Array("bf_bonus_code", "bc_code_desc", "bf_level", "bf_formula", "bf_condition", _
         "bc_type", "bf_percent", "bf_dollar", "bf_amount1", "bf_amount2", "bf_variable1", _
          "bf_variable2", "bf_variable3", "bf_max_total", "bf_adj_formula", "bf_adj_condition")
     
@@ -3108,6 +3177,8 @@ Private Function fnLoadEditSelectGrid()
     strSQL = "SELECT * FROM bonus_formula, bonus_codes"
     strSQL = strSQL & " WHERE bf_bonus_code = bc_bonus_code"
     strSQL = strSQL & " ORDER BY bf_bonus_code, bf_level"
+        
+    tblEditSelect.Enabled = True
         
     tgmEditSelect.AllowAddNew = False
     tgmEditSelect.FillWithSQL t_dbMainDatabase, strSQL
@@ -3185,8 +3256,8 @@ Private Sub tblEditSelect_LostFocus()
     tgmEditSelect.LostFocus
 End Sub
 
-Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgsEditSelect.MouseUp Button, Shift, y
+Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsEditSelect.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblEditSelect_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3203,4 +3274,88 @@ Private Sub tblEditSelect_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, 
     tgmEditSelect.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
+'return error message if any
+Private Function fnCheckFormula(ByVal sFormula As String) As String
+    Const sOP As String = "+-*/()"
+    
+    Dim i As Integer
+    Dim sTemp As String
+    Dim sTemp1 As String
+    Dim sChar As String
+    Dim nPosi As Integer
+    Dim aryVariables As Variant
+    Dim aryValues As Variant
+    Dim objEvaluate As clsEquation
+    
+    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
+    aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
+
+    
+    Set objEvaluate = New clsEquation
+    
+    For i = 0 To UBound(aryVariables)
+        objEvaluate.Var(CStr(aryVariables(i))) = aryValues(i)
+    Next i
+    
+    objEvaluate.Equation = sFormula
+    
+    fnCheckFormula = objEvaluate.Solve()
+    
+    Set objEvaluate = Nothing
+End Function
+
+'return error message if any
+Private Function fnCheckCondition(ByVal sCond As String) As String
+    Const sOP As String = "+-*/()"
+    
+    Dim i As Integer
+    Dim sTemp As String
+    Dim sTemp1 As String
+    Dim sChar As String
+    Dim nPosi As Integer
+    Dim aryVariables As Variant
+    
+    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
+    
+    'remove condition operator
+    For i = 1 To Len(sCond)
+        sChar = Mid(sCond, i, 1)
+        If sChar <> " " Then
+            If InStr(sOP, sChar) <= 0 Then
+                sTemp = sTemp + Mid(sCond, i, 1)
+            End If
+        End If
+    Next i
+    
+    If sTemp = "" Then
+        fnCheckCondition = "variables is missing in condition"
+        Exit Function
+    End If
+    
+    'remove variales
+    For i = 0 To UBound(aryVariables)
+        nPosi = InStr(sTemp, aryVariables(i))
+        If nPosi > 0 Then
+            sTemp1 = ""
+            If nPosi > 1 Then
+                sTemp1 = Left(sTemp, nPosi - 1)
+            End If
+            If nPosi < Len(sTemp) + Len(aryVariables(i)) Then
+                sTemp1 = sTemp1 + Mid(sTemp, nPosi + Len(aryVariables(i)))
+            End If
+            sTemp = sTemp1
+        End If
+        
+        If sTemp = "" Then
+            Exit For
+        End If
+    Next i
+    
+    If sTemp <> "" Then
+        fnCheckCondition = "condition clause is not correct"
+        Exit Function
+    End If
+    
+    fnCheckCondition = ""
+End Function
 
