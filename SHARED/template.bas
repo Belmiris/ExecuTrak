@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -970,7 +970,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As DataBase
+Public Function tfnOpenLocalDatabase() As Database
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1559,19 +1559,26 @@ End Function
 '
 ' OUTPUT:   none
 
-Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form)
+Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize As Variant)
     
     #If Win32 Then
         Dim nCode As Long
     #Else
         Dim nCode As Integer
     #End If
+    Dim bCloseSize As Boolean
     
+    If IsMissing(vCloseSize) Then
+        bCloseSize = True
+    Else
+        bCloseSize = vCloseSize
+    End If
     nCode = GetSystemMenu(frmForm.hwnd, False)
     Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
-    Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
-    Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
-
+    If bCloseSize Then
+        Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
+        Call ModifyMenu(nCode, SC_MAXIMIZE, 1, 0, "Ma&ximize")
+    End If
 End Sub
 
 ' tfnEnableTBButton
