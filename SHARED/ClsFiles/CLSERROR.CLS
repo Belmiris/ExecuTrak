@@ -258,7 +258,7 @@ Public Property Set FormParent(frmForm As Object)
     Set m_frmParent = frmForm
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
-    sVerInfo = " (Version " & App.Major & "." & App.Minor & "." & App.Revision & ")"
+    sVerInfo = " (Version " & App.Major & "." & App.Minor & "." & Format(App.Revision, "0000") & ")"
     On Error GoTo ErrorSetName
     m_sAppName = App.EXEName & sVerInfo
     Exit Property
