@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Begin VB.Form clsCRITERIA 
    Caption         =   "Criteria"
@@ -2211,7 +2211,7 @@ Private Function fnValidOperator(txtBox As Textbox) As Boolean
         strSQL = "SELECT op FROM temp_operator WHERE op=" & tfnSQLString(fnCStr(txtBox))
         
         Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_DATE, TYPE_STRING, TYPE_PHONE
+        Case TYPE_STRING, TYPE_PHONE
             strSQL = strSQL & " AND op IN ('=','<>')"
         End Select
         
@@ -2393,7 +2393,7 @@ Private Sub subLoadOpSQL()
     Dim strSQL As String
     strSQL = "SELECT op, seq FROM temp_operator"
     Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_DATE, TYPE_STRING, TYPE_PHONE
+        Case TYPE_STRING, TYPE_PHONE
             strSQL = strSQL & " WHERE op IN ('=','<>')"
     End Select
     

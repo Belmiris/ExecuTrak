@@ -282,11 +282,14 @@ Public Sub Click()
     Else
         If m_bTableGotFocus Then
             '02/09/2004
-            'commented out at 02/26/2004
-            'because if we do rebind, one click cannot get into cell edit mode
-            'but it will cause the selectedcells in the same row (columns on the
-            'left of the mouse clicked column) not being cleared
-            ClearSelectedCells 'True
+            'when the selected cell count is greater than zero (one or more cell is selected)
+            'we need to do the rebind to clear the selected cell(s)
+            'note:when doing rebind, one click cannot get into cell edit mode
+            If SelectedCellCount > 0 Then
+                ClearSelectedCells True
+            Else
+                ClearSelectedCells
+            End If
             '''''''''''
             
             If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
@@ -718,39 +721,47 @@ Public Sub LostFocus(Optional bClearHighlight As Boolean = True)
     End If
 End Sub
 
+'david 04/12/2004  #401172-1
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    m_nClickPointX = X
+End Sub
+''''''''''''''''''''''''''''
+
 'david 02/09/2004  #401172-1
 'NEED TO ADD THE X parameter into this function
 'The calls made to this function need to be changed
 'Sorry for the inconvinence
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Integer)
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Integer)
     Dim ShiftTest As Integer
    
     If Button = vbLeftButton Then
         ShiftTest = Shift And 7
         
-        Select Case ShiftTest
-        Case 1 ' or vbShiftMask
-        Case 2 ' or vbCtrlMask
-        Case 4 ' or vbAltMask
-        Case 3  'SHIFT and CTRL
-        Case 5  'SHIFT and ALT
-        Case 6  'CTRL and ALT
-        Case 7  'SHIFT, CTRL, and ALT
-        End Select
+        'Select Case ShiftTest
+        'Case 1 ' or vbShiftMask
+        'Case 2 ' or vbCtrlMask
+        'Case 4 ' or vbAltMask
+        'Case 3  'SHIFT and CTRL
+        'Case 5  'SHIFT and ALT
+        'Case 6  'CTRL and ALT
+        'Case 7  'SHIFT, CTRL, and ALT
+        'End Select
         
         'david 02/09/2004  #401172-1
-        If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
-            If ShiftTest <> vbShiftMask Then
-                m_nLastClickedRow = -1
+        If IsMultiSelectCellColumn(m_tgTable.ColContaining(m_nClickPointX)) Then
+            If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
+                If ShiftTest <> vbShiftMask Then
+                    m_nLastClickedRow = -1
+                End If
+            
+                ClearSelectedCells
             End If
-        
-            ClearSelectedCells
         End If
         ''''''''''''''''''''''''''''
         
         m_nShiftControl = Shift
-        m_nClickPointX = x
-        m_nClickPointY = y
+        m_nClickPointX = X
+        m_nClickPointY = Y
         DoEvents
     End If
 End Sub
