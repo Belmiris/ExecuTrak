@@ -838,8 +838,8 @@ End Function
 
 '// Calculates and returns the taxes
 Public Function fnGetTaxAmount1(szProduct As String, _
-                               ByVal lNet As Long, _
-                               ByVal lGross As Long, _
+                               ByVal lNet As Double, _
+                               ByVal lGross As Double, _
                                ByVal fDollarBase As Double, _
                                ByVal fFreight As Double, _
                                szTaxUseGroup As String, _
