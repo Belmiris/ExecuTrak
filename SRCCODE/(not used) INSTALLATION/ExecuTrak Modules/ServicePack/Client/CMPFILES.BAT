@@ -41,6 +41,10 @@ echo Compress updated factor menu files
 icomp G:\PROGRAM\RELEASE\Exectrak\SERVPACK\*.* ..\disk\disk1\servfact.z 
 
 echo .
+echo Compress updated dtnctrl files
+icomp G:\PROGRAM\RELEASE\Exectrak\SERVPACK\*.* ..\disk\disk1\servdtnc.z 
+
+echo .
 echo Done
 
 goto finished

@@ -72,7 +72,7 @@ declare
 	prototype DecompressServicePack(STRING, LIST);
 	prototype DeleteServiceZDirectory(LIST);
 	prototype CopyServicePackFile(LIST, STRING);
-	prototype CheckCopyFiles(LIST, STRING, STRING, BOOL, BOOL);
+	prototype CheckCopyFiles(LIST, STRING, STRING, BOOL, BOOL, BOOL, BOOL);
 
 
 // the script starts here
@@ -694,7 +694,7 @@ function CopyServicePackFile(lstZDir, szBin)
 	STRING szPath, szName, svFileName, szDest, szDir;
 	NUMBER nReturn, nResult, nvPosi;
 	LIST lstFileList;
-	BOOL bSharedFile, bSelfRegister;
+	BOOL bSharedFile, bSelfRegister, bAlwaysCopy, bNeverCopy;
 
 begin
 
@@ -738,6 +738,8 @@ begin
 				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
 				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+			elseif szName = "SERVDTNC.Z" then
+				szDest = szDir ^ "DTNCTRL";  // ?:\FACTOR\EXECTRAK\DTNCTRL
 			elseif szName = "LOCALDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
@@ -746,6 +748,20 @@ begin
 			else
 				szDest = WINSYSDIR;
 				bSharedFile = TRUE;
+			endif;
+
+			//david 07/12/00
+			//special handling
+
+			bAlwaysCopy = FALSE;
+			bNeverCopy = FALSE;
+
+			if (szName = "SERVDTNC.Z") then
+				if fnFindFile(szBin, "EC*.EXE") then
+					bAlwaysCopy = TRUE;
+				else
+					bNeverCopy = TRUE;
+				endif;
 			endif;
 
 			ListDestroy(lstFileList);
@@ -767,7 +783,9 @@ begin
 		                nResult = FindAllFiles(szPath, "*.*", svFileName, CONTINUE);
 		        endwhile;
 
-			CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, bSelfRegister);
+			//david 07/12/00
+			CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, 
+				bSelfRegister, bAlwaysCopy, bNeverCopy);
 	        endif;
 
                 nReturn = ListSetIndex (lstZDir, LISTNEXT);
@@ -780,9 +798,13 @@ begin
 end;
 
 
-function CheckCopyFiles(lstFileList, szFrom, szDest, bSharedFile, bSelfRegister)
+//david 07/12/00
+//add one more parameter bAlwaysCopy to copy all files in a directory (such as DTNCTRL),
+//WARNING: for EXE, DLL and etc. directories i.e. SERVBIN, SERVDLL directories
+//this parameter must be set to TRUE
+function CheckCopyFiles(lstFileList, szFrom, szDest, bSharedFile, bSelfRegister, bAlwaysCopy, bNeverCopy)
 
-	STRING szName, szTemp, szVersionFrom, szVersionTo, szDateFrom, szDateTo;
+	STRING szName, szTemp, szVersionFrom, szVersionTo, szDateFrom, szDateTo, szModID;
 	NUMBER nReturn, nvXCopyFileParm, nvPosi, nvNotApplicable;
 	BOOL bGoCopy;
 begin
@@ -795,51 +817,72 @@ begin
         while ((nReturn != END_OF_LIST))
                 ListCurrentString(lstFileList, szName);
 
-		
-		if !bSelfRegister then
-			nvPosi = StrFind(szName, ".MDB");
-			if nvPosi <0 then
-				nvPosi = StrFind(szName, ".QRT");
+		if (!bSelfRegister) then
+			//david 07/12/00
+			//special cases
+			if (bNeverCopy) then
+				bGoCopy = FALSE;
 			endif;
-			if nvPosi >=0 then
+
+			if (bAlwaysCopy) then
 				bGoCopy = TRUE;
-			else // EXE file
-				if fnFindFile(szDest, szName) then
-					szTemp = szFrom ^ szName;
-					if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
-						szVersionFrom = "";
-					endif;
+			endif;
 
-					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
-
-					szTemp = szDest ^ szName;
-					if VerGetFileVersion(szTemp, szVersionTo) != 0 then
-						szVersionTo = "";
-					endif;
-
-					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
-
-					if DEVELOP then
-						MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
-							szVersionFrom + ":\nszVersionTo=" + szVersionTo, INFORMATION);
-					endif;
-
-					if szVersionFrom < szVersionTo then
-						bGoCopy = FALSE;
-					else
-						if szVersionFrom = szVersionTo then
-							// check the date
-							if szDateFrom > szDateTo then
-								bGoCopy = TRUE;
-							else
-								bGoCopy = FALSE;
-							endif;
+			//normal case
+			if ((!bNeverCopy) && (!bAlwaysCopy)) then
+				nvPosi = StrFind(szName, ".MDB");
+				if nvPosi <0 then
+					nvPosi = StrFind(szName, ".QRT");
+				endif;
+				if nvPosi >=0 then
+					bGoCopy = TRUE;
+				else // EXE file
+					if fnFindFile(szDest, szName) then
+						szTemp = szFrom ^ szName;
+						if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
+							szVersionFrom = "";
+						endif;
+	
+						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
+	
+						szTemp = szDest ^ szName;
+						if VerGetFileVersion(szTemp, szVersionTo) != 0 then
+							szVersionTo = "";
+						endif;
+	
+						GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
+	
+						if DEVELOP then
+							MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
+								szVersionFrom + ":\nszVersionTo=" + szVersionTo, INFORMATION);
+						endif;
+	
+						if szVersionFrom < szVersionTo then
+							bGoCopy = FALSE;
 						else
+							if szVersionFrom = szVersionTo then
+								// check the date
+								if szDateFrom > szDateTo then
+									bGoCopy = TRUE;
+								else
+									bGoCopy = FALSE;
+								endif;
+							else
+								bGoCopy = TRUE;
+							endif;
+						endif;
+					else  //EXE file not found
+						//david 07/12/00
+						//take care of releasing new EXE file in service pack
+						//check for first 2 characters in the file name (ModuleID)
+	                			StrSub(szModID, szName, 0, 2);
+	                			szModID = szModID + "*.*";
+						if fnFindFile(szDest, szModID) then
 							bGoCopy = TRUE;
+						else
+							bGoCopy = FALSE;
 						endif;
 					endif;
-				else
-					bGoCopy = FALSE;
 				endif;
 			endif;
 		else
@@ -848,7 +891,7 @@ begin
 
 		if DEVELOP then
 			if bGoCopy then
-				MessageBox("File=" + szName + "\nbGoCopy=TRUE", INFORMATION);
+				MessageBox("File=" + szName + "\nbGoCopy=TRUE\nTo='" + szDest + "'", INFORMATION);
 			else
 				MessageBox("File=" + szName + "\nbGoCopy=FALSE", INFORMATION);
 			endif;
