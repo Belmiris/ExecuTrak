@@ -465,27 +465,38 @@ StartCopy:
         SetStatusWindow(96, "Create " + PRODUCT_NAME + " Default Directories...");
 
 	// create default directory
-	szTemp = szBaseDirectory ^ "EDI" ^ "INCOMING" ^ "INPUT";
+	szTemp = szBaseDirectory ^ "EDI";
+	szFolder = szBaseDirectory ^ "EDI_DATA";
+
+	if (ExistsDir(szTemp) = EXISTS && ExistsDir(szFolder) = NOTEXISTS) then
+        	VarSave(SRCTARGETDIR);
+		TARGETDIR = szBaseDirectory;
+		SRCDIR = TARGETDIR;
+		RenameFile("EDI", "EDI_DATA");
+        	VarRestore(SRCTARGETDIR);
+	endif;
+
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "INCOMING" ^ "INPUT";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
-	szTemp = szBaseDirectory ^ "EDI" ^ "INCOMING" ^ "OUTPUT";
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "INCOMING" ^ "OUTPUT";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
-	szTemp = szBaseDirectory ^ "EDI" ^ "OUTGOING" ^ "INPUT";
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "OUTGOING" ^ "INPUT";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
-	szTemp = szBaseDirectory ^ "EDI" ^ "OUTGOING" ^ "OUTPUT";
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "OUTGOING" ^ "OUTPUT";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
-	szTemp = szBaseDirectory ^ "EDI" ^ "BAK";
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "BAK";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
-	szTemp = szBaseDirectory ^ "EDI" ^ "LOG";
+	szTemp = szBaseDirectory ^ "EDI_DATA" ^ "LOG";
 	if (ExistsDir(szTemp) = NOTEXISTS) then
 		CreateDir(szTemp);
 	endif;
@@ -863,7 +874,7 @@ begin
 
         szSection = "GENERAL";
 	szKey = "WorkPath";
-        szNewValue = szBaseDirectory ^ "EDI" ^ "";
+        szNewValue = szBaseDirectory ^ "EDI_DATA" ^ "";
 
         WriteProfString(szINI, szSection, szKey, szNewValue);
 
