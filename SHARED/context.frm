@@ -89,7 +89,10 @@ Option Explicit
     Private Const CONTROL_TB_FRAME = 1
     Private Const CONTROL_TB_RIGHT = 2
     Private Const CONTROL_TB_PANEL = 3
-    Private Const DELAY_FOR_START = 10
+    'david 08/07/2003
+    'delay too much
+    'Private Const DELAY_FOR_START = 10
+    Private Const DELAY_FOR_START = 4
     
     Private objToolbar As Object
     Private frmMainForm As Form
