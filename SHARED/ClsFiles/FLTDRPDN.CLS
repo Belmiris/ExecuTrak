@@ -1608,6 +1608,10 @@ Public Function RowColChange(tgTable As Object) As Boolean
     Dim lOldRow As Integer
     Dim lLastRow As Long
     
+    If frmParent.ActiveControl Is Nothing Then
+        Exit Function
+    End If
+    
     fnGetKeys lDropDown, lCol, tgMain.col
     
     RowColChange = True
