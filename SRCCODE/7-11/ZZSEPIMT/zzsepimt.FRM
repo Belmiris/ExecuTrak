@@ -244,9 +244,9 @@ Begin VB.Form frmZZSEPIMT
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
                      Top             =   480
-                     Width           =   396
+                     Width           =   360
                      _Version        =   65536
-                     _ExtentX        =   698
+                     _ExtentX        =   635
                      _ExtentY        =   635
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -276,14 +276,14 @@ Begin VB.Form frmZZSEPIMT
                      CausesValidation=   0   'False
                      Height          =   360
                      HelpContextID   =   2901
-                     Left            =   7476
+                     Left            =   7482
                      TabIndex        =   19
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
                      Top             =   480
-                     Width           =   396
+                     Width           =   360
                      _Version        =   65536
-                     _ExtentX        =   698
+                     _ExtentX        =   635
                      _ExtentY        =   635
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
