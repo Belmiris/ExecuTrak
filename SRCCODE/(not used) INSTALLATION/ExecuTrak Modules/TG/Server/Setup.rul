@@ -241,7 +241,7 @@ ConfirmCopy:
                 ListAddString(listInfo, "        PC Server Installation", AFTER);
 	endif;
         ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, "Intallation Type:", AFTER);
+        ListAddString(listInfo, "installation Type:", AFTER);
         if (szForceInstall = "1 ") then
                 ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
         else
@@ -502,7 +502,7 @@ DecompressSuccessful:
                 LOGMSG="CREATING FOLDER SHORTCUTS";
                 LOGWRITE(LOGMSG);
         
-                SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
+                SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " installation...");
 
                 szSCWork = szAppDir;
                 szSCExe = szAppDir ^ HELP_FILE;
@@ -517,7 +517,7 @@ DecompressSuccessful:
                 LOGWRITE(LOGMSG);
         endif;
 
-        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
+        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " installation...");
 
         // add registry information
 	LOGMSG="ADDING REGISTRY INFORMATION";
@@ -532,7 +532,7 @@ DecompressSuccessful:
 
         RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
 
-        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " installation...");
 
         Delay( 1 );
 	Disable(STATUS);
