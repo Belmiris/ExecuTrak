@@ -92,7 +92,7 @@ Option Explicit
     'david 08/07/2003
     'delay too much
     'Private Const DELAY_FOR_START = 10
-    Private Const DELAY_FOR_START = 4
+    Private Const DELAY_FOR_START = 3
     
     Private objToolbar As Object
     Private frmMainForm As Form
