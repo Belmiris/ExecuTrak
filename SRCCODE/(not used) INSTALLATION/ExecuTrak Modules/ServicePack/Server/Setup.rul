@@ -2,7 +2,6 @@
 //
 // Installation script for the Factor Service Pack release
 //
-// 3.01 by Xijian
 //
 //***************************************************************************
 
@@ -67,7 +66,7 @@ declare
 	BOOL bServicePack;
 	LIST lstClientID, lstClientName;
 
-        prototype fnFindFile(STRING, STRING);
+        	prototype fnFindFile(STRING, STRING);
 	prototype UpdateServicePack(STRING, STRING);
 	prototype DecompressZfile(STRING, STRING, NUMBER);
 	prototype DecompressServicePack(STRING, LIST);
@@ -270,23 +269,24 @@ ConfirmCopy:
 
 
 StartCopy:
-        LOGMSG="INSTALLING IN : " + szBaseDirectory ^ PRODUCT_SUBDIR;
+
+        	LOGMSG="INSTALLING IN : " + szBaseDirectory ^ PRODUCT_SUBDIR;
 	LOGWRITE(LOGMSG);
 
-        Disable(HOURGLASS);
-        SdShowMsg("", FALSE);
+	Disable(HOURGLASS);
+	SdShowMsg("", FALSE);
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " server files...");
 	Enable(STATUS);
 
-        if (bRunStandAlone) then
-                LOGMSG="Stand-alone PC Installation";
+        	if (bRunStandAlone) then
+                	LOGMSG="Stand-alone PC Installation";
 	else
-                LOGMSG="PC Server Installation";
+                	LOGMSG="PC Server Installation";
 	endif;
 	LOGWRITE(LOGMSG);
 
-        FileSetBeginDefine("All Files");
+        	FileSetBeginDefine("All Files");
 	StatusUpdate(ON, 90);
 
 // ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
@@ -709,12 +709,11 @@ begin
 			elseif szName = "SERVDLL.Z" then
 				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
 			elseif szName = "SERVOLE.Z" then
-				//szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
-				szDest = WINDISK ^ APP_BASE_PATH ^ PRODUCT_SUBDIR;
+				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
 			elseif szName = "SERVDB.Z" then
 				szDest = WINDIR ^ "TEMP";
 			elseif szName = "SERVSHAR.Z" then
-	        		szDest = WINSYSDISK ^ "Program Files" ^ "Common Files" ^ 
+	        			szDest = WINSYSDISK ^ "Program Files" ^ "Common Files" ^ 
 					"Microsoft Shared" ^ "DAO";
 			else
 				szDest = WINSYSDIR;
