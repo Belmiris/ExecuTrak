@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -672,7 +672,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1178,12 +1178,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1193,7 +1193,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1314,7 +1314,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1459,7 +1459,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1467,7 +1467,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1961,7 +1961,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2217,14 +2217,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2316,7 +2316,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2816,7 +2816,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3033,7 +3033,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3230,3 +3230,116 @@ Public Function tfnGetDbName() As String
     
     tfnGetDbName = sDBName
 End Function
+
+'*****************************************************************************************
+'Function   : tfn_Read_SYS_INI
+'Programmer : Vijaya B Alla
+'Date       : 07/22/03
+'Magic#     : 412821-1
+'Description: This functions is used to Read the SYS_INI TABLE.
+'             if any value it will return other wise it will send null
+'             Return error message if any
+'             Will set the tfn_Read_SYS_INI upon return
+'*****************************************************************************************
+
+Public Function tfn_Read_SYS_INI(sFilename As String, _
+                              sUserID As String, _
+                              sSECTION As String, _
+                              sField As String, _
+                              Optional bShowError As Boolean = True) As String
+                              
+    Const SUB_NAME As String = "tfn_Read_SYS_INI"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT ini_value FROM sys_ini WHERE"
+    
+    'ini_file_name,ini_user_id may be null
+    
+    If sFilename <> "" Then
+        strSQL = strSQL & " ini_file_name = " + tfnSQLString(sFilename)
+    Else
+        strSQL = strSQL & " ini_file_name is Null"
+    End If
+    
+    If sUserID <> "" Then
+        strSQL = strSQL & " AND ini_user_id = " + tfnSQLString(sUserID)
+    Else
+        strSQL = strSQL & " AND ini_user_id  is Null"
+    End If
+    
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(sSECTION)
+    strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(sField)
+    
+    On Error GoTo errTrap
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    If rsTemp.RecordCount > 0 Then
+        tfn_Read_SYS_INI = CStr(Trim(rsTemp!ini_value) & "")
+    End If
+    Exit Function
+    
+errTrap:
+    If Not objErrHandler Is Nothing Then
+        tfnErrHandler SUB_NAME, strSQL, bShowError
+    End If
+    
+End Function
+
+'*****************************************************************************************
+'Function   : tfn_Write_SYS_INI
+'Programmer : Vijaya B Alla
+'Date       : 07/22/03
+'Magic#     : 412821-1
+'Description: This functions is used to Write the SYS_INI TABLE.
+'             it will check the data is exist or not
+'             if it exits it will update other wise insert into table
+'             Return error message if any
+'*****************************************************************************************
+
+Public Function tfn_Write_SYS_INI(sFilename As String, _
+                              sUserID As String, _
+                              sSECTION As String, _
+                              sField As String, _
+                              sValue As String, _
+                              Optional bShowError As Boolean = True) As Boolean
+
+    Const SUB_NAME As String = "tfn_Write_SYS_INI"
+    
+    Dim strSQL As String
+    Dim sRetrunValue As String
+    
+    'if any value is it will return other wise null
+    'null means we need to insert other wise update
+    
+    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
+    
+    On Error GoTo errTrap
+    
+    If sRetrunValue <> "" Then
+        strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
+        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(sFilename)
+        strSQL = strSQL + " AND ini_user_id = " + tfnSQLString(sUserID)
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(sSECTION)
+        strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(sField)
+    Else
+        strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
+        strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
+        strSQL = strSQL + tfnSQLString(sFilename) + ","
+        strSQL = strSQL + tfnSQLString(sUserID) + ","
+        strSQL = strSQL + tfnSQLString(sSECTION) + ","
+        strSQL = strSQL + tfnSQLString(sField) + ","
+        strSQL = strSQL + tfnSQLString(sValue) + ")"
+    End If
+    
+    t_dbMainDatabase.ExecuteSQL strSQL
+    Exit Function
+
+errTrap:
+    If Not objErrHandler Is Nothing Then
+        tfnErrHandler SUB_NAME, strSQL, bShowError
+    End If
+    
+End Function
+'End of Vijaya Code
