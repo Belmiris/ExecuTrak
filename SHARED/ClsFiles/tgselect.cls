@@ -134,8 +134,8 @@ Public Sub Copy(Optional vSelIndex As Variant)
         tgcDest.FillWithArray vData, False
     Else
         If IsNumeric(vSelIndex) Then
-            i = Val(vSelIndex)
-            If i >= 0 And i < nRows Then
+            If vSelIndex >= 0 And vSelIndex < nRows Then
+                i = Val(bmTemp.Item(vSelIndex))
                 ReDim vData(nColCount - 1, 0)
                 m_tgcEditor.GetRow vBuffer, nCol, i
                 For j = 0 To nColCount - 1
@@ -163,6 +163,7 @@ Public Sub Delete(Optional vRowIndex As Variant)
             For i = Count - 1 To 0 Step -1
                 m_tgcEditor.DeleteRow vBkMark(i), False
             Next
+            m_tgcEditor.Rebind
         Else
             If IsNumeric(vRowIndex) Then
                 i = Val(vRowIndex)
@@ -172,7 +173,6 @@ Public Sub Delete(Optional vRowIndex As Variant)
                 End If
             End If
         End If
-        m_tgcEditor.Rebind
     End If
 End Sub
 
@@ -402,8 +402,8 @@ Property Set Partner(tgcTemp As Object)
     Set m_tgcSelector = tgcTemp
 End Property
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If
