@@ -417,7 +417,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         Exit Function
     End If
     
-    sErrMsg = fnValidEmpGetBAmount(lEmployeeNo, nPrftCtr, sBGrade)
+    sErrMsg = fnValidGetBAmountEmp(lEmployeeNo, nPrftCtr, sBGrade)
     
     If sErrMsg <> "" Then
         subLogErrMsg Space(7) & sErrMsg
@@ -780,9 +780,15 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     objCond.Var("amt1") = AMT1
     objCond.Var("amt2") = AMT2
     objCond.Var("mxt") = MXT
-    objCond.Var("v1") = V1
-    objCond.Var("v2") = V2
-    objCond.Var("v3") = V3
+    If sV1 <> "" Then
+        objCond.Var("v1") = V1
+    End If
+    If sV2 <> "" Then
+        objCond.Var("v2") = V2
+    End If
+    If sV3 <> "" Then
+        objCond.Var("v3") = V3
+    End If
     
     'set the variables value for formula
     objMath.Var("pct") = PCT
@@ -790,9 +796,15 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     objMath.Var("amt1") = AMT1
     objMath.Var("amt2") = AMT2
     objMath.Var("mxt") = MXT
-    objMath.Var("v1") = V1
-    objMath.Var("v2") = V2
-    objMath.Var("v3") = V3
+    If sV1 <> "" Then
+        objMath.Var("v1") = V1
+    End If
+    If sV2 <> "" Then
+        objMath.Var("v2") = V2
+    End If
+    If sV3 <> "" Then
+        objMath.Var("v3") = V3
+    End If
     
     If sCond <> "" Then
         bConditionOK = objCond.CheckCondition(sCond, sErrMsg)
@@ -883,7 +895,12 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     fnGetVarValue = 0#
     sErrMsg = ""
     
-    sVariable = LCase(sVariable)
+    sVariable = LCase(Trim(sVariable))
+    
+    If sVariable = "" Then
+        'sErrMsg = "Variable is not defined in " + sV
+        Exit Function
+    End If
     
     Select Case sVariable
         Case sarrVariable(0)  'inside sales
@@ -964,7 +981,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             Exit Function
         
         Case Else
-            sErrMsg = "Variable " + sVinV + " is not defined"
+            sErrMsg = "Variable " + sVinV + " is not valid"
             Exit Function
     
     End Select
@@ -1592,11 +1609,11 @@ Public Function fnDeleteSales(sSType As String, sOldPrftCtr As String, sToDt As 
     fnDeleteSales = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
 
-Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
+Private Function fnValidGetBAmountEmp(lEmpNo As Long, _
                                  nPrftCtr As Integer, _
                                  sBGrade As String) As String
 
-    Const SUB_NAME As String = "fnValidEmpGetBAmount"
+    Const SUB_NAME As String = "fnValidGetBAmountEmp"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1605,18 +1622,18 @@ Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
     Dim sDateHired As String
     Dim sDateTermed As String
     
-    fnValidEmpGetBAmount = False
+    fnValidGetBAmountEmp = False
     
     strSQL = "SELECT *"
     strSQL = strSQL + " FROM pr_master WHERE prm_empno = " & lEmpNo
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        fnValidEmpGetBAmount = "Failed to access Database"
+        fnValidGetBAmountEmp = "Failed to access Database"
         Exit Function
     End If
     
     If rsTemp.RecordCount = 0 Then
-        fnValidEmpGetBAmount = "Employee Number does not exist"
+        fnValidGetBAmountEmp = "Employee Number does not exist"
         Exit Function
     End If
     
@@ -1630,12 +1647,12 @@ Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
     Next i
     
     If i > 5 Then
-        fnValidEmpGetBAmount = "Profit Center " & nPrftCtr & " is not connect to the employee"
+        fnValidGetBAmountEmp = "Profit Center " & nPrftCtr & " is not connect to the employee"
         Exit Function
     End If
     
     If fnGetField(rsTemp!prm_emp_level) = "" Then
-        fnValidEmpGetBAmount = "Employee Level is NULL for the employee"
+        fnValidGetBAmountEmp = "Employee Level is NULL for the employee"
         Exit Function
     End If
     
@@ -1649,12 +1666,12 @@ Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
     strSQL = strSQL + " WHERE bg_grade = " & tfnSQLString(sBGrade)
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        fnValidEmpGetBAmount = "Failed to access Database"
+        fnValidGetBAmountEmp = "Failed to access Database"
         Exit Function
     End If
     
     If rsTemp.RecordCount = 0 Then
-        fnValidEmpGetBAmount = "Bonus Grade " + tfnSQLString(sBGrade) + " does not exist"
+        fnValidGetBAmountEmp = "Bonus Grade " + tfnSQLString(sBGrade) + " does not exist"
         Exit Function
     End If
     
@@ -1667,18 +1684,18 @@ Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
     Next i
     
     If rsTemp.EOF Then
-        fnValidEmpGetBAmount = "Employee Level " & nEmpLevel & " is not valid for Bonus Grade " + tfnSQLString(sBGrade)
+        fnValidGetBAmountEmp = "Employee Level " & nEmpLevel & " is not valid for Bonus Grade " + tfnSQLString(sBGrade)
         Exit Function
     End If
     
     If sDateTermed <> "" Then
         If CDate(tfnDateString(sDateTermed)) < CDate(tfnDateString(frmZZSEBPRC!txtEndDate)) Then
-            fnValidEmpGetBAmount = "Employee was terminated on " + sDateTermed
+            fnValidGetBAmountEmp = "Employee was terminated on " + sDateTermed
             Exit Function
         End If
     End If
     
-    fnValidEmpGetBAmount = ""
+    fnValidGetBAmountEmp = ""
 End Function
 
 Public Function IsValidDate(ByVal sDate As String) As Boolean
