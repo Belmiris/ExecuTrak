@@ -436,7 +436,7 @@ Private Sub subAutoRun()
     If fnIsFile(sTemp) Then
         'Single file is going to be processed
         bBatchMode = False
-        subProcessFile sTemp
+        fnProcessFile sTemp
     Else
         'Multiple files
         LogForm.lstFile.Path = udtInputInfo.m_sPath
@@ -459,7 +459,7 @@ Private Sub subAutoRun()
             For i = 0 To LogForm.lstFile.ListCount - 1
                 aryFiles(i) = LogForm.lstFile.List(i)
                 'Single file is going to be processed
-                subProcessFile aryFiles(i)
+                fnProcessFile aryFiles(i)
                 subCloseFile
             Next i
         Else

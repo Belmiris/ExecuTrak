@@ -73,7 +73,7 @@ Public Sub subPrintReport(ByVal nIndex As Integer)
 End Sub
 
 
-Public Sub subProcessFile(sFile As String)
+Public Function fnProcessFile(sFile As String) As Boolean
 
     Dim sLine As String
     
@@ -87,7 +87,7 @@ Public Sub subProcessFile(sFile As String)
         subCloseFile
     End If
     
-End Sub
+End Function
 
 Public Sub subSetHelpInfo()
     App.HelpFile = szHelpFileName
