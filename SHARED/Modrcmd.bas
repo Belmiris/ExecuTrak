@@ -355,9 +355,12 @@ Private Function fnVariables(sHost As String) As String
     sTemp = sTemp & "INFORMIXSERVER=" & sHost & "; export INFORMIXSERVER;"
     
     '***********************************************************
-    ''sTemp = sTemp & "PROGPATH=/usr/factor; export PROGPATH;"
-    'Use the next line WJ 12/28/00
-    sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
+    'WJ
+    #If DEVELOP Then
+        sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
+    #Else
+        sTemp = sTemp & "PROGPATH=/usr/factor; export PROGPATH;"
+    #End If
     '************************************************************
     sTemp = sTemp & "SQLEXEC=/usr/informix/lib/sqlrm;export SQLEXEC;"
     'Took out because these may cause problem on different systems. Ma. 2/5/99
