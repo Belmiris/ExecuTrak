@@ -272,10 +272,12 @@ GetTargetPath:
 			endif;
 			bInstallToLocal = TRUE;
 		else
+			bProgramFoundInRemote = fnFindFile(szDisk ^ "FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
+
 			if (CHECK_ONE_COPY) then
 				if (bProgramFoundInLocal) then
-				        if (AskYesNo(PRODUCT_NAME + " Program found in 'J:\\FACTOR' directory." +
-						" Are you sure you want to install another copy to 'C:\\FACTOR'" +
+				        if (AskYesNo(PRODUCT_NAME + " Program found in 'C:\\FACTOR' directory." +
+						" Are you sure you want to install another copy to '" + szDisk ^ "FACTOR'" +
 						" directory?", NO) = NO) then
 					        	szBaseDirectory = "C:" ^ APP_BASE_PATH;
 							goto GetTargetPath;
@@ -353,6 +355,23 @@ StartCopy:
 	UpdateFACTOR_INI();
 
 	if (bRunRemote) then
+	        Disable(HOURGLASS);
+	    	SdShowMsg("", FALSE);
+	
+		SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
+		Enable(STATUS);
+	
+		StatusUpdate(ON, 90);
+
+	        //selfregistering DLLs & Ocxs
+	        LOGMSG="START SELFREGISTERING FILES ";
+	        LOGWRITE(LOGMSG);
+	
+		SetStatusWindow(92, "Registering DLLs and OCXs...");
+
+		LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szDisk ^ "FACTOR\\EXECTRAK" ^ "OLE" ^ "TBKIT.DLL", WAIT);
+		LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + szDisk ^ "FACTOR\\EXECTRAK" ^ "OLE" ^ "OLECOMBO.DLL", WAIT);
+
 		goto CreateShortcut;
 	endif;
 
@@ -360,19 +379,18 @@ StartCopy:
 	// Rename the original MDB and INI file
 	if ((bInstallToLocal && bProgramFoundInLocal) || (bInstallToRemote && bProgramFoundInRemote)) then
 		if (!fnSaveOriginalMDBINI()) then
-		    	SdShowMsg("", FALSE);
                         MessageBox("Failed to back up " + PRODUCT_NAME + " files. Installation aborts.", SEVERE);
 			abort;
 		endif;
 	endif;
 
         Disable(HOURGLASS);
-    	SdShowMsg("", FALSE);
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
 	Enable(STATUS);
 
 	StatusUpdate(ON, 90);
+
 	Enable(SELFREGISTERBATCH);
 
 	LOGMSG="INSTALLING IN : " + szBaseDirectory;
@@ -398,7 +416,7 @@ StartCopy:
                 LOGMSG="END FORCED COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-		//if (!bProgramFoundInRemote) then
+		if (!bRunRemote) then
 	                TARGETDIR = szBaseDirectory ^ "OLE";
 	
 	                LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
@@ -411,8 +429,7 @@ StartCopy:
 	
 	                LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
-
-		//endif;
+                endif;
 
                 TARGETDIR = WINSYSDIR;
 
@@ -479,7 +496,7 @@ StartCopy:
                 LOGMSG="END NORMAL COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-		//if (!bProgramFoundInRemote) then
+		if (!bRunRemote) then
 	                TARGETDIR = szBaseDirectory ^ "OLE";
 	        
 	                LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
@@ -492,7 +509,7 @@ StartCopy:
 	
 	                LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
 	                LOGWRITE(LOGMSG);
-		//endif;
+                endif;
 
                 TARGETDIR = WINSYSDIR;
 
@@ -596,19 +613,13 @@ StartCopy:
 			LOGWRITE(LOGMSG);
                         goto ZFAILURE;
         endswitch;
-        
+
         //selfregistering DLLs & Ocxs
         LOGMSG="START SELFREGISTERING FILES ";
         LOGWRITE(LOGMSG);
 
-	SetStatusWindow(91, "Registering DLLs and OCXs...");
-        Do(SELFREGISTRATIONPROCESS);
-
 	SetStatusWindow(92, "Registering DLLs and OCXs...");
-
-	if (bProgramFoundInRemote) then
-		LaunchAppAndWait(WINSYSDIR ^ "regsvr32.exe", " /s " + "J:\\FACTOR\\EXECTRAK" ^ "OLE" ^ "TBKIT.DLL", WAIT);
-	endif;
+        Do(SELFREGISTRATIONPROCESS);
 
         SetStatusWindow(94, "Update " + PRODUCT_NAME + " files...");
 	
@@ -816,23 +827,38 @@ begin
     	SdShowMsg(WELCOME_TITLE + " is making a backup copy of " + MODULE_NAME + " Database...", TRUE);
 
         Enable(HOURGLASS);
-	
-	if (fnFindFile(TARGETDIR, "edixlate.mdb")) then
-		if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
-			return FALSE;
-		endif;
+
+	if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
+    		SdShowMsg("", FALSE);
+		return FALSE;
 	endif;
 
-	if (fnFindFile(TARGETDIR, "ediproc.ini")) then
+	if (bPass) then
 		if (CopyFile("ediproc.ini", "ediproc.ini.$$$") < 0) then
 			DeleteFile("edixlate.mdb.$$$");
-			return FALSE;
+			bPass = FALSE;
 		endif;
 	endif;
 
-	DeleteFile("edixlate.mdb");
-	DeleteFile("ediproc.ini"); 
-	
+	if (bPass) then
+		if (DeleteFile("edixlate.mdb") < 0) then
+			DeleteFile("edixlate.mdb.$$$");
+			DeleteFile("ediproc.ini.$$$");
+			bPass = FALSE;
+		endif;
+	endif;
+
+	if (bPass) then
+		if (DeleteFile("ediproc.ini") < 0) then
+			CopyFile("edixlate.mdb.$$$", "edixlate.mdb");
+			DeleteFile("edixlate.mdb.$$$");
+			DeleteFile("ediproc.ini.$$$");
+			bPass = FALSE;
+		endif;
+	endif;
+
+    	SdShowMsg("", FALSE);
+
         VarRestore(SRCTARGETDIR);
 	
 	return bPass;	
