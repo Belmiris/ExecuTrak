@@ -1,0 +1,3 @@
+DIR=G:\PROGRAM\RELEASE\Exectrak\SERVPACK MASK=*.*
+DIR=G:\program\release\exectrak\common\cpylocal.exe MASK=cpylocal.exe 
+DIR=G:\program\release\exectrak\local_db MASK=factor.mdb
