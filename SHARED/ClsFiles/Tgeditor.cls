@@ -3714,8 +3714,10 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
                         tgTable.col = nEditColumns(0)
                         DoEvents
                     End If
-                    On Error Resume Next
-                    tgTable.Row = tgTable.Row + 1
+                    If tgTable.col = nEditColumns(0) Then
+                        On Error Resume Next
+                        tgTable.Row = tgTable.Row + 1
+                    End If
                 End If
                 KeyCode = 0
             End If
