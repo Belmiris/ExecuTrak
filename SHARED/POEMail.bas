@@ -1,7 +1,112 @@
 Attribute VB_Name = "modPOEMail"
 Option Explicit
 
-Public Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String, _
+Public Function fnCheckApprovalAuthority(sProgramID As String, _
+                                          vPurchaseNumber As Variant, _
+                                          nPrftCtr As Integer, _
+                                          dPurchaseTotal As Double) As Boolean
+    Const SUB_NAME As String = "fnCheckApprovalAuthority"
+    Dim sUserName As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sMsg As String
+    Dim sName As String 'Concatenated First and Last Names
+    Dim sSubject As String
+    Dim sEMailMsg As String
+    Dim sEMailAdd As String
+    Dim sSuperID As String
+    Dim sProgram As String
+        
+    fnCheckApprovalAuthority = False
+    Screen.MousePointer = vbHourglass
+    sUserName = Trim(tfnGetUserName())
+    
+    If Not fnGetName(sUserName, sName, sEMailAdd) Then
+        sName = sUserName
+    End If
+    
+    Select Case LCase(sProgramID)
+        Case "poerentr"
+            sProgram = " Request"
+        Case "poeoentr"
+            sProgram = " Order"
+        Case "pofbrspr"
+            sProgram = " Request"
+        Case "pofbrspo"
+            sProgram = " Order"
+        Case "poeselct"
+            sProgram = " Selection"
+    End Select
+    
+    sSubject = "A Purchase" & sProgram & " requires your approval"
+    sEMailMsg = sName & " has attempted to approve Purchase" & sProgram & " number '"
+    sEMailMsg = sEMailMsg & vPurchaseNumber & "', but lacked sufficient approval authority. "
+    sEMailMsg = sEMailMsg & "Please review this Purchase" & sProgram & ", and approve or cancel it."
+    
+    strSQL = "SELECT pos_prft_ctr, pos_user_id, pos_approv_level, pos_super_userid"
+    strSQL = strSQL & ", pos_pr_approv, pos_po_approv, polv_prft_ctr"
+    strSQL = strSQL & ", polv_level, polv_level_desc, polv_auth_amount, sum_user_id "
+    strSQL = strSQL & ", sum_first_name, sum_last_name"
+    strSQL = strSQL & " FROM po_security, po_levels, sys_user_master"
+    strSQL = strSQL & " WHERE pos_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND pos_user_id = sum_user_id"
+    strSQL = strSQL & " AND pos_prft_ctr = polv_prft_ctr"
+    strSQL = strSQL & " AND pos_approv_level = polv_level"
+    strSQL = strSQL & " AND pos_user_id = " & tfnSQLString(sUserName)
+    
+    If GetRecordSet(rsTemp, strSQL, , "SUB_NAME") < 0 Then
+        MsgBox "Failed to access database to check user's authority.", vbCritical
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        MsgBox "Authorization record not found for the user.", vbInformation
+        Exit Function
+    End If
+    
+    'Check the approval flag in the PO Security table for the profit center.
+    If sProgramID = "POFBRSPR" Or sProgramID = "POERENTR" Or sProgramID = "POESELCT" Then
+        If fnCstr(rsTemp!pos_pr_approv) <> "Y" Then
+            MsgBox "Authorization Failed, You are not authorized to approve this Purchase" _
+                    & sProgram, vbInformation
+            Exit Function
+        End If
+    ElseIf sProgramID = "POFBRSPO" Or sProgramID = "POEOENTR" Then
+        If fnCstr(rsTemp!pos_po_approv) <> "Y" Then
+            MsgBox "Authorization Failed, You are not authorized to approve this Purchase" _
+                    & sProgram, vbInformation
+            Exit Function
+        End If
+    End If
+            
+    sMsg = "Authorization failed, Purchase" & sProgram & " value exceeds sanctioned limit of $"
+    sMsg = sMsg & tfnRound(rsTemp!polv_auth_amount, DEFAULT_DECIMALS) & "."
+    sSuperID = fnCstr(rsTemp!pos_super_userid)
+    
+    Screen.MousePointer = vbHourglass
+    If tfnRound(dPurchaseTotal, DEFAULT_DECIMALS) > tfnRound(rsTemp!polv_auth_amount, 6) Then
+        If sSuperID <> "" Then 'Get Supervisor Name and his EMail Address
+            If Not fnGetName(sSuperID, sName, sEMailAdd) Then 'Show Supervisor's UserID
+                sMsg = sMsg & " Please ask '" & sSuperID
+            Else 'Show Supervisor's Name
+                sMsg = sMsg & " Please ask '" & sName
+            End If
+            sMsg = sMsg & "' to approve this Purchase" & sProgram & "."
+        End If
+        'Send an E-Mail Message to user's supervisor...
+        If Not fnSendEmail(sEMailAdd, sSubject, sEMailMsg) Then
+            'Do Nothing
+        End If
+        tfnWaitSeconds 4
+        MsgBox sMsg, vbInformation
+        Exit Function
+    End If
+    
+    fnCheckApprovalAuthority = True
+            
+End Function
+
+Private Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String, _
                             sE_MailMessage As String) As Boolean
     Dim sUserID As String
     Dim sPassword As String
@@ -19,7 +124,7 @@ Public Function fnSendEmail(sE_MailAddress As String, sE_MailSubject As String, 
         Exit Function
     End If
     
-    sParm = "sendmail " & sDQ & "SHOW" & sDQ & " "
+    sParm = "sendmail " & sDQ & "HIDE" & sDQ & " "
     sParm = sParm & sDQ & Trim(sUserID) & sDQ & " "
     sParm = sParm & sDQ & Trim(sPassword) & sDQ & " "
     sParm = sParm & sDQ & Trim(sE_MailAddress) & sDQ & " "
@@ -55,13 +160,13 @@ Private Function fnCheckSysParam(sUserID As String, sPassword As String) As Bool
 
 End Function
 
-Private Function fnCstr(v) As String
+Public Function fnCstr(v) As String
     If Not IsNull(v) Then
         fnCstr = Trim(v)
     End If
 End Function
 
-Public Function fnGetName(sID As String, sName As String, sEMailAdd As String) As Boolean
+Private Function fnGetName(sID As String, sName As String, sEMailAdd As String) As Boolean
     Const SUB_NAME As String = ""
     Dim strSQL As String
     Dim rsTemp As Recordset
