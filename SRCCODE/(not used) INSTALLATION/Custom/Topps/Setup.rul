@@ -13,9 +13,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "GLERJTOP300"
-#define UNINSTALL_NAME          "Remote G/L Journal Transaction Version 3.00"
+#define PRODUCT_VERSION         "3.01"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "GLERJTOP301"
+#define UNINSTALL_NAME          "Remote G/L Journal Transaction Version 3.01"
 
 #define SIZE_REQ_LOCAL          6       // 6 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes
@@ -314,7 +314,7 @@ StartCopy:
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factole.z", "*.*", COMP_NORMAL) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_NORMAL | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -414,7 +414,7 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;

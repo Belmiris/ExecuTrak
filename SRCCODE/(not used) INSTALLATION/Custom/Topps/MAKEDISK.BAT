@@ -32,12 +32,15 @@ goto start
 
 :disk6
 echo Total Distribution Diskette Required = 6
+goto start
 
 :disk7
 echo Total Distribution Diskette Required = 7
+goto start
 
 :disk8
 echo Total Distribution Diskette Required = 8
+
 :start
 
 echo .
