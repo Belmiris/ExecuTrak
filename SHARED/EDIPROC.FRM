@@ -61,7 +61,7 @@ Private m_BackupPath As String
 Private m_BackupFileType As String
 Private m_BackupFileName As String
 Private m_RunMode As String
-
+Private m_LogID As String
 Private m_ErrorMessage As String
 
 'interface properties
@@ -345,6 +345,8 @@ Private Function fnCheckEdiProcError() As String
     End If
     
     sSql = "SELECT el_desc FROM err_log"
+    sSql = sSql + " WHERE el_log_id = " + tfnSQLString(m_LogID)
+    sSql = sSql + " ORDER BY el_id, el_seq"
     If fnGetEdiXlateRecord(rsTemp, sSql, dbEDI, SUB_NAME, , False) < 0 Then
         fnCheckEdiProcError = "Failed to access EDI Translation Database"
         Exit Function
@@ -352,7 +354,7 @@ Private Function fnCheckEdiProcError() As String
     
     While Not rsTemp.EOF
         If Not IsNull(rsTemp!el_desc) Then
-            sErrMsg = sErrMsg + Trim(rsTemp!el_desc) + vbCrLf
+            sErrMsg = sErrMsg + Trim(rsTemp!el_desc)
         End If
         rsTemp.MoveNext
     Wend
@@ -505,6 +507,14 @@ Private Function fnBuildParm() As String
         sParm = Left(sParm, Len(sParm) - 1)
     End If
 
+    m_LogID = fnCreateLogID()
+    
+    If sParm <> "" Then
+        sParm = sParm + ", LogID=" + m_LogID
+    Else
+        sParm = "LogID=" + m_LogID
+    End If
+    
     fnBuildParm = sParm
 End Function
 
@@ -561,3 +571,22 @@ Private Function fnGetPath(sPathFile As String) As String
         fnGetPath = Left(sPathFile, i - 1)
     End If
 End Function
+
+'david 05/06/00
+'Log ID: max 15 characters
+Private Function fnCreateLogID() As String
+    Dim sID_Prefix1_4 As String
+    Dim sID_Prefix2_3 As String
+    Dim sDateTime As String
+    
+    Randomize Timer
+    sID_Prefix1_4 = Format(Int((9999 * Rnd) + 1), "000")
+    Randomize Timer
+    sID_Prefix2_3 = Format(Int((999 * Rnd) + 1), "000")
+    
+    sDateTime = Format(Date, "mmdd") + Format(Time, "mmss")
+    
+    fnCreateLogID = sID_Prefix1_4 + sID_Prefix2_3 + sDateTime
+End Function
+
+
