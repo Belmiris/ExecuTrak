@@ -439,7 +439,7 @@ Private Function Parse() As String
             isNeg = False
         
         Case "=", "!", "<", ">", "[", "]", "{", "}", "'", """", _
-             ";", "`", "~", "@", "#", "$", "&", ",", ".", "?"
+             ";", ":", "`", "~", "@", "#", "$", "&", ",", ".", "?"
             Parse = "Invalid token '" + sTmp + "' found"
             Exit Function
       End Select

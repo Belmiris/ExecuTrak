@@ -319,7 +319,7 @@ Private Function Parse() As String
             t = EQ_NONE
             isNeg = True
         Case "=", "!", "<", ">", "[", "]", "{", "}", "'", """", _
-             ";", "`", "~", "@", "#", "$", "&", ",", ".", "?"
+             ";", ":", "`", "~", "@", "#", "$", "&", ",", ".", "?"
             Parse = "Invalid token '" + sTmp + "' found"
             Exit Function
       End Select
