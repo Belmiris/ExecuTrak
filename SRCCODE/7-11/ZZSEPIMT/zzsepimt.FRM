@@ -2667,9 +2667,9 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
             vData(COL_DESC, i) = rsTemp!emp_level_desc
             vData(COL_HIRE_DATE, i) = rsTemp!date_hired
             vData(COL_DAYS_WORKED, i) = rsTemp!days_worked
-            vData(COL_OLD_RATE, i) = rsTemp!old_rate
-            vData(COL_NEW_RATE, i) = rsTemp!new_rate
-            vData(COL_DIFF, i) = rsTemp!rate_diff
+            vData(COL_OLD_RATE, i) = tfnRound(rsTemp!old_rate, 2)
+            vData(COL_NEW_RATE, i) = tfnRound(rsTemp!new_rate, 2)
+            vData(COL_DIFF, i) = tfnRound(rsTemp!rate_diff, 2)
             
             If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
                 strTemp = Trim(fnRSToString(rsTemp!lname))
@@ -2857,14 +2857,14 @@ Public Sub subPrintRpt()
     sRptTitle = "7-Eleven Automatic Pay Increase Processing Log"
     
     sLineHeader = fnTranc("Emp#", 10, LEFT_JUSTIFY) & _
-                  fnTranc("Name", 15, LEFT_JUSTIFY) & _
+                  fnTranc("Name", 30, LEFT_JUSTIFY) & _
                   fnTranc("Level", 6, LEFT_JUSTIFY) & _
                   fnTranc("Description", 21, LEFT_JUSTIFY) & _
                   fnTranc("Hire Date", 15, LEFT_JUSTIFY) & _
-                  fnTranc("Days Worked", 12, LEFT_JUSTIFY) & _
-                  fnTranc("Old Rate", 15, LEFT_JUSTIFY) & _
-                  fnTranc("New Rate", 15, LEFT_JUSTIFY) & _
-                  fnTranc("Diff", 15, LEFT_JUSTIFY)
+                  fnTranc("Days Worked", 12, RIGHT_JUSTIFY) & _
+                  fnTranc("Old Rate", 12, RIGHT_JUSTIFY) & _
+                  fnTranc("New Rate", 12, RIGHT_JUSTIFY) & _
+                  fnTranc("Rate Diff", 12, RIGHT_JUSTIFY)
         
 
     INDEX_REPORT = -1
@@ -2879,14 +2879,14 @@ Public Sub subPrintRpt()
     For i = 0 To lCount - 1
         With tgmGrid
            sLine = fnTranc(.CellValue(COL_EMPNO, i), 10, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NAME, i), 15, LEFT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NAME, i), 30, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_LEVEL, i), 6, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_DESC, i), 21, LEFT_JUSTIFY) & _
               fnTranc(.CellValue(COL_HIRE_DATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DAYS_WORKED, i), 12, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_OLD_RATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_NEW_RATE, i), 15, LEFT_JUSTIFY) & _
-              fnTranc(.CellValue(COL_DIFF, i), 15, LEFT_JUSTIFY)
+              fnTranc(.CellValue(COL_DAYS_WORKED, i), 12, RIGHT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_OLD_RATE, i), 12, RIGHT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_NEW_RATE, i), 12, RIGHT_JUSTIFY) & _
+              fnTranc(.CellValue(COL_DIFF, i), 12, RIGHT_JUSTIFY)
           'put in the array report
           subLineFeed sLine
        End With
