@@ -73,7 +73,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     
     Const MAXLINE As Long = 2147483647
     
-    On Error GoTo ErrorHandler
+    'On Error GoTo ErrorHandler
     
     'check how many header read
     g_lHeaderCount = 0
@@ -563,13 +563,15 @@ Private Sub subWriteDetailProcLog(udtInvHeader As RSINV_Header, udtInvDetail As 
     sLine = sLine & Space(1) & CStr(udtInvHeader.lInvNum)
     sLine = sLine & Space(11 - Len(CStr(udtInvHeader.lInvNum))) & udtInvDetail.sItemCode
     sItemDesc = fnGetItemDesc(udtInvHeader.lVendor, udtInvDetail.sItemCode)
+     
     sLine = sLine & Space(11 - Len(udtInvDetail.sItemCode)) & sItemDesc
     sLine = sLine & Space(21 - Len(sItemDesc)) & CStr(udtInvDetail.dQuantity)
     sLine = sLine & Space(9 - Len(CStr(udtInvDetail.dQuantity))) & CStr(udtInvDetail.dCost)
     dExtCost = udtInvDetail.dQuantity * udtInvDetail.dCost
     sLine = sLine & Space(11 - Len(CStr(udtInvDetail.dCost))) & CStr(dExtCost)
     Print #g_nProcessingFile, sLine
-    g_dTotalCost = g_dTotalCost + udtInvDetail.dCost
+    g_dTotalCost = g_dTotalCost
+    
     g_dTotalExtCost = g_dTotalExtCost + dExtCost
     
 End Sub
@@ -578,6 +580,11 @@ Private Sub subWriteSummary()
     Dim sLine As String
     
     Print #g_nProcessingFile, ""
+    'Added tfnRound before printing totals in order to make certain the length of g_dTotalCost
+    '7-8-2002 Robert Atwood for Seven-11
+    g_dTotalCost = tfnRound(g_dTotalCost, 2)
+    g_dTotalExtCost = tfnRound(g_dTotalExtCost, 2)
+    
     sLine = "TOTAL" & Space(56) & CStr(g_dTotalCost) & Space(11 - Len(CStr(g_dTotalCost))) & CStr(g_dTotalExtCost)
     Print #g_nProcessingFile, sLine
     Print #g_nProcessingFile, ""
