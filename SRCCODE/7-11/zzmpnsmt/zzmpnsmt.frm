@@ -21,6 +21,7 @@ Begin VB.Form frmZZMPNSMT
    HelpContextID   =   1
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
+   LockControls    =   -1  'True
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
    ScaleHeight     =   6045
@@ -42,7 +43,7 @@ Begin VB.Form frmZZMPNSMT
       Width           =   1695
    End
    Begin FACTFRMLib.FactorFrame efraBackground 
-      Height          =   5265
+      Height          =   5205
       Left            =   0
       TabIndex        =   2
       TabStop         =   0   'False
@@ -50,7 +51,7 @@ Begin VB.Form frmZZMPNSMT
       Width           =   8850
       _Version        =   65536
       _ExtentX        =   15610
-      _ExtentY        =   9287
+      _ExtentY        =   9181
       _StockProps     =   77
       BackColor       =   8388608
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -64,7 +65,6 @@ Begin VB.Form frmZZMPNSMT
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -79,8 +79,8 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   10
          Left            =   60
          TabIndex        =   14
-         Top             =   4800
-         Width           =   1300
+         Top             =   4710
+         Width           =   1305
          _Version        =   65536
          _ExtentX        =   2302
          _ExtentY        =   688
@@ -100,7 +100,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -116,7 +115,7 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   11
          Left            =   1530
          TabIndex        =   15
-         Top             =   4800
+         Top             =   4710
          Width           =   1305
          _Version        =   65536
          _ExtentX        =   2302
@@ -137,7 +136,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -153,7 +151,7 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   12
          Left            =   3000
          TabIndex        =   16
-         Top             =   4800
+         Top             =   4710
          Width           =   1305
          _Version        =   65536
          _ExtentX        =   2302
@@ -175,7 +173,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -191,7 +188,7 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   13
          Left            =   4470
          TabIndex        =   17
-         Top             =   4800
+         Top             =   4710
          Width           =   1305
          _Version        =   65536
          _ExtentX        =   2302
@@ -212,7 +209,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -228,7 +224,7 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   15
          Left            =   7410
          TabIndex        =   19
-         Top             =   4800
+         Top             =   4710
          Width           =   1350
          _Version        =   65536
          _ExtentX        =   2381
@@ -249,7 +245,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -265,7 +260,7 @@ Begin VB.Form frmZZMPNSMT
          HelpContextID   =   14
          Left            =   5940
          TabIndex        =   18
-         Top             =   4800
+         Top             =   4710
          Width           =   1305
          _Version        =   65536
          _ExtentX        =   2302
@@ -286,7 +281,6 @@ Begin VB.Form frmZZMPNSMT
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -318,7 +312,6 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -351,7 +344,7 @@ Begin VB.Form frmZZMPNSMT
             _StockProps     =   77
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.89
+               Size            =   9.75
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -363,7 +356,6 @@ Begin VB.Form frmZZMPNSMT
             Picture         =   "zzmpnsmt.frx":0000
             Style           =   3
             BorderWidth     =   4
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   12
@@ -384,7 +376,7 @@ Begin VB.Form frmZZMPNSMT
          End
       End
       Begin FACTFRMLib.FactorFrame efraOuterFrame 
-         Height          =   3075
+         Height          =   2985
          Left            =   60
          TabIndex        =   10
          TabStop         =   0   'False
@@ -392,7 +384,7 @@ Begin VB.Form frmZZMPNSMT
          Width           =   8715
          _Version        =   65536
          _ExtentX        =   15372
-         _ExtentY        =   5424
+         _ExtentY        =   5265
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
@@ -404,7 +396,6 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -415,7 +406,7 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          Begin DBTrueGrid.TDBGrid tgTable 
-            Height          =   2895
+            Height          =   2835
             HelpContextID   =   120
             Left            =   0
             OleObjectBlob   =   "zzmpnsmt.frx":0112
@@ -445,7 +436,6 @@ Begin VB.Form frmZZMPNSMT
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
-         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -521,7 +511,6 @@ Begin VB.Form frmZZMPNSMT
       Align           =   2
       CaptionPos      =   1
       Style           =   5
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -556,7 +545,6 @@ Begin VB.Form frmZZMPNSMT
       FMName          =   "ZZMPNSMT"
       CaptionPos      =   4
       Style           =   6
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -696,37 +684,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '=======================================================================
-'PROJECT TITLE:     SALES & MARKETING REFERENCE FILE MAINTENANCE
-'PROGRAM NAME:      PSFREFMT
-'PROJECT NO:        254475
-'
-'START DATE:        FEB.24,2000
-'LATEST COMPILED:   MAR.7, 2000
-'LAST MODIFIED:     MAR.7, 2000
-'HANDOVER TO QA:    MAR.7, 2000
 '
 'PROGRAMER:         HEHUA(SAM) ZHENG (hzheng2000@hotmail.com)
-'
-'DESCRIPTION: THE REFERENCE FILES MAINTENANCE FORM WILL PROVIDE THE MEANS
-'             FOR MAINTENANCE, QUALIFICATION, TRACKING, FORECASTING AND
-'             CONTACTS.
-'             THE HIGH LEVEL SPECIFICATION OF THIS PROJECT WAS WRITTEN BY
-'             MR.BOB EUBANK.
-'NOTES:
-'     IN THIS PROGRAM, WE DEFINE SEVERAL GLOBAL VARIBLES WHICH WILL BE USED
-'     TO TRACK THE USER SELECTIONS. WHENEVER THE USER SELECTS A RADIO BUTTON,
-'     THOSE VARIABLES WILL STROE THE CORRESPONDING DATA. THIS MADE PROGRAMMING
-'     EASIER AND SHORTER. THE VARIABLES ARE:
-'           t_nCurrentOptBtn As Integer
-'           t_sCurrentDBTable As String
-'           t_sCurrentCode As String
-'           t_sCurrentDesc As String
-'           t_nCurrentPromptFlag As Integer
-'           t_sCurrentHeading1 As String
-'           t_sCurrentHeading2 As String
-'           t_sCurrentHeading3 As String
-'           t_sCurrentHeading4 As String
-'           t_sCurrentHeading5 As String
 '
 '========================================================================
 
@@ -795,11 +754,6 @@ Private Const DATA_CHANGED = 3
 Private t_nCurrentOptBtn As Integer
 Private t_nCurrentRpt As String
 
-Private t_sCurrentDBTable As String
-Private t_sCurrentCode As String
-Private t_sCurrentDesc As String
-Private t_nCurrentPromptFlag As Integer  'flag=1, 2 heading prompts=2, 5 heading prompts=5, none=0
-
 Public dbLocal As DataBase
 Public tgmDetail As clsTGSpreadSheet
 Public cValidate As cValidateInput
@@ -811,6 +765,12 @@ Private Const t_szoptRptBtnGotFocus As String = "Select a report type for Add or
 Private Const szLongPattern As String = "^(#{0,9}|[0-1]#{0,9}|\2(\0#{0,8}|\1([0-3]#{0,7}|\4([0-6]#{0,6}|\7([0-3]#{0,5}|\4([0-7]#{0,4}|\8([0-2]#{0,3}|\3([0-5]#?#?|\6([0-3]#?|\4[0-7]?)?)?)?)?)?)?)?)?)$"
 
 
+
+Private Sub cmdSeries_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.Click cmdSeries
+    Screen.MousePointer = vbDefault
+End Sub
 
 '===========
 'Form Events
@@ -865,7 +825,7 @@ Private Sub Form_Load()
 
     #If FACTOR_MENU = 0 Then
         't_szConnect = "ODBC;DSN=Gasup;DB=/factor/gasup/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=ma;PWD=menus"
-        t_szConnect = "ODBC;DSN=Vbdev;DB=/factor/vbdev/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=hzheng;PWD=shangyu"
+        t_szConnect = "ODBC;DSN=dktest;DB=/factor/dktest/factor;HOST=ether;SERV=sqlexec;SRVR=ether;PRO=sesoctcp;UID=hzheng;PWD=shangyu"
     #End If
     If tfnAuthorizeExecute(Command) = False Then 'Check for handshake if not in the development mode
         Unload Me
@@ -999,10 +959,11 @@ Private Sub cmdEditBtn_Click()
 End Sub
 
 Private Sub subAfterAddEditClick()
-    If Not tfnLockRow("PSPREFMT", t_sCurrentDBTable, t_sCurrentDBTable) Then
+    If Not tfnLockRow("ZZMPNSMT", "gf_store_data", "gf_store_data") Then
         Exit Sub
     End If
     
+    tgTable.Columns(COL_YTD).Locked = True
     If t_nFormMode = ADD_MODE Then
         cmdUpdateInsertBtn.Caption = t_szCAPTION_INSERT
         mnuUpdateInsert.Caption = t_szCAPTION_INSERT
@@ -1015,9 +976,6 @@ Private Sub subAfterAddEditClick()
         mnuUpdateInsert.Caption = t_szCAPTION_UPDATE
         tgmDetail.AllowAddNew = False
         tgTable.Columns(COL_PERIOD).Locked = True
-       ' tgmDetail.ClearData
-
-        subLoadScreen
     End If
        
     cmdRefreshSelectBtn.Caption = t_szCAPTION_REFRESH
@@ -1028,11 +986,11 @@ Private Sub subAfterAddEditClick()
     subEnableEditBtn False
 
     subEnableOptionBtns t_nCurrentOptBtn, False
-   
     
-    tgTable.Enabled = True
-    tgTable.col = 0  'may change
-    tgTable.SetFocus
+    tgcDropdown.SQL = "select unique gfsd_series from gf_store_data where gfsd_flag = " & tfnSQLString(t_nCurrentRpt)
+    subEnableSeries True
+    txtSeries.SetFocus
+
  
 End Sub
 Private Sub cmdDeleteBtn_Click()
@@ -1048,7 +1006,7 @@ Private Sub cmdDeleteBtn_Click()
         'If fnCodeNotExist(sCode) Then ' ok, can delete
            If fnDeleteAPeriod(sCode) Then
              '''Good Job!
-             If tfnUnlockRow(t_sCurrentDBTable) Then
+             If tfnUnlockRow("gf_store_data") Then
              ''good job
              End If
            End If
@@ -1067,7 +1025,7 @@ Private Sub cmdUpdateInsertBtn_Click()
     Screen.MousePointer = vbHourglass
     bRet = fnInsertUpdateData
     If bRet Then
-        If tfnUnlockRow(t_sCurrentDBTable) Then
+        If tfnUnlockRow("gf_store_data") Then
              ''good job
         End If
 
@@ -1078,7 +1036,7 @@ Private Sub cmdUpdateInsertBtn_Click()
 End Sub
 
 Private Sub cmdExitCancelBtn_Click()
-    If tfnUnlockRow(t_sCurrentDBTable) Then
+    If tfnUnlockRow("gf_store_data") Then
     ''good job
     End If
 
@@ -1096,7 +1054,6 @@ Private Sub cmdRefreshSelectBtn_Click()
     End If
     
     nDataStatus = DATA_INITIAL
-    subSetSystemSoftwareBtnLabels
     subLoadScreen
     subEnableUpdateBtn False
     nDataStatus = DATA_LOADED
@@ -1308,10 +1265,12 @@ Private Sub tfnResetScreen()
     subEnableRefreshBtn False
     subSetExitCancelBtn "EXIT"
 
+    txtSeries.Text = ""
     tgmDetail.ClearData
    'enable all opt btns,
     subEnableOptionBtns 0, True
 
+    subEnableSeries False
     tgTable.Enabled = False
     t_nCurrentOptBtn = C_M
     
@@ -1322,6 +1281,24 @@ Private Sub tfnResetScreen()
    
 End Sub
 
+
+Private Sub subEnableSeries(bFlag As Boolean)
+   txtSeries.Enabled = bFlag
+   cmdSeries.Enabled = bFlag
+   subEnableSearchButton cmdSeries, bFlag
+End Sub
+
+Private Sub subEnableSearchButton(ByRef ctrlButton As Control, _
+                                 ByVal bStatus As Boolean)
+    'Eanble a search button
+
+    ctrlButton.Enabled = bStatus
+    If bStatus Then
+        ctrlButton.Picture = frmContext.LoadPicture(SEARCH_UP)
+    Else
+        ctrlButton.Picture = frmContext.LoadPicture(SEARCH_DOWN)
+    End If
+End Sub
 
 Private Sub optRptBtn_GotFocus(Index As Integer)
     t_nCurrentOptBtn = Index
@@ -1337,31 +1314,63 @@ Private Sub optRptBtn_KeyPress(Index As Integer, KeyAscii As Integer)
     End If
 End Sub
 
+Private Sub tblComboDropDown_Click()
+'nm
+    tgcDropdown.Click tblComboDropdown
+End Sub
+
+Private Sub tblComboDropDown_GotFocus()
+'nm
+    tgcDropdown.GotFocus tblComboDropdown
+    subSetBusyState False
+End Sub
+
+Private Sub tblComboDropDown_KeyPress(KeyAscii As Integer)
+'nm
+    tgcDropdown.Keypress tblComboDropdown, KeyAscii
+End Sub
+
+Private Sub tblComboDropDown_LostFocus()
+'nm
+    tgcDropdown.LostFocus tblComboDropdown
+End Sub
+
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+'nm
+    tgcDropdown.TableMouseUp y
+End Sub
+
+Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+'nm
+    tgcDropdown.RowColChange
+End Sub
+
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+'nm
+    tgcDropdown.SelChange CANCEL
+End Sub
+
+
+
 Private Sub tgTable_AfterColEdit(ByVal ColIndex As Integer)
     
     Dim lRow As Long
+    Dim ntemp As Long
+    Dim i    As Long
     
     tgmDetail.AfterColEdit ColIndex
     
     lRow = tgmDetail.GetCurrentRowNumber
-    If ColIndex = COL_YTD Then
-        If tgTable.Columns(COL_YTD).Caption = "Prompt" Then
-            If Trim(tgmDetail.CellValue(COL_YTD, lRow)) = "Y" Then
-                If Not bInHere Then
-                    bInHere = True
-                    subShowPopup lRow
-                    bInHere = False
-                End If
-            Else
-                tgmDetail.CellValue(nColAddHead1, lRow) = ""
-                tgmDetail.CellValue(nColAddHead2, lRow) = ""
-                tgmDetail.CellValue(nColAddHead3, lRow) = ""
-                tgmDetail.CellValue(nColAddHead4, lRow) = ""
-                tgmDetail.CellValue(nColAddHead5, lRow) = ""
-            End If
-        End If
+    If tgmDetail.CellValue(COL_NBR, lRow) <> "" Then
+        ntemp = tgmDetail.CellValue(COL_NBR, 0)
+        tgmDetail.CellValue(COL_YTD, 0) = ntemp
+        For i = 1 To tgmDetail.RowCount - 1
+            ntemp = ntemp + tgmDetail.CellValue(COL_NBR, i)
+            tgmDetail.CellValue(COL_YTD, i) = ntemp
+        Next i
+        
+        tgmDetail.Rebind
     End If
-
     subSetButtonStatus
 End Sub
 
@@ -1386,6 +1395,7 @@ Private Sub tgTable_FirstRowChange()
 End Sub
 
 Private Sub tgTable_GotFocus()
+    subEnableSeries False
     tgmDetail.GotFocus
     Screen.MousePointer = vbDefault
     
@@ -1401,13 +1411,6 @@ Private Sub tgTable_KeyPress(KeyAscii As Integer)
    Dim lRow As Long
     
     lRow = tgmDetail.GetCurrentRowNumber
-    
-    If tgTable.col = COL_YTD Then
-      ' If tgTable.Columns(COL_YTD).Caption = "Prompt" _
-      '    Or t_nCurrentOptBtn = C_N Then
-            KeyAscii = Asc(UCase(Chr(KeyAscii)))
-      ' End If
-    End If
     
     If Not tgmDetail.Keypress(KeyAscii) Then
         KeyAscii = 0
@@ -1428,18 +1431,25 @@ Private Sub tgTable_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
     lRow = tgmDetail.GetCurrentRowNumber
     tgmDetail.RowColChange LastRow, LastCol
+    
+    If tgTable.col = COL_YTD Then
+       tgTable.col = COL_PERIOD
+       If t_nFormMode = EDIT_MODE Then
+          If lRow < tgmDetail.RowCount - 1 Then
+             tgTable.Row = lRow + 1
+          End If
+       End If
+       If t_nFormMode = ADD_MODE Then
+          If lRow < tgmDetail.RowCount Then
+             tgTable.Row = lRow + 1
+          End If
+       End If
+    End If
     If t_nFormMode = EDIT_MODE And tgTable.col = 0 Then
         tgTable.col = 1
     End If
     
-    If tgTable.col = COL_YTD And tgTable.Columns(COL_YTD).Caption = "Prompt" Then
-        If tgmDetail.CellValue(COL_YTD, lRow) = "" Then
-            tgmDetail.CellValue(COL_YTD, lRow) = "N"  'default to No
-        End If
-    End If
     
-   ' If tgTable.col = COL_NBR Then
-   '     If tgmDetail.ValidCell(COL_NBR, lRow) Then
     
     subCheckDelete
 End Sub
@@ -1630,7 +1640,7 @@ Private Sub subSetupTDTable()
         
         .AddEditColumn COL_PERIOD, "Enter a period", szLongPattern
         .AddEditColumn COL_NBR, "Enter the number of stores", szLongPattern
-        .AddEditColumn COL_YTD, "Enter a flag", szLongPattern
+        .AddEditColumn COL_YTD, "Year to date total number of stores (display only)", szLongPattern
         .ClearData
     End With
     
@@ -1674,13 +1684,30 @@ End Sub
 
 Private Sub subInitValidation()
     Set cValidate = New cValidateInput
-    Set cValidate.Form = Me
-    Set cValidate.StatusBar = ffraStatusbar
+    With cValidate
+         Set .Form = Me
+         Set .StatusBar = ffraStatusbar
     
-    cValidate.ESCControl = tgTable
-    cValidate.ESCControl = cmdExitCancelBtn
+         .AddEditBox txtSeries, "Enter series here"
+         .MinTabIndex = tbToolbar.TabIndex
+
+        .SetFirstControls cmdUpdateInsertBtn, cmdExitCancelBtn
+        .ESCControl = tgTable
+        .ESCControl = cmdExitCancelBtn
+      End With
  End Sub
 
+Public Function fnInvalidData(txtBox As Textbox) As Boolean
+    Select Case txtBox.TabIndex
+        Case txtSeries.TabIndex
+            fnInvalidData = Not fnValidSeries(txtBox)
+    End Select
+End Function
+
+Private Function fnValidSeries(txtBox As Textbox) As Boolean
+    fnValidSeries = True
+
+End Function
 Public Function fnValidCellValue(tgTDTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Long, sText As String) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1765,7 +1792,7 @@ Private Function fnValidNumber(ByVal sText As String, ByVal nRow As Long)
        Exit Function
     End If
     
-    fnValidDesc = True
+    fnValidNumber = True
 End Function
 
 Private Sub subDataChanged()
@@ -1915,9 +1942,9 @@ Private Sub subLoadScreen()
 'nm
     Const SUB_NAME = "subLoadScreen"
 
-    If nDataStatus <> DATA_INITIAL Then
-        Exit Sub
-    End If
+    'If nDataStatus <> DATA_INITIAL Then
+    '    Exit Sub
+    'End If
     subSetBusyState True
     nDataStatus = DATA_LOADING
     If fnLoadData Then
@@ -2005,14 +2032,14 @@ Private Function fnInsertUpdateData() As Boolean
     Dim bDone As Boolean
     
     fnInsertUpdateData = False
+       
     For i = 0 To tgmDetail.RowCount - 1
         nLine = i + 1
         If Not fnNullValue(tgmDetail.CellValue(COL_PERIOD, i)) Then
             tgmDetail.GetRow vData, nCols, i
-            If t_nFormMode = ADD_MODE Then
+            If fnLineNotExist(vData) Then
                bDone = fnInsertLine(vData)
-            End If
-            If t_nFormMode = EDIT_MODE Then
+            Else
                bDone = fnUpdateLine(vData)
             End If
             
@@ -2046,7 +2073,7 @@ Private Function fnInsertLine(vData() As Variant) As Boolean
     
     fnInsertLine = False
     
-    strSQL = "INSERT INTO gf_store_data(gfsd_flag, gfad_series,gfsd_period,gfsd_nbr) VALUES(" _
+    strSQL = "INSERT INTO gf_store_data(gfsd_flag, gfsd_series,gfsd_period,gfsd_nbr) VALUES(" _
             & tfnSQLString(t_nCurrentRpt) & "," & tfnSQLString(txtSeries.Text) _
             & "," & tfnSQLString(vData(COL_PERIOD)) _
             & "," & tfnSQLString(vData(COL_NBR)) & ")"
@@ -2082,6 +2109,8 @@ Private Function fnUpdateLine(vData() As Variant) As Boolean
 End Function
 
 
+
+
 Private Function fnDeleteAPeriod(ByVal sPeriod As String) As Boolean
     Const SUB_NAME = "fnDelectAPeriod"
     Dim strSQL As String
@@ -2102,26 +2131,23 @@ Private Function fnDeleteAPeriod(ByVal sPeriod As String) As Boolean
    
 End Function
 
-Private Function fnCodeNotExist(ByVal sCode As String)
-    Const SUB_NAME = "fnCodeNotExist"
+Private Function fnLineNotExist(vData() As Variant) As Boolean
+    Const SUB_NAME = "fnLineNotExist"
     Dim strSQL As String
     Dim rsTemp As Recordset
 
-    fnCodeNotExist = False
+    fnLineNotExist = False
 
-    'special case:
-    If t_nCurrentOptBtn = C_N Then
-        fnCodeNotExist = True
-        Exit Function
-    End If
-    
-    'general cases:
-    strSQL = fnCheckDeleteSQL(sCode)
+    strSQL = "SELECT * FROM gf_store_data " _
+            & " WHERE gfsd_flag = " & tfnSQLString(t_nCurrentRpt) _
+            & "  AND gfsd_series = " & tfnSQLString(txtSeries.Text) _
+            & " AND gfsd_period = " & tfnSQLString(vData(COL_PERIOD))
+ 
     Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "")
     If Not rsTemp Is Nothing Then
         With rsTemp
             If .RecordCount <= 0 Then
-               fnCodeNotExist = True
+               fnLineNotExist = True
             End If
         End With
     End If
@@ -2140,3 +2166,106 @@ Private Sub subGetRptFlag(Index As Integer)
             t_nCurrentRpt = "S"
     End Select
 End Sub
+
+Private Sub txtSeries_Change()
+
+    tgcDropdown.Change txtSeries
+    cValidate.Change txtSeries
+    
+    If txtSeries.Text = "" Then
+       tgmDetail.ClearData
+    End If
+End Sub
+
+Private Sub txtSeries_Click()
+    tgcDropdown.Click txtSeries
+End Sub
+
+Private Sub txtSeries_GotFocus()
+    tgcDropdown.GotFocus txtSeries
+    cValidate.GotFocus txtSeries
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+      If cValidate.ValidInput(txtSeries) Then
+         subEnableTgTable True
+         'If t_nFormMode = EDIT_MODE Then
+            subLoadScreen
+         'End If
+      End If
+    End If
+End Sub
+
+Private Sub txtSeries_KeyPress(KeyAscii As Integer)
+
+    Dim bCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        Screen.MousePointer = vbHourglass
+        If txtSeries.Text <> "" And fnSeriesIsNew() Then
+           subEnableTgTable True
+           Screen.MousePointer = vbDefault
+           Exit Sub
+        End If
+    End If
+    
+    bCode = tgcDropdown.Keypress(txtSeries, KeyAscii)
+    Screen.MousePointer = vbDefault
+
+    If Not bCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                If cValidate.ValidInput(txtSeries) Then
+                   subEnableTgTable True
+                   subLoadScreen
+                End If
+            End If
+        End If
+        KeyAscii = 0
+    Else
+        cValidate.Keypress txtSeries, KeyAscii
+    End If
+End Sub
+
+Private Sub txtSeries_LostFocus()
+   If cValidate.LostFocus(txtSeries, cmdSeries, tblComboDropdown) Then
+        If cValidate.ValidInput(txtSeries) Then
+            'do nothing
+        End If
+        subSetButtonStatus
+        If txtSeries.Text <> "" Then
+            subEnableTgTable True
+        End If
+        tgcDropdown.LostFocus txtSeries
+    End If
+End Sub
+
+Private Sub subEnableTgTable(bFlag As Boolean)
+    tgTable.Enabled = bFlag
+    If bFlag Then
+       tgTable.col = 0  'may change
+       tgTable.SetFocus
+    End If
+End Sub
+
+Private Function fnSeriesIsNew() As Boolean
+    Const SUB_NAME = "fnSeriesIsNew"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+
+    fnSeriesIsNew = False
+
+    strSQL = "SELECT * FROM gf_store_data " _
+            & " WHERE gfsd_flag = " & tfnSQLString(t_nCurrentRpt) _
+            & "  AND gfsd_series = " & tfnSQLString(txtSeries.Text)
+ 
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "")
+    If Not rsTemp Is Nothing Then
+        With rsTemp
+            If .RecordCount <= 0 Then
+               fnSeriesIsNew = True
+            End If
+        End With
+    End If
+End Function
+
