@@ -174,7 +174,12 @@ SayWelcome:
 		if (bRun) then
 			//check TMI StoreTrak Installation
 			if (fnIsTMIinstallation(szModuleID)) then
-				bIsTMIInstall = TRUE;
+				//modified by xijian on 02/06/01
+				if szModuleID = "StoreTrak System 10.00" then
+					bIsTMIInstall = FALSE;
+				else
+					bIsTMIInstall = TRUE;
+				endif;
 			endif;
 
                         Enable (HOURGLASS);
@@ -261,11 +266,16 @@ SayWelcome:
 					endif;
 				else
 					if (!bRebootNeeded) then
-					       SdFinish(WELCOME_TITLE + " Completed",
-					                WELCOME_TITLE + " has finished installing files " +
-							"to your system.",
-					                "Click Finish to end " + WELCOME_TITLE + ".",
-					                "", "", bTemp1, bTemp2);
+						//modified by xijian on 02/06/01
+						if szModuleID = "StoreTrak System 10.00" then
+							//not show the finish form
+						else
+					       		SdFinish(WELCOME_TITLE + " Completed",
+						                WELCOME_TITLE + " has finished installing files " +
+								"to your system.",
+						                "Click Finish to end " + WELCOME_TITLE + ".",
+						                "", "", bTemp1, bTemp2);
+						endif;
 					endif;
 				endif;
 			else
