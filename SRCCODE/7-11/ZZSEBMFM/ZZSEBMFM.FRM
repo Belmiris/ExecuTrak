@@ -1756,6 +1756,9 @@ Private Sub subInitSpreadsheets()
         .AddSortColumn ColBCode, ColBCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             ColPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
             
+        .AddSortColumn ColSequence, ColPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            ColSequence, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
+            
         .SortByColumn = True
     
         .RemoveEditColumn ColPrftCtr
@@ -2002,7 +2005,7 @@ Private Function fnLoadData() As String
         strSQL = strSQL & " WHERE bc_bonus_code = bm_bonus_code"
         strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
         strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
-        strSQL = strSQL & " ORDER BY bm_eligible_pc, bm_bonus_code, bm_sequence"
+        strSQL = strSQL & " ORDER BY bm_eligible_pc, bm_sequence"
     End If
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
@@ -2994,7 +2997,7 @@ Private Function fnCreateTempBonusMaster() As Boolean
     aryEmpPrftCtr = Split(sEmpPrftCtrList, ",")
     
     For i = 0 To UBound(aryEmpPrftCtr)
-        strSQL = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_grades WHERE 1 = 1"
+        strSQL = "SELECT bc_bonus_code, bc_code_desc, bc_override FROM bonus_codes, bonus_grades WHERE 1 = 1"
         strSQL = strSQL & " AND bc_grade = bg_grade"
         strSQL = strSQL & " AND bg_emp_level = " & tfnRound(txtGrade)
         strSQL = strSQL & " AND bc_bonus_code NOT IN (SELECT bm_bonus_code FROM bonus_master"
@@ -3007,9 +3010,11 @@ Private Function fnCreateTempBonusMaster() As Boolean
     
         While Not rsTemp.EOF
             strSQL = " INSERT INTO t_bonus_mstr (bm_bonus_code, bm_eligible_pc,"
-            strSQL = strSQL + " bm_eligible_date, bm_override) VALUES ("
+            strSQL = strSQL + " bm_eligible_date, bm_stop_date, bm_override) VALUES ("
             strSQL = strSQL + tfnSQLString(rsTemp!bc_bonus_code) + ", " & aryEmpPrftCtr(i) & ","
-            strSQL = strSQL + tfnDateString(tfnFormatDate(Date), True) + ", 'N'"
+            strSQL = strSQL + tfnDateString(tfnFormatDate(Date), True) + ", "
+            strSQL = strSQL + tfnDateString("01/01/2525", True) + ", "
+            strSQL = strSQL + tfnSQLString(rsTemp!bc_override)
             strSQL = strSQL + ")"
             t_dbMainDatabase.ExecuteSQL strSQL
     
