@@ -88,8 +88,32 @@ echo 1 -- Update Disk Build Log database
 REM call buildlog %1
 
 call cupsetup
-call splitz
 
+if "%2" == "" goto ask_copy_setupz
+
+
+call splitz
+goto ask_make_disk
+
+
+:ask_copy_setupz
+echo .
+echo SETUP.Z file has updated.
+choice /c:yn /t:y,5 Do you want to copy SETUP.Z to Disk#1.
+
+if errorlevel 2 goto ask_make_disk
+
+echo .
+echo Insert Disk#1 into Drive A:
+pause
+
+echo a | xcopy .\disk\disk1\setup.z a:
+echo a | xcopy .\disk\disk1\setup.bmp a:
+echo a | xcopy .\disk\disk1\setup.pkg a:
+echo a | xcopy .\servers\exectrak\setup.ins a:
+
+
+:ask_make_disk
 echo .
 echo split Z files has finished.
 choice /c:yn /t:y,5 Do you want to make the Distribution Disk.

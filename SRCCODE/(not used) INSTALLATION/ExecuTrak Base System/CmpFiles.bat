@@ -129,8 +129,8 @@ icomp .\clients\exectrak\zfiles\*.* .\servers\exectrak\zfiles\client.z
 
 echo .
 echo 4b -- Compress all 'program' files in c:\template\setup directory to setup.z
-icomp c:\template\setup\*.* .\servers\exectrak\zfiles\setup.z
-
+rem icomp c:\template\setup\*.* .\servers\exectrak\zfiles\setup.z
+icomp .\clients\disk\*.* .\servers\exectrak\zfiles\setup.z
 echo .
 echo 4c -- Add clients\exectrak\setup.ins to setup.z
 icomp .\clients\exectrak\setup.ins .\servers\exectrak\zfiles\setup.z
