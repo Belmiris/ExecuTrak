@@ -1187,8 +1187,12 @@ Private Sub cmdRefresh_Click()
             Exit Sub
         End If
         
-        fnLoadBonusFormula txtBonusCode, txtLevel
+        fnLoadBonusFormula txtBonusCode, txtLevel.Tag
         subEnableUpdateBtn False
+        subEnableDeleteBtn True
+        
+        txtLevel.Enabled = True
+        subSetFocus txtLevel
     Else  'Select
         Dim lCount As Long
         Dim lTemp() As Long
@@ -1344,7 +1348,11 @@ Private Sub Form_Load()
      
     #If Not PROTOTYPE Then
         tfnUpdateVersion
-        fnCreateTempTableVar
+        If Not fnCreateTempTableVar() Then
+            MsgBox "Failed to create temporary Variable Table. Program terminates.", vbCritical
+            Unload Me
+            Exit Sub
+        End If
     #End If
     
     tfnDisableFormSystemClose Me
@@ -1813,6 +1821,8 @@ Private Sub subSetupCombos()
 End Sub
 
 Private Sub txtBonusCode_Change()
+    subEnableUpdateBtn False
+    
     cValidate.Change txtBonusCode
     tgcDropdown.Change txtBonusCode
     txtBonusType.Caption = ""
@@ -2180,6 +2190,7 @@ Private Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boole
     
     If rsTemp.RecordCount = 1 Then
         txtBonusCodeDesc = fnGetBonusCodeDesc(sCode)
+        txtLevel = fnGetField(rsTemp!bf_level)
         txtPercent = tfnRound(rsTemp!bf_percent, DEFAULT_DECIMALS)
         txtDollar = tfnFormatDecimal(rsTemp!bf_dollar, 2)
         txtAmount1 = tfnFormatDecimal(rsTemp!bf_amount1, 2, DEFAULT_DECIMALS)
@@ -2297,6 +2308,8 @@ Private Sub subEnableFirstLine(bYesNo As Boolean)
 End Sub
 
 Private Sub txtlevel_Change()
+    subEnableUpdateBtn False
+    
     cValidate.Change txtLevel
     tgcDropdown.Change txtLevel
 
@@ -2394,7 +2407,6 @@ Private Sub subEnterStageII()
         If txtBonusType.Caption <> "" Then
             subEnableVariables Trim(txtBonusType)
         End If
-        txtPercent = ""
     Else
         If fnLoadBonusFormula(txtBonusCode, txtLevel) Then
             subEnableDeleteBtn True
@@ -2952,12 +2964,16 @@ Private Sub efraBase_GotFocus()
 End Sub
 
 Private Function fnCreateTempTableVar() As Boolean
-    Const SUB_NAME As String = "subCreateTempTableVar"
+    Const SUB_NAME As String = "fnCreateTempTableVar"
+    
     Dim strSQL As String
     Dim sarrVariable() As Variant
     Dim i As Integer
     
-    fnCreateTempTableVar = False
+    'predefined variables
+    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
+        "months_in_grade", "months_as_manager", "years_as_manager", "months_employed", _
+        "shortage_amount", "check_amount", "pay_hours")
     
     On Error GoTo Continue
     strSQL = "DROP TABLE tmpvariable"
@@ -2965,17 +2981,18 @@ Private Function fnCreateTempTableVar() As Boolean
     
 Continue:
     strSQL = "CREATE TEMP TABLE tmpVariable (Variable char(18))"
-    fnExecuteSQL strSQL, , SUB_NAME
-    
-    sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
-        "months_as_manager", "years_as_manager", "months_employed", "shortage_amount", _
-        "check_amount", "pay_hours")
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
     
     For i = 0 To UBound(sarrVariable)
         strSQL = "INSERT INTO tmpvariable VALUES(" & tfnSQLString(sarrVariable(i)) & ")"
-        fnExecuteSQL strSQL, , SUB_NAME
+        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+            Exit Function
+        End If
     Next
     
+    fnCreateTempTableVar = True
 End Function
 
 Private Function fnValidVariables(Box As Textbox) As Boolean
