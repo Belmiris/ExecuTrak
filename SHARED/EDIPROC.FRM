@@ -261,7 +261,9 @@ Public Function LaunchEDIPROC() As String
     sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
     subAddLog sMsg
     
-    m_frmParent.Enabled = False
+    If Not m_frmParent Is Nothing Then
+        m_frmParent.Enabled = False
+    End If
     Screen.MousePointer = vbHourglass
     
     'busy waiting for EDI Translation Processor to finish
@@ -278,7 +280,9 @@ Public Function LaunchEDIPROC() As String
     Loop While fnExeIsRunning(sExeFile)
     
     Screen.MousePointer = vbDefault
-    m_frmParent.Enabled = True
+    If Not m_frmParent Is Nothing Then
+        m_frmParent.Enabled = True
+    End If
     
     sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
     subAddLog sMsg
@@ -321,7 +325,7 @@ End Function
 Private Function fnCheckEdiProcError() As String
     Const SUB_NAME As String = "fnCheckEdiProcError"
     
-    Dim dbEDI As DataBase
+    Dim dbEDI As Database
     Dim sSql As String
     Dim rsTemp As Recordset
     Dim sFileName As String
@@ -329,7 +333,7 @@ Private Function fnCheckEdiProcError() As String
     
     fnCheckEdiProcError = ""
     
-    sFileName = m_ProgramPath + "EDIXLATE.MDB"
+    sFileName = fnAddBkSlash(m_ProgramPath) + "EDIXLATE.MDB"
     
     Set dbEDI = tfnOpenEdiXlateDatabase(sFileName)
     
@@ -363,7 +367,7 @@ Private Function fnCheckEdiProcError() As String
     fnCheckEdiProcError = sErrMsg
 End Function
 
-Private Function tfnOpenEdiXlateDatabase(sDatabaseNamePath As String) As DataBase
+Private Function tfnOpenEdiXlateDatabase(sDatabaseNamePath As String) As Database
     
     On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
 
@@ -386,7 +390,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
-                            dbLocal As DataBase, sCalledFrom As String, _
+                            dbLocal As Database, sCalledFrom As String, _
                             Optional bShowError, _
                             Optional vMoveLast) As Long
 
@@ -543,15 +547,15 @@ Private Sub Wait(dfSeconds As Single)
 End Sub
 
 Private Function fnGetPath(sPathFile As String) As String
-    Dim i As Integer
+    Dim I As Integer
     
-    For i = Len(sPathFile) To 1 Step -1
-        If Mid(sPathFile, i, 1) = "\" Then
+    For I = Len(sPathFile) To 1 Step -1
+        If Mid(sPathFile, I, 1) = "\" Then
             Exit For
         End If
-    Next i
+    Next I
     
-    If i > 0 Then
-        fnGetPath = Left(sPathFile, i - 1)
+    If I > 0 Then
+        fnGetPath = Left(sPathFile, I - 1)
     End If
 End Function
