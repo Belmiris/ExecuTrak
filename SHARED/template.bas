@@ -59,6 +59,7 @@ Global Const szHelp7_11 As String = "7-ELEVEN.HLP" 'help file name for 7-11 Comm
 Global Const szHelpICUSTINQ As String = "ICUSTINQ.HLP" 'Internet project Customer inquiry
 Global Const szHelpGasCheck As String = "ZZEFOGCK.HLP" 'Gas Check Data Entry
 Global Const szHelpDrakeOil As String = "ZZEDPCLU.HLP" 'Card Lock Processing
+Global Const szHelpSalesMark As String = "SaleMark.HLP" 'Sales and Marketing
 
 
 Public Const t_szEXIT_MESSAGE = "All changes will be lost! Do you want to exit anyway ?"
@@ -639,7 +640,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1228,14 +1229,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1366,7 +1367,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
