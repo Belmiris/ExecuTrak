@@ -209,7 +209,9 @@ Public Function fnCalculateTaxes(sProduct As String, _
                                   sTaxUseGroup As String, _
                                   dGross As Double, _
                                   dQuantity As Double, _
-                                  ByRef dTaxAmount As Double) As Boolean
+                                  ByRef dTaxAmount As Double, _
+                                  Optional bShowMsgBox As Boolean = True, _
+                                  Optional sErrMsg As String = "") As Boolean
 
     'Calculate taxes by calling the tax mods
     Dim myStruct As CMovementLineItem
@@ -247,7 +249,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnCalculateTaxes = False
         
         Exit Function
@@ -264,7 +266,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnCalculateTaxes = False
         Exit Function
     End If
@@ -736,7 +738,9 @@ Public Function fnGetTaxAmount(szProduct As String, _
                                szTaxUseGroup As String, _
                                szBillingFlag As String, _
                                ByVal bExternal As Boolean, _
-                               ByVal bLading As Boolean) As Double
+                               ByVal bLading As Boolean, _
+                               Optional bShowMsgBox As Boolean = True, _
+                               Optional sErrMsg As String = "") As Double
 
     Dim fDollarBase As Double
     Dim fQuantity As Double
@@ -798,7 +802,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
 
@@ -814,7 +818,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
     
@@ -840,7 +844,9 @@ Public Function fnGetTaxAmount1(szProduct As String, _
                                szTaxUseGroup As String, _
                                szBillingFlag As String, _
                                ByVal bExternal As Boolean, _
-                               ByVal bLading As Boolean) As Double
+                               ByVal bLading As Boolean, _
+                               Optional bShowMsgBox As Boolean = True, _
+                               Optional sErrMsg As String = "") As Double
 
     Dim fQuantity As Double
     'Calculate taxes by calling the tax mods
@@ -896,7 +902,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
 
@@ -912,7 +918,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
     
@@ -1107,7 +1113,9 @@ Public Function fnTaxInformation(sProduct As String, _
                                  fNet As Double, _
                                  sBillFlag As String, _
                                  ByRef Taxes() As CApplicableTaxes, _
-                                 ByRef nRecords As Long) As Boolean
+                                 ByRef nRecords As Long, _
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "") As Boolean
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1139,7 +1147,7 @@ Public Function fnTaxInformation(sProduct As String, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnTaxInformation = False
         Exit Function
     End If
@@ -1155,7 +1163,7 @@ Public Function fnTaxInformation(sProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnTaxInformation = False
         Exit Function
     End If
@@ -1173,7 +1181,9 @@ Public Function fnTaxInformation1(sProduct As String, _
                                  bExternal As Boolean, _
                                  bBOLFlag As Boolean, _
                                  ByRef Taxes() As CApplicableTaxes, _
-                                 ByRef nRecords As Long) As Boolean
+                                 ByRef nRecords As Long, _
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "") As Boolean
     'Get the tax information array
     Dim myStruct As CMovementLineItem
     Dim nRet As Long
@@ -1217,7 +1227,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnTaxInformation1 = False
         Exit Function
     End If
@@ -1233,7 +1243,7 @@ Public Function fnTaxInformation1(sProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         fnTaxInformation1 = False
         Exit Function
     End If
@@ -1251,7 +1261,9 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
                                  fGross As Double, _
                                  fNet As Double, _
                                  sBillFlag As String, _
-                                 Optional vLineType As Variant) As Boolean
+                                 Optional vLineType As Variant, _
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "") As Boolean
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
     'Get the tax information array
     Dim Taxes() As CApplicableTaxes
@@ -1296,7 +1308,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
         
@@ -1311,7 +1323,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
     For nIdx = 0 To nInfoCount - 1
@@ -1347,7 +1359,9 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
                                     Optional fFreight As Variant, _
                                     Optional fGross As Variant, _
                                     Optional fNet As Variant, _
-                                    Optional sBillFlag As Variant) As Boolean
+                                    Optional sBillFlag As Variant, _
+                                    Optional bShowMsgBox As Boolean = True, _
+                                    Optional sErrMsg As String = "") As Boolean
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
     'Get the tax information array
     Dim Taxes() As CApplicableTaxes
@@ -1406,7 +1420,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
         
@@ -1421,7 +1435,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
     
