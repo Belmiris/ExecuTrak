@@ -241,7 +241,7 @@ ConfirmCopy:
                 ListAddString(listInfo, "        PC Server Installation", AFTER);
 	endif;
         ListAddString(listInfo, "", AFTER);
-        ListAddString(listInfo, "Intallation Type:", AFTER);
+        ListAddString(listInfo, "installation Type:", AFTER);
         if (szForceInstall = "1 ") then
                 ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
         else
@@ -464,23 +464,11 @@ DecompressSuccessful:
 	// Run the client installation?
         if (bRunStandAlone) then
                
-		TARGETDIR = WINDIR ^ "TEMP";
-
-                // remove the client z files because stand-alone installation is selected
-                LOGMSG="RUN STAND-ALONE, DELETE Z FILES IN " + TARGETDIR;
-                LOGWRITE(LOGMSG);
-
-                DeleteFile(KEY_DEFAULT + "bin.z");
-		DeleteFile("localdb.z");
-
-                szFolder = COMPANY_NAME ^ "ExecuTrak";
-                szAppDir = szBaseDirectory ^ PRODUCT_SUBDIR;
-        
                 // create folder shortcuts
                 LOGMSG="CREATING FOLDER SHORTCUTS";
                 LOGWRITE(LOGMSG);
         
-                SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
+                SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " installation...");
 
                 szSCWork = szAppDir;
                 szSCExe = szAppDir ^ HELP_FILE;
@@ -495,12 +483,22 @@ DecompressSuccessful:
 		SRCDIR = WINDIR ^ "TEMP";
 		XCopyFile(KEY_DEFAULT + "bin.z", KEY_DEFAULT + "bin.z", COMP_NORMAL);
  		XCopyFile("localdb.z", "localdb.z", COMP_NORMAL);
+ 		CopyFile("localdb.z", "factdb.z");
 		
                 LOGMSG="NO FOLDER SHORTCUTS NEEDED FOR SERVER INSTALLATION";
                 LOGWRITE(LOGMSG);
         endif;
+        
+        TARGETDIR = WINDIR ^ "TEMP";
 
-        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
+        // remove the z files 
+        LOGMSG="DELETE Z FILES IN " + TARGETDIR;
+        LOGWRITE(LOGMSG);
+
+        DeleteFile(KEY_DEFAULT + "bin.z");
+	DeleteFile("localdb.z");
+
+        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " installation...");
 
         // add registry information
 	LOGMSG="ADDING REGISTRY INFORMATION";
@@ -515,7 +513,7 @@ DecompressSuccessful:
 
         RegDBSetKeyValueEx(KEY_ROOT ^ PRODUCT_NAME, KEY_REMOTE, REGDB_NUMBER, "0", -1);
 
-        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " installation...");
 
         Delay( 1 );
 	Disable(STATUS);
