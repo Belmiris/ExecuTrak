@@ -671,7 +671,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1307,14 +1307,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1445,7 +1445,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2641,6 +2641,7 @@ Public Function fnSetScreenResolution(nScreenWidth As Integer, nScreenHeight As 
 End Function
 
 'david 04/30/2002
+'#367575
 Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
