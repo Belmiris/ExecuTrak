@@ -306,7 +306,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         End If
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If bFromUnixToLocal Then
         'Separate the file path and file name...
         subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
@@ -405,7 +405,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             End If
             On Error Resume Next
             Name sDestPath & sArrFile(i) As sDestPath & sArrOldname(i)
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             If bDeleteSourceFile Then
                 bFlag = FtpDeleteFile(hConnection, sArrFile(i))
                 If bFlag = False Then
@@ -416,6 +416,12 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             End If
         Next i
     Else 'Transfer from local to unix server...
+        '#wj120104 - Initialize lBinAscii
+        lBinAscii = 0 'Default Binary
+        If Not (bBinary) Then ' If we're in NOT in binary, set binascii to 1.
+            lBinAscii = 1
+        End If
+        
         Dim nNumFiles As Integer
         'Separate the file path and file name...
         subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath, False
@@ -477,7 +483,7 @@ CloseHandle:
     If hOpen > 0 Then InternetCloseHandle hOpen
     If hFind > 0 Then InternetCloseHandle hFind
     Exit Function
-ErrTrap:
+errTrap:
     sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
