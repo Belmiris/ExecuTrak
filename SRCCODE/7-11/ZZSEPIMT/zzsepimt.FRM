@@ -2574,7 +2574,7 @@ Private Function fnUpdateInsert2() As Boolean
                 Exit Function
             End If
             strSQL = "UPDATE pr_emp_pay SET prep_amount= " _
-               & tfnRound(vData(COL_NEW_RATE) * 1.5, 2)
+               & tfnFormatDecimal(vData(COL_NEW_RATE) * 1.5, 2)
             strSQL = strSQL & " WHERE prep_empno=" & vData(COL_EMPNO)
             strSQL = strSQL & " AND prep_pay_code='" & strOverCode & "'"
             If Not fnExecuteSQL(strSQL, SUB_NAME) Then
@@ -2667,9 +2667,9 @@ Private Function fnProcess(rsTemp As Recordset) As Boolean
             vData(COL_DESC, i) = rsTemp!emp_level_desc
             vData(COL_HIRE_DATE, i) = rsTemp!date_hired
             vData(COL_DAYS_WORKED, i) = rsTemp!days_worked
-            vData(COL_OLD_RATE, i) = tfnRound(rsTemp!old_rate, 2)
-            vData(COL_NEW_RATE, i) = tfnRound(rsTemp!new_rate, 2)
-            vData(COL_DIFF, i) = tfnRound(rsTemp!rate_diff, 2)
+            vData(COL_OLD_RATE, i) = tfnFormatDecimal(rsTemp!old_rate, 2)
+            vData(COL_NEW_RATE, i) = tfnFormatDecimal(rsTemp!new_rate, 2)
+            vData(COL_DIFF, i) = tfnFormatDecimal(rsTemp!rate_diff, 2)
             
             If (Trim(fnRSToString(rsTemp!fname)) = "") And (Trim(fnRSToString(rsTemp!mname)) = "") Then
                 strTemp = Trim(fnRSToString(rsTemp!lname))
