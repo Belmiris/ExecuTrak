@@ -1,3 +1,9 @@
+version: 3.26.0004
+Date: 01/04/2002
+Description: 
+	Sales & Marketing.
+	tables name prefix changed (from ps_ to mk_).
+
 version: 3.26.0003
 Date: 12/05/2001
 Description: 
