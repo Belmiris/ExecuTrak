@@ -191,7 +191,7 @@ Private Function fnComputeDiscountAmount(rsTerms As Recordset, _
 Dim rsSysDiscUnits   As Recordset        '// Recordset for unit based discounts
 Dim dDiscount  As Double
 
-dDiscount = fDollarAmount * (rsTerms!term_disc_percent / 100)
+dDiscount = fDollarAmount * (tfnRound(rsTerms!term_disc_percent, DEFAULT_DECIMALS) / 100)
 
 If fInvQuantity <> 0 Then
     Set rsSysDiscUnits = fnGetUnitsDiscount(rsTerms, Abs(fInvQuantity))
