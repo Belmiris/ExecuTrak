@@ -2981,7 +2981,7 @@ Private Function fnCreateTempTableVar() As Boolean
     'predefined variables
     sarrVariable = Array("inside_sales", "gallons_sold", "day_off_slip_day", "total_pay", _
         "months_in_grade", "months_as_manager", "years_as_manager", "months_employed", _
-        "shortage_amount", "check_amount", "pay_hours")
+        "shortage_amount", "check_amount", "pay_hours", "inv_shortage_ratio")
     
     On Error GoTo Continue
     strSQL = "DROP TABLE tmpvariable"
@@ -3571,6 +3571,7 @@ Private Function fnGetVarValue(sV As String, _
                          "shortage_amount", _
                          "check_amount", _
                          "pay_hours", _
+                         "inv_shortage_ratio", _
                          "not used")
     
     fnGetVarValue = 0#
@@ -3615,7 +3616,10 @@ Private Function fnGetVarValue(sV As String, _
         Case sarrVariable(10)  'pay hours
             fnGetVarValue = 11.21
             
-        Case sarrVariable(11)  'not used
+        Case sarrVariable(11)  'inventory shortage ratio
+            fnGetVarValue = 12.34
+            
+        Case sarrVariable(12)  'not used
             Exit Function
         
         Case Else

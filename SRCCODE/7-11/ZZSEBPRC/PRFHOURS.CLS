@@ -1643,6 +1643,10 @@ Private Sub subCreateTempTable()
     Dim sTempTemp As String
     Dim sTempTemp1 As String
     
+    #If PROTOTYPE Then
+        Exit Sub
+    #End If
+    
     On Error GoTo err
     
     sTempTemp = "temp_table1"

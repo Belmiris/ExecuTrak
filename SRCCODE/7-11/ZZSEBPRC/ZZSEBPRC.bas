@@ -77,6 +77,11 @@ Public Const colDBAmt As Integer = 6
 Public colDHdnEmpNo As Integer
 Public colDHdnPrftCtr As Integer
 
+Public arySalesDesc() As Variant
+Public arySalesType() As Variant
+
+Public sSalesTypeCode As String
+Public sOldSalesType As String
 Public Const nWeek As Integer = 0
 Public Const sWeek As String = "W"
 Public Const nOneMth As Integer = 1
@@ -85,6 +90,7 @@ Public Const nGas As Integer = 2
 Public Const sGas As String = "G"
 Public Const nThreeMth As Integer = 3
 Public Const sThreeMth As String = "Q"
+Public Const sRatio As String = "R"
 
 Public vArrBonus() As Variant
 Public objMath As clsEquation
@@ -251,6 +257,39 @@ errCreateTable:
 
 errInsertRecords:
     tfnErrHandler "fnCreateSearchTable", sSql
+End Function
+
+Public Function fnCreateSalesTable() As Boolean
+    Const SUB_NAME As String = "fnCreateTempTableVar"
+    
+    Dim strSQL As String
+    Dim i As Integer
+    
+    'predefined variables
+    arySalesDesc = Array("Week Sales", "Three Month Sales", "One Month Sales", "Gas Sales", _
+        "Inv. Shortage Ratio")
+    
+    arySalesType = Array(sWeek, sThreeMth, sOneMth, sGas, sRatio)
+    
+    On Error GoTo Continue
+    strSQL = "DROP TABLE tmp_sales_type"
+    t_dbMainDatabase.ExecuteSQL strSQL
+    
+Continue:
+    strSQL = "CREATE TEMP TABLE tmp_sales_type (tst_desc char(20), tst_type char(1))"
+    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+        Exit Function
+    End If
+    
+    For i = 0 To UBound(arySalesDesc)
+        strSQL = "INSERT INTO tmp_sales_type VALUES(" + tfnSQLString(arySalesDesc(i))
+        strSQL = strSQL + "," + tfnSQLString(arySalesType(i)) + ")"
+        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+            Exit Function
+        End If
+    Next
+    
+    fnCreateSalesTable = True
 End Function
 
 Public Function fnCreateReport(Index As Integer) As Boolean
@@ -447,6 +486,28 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         fnGetField(rsTemp!bf_adj_condition), _
         sBType)
                 
+End Function
+
+Public Function fnCheckApprove() As Boolean
+    Dim lApproved As Long
+    
+    lApproved = 0
+    
+    fnHasApprove lApproved
+    
+    If lApproved = 0 Then
+        frmZZSEBPRC.tfnSetStatusBarError "No Approved row available to insert"
+        Exit Function
+    End If
+    
+    If lApproved < tgmApprove.RowCount Then
+        If MsgBox("Row(s) that is not approved will not be inserted. Are you sure you want " _
+           + "to continue?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+            Exit Function
+        End If
+    End If
+    
+    fnCheckApprove = True
 End Function
 
 Public Function fnInsertHoldBonus() As String
@@ -695,7 +756,7 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
                                   sBType As String) As Double
     
     Const SUB_NAME As String = "fnCalculateBonus"
-    
+    Const sInvShortageRatio As String = "inv_shortage_ratio"
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sErrMsg As String
@@ -703,6 +764,7 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     Dim V1 As Double, V2 As Double, V3 As Double
     Dim bConditionOK As Boolean
     Dim dBonusAmt As Double
+    Dim bInvShortageRatioOK As Boolean
     
     fnCalculateBonus = 0#
     
@@ -761,10 +823,15 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
     End If
     
     'Get real values...
+    bInvShortageRatioOK = True
+    
     If sV1 <> "" Then
         V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
+            If sV1 = sInvShortageRatio Then
+                bInvShortageRatioOK = False
+            End If
         End If
     End If
     
@@ -772,6 +839,9 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
+            If sV2 = sInvShortageRatio Then
+                bInvShortageRatioOK = False
+            End If
         End If
     End If
     
@@ -779,6 +849,9 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
         If sErrMsg <> "" Then
             subLogErrMsg sErrMsg
+            If sV3 = sInvShortageRatio Then
+                bInvShortageRatioOK = False
+            End If
         End If
     End If
     
@@ -822,14 +895,16 @@ Private Function fnCalculateBonus(lEmpNo As Long, _
         End If
     End If
     
+    dBonusAmt = 0#
+    
     If bConditionOK Then
-        dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
-        If sErrMsg <> "" Then
-            subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
-            Exit Function
+        If bInvShortageRatioOK Then
+            dBonusAmt = tfnRound(objMath.Calculate(sFmla, sErrMsg), DEFAULT_DECIMALS)
+            If sErrMsg <> "" Then
+                subLogErrMsg sErrMsg & ", Invalid Formula (" & sFmla & ")"
+                Exit Function
+            End If
         End If
-    Else
-        dBonusAmt = 0#
     End If
     
     'reset the v1, v2, or v3 if they are "check_amount"
@@ -898,6 +973,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
                          "shortage_amount", _
                          "check_amount", _
                          "pay_hours", _
+                         "inv_shortage_ratio", _
                          "not used")
     
     fnGetVarValue = 0#
@@ -985,7 +1061,15 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND prc_chk_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
             strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
             
-        Case sarrVariable(11)  'not used
+        Case sarrVariable(12)  'inventory shortage ratio
+            strSQL = "SELECT bs_sales_amount AS var_value "
+            strSQL = strSQL & " FROM bonus_sales"
+            strSQL = strSQL & " WHERE bs_prft_ctr = " & nPrftCtr
+            strSQL = strSQL & " AND bs_from_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+            strSQL = strSQL & " AND bs_to_date = " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+            strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sRatio)
+            
+        Case sarrVariable(13)  'not used
             Exit Function
         
         Case Else
@@ -1492,7 +1576,7 @@ Public Function fnDeleteSalesRecord() As Boolean
     Dim strSQL As String
     
     strSQL = "DELETE FROM bonus_sales"
-    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
     strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
     
@@ -1501,7 +1585,7 @@ Public Function fnDeleteSalesRecord() As Boolean
     End If
 
     strSQL = "DELETE FROM bonus_sales"
-    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
     strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
     
@@ -1510,7 +1594,7 @@ Public Function fnDeleteSalesRecord() As Boolean
     End If
 
     strSQL = "DELETE FROM bonus_sales"
-    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
     strSQL = strSQL & " AND bs_from_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
     
@@ -1519,7 +1603,7 @@ Public Function fnDeleteSalesRecord() As Boolean
     End If
 
     strSQL = "DELETE FROM bonus_sales"
-    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
     strSQL = strSQL & " AND bs_to_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
     
@@ -1538,7 +1622,7 @@ Public Function fnInsertUpdateSales() As Boolean
     Dim dSlsAmt As Double
     Dim sSType As String
     
-    sSType = tfnSQLString(frmZZSEBPRC.fnGetSalesType())
+    sSType = tfnSQLString(sSalesTypeCode)
     
     For i = 0 To tgmSales.RowCount - 1
         If tgmSales.ValidCell(colSPrftCtr, i) Then
@@ -1899,11 +1983,11 @@ Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String
     Select Case sFreq
     Case "D"
         sEndDate = DateAdd("d", -1, DateAdd("d", 1, CDate(sStartDate)))
-    Case "W"
+    Case sWeek
         sEndDate = DateAdd("d", -1, DateAdd("ww", 1, CDate(sStartDate)))
-    Case "M"
+    Case sOneMth, sGas, sRatio
         sEndDate = DateAdd("d", -1, DateAdd("m", 1, CDate(sStartDate)))
-    Case "Q"
+    Case sThreeMth
         sEndDate = DateAdd("d", -1, DateAdd("q", 1, CDate(sStartDate)))
     Case "Y", "A"
         sEndDate = DateAdd("d", -1, DateAdd("yyyy", 1, CDate(sStartDate)))
@@ -1912,13 +1996,16 @@ Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String
     fnGetProposedEndDate = tfnFormatDate(sEndDate)
 End Function
 
-Public Function fnHasApprove() As Boolean
+Public Function fnHasApprove(Optional vApproveCount) As Boolean
     Dim i As Long
     
     For i = 0 To tgmApprove.RowCount - 1
         If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
             fnHasApprove = True
-            Exit Function
+            If IsMissing(vApproveCount) Then
+                Exit Function
+            End If
+            vApproveCount = vApproveCount + 1
         End If
     Next i
 End Function

@@ -31,7 +31,7 @@ Begin VB.Form frmZZSEBPRC
       Height          =   396
       HelpContextID   =   15
       Left            =   7500
-      TabIndex        =   65
+      TabIndex        =   63
       Top             =   5268
       Width           =   1308
       _Version        =   65536
@@ -66,7 +66,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraBackground 
       Height          =   5184
       Left            =   0
-      TabIndex        =   67
+      TabIndex        =   65
       TabStop         =   0   'False
       Top             =   492
       Width           =   8880
@@ -98,7 +98,7 @@ Begin VB.Form frmZZSEBPRC
       Begin FACTTABLib.FactorTab eTabMain 
          Height          =   5016
          Left            =   48
-         TabIndex        =   69
+         TabIndex        =   67
          TabStop         =   0   'False
          Top             =   12
          Width           =   8796
@@ -119,7 +119,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
             Height          =   4716
             Left            =   14580
-            TabIndex        =   74
+            TabIndex        =   72
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -151,7 +151,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIDetail 
                Height          =   4152
                Left            =   60
-               TabIndex        =   75
+               TabIndex        =   73
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -184,7 +184,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   525
                   Left            =   72
-                  TabIndex        =   58
+                  TabIndex        =   56
                   Tag             =   "pn_alt"
                   Top             =   924
                   Width           =   1104
@@ -196,7 +196,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   527
                   Left            =   1608
-                  TabIndex        =   60
+                  TabIndex        =   58
                   Tag             =   "pn_name"
                   Top             =   924
                   Width           =   4176
@@ -207,7 +207,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   575
                   Left            =   60
-                  TabIndex        =   54
+                  TabIndex        =   52
                   Tag             =   "pn_alt"
                   Top             =   276
                   Width           =   1872
@@ -219,7 +219,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   577
                   Left            =   2364
-                  TabIndex        =   56
+                  TabIndex        =   54
                   Tag             =   "pn_name"
                   Top             =   276
                   Width           =   5868
@@ -229,7 +229,7 @@ Begin VB.Form frmZZSEBPRC
                   HelpContextID   =   579
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":0000
-                  TabIndex        =   62
+                  TabIndex        =   60
                   Top             =   1356
                   Width           =   8556
                End
@@ -237,7 +237,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   576
                   Left            =   1944
-                  TabIndex        =   55
+                  TabIndex        =   53
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -273,7 +273,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   578
                   Left            =   8244
-                  TabIndex        =   57
+                  TabIndex        =   55
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   276
@@ -309,7 +309,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   526
                   Left            =   1188
-                  TabIndex        =   59
+                  TabIndex        =   57
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -345,7 +345,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   528
                   Left            =   5796
-                  TabIndex        =   61
+                  TabIndex        =   59
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   924
@@ -381,7 +381,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center"
                   Height          =   252
                   Left            =   72
-                  TabIndex        =   107
+                  TabIndex        =   104
                   Top             =   684
                   Width           =   1296
                End
@@ -389,7 +389,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center Name"
                   Height          =   252
                   Left            =   1608
-                  TabIndex        =   106
+                  TabIndex        =   103
                   Top             =   684
                   Width           =   1956
                End
@@ -397,7 +397,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Number"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   77
+                  TabIndex        =   75
                   Top             =   36
                   Width           =   1836
                End
@@ -405,7 +405,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   2364
-                  TabIndex        =   76
+                  TabIndex        =   74
                   Top             =   36
                   Width           =   1968
                End
@@ -415,7 +415,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   3
                Left            =   5988
-               TabIndex        =   63
+               TabIndex        =   61
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -452,7 +452,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   3
                Left            =   7428
-               TabIndex        =   64
+               TabIndex        =   62
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -488,7 +488,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseProcess 
             Height          =   4716
             Left            =   14460
-            TabIndex        =   71
+            TabIndex        =   69
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -520,7 +520,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIProcess 
                Height          =   4152
                Left            =   60
-               TabIndex        =   79
+               TabIndex        =   77
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -551,7 +551,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraProcessDate 
                   Height          =   1332
                   Left            =   72
-                  TabIndex        =   102
+                  TabIndex        =   99
                   TabStop         =   0   'False
                   Top             =   48
                   Width           =   2400
@@ -584,7 +584,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   530
                      Left            =   1404
-                     TabIndex        =   34
+                     TabIndex        =   32
                      Tag             =   "pn_alt"
                      Top             =   252
                      Width           =   552
@@ -595,7 +595,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   529
                      Left            =   48
-                     TabIndex        =   32
+                     TabIndex        =   30
                      Tag             =   "pn_alt"
                      Top             =   252
                      Width           =   1224
@@ -606,7 +606,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   529
                      Left            =   48
-                     TabIndex        =   33
+                     TabIndex        =   31
                      Tag             =   "pn_alt"
                      Top             =   900
                      Width           =   1224
@@ -615,7 +615,7 @@ Begin VB.Form frmZZSEBPRC
                      Height          =   360
                      HelpContextID   =   531
                      Left            =   1968
-                     TabIndex        =   35
+                     TabIndex        =   33
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
                      Top             =   252
@@ -651,7 +651,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Frequency"
                      Height          =   252
                      Left            =   1404
-                     TabIndex        =   105
+                     TabIndex        =   102
                      Top             =   12
                      Width           =   960
                   End
@@ -659,7 +659,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Starting  Date"
                      Height          =   252
                      Left            =   48
-                     TabIndex        =   104
+                     TabIndex        =   101
                      Top             =   12
                      Width           =   1488
                   End
@@ -667,7 +667,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Ending Date"
                      Height          =   252
                      Left            =   48
-                     TabIndex        =   103
+                     TabIndex        =   100
                      Top             =   660
                      Width           =   1236
                   End
@@ -678,7 +678,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   532
                   Left            =   2508
-                  TabIndex        =   40
+                  TabIndex        =   38
                   Tag             =   "pn_alt"
                   Top             =   960
                   Width           =   1104
@@ -690,7 +690,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   534
                   Left            =   4044
-                  TabIndex        =   42
+                  TabIndex        =   40
                   Tag             =   "pn_name"
                   Top             =   960
                   Width           =   4176
@@ -705,7 +705,7 @@ Begin VB.Form frmZZSEBPRC
                   ItemData        =   "ZZSEBPRC.frx":1838
                   Left            =   72
                   List            =   "ZZSEBPRC.frx":183A
-                  TabIndex        =   44
+                  TabIndex        =   42
                   Top             =   1404
                   Width           =   8532
                End
@@ -716,7 +716,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   527
                   Left            =   4044
-                  TabIndex        =   38
+                  TabIndex        =   36
                   Tag             =   "pn_name"
                   Top             =   300
                   Width           =   4176
@@ -727,7 +727,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   525
                   Left            =   2508
-                  TabIndex        =   36
+                  TabIndex        =   34
                   Tag             =   "pn_alt"
                   Top             =   300
                   Width           =   1104
@@ -735,7 +735,7 @@ Begin VB.Form frmZZSEBPRC
                Begin MSComctlLib.ProgressBar pbBarMain 
                   Height          =   312
                   Left            =   72
-                  TabIndex        =   80
+                  TabIndex        =   78
                   Top             =   3780
                   Width           =   8532
                   _ExtentX        =   15050
@@ -747,7 +747,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   526
                   Left            =   3624
-                  TabIndex        =   37
+                  TabIndex        =   35
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   300
@@ -783,7 +783,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   528
                   Left            =   8232
-                  TabIndex        =   39
+                  TabIndex        =   37
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   300
@@ -819,7 +819,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   533
                   Left            =   3624
-                  TabIndex        =   41
+                  TabIndex        =   39
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   960
@@ -855,7 +855,7 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   360
                   HelpContextID   =   535
                   Left            =   8232
-                  TabIndex        =   43
+                  TabIndex        =   41
                   TabStop         =   0   'False
                   Tag             =   "Run #3"
                   Top             =   960
@@ -891,7 +891,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Nbr"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   99
+                  TabIndex        =   96
                   Top             =   720
                   Width           =   1296
                End
@@ -899,7 +899,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   98
+                  TabIndex        =   95
                   Top             =   720
                   Width           =   1956
                End
@@ -907,7 +907,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   82
+                  TabIndex        =   80
                   Top             =   60
                   Width           =   1956
                End
@@ -915,7 +915,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   81
+                  TabIndex        =   79
                   Top             =   60
                   Width           =   1296
                End
@@ -924,7 +924,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   537
                Left            =   5988
-               TabIndex        =   45
+               TabIndex        =   43
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -961,7 +961,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   1
                Left            =   7428
-               TabIndex        =   47
+               TabIndex        =   45
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -998,7 +998,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   1
                Left            =   48
-               TabIndex        =   46
+               TabIndex        =   44
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -1034,7 +1034,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBasePayEntry 
             Height          =   4692
             Left            =   12
-            TabIndex        =   70
+            TabIndex        =   68
             TabStop         =   0   'False
             Top             =   12
             Width           =   8772
@@ -1066,7 +1066,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTTABLib.FactorTab eTabSub 
                Height          =   4716
                Left            =   0
-               TabIndex        =   83
+               TabIndex        =   81
                TabStop         =   0   'False
                Top             =   0
                Width           =   8784
@@ -1089,7 +1089,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseHours 
                   Height          =   4428
                   Left            =   14460
-                  TabIndex        =   85
+                  TabIndex        =   83
                   TabStop         =   0   'False
                   Top             =   0
                   Width           =   8784
@@ -1121,7 +1121,7 @@ Begin VB.Form frmZZSEBPRC
                   Begin FACTFRMLib.FactorFrame efraBaseIIHours 
                      Height          =   4152
                      Left            =   48
-                     TabIndex        =   27
+                     TabIndex        =   25
                      Top             =   48
                      Width           =   8376
                      _Version        =   65536
@@ -1153,7 +1153,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   324
                         Left            =   7032
                         MultiLine       =   -1  'True
-                        TabIndex        =   101
+                        TabIndex        =   98
                         Top             =   3780
                         Width           =   1272
                      End
@@ -1163,7 +1163,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   324
                         Left            =   4632
                         MultiLine       =   -1  'True
-                        TabIndex        =   100
+                        TabIndex        =   97
                         Top             =   3780
                         Width           =   1332
                      End
@@ -1176,7 +1176,7 @@ Begin VB.Form frmZZSEBPRC
                         Left            =   96
                         ScaleHeight     =   216
                         ScaleWidth      =   228
-                        TabIndex        =   95
+                        TabIndex        =   92
                         Top             =   720
                         Visible         =   0   'False
                         Width           =   255
@@ -1188,7 +1188,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   515
                         Left            =   2028
-                        TabIndex        =   21
+                        TabIndex        =   19
                         Tag             =   "pn_name"
                         Top             =   276
                         Width           =   3576
@@ -1199,7 +1199,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   513
                         Left            =   72
-                        TabIndex        =   17
+                        TabIndex        =   15
                         Tag             =   "pn_alt"
                         Top             =   276
                         Width           =   1524
@@ -1208,7 +1208,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   517
                         Left            =   6036
-                        TabIndex        =   23
+                        TabIndex        =   21
                         Top             =   276
                         Width           =   1896
                      End
@@ -1216,7 +1216,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   514
                         Left            =   1608
-                        TabIndex        =   19
+                        TabIndex        =   17
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1252,7 +1252,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   516
                         Left            =   5616
-                        TabIndex        =   22
+                        TabIndex        =   20
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1288,7 +1288,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   518
                         Left            =   7944
-                        TabIndex        =   24
+                        TabIndex        =   22
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
                         Top             =   276
@@ -1325,7 +1325,7 @@ Begin VB.Form frmZZSEBPRC
                         HelpContextID   =   519
                         Left            =   72
                         OleObjectBlob   =   "ZZSEBPRC.frx":1FBA
-                        TabIndex        =   25
+                        TabIndex        =   23
                         Top             =   696
                         Width           =   5892
                      End
@@ -1334,7 +1334,7 @@ Begin VB.Form frmZZSEBPRC
                         HelpContextID   =   520
                         Left            =   6036
                         OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
-                        TabIndex        =   26
+                        TabIndex        =   24
                         Top             =   696
                         Width           =   2268
                      End
@@ -1343,7 +1343,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Total Hours/Dollars:"
                         Height          =   252
                         Left            =   2892
-                        TabIndex        =   92
+                        TabIndex        =   90
                         Top             =   3828
                         Width           =   1692
                      End
@@ -1351,7 +1351,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Social Security Number"
                         Height          =   252
                         Left            =   6036
-                        TabIndex        =   91
+                        TabIndex        =   89
                         Top             =   24
                         Width           =   2268
                      End
@@ -1359,7 +1359,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Employee Name"
                         Height          =   252
                         Left            =   2028
-                        TabIndex        =   90
+                        TabIndex        =   88
                         Top             =   24
                         Width           =   1968
                      End
@@ -1367,7 +1367,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Employee Number"
                         Height          =   252
                         Left            =   72
-                        TabIndex        =   89
+                        TabIndex        =   87
                         Top             =   24
                         Width           =   1848
                      End
@@ -1376,7 +1376,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "PC Total:"
                         Height          =   252
                         Left            =   6048
-                        TabIndex        =   88
+                        TabIndex        =   86
                         Top             =   3828
                         Width           =   888
                      End
@@ -1386,7 +1386,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   10
                      Index           =   4
                      Left            =   36
-                     TabIndex        =   13
+                     TabIndex        =   11
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1423,7 +1423,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   11
                      Index           =   4
                      Left            =   1452
-                     TabIndex        =   15
+                     TabIndex        =   13
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1460,7 +1460,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   4
                      Left            =   7128
-                     TabIndex        =   29
+                     TabIndex        =   27
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1497,7 +1497,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   4
                      Left            =   5712
-                     TabIndex        =   28
+                     TabIndex        =   26
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1534,7 +1534,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   4
                      Left            =   2868
-                     TabIndex        =   31
+                     TabIndex        =   29
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1571,7 +1571,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   4
                      Left            =   4296
-                     TabIndex        =   30
+                     TabIndex        =   28
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1607,7 +1607,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseSales 
                   Height          =   4692
                   Left            =   12
-                  TabIndex        =   84
+                  TabIndex        =   82
                   TabStop         =   0   'False
                   Top             =   12
                   Width           =   8472
@@ -1639,7 +1639,7 @@ Begin VB.Form frmZZSEBPRC
                   Begin FACTFRMLib.FactorFrame efraBaseIISales 
                      Height          =   4152
                      Left            =   48
-                     TabIndex        =   12
+                     TabIndex        =   10
                      Top             =   48
                      Width           =   8376
                      _Version        =   65536
@@ -1665,6 +1665,17 @@ Begin VB.Form frmZZSEBPRC
                         Italic          =   0   'False
                         Strikethrough   =   0   'False
                      EndProperty
+                     Begin VB.TextBox txtSalesType 
+                        BackColor       =   &H00FFFFFF&
+                        ForeColor       =   &H00000000&
+                        Height          =   360
+                        HelpContextID   =   504
+                        Left            =   96
+                        TabIndex        =   3
+                        Tag             =   "pn_alt"
+                        Top             =   336
+                        Width           =   2220
+                     End
                      Begin VB.PictureBox cmdDropdown 
                         Appearance      =   0  'Flat
                         BackColor       =   &H00C0C0C0&
@@ -1675,92 +1686,20 @@ Begin VB.Form frmZZSEBPRC
                         Left            =   72
                         ScaleHeight     =   216
                         ScaleWidth      =   228
-                        TabIndex        =   94
+                        TabIndex        =   91
                         Top             =   768
                         Visible         =   0   'False
                         Width           =   255
-                     End
-                     Begin FACTFRMLib.FactorFrame efraOptSales 
-                        Height          =   648
-                        Left            =   72
-                        TabIndex        =   93
-                        TabStop         =   0   'False
-                        Top             =   72
-                        Width           =   4392
-                        _Version        =   65536
-                        _ExtentX        =   7747
-                        _ExtentY        =   1143
-                        _StockProps     =   77
-                        BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                           Name            =   "Arial"
-                           Size            =   9.6
-                           Charset         =   0
-                           Weight          =   400
-                           Underline       =   0   'False
-                           Italic          =   0   'False
-                           Strikethrough   =   0   'False
-                        EndProperty
-                        BevelOuter      =   6
-                        BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-                           Name            =   "MS Sans Serif"
-                           Size            =   12
-                           Charset         =   0
-                           Weight          =   400
-                           Underline       =   0   'False
-                           Italic          =   0   'False
-                           Strikethrough   =   0   'False
-                        EndProperty
-                        Begin VB.OptionButton optType 
-                           Caption         =   "Week Sales"
-                           Height          =   272
-                           HelpContextID   =   500
-                           Index           =   0
-                           Left            =   84
-                           TabIndex        =   3
-                           Top             =   36
-                           Value           =   -1  'True
-                           Width           =   2016
-                        End
-                        Begin VB.OptionButton optType 
-                           Caption         =   "One Month Sales"
-                           Height          =   272
-                           HelpContextID   =   501
-                           Index           =   1
-                           Left            =   84
-                           TabIndex        =   5
-                           Top             =   324
-                           Width           =   2016
-                        End
-                        Begin VB.OptionButton optType 
-                           Caption         =   "Gas Sales"
-                           Height          =   272
-                           HelpContextID   =   503
-                           Index           =   2
-                           Left            =   2244
-                           TabIndex        =   6
-                           Top             =   324
-                           Width           =   2076
-                        End
-                        Begin VB.OptionButton optType 
-                           Caption         =   "Three Month Sales"
-                           Height          =   272
-                           HelpContextID   =   502
-                           Index           =   3
-                           Left            =   2244
-                           TabIndex        =   4
-                           Top             =   36
-                           Width           =   2076
-                        End
                      End
                      Begin VB.TextBox txtFromDate 
                         BackColor       =   &H00FFFFFF&
                         ForeColor       =   &H00000000&
                         Height          =   360
                         HelpContextID   =   504
-                        Left            =   4524
-                        TabIndex        =   7
+                        Left            =   4392
+                        TabIndex        =   5
                         Tag             =   "pn_alt"
-                        Top             =   348
+                        Top             =   336
                         Width           =   1488
                      End
                      Begin VB.TextBox txtToDate 
@@ -1770,9 +1709,9 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   506
                         Left            =   6444
-                        TabIndex        =   9
+                        TabIndex        =   7
                         Tag             =   "pn_name"
-                        Top             =   348
+                        Top             =   336
                         Width           =   1488
                      End
                      Begin DBTrueGrid.TDBGrid tblSales 
@@ -1780,18 +1719,18 @@ Begin VB.Form frmZZSEBPRC
                         HelpContextID   =   508
                         Left            =   72
                         OleObjectBlob   =   "ZZSEBPRC.frx":383C
-                        TabIndex        =   11
+                        TabIndex        =   9
                         Top             =   768
                         Width           =   8244
                      End
                      Begin FACTFRMLib.FactorFrame cmdFromDate 
                         Height          =   360
                         HelpContextID   =   505
-                        Left            =   6024
-                        TabIndex        =   8
+                        Left            =   5892
+                        TabIndex        =   6
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
-                        Top             =   348
+                        Top             =   336
                         Width           =   360
                         _Version        =   65536
                         _ExtentX        =   635
@@ -1824,10 +1763,10 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   360
                         HelpContextID   =   507
                         Left            =   7944
-                        TabIndex        =   10
+                        TabIndex        =   8
                         TabStop         =   0   'False
                         Tag             =   "Run #3"
-                        Top             =   348
+                        Top             =   336
                         Width           =   360
                         _Version        =   65536
                         _ExtentX        =   635
@@ -1856,20 +1795,64 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                      End
+                     Begin FACTFRMLib.FactorFrame cmdSalesType 
+                        Height          =   360
+                        HelpContextID   =   505
+                        Left            =   2340
+                        TabIndex        =   4
+                        TabStop         =   0   'False
+                        Tag             =   "Run #3"
+                        Top             =   336
+                        Width           =   360
+                        _Version        =   65536
+                        _ExtentX        =   635
+                        _ExtentY        =   635
+                        _StockProps     =   77
+                        BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "Arial"
+                           Size            =   9.6
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                        CaptionPos      =   4
+                        Picture         =   "ZZSEBPRC.frx":4D3C
+                        Style           =   3
+                        BorderWidth     =   4
+                        BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                           Name            =   "MS Sans Serif"
+                           Size            =   9.6
+                           Charset         =   0
+                           Weight          =   400
+                           Underline       =   0   'False
+                           Italic          =   0   'False
+                           Strikethrough   =   0   'False
+                        EndProperty
+                     End
+                     Begin VB.Label Label4 
+                        Caption         =   "Sales Type"
+                        Height          =   252
+                        Left            =   108
+                        TabIndex        =   106
+                        Top             =   84
+                        Width           =   1380
+                     End
                      Begin VB.Label lblFromDate 
                         Caption         =   "From Date"
                         Height          =   252
-                        Left            =   4536
-                        TabIndex        =   87
-                        Top             =   96
+                        Left            =   4404
+                        TabIndex        =   85
+                        Top             =   84
                         Width           =   1380
                      End
                      Begin VB.Label lblToDate 
                         Caption         =   "To Date"
                         Height          =   252
                         Left            =   6444
-                        TabIndex        =   86
-                        Top             =   108
+                        TabIndex        =   84
+                        Top             =   84
                         Width           =   1500
                      End
                   End
@@ -1878,7 +1861,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   13
                      Index           =   0
                      Left            =   5712
-                     TabIndex        =   14
+                     TabIndex        =   12
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -1915,7 +1898,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   15
                      Index           =   0
                      Left            =   7128
-                     TabIndex        =   16
+                     TabIndex        =   14
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -2026,7 +2009,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   12
                      Index           =   0
                      Left            =   2868
-                     TabIndex        =   20
+                     TabIndex        =   18
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -2063,7 +2046,7 @@ Begin VB.Form frmZZSEBPRC
                      HelpContextID   =   14
                      Index           =   0
                      Left            =   4296
-                     TabIndex        =   18
+                     TabIndex        =   16
                      Top             =   4248
                      Width           =   1308
                      _Version        =   65536
@@ -2101,7 +2084,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseView 
             Height          =   4716
             Left            =   14520
-            TabIndex        =   73
+            TabIndex        =   71
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -2133,7 +2116,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIView 
                Height          =   4152
                Left            =   60
-               TabIndex        =   78
+               TabIndex        =   76
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -2168,7 +2151,7 @@ Begin VB.Form frmZZSEBPRC
                   Left            =   4116
                   ScaleHeight     =   264
                   ScaleWidth      =   1488
-                  TabIndex        =   108
+                  TabIndex        =   105
                   TabStop         =   0   'False
                   Top             =   384
                   Width           =   1512
@@ -2177,8 +2160,8 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   4044
                   HelpContextID   =   550
                   Left            =   60
-                  OleObjectBlob   =   "ZZSEBPRC.frx":4D3C
-                  TabIndex        =   48
+                  OleObjectBlob   =   "ZZSEBPRC.frx":4E4E
+                  TabIndex        =   46
                   Top             =   60
                   Width           =   8556
                End
@@ -2187,7 +2170,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   16
                Left            =   5988
-               TabIndex        =   51
+               TabIndex        =   49
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2224,7 +2207,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   2
                Left            =   7428
-               TabIndex        =   53
+               TabIndex        =   51
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2260,7 +2243,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   551
                Left            =   48
-               TabIndex        =   49
+               TabIndex        =   47
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2296,7 +2279,7 @@ Begin VB.Form frmZZSEBPRC
                Height          =   396
                HelpContextID   =   552
                Left            =   1476
-               TabIndex        =   50
+               TabIndex        =   48
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2333,7 +2316,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   2
                Left            =   2904
-               TabIndex        =   52
+               TabIndex        =   50
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -2368,11 +2351,11 @@ Begin VB.Form frmZZSEBPRC
          End
       End
       Begin DBTrueGrid.TDBGrid tblComboDropdown 
-         Bindings        =   "ZZSEBPRC.frx":601A
+         Bindings        =   "ZZSEBPRC.frx":612C
          Height          =   2484
          Left            =   108
-         OleObjectBlob   =   "ZZSEBPRC.frx":6039
-         TabIndex        =   72
+         OleObjectBlob   =   "ZZSEBPRC.frx":614B
+         TabIndex        =   70
          TabStop         =   0   'False
          Top             =   12
          Width           =   3756
@@ -2398,7 +2381,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   66
+      TabIndex        =   64
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -2431,7 +2414,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   468
       Left            =   0
-      TabIndex        =   68
+      TabIndex        =   66
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -2498,22 +2481,22 @@ Begin VB.Form frmZZSEBPRC
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":731D
+      Bindings        =   "ZZSEBPRC.frx":742F
       Height          =   1008
       Index           =   0
       Left            =   168
-      OleObjectBlob   =   "ZZSEBPRC.frx":7337
-      TabIndex        =   96
+      OleObjectBlob   =   "ZZSEBPRC.frx":7449
+      TabIndex        =   93
       Top             =   684
       Width           =   2604
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":8619
+      Bindings        =   "ZZSEBPRC.frx":872B
       Height          =   1008
       Index           =   4
       Left            =   144
-      OleObjectBlob   =   "ZZSEBPRC.frx":8633
-      TabIndex        =   97
+      OleObjectBlob   =   "ZZSEBPRC.frx":8745
+      TabIndex        =   94
       Top             =   624
       Width           =   2604
    End
@@ -2652,7 +2635,7 @@ Private Sub cmdApprove_Click()
     End If
     
     tgmApprove.Rebind
-    cmdOK.Enabled = fnHasApprove()
+    cmdOk.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2685,7 +2668,11 @@ Private Sub cmdOK_Click()
         Exit Sub
     #End If
     
-    cmdOK.Enabled = False
+    If Not fnCheckApprove() Then
+        Exit Sub
+    End If
+    
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2694,8 +2681,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2933,6 +2920,14 @@ Private Sub Form_Load()
             Unload Me
             Exit Sub
         End If
+
+        If Not fnCreateSalesTable() Then
+            sErrorMessage = "Failed to create temporary Sales Type Table. Program terminates"
+            subLogErrMsg "**System Error: " + sErrorMessage
+            MsgBox sErrorMessage + ".", vbCritical
+            Unload Me
+            Exit Sub
+        End If
     #End If
     
     tfnSetInitializingMessage
@@ -3151,7 +3146,7 @@ End Sub
 'Passed Variables: error message string
 'Returns         : none
 '
-Private Sub tfnSetStatusBarError(szErrorMessage As String, Optional vNoBeep As Variant)
+Public Sub tfnSetStatusBarError(szErrorMessage As String, Optional vNoBeep As Variant)
     
     ffraStatusbar.ForeColor = ERROR_TEXT_COLOR
     ffraStatusbar.Font.Bold = True
@@ -3197,8 +3192,10 @@ Private Sub tfnResetScreen(Index As Integer)
             End If
             
             nDataStatus = DATA_INIT
+            txtSalesType = ""
             txtFromDate = ""
             txtToDate = ""
+            sSalesTypeCode = ""
             cValidSls.ResetFlags
             tgmSales.ClearData
             subEnableFirstLineSlsOrHrs Index, False
@@ -3269,6 +3266,7 @@ Private Sub tfnResetScreen(Index As Integer)
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
+                        cmdOk.Enabled = fnHasApprove()
                     End If
                 End If
             End If
@@ -3307,25 +3305,6 @@ End Sub
 
 Private Sub mnuPrint_Click()
     subPrint eTabMain.CurrTab
-End Sub
-
-Private Sub optType_GotFocus(Index As Integer)
-    Select Case Index
-        Case nWeek
-            tfnSetStatusBarMessage "Weekly Sales"
-        Case nOneMth
-            tfnSetStatusBarMessage "One Monthly Sales"
-        Case nThreeMth
-            tfnSetStatusBarMessage "Quaterly Sales"
-        Case nGas
-            tfnSetStatusBarMessage "Gas Sales"
-    End Select
-End Sub
-
-Private Sub optType_KeyPress(Index As Integer, KeyAscii As Integer)
-    If KeyAscii = vbKeyReturn Then
-        subSetFocus txtFromDate
-    End If
 End Sub
 
 Private Sub tblApprove_AfterColEdit(ByVal ColIndex As Integer)
@@ -3732,7 +3711,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    'cmdOk.Enabled = fnHasApprove()
+    cmdOk.Enabled = fnHasApprove()
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -3991,6 +3970,19 @@ End Function
 'End Sub
 
 Private Sub subInitValidation()
+    
+    'Class implementation for Sales Tab
+    Set cValidSls = New cValidateInput
+    Set cValidSls.Form = Me
+    Set cValidSls.StatusBar = ffraStatusbar
+    cValidSls.AddEditBox txtSalesType, "Enter or select Sales Type"
+    cValidSls.AddEditBox txtFromDate, "Enter From Date"
+    cValidSls.AddEditBox txtToDate, "Enter To Date"
+    cValidSls.MinTabIndex = txtSalesType.TabIndex
+    cValidSls.MaxTabIndex = tblSales.TabIndex
+    Set cValidSls.ControlForFocus = efraBaseIISales
+    Set cValidSls.LastBox = txtToDate
+    cValidSls.SetFirstControls cmdDelete(TabSales), cmdRefresh(TabSales), cmdCancel(TabSales), cmdUpdateInsertBtn(TabSales), cmdExitCancelBtn
 
     'Class implementation for Process Tab
     Set cValidate = New cValidateInput
@@ -4006,18 +3998,7 @@ Private Sub subInitValidation()
     cValidate.ESCControl = cmdCancel(TabProcess)
     cValidate.ESCControl = cmdExitCancelBtn
     
-    'Class implementation for Sales Tab
-    Set cValidSls = New cValidateInput
-    Set cValidSls.Form = Me
-    Set cValidSls.StatusBar = ffraStatusbar
-    cValidSls.AddEditBox txtFromDate, "Enter From Date"
-    cValidSls.AddEditBox txtToDate, "Enter To Date"
-    cValidSls.MinTabIndex = optType(nWeek).TabIndex
-    cValidSls.MaxTabIndex = tblSales.TabIndex
-    Set cValidSls.ControlForFocus = efraBaseIISales
-    Set cValidSls.LastBox = txtToDate
-    cValidSls.SetFirstControls cmdDelete(TabSales), cmdRefresh(TabSales), cmdCancel(TabSales), cmdUpdateInsertBtn(TabSales), cmdExitCancelBtn
-    
+    'Class implementation for Details Tab
     Set cValidDetail = New cValidateInput
     Set cValidDetail.Form = Me
     Set cValidDetail.StatusBar = ffraStatusbar
@@ -4091,6 +4072,10 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
     fnInValidData = True
 
     Select Case txtBox.TabIndex
+        Case txtSalesType.TabIndex
+            fnInValidData = Not fnValidSalesType(txtBox)
+        Case txtFromDate.TabIndex, txtToDate.TabIndex
+            fnInValidData = Not fnValidSalesDate(txtBox)
         Case txtStartDate.TabIndex, txtEndDate.TabIndex
             fnInValidData = Not fnValidProcessDate(txtBox)
         Case txtFrequency.TabIndex
@@ -4103,8 +4088,6 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
             fnInValidData = Not fnValidDetailEmpPrftCtr(txtBox)
         Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
             fnInValidData = objHours.fnInValidData(txtBox)
-        Case txtFromDate.TabIndex, txtToDate.TabIndex
-            fnInValidData = Not fnValidSalesDate(txtBox)
         Case Else
             fnInValidData = False
     End Select
@@ -4170,6 +4153,10 @@ Private Sub subBuildFrequencyRegExp()
     
     Dim strSQL As String
     Dim rsTemp As Recordset
+    
+    #If PROTOTYPE Then
+        Exit Sub
+    #End If
     
     If sFreqRegExp <> "" Then
         Exit Sub
@@ -4391,6 +4378,12 @@ Private Sub subSetupCombos()
         .AddComboBox txtFrequency, cmdFrequency, "bfq_frequency", .SQL_STRING_TYPE(1)
         .AddExtraColumn "bfq_freq_desc", 1300
         .SetExtend txtFrequency, 2
+        
+        .AddCombo "SELECT * FROM tmp_sales_type"
+        .AddComboBox txtSalesType, cmdSalesType, "tst_desc", .SQL_STRING_TYPE(20)
+        .AddExtraColumn "tst_type"
+        'ole combo not working???
+        .SetColumnCaptions "Sales Type Description", "Type"
         
         .AddCombo
         .AddComboBox txtFromDate, cmdFromDate, "bs_from_date", .SQL_DATE_TYPE
@@ -4965,7 +4958,7 @@ Private Sub subPrint(Index As Integer)
         tfnSetStatusBarMessage "Printing report..."
         subPrintProcess lstProcess
         Screen.MousePointer = vbDefault
-        tfnSetStatusBarMessage " "
+        tfnSetStatusBarMessage "Report was printed successfully"
         Exit Sub
     End If
     
@@ -5080,7 +5073,11 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         t_nFormMode = ADD_MODE
         subEnableFirstLineSlsOrHrs Index, True
         
-        subSetFocusoptType
+        subSetFocus txtSalesType
+        
+        If sOldSalesType <> "" Then
+            txtSalesType = sOldSalesType
+        End If
         
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
@@ -5131,6 +5128,7 @@ Private Sub cmdDelete_Click(Index As Integer)
                         sMsg = "Are you sure you want to delete the " & IIf(tgsSales.Count > 1, tgsSales.Count & " ", "") & "selected rows from the Grid"
                     End If
                 End If
+                
                 If Not tfnCancelExit(sMsg) Then
                     Exit Sub
                 End If
@@ -5146,7 +5144,7 @@ Private Sub cmdDelete_Click(Index As Integer)
                     
                     For i = lCount - 1 To 0 Step -1
                         Screen.MousePointer = vbHourglass
-                        If Not fnDeleteSales(fnGetSalesType(), sAryPrftCtr(i), txtToDate, txtFromDate) Then
+                        If Not fnDeleteSales(sSalesTypeCode, sAryPrftCtr(i), txtToDate, txtFromDate) Then
                             tfnSetStatusBarError "Failed to delete the sales record"
                             Screen.MousePointer = vbDefault
                             Exit Sub
@@ -5177,7 +5175,7 @@ Private Sub cmdDelete_Click(Index As Integer)
                 
             If t_nFormMode = EDIT_MODE Then
                 sPrftCtr = fnCstr(tgmSales.CellValue(colSPrftCtr, tgmSales.GetCurrentRowNumber))
-                If Not fnDeleteSales(fnGetSalesType(), sPrftCtr, txtToDate, txtFromDate) Then
+                If Not fnDeleteSales(sSalesTypeCode, sPrftCtr, txtToDate, txtFromDate) Then
                     tfnSetStatusBarError "Failed to delete the sales record"
                     Exit Sub
                 End If
@@ -5202,7 +5200,11 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         t_nFormMode = EDIT_MODE
         subEnableFirstLineSlsOrHrs Index, True
         
-        subSetFocusoptType
+        subSetFocus txtSalesType
+        
+        If sOldSalesType <> "" Then
+            txtSalesType = sOldSalesType
+        End If
         
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
@@ -5302,30 +5304,6 @@ Private Sub cmdUpdateInsertBtn_GotFocus(Index As Integer)
         tfnSetStatusBarMessage ("Update")
     End If
 End Sub
-
-Public Function fnGetSalesType() As String
-    Dim i As Integer
-    Dim sType As String
-    
-    For i = 0 To 3
-        If optType(i).Value Then
-            Select Case i
-                Case nWeek
-                    sType = sWeek
-                Case nOneMth
-                    sType = sOneMth
-                Case nThreeMth
-                    sType = sThreeMth
-                Case nGas
-                    sType = sGas
-            End Select
-            Exit For
-        End If
-    Next i
-    
-    fnGetSalesType = sType
-    
-End Function
 
 Private Sub subSetFloatingDropDown(Index As Integer)
 
@@ -5448,6 +5426,10 @@ Private Sub subEnterPhaseIISlsOrHrs(Index As Integer)
     End If
         
     If Index = TabSales Then
+        If t_nFormMode = ADD_MODE Then
+            subSetStdBtn TabSales, tgmSales
+        End If
+        
         tblSales.Enabled = True
         DoEvents
         subSetFocus tblSales
@@ -5459,7 +5441,7 @@ End Sub
 Private Sub subEnableFirstLineSlsOrHrs(Index As Integer, bYesNo As Boolean)
     Select Case Index
         Case TabSales
-            subEnableOptSales bYesNo
+            subEnableSalesType bYesNo
             txtFromDate.Enabled = bYesNo
             txtToDate.Enabled = bYesNo
             If t_nFormMode = ADD_MODE Then
@@ -5470,12 +5452,9 @@ Private Sub subEnableFirstLineSlsOrHrs(Index As Integer, bYesNo As Boolean)
     End Select
 End Sub
 
-Private Sub subEnableOptSales(bYesNo As Boolean)
-    Dim i As Integer
-    For i = 0 To 3
-        optType(i).Enabled = bYesNo
-    Next i
-    efraOptSales.Enabled = bYesNo
+Private Sub subEnableSalesType(bYesNo As Boolean)
+    txtSalesType.Enabled = bYesNo
+    subEnableSearchbtn cmdSalesType, bYesNo
 End Sub
 
 Private Sub SubEnableDeleteBtn(bOnOff As Boolean, Index As Integer)
@@ -5534,6 +5513,27 @@ Debug.Print tblSales.col
     
 End Function
 
+Private Function fnValidSalesType(Box As Textbox) As Boolean
+    Dim i As Integer
+    
+    If Trim(Box) = "" Then
+        cValidSls.SetErrorMessage Box, "You must enter a Sales Type"
+        Exit Function
+    End If
+
+    For i = 0 To UBound(arySalesDesc)
+        If arySalesDesc(i) = Box.Text Then
+            sSalesTypeCode = arySalesType(i)
+            sOldSalesType = Box
+            fnValidSalesType = True
+            Exit Function
+        End If
+    Next i
+    
+    sSalesTypeCode = ""
+    cValidSls.SetErrorMessage Box, "Sales Type is not valid"
+End Function
+
 Private Function fnValidSalesDate(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidSalesDate"
     Dim strSQL As String
@@ -5561,7 +5561,7 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
     
     Box = tfnFormatDate(Box)
     
-    sFreq = fnGetSalesType()
+    sFreq = sSalesTypeCode
     
     If Box Is txtFromDate Then
         If Not IsValidDate(txtToDate) Then
@@ -5725,11 +5725,58 @@ Private Function fnValidProcessDate(Box As Textbox) As Boolean
     
 End Function
 
+Private Sub txtSalesType_Change()
+    cValidSls.Change txtSalesType
+    tgcDropdown.Change txtSalesType
+End Sub
+
+Private Sub txtSalesType_GotFocus()
+    cValidSls.GotFocus txtSalesType
+    tgcDropdown.GotFocus txtSalesType
+    If tgcDropdown.SingleRecordSelected Then
+        subSetFocus txtFromDate
+        Screen.MousePointer = vbDefault
+    End If
+End Sub
+
+Private Sub txtSalesType_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtSalesType, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                  subSetFocus txtFromDate
+            End If
+            KeyAscii = 0
+       End If
+    Else
+        cValidSls.Keypress txtSalesType, KeyAscii
+    End If
+End Sub
+
+Private Sub txtSalesType_LostFocus()
+    cValidSls.LostFocus txtSalesType, cmdSalesType, tblComboDropdown
+    tgcDropdown.LostFocus txtSalesType
+End Sub
+
+Private Sub cmdSalesType_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.Click cmdSalesType
+    Screen.MousePointer = vbDefault
+End Sub
+
 Private Sub txtFromDate_Change()
     cValidSls.Change txtFromDate
     tgcDropdown.Change txtFromDate
     If ActiveControl Is txtFromDate Then
-        subEnableOptSales False
+        subEnableSalesType False
     End If
 End Sub
 
@@ -5737,7 +5784,7 @@ Private Sub txtFromDate_GotFocus()
     cValidSls.GotFocus txtFromDate
     tgcDropdown.GotFocus txtFromDate
     If tgcDropdown.SingleRecordSelected Then
-        subEnableOptSales False
+        subEnableSalesType False
         subSetFocus txtToDate
         Screen.MousePointer = vbDefault
     End If
@@ -5793,7 +5840,7 @@ Private Sub txtToDate_Change()
     cValidSls.Change txtToDate
     tgcDropdown.Change txtToDate
     If ActiveControl Is txtToDate Then
-        subEnableOptSales False
+        subEnableSalesType False
     End If
 End Sub
 
@@ -5801,7 +5848,7 @@ Private Sub txtToDate_GotFocus()
     cValidSls.GotFocus txtToDate
     tgcDropdown.GotFocus txtToDate
     If tgcDropdown.SingleRecordSelected Then
-        subEnableOptSales False
+        subEnableSalesType False
         subEnterPhaseIISlsOrHrs TabSales
         Screen.MousePointer = vbDefault
     End If
@@ -5873,6 +5920,7 @@ Private Sub tblSales_AfterColEdit(ByVal ColIndex As Integer)
         End If
     End If
 
+    subSetStdBtn TabSales, tgmSales
 End Sub
 
 Private Sub tblSales_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
@@ -5908,18 +5956,24 @@ Private Sub tblSales_GotFocus()
     tgsSales.GotFocus
     tgmSales.GotFocus
     tgfDropdown(TabSales).GotFocus
+    
+    If tgfDropdown(TabSales).ValidSelection Then
+        tblSales_AfterColEdit tblSales.col
+    End If
 End Sub
 
 Private Sub tblSales_KeyDown(KeyCode As Integer, Shift As Integer)
-    If tblSales.SelBookmarks.Count > 0 Then
+    If (Not tblSales.EditActive) And tblSales.SelBookmarks.Count > 0 Then
         If KeyCode = vbKeyDelete And Shift = 0 Then
             KeyCode = 0
             cmdDelete_Click TabSales
             Exit Sub
         End If
     End If
+    
     tgsSales.KeyDown KeyCode, Shift
     tgmSales.KeyDown KeyCode, Shift
+    
     tgfDropdown(TabSales).KeyDown tblSales, KeyCode
 End Sub
 
@@ -5941,7 +5995,6 @@ End Sub
 Private Sub tblSales_LostFocus()
     tgmSales.LostFocus
     tgfDropdown(TabSales).LostFocus tblSales
-    subSetStdBtn TabSales, tgmSales
 End Sub
 
 Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -5973,8 +6026,13 @@ Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     
     tgsSales.RowColChange LastRow, LastCol
     
-    subSetStdBtn TabSales, tgmSales
-
+    If tblSales.col = colSPrftName Then
+        If tgmSales.ValidCell(colSPrftCtr, lRow) Then
+            If tfnRound(LastCol) <> colSAmount Then
+                tblSales.col = colSAmount
+            End If
+        End If
+    End If
 End Sub
 
 Private Sub tblSales_SelChange(CANCEL As Integer)
@@ -6075,7 +6133,7 @@ Private Function fnLoadSales() As String
         Exit Function
     End If
     
-    tgmSales.FillWithRecordset rsTemp
+    tgmSales.FillWithRecordset rsTemp, , False
     
     For i = 0 To tgmSales.RowCount - 1
         'fill the from/to date in the grid
@@ -6105,7 +6163,7 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
     If t_nFormMode = EDIT_MODE Then
         sSalesType = "EDIT_MODE"
     Else
-        sSalesType = fnGetSalesType
+        sSalesType = sSalesTypeCode
     End If
     
     Select Case sSalesType
@@ -6130,29 +6188,34 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
             strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
             strSQL = strSQL & " GROUP BY rsd_prft_ctr, prft_name"
             strSQL = strSQL & " ORDER BY rsd_prft_ctr"
+        Case sRatio
+            strSQL = "SELECT prft_ctr, prft_name,  0.00 as amount"
+            strSQL = strSQL & " FROM sys_prft_ctr"
+            strSQL = strSQL & " WHERE prft_type IN ('R', 'B')"
+            strSQL = strSQL & " ORDER BY prft_ctr"
         Case "EDIT_MODE"
-            If txtBox Is Nothing Then
+            If txtBox Is Nothing Then  'SQL for populating the sales grid in edit
                 strSQL = "SELECT prft_ctr, prft_name, bs_sales_amount as amount,"
                 strSQL = strSQL & " bs_to_date as to_date, bs_from_date as from_date"
                 strSQL = strSQL & " FROM bonus_sales, sys_prft_ctr "
                 strSQL = strSQL & " WHERE bs_prft_ctr = prft_ctr"
-                strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sSalesTypeCode)
                 strSQL = strSQL & " AND bs_from_date = " & tfnDateString(txtFromDate, True)
                 strSQL = strSQL & " AND bs_to_date = " & tfnDateString(txtToDate, True)
                 strSQL = strSQL & " ORDER BY prft_ctr"
             Else
-                If txtBox Is txtFromDate Then
+                If txtBox Is txtFromDate Then  'From Date dropdown SQL
                     strSQL = "SELECT bs_from_date"
                     strSQL = strSQL & " FROM bonus_sales"
-                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
                     If IsValidDate(txtToDate) Then
                         strSQL = strSQL & " AND bs_to_date = " & tfnDateString(txtToDate, True)
                     End If
                     strSQL = strSQL & " GROUP BY bs_from_date"
-                Else
+                Else  'To Date dropdown SQL
                     strSQL = "SELECT bs_to_date"
                     strSQL = strSQL & " FROM bonus_sales"
-                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+                    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sSalesTypeCode)
                     If IsValidDate(txtFromDate) Then
                         strSQL = strSQL & " AND bs_from_date = " & tfnDateString(txtFromDate, True)
                     End If
@@ -6163,19 +6226,6 @@ Private Function fnGetSalesSQL(Optional txtBox As Textbox = Nothing) As String
     fnGetSalesSQL = strSQL
     
 End Function
-
-Private Sub subSetFocusoptType()
-    Dim i As Integer
-    
-    For i = 0 To 3
-        If optType(i).Value Then
-            subSetFocus optType(i)
-            Exit Sub
-        End If
-    Next i
-    
-    subSetFocus optType(0)
-End Sub
 
 Private Function fnCheckSales(sFreq As String) As String
     Const SUB_NAME As String = "fnCheckSales"
