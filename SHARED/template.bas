@@ -3409,28 +3409,28 @@ End Function
 '             Depending on log level, events are logged.
 '*****************************************************************************************
 Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Boolean
-Static strDBUser As String
-Static strOSUser As String
-Static strHost As String
-Static strProgram As String
-Static PID As Long
+    Static strDBUser As String
+    Static strOSUser As String
+    Static strHost As String
+    Static strProgram As String
+    Static PID As Long
+    
+    Dim nSize As Long
+    Dim strTimestamp As String
+    Dim strSQL As String
+    Dim LineID As Long
+    Dim bProceed As Boolean
+    Dim rsTemp As Recordset
+    Dim nLogLineID As Integer
+    Dim strTemp As String
+    Dim nTempCount As Integer
+    Dim dblAns As Double
+    Dim psLogMemoryStatus As LOG_MEMORY_STATUS
+    Dim strEventTextInt As String
 
-Dim nSize As Long
-Dim strTimestamp As String
-Dim strSQL As String
-Dim LineID As Long
-Dim bProceed As Boolean
-Dim rsTemp As Recordset
-Dim nLogLineID As Integer
-Dim strTemp As String
-Dim nTempCount As Integer
-Dim dblAns As Double
-Dim psLogMemoryStatus As LOG_MEMORY_STATUS
-Dim strEventTextInt As String
-
-nSize = 128
-strOSUser = Space(nSize)
-strHost = Space(nSize)
+    nSize = 128
+    strOSUser = Space(nSize)
+    strHost = Space(nSize)
 
     bProceed = False
     
@@ -3502,13 +3502,13 @@ strHost = Space(nSize)
         '#Insert main line here
         strSQL = "INSERT INTO SYS_LOG (syl_id, syl_login, syl_db_login, syl_host, syl_pid_Hwnd, syl_program, syl_timestamp, syl_event_lvl) " & _
                  "VALUES (0, " & tfnSQLString(strOSUser) & "," & tfnSQLString(strDBUser) & "," & _
-                 tfnSQLString(strHost) & ", " & App.hInstance & "," & tfnSQLString(App.EXEName) & "," & _
+                 tfnSQLString(strHost) & ", " & PID & "," & tfnSQLString(App.EXEName) & "," & _
                  tfnSQLString(strTimestamp) & ", " & nEventLvl & ")"
         t_dbMainDatabase.ExecuteSQL strSQL
         '# Now to get the ID we just generated...
         strSQL = "SELECT MAX (syl_id) FROM SYS_LOG WHERE syl_login = " & tfnSQLString(strOSUser) & _
                  "AND syl_db_login = " & tfnSQLString(strDBUser) & "AND syl_host = " & tfnSQLString(strHost) & _
-                 "AND syl_pid_hwnd= " & App.hInstance & " AND syl_program = " & tfnSQLString(App.EXEName) & _
+                 "AND syl_pid_hwnd= " & PID & " AND syl_program = " & tfnSQLString(App.EXEName) & _
                  "AND syl_timestamp = " & tfnSQLString(strTimestamp) & " AND syl_event_lvl = " & nEventLvl
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount > 0 Then
