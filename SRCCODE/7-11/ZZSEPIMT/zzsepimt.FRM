@@ -71,7 +71,7 @@ Begin VB.Form frmZZSEPIMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   10.05
+            Size            =   10.2
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -179,12 +179,12 @@ Begin VB.Form frmZZSEPIMT
                   Strikethrough   =   0   'False
                EndProperty
                Begin DBTrueGrid.TDBGrid tblSpreadsheet 
-                  Height          =   1752
+                  Height          =   2028
                   HelpContextID   =   1402
                   Left            =   636
                   OleObjectBlob   =   "zzsepimt.frx":0000
                   TabIndex        =   16
-                  Top             =   1620
+                  Top             =   1584
                   Width           =   7380
                End
                Begin FACTFRMLib.FactorFrame efraTop 
@@ -242,7 +242,7 @@ Begin VB.Form frmZZSEPIMT
                      TabIndex        =   18
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
-                     Top             =   492
+                     Top             =   480
                      Width           =   396
                      _Version        =   65536
                      _ExtentX        =   698
@@ -278,7 +278,7 @@ Begin VB.Form frmZZSEPIMT
                      TabIndex        =   19
                      TabStop         =   0   'False
                      Tag             =   "Run #3"
-                     Top             =   492
+                     Top             =   480
                      Width           =   396
                      _Version        =   65536
                      _ExtentX        =   698
@@ -339,7 +339,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -376,7 +376,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -413,7 +413,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -450,7 +450,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   10.19
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -487,7 +487,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -524,7 +524,7 @@ Begin VB.Form frmZZSEPIMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -626,15 +626,15 @@ Begin VB.Form frmZZSEPIMT
                Index           =   1
                Left            =   7440
                TabIndex        =   25
-               Top             =   4050
-               Width           =   1305
+               Top             =   4080
+               Width           =   1308
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   10.2
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -663,7 +663,7 @@ Begin VB.Form frmZZSEPIMT
                Index           =   1
                Left            =   6024
                TabIndex        =   23
-               Top             =   4056
+               Top             =   4080
                Width           =   1308
                _Version        =   65536
                _ExtentX        =   2307
@@ -700,7 +700,7 @@ Begin VB.Form frmZZSEPIMT
                Index           =   1
                Left            =   4464
                TabIndex        =   27
-               Top             =   4056
+               Top             =   4080
                Width           =   1428
                _Version        =   65536
                _ExtentX        =   2514
@@ -737,7 +737,7 @@ Begin VB.Form frmZZSEPIMT
                Index           =   1
                Left            =   3036
                TabIndex        =   28
-               Top             =   4056
+               Top             =   4080
                Width           =   1308
                _Version        =   65536
                _ExtentX        =   2302
@@ -2401,7 +2401,7 @@ Public Function fnValidCellValue(tgTable As Object, ByVal nCurrCol As Integer, B
             If IsNumeric(szText) Then
                 fnValidCellValue = True
             ElseIf Trim(szText) = "" Then
-                tgmSpreadsheet.ErrorMessage(nCurrCol) = "Hourly Par Rate can not be blank"
+                tgmSpreadsheet.ErrorMessage(nCurrCol) = "Hourly Par Rate cannot be blank"
                 fnValidCellValue = False
             ElseIf Trim(szText) = "" Then
                 tgmSpreadsheet.ErrorMessage(nCurrCol) = "Hourly Par Rate must be numeric"
@@ -2421,7 +2421,7 @@ Private Function fnValidNumberForAdd(sText As String, ByVal lCurrRow As Long) As
 
     fnValidNumberForAdd = False
     If Trim$(sText) = "" Then
-        tgmSpreadsheet.ErrorMessage(COL_DAYS) = "Days Employed can not be blank."
+        tgmSpreadsheet.ErrorMessage(COL_DAYS) = "Days Employed cannot be blank."
         Exit Function
     Else
         sCode = tgmSpreadsheet.CellValue(COL_DAYS, lCurrRow)
