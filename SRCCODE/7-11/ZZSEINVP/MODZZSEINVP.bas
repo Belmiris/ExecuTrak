@@ -864,46 +864,51 @@ Private Function fnValidReportDate(nPrftCtr As Integer, dtReportDate As Date) As
     Dim rsTemp As Recordset
     Dim sMsg As String
     
-    strSQL = "SELECT prft_posted_date from sys_prft_ctr WHERE "
-    strSQL = strSQL & " prft_ctr = " & nPrftCtr
-    strSQL = strSQL & " AND (prft_type = 'R' OR prft_type = 'B')"
+'commented out by junsong 08/06/2002 accoring to magic call #378927
+'Because the purcase date is earlier than start date and may be processed later.
+
+'    strSQL = "SELECT prft_posted_date from sys_prft_ctr WHERE "
+'    strSQL = strSQL & " prft_ctr = " & nPrftCtr
+'    strSQL = strSQL & " AND (prft_type = 'R' OR prft_type = 'B')"
+'
+'    If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnvalidReportDate") < 0 Then
+'        sMsg = "Database Access Error."
+'    ElseIf rsTemp.RecordCount = 0 Then
+'        sMsg = "Lastest process date is not available."
+'    Else
+'        dtLastProcDate = IIf(IsNull(rsTemp!prft_posted_date), Null, CDate(rsTemp!prft_posted_date))
+'
+'        If Not IsNull(dtLastProcDate) Then
+'
+'            If dtLastProcDate > dtReportDate Then
+'                sMsg = "Report date is earlier than last processed date."
+'            End If
+'
+'        End If
+'
+'    End If
+'
+
+'    If sMsg = "" Then
+    
+    strSQL = "SELECT glp_status FROM gl_period WHERE " & tfnDateString(dtReportDate, True)
+    strSQL = strSQL & " BETWEEN glp_beg_dt and glp_end_dt"
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnvalidReportDate") < 0 Then
         sMsg = "Database Access Error."
     ElseIf rsTemp.RecordCount = 0 Then
-        sMsg = "Lastest process date is not available."
+        sMsg = "The report date is not in GL period."
     Else
-        dtLastProcDate = IIf(IsNull(rsTemp!prft_posted_date), Null, CDate(rsTemp!prft_posted_date))
         
-        If Not IsNull(dtLastProcDate) Then
-            
-            If dtLastProcDate > dtReportDate Then
-                sMsg = "Report date is earlier than last processed date."
-            End If
-            
+        If rsTemp!glp_status <> "O" And rsTemp!glp_status <> "W" Then
+            sMsg = "The Status for this period is not open."
+        Else
+            sMsg = ""
         End If
         
     End If
     
-    If sMsg = "" Then
-        strSQL = "SELECT glp_status FROM gl_period WHERE " & tfnDateString(dtReportDate, True)
-        strSQL = strSQL & " BETWEEN glp_beg_dt and glp_end_dt"
-        
-        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnvalidReportDate") < 0 Then
-            sMsg = "Database Access Error."
-        ElseIf rsTemp.RecordCount = 0 Then
-            sMsg = "The report date is not in GL period."
-        Else
-            
-            If rsTemp!glp_status <> "O" And rsTemp!glp_status <> "W" Then
-                sMsg = "The Status for this period is not open."
-            Else
-                sMsg = ""
-            End If
-            
-        End If
-        
-    End If
+'    End If
     
     fnValidReportDate = sMsg
     
