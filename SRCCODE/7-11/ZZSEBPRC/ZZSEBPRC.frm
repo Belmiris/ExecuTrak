@@ -28,19 +28,19 @@ Begin VB.Form frmZZSEBPRC
    ScaleHeight     =   6060
    ScaleWidth      =   8880
    Begin FACTFRMLib.FactorFrame cmdExitCancelBtn 
-      Height          =   396
+      Height          =   390
       HelpContextID   =   15
       Left            =   7500
       TabIndex        =   63
-      Top             =   5268
-      Width           =   1308
+      Top             =   5265
+      Width           =   1305
       _Version        =   65536
-      _ExtentX        =   2307
-      _ExtentY        =   698
+      _ExtentX        =   2302
+      _ExtentY        =   688
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.53
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -165,7 +165,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            =   9.74
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -420,13 +420,13 @@ Begin VB.Form frmZZSEBPRC
                End
             End
             Begin FACTFRMLib.FactorFrame cmdPrint 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   32
                Index           =   3
-               Left            =   5988
+               Left            =   5985
                TabIndex        =   61
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -458,13 +458,13 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdCancel 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   15
                Index           =   3
-               Left            =   7428
+               Left            =   7425
                TabIndex        =   62
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -543,7 +543,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            =   9.74
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -575,7 +575,7 @@ Begin VB.Form frmZZSEBPRC
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            =   9.73
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -941,12 +941,12 @@ Begin VB.Form frmZZSEBPRC
                End
             End
             Begin FACTFRMLib.FactorFrame cmdProcess 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   534
-               Left            =   5988
+               Left            =   5985
                TabIndex        =   43
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -978,13 +978,13 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdCancel 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   15
                Index           =   1
-               Left            =   7428
+               Left            =   7425
                TabIndex        =   45
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -1016,13 +1016,13 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdPrint 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   32
                Index           =   1
-               Left            =   48
+               Left            =   45
                TabIndex        =   44
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -1157,7 +1157,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            =   9.74
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1414,16 +1414,16 @@ Begin VB.Form frmZZSEBPRC
                      End
                   End
                   Begin FACTFRMLib.FactorFrame cmdAddBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   10
                      Index           =   4
-                     Left            =   36
+                     Left            =   30
                      TabIndex        =   11
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
-                     _ExtentX        =   2307
-                     _ExtentY        =   698
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
@@ -1452,16 +1452,16 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdEditBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   11
                      Index           =   4
-                     Left            =   1452
+                     Left            =   1455
                      TabIndex        =   13
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
-                     _ExtentX        =   2307
-                     _ExtentY        =   698
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
@@ -1490,16 +1490,16 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdCancel 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   15
                      Index           =   4
-                     Left            =   7128
+                     Left            =   7125
                      TabIndex        =   27
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
-                     _ExtentX        =   2307
-                     _ExtentY        =   698
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
@@ -1528,16 +1528,16 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   13
                      Index           =   4
-                     Left            =   5712
+                     Left            =   5715
                      TabIndex        =   26
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
-                     _ExtentX        =   2307
-                     _ExtentY        =   698
+                     _ExtentX        =   2302
+                     _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
@@ -1566,13 +1566,13 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdDelete 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   12
                      Index           =   4
-                     Left            =   2868
+                     Left            =   2865
                      TabIndex        =   29
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
@@ -1604,13 +1604,13 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdRefresh 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   14
                      Index           =   4
-                     Left            =   4296
+                     Left            =   4290
                      TabIndex        =   28
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
@@ -1901,20 +1901,20 @@ Begin VB.Form frmZZSEBPRC
                      End
                   End
                   Begin FACTFRMLib.FactorFrame cmdUpdateInsertBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   13
                      Index           =   0
-                     Left            =   5712
+                     Left            =   5715
                      TabIndex        =   12
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1939,20 +1939,20 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdCancel 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   15
                      Index           =   0
-                     Left            =   7128
+                     Left            =   7125
                      TabIndex        =   14
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1977,20 +1977,20 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdAddBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   10
                      Index           =   0
-                     Left            =   36
+                     Left            =   30
                      TabIndex        =   1
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2015,20 +2015,20 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdEditBtn 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   11
                      Index           =   0
-                     Left            =   1452
+                     Left            =   1455
                      TabIndex        =   2
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2053,20 +2053,20 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdDelete 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   12
                      Index           =   0
-                     Left            =   2868
+                     Left            =   2865
                      TabIndex        =   18
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2091,20 +2091,20 @@ Begin VB.Form frmZZSEBPRC
                      EndProperty
                   End
                   Begin FACTFRMLib.FactorFrame cmdRefresh 
-                     Height          =   396
+                     Height          =   390
                      HelpContextID   =   14
                      Index           =   0
-                     Left            =   4296
+                     Left            =   4290
                      TabIndex        =   16
-                     Top             =   4248
-                     Width           =   1308
+                     Top             =   4245
+                     Width           =   1305
                      _Version        =   65536
                      _ExtentX        =   2302
                      _ExtentY        =   688
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.11
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2178,7 +2178,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            =   9.74
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -2220,12 +2220,12 @@ Begin VB.Form frmZZSEBPRC
                End
             End
             Begin FACTFRMLib.FactorFrame cmdOk 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   16
-               Left            =   5988
+               Left            =   5985
                TabIndex        =   49
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -2257,13 +2257,13 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdCancel 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   15
                Index           =   2
-               Left            =   7428
+               Left            =   7425
                TabIndex        =   51
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -2295,12 +2295,12 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdSelectAll 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   542
-               Left            =   48
+               Left            =   45
                TabIndex        =   47
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -2332,12 +2332,12 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdApprove 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   543
-               Left            =   1476
+               Left            =   1470
                TabIndex        =   48
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
@@ -2369,13 +2369,13 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
             End
             Begin FACTFRMLib.FactorFrame cmdPrint 
-               Height          =   396
+               Height          =   390
                HelpContextID   =   32
                Index           =   2
-               Left            =   2904
+               Left            =   2910
                TabIndex        =   50
                Top             =   4260
-               Width           =   1308
+               Width           =   1305
                _Version        =   65536
                _ExtentX        =   2302
                _ExtentY        =   688
