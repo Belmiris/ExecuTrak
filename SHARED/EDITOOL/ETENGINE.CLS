@@ -1,9 +1,15 @@
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
 END
 Attribute VB_Name = "EDIToolEngine"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '***********************************************************'
 '
@@ -181,6 +187,9 @@ Option Explicit
     Private m_sMode As String
     Private m_sFileName As String
     
+    Private m_sCarrier_Name As String
+    Private m_sCarrier_FEIN As String
+    
     'Variables need to set inside the program
     Private m_nTypeCode As String
     Private m_nProductRefCode As String
@@ -290,9 +299,16 @@ Property Get EDITypeD() As String
     EDITypeD = EDI_TYPE_D
 End Property
 
-
 Property Let EndDate(sTemp As String)
     m_sEndDate = sTemp
+End Property
+
+Property Let Carrier_Name(sTemp As String)
+    m_sCarrier_Name = sTemp
+End Property
+
+Property Let Carrier_FEIN(sTemp As String)
+    m_sCarrier_FEIN = sTemp
 End Property
 
 Public Sub EndTrans()
@@ -836,8 +852,10 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     'sTemp = fnCStr(!fmm_carrier)
                     'subCarrierInfo sInfo1, sInfo2, sTemp
                     ciTemp.CarrierCode = ""  'sTemp
-                    ciTemp.CarrierName = ""  'sInfo1
-                    ciTemp.CarrierFedID = "000000000"  'fnConvertFEDID(sInfo2)
+                    'ciTemp.CarrierName = ""  'sInfo1
+                    'ciTemp.CarrierFedID = "000000000"  'fnConvertFEDID(sInfo2)
+                    ciTemp.CarrierName = m_sCarrier_Name
+                    ciTemp.CarrierFedID = m_sCarrier_FEIN
                     'sTemp = fnTerminalCity(tfnRound(!fml_terminal))
                     sTemp = fnProfitCenterCity(tfnRound(!ih_prft_ctr))
                     subGetCityInfo sInfo1, sInfo2, sTemp
