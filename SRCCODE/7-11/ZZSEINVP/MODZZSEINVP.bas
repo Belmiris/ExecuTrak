@@ -1132,6 +1132,7 @@ Public Sub subSentErrorLogToPrinter()
         
         If nPrevPage <> nPageNumber Then
             subPrintRptHeader "ERROR"
+            subOutput Space(PAGELENGTH)
             nPrevPage = nPageNumber
         End If
     
@@ -1177,7 +1178,8 @@ Public Sub subSentProcLogToPrinter()
         Line Input #nFileNum, sLine
         
         If nPrevPage <> nPageNumber Then
-            subPrintRptHeader "ERROR"
+            subPrintRptHeader "PROCESSING"
+            subOutput Space(PAGELENGTH)
             nPrevPage = nPageNumber
         End If
     
