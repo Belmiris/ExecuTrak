@@ -63,6 +63,7 @@ Public Const colAPayHours As Integer = 6
 Public Const colABonusAmt As Integer = 7
 Public colAHdsOverride As Integer
 Public colAHdnPrftName As Integer
+Public colAHdsBonusDesc As Integer
 Public colAHdnBAmtLvls As Integer
 
 'Detail Grid Column Names
@@ -73,6 +74,8 @@ Public Const colDBType As Integer = 3
 Public Const colDBFreq As Integer = 4
 Public Const colDElgDate As Integer = 5
 Public Const colDBAmt As Integer = 6
+Public colDHdnEmpNo As Integer
+Public colDHdnPrftCtr As Integer
 
 Public Const nWeek As Integer = 0
 Public Const sWeek As String = "W"
@@ -272,20 +275,32 @@ Public Function fnCreateReport(Index As Integer) As Boolean
                 If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
                     sApprove = "Y"
                 End If
-                sArrReport(i) = fnTranc(sApprove, 8, vbCenter) & Space(1) _
+                sArrReport(i) = fnTranc(sApprove, 5, vbCenter) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpNo, i), 9, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colAEmpName, i), 46, vbLeftJustify) & Space(1) _
-                    & fnTranc(tgmApprove.CellValue(colAPayCode, i), 7, vbLeftJustify) & Space(2) _
-                    & fnTranc(tgmApprove.CellValue(colAPayHours, i), 6, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmApprove.CellValue(colAPrftCtr, i), 6, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmApprove.CellValue(colAPayCode, i), 4, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmApprove.CellValue(colAPayHours, i), 5, vbLeftJustify) & Space(2) _
                     & fnTranc(tgmApprove.CellValue(colADate, i), 10, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colABonusAmt, i), 10, vbRightJustify)
             Next i
             sReportTitle = "Employee Bonus Approval Report"
-            sHeadTitle = fnTranc("Approval", 8, vbLeftJustify) & Space(1)
+            sHeadTitle = fnTranc("", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee", 9, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee Name", 46, vbLeftJustify) & Space(1)
-            sHeadTitle = sHeadTitle & fnTranc("PayCode", 7, vbLeftJustify) & Space(2)
-            sHeadTitle = sHeadTitle & fnTranc("PayHrs", 6, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Profit", 6, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Pay", 4, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Pay", 5, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Process", 10, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("", 10, vbRightJustify)
+            'second line
+            sHeadTitle = sHeadTitle & vbCrLf
+            sHeadTitle = fnTranc("Apprv", 5, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("Number", 9, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("Employee Name", 46, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("Center", 6, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Code", 4, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Hours", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Date", 10, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Amount", 10, vbRightJustify)
         Case TabDetails
@@ -402,7 +417,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         Exit Function
     End If
     
-    sErrMsg = fnValidEmployee(lEmployeeNo, nPrftCtr, sBGrade)
+    sErrMsg = fnValidEmpGetBAmount(lEmployeeNo, nPrftCtr, sBGrade)
     
     If sErrMsg <> "" Then
         subLogErrMsg Space(7) & sErrMsg
@@ -638,7 +653,7 @@ Public Function fnCheckBonusHold() As Boolean
             sMsg = "All the Commission Records for the Profit Center"
         End If
     Else
-        If nChkLinkNotZero > 0 Then
+        If nChkLinkIsZero > 0 Then
             If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
                 sMsg = "Some Commission Records"
             ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
@@ -888,7 +903,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND bs_sales_type = " & tfnSQLString(sGas)
         
         Case sarrVariable(2)  'day off slip days
-            strSQL = "SELECT COUNT (bd_shl) AS var_value "
+            strSQL = "SELECT COUNT (bd_prft_ctr) AS var_value "
             strSQL = strSQL & " FROM bonus_day_off_slip, rs_shiftlink"
             strSQL = strSQL & " WHERE bd_empno = " & lEmpNo
             strSQL = strSQL & " AND bd_prft_ctr = " & nPrftCtr
@@ -1577,11 +1592,93 @@ Public Function fnDeleteSales(sSType As String, sOldPrftCtr As String, sToDt As 
     fnDeleteSales = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
 
-Private Function fnValidEmployee(lEmployeeNo As Long, _
+Private Function fnValidEmpGetBAmount(lEmpNo As Long, _
                                  nPrftCtr As Integer, _
                                  sBGrade As String) As String
 
-
+    Const SUB_NAME As String = "fnValidEmpGetBAmount"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim i As Long
+    Dim nEmpLevel As Integer
+    Dim sDateHired As String
+    Dim sDateTermed As String
+    
+    fnValidEmpGetBAmount = False
+    
+    strSQL = "SELECT *"
+    strSQL = strSQL + " FROM pr_master WHERE prm_empno = " & lEmpNo
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        fnValidEmpGetBAmount = "Failed to access Database"
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        fnValidEmpGetBAmount = "Employee Number does not exist"
+        Exit Function
+    End If
+    
+    'checking prft_ctr
+    For i = 1 To 5
+        If fnGetField(rsTemp.Fields("prm_prft_ctr" & i)) <> "" Then
+            If tfnRound(rsTemp.Fields("prm_prft_ctr" & i)) = nPrftCtr Then
+                Exit For
+            End If
+        End If
+    Next i
+    
+    If i > 5 Then
+        fnValidEmpGetBAmount = "Profit Center " & nPrftCtr & " is not connect to the employee"
+        Exit Function
+    End If
+    
+    If fnGetField(rsTemp!prm_emp_level) = "" Then
+        fnValidEmpGetBAmount = "Employee Level is NULL for the employee"
+        Exit Function
+    End If
+    
+    nEmpLevel = tfnRound(rsTemp!prm_emp_level)
+    sDateHired = tfnFormatDate(rsTemp!prm_date_hired)
+    sDateTermed = tfnFormatDate(rsTemp!prm_date_termed)
+    
+    'checking grade and employee level
+    strSQL = "SELECT bg_emp_level"
+    strSQL = strSQL + " FROM bonus_grades"
+    strSQL = strSQL + " WHERE bg_grade = " & tfnSQLString(sBGrade)
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        fnValidEmpGetBAmount = "Failed to access Database"
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        fnValidEmpGetBAmount = "Bonus Grade " + tfnSQLString(sBGrade) + " does not exist"
+        Exit Function
+    End If
+    
+    For i = 1 To rsTemp.RecordCount
+        If tfnRound(rsTemp!bg_emp_level) = nEmpLevel Then
+            Exit For
+        End If
+        
+        rsTemp.MoveNext
+    Next i
+    
+    If rsTemp.EOF Then
+        fnValidEmpGetBAmount = "Employee Level " & nEmpLevel & " is not valid for Bonus Grade " + tfnSQLString(sBGrade)
+        Exit Function
+    End If
+    
+    If sDateTermed <> "" Then
+        If CDate(tfnDateString(sDateTermed)) < CDate(tfnDateString(frmZZSEBPRC!txtEndDate)) Then
+            fnValidEmpGetBAmount = "Employee was terminated on " + sDateTermed
+            Exit Function
+        End If
+    End If
+    
+    fnValidEmpGetBAmount = ""
 End Function
 
 Public Function IsValidDate(ByVal sDate As String) As Boolean
@@ -1620,7 +1717,6 @@ Public Function fnBuildList(tgmEditor As clsTGSpreadSheet, _
     Dim aryList() As Variant
     Dim nListCount As Integer
     Dim j As Integer
-    Dim sPrev As String
     
     If tgmEditor.RowCount < 1 Then
         Exit Function
@@ -1689,24 +1785,52 @@ Public Function fnBuildList(tgmEditor As clsTGSpreadSheet, _
     End If
 End Function
 
-Public Function fnLoadBonusDetails(lEmpNbr As Long, nPrftCtr As Integer) As Boolean
+Public Function fnLoadBonusDetails(lEmpNo As Long, _
+                                   nPrftCtr As Integer, _
+                                   sBonusCode As String) As Boolean
     
     Const SUB_NAME As String = "fnLoadBonusDetails"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim sApproveEmpList As String
+    Dim sApprovePrftCtrList As String
     
     strSQL = "SELECT bm_empno, bm_eligible_pc, bm_bonus_code, bm_eligible_date, bc_type,"
-    strSQL = strSQL & " bc_frequency, bc_code_desc, bm_sequence, bf_level"
+    strSQL = strSQL & " bc_frequency, bm_sequence, bf_level"
     strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula"
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
-    strSQL = strSQL & " AND bm_empno = " & tfnRound(lEmpNbr)
-    strSQL = strSQL & " AND bm_eligible_pc = " & nPrftCtr
+    If sBonusCode <> "" Then
+        strSQL = strSQL & " AND bm_bonus_code = " & tfnSQLString(sBonusCode)
+    End If
+    If lEmpNo < 0 And nPrftCtr < 0 Then
+        sApproveEmpList = fnBuildEmpPrftCtrList()
+        If sApproveEmpList <> "" Then
+            strSQL = strSQL & " AND (bm_empno || bm_eligible_pc) IN (" + sApproveEmpList + ")"
+        End If
+    Else
+        If lEmpNo < 0 Then
+            sApproveEmpList = fnBuildList(tgmApprove, colAEmpNo, 1, False, True, True, colAPrftCtr, fnGetField(nPrftCtr))
+            If sApproveEmpList <> "" Then
+                strSQL = strSQL & " AND bm_empno IN (" + sApproveEmpList + ")"
+            End If
+        Else
+            strSQL = strSQL & " AND bm_empno = " & tfnRound(lEmpNo)
+        End If
+        If nPrftCtr < 0 Then
+            sApprovePrftCtrList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True, colAEmpNo, fnGetField(lEmpNo))
+            If sApprovePrftCtrList <> "" Then
+                strSQL = strSQL & " AND bm_eligible_pc IN (" + sApprovePrftCtrList + ")"
+            End If
+        Else
+            strSQL = strSQL & " AND bm_eligible_pc = " & nPrftCtr
+        End If
+    End If
     strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(frmZZSEBPRC!txtFrequency)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
     strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
-    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bf_level"
+    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bm_bonus_code, bf_level"
         
     tgmDetail.FillWithSQL t_dbMainDatabase, strSQL
     If tgmDetail.RowCount <= 0 Then
@@ -1715,6 +1839,27 @@ Public Function fnLoadBonusDetails(lEmpNbr As Long, nPrftCtr As Integer) As Bool
     End If
     
     fnLoadBonusDetails = True
+End Function
+
+Public Function fnBuildEmpPrftCtrList() As String
+    
+    Dim sTemp As String
+    Dim i As Long
+    
+    If tgmApprove.RowCount < 1 Then
+        Exit Function
+    End If
+    
+    sTemp = ""
+    
+    For i = 0 To tgmApprove.RowCount - 1
+        sTemp = sTemp + tfnSQLString(fnGetField(tgmApprove.CellValue(colAEmpNo, i)) + "," _
+            + fnGetField(tgmApprove.CellValue(colAPrftCtr, i))) + ","
+    Next i
+    
+    If sTemp <> "" Then
+        fnBuildEmpPrftCtrList = Left(sTemp, Len(sTemp) - 1)
+    End If
 End Function
 
 Public Function fnGetProposedEndDate(sStartDate As String, sFreq As String) As String
@@ -1736,3 +1881,13 @@ Public Function fnGetProposedEndDate(sStartDate As String, sFreq As String) As S
     fnGetProposedEndDate = tfnFormatDate(sEndDate)
 End Function
 
+Public Function fnHasApprove() As Boolean
+    Dim i As Long
+    
+    For i = 0 To tgmApprove.RowCount - 1
+        If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
+            fnHasApprove = True
+            Exit Function
+        End If
+    Next i
+End Function

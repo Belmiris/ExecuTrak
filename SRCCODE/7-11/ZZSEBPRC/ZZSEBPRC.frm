@@ -2648,10 +2648,11 @@ Private Sub cmdApprove_Click()
         tblApprove.col = 1
         tblApprove.col = 0
     Else
-        subSetAction colAppYes
+        subSetApproveAll
     End If
     
     tgmApprove.Rebind
+    'cmdOk.Enabled = fnHasApprove()
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2733,7 +2734,11 @@ Private Sub efraBaseHours_GotFocus()
 End Sub
 
 Private Sub efraBaseIIDetail_GotFocus()
-    subSetFocus txtEmployee
+    If txtEmployee.Enabled Then
+        subSetFocus txtEmployee
+    Else
+        subSetFocus tblDetails
+    End If
 End Sub
 
 Private Sub efraBaseIIHours_GotFocus()
@@ -3241,15 +3246,25 @@ Private Sub tfnResetScreen(Index As Integer)
             cmdProcess.Enabled = False
             subSetProgress 0
             
+            tgmApprove.ClearData
+            
+            txtEmployee = ""
+            txtEmpName = ""
+            txtDPrftCtr = ""
+            txtDPrftCtrName = ""
+            bLoadingBonusDetail = False
+            tgmDetail.ClearData
+            subEnableEmployee True
+            subEnableDPrftCtr True
+            
             If eTabMain.CurrTab = TabProcess Then
                 subFillStartEndDateFreq
                 subSetFocus txtStartDate
             End If
         Case TabApprove
-            If nDataStatus = DATA_CHANGED Then
+            If fnHasApprove() Then
                 If tfnCancelExit(t_szCANCEL_MESSAGE) Then
                     tgmApprove.ClearData
-                    nDataStatus = DATA_INIT
                     tgmApprove.FillWithArray vArrBonus
                     If eTabMain.CurrTab = TabApprove Then
                         subSetFocus tblApprove
@@ -3325,10 +3340,21 @@ Private Sub tblApprove_Change()
 End Sub
 
 Private Sub tblApprove_Click()
+    If tblApprove.col = colAApprove Then
+'        If tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppNo Then
+'            tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppYes
+'        Else
+'            tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppNo
+'        End If
+        tblApprove.col = 1
+        tblApprove.col = 0
+        'cmdOk.Enabled = fnHasApprove()
+    End If
     tgsApprove.Click
 End Sub
 
 Private Sub tblApprove_DblClick()
+    'cmdOk.Enabled = fnHasApprove()
     bLoadingBonusDetail = False
     subEnterBonusPhaseII
 End Sub
@@ -3343,23 +3369,31 @@ Private Sub tblApprove_GotFocus()
     tgmApprove.GotFocus
 End Sub
 
+Private Sub tblApprove_HeadClick(ByVal ColIndex As Integer)
+    tgmApprove.HeadClick ColIndex
+End Sub
+
 Private Sub tblApprove_KeyDown(KeyCode As Integer, Shift As Integer)
-    tgsApprove.KeyDown KeyCode, Shift
-    tgmApprove.KeyDown KeyCode, Shift
+    If Shift = 0 And KeyCode = vbKeyReturn Then
+        KeyCode = 0
+        
+        If tgsApprove.Count > 1 Then
+            tfnSetStatusBarError "Only one detail can be viewed at a time"
+            Exit Sub
+        End If
+        
+        bLoadingBonusDetail = False
+        subEnterBonusPhaseII
+    Else
+        tgsApprove.KeyDown KeyCode, Shift
+        tgmApprove.KeyDown KeyCode, Shift
+    End If
 End Sub
 
 Private Sub tblApprove_KeyPress(KeyAscii As Integer)
     If KeyAscii <> vbKeyReturn Then
         Exit Sub
     End If
-    
-    If tgsApprove.Count > 1 Then
-        MsgBox "Only one detail can be viewed at a time", vbInformation
-        Exit Sub
-    End If
-    
-    bLoadingBonusDetail = False
-    subEnterBonusPhaseII
 End Sub
 
 Private Sub tblApprove_LostFocus()
@@ -3560,11 +3594,13 @@ Private Sub cmdProcess_Click()
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim nCount As Integer
-    Dim sEmpNo As String, sCode As String
+    Dim sEmpNo As String
+    Dim sPrftCtr As String
+    Dim sCode As String
+    Dim nLevel As Integer
     Dim dBLvlAmt As Double
     Dim dTotalBonus As Double
-    Dim sAmtAllLevels As String, sAmtAllBCodes As String
-    Dim nSize As Integer: nSize = -1
+    Dim nSize As Integer
     Dim i As Integer
     Dim bError As Boolean: bError = False
     
@@ -3594,7 +3630,7 @@ Private Sub cmdProcess_Click()
     subLogErrMsg "Started processing commission formulas..."
     subLogErrMsg " "
     
-    strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bf_level, "
+    strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bc_code_desc, bf_level, "
     strSQL = strSQL & " bm_eligible_pc, bm_sequence, bm_override, prft_name"
     strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula, sys_prft_ctr"
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
@@ -3613,7 +3649,7 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
 '    strSQL = strSQL & " AND " & tfnDateString(Date, True)
 '    strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
-    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bf_level"
+    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bc_bonus_code, bf_level"
     
     Screen.MousePointer = vbHourglass
     nCount = GetRecordSet(rsTemp, strSQL, , SUB_NAME)
@@ -3630,57 +3666,64 @@ Private Sub cmdProcess_Click()
     End If
     
     rsTemp.MoveFirst
+    nSize = -1
+    
     For i = 1 To nCount
         DoEvents
         If bCancelProcess Then
             GoTo TERMINATE_PROCESS
         End If
+        
         subSetProgress i * (100 / nCount)
+        
         Screen.MousePointer = vbHourglass
+        
+        nLevel = tfnRound(rsTemp!bf_level)
+        
         subLogErrMsg "Calculating commission for employee " & tfnSQLString(rsTemp!bm_empno) _
                    & ", commission code " & tfnSQLString(rsTemp!bc_bonus_code) _
-                   & " and level " & tfnSQLString(Trim(rsTemp!bf_level))
-        If sEmpNo <> CStr(rsTemp!bm_empno) Then
-            If i > 1 Then
-                nSize = nSize + 1
-                ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
-                vArrBonus(colAEmpNo, nSize) = Trim(sEmpNo)
-                vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
-                vArrBonus(colADate, nSize) = txtEndDate
-                vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
-                vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
+                   & " and level " & nLevel
+        
+        If sEmpNo <> fnGetField(rsTemp!bm_empno) Or _
+           sPrftCtr <> fnGetField(rsTemp!bm_eligible_pc) Or _
+           sCode <> fnGetField(rsTemp!bc_bonus_code) Then
+            
+            If nSize >= 0 Then
                 vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
-                vArrBonus(colAHdsOverride, nSize) = fnGetField(rsTemp!bm_override)
-                vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
-                vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
             End If
-            dBLvlAmt = fnGetBonusAmount(rsTemp)
-            dTotalBonus = dBLvlAmt
-            sAmtAllBCodes = CStr(dBLvlAmt)
-        Else
-            dBLvlAmt = fnGetBonusAmount(rsTemp)
-            If sCode <> CStr(rsTemp!bc_bonus_code) Then
-                sAmtAllBCodes = sAmtAllBCodes & "," & CStr(dBLvlAmt) & ""
-            Else
-                sAmtAllBCodes = sAmtAllBCodes & "~" & CStr(dBLvlAmt) & ""
-            End If
-            dTotalBonus = dTotalBonus + dBLvlAmt
-        End If
-        sCode = fnGetField(rsTemp!bc_bonus_code)
-        sEmpNo = CStr(rsTemp!bm_empno)
-        'last record...
-        If i = nCount Then
+            
             nSize = nSize + 1
             ReDim Preserve vArrBonus(colAHdnBAmtLvls, nSize)
-            vArrBonus(colAEmpNo, nSize) = Trim(sEmpNo)
-            vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
+            vArrBonus(colAApprove, nSize) = colAppNo
+            vArrBonus(colAEmpNo, nSize) = fnGetField(rsTemp!bm_empno)
+            vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(fnGetField(rsTemp!bm_empno))
             vArrBonus(colADate, nSize) = txtEndDate
             vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
             vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
             vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
             vArrBonus(colAHdsOverride, nSize) = fnGetField(rsTemp!bm_override)
             vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
-            vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
+            vArrBonus(colAHdsBonusDesc, nSize) = fnGetField(rsTemp!bc_code_desc) 'Hidden Column
+            vArrBonus(colAHdnBAmtLvls, nSize) = "" 'Hidden Column
+            
+            dBLvlAmt = fnGetBonusAmount(rsTemp)
+            dTotalBonus = dBLvlAmt
+            
+            vArrBonus(colAHdnBAmtLvls, nSize) = nLevel & "*" & fnGetField(dBLvlAmt)
+        Else  'everything (empno, prftctr, paycode) is the same, except the bonus code level
+            dBLvlAmt = fnGetBonusAmount(rsTemp)
+            dTotalBonus = dTotalBonus + dBLvlAmt
+            vArrBonus(colAHdnBAmtLvls, nSize) = vArrBonus(colAHdnBAmtLvls, nSize) _
+                + "~" & nLevel & "*" & fnGetField(dBLvlAmt)
+        End If
+        
+        sCode = fnGetField(rsTemp!bc_bonus_code)
+        sEmpNo = fnGetField(rsTemp!bm_empno)
+        sPrftCtr = fnGetField(rsTemp!bm_eligible_pc)
+        
+        'last record...
+        If i = nCount Then
+            vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
         End If
         rsTemp.MoveNext
     Next i
@@ -3689,6 +3732,9 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
+    'cmdOk.Enabled = fnHasApprove()
+    
+    cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
     eTabMain.TabEnabled(TabApprove) = True
     eTabMain.CurrTab = TabApprove
@@ -3826,6 +3872,8 @@ End Sub
 Private Sub subInitSpreadsheets()
     Dim sDecimalString As String
     
+    On Error GoTo errTrap
+    
     'Table Sales Class Implementation
     sDecimalString = tfnDecimalPattern(10, 2)
     subSetGridWidth tblSales
@@ -3859,16 +3907,27 @@ Private Sub subInitSpreadsheets()
     'Table Approve Class Implementation
     subSetGridWidth tblApprove
     Set tgmApprove = New clsTGSpreadSheet
-    Set tgmApprove.Table = tblApprove
-    Set tgmApprove.StatusBar = ffraStatusbar ' message bar name
-    Set tgmApprove.Form = Me
-    Set tgmApprove.engFactor = t_engFactor
-    tgmApprove.AddEditColumn colAApprove, "Select Yes, No"
-    tgmApprove.AllowAddNew = False
-                
-    colAHdsOverride = tgmApprove.AddHiddenField("HiddenOverride")
-    colAHdnPrftName = tgmApprove.AddHiddenField("HiddenPrftName")
-    colAHdnBAmtLvls = tgmApprove.AddHiddenField("HiddenLevels")
+    With tgmApprove
+        Set .Table = tblApprove
+        Set .StatusBar = ffraStatusbar ' message bar name
+        Set .Form = Me
+        Set .engFactor = t_engFactor
+        .AddEditColumn colAApprove, "Select Yes, No"
+        .AllowAddNew = False
+                    
+        colAHdsOverride = .AddHiddenField("HiddenOverride")
+        colAHdnPrftName = .AddHiddenField("HiddenPrftName")
+        colAHdsBonusDesc = .AddHiddenField("HiddenBonusDesc")
+        colAHdnBAmtLvls = .AddHiddenField("HiddenLevels")
+        
+        .AddSortColumn colAEmpNo, colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAPayCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+    
+        .AddSortColumn colAPrftCtr, colAPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAEmpNo, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
+            colAPayCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE
+    End With
     
     'Implement the selector class
     Set tgsApprove = New clsTGSelector
@@ -3888,8 +3947,16 @@ Private Sub subInitSpreadsheets()
     tgmDetail.ClearData
     tgmDetail.AllowAddNew = False
 
+    colDHdnEmpNo = tgmDetail.AddHiddenField("bm_empno")
+    colDHdnPrftCtr = tgmDetail.AddHiddenField("bm_eligible_pc")
+
     'setup the text extension
     subSetupExetension
+    
+    Exit Sub
+
+errTrap:
+    tfnErrHandler "subInitSpreadsheets"
 End Sub
 
 Private Sub subSetupExetension()
@@ -3900,10 +3967,18 @@ Private Sub subSetupExetension()
     
     tgcExtension.AddColumn colAPrftCtr
     tgcExtension.Style(colAPrftCtr) = 3
+
+    tgcExtension.AddColumn colAPayCode
+    tgcExtension.Style(colAPayCode) = 3
 End Sub
 
 Public Function fnGetText(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Integer) As String
-    fnGetText = tgmApprove.CellValue(colAHdnPrftName, nRow)
+    Select Case nCol
+    Case colAPrftCtr
+        fnGetText = tgmApprove.CellValue(colAHdnPrftName, nRow)
+    Case colAPayCode
+        fnGetText = tgmApprove.CellValue(colAHdsBonusDesc, nRow)
+    End Select
 End Function
 
 'put all codes in tmrKeyboard_Timer()
@@ -3961,6 +4036,7 @@ End Sub
 Private Function fnSetComboSQL(nTabIndex As Integer) As String
     Dim strSQL As String
     Dim sApproveEmpList As String
+    Dim sApprovePrftCtrList As String
     
     Select Case nTabIndex
         Case txtPrftCtr.TabIndex, txtPrftCtrName.TabIndex
@@ -3989,13 +4065,13 @@ Private Function fnSetComboSQL(nTabIndex As Integer) As String
             strSQL = strSQL & " WHERE prft_ctr IN (SELECT DISTINCT bm_eligible_pc FROM bonus_master)"
             
             If cValidDetail.ValidInput(txtEmployee) Then
-                sApproveEmpList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True, colAEmpNo, txtEmployee)
+                sApprovePrftCtrList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True, colAEmpNo, txtEmployee)
             Else
-                sApproveEmpList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True)
+                sApprovePrftCtrList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True)
             End If
             
-            If sApproveEmpList <> "" Then
-                strSQL = strSQL & " AND prft_ctr IN (" + sApproveEmpList + ")"
+            If sApprovePrftCtrList <> "" Then
+                strSQL = strSQL & " AND prft_ctr IN (" + sApprovePrftCtrList + ")"
             End If
         Case txtFromDate.TabIndex
             strSQL = fnGetSalesSQL(txtFromDate)
@@ -4016,11 +4092,11 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
         Case txtStartDate.TabIndex, txtEndDate.TabIndex
             fnInValidData = Not fnValidProcessDate(txtBox)
         Case txtFrequency.TabIndex
-            fnInValidData = Not fnValidBonusFreq(txtBox)
+            fnInValidData = Not fnValidFrequency(txtBox)
         Case txtPrftCtr.TabIndex
             fnInValidData = Not fnValidPrftCtr(txtBox)
         Case txtEmpProcess.TabIndex
-            fnInValidData = Not fnValidEmployee(txtBox)
+            fnInValidData = Not fnValidEmpProcess(txtBox)
         Case txtEmployee.TabIndex, txtDPrftCtr.TabIndex
             fnInValidData = Not fnValidDetailEmpPrftCtr(txtBox)
         Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
@@ -4048,11 +4124,12 @@ Private Function fnGetPrftName(nPrftCtr As Integer) As String
     fnGetPrftName = fnGetField(rsTemp!prft_name)
 End Function
 
-Private Function fnValidBonusFreq(txtBox As Textbox) As Boolean
-    Const SUB_NAME As String = "fnValidBonusFreq"
+Private Function fnValidFrequency(txtBox As Textbox) As Boolean
+    Const SUB_NAME As String = "fnValidFrequency"
     Dim strSQL As String
+    Dim sErrMsg As String
 
-    fnValidBonusFreq = False
+    fnValidFrequency = False
     
     If Trim(txtBox) = "" Then
         cValidate.SetErrorMessage txtBox, "You must enter a Commission frequency"
@@ -4066,8 +4143,24 @@ Private Function fnValidBonusFreq(txtBox As Textbox) As Boolean
         Exit Function
     End If
     
-    fnValidBonusFreq = True
-
+    If IsValidDate(txtStartDate) And txtEndDate = "" Then
+        txtEndDate = fnGetProposedEndDate(txtStartDate, txtFrequency)
+        cValidate.ResetFlags txtEndDate
+    End If
+    
+    If cValidate.ValidInput(txtStartDate) And cValidate.ValidInput(txtEndDate) Then
+        sErrMsg = fnCheckFrequency(txtStartDate, txtEndDate, txtFrequency)
+        If sErrMsg <> "" Then
+            cValidate.SetErrorMessage txtFrequency, sErrMsg
+            cValidate.SetErrorMessage txtStartDate, sErrMsg
+            cValidate.SetErrorMessage txtEndDate, sErrMsg
+            cValidate.ValidInput(txtStartDate) = False
+            cValidate.ValidInput(txtEndDate) = False
+            Exit Function
+        End If
+    End If
+    
+    fnValidFrequency = True
 End Function
 
 Private Sub subBuildFrequencyRegExp()
@@ -4110,19 +4203,19 @@ errTrap:
     sFreqRegExp = "^P$"
 End Sub
 
-Private Function fnValidEmployee(txtBox As Textbox) As Boolean
-    Const SUB_NAME As String = "fnValidEmployee"
+Private Function fnValidEmpProcess(txtBox As Textbox) As Boolean
+    Const SUB_NAME As String = "fnValidEmpProcess"
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sEmpName As String
     
-    fnValidEmployee = False
+    fnValidEmpProcess = False
     
     If Trim(txtBox.Text) = "" Then
         If eTabMain.CurrTab = TabDetails Then
             cValidate.SetErrorMessage txtBox, "You must enter an Employee Number"
         Else
-            fnValidEmployee = True
+            fnValidEmpProcess = True
         End If
         Exit Function
     End If
@@ -4160,7 +4253,7 @@ Private Function fnValidEmployee(txtBox As Textbox) As Boolean
         Exit Function
     End If
     
-    fnValidEmployee = True
+    fnValidEmpProcess = True
     
 End Function
 
@@ -4194,38 +4287,44 @@ Private Function fnValidDetailEmpPrftCtr(txtBox As Textbox) As Boolean
     End If
     
     If txtBox Is txtEmployee Then
-        lEmpNo = txtBox
-        nPrftCtr = txtDPrftCtr
+        lEmpNo = tfnRound(txtBox)
+        nPrftCtr = tfnRound(txtDPrftCtr)
     Else
-        nPrftCtr = txtBox
-        lEmpNo = txtEmployee
+        nPrftCtr = tfnRound(txtBox)
+        lEmpNo = tfnRound(txtEmployee)
     End If
     
-    txtDPrftCtrName = fnGetPrftName(nPrftCtr)
+    If txtDPrftCtr <> "" Then
+        txtDPrftCtrName = fnGetPrftName(nPrftCtr)
+    End If
     
-    For i = 0 To tgmApprove.RowCount - 1
-        If tfnRound(tgmApprove.CellValue(colAEmpNo, i)) = lEmpNo And _
-           tfnRound(tgmApprove.CellValue(colAPrftCtr, i)) = nPrftCtr Then
-            If txtBox Is txtEmployee Then
-                cValidDetail.ValidInput(txtDPrftCtr) = True
-            Else
-                cValidDetail.ValidInput(txtEmployee) = True
+    If txtDPrftCtr <> "" And txtEmployee <> "" Then
+        For i = 0 To tgmApprove.RowCount - 1
+            If tfnRound(tgmApprove.CellValue(colAEmpNo, i)) = lEmpNo And _
+               tfnRound(tgmApprove.CellValue(colAPrftCtr, i)) = nPrftCtr Then
+                If txtBox Is txtEmployee Then
+                    cValidDetail.ValidInput(txtDPrftCtr) = True
+                Else
+                    cValidDetail.ValidInput(txtEmployee) = True
+                End If
+                
+                fnValidDetailEmpPrftCtr = True
+                Exit Function
             End If
-            
-            fnValidDetailEmpPrftCtr = True
-            Exit Function
+        Next i
+    
+        If txtBox Is txtEmployee Then
+            cValidDetail.ValidInput(txtDPrftCtr) = False
+            cValidDetail.SetErrorMessage txtDPrftCtr, "Employee/Profit Center is not in the Comm. Approval Grid"
+        Else
+            cValidDetail.ValidInput(txtEmployee) = False
+            cValidDetail.SetErrorMessage txtEmployee, "Employee/Profit Center is not in the Comm. Approval Grid"
         End If
-    Next i
-    
-    If txtBox Is txtEmployee Then
-        cValidDetail.ValidInput(txtDPrftCtr) = False
-        cValidDetail.SetErrorMessage txtDPrftCtr, "Employee/Profit Center is not in the Comm. Approval Grid"
+        
+        cValidDetail.SetErrorMessage txtBox, "Employee/Profit Center is not in the Comm. Approval Grid"
     Else
-        cValidDetail.ValidInput(txtEmployee) = False
-        cValidDetail.SetErrorMessage txtEmployee, "Employee/Profit Center is not in the Comm. Approval Grid"
+        fnValidDetailEmpPrftCtr = True
     End If
-    
-    cValidDetail.SetErrorMessage txtBox, "Employee/Profit Center is not in the Comm. Approval Grid"
 End Function
 
 Private Sub tblComboDropDown_Click()
@@ -4311,12 +4410,17 @@ Private Sub subSetupCombos()
 End Sub
 
 Private Sub subEnterBonusPhaseII()
-    Dim sArBCodes() As String
-    Dim sArCodeLvls() As String
-    Dim lRow As Long
+    Dim aryLevels() As String
+    Dim aryLvlAmt() As String
+    Dim aryLevel() As Integer
+    Dim aryAmount() As Double
+    Dim lEmpNo As Long
     Dim nPrftCtr As Integer
-    Dim i As Integer, j As Integer, k As Integer
-
+    Dim sBonusCode As String
+    Dim lRow As Long
+    Dim i As Long
+    Dim j As Integer
+    
     If bLoadingBonusDetail Or tgmApprove.RowCount <= 0 Then
         Exit Sub
     End If
@@ -4328,9 +4432,23 @@ Private Sub subEnterBonusPhaseII()
     If eTabMain.CurrTab = TabApprove Then
         txtEmployee = tgmApprove.CellValue(colAEmpNo, lRow)
         txtEmpName = tgmApprove.CellValue(colAEmpName, lRow)
-        nPrftCtr = tgmApprove.CellValue(colAPrftCtr, lRow)
         txtDPrftCtr = tgmApprove.CellValue(colAPrftCtr, lRow)
         txtDPrftCtrName = fnGetPrftName(txtDPrftCtr)
+        lEmpNo = tfnRound(txtEmployee)
+        nPrftCtr = tfnRound(txtDPrftCtr)
+        sBonusCode = tgmApprove.CellValue(colAPayCode, lRow)
+    Else
+        If txtEmployee = "" Then
+            lEmpNo = -1
+        Else
+            lEmpNo = tfnRound(txtEmployee)
+        End If
+        If txtDPrftCtr = "" Then
+            nPrftCtr = -1
+        Else
+            nPrftCtr = tfnRound(txtDPrftCtr)
+        End If
+        sBonusCode = ""
     End If
     
     Screen.MousePointer = vbHourglass
@@ -4338,19 +4456,58 @@ Private Sub subEnterBonusPhaseII()
     subEnableDPrftCtr False
     tblDetails.Enabled = True
     
-    If Not fnLoadBonusDetails(txtEmployee, txtDPrftCtr) Then
+    If Not fnLoadBonusDetails(lEmpNo, nPrftCtr, sBonusCode) Then
         cmdCancel_Click TabDetails
         Exit Sub
     End If
     
-    sArBCodes = Split(tgmApprove.CellValue(colAHdnBAmtLvls, lRow), ",")
-    For i = 0 To UBound(sArBCodes)
-        sArCodeLvls = Split(sArBCodes(i), "~")
-        For j = 0 To UBound(sArCodeLvls)
-            tgmDetail.CellValue(colDBAmt, k) = Format(sArCodeLvls(j), "#,##0.00")
-            k = k + 1
-        Next j
-    Next i
+    'fill more data in detail grid
+    i = 0
+    Do
+        lEmpNo = tfnRound(tgmDetail.CellValue(colDHdnEmpNo, i))
+        nPrftCtr = tfnRound(tgmDetail.CellValue(colDHdnPrftCtr, i))
+        sBonusCode = fnGetField(tgmDetail.CellValue(colDBCode, i))
+        
+        'find the row in tgmApprove
+        For lRow = 0 To tgmApprove.RowCount - 1
+            If lEmpNo = fnGetField(tgmApprove.CellValue(colAEmpNo, lRow)) And _
+               nPrftCtr = fnGetField(tgmApprove.CellValue(colAPrftCtr, lRow)) And _
+               sBonusCode = fnGetField(tgmApprove.CellValue(colAPayCode, lRow)) Then
+                Exit For
+            End If
+        Next lRow
+        
+        If lRow < tgmApprove.RowCount Then
+            'get level amount
+            aryLevels = Split(tgmApprove.CellValue(colAHdnBAmtLvls, lRow), "~")
+            ReDim aryLevel(UBound(aryLevels))
+            ReDim aryAmount(UBound(aryLevels))
+            For j = 0 To UBound(aryLevels)
+                aryLvlAmt = Split(aryLevels(j), "*")
+                aryLevel(j) = tfnRound(aryLvlAmt(0))
+                aryAmount(j) = tfnRound(aryLvlAmt(1), 2)
+            Next j
+            
+            j = 0
+            
+            While lEmpNo = tfnRound(tgmDetail.CellValue(colDHdnEmpNo, i)) And _
+               nPrftCtr = tfnRound(tgmDetail.CellValue(colDHdnPrftCtr, i)) And _
+               sBonusCode = fnGetField(tgmDetail.CellValue(colDBCode, i))
+                tgmDetail.CellValue(colDBCDesc, i) = tgmApprove.CellValue(colAHdsBonusDesc, lRow)
+                If j <= UBound(aryLevels) Then
+                    tgmDetail.CellValue(colDBAmt, i) = aryAmount(j)
+                Else
+                    tgmDetail.CellValue(colDBAmt, i) = 0
+                End If
+                i = i + 1
+                j = j + 1
+            Wend
+        Else
+            i = i + 1
+        End If
+    Loop Until i > tgmDetail.RowCount - 1
+    
+    
     tgmDetail.Rebind
     
     If eTabMain.CurrTab = TabApprove Then
@@ -4862,7 +5019,7 @@ Private Function fnGetEmployeeName(sEmpNo As String) As String
     
 End Function
 
-Private Sub subSetAction(nCol As Integer)
+Private Sub subSetApproveAll()
     Dim i As Long
     Dim lCount As Long
     Dim lTemp() As Long
@@ -4921,6 +5078,8 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         t_nFormMode = ADD_MODE
         subEnableFirstLineSlsOrHrs Index, True
         
+        subSetFocusoptType
+        
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
         mnuCancel.Enabled = True
@@ -4934,8 +5093,6 @@ Private Sub cmdAddBtn_Click(Index As Integer)
         
         eTabSub.TabEnabled(TabHours) = False
         eTabMain.TabEnabled(TabProcess) = False
-        
-        subSetFocusoptType
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
@@ -5042,6 +5199,8 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         t_nFormMode = EDIT_MODE
         subEnableFirstLineSlsOrHrs Index, True
         
+        subSetFocusoptType
+        
         frmContext.ButtonEnabled(CANCEL_UP) = True
         cmdCancel(TabSales).Enabled = True
         mnuCancel.Enabled = True
@@ -5056,8 +5215,6 @@ Private Sub cmdEditBtn_Click(Index As Integer)
         
         eTabSub.TabEnabled(TabHours) = False
         eTabMain.TabEnabled(TabProcess) = False
-        
-        subSetFocusoptType
     Else 'Index is Hours...
         eTabMain.TabEnabled(TabProcess) = False
         eTabSub.TabEnabled(TabSales) = False
@@ -5299,7 +5456,7 @@ End Sub
 Private Sub subEnableFirstLineSlsOrHrs(Index As Integer, bYesNo As Boolean)
     Select Case Index
         Case TabSales
-            efraOptSales.Enabled = bYesNo
+            subEnableOptSales bYesNo
             txtFromDate.Enabled = bYesNo
             txtToDate.Enabled = bYesNo
             If t_nFormMode = ADD_MODE Then
@@ -5308,6 +5465,14 @@ Private Sub subEnableFirstLineSlsOrHrs(Index As Integer, bYesNo As Boolean)
             subEnableSearchbtn cmdFromDate, bYesNo
             subEnableSearchbtn cmdToDate, bYesNo
     End Select
+End Sub
+
+Private Sub subEnableOptSales(bYesNo As Boolean)
+    Dim i As Integer
+    For i = 0 To 3
+        optType(i).Enabled = bYesNo
+    Next i
+    efraOptSales.Enabled = bYesNo
 End Sub
 
 Private Sub SubEnableDeleteBtn(bOnOff As Boolean, Index As Integer)
@@ -5371,6 +5536,7 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
     Dim strSQL As String
     Dim sTemp As String
     Dim sErrMsg As String
+    Dim sFreq As String
     
     sTemp = "From Date"
     If Box Is txtToDate Then
@@ -5392,10 +5558,17 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
     
     Box = tfnFormatDate(Box)
     
+    sFreq = fnGetSalesType()
+    
     If Box Is txtFromDate Then
         If Not IsValidDate(txtToDate) Then
-            fnValidSalesDate = True
-            Exit Function
+            If txtToDate <> "" Or t_nFormMode = EDIT_MODE Or sFreq = sGas Then
+                fnValidSalesDate = True
+                Exit Function
+            End If
+            
+            txtToDate = fnGetProposedEndDate(txtFromDate, sFreq)
+            cValidSls.ValidInput(txtToDate) = True
         End If
     Else
         If Not IsValidDate(txtFromDate) Then
@@ -5407,7 +5580,6 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
     If CDate(tfnDateString(txtFromDate)) > CDate(tfnDateString(txtToDate)) Then
         cValidSls.SetErrorMessage txtFromDate, "From Date must be earlier than To Date"
         cValidSls.SetErrorMessage txtToDate, "To Date must be later than From Date"
-        
         If Box Is txtFromDate Then
             cValidSls.ValidInput(txtToDate) = False
         Else
@@ -5417,18 +5589,30 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
         Exit Function
     End If
     
-    sErrMsg = fnCheckFrequency(txtFromDate, txtToDate, fnGetSalesType())
-    If sErrMsg <> "" Then
-        cValidSls.SetErrorMessage txtFromDate, sErrMsg
-        cValidSls.SetErrorMessage txtToDate, sErrMsg
-        Exit Function
-    End If
-    
     If t_nFormMode = ADD_MODE Then
-        sErrMsg = fnCheckSales()
+        sErrMsg = fnCheckFrequency(txtFromDate, txtToDate, sFreq)
         If sErrMsg <> "" Then
             cValidSls.SetErrorMessage txtFromDate, sErrMsg
             cValidSls.SetErrorMessage txtToDate, sErrMsg
+            If Box Is txtFromDate Then
+                cValidSls.ValidInput(txtToDate) = False
+            Else
+                cValidSls.ValidInput(txtFromDate) = False
+            End If
+            
+            Exit Function
+        End If
+        
+        sErrMsg = fnCheckSales(sFreq)
+        If sErrMsg <> "" Then
+            cValidSls.SetErrorMessage txtFromDate, sErrMsg
+            cValidSls.SetErrorMessage txtToDate, sErrMsg
+            If Box Is txtFromDate Then
+                cValidSls.ValidInput(txtToDate) = False
+            Else
+                cValidSls.ValidInput(txtFromDate) = False
+            End If
+            
             Exit Function
         End If
     End If
@@ -5500,11 +5684,20 @@ Private Function fnValidProcessDate(Box As Textbox) As Boolean
         Exit Function
     End If
     
-    sErrMsg = fnCheckFrequency(txtStartDate, txtEndDate, txtFrequency)
-    If sErrMsg <> "" Then
-        cValidate.SetErrorMessage txtStartDate, sErrMsg
-        cValidate.SetErrorMessage txtEndDate, sErrMsg
-        Exit Function
+    If cValidate.ValidInput(txtFrequency) Then
+        sErrMsg = fnCheckFrequency(txtStartDate, txtEndDate, txtFrequency)
+        If sErrMsg <> "" Then
+            cValidate.SetErrorMessage txtStartDate, sErrMsg
+            cValidate.SetErrorMessage txtEndDate, sErrMsg
+            cValidate.SetErrorMessage txtFrequency, sErrMsg
+            cValidate.ValidInput(txtFrequency) = False
+            If Box Is txtStartDate Then
+                cValidate.ValidInput(txtEndDate) = False
+            Else
+                cValidate.ValidInput(txtStartDate) = False
+            End If
+            Exit Function
+        End If
     End If
     
     If Box Is txtStartDate Then
@@ -5526,12 +5719,16 @@ End Function
 Private Sub txtFromDate_Change()
     cValidSls.Change txtFromDate
     tgcDropdown.Change txtFromDate
+    If ActiveControl Is txtFromDate Then
+        subEnableOptSales False
+    End If
 End Sub
 
 Private Sub txtFromDate_GotFocus()
     cValidSls.GotFocus txtFromDate
     tgcDropdown.GotFocus txtFromDate
     If tgcDropdown.SingleRecordSelected Then
+        subEnableOptSales False
         subSetFocus txtToDate
         Screen.MousePointer = vbDefault
     End If
@@ -5558,11 +5755,13 @@ Private Sub txtFromDate_KeyPress(KeyAscii As Integer)
                       Screen.MousePointer = vbDefault
                 End If
             Else
-'                If cValidSls.FirstInvalidInput < 0 Then
-'                    subEnterPhaseIISlsOrHrs TabSales
-'                Else
-                    subSetFocus txtToDate
-'                End If
+                If txtToDate = "" And fnGetSalesType() <> sGas Then
+                    If IsValidDate(txtFromDate) Then
+                        txtToDate = fnGetProposedEndDate(txtFromDate, fnGetSalesType())
+                    End If
+                End If
+                    
+                subSetFocus txtToDate
             End If
           KeyAscii = 0
        End If
@@ -5590,12 +5789,16 @@ End Sub
 Private Sub txtToDate_Change()
     cValidSls.Change txtToDate
     tgcDropdown.Change txtToDate
+    If ActiveControl Is txtToDate Then
+        subEnableOptSales False
+    End If
 End Sub
 
 Private Sub txtToDate_GotFocus()
     cValidSls.GotFocus txtToDate
     tgcDropdown.GotFocus txtToDate
     If tgcDropdown.SingleRecordSelected Then
+        subEnableOptSales False
         subEnterPhaseIISlsOrHrs TabSales
         Screen.MousePointer = vbDefault
     End If
@@ -5639,7 +5842,7 @@ Private Sub txtToDate_LostFocus()
     txtToDate = tfnFormatDate(txtToDate)
     
     If cValidSls.LostFocus(txtToDate, cmdToDate, tblComboDropdown) Then
-        If Not (ActiveControl Is cmdCancel(TabSales) Or ActiveControl Is cmdExitCancelBtn) Then
+        If Not (ActiveControl Is cmdCancel(TabSales) Or ActiveControl Is cmdExitCancelBtn Or ActiveControl Is txtFromDate) Then
             subEnterPhaseIISlsOrHrs TabSales
         End If
     End If
@@ -5854,7 +6057,8 @@ Private Function fnLoadSales() As String
     
     If rsTemp.RecordCount = 0 Then
         If t_nFormMode = ADD_MODE Then
-            If MsgBox("Sales record not available for the From Date and To Date. Do you want to continue?", vbQuestion + vbYesNo) = vbNo Then
+            If MsgBox("Sales record not available for the From Date and To Date. " _
+               + "Do you want to continue?", vbQuestion + vbYesNo) = vbNo Then
                 fnLoadSales = "No Sales record available to Add"
             End If
         Else
@@ -5965,7 +6169,7 @@ Private Sub subSetFocusoptType()
     subSetFocus optType(0)
 End Sub
 
-Private Function fnCheckSales() As String
+Private Function fnCheckSales(sFreq As String) As String
     Const SUB_NAME As String = "fnCheckSales"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -5975,7 +6179,7 @@ Private Function fnCheckSales() As String
     'check from date
     strSQL = "SELECT COUNT(bs_from_date) AS cnt_date"
     strSQL = strSQL & " FROM bonus_sales"
-    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+    strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sFreq)
     strSQL = strSQL & " AND " & tfnDateString(txtFromDate, True)
     strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
     
@@ -5991,7 +6195,7 @@ Private Function fnCheckSales() As String
     If Not bSalesRecordExist Then
         strSQL = "SELECT COUNT(bs_from_date) AS cnt_date"
         strSQL = strSQL & " FROM bonus_sales"
-        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sFreq)
         strSQL = strSQL & " AND bs_from_date BETWEEN " & tfnDateString(txtFromDate, True)
         strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
         
@@ -6009,7 +6213,7 @@ Private Function fnCheckSales() As String
     If Not bSalesRecordExist Then
         strSQL = "SELECT COUNT(bs_to_date) AS cnt_date"
         strSQL = strSQL & " FROM bonus_sales"
-        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sFreq)
         strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
         strSQL = strSQL & " BETWEEN bs_from_date AND bs_to_date"
         
@@ -6026,7 +6230,7 @@ Private Function fnCheckSales() As String
     If Not bSalesRecordExist Then
         strSQL = "SELECT COUNT(bs_to_date) AS cnt_date"
         strSQL = strSQL & " FROM bonus_sales"
-        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(fnGetSalesType())
+        strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(sFreq)
         strSQL = strSQL & " AND bs_to_date BETWEEN " & tfnDateString(txtFromDate, True)
         strSQL = strSQL & " AND " & tfnDateString(txtToDate, True)
         
@@ -6554,12 +6758,23 @@ Private Sub subFillStartEndDateFreq()
     cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
 End Sub
 
-Private Function fnCheckFrequency(sStartDate, sEndDate, sFrequency) As String
-    Select Case sFrequency
-    Case "W"
-    Case "M"
-    Case "Q"
-    Case "Y"
-    End Select
+Private Function fnCheckFrequency(sStartDate As String, _
+                                  sEndDate As String, _
+                                  sFrequency As String) As String
+    Dim sDate As String
     
+    If sFrequency = sGas Then
+        Exit Function
+    End If
+    
+    sDate = fnGetProposedEndDate(sStartDate, sFrequency)
+    
+    If CDate(sEndDate) <> CDate(sDate) Then
+        If MsgBox("For Frequency " + tfnSQLString(sFrequency) + ", the Ending Date " _
+           + tfnDateString(sEndDate, True) + " is different from the system proposed Ending Date " _
+           + tfnDateString(sDate, True) + ". Are you sure you want to override the system " _
+           + "Ending Date?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+            fnCheckFrequency = "Ending Date entered is not same as system proposed Ending Date"
+        End If
+    End If
 End Function
