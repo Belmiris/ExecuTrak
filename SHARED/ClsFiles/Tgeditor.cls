@@ -434,7 +434,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -522,19 +522,19 @@ Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
 
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+        If val(tgTable.Row) < 0 Then
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -747,7 +747,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     nECol = fnColumnNumber(Col)
     If nECol >= 0 Then
-        lRow = Val(Bookmark)
+        lRow = val(Bookmark)
         If Not bValidCell(nECol, lRow) Then
             If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
                 CellStyle.ForeColor = vbWhite
@@ -761,7 +761,7 @@ Public Property Get FirstRow() As Long
     If IsNull(tgTable.FirstRow) Then
         FirstRow = 0
     Else
-        FirstRow = Val(tgTable.FirstRow)
+        FirstRow = val(tgTable.FirstRow)
     End If
 End Property
 
@@ -790,7 +790,7 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     If IsNull(tgTable.FirstRow) Then
         lCurrRow = lRow
     Else
-        lCurrRow = lRow - Val(tgTable.FirstRow)
+        lCurrRow = lRow - val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
@@ -1378,7 +1378,7 @@ Public Sub ResetFlags(Optional vRow As Variant, _
     If IsMissing(vRow) Then
         j = GetCurrentRowNumber
     Else
-        j = Val(vRow)
+        j = val(vRow)
     End If
     If IsMissing(vCol) Then
         For i = 0 To nColumnCount - 1
@@ -1580,7 +1580,7 @@ Property Get LastRow() As Long
     If IsNull(tgTable.FirstRow) Then
         LastRow = nLastTableRow
     Else
-        LastRow = Val(tgTable.FirstRow) + nLastTableRow
+        LastRow = val(tgTable.FirstRow) + nLastTableRow
     End If
 End Property
 
@@ -1842,7 +1842,7 @@ Private Sub fnSaveChangedKeys()
     End If
     If sKeyFields(nKeyColumnCount, lKeyRows) = "  " Then
         sKeyFields(nKeyColumnCount, lKeyRows) = bmTemp
-        If Val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
+        If val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
             For nCol = 0 To nKeyColumnCount - 1
                 sKeyFields(nCol, lKeyRows) = GridArray(nKeyColumns(nCol), lEditingRow)
             Next
@@ -3156,12 +3156,12 @@ Public Function GetCurrentRowNumber() As Long
     If IsNull(tgTable.FirstRow) Then
         lRow = 0
     Else
-        lRow = Val(tgTable.FirstRow)
+        lRow = val(tgTable.FirstRow)
     End If
     If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + Val(tgTable.Row)
+        GetCurrentRowNumber = lRow + val(tgTable.Row)
     End If
 
 End Function
@@ -3385,6 +3385,11 @@ Public Sub FillWithArray(arryData() As Variant, _
     Else
         bValid = vValid
     End If
+    
+    'david 05/06/2003  #408907
+    'to trap the out of memory RTE
+    On Error GoTo errHandler
+    ''''''''''''''''''''''''''
 
     If bClear Then
         lStart = 0
@@ -3452,6 +3457,18 @@ Public Sub FillWithArray(arryData() As Variant, _
         subResetSortOrder
     End If
     '''''''''''''''''
+    
+extFill:
+    On Error GoTo 0
+    Exit Sub
+
+errHandler:
+    'david 05/06/2003  #408907
+    'to trap the out of memory RTE
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    ClearData
+    Resume extFill
 End Sub
 
 Private Function fnUbound(arryTemp() As Variant, Optional vIndex As Variant)
@@ -3505,6 +3522,11 @@ Public Sub FillWithRecordset(rsTemp As Recordset, _
         bValidate = vValidate
     End If
 
+    'david 05/06/2003  #408907
+    'to trap the out of memory RTE
+    On Error GoTo errHandler
+    ''''''''''''''''''''''''''
+
     If bClear Then
         nMaxRow = rsTemp.RecordCount - 1
         lStart = 0
@@ -3512,14 +3534,19 @@ Public Sub FillWithRecordset(rsTemp As Recordset, _
     Else
         lStart = nRowCount
         nMaxRow = nRowCount + rsTemp.RecordCount - 1
+        
         ReDim Preserve GridArray(nMaxCol + 1, nMaxRow + 1)
+        
         If nColumnCount > 0 Then
             ReDim Preserve bValidCell(nColumnCount - 1, nMaxRow + 1)
             ReDim Preserve nCellChanged(nColumnCount - 1, nMaxRow + 1)
         End If
     End If
+    
     rsTemp.MoveFirst
+    
     On Error GoTo errFill
+    
     For nCol = 0 To nMaxCol - 1
         sField = LCase(Trim(tgTable.Columns(nCol).DataField))
         nColPtr(nCol) = -1
@@ -3583,9 +3610,18 @@ Public Sub FillWithRecordset(rsTemp As Recordset, _
 extFill:
     On Error GoTo 0
     Exit Sub
+
 errFill:
     MsgBox Err.Description, nCRITICAL   ', App.Caption
     Err.Clear
+    Resume extFill
+
+errHandler:
+    'david 05/06/2003  #408907
+    'to trap the out of memory RTE
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    ClearData
     Resume extFill
 End Sub
 
@@ -4332,7 +4368,7 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
             nIndex = -1
         End If
     Else
-        nIndex = Val(StartLocation)
+        nIndex = val(StartLocation)
         If nIndex < 0 Or nIndex >= lRows Then
             nIndex = -9999
         End If
@@ -4557,7 +4593,7 @@ Private Function fnRound(vLastRow As Variant) As Long
     If IsNull(vLastRow) Then
         fnRound = 0
     Else
-        fnRound = Val(vLastRow)
+        fnRound = val(vLastRow)
     End If
 End Function
 
@@ -4701,7 +4737,7 @@ Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean
         ' take the Val() to get the array index
         ' this is the opposite of the function in MakeBookmark()
         Index = -9999
-        fnIndexFromBookmark = Val(Bookmk)
+        fnIndexFromBookmark = val(Bookmk)
     End If
 End Function
 
@@ -5049,13 +5085,13 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 dfData1 = 0
             Else
-                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                dfData1 = val(vData(m_arySortCol(n, nIndex).nColIndex, j))
             End If
         
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
                 dfData2 = 0
             Else
-                dfData2 = Val(vData(m_arySortCol(n, nIndex).nColIndex, k))
+                dfData2 = val(vData(m_arySortCol(n, nIndex).nColIndex, k))
             End If
             
             If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
@@ -5234,11 +5270,11 @@ End Function
 'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(CANCEL As Integer)
+Public Sub SelChange(Cancel As Integer)
     If lCountHighlightedID = 0 Then
-        CANCEL = True
+        Cancel = True
     Else
-        CANCEL = False
+        Cancel = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -5256,7 +5292,7 @@ Private Sub subGetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = Val(.Item(i))
+                lTemp(i) = val(.Item(i))
             Next i
         End If
     End With
@@ -5455,6 +5491,11 @@ End Function
         Else
             bValidate = vValidate
         End If
+        
+        'david 05/06/2003  #408907
+        'to trap the out of memory RTE
+        On Error GoTo errHandler
+        ''''''''''''''''''''''''''
     
         If bClear Then
             nMaxRow = rsTemp.RecordCount - 1
@@ -5551,9 +5592,18 @@ End Function
 extFill:
         On Error GoTo 0
         Exit Sub
+
 errFill:
         MsgBox Err.Description, nCRITICAL   ', App.Caption
         Err.Clear
+        Resume extFill
+    
+errHandler:
+        'david 05/06/2003  #408907
+        'to trap the out of memory RTE
+        MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+            & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+        ClearData
         Resume extFill
     End Sub
 #End If
