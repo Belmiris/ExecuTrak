@@ -2018,7 +2018,9 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
         If Dir("C:\FACTOR\CYSTAL\FACTOR.MDB") <> "" Then
             Kill "C:\FACTOR\CYSTAL\FACTOR.MDB"
         End If
-        RmDir "C:\FACTOR\CYSTAL"
+        If Dir("C:\FACTOR\CYSTAL", vbDirectory) <> "" Then
+            RmDir "C:\FACTOR\CYSTAL"
+        End If
     End If
 
     If Dir(sWinSysDir + "\FACTOR.MDB", vbNormal) = "" Then
