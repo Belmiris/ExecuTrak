@@ -51,6 +51,7 @@ Private g_dTotalExtCost As Double
 Private g_lHeaderCount As Long
 Private g_bNeedValidHeader As Boolean
 Private g_bNeedWriteHeader As Boolean
+Private g_bNeedErrHeader As Boolean
 Private g_lDetailLineNbr As Long
 
 Public Function fnProcessRSInvFile(sFileName As String) As Boolean
@@ -99,7 +100,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
         End If
         
         subWriteHeaderProcLog udtInvHeader
-        subWriteHeaderErrLog udtInvHeader
+        'subWriteHeaderErrLog udtInvHeader
     End If
     
     nLineCount = 1
@@ -120,7 +121,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
             End If
             
             subWriteHeaderProcLog udtInvHeader
-            subWriteHeaderErrLog udtInvHeader
+            'subWriteHeaderErrLog udtInvHeader
             
         ElseIf Left(sLine, 3) = "DET" Then
         
@@ -180,16 +181,16 @@ Private Function fnProcessHeaderLine(sLine As String, udtInvHeader As RSINV_Head
     End If
     
     With udtInvHeader
-        .sRecId = Mid$(sLine, 1, 3)
+        .sRecId = Trim$(Mid$(sLine, 1, 3))
         .nProfctr = CInt(Mid$(sLine, 4, 5))
         .dtReportDate = CDate(Mid$(sLine, 9, 10))
         .nShiftNum = CInt(Mid$(sLine, 19, 5))
         .lVendor = CLng(Mid$(sLine, 24, 10))
         .lInvNum = CLng(Mid$(sLine, 34, 10))
         .dtInvDate = CDate(Mid$(sLine, 44, 10))
-        .sTerm = Mid$(sLine, 54, 5)
-        .sPayType = Mid$(sLine, 59, 1)
-        .sDraftNum = Mid$(sLine, 60, 10)
+        .sTerm = Trim$(Mid$(sLine, 54, 5))
+        .sPayType = Trim$(Mid$(sLine, 59, 1))
+        .sDraftNum = Trim$(Mid$(sLine, 60, 10))
         .dInvAmount = CDbl(Mid$(sLine, 70, 10))
     End With
     
@@ -208,14 +209,14 @@ Private Function fnProcessDetailLine(sLine As String, udtInvDetail As RSINV_Deta
     End If
     
     With udtInvDetail
-        .sRecId = Mid$(sLine, 1, 3)
+        .sRecId = Trim$(Mid$(sLine, 1, 3))
         .nDetailLine = CInt(Mid$(sLine, 4, 3))
-        .sTypeCode = Mid$(sLine, 7, 1)
+        .sTypeCode = Trim$(Mid$(sLine, 7, 1))
         .sItemCode = Mid$(sLine, 8, 10)
         .dQuantity = CDbl(Mid(sLine, 18, 12))
-        .sUOM = Mid$(sLine, 30, 5)
+        .sUOM = Trim$(Mid$(sLine, 30, 5))
         .dCost = CDbl(Mid$(sLine, 35, 12))
-        .sRetail = Mid$(sLine, 47, 12)
+        .sRetail = Trim$(Mid$(sLine, 47, 12))
     End With
     
     fnProcessDetailLine = True
@@ -239,7 +240,7 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             If Not fnDeleteData(udtInvHeader.lVendor, udtInvHeader.lInvNum) Then
                  Exit Function
             End If
-            
+                                
             strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
             strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt)"
             strSQL = strSQL & " VALUES(" & udtInvHeader.nProfctr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
@@ -252,6 +253,13 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             g_lDetailLineNbr = 1
             
             If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
+                Exit Function
+            End If
+            
+            strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
+            strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
+        
+            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
                 Exit Function
             End If
             
@@ -303,12 +311,13 @@ End Function
 Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
     Dim sErrMsg As String
     Dim sItemDesc As String
+    Dim sStockUnit As String
     Dim sPayTerm As String
-    
+    Dim bUOMMatch As Boolean
     fnValidData = True
     
     'valid this one first, because it item description is required in the log file
-    sErrMsg = fnValidItemCode(udtInvHeader.lVendor, udtInvDetail.sItemCode, sItemDesc)
+    sErrMsg = fnValidItemCode(udtInvHeader.lVendor, udtInvDetail.sItemCode, sItemDesc, sStockUnit)
     
     If sErrMsg <> "" Then
         fnValidData = False
@@ -404,25 +413,28 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
     
-    sErrMsg = fnValidUOM(udtInvDetail.sUOM)
+    sErrMsg = fnValidUOM(udtInvHeader, udtInvDetail, sStockUnit, bUOMMatch)
         
     If sErrMsg <> "" Then
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
     
-    sErrMsg = fnValidPurchaseCost(udtInvDetail.dCost)
+    If bUOMMatch Then
+        sErrMsg = fnValidPurchaseCost(udtInvDetail.dCost)
+            
+        If sErrMsg <> "" Then
+            fnValidData = False
+            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+        End If
         
-    If sErrMsg <> "" Then
-        fnValidData = False
-        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
-    End If
-    
-    sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nProfctr, udtInvHeader.dtReportDate)
-        
-    If sErrMsg <> "" Then
-        fnValidData = False
-        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+        sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nProfctr, udtInvHeader.dtReportDate)
+            
+        If sErrMsg <> "" Then
+            fnValidData = False
+            subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+        End If
+            
     End If
     
 End Function
@@ -472,6 +484,11 @@ End Sub
 Private Sub subWriteDetailErrLog(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail, sItemDesc As String, sErrMsg As String)
     Dim sLine As String
    
+    If g_bNeedErrHeader Then
+        subWriteHeaderErrLog udtInvHeader
+        g_bNeedErrHeader = False
+    End If
+    
     sLine = CStr(Format(udtInvHeader.dtReportDate, "MM/DD/YY"))
     sLine = sLine & Space(1) & CStr(udtInvHeader.lInvNum)
     sLine = sLine & Space(11 - Len(CStr(udtInvHeader.lInvNum))) & udtInvDetail.sItemCode
@@ -489,6 +506,8 @@ Private Sub subWriteHeaderProcLog(udtInvHeader As RSINV_Header)
     sVendorName = fnGetVendorName(udtInvHeader.lVendor)
     g_bNeedValidHeader = True 'valid header if header changed
     g_bNeedWriteHeader = True
+    g_bNeedErrHeader = True
+    
     g_lHeaderCount = g_lHeaderCount + 1 'add header count if header changed
     
     If g_lHeaderCount > 1 Then
@@ -685,11 +704,11 @@ SQLError:
 End Function
 
 
-Private Function fnValidItemCode(lVendor As Long, sItemCode As String, sItemDesc As String) As String
+Private Function fnValidItemCode(lVendor As Long, sItemCode As String, sItemDesc As String, sStockUnit As String) As String
     Dim strSQL As String
     Dim rsTemp As Recordset
     
-    strSQL = "SELECT rsbi_desc FROM rs_b_item WHERE rsbi_vendor = " & lVendor
+    strSQL = "SELECT rsbi_desc,rsbi_stock_unit FROM rs_b_item WHERE rsbi_vendor = " & lVendor
     strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(sItemCode)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetItemDesc") < 0 Then
@@ -697,7 +716,8 @@ Private Function fnValidItemCode(lVendor As Long, sItemCode As String, sItemDesc
     ElseIf rsTemp.RecordCount = 0 Then
         fnValidItemCode = "Item code does not exists."
     Else
-        sItemDesc = rsTemp!rsbi_desc
+        sItemDesc = Trim(rsTemp!rsbi_desc & "")
+        sStockUnit = Trim(rsTemp!rsbi_stock_unit & "")
     End If
 
 End Function
@@ -818,16 +838,7 @@ Private Function fnValidInvNum(lVendor As Long, lInvNum As Long) As String
     ElseIf rsTemp.RecordCount > 0 Then
         fnValidInvNum = "This invoice number has already been used."
     Else
-        
-        strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
-        strSQL = strSQL & "(" & lVendor & "," & tfnSQLString(lInvNum) & ",0)"
-        
-        If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
-            fnValidInvNum = "unable to create invoice number."
-        Else
-            fnValidInvNum = ""
-        End If
-        
+        fnValidInvNum = ""
     End If
 
 End Function
@@ -893,9 +904,37 @@ Private Function fnValidPurchaseQty(dAmount As Double) As String
     fnValidPurchaseQty = ""
 End Function
 
-'maybe use later
-Private Function fnValidUOM(sUOM As String) As String
-    fnValidUOM = ""
+
+Private Function fnValidUOM(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail, sStockUnit As String, bUOMMatch As Boolean) As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    If UCase(udtInvDetail.sUOM) = UCase(sStockUnit) Then
+        bUOMMatch = True
+        fnValidUOM = ""
+    Else
+        strSQL = "SELECT icm1.icm_cost, icm1.icm_retail FROM item_cost_maint icm1 "
+        strSQL = strSQL & " WHERE icm1.icm_vendor = " & tfnRound(udtInvHeader.lVendor)
+        strSQL = strSQL & " AND icm1.icm_code = " & tfnSQLString(udtInvDetail.sItemCode)
+        strSQL = strSQL & " AND icm1.icm_eff_date = "
+        strSQL = strSQL & " (SELECT MAX(icm_eff_date) FROM item_cost_maint "
+        strSQL = strSQL & " WHERE icm_vendor = " & tfnRound(udtInvHeader.lVendor)
+        strSQL = strSQL & " AND icm_code = " & tfnSQLString(udtInvDetail.sItemCode)
+        strSQL = strSQL & " AND icm_eff_date <= " & tfnDateString(udtInvHeader.dtInvDate, True)
+        strSQL = strSQL & ")"
+        
+        If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnValidUOM") < 0 Then
+            fnValidUOM = "Database access error."
+        ElseIf rsTemp.RecordCount = 0 Then
+            fnValidUOM = udtInvDetail.sUOM & " ss an invalid Unit of Measure."
+        Else
+            udtInvDetail.dCost = IIf(IsNull(rsTemp!icm_cost), 0, rsTemp!icm_cost)
+            udtInvDetail.sRetail = IIf(IsNull(rsTemp!icm_retail), "0", rsTemp!icm_retail)
+            fnValidUOM = ""
+        End If
+        
+    End If
+    
 End Function
 
 'maybe use later

@@ -455,11 +455,22 @@ Private Const t_szHELP As String = "Help"
 Const INI_BUFFRER_SIZE As Integer = 1024
 Const INISECTION As String = "Incoming Invoice File Location"
 Const INISUBSECTION As String = "filePath"
-    
+Private g_bProcessOk As Boolean
 
 Private Sub cmdPrintReport_Click()
-   frmReports.Show vbModal
-   subSetFocus cmdExitCancelBtn
+    
+    If g_bProcessOk Then
+        frmReports.chkPrintErr.Value = vbUnchecked
+        frmReports.chkPrintErr.Enabled = False
+        frmReports.chkPrintProcLog.Value = vbChecked
+    Else
+        frmReports.chkPrintErr.Value = vbChecked
+        frmReports.chkPrintErr.Enabled = True
+        frmReports.chkPrintProcLog.Value = vbUnchecked
+    End If
+    
+    frmReports.Show vbModal
+    subSetFocus cmdExitCancelBtn
 End Sub
 
 Private Sub cmdPrintReport_GotFocus()
@@ -479,6 +490,7 @@ Private Sub cmdProcess_Click()
     subEnableProcessBtn False
     t_bDataChanged = True
     lstStatus.Clear
+    g_bProcessOk = False
     
     If fnFileName(sFileName) Then
         subShowHourGlass
@@ -489,6 +501,7 @@ Private Sub cmdProcess_Click()
             
             If fnProcessRSInvFile(sFileName) Then
                 subDisplayMsg "Processing successfully."
+                g_bProcessOk = True
             Else
                 subDisplayMsg "Processing Failed."
             End If
