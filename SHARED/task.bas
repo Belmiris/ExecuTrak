@@ -122,15 +122,8 @@ Public Function IsWndRunning(sWindowTitle As String) As Long
         sTemp = Space(MAX_LENGTH)
         lTemp = GetWindowText(hTempWnd, sTemp, MAX_LENGTH)
         sWIN_NAME = UCase(Trim(Left(sTemp, lTemp)))
-'        If sWIN_NAME <> "" Then
-'            Debug.Print "sWIN_NAME=", hTempWnd, sWIN_NAME
-'        End If
-            
         lTemp = GetClassName(hTempWnd, sTemp, MAX_LENGTH)
         sWIN_CLASS = UCase(Trim(Left(sTemp, lTemp)))
-'        If sWIN_CLASS <> "" Then
-'            Debug.Print "sWIN_CLASS=", hTempWnd, sWIN_CLASS
-'        End If
                 
         If InStr(sWIN_NAME, sName) > 0 Then
             IsWndRunning = hTempWnd
@@ -174,7 +167,6 @@ Public Function fnExeIsRunning(ByVal sExe As String) As Boolean
     lRet = Process32First(hSnap, proc)
     Do While lRet
         sTemp = fnExtractFileName(UCase(Trim(proc.szExeFile)))
-        Debug.Print sTemp
         If sTemp = sExe Then
             fnExeIsRunning = True
             CloseHandle hSnap
@@ -233,29 +225,29 @@ End Function
 
 Private Function fnExtractFileName(sPath As String) As String
 
-    Dim i As Integer
+    Dim I As Integer
     Dim sTemp As String
     Dim sChar As String * 1
     
-    i = Len(sPath)
+    I = Len(sPath)
     Do
-        sChar = Mid(sPath, i, 1)
-        i = i - 1
+        sChar = Mid(sPath, I, 1)
+        I = I - 1
         If sChar = "." Then
             Exit Do
         End If
-    Loop Until i = 0
-    If i = 0 Then
+    Loop Until I = 0
+    If I = 0 Then
         fnExtractFileName = sPath
     Else
         sTemp = ""
-        Do While i > 0
-            sChar = Mid(sPath, i, 1)
+        Do While I > 0
+            sChar = Mid(sPath, I, 1)
             If sChar = "\" Then
                 Exit Do
             End If
             sTemp = sChar & sTemp
-            i = i - 1
+            I = I - 1
         Loop
         fnExtractFileName = sTemp
     End If
