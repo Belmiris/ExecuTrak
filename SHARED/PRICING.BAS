@@ -347,6 +347,11 @@ Private Function sp_price(ByVal sProductLink As String, _
                 Set pr_ar_altname = far_altname(lCustomer, t_dbMainDatabase)
                 
                 If Not pr_ar_altname Is Nothing Then
+                    
+                    If bBook_dest And bBook_term Then
+                        sWorkLocation = Format(tfnRound(pr_ar_altname!an_cust), "########0")
+                    End If
+                    
                     Set pr_sp_book = fnGetSPBook(tfnRound(pr_ar_altname!an_cust), sWorkLocation, tfnRound(pr_inv_master!invt_prodlnk), zzerc_contract_nbr)
                     
                     If pr_sp_book Is Nothing Then
