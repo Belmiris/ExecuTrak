@@ -6,30 +6,12 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "clsEquation"
+Attribute VB_Name = "clsCondition"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
-
-
-' An equation solver class.
-' Probably not really quick, but it's all VBasic code.
-'
-' It does a significant amount of work in the
-' parsing of an equation, so it's more efficient
-' when solving the same equation several times.
-'
-' The equation is not case sensitive.
-'
-'
-' 1-1-96: A Bug related to determining the difference between
-'         a negative sign and negation was fixed. (And a priority
-'         level PRI_NEG was added.)  - TPA
-'
-
-'Error defines for clsEquation
 
 Const EQ_PAREN = 1100     ' Unbalanced parenthesis
 Const EQ_FUNCTION = 1101  ' Unknown function:
@@ -45,21 +27,24 @@ Private Vars As New Collection
 Private Equ As String
 Private Deg As Boolean
 
-Private dAnswer As Double
+Private bAnswer As Boolean
 Private EquParsed As Collection   'The parsed equation
 Private EquOrder  As Collection   'Order in which to solve the equation
 
 
 ' Constants used in parsing
 ' Priority levels
-Private Const PRI_ADD = 1
-Private Const PRI_MOD = 2
-Private Const PRI_MUL = 3
-Private Const PRI_NEG = 4
-Private Const PRI_EXP = 5
-Private Const PRI_VAR = 6
-Private Const PRI_PAR = 7
-Private Const PRI_LEVEL = 7
+Private Const PRI_AND_OR = 1
+Private Const PRI_LOGIC = 2
+
+Private Const PRI_ADD = 3
+Private Const PRI_MOD = 4
+Private Const PRI_MUL = 5
+Private Const PRI_NEG = 6
+Private Const PRI_EXP = 7
+Private Const PRI_VAR = 8
+Private Const PRI_PAR = 9
+Private Const PRI_LEVEL = 9
 
 Private Const EQ_NONE = 0
 Private Const EQ_STRING = 1
@@ -122,7 +107,6 @@ Public Property Get Equation() As String
    Equation = Equ
 End Property
 
-'return error message if any
 Private Function Parse() As String
    Dim i As Integer
    Dim s As String
@@ -133,6 +117,7 @@ Private Function Parse() As String
    Dim EquPriority As New Collection
    Dim maxPriority
    Dim isNeg As Boolean
+   Dim bOpFound As Boolean
    
    s = ""
    t = EQ_NONE
@@ -145,28 +130,113 @@ Private Function Parse() As String
    EquPriority.Add ""
    maxPriority = PRI_LEVEL
    
-   For i = 1 To Len(Equ)
+   i = 1
+   Do While i <= Len(Equ)
       sTmp = Mid$(Equ, i, 1)
       
       Select Case sTmp
          Case "A" To "Z", "a" To "z", "_"
-            If t = EQ_NONE Then
-               t = EQ_STRING
-               s = sTmp
-            ElseIf t = EQ_NUMBER Then
-               t = EQ_STRING
-               EquParsed.Add s, , j
-               EquPriority.Add 0, , j
-               j = j + 1
-               EquParsed.Add "*", , j
-               EquPriority.Add PRI_MUL + p, , j
-               j = j + 1
-               s = sTmp
-            Else
-               s = s + sTmp
-            End If
-            isNeg = True
+            bOpFound = False
+            If sTmp = "a" Or sTmp = "n" Or sTmp = "x" Or sTmp = "o" Then
+                Select Case sTmp
+                Case "a"
+                    If Len(Equ) - i > 1 Then
+                        If Mid$(Equ, i + 1, 2) = "nd" Then
+                            sTmp = sTmp + Mid$(Equ, i + 1, 2)
+                            i = i + 2
+                            bOpFound = True
+                        End If
+                    End If
+                Case "n"
+                    If Len(Equ) - i > 1 Then
+                        If Mid$(Equ, i + 1, 2) = "ot" Then
+                            sTmp = sTmp + Mid$(Equ, i + 1, 2)
+                            i = i + 2
+                            bOpFound = True
+                        End If
+                    End If
+                Case "x"
+                    If Len(Equ) - i > 1 Then
+                        If Mid$(Equ, i + 1, 2) = "or" Then
+                            sTmp = sTmp + Mid$(Equ, i + 1, 2)
+                            i = i + 2
+                            bOpFound = True
+                        End If
+                    End If
+                Case "o"
+                    If Len(Equ) - i > 0 Then
+                        If Mid$(Equ, i + 1, 1) = "r" Then
+                            sTmp = sTmp + Mid$(Equ, i + 1, 1)
+                            i = i + 1
+                            bOpFound = True
+                        End If
+                    End If
+                End Select
             
+                If bOpFound Then
+                    Select Case sTmp
+                    Case "and", "or", "xor"
+                        If t <> EQ_NONE Then
+                           EquParsed.Add s, , j
+                           EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
+                           j = j + 1
+                           s = ""
+                           
+                           EquParsed.Add sTmp, , j
+                           EquPriority.Add p + PRI_AND_OR, , j
+                           j = j + 1
+                           t = EQ_NONE
+                        Else
+                           EquParsed.Add sTmp, , j
+                           EquPriority.Add p + PRI_AND_OR, , j
+                           j = j + 1
+                           t = EQ_NONE
+                        End If
+                        isNeg = False
+                    
+                    Case "not"
+                        If t <> EQ_NONE Then
+                           EquParsed.Add s, , j
+                           EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
+                           j = j + 1
+                           s = ""
+                        End If
+                            
+                        If isNeg Then
+                           EquParsed.Add sTmp, , j
+                           EquPriority.Add p + PRI_ADD, , j
+                           j = j + 1
+                           t = EQ_NONE
+                        Else
+                           EquParsed.Add "~", , j
+                           EquPriority.Add p + PRI_NEG, , j
+                           j = j + 1
+                           t = EQ_NONE
+                        End If
+                        isNeg = False
+                    
+                    End Select
+                End If
+            End If
+            
+            If Not bOpFound Then
+                If t = EQ_NONE Then
+                   t = EQ_STRING
+                   s = sTmp
+                ElseIf t = EQ_NUMBER Then
+                   t = EQ_STRING
+                   EquParsed.Add s, , j
+                   EquPriority.Add 0, , j
+                   j = j + 1
+                   EquParsed.Add "*", , j
+                   EquPriority.Add PRI_MUL + p, , j
+                   j = j + 1
+                   s = sTmp
+                Else
+                   s = s + sTmp
+                End If
+                isNeg = True
+            End If
          Case "1" To "9", "0", "."
             If t = EQ_NONE Then
                t = EQ_NUMBER
@@ -332,12 +402,85 @@ Private Function Parse() As String
             j = j + 1
             t = EQ_NONE
             isNeg = True
-        Case "=", "!", "<", ">", "[", "]", "{", "}", "'", """", _
+      
+         Case "!"
+            If t <> EQ_NONE Then
+               EquParsed.Add s, , j
+               EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
+               j = j + 1
+               s = ""
+            End If
+            
+            If Len(Equ) - i > 0 Then
+                If Mid$(Equ, i + 1, 1) = "=" Then
+                    sTmp = sTmp + Mid$(Equ, i + 1, 1)
+                    i = i + 1
+                End If
+            End If
+            
+            If Len(sTmp) = 2 Then
+                EquParsed.Add sTmp, , j
+                EquPriority.Add p + PRI_MUL, , j
+                j = j + 1
+                t = EQ_NONE
+            Else
+                If isNeg Then
+                   EquParsed.Add sTmp, , j
+                   EquPriority.Add p + PRI_ADD, , j
+                   j = j + 1
+                   t = EQ_NONE
+                Else
+                   EquParsed.Add "~", , j
+                   EquPriority.Add p + PRI_NEG, , j
+                   j = j + 1
+                   t = EQ_NONE
+                End If
+            End If
+            
+            isNeg = False
+            
+         Case "=", "<", ">":
+            If t <> EQ_NONE Then
+               EquParsed.Add s, , j
+               EquPriority.Add IIf(t = EQ_STRING, p + PRI_VAR, 0), , j
+               j = j + 1
+               s = ""
+               
+                If Len(Equ) - i > 0 Then
+                    If Mid$(Equ, i + 1, 1) = "=" Or (sTmp = "<" And _
+                       Mid$(Equ, i + 1, 1) = ">") Then
+                        sTmp = sTmp + Mid$(Equ, i + 1, 1)
+                        i = i + 1
+                    End If
+                End If
+               
+               EquParsed.Add sTmp, , j
+               EquPriority.Add p + PRI_LOGIC, , j
+               j = j + 1
+               t = EQ_NONE
+            Else
+                If Len(Equ) - i > 0 Then
+                    If Mid$(Equ, i + 1, 1) = "=" Or (sTmp = "<" And _
+                       Mid$(Equ, i + 1, 1) = ">") Then
+                        sTmp = sTmp + Mid$(Equ, i + 1, 1)
+                        i = i + 1
+                    End If
+                End If
+               
+               EquParsed.Add sTmp, , j
+               EquPriority.Add p + PRI_LOGIC, , j
+               j = j + 1
+               t = EQ_NONE
+            End If
+            isNeg = False
+        
+        Case "[", "]", "{", "}", "'", """", _
              ";", "`", "~", "@", "#", "$", "&"
             Parse = "Invalid token '" + sTmp + "' found"
             Exit Function
       End Select
-   Next i
+    i = i + 1
+   Loop
    
    If s <> "" Then
       EquParsed.Add s, , j
@@ -354,15 +497,15 @@ Private Function Parse() As String
    End If
    
    ' Debugging section...
-   'For i = 1 To EquParsed.Count
-   '   Debug.Print EquParsed(i) & ";";
-   'Next i
-   'Debug.Print
-   '   For i = 1 To EquPriority.Count
-   '   Debug.Print EquPriority(i) & ";";
-   'Next i
-   'Debug.Print
-   'Debug.Print "MaxPriority = " & maxPriority
+'   For i = 1 To EquParsed.Count
+'      Debug.Print EquParsed(i) & ";";
+'   Next i
+'   Debug.Print
+'      For i = 1 To EquPriority.Count
+'      Debug.Print EquPriority(i) & ";";
+'   Next i
+'   Debug.Print
+'   Debug.Print "MaxPriority = " & maxPriority
    ' End Debugging section....
    
    Set EquOrder = New Collection
@@ -378,10 +521,10 @@ Private Function Parse() As String
    
    EquOrder.Remove 1
    
-   'For i = 1 To EquOrder.Count
-   '   Debug.Print EquOrder(i) & ";";
-   'Next i
-   'Debug.Print
+'   For i = 1 To EquOrder.Count
+'      Debug.Print EquOrder(i) & ";";
+'   Next i
+'   Debug.Print
    
    Parsed = True
 End Function
@@ -392,14 +535,12 @@ Public Sub VarRemove(Name As String)
    Dirty = True
 End Sub
 
-Public Function Solution(sErrMsg As String) As Double
-    If Dirty Then
-       sErrMsg = Solve()
-    End If
+Public Function Solution(sErrMsg As String) As Boolean
+   If Dirty Then
+      sErrMsg = Solve()
+   End If
    
-    If sErrMsg = "" Then
-        Solution = dAnswer
-    End If
+   Solution = bAnswer
 End Function
 
 'return error message if any
@@ -410,12 +551,12 @@ Public Function Solve() As String
    Dim r As Long
    Dim m As Long
    Dim n As Long
-   Dim x As Double
-   Dim y As Double
+   Dim X As Double
+   Dim Y As Double
    Dim v As Variant
    Dim eSpace As Integer
    Dim Temp() As Variant
-   Dim f As clsEquation
+   
    Dim j2 As Long  ' debug variable
    
    On Error GoTo SolveError
@@ -452,7 +593,7 @@ Public Function Solve() As String
          ' Standard operators
          Case "~"  'Negative operator (inserted by the parser)
             r = GetRight(m, Temp)
-            Temp(m) = -CDbl(Temp(r))
+            Temp(m) = Not Temp(r)
             Temp(r) = Null
             
          Case "*"
@@ -516,6 +657,44 @@ Public Function Solve() As String
                Temp(r) = Null
                Temp(n) = Null
             End If
+         
+         Case "=", "<", ">", "!=", "==", "<=", ">=", "<>", "and", "or", "xor"
+            Dim vL As Variant
+            Dim vR As Variant
+            
+            l = GetLeft(m, Temp)
+            r = GetRight(m, Temp)
+            
+            If VarType(Temp(l)) = vbBoolean Or VarType(Temp(r)) = vbBoolean Then
+                vL = CBool(Temp(l))
+                vR = CBool(Temp(r))
+            Else
+                vL = CDbl(Temp(l))
+                vR = CDbl(Temp(r))
+            End If
+            
+            Select Case v
+            Case "=", "=="
+                Temp(l) = (vL = vR)
+            Case "<"
+                Temp(l) = (vL < vR)
+            Case ">"
+                Temp(l) = (vL > vR)
+            Case "!=", "<>"
+                Temp(l) = (vL <> vR)
+            Case "<="
+                Temp(l) = (vL <= vR)
+            Case ">="
+                Temp(l) = (vL >= vR)
+            Case "and"
+                Temp(l) = (vL And vR)
+            Case "or"
+                Temp(l) = (vL Or vR)
+            Case "xor"
+                Temp(l) = (vL Xor vR)
+            End Select
+            Temp(r) = Null
+            Temp(m) = Null
             
          Case Else
             If Right$(Temp(m), 1) = "(" Then
@@ -530,14 +709,14 @@ Public Function Solve() As String
                   Solve = "Invalid arguments to function: " & v & ")"
                   Exit Function
                Else
-                  x = CDbl(Temp(l))
+                  X = CDbl(Temp(l))
                End If
                
                If r <= m Then
                   Solve = "Invalid arguments to function: " & v & ")"
                   Exit Function
                Else
-                  y = CDbl(Temp(r))
+                  Y = CDbl(Temp(r))
                End If
                
                Temp(r) = Null
@@ -548,192 +727,192 @@ Public Function Solve() As String
                Select Case v
                   ' Standard functions
                   Case "abs("
-                     Temp(m) = Abs(x)
+                     Temp(m) = Abs(X)
                      
                   Case "atn("
                      If Degrees Then
-                        Temp(m) = Atn(x) * RAD_TO_DEG
+                        Temp(m) = Atn(X) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x)
+                        Temp(m) = Atn(X)
                      End If
                      
                   Case "arctan("
                      If Degrees Then
-                        Temp(m) = Atn(x) * RAD_TO_DEG
+                        Temp(m) = Atn(X) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x)
+                        Temp(m) = Atn(X)
                      End If
                      
                   Case "cos("
                      If Degrees Then
-                        Temp(m) = Cos(x * DEG_TO_RAD)
+                        Temp(m) = Cos(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Cos(x)
+                        Temp(m) = Cos(X)
                      End If
                      
                   Case "exp("
-                     Temp(m) = Exp(x)
+                     Temp(m) = Exp(X)
                      
                   Case "fix("
-                     Temp(m) = Fix(x)
+                     Temp(m) = Fix(X)
                      
                   Case "int("
-                     Temp(m) = Int(x)
+                     Temp(m) = Int(X)
                      
                   Case "log("
-                     Temp(m) = Log(x)
+                     Temp(m) = Log(X)
                      
                   Case "rnd("
-                     Temp(m) = Rnd(x)
+                     Temp(m) = Rnd(X)
                      
                   Case "sgn("
-                     Temp(m) = Sgn(x)
+                     Temp(m) = Sgn(X)
                      
                   Case "sin("
                      If Degrees Then
-                        Temp(m) = Sin(x * DEG_TO_RAD)
+                        Temp(m) = Sin(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Sin(x)
+                        Temp(m) = Sin(X)
                      End If
                      
                   Case "sqr("
-                     Temp(m) = Sqr(x)
+                     Temp(m) = Sqr(X)
                      
                   Case "tan("
                      If Degrees Then
-                        Temp(m) = Tan(x * DEG_TO_RAD)
+                        Temp(m) = Tan(X * DEG_TO_RAD)
                      Else
-                        Temp(m) = Tan(x)
+                        Temp(m) = Tan(X)
                      End If
                      
                      ' 2 variable functions
                   Case "min("
-                     Temp(m) = IIf(x < y, x, y)
+                     Temp(m) = IIf(X < Y, X, Y)
                      
                   Case "max("
-                     Temp(m) = IIf(x > y, x, y)
+                     Temp(m) = IIf(X > Y, X, Y)
                      
                   Case "random("
-                     Temp(m) = (Rnd * (y - x)) + x
+                     Temp(m) = (Rnd * (Y - X)) + X
                      
                   Case "mod("
-                     Temp(m) = x Mod y
+                     Temp(m) = X Mod Y
                      
                   Case "logn("
-                     Temp(m) = Log(x) / Log(y)
+                     Temp(m) = Log(X) / Log(Y)
                      
                      ' Misc equations
                   Case "rand("
-                     Temp(m) = Int(Rnd * x)
+                     Temp(m) = Int(Rnd * X)
                      
                      ' Derived functions
                   Case "sec("
                      If Degrees Then
-                        Temp(m) = (1 / Cos(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Cos(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Cos(x)
+                        Temp(m) = 1 / Cos(X)
                      End If
                      
                   Case "cosec("
                      If Degrees Then
-                        Temp(m) = (1 / Sin(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Sin(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Sin(x)
+                        Temp(m) = 1 / Sin(X)
                      End If
                      
                   Case "cotan("
                      If Degrees Then
-                        Temp(m) = (1 / Tan(x * DEG_TO_RAD))
+                        Temp(m) = (1 / Tan(X * DEG_TO_RAD))
                      Else
-                        Temp(m) = 1 / Tan(x)
+                        Temp(m) = 1 / Tan(X)
                      End If
                      
                   Case "arcsin("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(-x * x + 1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(-X * X + 1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(-x * x + 1))
+                        Temp(m) = Atn(X / Sqr(-X * X + 1))
                      End If
                      
                   Case "arccos("
                      If Degrees Then
-                        Temp(m) = (Atn(-x / Sqr(-x * x + 1)) + 2 * Atn(1)) * RAD_TO_DEG
+                        Temp(m) = (Atn(-X / Sqr(-X * X + 1)) + 2 * Atn(1)) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(-x / Sqr(-x * x + 1)) + 2 * Atn(1)
+                        Temp(m) = Atn(-X / Sqr(-X * X + 1)) + 2 * Atn(1)
                      End If
                      
                   Case "arcsec("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))
+                        Temp(m) = Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))
                      End If
                      
                   Case "arccosec("
                      If Degrees Then
-                        Temp(m) = (Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))) * RAD_TO_DEG
+                        Temp(m) = (Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x / Sqr(x * x - 1)) + (Sgn(x) - 1) * (2 * Atn(1))
+                        Temp(m) = Atn(X / Sqr(X * X - 1)) + (Sgn(X) - 1) * (2 * Atn(1))
                      End If
                      
                   Case "arccotan("
                      If Degrees Then
-                        Temp(m) = (Atn(x * DEG_TO_RAD) + 2 * Atn(1)) * RAD_TO_DEG
+                        Temp(m) = (Atn(X * DEG_TO_RAD) + 2 * Atn(1)) * RAD_TO_DEG
                      Else
-                        Temp(m) = Atn(x) + 2 * Atn(1)
+                        Temp(m) = Atn(X) + 2 * Atn(1)
                      End If
                      
                   Case "sinh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / 2
+                     Temp(m) = (Exp(X) - Exp(-X)) / 2
                      
                   Case "cosh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / (Exp(x) + Exp(-x))
+                     Temp(m) = (Exp(X) - Exp(-X)) / (Exp(X) + Exp(-X))
                      
                   Case "tanh("
-                     Temp(m) = (Exp(x) - Exp(-x)) / (Exp(x) + Exp(-x))
+                     Temp(m) = (Exp(X) - Exp(-X)) / (Exp(X) + Exp(-X))
                      
                   Case "sech("
-                     Temp(m) = 2 / (Exp(x) + Exp(-x))
+                     Temp(m) = 2 / (Exp(X) + Exp(-X))
                      
                   Case "cosech("
-                     Temp(m) = 2 / (Exp(x) - Exp(-x))
+                     Temp(m) = 2 / (Exp(X) - Exp(-X))
                      
                   Case "cotanh("
-                     Temp(m) = (Exp(x) + Exp(-x)) / (Exp(x) - Exp(-x))
+                     Temp(m) = (Exp(X) + Exp(-X)) / (Exp(X) - Exp(-X))
                      
                   Case "arcsinh("
-                     Temp(m) = Log(x + Sqr(x * x + 1))
+                     Temp(m) = Log(X + Sqr(X * X + 1))
                      
                   Case "arccosh("
-                     Temp(m) = Log(x + Sqr(x * x - 1))
+                     Temp(m) = Log(X + Sqr(X * X - 1))
                      
                   Case "arctanh("
-                     Temp(m) = Log((1 + x) / (1 - x)) / 2
+                     Temp(m) = Log((1 + X) / (1 - X)) / 2
                      
                   Case "arcsech("
-                     Temp(m) = Log((Sqr(-x * x + 1) + 1) / x)
+                     Temp(m) = Log((Sqr(-X * X + 1) + 1) / X)
                      
                   Case "arccosech("
-                     Temp(m) = Log((Sgn(x) * Sqr(x * x + 1) + 1) / x)
+                     Temp(m) = Log((Sgn(X) * Sqr(X * X + 1) + 1) / X)
                      
                   Case "arccotanh("
-                     Temp(m) = Log((x + 1) / (x - 1)) / 2
+                     Temp(m) = Log((X + 1) / (X - 1)) / 2
                      
                   Case "log10("
-                     Temp(m) = Log(x) / Log(10)
+                     Temp(m) = Log(X) / Log(10)
                      
                   Case "log2("
-                     Temp(m) = Log(x) / Log(2)
+                     Temp(m) = Log(X) / Log(2)
                      
                   Case "ln("    'A macro to Log
-                     Temp(m) = Log(x)
+                     Temp(m) = Log(X)
                      
                      ' conversion functions
                   Case "deg("   ' Radians to degrees
-                     Temp(m) = x * RAD_TO_DEG
+                     Temp(m) = X * RAD_TO_DEG
                      
                   Case "rad("   ' Degrees to radians
-                     Temp(m) = x * DEG_TO_RAD
+                     Temp(m) = X * DEG_TO_RAD
                      
                   Case Else
                      Solve = "Undefined Function: " & v & ")"
@@ -753,14 +932,14 @@ Public Function Solve() As String
                      
                   Case Else
                      eSpace = ER_VAR
-                     Temp(m) = CDbl(Vars(Temp(m)))
+                     Temp(m) = Vars(Temp(m))
                      eSpace = ER_NONE
                End Select
             End If
       End Select
    Next i
    
-   dAnswer = CDbl(Temp(GetRight(0, Temp)))
+   bAnswer = CBool(Temp(GetRight(0, Temp)))
    Dirty = False
    Exit Function
    
@@ -804,10 +983,4 @@ Private Sub Class_Initialize()
    Degrees = False
 End Sub
 
-'return an error message
-Public Function Calculate(sEquation As String, sErrMsg As String) As Double
-    
-    Equation = sEquation
-    Calculate = Solution(sErrMsg)
 
-End Function
