@@ -10,7 +10,7 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.09"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.09.02"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define SIZE_REQ_SERVER         4
 
