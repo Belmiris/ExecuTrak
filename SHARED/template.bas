@@ -1172,7 +1172,7 @@ Public Function tfnBuildMultiLines(sParam() As String, _
     tfnBuildMultiLines = UBound(sParam) + 1
 End Function
 
-Public Function tfnGetMultiLines(rsTemp As Recordset, fieldNum As Variant) As String
+Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Variant) As String
     Dim sTemp As String
     
     If rsTemp.RecordCount > 0 Then
