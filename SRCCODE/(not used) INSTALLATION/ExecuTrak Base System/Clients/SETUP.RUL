@@ -7,6 +7,7 @@
 
 // constants
 #define DEVELOP                 FALSE
+#define DEBUG_CLIENT		FALSE
 
 #define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
 
@@ -455,6 +456,11 @@ ConfirmCopy:
 
 
 StartCopy:
+
+	if (DEBUG_CLIENT) then
+		goto FinishBaseSystem;
+	endif;
+
 	//delete 16-bit Factor directory (if any FOR LOCAL INSTALLATION ONLY)
 	if (bRunLocal) then
 	        UnInstallFactor16();
@@ -898,6 +904,9 @@ CreateFolder:
 	LOGWRITE(LOGMSG);
 	
 	DeleteFolderIcon(WINDIR ^ "Start Menu\\Programs\\StartUp", "ExecuTrak");
+
+
+FinishBaseSystem:
 	
 	Delay( 1 );
 	
@@ -2077,6 +2086,20 @@ begin
 		nvCount = nvCount +1;
 	endif;
 
+	szID = "MPBIN.Z";
+	szName = "Murphy System";
+	if fnFindFile(szPath, szID) then
+	        if (ListAddString(lstID, szID, AFTER) < 0) then
+	                MessageBox("ListAddString failed - 'lstID'.", SEVERE);
+	                return FALSE;
+	        endif;
+	        if (ListAddString(lstName, szName, AFTER) < 0) then
+	                MessageBox("ListAddString failed - 'lstName'.", SEVERE);
+	                return FALSE;
+	        endif;
+		nvCount = nvCount +1;
+	endif;
+
 	return TRUE;	
 end;
 
@@ -2088,9 +2111,9 @@ function RunModClientInstallation()
 
 begin
 
-        	Disable(INDVFILESTATUS);
-        	StatusUpdate(OFF, 0);
-        	Enable(STATUS);
+	Disable(INDVFILESTATUS);
+	StatusUpdate(OFF, 0);
+	Enable(STATUS);
 
 	szClientPath = szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR;
 	szPath = szBaseDirectory ^ PRODUCT_SUBDIR;
@@ -2098,34 +2121,48 @@ begin
         	if (szForceInstall = "1 ") then
                 	nvDecompressParm = (COMP_NORMAL | INCLUDE_SUBDIR);
         	else
-               	nvDecompressParm = (COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR);
+               	nvDecompressParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
 	endif;
 
 	nvCount = 0;
-        	nReturn = ListSetIndex (lstClientName, LISTFIRST);
+        nReturn = ListSetIndex (lstClientName, LISTFIRST);
 	ListSetIndex (lstClientID, LISTFIRST);
 
-        	while ((nReturn != END_OF_LIST))
-                	ListCurrentString(lstClientName, szName);
-                	ListCurrentString(lstClientID, szID);
-
-		if fnFindFile(szClientPath, szID) then
-			if bRunLocal then
-				//decompress XXBin.z
-				DecompressZfile(szClientPath, szPath, szID, nvDecompressParm);
-			endif;
+	while ((nReturn != END_OF_LIST))
+		ListCurrentString(lstClientName, szName);
+		ListCurrentString(lstClientID, szID);
 	
+		if fnFindFile(szClientPath, szID) then
+			if (bRunLocal) then
+				if (DEBUG_CLIENT) then
+					MessageBox("szClientPath=" + szClientPath + ", szPath=" + 
+						szPath + ", szID=" + szID, INFORMATION);
+				else
+					//decompress XXBin.z
+					DecompressZfile(szClientPath, szPath, szID, nvDecompressParm);
+				endif;
+			endif;
+		
 			//create help file shortcut
 			CreateModShortcut(szID, szName);
 		endif;
 
-                	nReturn = ListSetIndex (lstClientName, LISTNEXT);
-		ListSetIndex (lstClientID, LISTNEXT);
-
 		nvCount = nvCount + 1;
-        		SetStatusWindow(nvCount / nvClientCount * 100, "Installing " + szName + " files...");
-        	endwhile;
+		SetStatusWindow(nvCount / nvClientCount * 100, "Installing " + szName + " files...");
+		
+		nReturn = ListSetIndex (lstClientName, LISTNEXT);
+		ListSetIndex (lstClientID, LISTNEXT);
+	endwhile;
 
+
+
+	if (DEBUG_CLIENT) then
+	        nReturn = AskYesNo("Abort Installation?", YES);
+	
+	        if (nReturn = YES) then
+	                abort;
+	        endif;
+	endif;
 
 	SetStatusWindow(100, "Finished Installing Modules' Client files...");
 
@@ -2451,7 +2488,15 @@ begin
 						if fnFindFile(szDest, szModID) then
 							bGoCopy = TRUE;
 						else
-							bGoCopy = FALSE;
+							if (szName = "AREPAYCC.EXE") then
+								if fnFindFile(szDest, "EC*.EXE") then
+									bGoCopy = TRUE;
+								else
+									bGoCopy = FALSE;
+								endif;
+							else
+								bGoCopy = FALSE;
+							endif;
 						endif;
 					endif;
 				endif;
@@ -2507,7 +2552,7 @@ function DecompressZfile(szPath, szTargetPath, szID, nvDecompressParm)
 	NUMBER nReturn;
 begin
 
-        	TARGETDIR = szTargetPath;
+	TARGETDIR = szTargetPath;
 	SRCDIR = szPath;
 
 	// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
