@@ -1,4 +1,12 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version 3.28.1008 Chris Albrecht
+Date: 03/09/2005
+#448855
+
+Description:
+	Add new table track_collections_report which is used for the track
+        collections crystal reports.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version 3.28.1007 davidc
 Date: 02/16/2005
 #470994
