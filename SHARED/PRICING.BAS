@@ -943,27 +943,30 @@ Private Function fnGetSPBook(lCustomer As Long, sWorkLocation As String, lProduc
     Dim strSQL As String
     Const SUB_NAME As String = "fnGetSPBook"
     
-    If zzerc_contract_nbr >= 0 Then
-        strSQL = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
-                 " zzerc_prodlnk spb_prodlnk, zzerc_date spb_date," & _
-                 " zzerc_pterminal spb_pterminal, zzerc_pvendor spb_pvendor," & _
-                 " zzerc_oper spb_oper, zzerc_price spb_price" & _
-                 " FROM zzer_contract " & _
-                 " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
-                 " AND zzerc_date <= " & QStr(wrk_date) & _
-                 " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
-    
-        Set rsTemp = fnMainmodsOpenRecordset(strSQL, SUB_NAME)
-        
-        If Not rsTemp Is Nothing Then
-            
-            If rsTemp.RecordCount <= 0 Then
-                Set rsTemp = Nothing
-            End If
-            
-        End If
-    
-    End If
+'Comment out the following codes for east River since we want to do it differently.
+'We still keep the structure since we may still want to do contract pricing - WJ 05/22/2002
+
+'    If zzerc_contract_nbr >= 0 Then
+'        strSQL = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
+'                 " zzerc_prodlnk spb_prodlnk, zzerc_date spb_date," & _
+'                 " zzerc_pterminal spb_pterminal, zzerc_pvendor spb_pvendor," & _
+'                 " zzerc_oper spb_oper, zzerc_price spb_price" & _
+'                 " FROM zzer_contract " & _
+'                 " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
+'                 " AND zzerc_date <= " & QStr(wrk_date) & _
+'                 " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
+'
+'        Set rsTemp = fnMainmodsOpenRecordset(strSQL, SUB_NAME)
+'
+'        If Not rsTemp Is Nothing Then
+'
+'            If rsTemp.RecordCount <= 0 Then
+'                Set rsTemp = Nothing
+'            End If
+'
+'        End If
+'
+'    End If
 
     If rsTemp Is Nothing Then
         strSQL = "SELECT * FROM sp_book" & _
