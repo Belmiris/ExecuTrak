@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -731,155 +731,6 @@ Public Sub tfnLockElasticControls(frmForm As Form)
     #End If
 
 End Sub
-
-Public Function tfnLockRow(sProgramID As String, _
-                           sTable As String, _
-                           sSql As String, _
-                           Optional vShowMsg As Variant, _
-                           Optional sLockedUser As String = "") As Boolean
-
-    Const SUB_NAME = "tfnLockRow"
-    Const sErrID = "Lock Row"
-
-    Dim nPos1 As Integer
-    Dim nPos2 As Integer
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    Dim sCriteria As String
-    Dim sUserID As String
-    Dim sTemp As String
-    Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
-
-    #If FACTOR_MENU = 1 Then
-        tfnLockRow = True
-        Exit Function
-    #End If
-    
-    tfnLockRow = False
-    
-    #If DEVELOP Then
-        If Trim(sTable) = "" Then
-            MsgBox "You have to provide the table name in which you want to lock a row", , sErrID
-        End If
-        If Trim(sProgramID) = "" Then
-            MsgBox "You have to provide the program ID to lock a row", , sErrID
-        End If
-        If Trim(sSql) = "" Then
-            MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
-        End If
-        On Error GoTo errTableName
-        strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-        rsTemp.Close
-        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
-    #Else
-        If t_oleObject Is Nothing Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
-        Else
-            sUserID = t_oleObject.UserName
-        End If
-    #End If
-
-    'Get the where clause
-    strSQL = UCase(sSql)
-    nPos2 = InStr(strSQL, " WHERE ")
-    If nPos2 > 0 Then
-        nPos1 = InStr(strSQL, " ORDER ")
-        If nPos1 = 0 Then
-            nPos1 = Len(sSql) + 1
-        End If
-        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
-    Else
-        sCriteria = sSql
-    End If
-    
-    #If DEVELOP Then
-        If Len(sCriteria) > 80 Then
-            MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
-            Exit Function
-        End If
-    #End If
-    
-    sTemp = LCase(Trim(sTable))
-    
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
-            tfnLockRow = True
-            Exit Function
-        End If
-    Next i
-
-    On Error GoTo errOpenRecord
-    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-    
-    If rsTemp.RecordCount > 0 Then
-        t_lLockHandle = rsTemp.Fields(0)
-        
-        If t_lLockHandle = 0 Then
-            If Trim(rsTemp.Fields(1)) = "" Then
-                #If DEVELOP Then
-                    MsgBox "Make sure you logged on a database with locking procedures setup", vbOKOnly
-                #End If
-            Else
-                Dim bShowMsg As Boolean
-                
-                If IsMissing(vShowMsg) Then
-                    bShowMsg = True
-                Else
-                    bShowMsg = vShowMsg
-                End If
-                
-                'david 01/12/2001
-                'return the user id that locks the record(s)
-                sLockedUser = Trim(rsTemp.Fields(1))
-                
-                If bShowMsg Then
-                    MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
-                End If
-            End If
-        End If
-    End If
-    
-    rsTemp.Close
-    Set rsTemp = Nothing
-    
-    If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
-            If nHandleCount = 0 Then
-                nHandleCount = 1
-                ReDim arryLockHandles(nHandleCount - 1)
-            Else
-                nHandleCount = nHandleCount + 1
-                ReDim Preserve arryLockHandles(nHandleCount - 1)
-            End If
-        End If
-        
-        tfnLockRow = True
-        arryLockHandles(i).m_sTable = sTemp
-        arryLockHandles(i).m_lHandle = t_lLockHandle
-    End If
-    Exit Function
- 
-errOpenRecord:
-    #If NO_ERROR_HANDLER Then
-        MsgBox "Cannot lock table"
-    #Else
-        If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQL
-        End If
-    #End If
-    Err.Clear
-    Exit Function
-
-errTableName:
-    #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
-    #End If
-    Err.Clear
-End Function
-
 '
 'Function : tfnResizeFonts - resize fonts
 'Variables: pointer to the form, pointer to FontNames and FontSizes arrays
@@ -905,102 +756,6 @@ Public Sub tfnStoreFontInfo(frmForm As Form, arrayFontSizes() As Integer)
 
 End Sub
 
-Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
-    Const SUB_NAME = "tfnUnlockRow"
-    
-    #If FACTOR_MENU = 1 Then
-        tfnUnlockRow = True
-        Exit Function
-    #End If
-    
-    If nHandleCount <= 0 Then
-        Exit Function
-    End If
-
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    
-    tfnUnlockRow = False
-    On Error GoTo errUnlock
-    
-    If IsMissing(vTable) Then
-        While nHandleCount > 0
-            strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
-            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-            If rsTemp.RecordCount > 0 Then
-                If rsTemp.Fields(0) > 0 Then
-                    arryLockHandles(nHandleCount - 1).m_sTable = ""
-                    arryLockHandles(nHandleCount - 1).m_lHandle = -1
-                    nHandleCount = nHandleCount - 1
-                Else
-                    rsTemp.Close
-                    Exit Function
-                End If
-            Else
-                rsTemp.Close
-                Exit Function
-            End If
-        Wend
-        
-        ReDim arryLockHandles(0)
-        rsTemp.Close
-    Else
-        Dim sTable As String
-        Dim i As Long
-        Dim j As Long
-        
-        sTable = LCase(Trim(vTable))
-        
-        For i = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
-                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-                If rsTemp.RecordCount > 0 Then
-                    If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(i).m_sTable = ""
-                        arryLockHandles(i).m_lHandle = -1
-                        nHandleCount = nHandleCount - 1
-                    Else
-                        rsTemp.Close
-                        Exit Function
-                    End If
-                Else
-                    rsTemp.Close
-                    Exit Function
-                End If
-                
-                Exit For
-            End If
-        Next i
-        
-        If i < UBound(arryLockHandles) Then
-            For j = i + 1 To UBound(arryLockHandles)
-                arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
-                arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
-            Next j
-        End If
-        
-        If nHandleCount > 0 Then
-            ReDim Preserve arryLockHandles(nHandleCount - 1)
-        Else
-            ReDim arryLockHandles(0)
-        End If
-    End If
-    
-    Set rsTemp = Nothing
-    tfnUnlockRow = True
-    Exit Function
-
-errUnlock:
-    #If NO_ERROR_HANDLER Then
-        MsgBox "Cannot unlock table"
-    #Else
-        If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQL
-        End If
-    #End If
-End Function
-
 'update program version
 Public Sub tfnUpdateVersion()
 #If FACTOR_MENU < 0 Then
@@ -1015,8 +770,8 @@ Public Sub tfnUpdateVersion()
     #End If
     
     sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.major))
-    sMinorVersion = Trim(CStr(App.minor))
+    sMajorVersion = Trim(CStr(App.Major))
+    sMinorVersion = Trim(CStr(App.Minor))
     sRevision = Trim(CStr(App.Revision))
     
     On Error GoTo 0
@@ -1098,7 +853,6 @@ ErrorExecuteSQL:
     #End If
 #End If
 End Sub
-
 '
 'Function : tfnUpdateStatusBar - updates the status bar CAPS, NUM, and SCRL panes
 'Variables: pointer to the form the status bar is on
@@ -1126,9 +880,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_CAPITAL)
 
     If intKeyStatus = 1 Then
-        frmForm.ffrastatusbar.PanelCaption(2) = "CAPS"
+        frmForm.ffraStatusbar.PanelCaption(2) = "CAPS"
     Else
-        frmForm.ffrastatusbar.PanelCaption(2) = szEMPTY
+        frmForm.ffraStatusbar.PanelCaption(2) = szEMPTY
     End If
 
     DoEvents
@@ -1136,9 +890,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_SCROLL)
 
     If intKeyStatus = 1 Then
-        frmForm.ffrastatusbar.PanelCaption(0) = "SCRL"
+        frmForm.ffraStatusbar.PanelCaption(0) = "SCRL"
     Else
-        frmForm.ffrastatusbar.PanelCaption(0) = szEMPTY
+        frmForm.ffraStatusbar.PanelCaption(0) = szEMPTY
     End If
 
     DoEvents
@@ -1146,9 +900,9 @@ Public Sub tfnUpdateStatusBar(frmForm As Form, Optional bRefreshStatus As Boolea
     intKeyStatus = GetKeyState(VK_NUMLOCK)
 
     If intKeyStatus = 1 Then
-        frmForm.ffrastatusbar.PanelCaption(1) = "NUM"
+        frmForm.ffraStatusbar.PanelCaption(1) = "NUM"
     Else
-        frmForm.ffrastatusbar.PanelCaption(1) = szEMPTY
+        frmForm.ffraStatusbar.PanelCaption(1) = szEMPTY
     End If
 End Sub
 
@@ -1316,7 +1070,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1385,7 +1139,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1439,7 +1193,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1563,7 +1317,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -1911,12 +1665,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2440,7 +2194,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2755,3 +2509,555 @@ Public Function tfnCRToCaret(strInput As String) As String
     
 End Function
 
+Public Function tfnLockRow(sProgramID As String, _
+                           sTable As String, _
+                           sSql As String, _
+                           Optional vShowMsg As Variant, _
+                           Optional sLockedUser As String = "") As Boolean
+
+    Const SUB_NAME = "tfnLockRow"
+    Const sErrID = "Lock Row"
+
+    Dim nPos1 As Integer
+    Dim nPos2 As Integer
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sCriteria As String
+    Dim sUserID As String
+    Dim sTemp As String
+    Dim t_lLockHandle As Long     'Handle for row lock routine
+    Dim i As Integer
+
+    #If FACTOR_MENU = 1 Then
+        tfnLockRow = True
+        Exit Function
+    #End If
+    
+    tfnLockRow = False
+    
+    #If DEVELOP Then
+        If Trim(sTable) = "" Then
+            MsgBox "You have to provide the table name in which you want to lock a row", , sErrID
+        End If
+        If Trim(sProgramID) = "" Then
+            MsgBox "You have to provide the program ID to lock a row", , sErrID
+        End If
+        If Trim(sSql) = "" Then
+            MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
+        End If
+        On Error GoTo errTableName
+        strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        rsTemp.Close
+        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+    #Else
+        If t_oleObject Is Nothing Then
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+        Else
+            sUserID = t_oleObject.UserName
+        End If
+    #End If
+
+    'Get the where clause
+    strSQL = UCase(sSql)
+    nPos2 = InStr(strSQL, " WHERE ")
+    If nPos2 > 0 Then
+        nPos1 = InStr(strSQL, " ORDER ")
+        If nPos1 = 0 Then
+            nPos1 = Len(sSql) + 1
+        End If
+        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
+    Else
+        sCriteria = sSql
+    End If
+    
+    #If DEVELOP Then
+        If Len(sCriteria) > 80 Then
+            MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
+            Exit Function
+        End If
+    #End If
+    
+    sTemp = LCase(Trim(sTable))
+    
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
+            tfnLockRow = True
+            Exit Function
+        End If
+    Next i
+
+    On Error GoTo errOpenRecord
+    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    If rsTemp.RecordCount > 0 Then
+        t_lLockHandle = rsTemp.Fields(0)
+        
+        If t_lLockHandle = 0 Then
+            If Trim(rsTemp.Fields(1)) = "" Then
+                #If DEVELOP Then
+                    MsgBox "Make sure you logged on a database with locking procedures setup", vbOKOnly
+                #End If
+            Else
+                Dim bShowMsg As Boolean
+                
+                If IsMissing(vShowMsg) Then
+                    bShowMsg = True
+                Else
+                    bShowMsg = vShowMsg
+                End If
+                
+                'david 01/12/2001
+                'return the user id that locks the record(s)
+                sLockedUser = Trim(rsTemp.Fields(1))
+                
+                If bShowMsg Then
+                    MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
+                End If
+            End If
+        End If
+    End If
+    
+    rsTemp.Close
+    Set rsTemp = Nothing
+    
+    If t_lLockHandle > 0 Then
+        If i >= nHandleCount Then
+            If nHandleCount = 0 Then
+                nHandleCount = 1
+                ReDim arryLockHandles(nHandleCount - 1)
+            Else
+                nHandleCount = nHandleCount + 1
+                ReDim Preserve arryLockHandles(nHandleCount - 1)
+            End If
+        End If
+        
+        tfnLockRow = True
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
+    End If
+    Exit Function
+ 
+errOpenRecord:
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Cannot lock table"
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler SUB_NAME, strSQL
+        End If
+    #End If
+    Err.Clear
+    Exit Function
+
+errTableName:
+    #If DEVELOP Then
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+    #End If
+    Err.Clear
+End Function
+
+'##############################################################################
+' Function/Subroutine: tfnLockRow_EX
+' Author:               David Chai
+' Date:                 01/08/2003
+' Project Number:       384783
+' Program Version:      N/A
+' ARGS:                 see below, NOTE: use field's contents separated by comma
+'                       in the locked criteria argument (sSql).
+' Returns:              True if the record is locked successfully.
+' Description:          new lock row function that DIDN'T USE/CALL STORED PROCEDURE
+'-
+'##############################################################################
+Public Function tfnLockRow_EX(sProgramID As String, _
+                              sTable As String, _
+                              sSql As String, _
+                              Optional vShowMsg As Variant, _
+                              Optional sLockedUser As String = "", _
+                              Optional sUserID As String = "") As Boolean
+
+    Const SUB_NAME = "tfnLockRow_EX"
+
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sLockCriteria As String
+    Dim sTemp As String
+    Dim t_lLockHandle As Long     'Handle for row lock routine
+    'Dim i As Integer
+
+    Dim Fields0 As String
+    Dim Fields1 As String
+    Dim Fields2 As String
+    
+    #If FACTOR_MENU = 1 Then
+        tfnLockRow_EX = True
+        Exit Function
+    #End If
+    
+    #If PROTOTYPE Then
+        tfnLockRow_EX = True
+        Exit Function
+    #End If
+    
+    If Trim(sTable) = "" Then
+        MsgBox "Table Name is missing when try to lock a row.", , SUB_NAME
+        Exit Function
+    End If
+    
+    If Trim(sProgramID) = "" Then
+        MsgBox "Program ID is missing when try to lock a row.", , SUB_NAME
+        Exit Function
+    End If
+    
+    If Trim(sSql) = "" Then
+        MsgBox "Locking Criteria is missing when try to lock a row.", , SUB_NAME
+        Exit Function
+    End If
+    
+    strSQL = "SELECT * FROM " & sTable & " WHERE 1<>1"
+    
+    On Error GoTo errSQL
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    rsTemp.Close
+    On Error GoTo 0
+    
+    #If FACTOR_MENU Then
+        If sUserID = "" Then
+            If t_oleObject Is Nothing Then
+                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            Else
+                sUserID = t_oleObject.UserName
+            End If
+        End If
+    #Else
+        If sUserID = "" Then
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+        End If
+    #End If
+
+    If Trim(sUserID) = "" Then
+        MsgBox "User ID is missing when try to lock a row.", , SUB_NAME
+        Exit Function
+    End If
+    
+    sLockCriteria = sSql
+    
+    If Len(sLockCriteria) > 80 Then
+        MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
+        Exit Function
+    End If
+    
+    sTemp = LCase(Trim(sTable))
+    
+    Call lock_row(sTemp, sProgramID, sUserID, sLockCriteria, Fields0, Fields1, Fields2)
+    
+    t_lLockHandle = tfnRound(Fields0)
+    
+    If t_lLockHandle = 0 Then
+        If Trim(Fields1) = "" Then
+            #If DEVELOP Then
+                MsgBox "Make sure you logged on a database with locking procedures setup", vbOKOnly
+            #End If
+        Else
+            Dim bShowMsg As Boolean
+            
+            If IsMissing(vShowMsg) Then
+                bShowMsg = True
+            Else
+                bShowMsg = vShowMsg
+            End If
+            
+            'david 01/12/2001
+            'return the user id that locks the record(s)
+            sLockedUser = Trim(Fields1)
+            
+            If bShowMsg Then
+                MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
+            End If
+        End If
+        
+        Exit Function
+    End If
+        
+    tfnLockRow_EX = True
+    Exit Function
+ 
+errSQL:
+    #If DEVELOP Then
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+    #End If
+    
+    Err.Clear
+End Function
+
+Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
+    Const SUB_NAME = "tfnUnlockRow"
+    
+    #If FACTOR_MENU = 1 Then
+        tfnUnlockRow = True
+        Exit Function
+    #End If
+    
+    If nHandleCount <= 0 Then
+        Exit Function
+    End If
+
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    tfnUnlockRow = False
+    On Error GoTo errUnlock
+    
+    If IsMissing(vTable) Then
+        While nHandleCount > 0
+            strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            If rsTemp.RecordCount > 0 Then
+                If rsTemp.Fields(0) > 0 Then
+                    arryLockHandles(nHandleCount - 1).m_sTable = ""
+                    arryLockHandles(nHandleCount - 1).m_lHandle = -1
+                    nHandleCount = nHandleCount - 1
+                Else
+                    rsTemp.Close
+                    Exit Function
+                End If
+            Else
+                rsTemp.Close
+                Exit Function
+            End If
+        Wend
+        
+        ReDim arryLockHandles(0)
+        rsTemp.Close
+    Else
+        Dim sTable As String
+        Dim i As Long
+        Dim j As Long
+        
+        sTable = LCase(Trim(vTable))
+        
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+                If rsTemp.RecordCount > 0 Then
+                    If rsTemp.Fields(0) > 0 Then
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
+                        nHandleCount = nHandleCount - 1
+                    Else
+                        rsTemp.Close
+                        Exit Function
+                    End If
+                Else
+                    rsTemp.Close
+                    Exit Function
+                End If
+                
+                Exit For
+            End If
+        Next i
+        
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
+                arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
+                arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
+            Next j
+        End If
+        
+        If nHandleCount > 0 Then
+            ReDim Preserve arryLockHandles(nHandleCount - 1)
+        Else
+            ReDim arryLockHandles(0)
+        End If
+    End If
+    
+    Set rsTemp = Nothing
+    tfnUnlockRow = True
+    Exit Function
+
+errUnlock:
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Cannot unlock table"
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler SUB_NAME, strSQL
+        End If
+    #End If
+End Function
+
+'##############################################################################
+' Function/Subroutine: tfnUnlockRow_EX
+' Author:               David Chai
+' Date:                 01/08/2003
+' Project Number:       384783
+' Program Version:      N/A
+' ARGS:                 see below, NOTE: left the locked criteria BLANK
+'                       to unlock all rows for a table.
+' Returns:              none.
+' Description:          new unlock row function that DIDN'T USE/CALL STORED PROCEDURE
+'-
+'##############################################################################
+Public Sub tfnUnlockRow_EX(sProgramID As String, _
+                           sTable As String, _
+                           Optional sLockCriteria As String = "", _
+                           Optional sUserID As String)
+
+    Const SUB_NAME As String = "tfnUnlockRow_EX"
+    
+    Dim strSQL As String
+    
+    #If FACTOR_MENU = 1 Then
+        Exit Sub
+    #End If
+    
+    #If PROTOTYPE Then
+        Exit Sub
+    #End If
+    
+    If Trim(sTable) = "" Then
+        MsgBox "Table Name is missing when try to lock a row.", , SUB_NAME
+        Exit Sub
+    End If
+    
+    If Trim(sProgramID) = "" Then
+        MsgBox "Program ID is missing when try to lock a row.", , SUB_NAME
+        Exit Sub
+    End If
+    
+    #If FACTOR_MENU Then
+        If sUserID = "" Then
+            If t_oleObject Is Nothing Then
+                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            Else
+                sUserID = t_oleObject.UserName
+            End If
+        End If
+    #Else
+        If sUserID = "" Then
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+        End If
+    #End If
+    
+    strSQL = "delete from sys_row_lock where srl_table = " + tfnSQLString(sTable)
+    strSQL = strSQL + " and srl_prog_id = " + tfnSQLString(sProgramID)
+    
+    If sUserID <> "=(;-)" Then
+        strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUserID)
+    End If
+    
+    If sLockCriteria <> "" Then
+        strSQL = strSQL + " and srl_criteria = " + tfnSQLString(sLockCriteria)
+    End If
+    
+    If Trim(sUserID) = "" Then
+        MsgBox "User ID is missing when try to lock a row.", , SUB_NAME
+        Exit Sub
+    End If
+    
+    On Error GoTo ErrorAccessRecords
+    t_dbMainDatabase.ExecuteSQL strSQL
+    On Error GoTo 0
+    Debug.Print strSQL + vbCrLf + "t_dbMainDatabase.RecordsAffected = " & t_dbMainDatabase.RecordsAffected
+    
+    Exit Sub
+
+ErrorAccessRecords:
+    tfnErrHandler SUB_NAME, strSQL, False
+End Sub
+
+Public Function lock_row(ByVal in_table As String, _
+                    ByVal in_prog_id As String, _
+                    ByVal in_user_id As String, _
+                    ByVal in_criteria As String, _
+                    ByRef output_nbr As String, _
+                    ByRef output_id As String, _
+                    ByRef status_message As String) As Boolean
+
+    Const SUB_NAME As String = "lock_row"
+
+    Dim unlock_status As String
+    Dim proc_name As String
+    Dim proc_version As String
+    Dim proc_status As Long
+    Dim proc_message As String
+    Dim proc_type As String
+    Dim proc_userid As String
+    Dim lock_nbr As Long
+    Dim hold_table As String
+    Dim hold_prog_id As String
+    Dim hold_user_id As String
+    Dim hold_criteria As String
+    Dim hold_nbr As Long
+    Dim ret_unlock As Long
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+
+    'status_message = "Beginning row lock procedure."
+    strSQL = "select srl_user_id hold_user_id, srl_table hold_table, srl_nbr hold_nbr"
+    strSQL = strSQL + " from sys_row_lock where srl_table = " + tfnSQLString(in_table)
+    strSQL = strSQL + " and srl_prog_id = " + tfnSQLString(in_prog_id)
+    strSQL = strSQL + " and srl_criteria = " + tfnSQLString(in_criteria)
+
+    'status_message = "Looking for matching lock record."
+    On Error GoTo ErrorAccessRecords
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    On Error GoTo 0
+    
+    If rsTemp.RecordCount > 0 Then
+        If Trim(rsTemp!hold_user_id & "") = in_user_id Then
+                lock_nbr = rsTemp!hold_nbr
+                output_id = in_user_id
+        ElseIf Trim(rsTemp!hold_table & "") = in_table Then
+            status_message = "Record is locked by user: " & rsTemp!hold_user_id & ""
+            output_id = rsTemp!hold_user_id & ""
+            lock_nbr = 0
+        End If
+    Else
+        'status_message = "Inserting lock record."
+        strSQL = "insert into sys_row_lock values (" + tfnSQLString(in_table) + "," + tfnSQLString(in_prog_id)
+        strSQL = strSQL + "," + tfnSQLString(in_user_id) + "," + tfnSQLString(in_criteria) + ", 0)"
+    
+        On Error GoTo ErrorAccessRecords
+        t_dbMainDatabase.ExecuteSQL strSQL
+        On Error GoTo 0
+        
+        'get the serial number for the newly inserted record
+        strSQL = "select srl_nbr from sys_row_lock"
+        strSQL = strSQL + " where srl_table = " + tfnSQLString(in_table)
+        strSQL = strSQL + " and srl_prog_id = " + tfnSQLString(in_prog_id)
+        strSQL = strSQL + " and srl_user_id = " + tfnSQLString(in_user_id)
+        strSQL = strSQL + " and srl_criteria = " + tfnSQLString(in_criteria)
+
+        On Error GoTo ErrorAccessRecords
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        On Error GoTo 0
+
+        If rsTemp.RecordCount > 0 Then
+            lock_nbr = rsTemp!srl_nbr
+            output_id = in_user_id
+        End If
+    End If
+    
+    output_nbr = lock_nbr
+    lock_row = True
+    
+    Exit Function
+    
+errTrap:
+    lock_nbr = 0
+    output_id = 0
+    
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
+    End If
+    Exit Function
+    
+ErrorAccessRecords:
+    lock_nbr = 0
+    output_id = 0
+    
+    tfnErrHandler SUB_NAME, strSQL, False
+    status_message = "Failed to access remote database (see error log)."
+End Function
