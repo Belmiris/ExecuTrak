@@ -511,7 +511,7 @@ Public Function RunProgram(sProgram As String, Optional sModuleID As String = ""
             'david 08/05/2003  #412827-9
             If sModuleID = "" Then
                 On Error Resume Next
-                sModuleID = Trim(frmMainForm.efraToolBar.FMName, 3)
+                sModuleID = Trim(frmMainForm!efraToolBar.FMName)
             End If
             ''''''''''''''''''''''''''''
             
