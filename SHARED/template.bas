@@ -885,7 +885,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
     #End If
     Err.Clear
 End Function
@@ -1025,8 +1025,8 @@ Public Sub tfnUpdateVersion()
     #End If
     
     sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.Major))
-    sMinorVersion = Trim(CStr(App.Minor))
+    sMajorVersion = Trim(CStr(App.major))
+    sMinorVersion = Trim(CStr(App.minor))
     sRevision = Trim(CStr(App.Revision))
     
     On Error GoTo 0
@@ -1393,7 +1393,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1447,7 +1447,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   Else
     nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1561,7 +1561,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
@@ -2653,13 +2653,19 @@ Public Function fnRemoveChr0(vText) As String
     sTemp = ""
     
     If sText <> "" Then
-        For i = 1 To Len(sText)
-            sChar = Mid(sText, i, 1)
-            
-            If sChar <> Chr(0) Then
-                sTemp = sTemp + sChar
-            End If
-        Next i
+        If InStrB(sText, Chr(0)) > 0 Then
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
+                
+                If sChar <> Chr(0) Then
+                    sTemp = sTemp + sChar
+                End If
+            Next i
+        
+            sTemp = RTrim(sText)
+        Else
+            sTemp = sText
+        End If
     End If
     
     fnRemoveChr0 = sTemp
