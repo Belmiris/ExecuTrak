@@ -1202,7 +1202,7 @@ Property Let MaxRows(lTemp As Long)
     lMaxRows = lTemp
 End Property
 
-Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
 End Sub
 
@@ -3731,7 +3731,12 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
                     nKeyProcessing = KEY_P_CHANGE_ROW
                     If nEditColumns(0) < tgTable.Columns.Count Then
                         tgTable.col = nEditColumns(0)
-                        DoEvents
+                        'david 02/14/2001
+                        'commented out the DoEvents. NOT SURE WHAT'S THE USE.
+                        'sometime the it causes problem in last editable column
+                        'when the data entered is not valid. The error row is set
+                        'correctly but the focus will go to the first editable column.
+                        'DoEvents
                     End If
                     If tgTable.col = nEditColumns(0) Then
                         On Error Resume Next
