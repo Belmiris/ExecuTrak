@@ -828,7 +828,9 @@ Private Sub subInitialize(sCommand As String)
     subSetFileMode FILE_MODE_READ
     
     If fnAllowStandalone Then
-        subCheckRunMethod sCommand
+        If Not fnCheckRunMethod(sCommand) Then
+            End
+        End If
     End If
     
     If Not tfnAuthorizeExecute(sCommand) Then 'Check for handshake if not in the development mode
@@ -846,7 +848,7 @@ Private Sub subInitialize(sCommand As String)
     
 End Sub
 
-Private Sub subCheckRunMethod(sCommand As String)
+Private Function fnCheckRunMethod(sCommand As String) As Boolean
     Dim sErrMsg As String
     
     If sCommand = t_szHandShake Then
@@ -858,11 +860,13 @@ Private Sub subCheckRunMethod(sCommand As String)
                 frmSplash.Show vbModal
             Else
                 MsgBox sErrMsg, vbCritical
+                Exit Function
             End If
         End If
     End If
 
-End Sub
+    fnCheckRunMethod = True
+End Function
 
 
 Private Sub subInitErrorHandler()

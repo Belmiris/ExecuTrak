@@ -1043,13 +1043,21 @@ errTrap:
     Screen.MousePointer = vbDefault
     
     If Err.Number = 5 Then
-        subCriticalMsg "Data Source Name is not valid.", szFORM_NAME
-        subSetFocus cmbDataSet
+        m_sConnectionError = "Data Source Name is not valid."
+        
+        If Not m_bAutoConnect Then
+            subCriticalMsg m_sConnectionError, szFORM_NAME
+            subSetFocus cmbDataSet
+        End If
     Else
-        subCriticalMsg "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
-            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "." + vbCrLf + vbCrLf + _
-            "Please report this message to support.", szFORM_NAME
-        subSetFocus txtPassword
+        m_sConnectionError = "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
+            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "."
+        
+        If Not m_bAutoConnect Then
+            subCriticalMsg m_sConnectionError + vbCrLf + vbCrLf + _
+                "Please report this message to support.", szFORM_NAME
+            subSetFocus txtPassword
+        End If
     End If
 End Sub
 
@@ -1091,8 +1099,6 @@ Private Sub Form_Load()
         MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
         End
     End If
-
-    m_bAutoConnect = False
 End Sub
 
 Private Sub picMain_Paint()
