@@ -1,3 +1,13 @@
+version: 3.28.0002 davidc
+Date: 03/11/2004
+#401439
+
+Description: 
+	alter table p_holdgl add
+	( 
+		phg_prnt_on_stub        text         {'Y'es or 'N'o Print on Check Stub}
+	);
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version: 3.28.0001 davidc
 Date: 12/22/2003
 #403928, #430501-1
