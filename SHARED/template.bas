@@ -524,6 +524,64 @@ Public Function tfnGetUserName() As String
     
 End Function
 
+'Function : tfn_Is_Cust_Editable
+'Variables: Cust #, User(optional)
+'Return   : True if cust is editable by the user; false if only viewable.
+
+Public Function tfn_Is_Cust_Editable(ByVal sCust As String, _
+                                Optional vUser As Variant) As Boolean
+        
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sAccess As String
+    Dim sUser As String
+    
+    Static sSys_Parm_8 As String
+    
+    If sSys_Parm_8 = szEMPTY Then
+        strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 8 "
+        
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+   
+        If Not rsTemp Is Nothing Then
+            If rsTemp.RecordCount > 0 Then
+                If Not IsNull(rsTemp!parm_field) Then
+                    sSys_Parm_8 = UCase(Trim(rsTemp!parm_field))
+                End If
+            End If
+        End If
+        If sSys_Parm_8 <> "Y" Then
+            sSys_Parm_8 = "N"
+        End If
+    End If
+    
+    If sSys_Parm_8 = "Y" Then
+        
+        If IsMissing(vUser) Then
+            sUser = tfnGetUserName
+        End If
+        
+        strSQL = "SELECT ara_privilege FROM ar_access,ar_altname WHERE an_access_zone=ara_access_zone"
+        strSQL = strSQL & " AND an_customer = " & val(sCust) & " AND ara_userid = " & tfnSQLString(sUser)
+    
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+   
+        If Not rsTemp Is Nothing Then
+            If rsTemp.RecordCount > 0 Then
+                If Not IsNull(rsTemp!ara_privilege) Then
+                    sAccess = UCase(Trim(rsTemp!ara_privilege))
+                End If
+            End If
+        End If
+    End If
+    
+    If sAccess <> "V" Then
+        sAccess = "E"
+    End If
+    
+    tfn_Is_Cust_Editable = (sAccess = "E")
+End Function
+
 '
 'Function : tfnCheckMySize - maintains a readable minimum size for all resolutions
 'Variables: pointer to the form that received resize event
@@ -566,7 +624,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -616,12 +674,12 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -654,7 +712,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -664,7 +722,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -748,12 +806,12 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Integer
+        Dim i As Integer
         
         sTable = LCase(Trim(vTable))
-        For I = 0 To nHandleCount
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
@@ -768,7 +826,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next I
+        Next i
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -960,7 +1018,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1011,7 +1069,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1019,8 +1077,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
