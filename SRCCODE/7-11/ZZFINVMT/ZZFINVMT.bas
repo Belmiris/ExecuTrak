@@ -33,6 +33,19 @@ Public dbLocal As Database
 Const nDB_LOCAL As Integer = 1
 Const nDB_REMOTE As Integer = 2
 
+'variable for print
+Private Const BOTTOM_MARGIN = 600
+Private Const STUB_FONT = "Arial"
+Private Const PRINT_FONTNAME = "Courier New"     '"Courier 17*1"
+Private Const PRINT_FONTSIZE = 10
+Private sStoreFont As String
+Private nLeftMargin As Integer
+Private nTextHeight As Integer
+Private nPrevPage As Integer
+Private nPageNumber As Integer
+Private Const PAGELENGTH As Integer = 120
+
+'Gloabl variable
 Private g_dTotalCost As Double
 Private g_dTotalExtCost As Double
 Private g_lHeaderCount As Long
@@ -43,7 +56,8 @@ Private g_lDetailLineNbr As Long
 Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     Dim lTotalByte As Long
     Dim lReadByte As Long
-    Dim bISOpen As Boolean
+    Dim sngPercent As Single
+    Dim bIsOpen As Boolean
     Dim nFileNum As Integer
     Dim sLine As String
     Dim nLineCount As Long
@@ -52,7 +66,7 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     Dim udtInvDetail As RSINV_Detail
     Dim sErrMsg As String
     
-    On Error GoTo ERRORHANDLER
+    On Error GoTo ErrorHandler
     
     'check how many header read
     g_lHeaderCount = 0
@@ -60,12 +74,15 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     nFileNum = FreeFile()
     
     Open sFileName For Input As #nFileNum
-    bISOpen = True
+    bIsOpen = True
     
     subOpenAndClearLogFile
     
     If Not EOF(nFileNum) Then
         Line Input #nFileNum, sFirstLine
+        lReadByte = lReadByte + Len(sFirstLine)
+        sngPercent = lReadByte / lTotalByte * 100
+        subSetProgress sngPercent
     Else
         sErrMsg = "The file " & sFileName & "  is empty"
         GoTo EXITHERE
@@ -91,6 +108,9 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
         Line Input #nFileNum, sLine
         
         nLineCount = nLineCount + 1
+        lReadByte = lReadByte + Len(sLine)
+        sngPercent = lReadByte / lTotalByte * 100
+        subSetProgress sngPercent
         
         If Left(sLine, 3) = "HDR" Then
             
@@ -137,13 +157,14 @@ Public Function fnProcessRSInvFile(sFileName As String) As Boolean
     
 EXITHERE:
     fnProcessRSInvFile = False
+    subWriteSummary
     Close #nFileNum
     subCloseLogFile
     Exit Function
     
-ERRORHANDLER:
+ErrorHandler:
 
-    If bISOpen Then
+    If bIsOpen Then
         Close #nFileNum
     End If
     
@@ -210,22 +231,13 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
     subWriteDetailProcLog udtInvHeader, udtInvDetail
     
     If fnValidData(udtInvHeader, udtInvDetail) Then
+        
+        
         'insert header data
         If g_bNeedWriteHeader Then
-            'delete old data in rs_b_hold_header for this vendor and invoice
-            strSQL = "DELETE FROM rs_p_hold_header WHERE rsphh_vendor = " & udtInvHeader.lVendor
-            strSQL = strSQL & " AND rsphh_invoice = " & udtInvHeader.lInvNum
-            
-            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
-                Exit Function
-            End If
-            
-            'delete old data in rs_b_hold_detail for this vendor and invoice
-            strSQL = "DELETE FROM rs_p_hold_detail WHERE rsphd_vendor = " & udtInvHeader.lVendor
-            strSQL = strSQL & " AND rsphd_invoice = " & udtInvHeader.lInvNum
-            
-            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
-                Exit Function
+        
+            If Not fnDeleteData(udtInvHeader.lVendor, udtInvHeader.lInvNum) Then
+                 Exit Function
             End If
             
             strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
@@ -233,8 +245,9 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             strSQL = strSQL & " VALUES(" & udtInvHeader.nProfctr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
             strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
             strSQL = strSQL & tfnDateString(udtInvHeader.dtInvDate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
-            strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(udtInvHeader.sDraftNum = "", "NULL", udtInvHeader.sDraftNum)
+            strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
             strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ")"
+            
             g_bNeedWriteHeader = False
             g_lDetailLineNbr = 1
             
@@ -244,13 +257,13 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
             
         End If
         
-        strSQL = "INSERT INTO rs_b_hold_detail(rsphd_vendor, rsphd_invoice, rsphd_line_nbr, rsphd_type, "
+        strSQL = "INSERT INTO rs_p_hold_detail(rsphd_vendor, rsphd_invoice, rsphd_line_nbr, rsphd_type, "
         strSQL = strSQL & " rsphd_code, rsphd_qty, rsphd_stock_unit, rsphd_cost, rsphd_retail)"
         strSQL = strSQL & " VALUES( " & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
         strSQL = strSQL & g_lDetailLineNbr & "," & tfnSQLString(udtInvDetail.sTypeCode) & ","
         strSQL = strSQL & tfnSQLString(udtInvDetail.sItemCode) & "," & tfnRound(udtInvDetail.dQuantity, 3) & ","
         strSQL = strSQL & tfnSQLString(udtInvDetail.sUOM) & "," & tfnRound(udtInvDetail.dCost, 3) & ","
-        strSQL = strSQL & tfnRound(udtInvDetail.sRetail, 3)
+        strSQL = strSQL & tfnRound(udtInvDetail.sRetail, 3) & ")"
         
         If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
             Exit Function
@@ -263,6 +276,28 @@ Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSIN
         subDisplayMsg "Data is not correct in the flat file, please check error log file."
     End If
     
+End Function
+
+Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
+    Dim strSQL As String
+    
+    'delete old data in rs_b_hold_header for this vendor and invoice
+    strSQL = "DELETE FROM rs_p_hold_header WHERE rsphh_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphh_invoice = " & lInvoice
+    
+    If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteData") Then
+        Exit Function
+    End If
+    
+    'delete old data in rs_b_hold_detail for this vendor and invoice
+    strSQL = "DELETE FROM rs_p_hold_detail WHERE rsphd_vendor = " & lVendor
+    strSQL = strSQL & " AND rsphd_invoice = " & lInvoice
+    
+    If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnDeleteData") Then
+        Exit Function
+    End If
+
+    fnDeleteData = True
 End Function
 
 Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
@@ -419,6 +454,7 @@ Private Sub subWriteHeaderErrLog(udtInvHeader As RSINV_Header)
     
     sVendorName = fnGetVendorName(udtInvHeader.lVendor)
     
+    Print #g_nErrorLogFile, ""
     sLine = "Profit Center: " & CStr(udtInvHeader.nProfctr)
     Print #g_nErrorLogFile, sLine
     sLine = "Shift Number: " & CStr(udtInvHeader.nShiftNum)
@@ -427,7 +463,6 @@ Private Sub subWriteHeaderErrLog(udtInvHeader As RSINV_Header)
     Print #g_nErrorLogFile, sLine
     sLine = String(100, "-")
     Print #g_nErrorLogFile, sLine
-    Print #g_nErrorLogFile, vbCrLf
     sLine = "Date" & Space(5) & "Invoice #" & Space(2) & "Inv. Code" & Space(2) & "Description" & Space(10) & "Error Message"
     Print #g_nErrorLogFile, sLine
     sLine = String(100, "-")
@@ -462,11 +497,15 @@ Private Sub subWriteHeaderProcLog(udtInvHeader As RSINV_Header)
     
     g_dTotalCost = 0#
     g_dTotalExtCost = 0#
+    
+    Print #g_nProcessingFile, ""
     sLine = "Profit Center: " & udtInvHeader.nProfctr
     Print #g_nProcessingFile, sLine
     sLine = "Shift Number: " & udtInvHeader.nShiftNum
     Print #g_nProcessingFile, sLine
     sLine = "Vendor Number: " & udtInvHeader.lVendor & Space(10) & "Vendor Name: " & sVendorName
+    Print #g_nProcessingFile, sLine
+    sLine = String(100, "-")
     Print #g_nProcessingFile, sLine
     sLine = "Date" & Space(5) & "Invoice #" & Space(2) & "Inv. Code" & Space(2) & "Description" & Space(10) & "Qty" & Space(6) & "Cost" & Space(7) & "Ext. Cost"
     Print #g_nProcessingFile, sLine
@@ -489,7 +528,7 @@ Private Sub subWriteDetailProcLog(udtInvHeader As RSINV_Header, udtInvDetail As 
     sLine = sLine & Space(21 - Len(sItemDesc)) & CStr(udtInvDetail.dQuantity)
     sLine = sLine & Space(9 - Len(CStr(udtInvDetail.dQuantity))) & CStr(udtInvDetail.dCost)
     dExtCost = udtInvDetail.dQuantity * udtInvDetail.dCost
-    sLine = sLine & CStr(dExtCost)
+    sLine = sLine & Space(11 - Len(CStr(udtInvDetail.dCost))) & CStr(dExtCost)
     Print #g_nProcessingFile, sLine
     g_dTotalCost = g_dTotalCost + udtInvDetail.dCost
     g_dTotalExtCost = g_dTotalExtCost + dExtCost
@@ -499,9 +538,10 @@ End Sub
 Private Sub subWriteSummary()
     Dim sLine As String
     
+    Print #g_nProcessingFile, ""
     sLine = "TOTAL" & Space(56) & CStr(g_dTotalCost) & Space(11 - Len(CStr(g_dTotalCost))) & CStr(g_dTotalExtCost)
-    
     Print #g_nProcessingFile, sLine
+    Print #g_nProcessingFile, ""
 End Sub
 
 Private Sub subOpenAndClearLogFile()
@@ -510,11 +550,11 @@ Private Sub subOpenAndClearLogFile()
 
     On Error Resume Next
     
-    sProcessLogFile = App.Path & "\zzrinvpl.txt"
-    sErrorLogFile = App.Path & "\zzrinver.txt"
+    sProcessLogFile = App.Path & "\zzrinvpl.log"
+    sErrorLogFile = App.Path & "\zzrinver.log"
     
     If fnFileExist(sProcessLogFile) Then
-        Kill sProcessLogFile
+       Kill sProcessLogFile
     End If
     
     If fnFileExist(sErrorLogFile) Then
@@ -561,7 +601,7 @@ Private Sub subCloseLogFile()
     Close #g_nErrorLogFile
 End Sub
 
-Private Function fnFileExist(sFile As String) As Boolean
+Public Function fnFileExist(sFile As String) As Boolean
     On Error Resume Next
     
     fnFileExist = (Dir$(sFile) <> "")
@@ -713,7 +753,7 @@ Private Function fnValidReportDate(nPrftCtr As Integer, dtReportDate As Date) As
     End If
     
     If sMsg = "" Then
-        strSQL = "SELECT glp_status FROM gl_period WHERE " & dtReportDate
+        strSQL = "SELECT glp_status FROM gl_period WHERE " & tfnDateString(dtReportDate, True)
         strSQL = strSQL & " BETWEEN glp_beg_dt and glp_end_dt"
         
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnvalidReportDate") < 0 Then
@@ -804,7 +844,7 @@ End Function
 
 Private Function fnValidPayTerm(sTerm As String, sPayTerm As String) As String
 
-    If sTerm = "" Then
+    If Trim(sTerm) = "" Then
         sTerm = sPayTerm
     End If
     
@@ -825,7 +865,7 @@ Private Function fnValidDraftNum(sPayType As String, sDraftNum As String) As Str
 
     If sPayType = "D" Then
         
-        If sDraftNum = "" Then
+        If Trim(sDraftNum) = "" Then
             fnValidDraftNum = "The draft number can't empty for pay type 'D'."
         End If
         
@@ -899,11 +939,11 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
     Dim rsTemp As Recordset
     Dim lIcLink As Long
     
-    strSQL = "SELECT rsbi_lnk FROM rs_b_item WHERE rsbi_vendor = " & lVendor
+    strSQL = "SELECT rsbi_ic_lnk FROM rs_b_item WHERE rsbi_vendor = " & lVendor
     strSQL = strSQL & " AND rsbi_code = " & tfnSQLString(sItemCode)
     
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetRetailPrice") > 0 Then
-        lIcLink = rsTemp!rsbi_lnk
+        lIcLink = IIf(IsNull(rsTemp!rsbi_ic_lnk), -1, rsTemp!rsbi_ic_lnk)
     Else
         Exit Function
     End If
@@ -913,14 +953,14 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
     strSQL = strSQL & " AND  rsbs_prft_ctr = " & nPrftCtr
 
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetRetailPrice") > 0 Then
-        lBook = tfnRound(rsTemp!rsbs_book)
-        lSubBook = tfnRound(rsTemp!rsbs_subbook)
+        lBook = IIf(IsNull(rsTemp!rsbs_book), -1, rsTemp!rsbs_book)
+        lSubBook = IIf(IsNull(rsTemp!rsbs_subbook), -1, rsTemp!rsbs_subbook)
     Else
         Exit Function
     End If
     
     strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
-    strSQL = strSQL & " AND " & dtReportDate & " BETWEEN rsbp_date and rsbp_ending_date "
+    strSQL = strSQL & " AND " & tfnDateString(dtReportDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
     strSQL = strSQL & " AND rsbp_bk_lnk = "
     strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
     strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -933,7 +973,7 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
         fnGetRetailPrice = True
     Else
         strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
-        strSQL = strSQL & " AND " & dtReportDate & " BETWEEN rsbp_date and rsbp_ending_date "
+        strSQL = strSQL & " AND " & tfnDateString(dtReportDate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
         strSQL = strSQL & " AND rsbp_bk_lnk = "
         strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
         strSQL = strSQL & " AND rsbb_book = " & lBook
@@ -950,5 +990,242 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
             
     End If
 
+End Function
+
+Public Sub subSentErrorLogToPrinter()
+    Dim nFileNum As Integer
+    Dim sErrorLogFile As String
+    Dim sLine As String
+    Dim bIsOpen As Boolean
+    
+    On Error GoTo EXITHERE
+    
+    If Not fnInitPrinter() Then
+        frmZZFINVMT.tfnSetStatusBarMessage "Printer not Ready"
+        Exit Sub
+    End If
+    
+    nPageNumber = 1
+    nPrevPage = 1
+    
+    subPrintRptHeader "Error"
+    nFileNum = FreeFile()
+    sErrorLogFile = App.Path & "\zzrinver.log"
+    
+    Open sErrorLogFile For Input As #nFileNum
+    bIsOpen = True
+    
+    Do While Not EOF(nFileNum)
+        Line Input #nFileNum, sLine
+        
+        If nPrevPage <> nPageNumber Then
+            subPrintRptHeader "ERROR"
+            nPrevPage = nPageNumber
+        End If
+    
+        subOutput sLine
+    Loop
+
+    Close #nFileNum
+    subPrinterEndDocument
+    Exit Sub
+EXITHERE:
+
+    If bIsOpen Then
+        Close #nFileNum
+    End If
+    
+    subPrinterEndDocument
+    MsgBox Err.Description, vbExclamation
+End Sub
+
+Public Sub subSentProcLogToPrinter()
+    Dim nFileNum As Integer
+    Dim sProcLogFile As String
+    Dim sLine As String
+    Dim bIsOpen As Boolean
+    
+    On Error GoTo EXITHERE
+    If Not fnInitPrinter() Then
+        frmZZFINVMT.tfnSetStatusBarMessage "Printer not Ready"
+        Exit Sub
+    End If
+    
+    nPageNumber = 1
+    nPrevPage = 1
+    
+    subPrintRptHeader "PROCESSING"
+    nFileNum = FreeFile()
+    sProcLogFile = App.Path & "\zzrinvpl.log"
+    
+    Open sProcLogFile For Input As #nFileNum
+    bIsOpen = True
+    
+    Do While Not EOF(nFileNum)
+        Line Input #nFileNum, sLine
+        
+        If nPrevPage <> nPageNumber Then
+            subPrintRptHeader "ERROR"
+            nPrevPage = nPageNumber
+        End If
+    
+        subOutput sLine
+    Loop
+
+    Close #nFileNum
+    subPrinterEndDocument
+    Exit Sub
+
+EXITHERE:
+
+    If bIsOpen Then
+        Close #nFileNum
+    End If
+    
+    subPrinterEndDocument
+    MsgBox Err.Description, vbExclamation
+End Sub
+
+Private Sub subPrintRptHeader(sMsg As String)
+    Dim sCompanyName As String
+    Dim sRundate As String
+    Dim sRuntime As String
+    Dim nSpc As Integer
+    Dim sReportLine As String, sPageNum As String, sHeader As String
+    
+    sRundate = Format(Date, "MM/DD/YYYY")
+    sRuntime = Format(Time, "HH:MM AMPM")
+    sHeader = "Incoming Invoice File"
+    
+    If fnGetCompanyName(sCompanyName) Then
+        sPageNum = "Page No.  " + fnRightJustified(nPageNumber, "####")
+        
+        If UCase(sMsg) = "PROCESSING" Then
+            nSpc = (PAGELENGTH - Len(Trim(sCompanyName))) / 2 - Len("Program ID: ZZRINVPL")
+            sReportLine = "Program ID: ZZRINVPL" + Space(nSpc) + sCompanyName
+        Else
+            nSpc = (PAGELENGTH - Len(Trim(sCompanyName))) / 2 - Len("Program ID: ZZRINVER")
+            sReportLine = "Program ID: ZZRINVER" + Space(nSpc) + sCompanyName
+        End If
+        
+        sReportLine = sReportLine & Space(PAGELENGTH - Len(sReportLine) - Len(sPageNum)) & sPageNum
+    End If
+    
+    subOutput sReportLine
+    
+    nSpc = (PAGELENGTH - Len(Trim(sHeader))) / 2 - Len(Trim(sRundate & "Run Date: "))
+    sReportLine = "Run Date: " + sRundate + Space(nSpc) + sHeader
+    subOutput sReportLine
+    
+    If UCase(sMsg) = "PROCESSING" Then
+        nSpc = (PAGELENGTH - Len("Processing Log")) / 2 - Len(Trim(sRuntime & "Run Time: "))
+        sReportLine = "Run Time: " + sRuntime + Space(nSpc) + "Processing Log"
+        subOutput sReportLine
+    Else
+        nSpc = (PAGELENGTH - Len("Error Log")) / 2 - Len(Trim(sRuntime & "Run Time: "))
+        sReportLine = "Run Time: " + sRuntime + Space(nSpc) + "Error Log"
+        subOutput sReportLine
+    End If
+    
+End Sub
+Public Function fnInitPrinter(Optional vNextPage As Variant) As Boolean
+    Dim sErrMsg As String
+    
+    On Error GoTo ErrInitPrinter
+    
+    If IsMissing(vNextPage) Then
+        sStoreFont = Printer.FontName
+    End If
+
+    Printer.Orientation = vbPRORLandscape
+    Printer.FontName = STUB_FONT
+    Printer.Print " "
+    Printer.FontName = PRINT_FONTNAME
+    Printer.FontSize = PRINT_FONTSIZE
+
+    
+    nLeftMargin = (Printer.ScaleWidth - Printer.TextWidth(Space(PAGELENGTH))) / 2
+    nTextHeight = Printer.ScaleHeight - BOTTOM_MARGIN
+    
+    fnInitPrinter = True
+    
+    Exit Function
+    
+ErrInitPrinter:
+    sErrMsg = "An error has occurred while initializing the Printer. Err Code: " & _
+        Err.Number & ", Err Desc: " & Err.Description
+    MsgBox "Called by fnInitPrinter, " & sErrMsg, vbExclamation
+    Printer.EndDoc
+End Function
+
+Public Sub subOutput(ByVal sOut As String)
+
+    Printer.CurrentX = nLeftMargin
+    
+    If sOut <> "\page\" Then
+        Printer.Print sOut
+    End If
+    
+    If Printer.CurrentY >= nTextHeight Or sOut = "\page\" Then
+        Printer.Print Space(100) & "< continued >"
+        Printer.NewPage
+        nPageNumber = nPageNumber + 1
+    End If
+    
+End Sub
+
+Public Sub subPrinterEndDocument()
+    On Error Resume Next
+    Printer.NewPage
+    Printer.EndDoc
+    Printer.FontName = sStoreFont
+    Printer.Orientation = vbPRORPortrait
+End Sub
+
+Private Function fnRightJustified(ByVal sIn As String, sFormatString As String) As String
+    fnRightJustified = Format(Format(sIn, sFormatString), String(Len(sFormatString), "@"))
+End Function
+
+Private Function fnCenter(sIn As String, nMaxLen As Integer) As String
+    Dim nDiff As String, nSpcLeft As Integer
+    
+    nDiff = nMaxLen - Len(sIn)
+    If nDiff >= nMaxLen Then
+        fnCenter = sIn
+        Exit Function
+    End If
+    
+    nSpcLeft = Int(nDiff / 2)
+    fnCenter = Space(nSpcLeft) + sIn + Space(nDiff - nSpcLeft)
+End Function
+
+
+Public Function fnGetCompanyName(sCompanyName As String) As Boolean
+    Dim sSql As String, rsTemp As Recordset
+
+    sSql = "SELECT con_name FROM co_company_name"
+
+    If fnGetRecord(rsTemp, sSql, nDB_REMOTE, "fnGetCompanyName") < 0 Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        tfnErrHandler "fnGetCompanyName", 60001, "Company has been set up.  Program will be terminated."
+        Exit Function
+    End If
+    
+    If IsNull(rsTemp!con_name) Then
+        tfnErrHandler "fnGetCompanyName", 60003, "Company is NULL.  Program will be terminated."
+        Exit Function
+    End If
+    
+    sCompanyName = Trim(rsTemp!con_name)
+    
+    If sCompanyName = "" Then
+        tfnErrHandler "fnGetCompanyName", 60003, "Company is NULL.  Program will be terminated."
+        Exit Function
+    End If
+    
+    fnGetCompanyName = True
 End Function
 

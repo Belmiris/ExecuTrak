@@ -30,7 +30,7 @@ Begin VB.Form frmZZFINVMT
    Begin MSComctlLib.ProgressBar PbProgressBar 
       Height          =   264
       Left            =   6924
-      TabIndex        =   11
+      TabIndex        =   8
       Top             =   5748
       Width           =   1896
       _ExtentX        =   3344
@@ -41,7 +41,7 @@ Begin VB.Form frmZZFINVMT
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   10
+      TabIndex        =   7
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -168,12 +168,12 @@ Begin VB.Form frmZZFINVMT
          Height          =   396
          HelpContextID   =   502
          Left            =   4548
-         TabIndex        =   7
+         TabIndex        =   9
          Top             =   4692
          Width           =   1308
          _Version        =   65536
-         _ExtentX        =   2302
-         _ExtentY        =   688
+         _ExtentX        =   2307
+         _ExtentY        =   698
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
@@ -204,7 +204,7 @@ Begin VB.Form frmZZFINVMT
          Height          =   396
          HelpContextID   =   15
          Left            =   7500
-         TabIndex        =   9
+         TabIndex        =   11
          Top             =   4692
          Width           =   1308
          _Version        =   65536
@@ -236,10 +236,10 @@ Begin VB.Form frmZZFINVMT
             Strikethrough   =   0   'False
          EndProperty
       End
-      Begin FACTFRMLib.FactorFrame FactorFrame1 
+      Begin FACTFRMLib.FactorFrame cmdPrintReport 
          Height          =   396
          Left            =   6036
-         TabIndex        =   8
+         TabIndex        =   10
          Top             =   4692
          Width           =   1308
          _Version        =   65536
@@ -257,6 +257,7 @@ Begin VB.Form frmZZFINVMT
          EndProperty
          Caption         =   "Print &Report"
          CaptionPos      =   4
+         ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -283,7 +284,7 @@ Begin VB.Form frmZZFINVMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -296,7 +297,7 @@ Begin VB.Form frmZZFINVMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -456,6 +457,15 @@ Const INISECTION As String = "Incoming Invoice File Location"
 Const INISUBSECTION As String = "filePath"
     
 
+Private Sub cmdPrintReport_Click()
+   frmReports.Show vbModal
+   subSetFocus cmdExitCancelBtn
+End Sub
+
+Private Sub cmdPrintReport_GotFocus()
+    tfnSetStatusBarMessage "Print Report"
+End Sub
+
 Private Sub cmdProcess_Click()
     Dim sFileName As String
     
@@ -464,9 +474,15 @@ Private Sub cmdProcess_Click()
     #End If
     
     subSetExitCancelBtn "Cancel"
+    subEnableCancelBtn False
+    subEnablePrintBtn False
+    subEnableProcessBtn False
+    t_bDataChanged = True
     lstStatus.Clear
     
     If fnFileName(sFileName) Then
+        subShowHourGlass
+        tfnSetStatusBarMessage "Processing, Please Wait..."
         
         If fnIsFile(sFileName) Then
             subDisplayMsg "START PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
@@ -474,9 +490,10 @@ Private Sub cmdProcess_Click()
             If fnProcessRSInvFile(sFileName) Then
                 subDisplayMsg "Processing successfully."
             Else
-                subDisplayMsg "Processing not successfully."
+                subDisplayMsg "Processing Failed."
             End If
             
+            subSetProgress 0
             subDisplayMsg "END PROCESSING FILE " & sFileName & " AT " & Time & " " & Date
         Else
             subDisplayMsg "Input file not found"
@@ -485,6 +502,12 @@ Private Sub cmdProcess_Click()
     Else
         subDisplayMsg "Action cancelled"
     End If
+    
+    subHideHourGlass
+    subEnableCancelBtn True
+    subEnablePrintBtn True
+    DoEvents
+    subSetFocus cmdPrintReport
     
 End Sub
 
@@ -625,7 +648,11 @@ Private Sub subCancel()
     
     End If
     
+    subEnableProcessBtn True
+    DoEvents
+    subSetFocus cmdProcess
     t_nFormMode = IDLE_MODE
+    t_bDataChanged = False
     lstStatus.Clear
     tfnResetScreen 'reset all the buttons
 End Sub
@@ -771,15 +798,19 @@ Private Sub tfnResetScreen()
     On Error Resume Next
     
     subSetExitCancelBtn "EXIT"
-    frmContext.ButtonEnabled(PRINT_UP) = False
+    'frmContext.ButtonEnabled(PRINT_UP) = False
     frmContext.ButtonEnabled(COPY_UP) = False
     mnuExit.Enabled = True
-    mnuPrint.Enabled = False
+    'mnuPrint.Enabled = False
     mnuCopy.Enabled = False
     mnuPaste.Enabled = False
     cmdProcess.Enabled = True
     mnuProcess.Enabled = True
     PbProgressBar.Visible = False
+End Sub
+
+Private Sub mnuPrint_Click()
+    cmdPrintReport_Click
 End Sub
 
 Private Sub mnuProcess_Click()
@@ -840,6 +871,8 @@ Public Sub TBButtonCallBack(ByVal nID As Integer)
             subCancel
         Case EXIT_UP
             subExit
+        Case PRINT_UP
+            cmdPrintReport_Click
     End Select
     
 End Sub
@@ -864,6 +897,28 @@ End Sub
 Public Sub subHideHourGlass()
     Screen.MousePointer = vbDefault
     tmrKeyBoard.Enabled = True
+End Sub
+
+Private Sub subSetFocus(v As Control)
+    On Error Resume Next
+    v.SetFocus
+End Sub
+
+Private Sub subEnableCancelBtn(bOnOff As Boolean)
+    cmdExitCancelBtn.Enabled = bOnOff
+    frmContext.ButtonEnabled(CANCEL_UP) = bOnOff
+    mnuCancel.Enabled = bOnOff
+End Sub
+
+Private Sub subEnablePrintBtn(bOnOff As Boolean)
+    cmdPrintReport.Enabled = bOnOff
+    frmContext.ButtonEnabled(PRINT_UP) = bOnOff
+    mnuPrint.Enabled = bOnOff
+End Sub
+
+Private Sub subEnableProcessBtn(bOnOff As Boolean)
+    cmdProcess.Enabled = bOnOff
+    mnuProcess.Enabled = bOnOff
 End Sub
 
 Private Function fnFileName(sFileName As String) As Boolean

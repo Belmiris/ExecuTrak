@@ -17,6 +17,7 @@ Form=ZZFINVMT.frm
 Module=modErrorHandler; ..\..\..\SHARED\errhndle.bas
 Class=clsErrorHandler; ..\..\..\SHARED\ClsFiles\clserror.cls
 Module=modZZFINVMT; ZZFINVMT.bas
+Form=REPORT.FRM
 IconForm="frmZZFINVMT"
 Startup="frmZZFINVMT"
 HelpFile="FACTOR.HLP"
