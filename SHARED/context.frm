@@ -1,14 +1,14 @@
 VERSION 5.00
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Begin VB.Form frmContext 
    Caption         =   "Toolbar Kit"
-   ClientHeight    =   1488
-   ClientLeft      =   696
-   ClientTop       =   5388
+   ClientHeight    =   1485
+   ClientLeft      =   690
+   ClientTop       =   5385
    ClientWidth     =   2160
    LinkTopic       =   "Form2"
    PaletteMode     =   1  'UseZOrder
-   ScaleHeight     =   1488
+   ScaleHeight     =   1485
    ScaleWidth      =   2160
    Visible         =   0   'False
    Begin VB.PictureBox pctStatusbar 
@@ -28,7 +28,7 @@ Begin VB.Form frmContext
       Height          =   240
       Left            =   288
       ScaleHeight     =   240
-      ScaleWidth      =   1596
+      ScaleWidth      =   1590
       TabIndex        =   0
       Top             =   912
       Width           =   1596
@@ -52,8 +52,8 @@ Begin VB.Form frmContext
    Begin MSComctlLib.ImageList ImageList1 
       Left            =   324
       Top             =   132
-      _ExtentX        =   804
-      _ExtentY        =   804
+      _ExtentX        =   794
+      _ExtentY        =   794
       BackColor       =   16777215
       MaskColor       =   12632256
       _Version        =   393216
@@ -505,11 +505,18 @@ Public Function RunItem(ByVal nID As Integer) As Integer
     End If
 End Function
 
-Public Function RunProgram(sProgram As String) As Boolean
+Public Function RunProgram(sProgram As String, Optional sModuleID As String = "") As Boolean
     #If FACTOR_MENU < 0 Then
         If Not t_oleObject Is Nothing Then
+            'david 08/05/2003  #412827-9
+            If sModuleID = "" Then
+                On Error Resume Next
+                sModuleID = Trim(frmMainForm.efraToolBar.FMName, 3)
+            End If
+            ''''''''''''''''''''''''''''
+            
             subShowBusyState True, VENDOR_UP
-            RunProgram = t_oleObject.RunExe(sProgram)
+            RunProgram = t_oleObject.RunExe(sProgram, sModuleID)
             tfnWaitSeconds DELAY_FOR_START
             subShowBusyState False, VENDOR_UP
             subCheckError
@@ -572,7 +579,7 @@ Public Sub TBMouseMove()
     End If
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     Set objToolbar = Nothing
     Set frmMainForm = Nothing
 End Sub
