@@ -9,6 +9,7 @@ Bonus Code's Tab:
 	Bonus Grade
 	Bonus Type
 	Bonus Frequency
+	Override
 
 Bonus Type, Indetifier, Frequency Tab:
 225	Bonus Frequency Option Control
