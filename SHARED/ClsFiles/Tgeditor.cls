@@ -4238,7 +4238,7 @@ Public Sub SetPattern(ByVal nIndex As Integer, Optional vPtn As Variant, Optiona
 End Sub
 
 Public Sub SetPrompt(ByVal nIndex As Integer, Optional sMsg As Variant)
-    If nIndex >= nColumnCount Then
+    If nIndex >= tgTable.Columns.Count Then
         Exit Sub
     End If
     Dim nCol As Integer
