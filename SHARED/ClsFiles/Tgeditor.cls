@@ -438,7 +438,7 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -549,7 +549,7 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
         Cancel = True
         Exit Sub
     Else
-        If Val(tgTable.Row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Cancel = True
             Exit Sub
         End If
@@ -769,7 +769,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     nECol = fnColumnNumber(Col)
     If nECol >= 0 Then
-        lRow = Val(Bookmark)
+        lRow = val(Bookmark)
         If Not bValidCell(nECol, lRow) Then
             If (nCellChanged(nECol, lRow) And STATUS_WARNING) = STATUS_WARNING Then
                 CellStyle.ForeColor = vbWhite
@@ -783,7 +783,7 @@ Public Property Get FirstRow() As Long
     If IsNull(tgTable.FirstRow) Then
         FirstRow = 0
     Else
-        FirstRow = Val(tgTable.FirstRow)
+        FirstRow = val(tgTable.FirstRow)
     End If
 End Property
 
@@ -812,7 +812,7 @@ Private Function fnCellValue(ByVal nCol As Integer, _
     If IsNull(tgTable.FirstRow) Then
         lCurrRow = lRow
     Else
-        lCurrRow = lRow - Val(tgTable.FirstRow)
+        lCurrRow = lRow - val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
         If lCurrRow = tgTable.Row Then
@@ -1400,7 +1400,7 @@ Public Sub ResetFlags(Optional vRow As Variant, _
     If IsMissing(vRow) Then
         j = GetCurrentRowNumber
     Else
-        j = Val(vRow)
+        j = val(vRow)
     End If
     If IsMissing(vCol) Then
         For i = 0 To nColumnCount - 1
@@ -1602,7 +1602,7 @@ Property Get LastRow() As Long
     If IsNull(tgTable.FirstRow) Then
         LastRow = nLastTableRow
     Else
-        LastRow = Val(tgTable.FirstRow) + nLastTableRow
+        LastRow = val(tgTable.FirstRow) + nLastTableRow
     End If
 End Property
 
@@ -1864,7 +1864,7 @@ Private Sub fnSaveChangedKeys()
     End If
     If sKeyFields(nKeyColumnCount, lKeyRows) = "  " Then
         sKeyFields(nKeyColumnCount, lKeyRows) = bmTemp
-        If Val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
+        If val(GridArray(nFlagColumn, lEditingRow)) = ROW_ADDED Then
             For nCol = 0 To nKeyColumnCount - 1
                 sKeyFields(nCol, lKeyRows) = GridArray(nKeyColumns(nCol), lEditingRow)
             Next
@@ -3178,12 +3178,12 @@ Public Function GetCurrentRowNumber() As Long
     If IsNull(tgTable.FirstRow) Then
         lRow = 0
     Else
-        lRow = Val(tgTable.FirstRow)
+        lRow = val(tgTable.FirstRow)
     End If
     If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + Val(tgTable.Row)
+        GetCurrentRowNumber = lRow + val(tgTable.Row)
     End If
 
 End Function
@@ -3387,7 +3387,8 @@ End Sub
 Public Sub FillWithArray(arryData() As Variant, _
                          Optional vClear As Variant, _
                          Optional vValid As Variant, _
-                         Optional bResetSortOrder As Boolean = True)
+                         Optional bResetSortOrder As Boolean = True, _
+                         Optional bDoEvents As Boolean = True)
     Dim i As Long
     Dim lRow As Long
     Dim nCol As Integer
@@ -3470,10 +3471,17 @@ Public Sub FillWithArray(arryData() As Variant, _
             tgTable.Col = FirstEditableCol
         End If
         tgTable.Rebind
-        DoEvents
+        
+        'david 03/16/2004
+        If bDoEvents Then
+            DoEvents
+        End If
     Else
         Rebind
-        DoEvents
+        'david 03/16/2004
+        If bDoEvents Then
+            DoEvents
+        End If
     End If
     
     bClearData = False
@@ -4402,7 +4410,7 @@ Public Sub ReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal R
             nIndex = -1
         End If
     Else
-        nIndex = Val(StartLocation)
+        nIndex = val(StartLocation)
         If nIndex < 0 Or nIndex >= lRows Then
             nIndex = -9999
         End If
@@ -4627,7 +4635,7 @@ Private Function fnRound(vLastRow As Variant) As Long
     If IsNull(vLastRow) Then
         fnRound = 0
     Else
-        fnRound = Val(vLastRow)
+        fnRound = val(vLastRow)
     End If
 End Function
 
@@ -4771,7 +4779,7 @@ Private Function fnIndexFromBookmark(Bookmk As Variant, ReadPriorRows As Boolean
         ' take the Val() to get the array index
         ' this is the opposite of the function in MakeBookmark()
         Index = -9999
-        fnIndexFromBookmark = Val(Bookmk)
+        fnIndexFromBookmark = val(Bookmk)
     End If
 End Function
 
@@ -5119,13 +5127,13 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
                 dfData1 = 0
             Else
-                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                dfData1 = val(vData(m_arySortCol(n, nIndex).nColIndex, j))
             End If
         
             If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, k)) Then
                 dfData2 = 0
             Else
-                dfData2 = Val(vData(m_arySortCol(n, nIndex).nColIndex, k))
+                dfData2 = val(vData(m_arySortCol(n, nIndex).nColIndex, k))
             End If
             
             If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
@@ -5326,7 +5334,7 @@ Private Sub subGetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = Val(.Item(i))
+                lTemp(i) = val(.Item(i))
             Next i
         End If
     End With
