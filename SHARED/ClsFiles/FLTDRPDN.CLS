@@ -1939,8 +1939,10 @@ Private Sub subInputSelected()
             If Not m_clsEdit Is Nothing Then
                 lLastRow = m_clsEdit.GetCurrentRowNumber
                 If colTemp.Item(1).CursorControl Then
-                    m_clsEdit.GotoNextColumn nLastColumn
-                    DoEvents
+                    If m_clsEdit.GetEditColumnCount > 1 Then
+                        m_clsEdit.GotoNextColumn nLastColumn
+                        DoEvents
+                    End If
                     If lLastRow = m_clsEdit.GetCurrentRowNumber Then
                         For i = 1 To colTemp.Count
                             If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
