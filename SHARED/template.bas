@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -364,7 +364,6 @@ Public Const CLOSEPO_UP = 12500
 Public Const POAPPROV_UP = 12550
 Public Const PRAPPROV_UP = 12600
 Public Const PRPRINT_UP = 12650
-Public Const TSTPRINT_UP = 12900
 
 'The following bitmaps need to be loaded into the form
 'And define 2 public functions to supply the bitmaps and module names:
@@ -374,7 +373,9 @@ Public Const IMPORT_UP = 12700
 Public Const IMPORT_DOWN = 12750
 Public Const EXPORT_UP = 12800
 Public Const EXPORT_DOWN = 12850
-
+Public Const TSTPRINT_UP = 12900
+Public Const EDIVNDXR_UP = 13000
+Public Const EDIUOMXR_UP = 13100
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
@@ -406,13 +407,13 @@ Private Const Log10 = 2.30258509299405
 Private SYS_PARM_14000 As String
 
 Public Function tfnIS_RM() As Boolean
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
-        strSQl = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, SQL_PASSTHROUGH)
+        strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
         If Not rsTemp.EOF Then
             If Not IsNull(rsTemp!parm_field) Then
                 SYS_PARM_14000 = UCase(Trim$(rsTemp!parm_field))
@@ -547,7 +548,7 @@ Public Function tfnLockRow(sProgramID As String, _
 
     Dim nPos1 As Integer
     Dim nPos2 As Integer
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     Dim sCriteria As String
     Dim sUserID As String
@@ -571,8 +572,8 @@ Public Function tfnLockRow(sProgramID As String, _
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
-        strSQl = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
+        strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         rsTemp.Close
         sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
@@ -584,10 +585,10 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQl = UCase(sSql)
-    nPos2 = InStr(strSQl, " WHERE ")
+    strSQL = UCase(sSql)
+    nPos2 = InStr(strSQL, " WHERE ")
     If nPos2 > 0 Then
-        nPos1 = InStr(strSQl, " ORDER ")
+        nPos1 = InStr(strSQL, " ORDER ")
         If nPos1 = 0 Then
             nPos1 = Len(sSql) + 1
         End If
@@ -611,8 +612,8 @@ Public Function tfnLockRow(sProgramID As String, _
     Next i
 
     On Error GoTo errOpenRecord
-    strSQl = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
+    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     If rsTemp.RecordCount > 0 Then
         t_lLockHandle = rsTemp.Fields(0)
         If t_lLockHandle = 0 Then
@@ -655,7 +656,7 @@ errOpenRecord:
         MsgBox "Cannot lock table"
     #Else
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQl
+            tfnErrHandler SUB_NAME, strSQL
         End If
     #End If
     Err.Clear
@@ -706,15 +707,15 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         Exit Function
     End If
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
     tfnUnlockRow = False
     On Error GoTo errUnlock
     If IsMissing(vTable) Then
         While nHandleCount > 0
-            strSQl = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
-            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
+            strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
             If rsTemp.RecordCount > 0 Then
                 If rsTemp.Fields(0) > 0 Then
                     nHandleCount = nHandleCount - 1
@@ -735,8 +736,8 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         sTable = LCase(Trim(vTable))
         For i = 0 To nHandleCount
             If sTable = arryLockHandles(i).m_sTable Then
-                strSQl = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
-                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
                         nHandleCount = nHandleCount - 1
@@ -761,7 +762,7 @@ errUnlock:
         MsgBox "Cannot unlock table"
     #Else
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQl
+            tfnErrHandler SUB_NAME, strSQL
         End If
     #End If
 End Function
@@ -1049,14 +1050,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1065,7 +1066,7 @@ Public Function tfnRound(vTemp As Variant, _
     End If
 End Function
 
-Public Function tfnOpenLocalDatabase() As Database
+Public Function tfnOpenLocalDatabase() As DataBase
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1158,7 +1159,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
