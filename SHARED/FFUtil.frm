@@ -2533,7 +2533,7 @@ End Sub
 'Passed Variables: none
 'Returns         : none
 '
-Private Sub tfnResetScreen()
+Public Sub tfnResetScreen()
     
     On Error Resume Next
     
