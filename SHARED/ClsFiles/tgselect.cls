@@ -398,9 +398,9 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
             'david 02/01/2001
             If Shift = 0 And KeyCode <> 0 Then
                 Dim i As Integer
+                
                 For i = m_tgTable.SelBookmarks.Count - 1 To 0 Step -1
                     m_tgTable.SelBookmarks.Remove i
-                    SetRowHighLighted m_bRowHighLighted
                 Next i
             ElseIf (Shift And vbCtrlMask) > 0 And (KeyCode = 65 Or KeyCode = 97) Then
                 SelectAll
@@ -433,13 +433,13 @@ Public Sub LostFocus()
     End If
 End Sub
 
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal Y As Integer)
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal y As Integer)
     If Button = vbLeftButton Then
         If Shift <> vbShiftMask Then
             m_nLastClickedRow = -1
         End If
         m_nShiftControl = Shift
-        m_nClickPointY = Y
+        m_nClickPointY = y
         DoEvents
     End If
 End Sub
@@ -487,8 +487,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
 End Property
 
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 '    If Not m_tgcSelector Is Nothing Then
 '        m_tgcSelector.Clear
 '    End If

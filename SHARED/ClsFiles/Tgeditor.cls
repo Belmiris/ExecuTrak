@@ -427,11 +427,8 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     End If
     bForcedEditing = False
     lEditingRow = -1
-'    If nCol = nColumnCount - 1 Then
-'        If fnGotoNextRow Then
-'            tgTable.col = nEditColumns(0)
-'        End If
-'    End If
+
+    SetRowHighLighted True, True
 End Sub
 Property Let AllowAddNew(bStatus As Boolean)
     If bAllowAddNew Then
@@ -466,19 +463,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -2230,10 +2227,11 @@ Public Sub SetCurrentRowData(vData() As Variant)
     GridArray(nFlagColumn, lRow) = ROW_ADDED
 End Sub
 
-Public Sub SetRowHighLighted(bHighLighted As Boolean)
+Public Sub SetRowHighLighted(bHighLighted As Boolean, _
+                             Optional bForceHighLighted As Boolean = False)
     
     If bHighLighted Then
-        If m_nRowHighLighted = STYLE_HIGHLIGHT Then
+        If m_nRowHighLighted = STYLE_HIGHLIGHT And (Not bForceHighLighted) Then
             Exit Sub
         End If
     Else
@@ -2943,7 +2941,7 @@ Public Function ValidData(Optional ByVal lRow As Variant) As Boolean
     Next i
 End Function
 
-Public Function FillWithSQL(dbSource As DataBase, _
+Public Function FillWithSQL(dbSource As Database, _
                             strSQL As String, _
                             Optional nDB As Variant, _
                             Optional bRefresh As Variant, _
@@ -2997,8 +2995,8 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         End If
     #End If
     
-    sODBCErrors = err.Description
-    If err.Number = 3146 Then
+    sODBCErrors = Err.Description
+    If Err.Number = 3146 Then
         If Not engDBEngine Is Nothing Then
             With engDBEngine.Errors
                 If .Count > 0 Then
@@ -3020,7 +3018,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
-            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(err.Number) & vbCrLf & err.Description
+            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -3046,7 +3044,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     If sMsg <> "" Then
         MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
-    err.Clear
+    Err.Clear
 
 End Sub
 
@@ -3470,8 +3468,8 @@ extFill:
     On Error GoTo 0
     Exit Sub
 errFill:
-    MsgBox err.Description, nCRITICAL   ', App.Caption
-    err.Clear
+    MsgBox Err.Description, nCRITICAL   ', App.Caption
+    Err.Clear
     Resume extFill
 End Sub
 
@@ -3636,14 +3634,14 @@ retTrue:
     On Error GoTo 0
     Exit Function
 retFalse:
-    If err.Number = 13 Then
+    If Err.Number = 13 Then
         lRow = tgTable.Row
         Resume Next
-    ElseIf err.Number = 6148 Then
+    ElseIf Err.Number = 6148 Then
         SendKeys "{DOWN}", True
     Else
         fnGotoNextRow = False
-        err.Clear
+        Err.Clear
         Resume retTrue
     End If
 End Function
@@ -3669,7 +3667,7 @@ retTrue1:
     On Error GoTo 0
     Exit Function
 retFalse1:
-    err.Clear
+    Err.Clear
     Resume retTrue1
 End Function
 
@@ -3859,11 +3857,11 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
     Exit Sub
     
 errKeyDown:
-    If err.Number <> 28 Then
+    If Err.Number <> 28 Then
         On Error GoTo 0
         Resume
     End If
-    err.Clear
+    Err.Clear
     nKeyProcessing = KEY_P_FINISHED
 
 End Sub
@@ -4261,7 +4259,7 @@ errRowChanging:
 '        'Statck overflow
 '        Resume
 '    End If
-    err.Clear
+    Err.Clear
     bRowChanging = False
 End Function
 
@@ -4422,7 +4420,7 @@ End Function
 
 Public Function MakeBookmark(ByVal Index As Long) As Variant
     'Generate a bookmark
-    MakeBookmark = str$(Index)
+    MakeBookmark = Str$(Index)
 End Function
 Public Sub AddData(ByVal RowBuf As RowBuffer, NewRowBookmark As Variant)
 
@@ -4512,7 +4510,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4585,9 +4583,9 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
-        err.Number & vbCrLf & "Error Desc: " & err.Description, vbExclamation
+        Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
 
 Public Sub HeadClick(ColIndex As Integer, Optional bReValidate As Boolean = False)
@@ -4615,7 +4613,7 @@ Public Sub SortCol(nSortCol As Integer, _
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not m_bSortWhenGridNotvalid Then
         If Not ValidData Then
@@ -4677,7 +4675,7 @@ Public Sub SortCol(nSortCol As Integer, _
     
     FillWithArray vData, True, Not bReValidate
     
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
@@ -4692,7 +4690,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     nSortCount = -1
     
@@ -4770,7 +4768,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-errTrap:
+ErrTrap:
     'error, no sort
 End Function
 
