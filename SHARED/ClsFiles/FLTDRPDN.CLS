@@ -395,7 +395,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
                                 tgDropDown.Columns(i).Width = objCol.Width - SCROLLBAR_WIDTH
                             End If
                         Else
-                                                                                                                                                                                                                     tgDropDown.Columns(i).Width = objCol.Width
+                            tgDropDown.Columns(i).Width = objCol.Width
                         End If
                     End If
                     If .Caption = "" Then
@@ -539,7 +539,7 @@ End Sub
     GetWindowRect n_hWnd, myRect
 
     myPoint.X = myRect.Left
-    myPoint.Y = myRect.Top
+    myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
@@ -548,7 +548,7 @@ End Sub
             nLeft = Screen.TwipsPerPixelX
         End If
 '        nTop = (myPoint.Y - 1) * Screen.TwipsPerPixelY    'For True Gridtable
-        nTop = myPoint.Y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
+        nTop = myPoint.y * Screen.TwipsPerPixelY       'For textbox, VedioSoftElastic
         If nTop < 0 Or nTop > 10000 Then
             nTop = Screen.TwipsPerPixelX
         End If
@@ -1808,11 +1808,11 @@ Public Sub LostFocus(objControl As Object)
     End If
 End Sub
 
-Public Sub MouseUp(Y As Single)
+Public Sub MouseUp(y As Single)
     If m_bLocked Then
         Exit Sub
     End If
-    nClickPointY = Y
+    nClickPointY = y
 End Sub
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
@@ -2229,7 +2229,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.title
     End If
     Err.Clear
 
@@ -2565,7 +2565,7 @@ Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As
     Dim j As Integer
     Dim k As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If InStr(strSQL, szUNION) <= 0 Then
         fnCnvtOrderByFieldsToColIndex = sOrderByList
@@ -2645,7 +2645,7 @@ Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As
     
     Exit Function
     
-errTrap:
+ErrTrap:
     'error, return empty order by
     fnCnvtOrderByFieldsToColIndex = ""
 End Function

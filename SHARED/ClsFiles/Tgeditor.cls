@@ -491,19 +491,19 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -1235,9 +1235,9 @@ End Property
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
 '''''''''''''''''
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
-    subSaveHighlightedRowID Button, Shift, x, y
+    subSaveHighlightedRowID Button, Shift, X, y
 End Sub
 
 Public Property Get OldValue() As Variant
@@ -2278,9 +2278,9 @@ Public Sub SetRowHighLighted(bHighLighted As Boolean, _
         End If
     End If
     
-    Dim m_styRow As Style            ' row style
-    Dim m_styCurrentCell As Style    ' current cell style
-    Dim m_styHighLightedRow As Style
+    Dim m_styRow As style            ' row style
+    Dim m_styCurrentCell As style    ' current cell style
+    Dim m_styHighLightedRow As style
 
     tgTable.ClearCellStyle dbgAllCells
     
@@ -3102,7 +3102,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.title
     End If
     Err.Clear
 
@@ -3749,6 +3749,7 @@ End Property
 Property Get GetChangedRowCount()
     GetChangedRowCount = nChangedCount
 End Property
+
 Public Sub GetChangedRow(vData() As Variant, nCount As Integer, ByVal lIndex As Long)
     Dim i As Integer
     Dim lRow As Long
@@ -3766,20 +3767,127 @@ Public Sub GetChangedRow(vData() As Variant, nCount As Integer, ByVal lIndex As 
     End If
     nCount = nMaxCol
 End Sub
-Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
 
+'return True if the text is changed
+Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCheck As Boolean = False) As Boolean
+    Const sValidKeys As String = " `1234567890-=qwertyuiop[]\asdfghjkl;'zxcvbnm,./~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:""""ZXCVBNM<>?"
+    
     Dim lRow As Long
     Dim nCol As Integer
     
     On Error GoTo errKeyDown
+    
+    'david 05/07/2002
+    If Shift = 0 And bRegExpCheck Then
+        Dim nCode As Integer
+        Dim nLen As Integer
+        Dim szText As String
+        Dim sTemp As String
+        
+        'navigation keys
+        Select Case KeyCode
+        Case vbKeyReturn, vbKeyUp, vbKeyDown, vbKeyLeft, vbKeyRight, vbKeyHome, vbKeyEnd, _
+           vbKeyPageUp, vbKeyPageDown, vbKeyInsert, vbKeyF1, vbKeyF2, vbKeyF3, vbKeyF4, vbKeyF5, _
+           vbKeyF6, vbKeyF7, vbKeyF8, vbKeyF9, vbKeyF10, vbKeyF11, vbKeyF12
+            KeyDown = False
+        Case Else
+            If tgTable.EditActive Then
+                sTemp = fnCellValue(tgTable.col, lEditingRow)
+                
+                If KeyCode = vbKeyBack Then
+                    If sTemp <> "" Then
+                        If tgTable.SelStart <= 0 And tgTable.SelLength = 0 Then
+                            szText = sTemp
+                            KeyDown = False
+                        Else
+                            On Error Resume Next
+                            If tgTable.SelLength = 0 Then
+                                If tgTable.SelStart >= Len(sTemp) Then
+                                    szText = Left(sTemp, tgTable.SelStart - 1)
+                                Else
+                                    szText = Mid(sTemp, 1, tgTable.SelStart - 1) + Mid(sTemp, tgTable.SelStart + 1)
+                                End If
+                            Else
+                                szText = Mid(sTemp, 1, tgTable.SelStart) + Mid(sTemp, tgTable.SelStart + tgTable.SelLength + 1)
+                            End If
+                            On Error GoTo 0
+                        End If
+                        
+                        If szText <> sTemp Then
+                            KeyDown = True
+                        End If
+                    Else
+                        szText = ""
+                    End If
+                ElseIf KeyCode = vbKeyDelete Then
+                    If sTemp <> "" Then
+                        If tgTable.SelStart >= Len(sTemp) And tgTable.SelLength = 0 Then
+                            szText = sTemp
+                            KeyDown = False
+                        Else
+                            If tgTable.SelStart <= 0 Then
+                                On Error Resume Next
+                                If tgTable.SelLength = 0 Then
+                                    szText = Mid(sTemp, tgTable.SelStart + 2)
+                                Else
+                                    szText = Mid(sTemp, tgTable.SelStart + tgTable.SelLength + 1)
+                                End If
+                                On Error GoTo 0
+                            Else
+                                On Error Resume Next
+                                If tgTable.SelLength = 0 Then
+                                    szText = Mid(sTemp, 1, tgTable.SelStart) + Mid(sTemp, tgTable.SelStart + 2)
+                                Else
+                                    szText = Mid(sTemp, 1, tgTable.SelStart) + Mid(sTemp, tgTable.SelStart + tgTable.SelLength + 1)
+                                End If
+                                On Error GoTo 0
+                            End If
+                            
+                            If szText <> sTemp Then
+                                KeyDown = True
+                            End If
+                        End If
+                    Else
+                        szText = ""
+                    End If
+                ElseIf Shift = 0 And InStr(sValidKeys, Chr(KeyCode)) > 0 Then
+                    If tgTable.SelLength = 0 Then
+                        If tgTable.SelStart <= 0 Then
+                            szText = Chr(KeyCode) & sTemp
+                        ElseIf tgTable.SelStart >= Len(sTemp) Then
+                            szText = sTemp & Chr(KeyCode)
+                        Else
+                            szText = Mid(sTemp, 1, tgTable.SelStart) + Chr(KeyCode) + Mid(sTemp, tgTable.SelStart + 1)
+                        End If
+                    Else
+                        szText = Mid(sTemp, 1, tgTable.SelStart) + Chr(KeyCode) + Mid(sTemp, tgTable.SelStart + tgTable.SelLength + 1)
+                    End If
+                End If
+
+                If Not KeyDown And sTemp <> szText Then
+                    nCode = PRegExpMatch(sPatternCode(nCol), Len(sPatternCode(nCol)), szText)
+                    
+                    If nCode < 0 Or (nCode <> 0 And nCode <> tgTable.SelStart + 2) Then
+                        KeyDown = False
+                    Else
+                        KeyDown = True
+                    End If
+                End If
+            Else
+                KeyDown = True
+            End If
+        End Select
+    End If
+    
     If nKeyProcessing <> KEY_P_FINISHED Then
         If nKeyProcessing = KEY_P_CHANGE_ROW Then
             nKeyProcessing = KEY_P_FINISHED
         Else
             KeyCode = 0
-            Exit Sub
+            Exit Function
         End If
     End If
+    
     nKeyProcessing = KEY_P_OTHER
     
     If nReturnKeyAction = RETURN_KEY_RIGHT Then
@@ -3788,7 +3896,7 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
                 fnGotoNextRow
             End If
             nKeyProcessing = KEY_P_FINISHED
-            Exit Sub
+            Exit Function
         End If
     End If
 
@@ -3813,7 +3921,7 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
                     End If
                     KeyCode = 0
                     nKeyProcessing = KEY_P_FINISHED
-                    Exit Sub
+                    Exit Function
                 End If
             End If
         End If
@@ -3931,7 +4039,7 @@ Public Sub KeyDown(KeyCode As Integer, Shift As Integer)
     If nKeyProcessing <> KEY_P_CHANGE_ROW Then
         nKeyProcessing = KEY_P_FINISHED
     End If
-    Exit Sub
+    Exit Function
     
 errKeyDown:
     If Err.Number <> 28 Then
@@ -3941,7 +4049,8 @@ errKeyDown:
     Err.Clear
     nKeyProcessing = KEY_P_FINISHED
 
-End Sub
+End Function
+
 Public Function Keypress(KeyAscii As Integer) As Boolean
 
 '
@@ -4594,7 +4703,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -4668,7 +4777,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-errTrap:
+ErrTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -4727,7 +4836,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
     Dim bCompareExp As Boolean
     Dim sSortCols As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     m_bColIsSorted = False
     
@@ -4794,7 +4903,7 @@ Public Function SortCol(nSortCol As Integer) As Boolean
         SortCol = True
     End If
     
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -4809,7 +4918,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     nSortCount = -1
     
@@ -4946,7 +5055,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-errTrap:
+ErrTrap:
     'error, no sort
 End Function
 
@@ -5004,11 +5113,11 @@ End Function
 'TO SET/RESTORE HE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(CANCEL As Integer)
+Public Sub SelChange(Cancel As Integer)
     If lCountHighlightedID = 0 Then
-        CANCEL = True
+        Cancel = True
     Else
-        CANCEL = False
+        Cancel = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -5052,7 +5161,7 @@ Private Sub subSelectRow(ByVal lRow As Long)
     End With
 End Sub
 
-Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, X As Single, y As Single)
     Dim j As Long
     Dim k As Long
     Dim lSelected() As Long
@@ -5069,7 +5178,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
         Exit Sub
     End If
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5090,7 +5199,7 @@ Debug.Print "j="; j
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-errTrap:
+ErrTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
