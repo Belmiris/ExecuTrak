@@ -109,6 +109,7 @@ Option Explicit
     Private m_nMode As Integer
     Private m_fLastTimeShow As Single
     Private m_bUseEditorRow As Boolean
+    Private m_fShowDelay As Single
 
     #If Win32 Then
         Private Declare Function ScreenToClient Lib "user32" _
@@ -284,7 +285,7 @@ Public Sub ShowColumnExt()
             Exit Sub
         End If
     End With
-    If Timer - m_fLastTimeShow < SHOW_DELAY Then
+    If Timer - m_fLastTimeShow < m_fShowDelay Then
         Exit Sub
     End If
 
@@ -306,6 +307,10 @@ Public Sub ShowColumnExt()
     End If
     
 End Sub
+Property Let ShowDelay(ByVal fDelay As Single)
+    m_fShowDelay = fDelay
+End Property
+
 Property Let StyleDefault(nDef As Integer)
     nStyleDefault = nDef
 End Property
@@ -700,6 +705,7 @@ Private Sub Class_Initialize()
     nLastMessageRow = -1
     nPositionDefault = POS_LEFT
     nStyleDefault = STYLE_CELLTEXT
+    m_fShowDelay = SHOW_DELAY
     m_bExternalPrompt = True
     m_bUseEditorRow = False
     m_nMode = MODE_TIMER
