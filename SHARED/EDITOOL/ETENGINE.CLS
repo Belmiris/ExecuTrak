@@ -591,7 +591,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     
     If m_sEDIType = EDI_TYPE_R Then
         sType = "B"
-        
+
+'david 04/01/00
+'USE THE EXISTING SQL STATEMENT
+'IT PRODUCES THE SAME RESULT COMPARED BOB'S SQL BELOW #Else statement
+#If True Then
         strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal," _
             & " fml_int_ext, fml_date FROM fm_lading, fm_movement WHERE fml_date" _
             & " BETWEEN " & tfnDateString(m_sStartDate, True) & " AND " _
@@ -654,6 +658,65 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
 
          strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+#Else
+        'david 04/01/00
+        'NOT USED
+        'BOB'S SQL STATEMENT
+        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
+            & " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn," _
+            & " fmd_dest_code, fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount"
+            
+        strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
+        strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
+        strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
+        strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
+        strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
+        strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
+        strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
+        strSQL = strSQL & " ssfactor.inv_header inv_header,"
+        strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
+        
+        strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
+        strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
+        strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
+        strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
+        strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
+        strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
+        strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
+        strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
+        strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
+        strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
+        strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
+        
+        strSQL = strSQL & " AND fml_date BETWEEN " & tfnDateString(m_sStartDate, True)
+        strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
+        strSQL = strSQL & " AND fmm_dispatch_flag = 'C'"
+        strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule)
+        strSQL = strSQL & ") AND fmldt_type = '" & sType & "'"
+        
+        If m_nTPTCount >= 0 Then
+            Select Case nTypeCode
+            Case "1"
+                If Not IsMissing(vExtractFrom) Then
+                    strSQL = strSQL & " AND (fmldt_trn IN " & _
+                        fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+                End If
+            Case "3"
+                strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
+                    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+            End Select
+        End If
+        
+        strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+#End If
 
         m_nErrorNumber = EC_GET_RECORD_R
     
@@ -673,51 +736,57 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Else
         sType = "I"
 
-        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code," _
-            & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmmb_dv_line, ivh_link," _
-            & " ivh_prodtcl, fml_int_ext, fml_vendor, fml_terminal, fmmb_dv_vol namount"
+        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
+        strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
+        strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
+        strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
 
+        strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
+        strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
+        strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
+        strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
+        strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
 
-strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
-strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
-strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
-strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
-strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
-strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement And fm_delivery.fmd_movement"
-strSQL = strSQL & " = fm_delvr_d.fmdd_movement AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice AND"
-strSQL = strSQL & " fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice AND fm_mv_bal.fmmb_movement ="
-strSQL = strSQL & " fm_delivery.fmd_movement AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk AND"
-strSQL = strSQL & " fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr AND fm_mv_bal.fmmb_movement ="
-strSQL = strSQL & " fm_lading.fml_movement AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr AND"
-strSQL = strSQL & " fm_lading.fml_movement = fm_lading_d.fmld_movement AND fm_lading.fml_bl_nbr ="
-strSQL = strSQL & " fm_lading_d.fmld_bl_nbr AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr AND"
-strSQL = strSQL & " fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement AND"
-strSQL = strSQL & " fm_lad_tax.fmldt_trn = tx_use_link.tul_trn AND"
-strSQL = strSQL & " fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link AND fm_delvr_d.fmdd_invoice ="
-strSQL = strSQL & " fm_lad_tax.fmldt_bl_nbr AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link AND"
-strSQL = strSQL & " fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line AND"
-strSQL = strSQL & " fm_movement.fmm_dispatch_flag='C' AND (fm_lad_tax.fmldt_type='" + sType + "') AND"
-strSQL = strSQL & " (" & fnAppenCriteria("tul_sched", sSchedule) + ") AND"
-strSQL = strSQL & " fml_date BETWEEN " & tfnDateString(m_sStartDate, True) & " AND "
-strSQL = strSQL & tfnDateString(m_sEndDate, True)
-            
-            strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-        
-        m_nErrorNumber = EC_GET_RECORD_R
+        strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
+        strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
+        strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
+        strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
+        strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
+        strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
+        strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
+        strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
+        strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
+        strSQL = strSQL & " AND fm_delvr_d.fmdd_invoice = fm_lad_tax.fmldt_bl_nbr"
+        strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
+        strSQL = strSQL & " AND fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line"
+        strSQL = strSQL & " AND fm_movement.fmm_dispatch_flag='C'"
+        strSQL = strSQL & " AND (fm_lad_tax.fmldt_type='" + sType + "')"
+        strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
+        strSQL = strSQL & " AND fml_date BETWEEN " + tfnDateString(m_sStartDate, True)
+        strSQL = strSQL & " AND " + tfnDateString(m_sEndDate, True)
+        strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
     
-            Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
-            
-            If rsTemp Is Nothing Then
-                Exit Function
-            End If
+        m_nErrorNumber = EC_GET_RECORD_R
 
-            If fnCheckExitCancel Then
-                Exit Function
-            End If
-            
-            If Not fnFillCollection(sSchedule, rsTemp, colTemp) Then
-                Exit Function
-            End If
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+        
+        If rsTemp Is Nothing Then
+            Exit Function
+        End If
+
+        If fnCheckExitCancel Then
+            Exit Function
+        End If
+        
+        If Not fnFillCollection(sSchedule, rsTemp, colTemp) Then
+            Exit Function
+        End If
     End If
 
     'retrieve wholesale fuel taxes
@@ -790,10 +859,6 @@ Private Function fnFillCollection(sSchedule As String, rsTemp As Recordset, colT
     Dim sTemp As String
     Dim sType As String
     
-    Dim lMovement As Long
-    Dim lBol As Long
-    Dim nDvLine As Integer
-    
     m_nErrorNumber = EC_INITIAL
     
     With rsTemp
@@ -801,10 +866,6 @@ Private Function fnFillCollection(sSchedule As String, rsTemp As Recordset, colT
             If colTemp Is Nothing Then
                 Set colTemp = New Collection
             End If
-            
-            lMovement = rsTemp!fmm_movement
-            lBol = rsTemp!fmldt_bl_nbr
-            nDvLine = rsTemp!fmmb_dv_line
             
             While Not .EOF
                 Set ciTemp = New ETFMTaxRecord
