@@ -69,6 +69,7 @@ declare
 	prototype fnFindFile(STRING, STRING);
 	prototype fnFinishReboot(STRING);
 
+
 // the script starts here
 program
 
@@ -77,36 +78,35 @@ StartHere:
 
 	StrSub(szTemp, CMDLINE, 0, 8);
 	if szTemp = "CPYLOCAL" then
-        	CopyLocalDB("Second");
-
-        	exit;
+	        	CopyLocalDB("Second");
+	        	exit;
 	endif;
-        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
 
-        //set installation header
-        szMsg = "Installing " + PRODUCT_NAME;
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-                szMsg = szMsg + "\nForced Installation";
-        endif;
-        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
-        SetTitle(szMsg , 24, WHITE);
+        	INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
 
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+	//set installation header
+	szMsg = "Installing " + PRODUCT_NAME;
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+	        szMsg = szMsg + "\nForced Installation";
+	endif;
+	szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+	SetTitle(szMsg , 24, WHITE);
+	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+		INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
 		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
-                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
-                szForceInstall = "1 ";
-        else
-                szForceInstall = "0 ";
+	                + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+	        szForceInstall = "1 ";
+	else
+	        szForceInstall = "0 ";
 	endif;
 
-        if( CreateFile( nvFileOut, WINSYSDIR, "PFTSETUP.TXT" ) < 0 ) then
-
-    		MessageBeep( 0 );
-                MessageBox( "PFTSETUP.TXT could not be opened", SEVERE );
-            abort;
+	if( CreateFile( nvFileOut, WINSYSDIR, "PFTSETUP.TXT" ) < 0 ) then
+		MessageBeep( 0 );
+	        	MessageBox( "PFTSETUP.TXT could not be opened", SEVERE );
+	    	abort;
 	else
-                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+	        	LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
 		LOGWRITE(LOGMSG);
 	endif;   
 
@@ -119,7 +119,7 @@ StartHere:
 	RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
 
 	// set title for all dialog boxes
-        SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE + "Options");
+        	SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE + "Options");
 	SetDialogTitle(DLG_ASK_TEXT, WELCOME_TITLE);
 	SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
 	SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
@@ -249,17 +249,17 @@ StartCopy:
         //copy setup.exe files to windows\temp for reboot and run second time
         CopySetup();
 
-        szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
+        	szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
 
 	LOGMSG="INSTALLING IN : " + szBaseDirectory;
 	LOGWRITE(LOGMSG);
 
-        Disable(HOURGLASS);
-        SdShowMsg("", FALSE);
+	Disable(HOURGLASS);
+	SdShowMsg("", FALSE);
 
 	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
 	Enable(STATUS);
-        StatusUpdate(ON, 90);
+        	StatusUpdate(ON, 90);
 	
 	Enable(SELFREGISTERBATCH);
 	FileSetBeginDefine("All Files");
@@ -283,7 +283,6 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 
                 TARGETDIR = szBaseDirectory ^ "OLE";
-
                 LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
@@ -365,7 +364,8 @@ StartCopy:
 		LOGWRITE(LOGMSG);
 
                 // These go into the FACTOR\EXECTRAK directory
-                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
+                if (CompressGet("factbin.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
                         MessageBox("FACTBIN.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -378,7 +378,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("factole.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTOLE.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -391,7 +392,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF crystal.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("crystal.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CRYSTAL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -399,7 +401,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF custctl.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
         
-                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("custctl.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("CUSTCTL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -410,7 +413,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF factdll.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("factdll.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("FACTDLL.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -421,7 +425,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF rtm.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("rtm.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("RTM.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -435,7 +440,8 @@ StartCopy:
                 LOGMSG="START NORMAL COPY OF shared.z FILES IN " + TARGETDIR;
                 LOGWRITE(LOGMSG);
 
-                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
+                if (CompressGet("shared.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+	      COMP_UPDATE_SAME | SHAREDFILE | SELFREGISTER) < 0) then
                         MessageBox("SHARED.Z could not be decompressed", SEVERE);
                         goto ZFAILURE;
                 endif;
@@ -499,25 +505,26 @@ StartCopy:
         LOGWRITE(LOGMSG);
 
 	SetStatusWindow(91, "Registering DLLs and OCXs...");
+
 	Do(SELFREGISTRATIONPROCESS);
         
 	SetStatusWindow(95, "Registering DLLs and OCXs...");
 
-        StatusUpdate(OFF, 0);
-
-        
-        SetStatusWindow(97, "CREATE SHORTCUTS...");
-
+	StatusUpdate(OFF, 0);
+	
+	
+	SetStatusWindow(97, "CREATE SHORTCUTS...");
+	
 	szFolder = COMPANY_NAME ^ PRODUCT_NAME;
-
-        szAppDir = szBaseDirectory;
+	
+	szAppDir = szBaseDirectory;
 
 	// create folder shortcuts
 	LOGMSG="CREATING FOLDER SHORTCUTS";
 	LOGWRITE(LOGMSG);
 
 	szSCIcon = "";
-        szSCWork = szBaseDirectory;
+        	szSCWork = szBaseDirectory;
 
         //szSCExe = UNINST;
         //szSCExe = szSCExe + " -f\"" + svUninstLogFile + "\"";
