@@ -137,8 +137,31 @@ Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal 
 Private sngMainFormHeight As Single
 Private sngMainFormWidth As Single
     
-Private Declare Function GetFileVersionInfo Lib "version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwHandle As Long, ByVal dwLen As Long, lpData As Any) As Long
-Private Declare Function GetFileVersionInfoSize Lib "version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
+Private Type VS_FIXEDFILEINFO
+  dwSignature As Long
+  dwStrucVersionl As Integer     '  e.g. = &h0000 = 0
+  dwStrucVersionh As Integer     '  e.g. = &h0042 = .42
+  dwFileVersionMSl As Integer    '  e.g. = &h0003 = 3
+  dwFileVersionMSh As Integer    '  e.g. = &h0075 = .75
+  dwFileVersionLSl As Integer    '  e.g. = &h0000 = 0
+  dwFileVersionLSh As Integer    '  e.g. = &h0031 = .31
+  dwProductVersionMSl As Integer '  e.g. = &h0003 = 3
+  dwProductVersionMSh As Integer '  e.g. = &h0010 = .1
+  dwProductVersionLSl As Integer '  e.g. = &h0000 = 0
+  dwProductVersionLSh As Integer '  e.g. = &h0031 = .31
+  dwFileFlagsMask As Long        '  = &h3F for version "0.42"
+  dwFileFlags As Long            '  e.g. VFF_DEBUG Or VFF_PRERELEASE
+  dwFileOS As Long               '  e.g. VOS_DOS_WINDOWS16
+  dwFileType As Long             '  e.g. VFT_DRIVER
+  dwFileSubtype As Long          '  e.g. VFT2_DRV_KEYBOARD
+  dwFileDateMS As Long           '  e.g. 0
+  dwFileDateLS As Long           '  e.g. 0
+End Type
+
+Private Declare Function GetFileVersionInfo Lib "Version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
+Private Declare Function GetFileVersionInfoSize Lib "Version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
+Private Declare Function VerQueryValue Lib "Version.dll" Alias "VerQueryValueA" (pBlock As Any, ByVal lpSubBlock As String, lplpBuffer As Any, puLen As Long) As Long
+Private Declare Sub MoveMemory Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, ByVal Source As Long, ByVal length As Long)
 '
 
 '
@@ -474,7 +497,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
     
     objToolbar.GetMenuInfo sCap, sTag, bEnabled, nKey
     mnuContextItems(DEFAULT_MENU).Caption = sCap
-    mnuContextItems(DEFAULT_MENU).tag = sTag
+    mnuContextItems(DEFAULT_MENU).Tag = sTag
     mnuContextItems(DEFAULT_MENU).Enabled = bEnabled
     mnuContextItems(ADDITIONAL_MENU).Visible = False
     If Not IsMissing(vExKeys) Then
@@ -487,7 +510,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
             objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
-            mnuContextItems(i + 1).tag = sTag
+            mnuContextItems(i + 1).Tag = sTag
             mnuContextItems(i + 1).Enabled = bEnabled
         End If
         Next i
@@ -605,7 +628,7 @@ Private Sub mnuContextItems_Click(Index As Integer)
     If Not objToolbar Is Nothing Then
         subShowBusyState True, Index
 '        objToolbar.ContextMenuClick Index
-        objToolbar.CMenuClick mnuContextItems(Index).tag
+        objToolbar.CMenuClick mnuContextItems(Index).Tag
         subShowBusyState False, Index
         subCheckError
     End If
@@ -674,4 +697,115 @@ GetFileVersionData_Error:
 
 invalid_file_info_error:
     GoTo GetFileVersionData_Exit
+End Function
+
+Public Function GetProgramVersion(sPathFile As String) As String
+
+    On Error GoTo GetFileVersionData_Error
+    
+    Dim sInfo As String
+    Dim lResult As Long
+    Dim iDelim As Integer
+    Dim lHandle As Long
+    Dim lSizeof As Long
+
+    lHandle = 0
+    
+    'how big is the Version Info block?
+    lSizeof = GetFileVersionInfoSize(sPathFile, lHandle)
+    
+    If lSizeof > 0 Then
+        sInfo = String$(lSizeof, 0)
+        
+        lResult = GetFileVersionInfo(ByVal sPathFile, 0&, ByVal lSizeof, ByVal sInfo)
+        
+        If lResult Then
+            sInfo = Replace(sInfo, Chr(0), "")
+            
+            'NOTE: THE ProductVersion may be appended one extra digit
+            'e.g. 3.27.0002 will be shown as 3.27.00024
+            'it should be ok if we just want to check the version for earlier or latest.
+            'e.g. If ProductVersion > "3.27.0001" and ProductVersion <= "3.27.0004" Then ...
+            'if it needs to be display on the screen, then make sure you fix it before showing it.
+            GetProgramVersion = fnExtractInfo(sInfo, "ProductVersion")
+        Else
+            GoTo invalid_file_info_error
+        End If
+    Else
+        GoTo invalid_file_info_error
+    End If
+
+GetFileVersionData_Exit:
+
+Exit Function
+
+GetFileVersionData_Error:
+    Resume GetFileVersionData_Exit
+
+invalid_file_info_error:
+    GoTo GetFileVersionData_Exit
+End Function
+
+Private Function fnExtractInfo(sInfo As String, sSearchFor As String) As String
+    Dim iDelim As Integer
+    Dim iEnd As Integer
+    Dim sTemp As String
+    Dim i As Integer
+    Dim n As Integer
+    
+    iDelim = InStr(sInfo, sSearchFor)
+    
+    If iDelim > 0 Then
+        iDelim = iDelim + Len(sSearchFor)
+        sTemp = Mid$(sInfo, iDelim)
+        iEnd = -1
+        
+        For i = 1 To Len(sTemp)
+            n = Asc(Mid(sTemp, i, 1))
+            If (n < 32 Or n > 126) And n <> 169 And n <> 174 Then
+                iEnd = i - 1
+                Exit For
+            End If
+        Next i
+        
+        If iEnd = -1 Then
+            iEnd = Len(sTemp)
+        End If
+        
+        fnExtractInfo = Left(sTemp, iEnd)
+    End If
+End Function
+
+'this function will return the File Version or Product Version which is same
+'as the file properties version from the windows explorer.
+Public Function GetProductVersion(ByVal FullFileName As String, Optional bShowMsg As Boolean = False) As String
+
+ Dim rc As Long
+ Dim lDummy As Long
+ Dim sBuffer() As Byte
+ Dim lBufferLen As Long
+ Dim lVerPointer As Long
+ Dim udtVerBuffer As VS_FIXEDFILEINFO
+ Dim lVerbufferLen As Long
+
+
+ '*** Get size ****
+ lBufferLen = GetFileVersionInfoSize(FullFileName, lDummy)
+ 
+ If lBufferLen < 1 Then
+    If bShowMsg Then
+        MsgBox "No Version Info available for File: " + FullFileName + "."
+    End If
+    Exit Function
+ End If
+
+    '**** Store info to udtVerBuffer struct ****
+    ReDim sBuffer(lBufferLen)
+    rc = GetFileVersionInfo(FullFileName, 0&, lBufferLen, sBuffer(0))
+    rc = VerQueryValue(sBuffer(0), "\", lVerPointer, lVerbufferLen)
+    MoveMemory udtVerBuffer, lVerPointer, Len(udtVerBuffer)
+
+ 
+    '**** Determine File Version number ****
+    GetProductVersion = Format$(udtVerBuffer.dwFileVersionMSh) & "." & Format$(udtVerBuffer.dwFileVersionMSl) & "." & Format$(udtVerBuffer.dwFileVersionLSh) & "." & Format$(udtVerBuffer.dwFileVersionLSl)
 End Function
