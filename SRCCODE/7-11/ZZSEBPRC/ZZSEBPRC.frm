@@ -31,7 +31,7 @@ Begin VB.Form frmZZSEBPRC
       Height          =   396
       HelpContextID   =   15
       Left            =   7500
-      TabIndex        =   61
+      TabIndex        =   65
       Top             =   5268
       Width           =   1308
       _Version        =   65536
@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -66,7 +66,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraBackground 
       Height          =   5184
       Left            =   0
-      TabIndex        =   63
+      TabIndex        =   67
       TabStop         =   0   'False
       Top             =   492
       Width           =   8880
@@ -98,7 +98,7 @@ Begin VB.Form frmZZSEBPRC
       Begin FACTTABLib.FactorTab eTabMain 
          Height          =   5016
          Left            =   48
-         TabIndex        =   65
+         TabIndex        =   69
          TabStop         =   0   'False
          Top             =   12
          Width           =   8796
@@ -119,7 +119,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseDetail 
             Height          =   4716
             Left            =   14580
-            TabIndex        =   70
+            TabIndex        =   74
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -151,7 +151,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIDetail 
                Height          =   4152
                Left            =   60
-               TabIndex        =   71
+               TabIndex        =   75
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -178,6 +178,29 @@ Begin VB.Form frmZZSEBPRC
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.TextBox txtDPrftCtr 
+                  BackColor       =   &H00FFFFFF&
+                  ForeColor       =   &H00000000&
+                  Height          =   360
+                  HelpContextID   =   525
+                  Left            =   72
+                  TabIndex        =   58
+                  Tag             =   "pn_alt"
+                  Top             =   924
+                  Width           =   1104
+               End
+               Begin VB.TextBox txtDPrftCtrName 
+                  BackColor       =   &H00FFFFFF&
+                  DataSource      =   "datVendor"
+                  ForeColor       =   &H00000000&
+                  Height          =   360
+                  HelpContextID   =   527
+                  Left            =   1608
+                  TabIndex        =   60
+                  Tag             =   "pn_name"
+                  Top             =   924
+                  Width           =   4176
+               End
                Begin VB.TextBox txtEmployee 
                   BackColor       =   &H00FFFFFF&
                   ForeColor       =   &H00000000&
@@ -202,12 +225,12 @@ Begin VB.Form frmZZSEBPRC
                   Width           =   5868
                End
                Begin DBTrueGrid.TDBGrid tblDetails 
-                  Height          =   3408
+                  Height          =   2724
                   HelpContextID   =   579
                   Left            =   60
                   OleObjectBlob   =   "ZZSEBPRC.frx":0000
-                  TabIndex        =   58
-                  Top             =   696
+                  TabIndex        =   62
+                  Top             =   1356
                   Width           =   8556
                End
                Begin FACTFRMLib.FactorFrame cmdEmployee 
@@ -282,11 +305,99 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                End
+               Begin FACTFRMLib.FactorFrame cmdDPrftCtr 
+                  Height          =   360
+                  HelpContextID   =   526
+                  Left            =   1188
+                  TabIndex        =   59
+                  TabStop         =   0   'False
+                  Tag             =   "Run #3"
+                  Top             =   924
+                  Width           =   360
+                  _Version        =   65536
+                  _ExtentX        =   635
+                  _ExtentY        =   635
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            =   9.6
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  CaptionPos      =   4
+                  Picture         =   "ZZSEBPRC.frx":1502
+                  Style           =   3
+                  BorderWidth     =   4
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            =   9.6
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+               End
+               Begin FACTFRMLib.FactorFrame cmdDPrftCtrName 
+                  Height          =   360
+                  HelpContextID   =   528
+                  Left            =   5796
+                  TabIndex        =   61
+                  TabStop         =   0   'False
+                  Tag             =   "Run #3"
+                  Top             =   924
+                  Width           =   360
+                  _Version        =   65536
+                  _ExtentX        =   635
+                  _ExtentY        =   635
+                  _StockProps     =   77
+                  BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "Arial"
+                     Size            =   9.6
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+                  CaptionPos      =   4
+                  Picture         =   "ZZSEBPRC.frx":1614
+                  Style           =   3
+                  BorderWidth     =   4
+                  BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
+                     Name            =   "MS Sans Serif"
+                     Size            =   9.6
+                     Charset         =   0
+                     Weight          =   400
+                     Underline       =   0   'False
+                     Italic          =   0   'False
+                     Strikethrough   =   0   'False
+                  EndProperty
+               End
+               Begin VB.Label Label3 
+                  Caption         =   "Profit Center"
+                  Height          =   252
+                  Left            =   72
+                  TabIndex        =   107
+                  Top             =   684
+                  Width           =   1296
+               End
+               Begin VB.Label Label2 
+                  Caption         =   "Profit Center Name"
+                  Height          =   252
+                  Left            =   1608
+                  TabIndex        =   106
+                  Top             =   684
+                  Width           =   1956
+               End
                Begin VB.Label lblEmployee 
                   Caption         =   "Employee Number"
                   Height          =   252
                   Left            =   60
-                  TabIndex        =   73
+                  TabIndex        =   77
                   Top             =   36
                   Width           =   1836
                End
@@ -294,7 +405,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   2364
-                  TabIndex        =   72
+                  TabIndex        =   76
                   Top             =   36
                   Width           =   1968
                End
@@ -304,7 +415,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   32
                Index           =   3
                Left            =   5988
-               TabIndex        =   59
+               TabIndex        =   63
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -341,7 +452,7 @@ Begin VB.Form frmZZSEBPRC
                HelpContextID   =   15
                Index           =   3
                Left            =   7428
-               TabIndex        =   60
+               TabIndex        =   64
                Top             =   4260
                Width           =   1308
                _Version        =   65536
@@ -377,7 +488,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseProcess 
             Height          =   4716
             Left            =   14460
-            TabIndex        =   67
+            TabIndex        =   71
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -409,7 +520,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIProcess 
                Height          =   4152
                Left            =   60
-               TabIndex        =   75
+               TabIndex        =   79
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -440,7 +551,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraProcessDate 
                   Height          =   1332
                   Left            =   72
-                  TabIndex        =   98
+                  TabIndex        =   102
                   TabStop         =   0   'False
                   Top             =   48
                   Width           =   2400
@@ -523,7 +634,7 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      CaptionPos      =   4
-                     Picture         =   "ZZSEBPRC.frx":1502
+                     Picture         =   "ZZSEBPRC.frx":1726
                      Style           =   3
                      BorderWidth     =   4
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -540,7 +651,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Frequency"
                      Height          =   252
                      Left            =   1404
-                     TabIndex        =   101
+                     TabIndex        =   105
                      Top             =   12
                      Width           =   960
                   End
@@ -548,7 +659,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Starting  Date"
                      Height          =   252
                      Left            =   48
-                     TabIndex        =   100
+                     TabIndex        =   104
                      Top             =   12
                      Width           =   1488
                   End
@@ -556,7 +667,7 @@ Begin VB.Form frmZZSEBPRC
                      Caption         =   "Ending Date"
                      Height          =   252
                      Left            =   48
-                     TabIndex        =   99
+                     TabIndex        =   103
                      Top             =   660
                      Width           =   1236
                   End
@@ -591,9 +702,9 @@ Begin VB.Form frmZZSEBPRC
                   Height          =   2352
                   HelpContextID   =   536
                   IntegralHeight  =   0   'False
-                  ItemData        =   "ZZSEBPRC.frx":1614
+                  ItemData        =   "ZZSEBPRC.frx":1838
                   Left            =   72
-                  List            =   "ZZSEBPRC.frx":1616
+                  List            =   "ZZSEBPRC.frx":183A
                   TabIndex        =   44
                   Top             =   1404
                   Width           =   8532
@@ -624,7 +735,7 @@ Begin VB.Form frmZZSEBPRC
                Begin MSComctlLib.ProgressBar pbBarMain 
                   Height          =   312
                   Left            =   72
-                  TabIndex        =   76
+                  TabIndex        =   80
                   Top             =   3780
                   Width           =   8532
                   _ExtentX        =   15050
@@ -655,7 +766,7 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   CaptionPos      =   4
-                  Picture         =   "ZZSEBPRC.frx":1618
+                  Picture         =   "ZZSEBPRC.frx":183C
                   Style           =   3
                   BorderWidth     =   4
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -691,7 +802,7 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   CaptionPos      =   4
-                  Picture         =   "ZZSEBPRC.frx":172A
+                  Picture         =   "ZZSEBPRC.frx":194E
                   Style           =   3
                   BorderWidth     =   4
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -727,7 +838,7 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   CaptionPos      =   4
-                  Picture         =   "ZZSEBPRC.frx":183C
+                  Picture         =   "ZZSEBPRC.frx":1A60
                   Style           =   3
                   BorderWidth     =   4
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -763,7 +874,7 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   CaptionPos      =   4
-                  Picture         =   "ZZSEBPRC.frx":194E
+                  Picture         =   "ZZSEBPRC.frx":1B72
                   Style           =   3
                   BorderWidth     =   4
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -780,7 +891,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Nbr"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   95
+                  TabIndex        =   99
                   Top             =   720
                   Width           =   1296
                End
@@ -788,7 +899,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Employee Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   94
+                  TabIndex        =   98
                   Top             =   720
                   Width           =   1956
                End
@@ -796,7 +907,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center Name"
                   Height          =   252
                   Left            =   4044
-                  TabIndex        =   78
+                  TabIndex        =   82
                   Top             =   60
                   Width           =   1956
                End
@@ -804,7 +915,7 @@ Begin VB.Form frmZZSEBPRC
                   Caption         =   "Profit Center"
                   Height          =   252
                   Left            =   2508
-                  TabIndex        =   77
+                  TabIndex        =   81
                   Top             =   60
                   Width           =   1296
                End
@@ -923,7 +1034,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBasePayEntry 
             Height          =   4692
             Left            =   12
-            TabIndex        =   66
+            TabIndex        =   70
             TabStop         =   0   'False
             Top             =   12
             Width           =   8772
@@ -955,7 +1066,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTTABLib.FactorTab eTabSub 
                Height          =   4716
                Left            =   0
-               TabIndex        =   79
+               TabIndex        =   83
                TabStop         =   0   'False
                Top             =   0
                Width           =   8784
@@ -978,7 +1089,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseHours 
                   Height          =   4428
                   Left            =   14460
-                  TabIndex        =   81
+                  TabIndex        =   85
                   TabStop         =   0   'False
                   Top             =   0
                   Width           =   8784
@@ -1042,7 +1153,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   324
                         Left            =   7032
                         MultiLine       =   -1  'True
-                        TabIndex        =   97
+                        TabIndex        =   101
                         Top             =   3780
                         Width           =   1272
                      End
@@ -1052,7 +1163,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   324
                         Left            =   4632
                         MultiLine       =   -1  'True
-                        TabIndex        =   96
+                        TabIndex        =   100
                         Top             =   3780
                         Width           =   1332
                      End
@@ -1065,7 +1176,7 @@ Begin VB.Form frmZZSEBPRC
                         Left            =   96
                         ScaleHeight     =   216
                         ScaleWidth      =   228
-                        TabIndex        =   91
+                        TabIndex        =   95
                         Top             =   720
                         Visible         =   0   'False
                         Width           =   255
@@ -1124,7 +1235,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":1A60
+                        Picture         =   "ZZSEBPRC.frx":1C84
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1160,7 +1271,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":1B72
+                        Picture         =   "ZZSEBPRC.frx":1D96
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1196,7 +1307,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":1C84
+                        Picture         =   "ZZSEBPRC.frx":1EA8
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1213,7 +1324,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   3036
                         HelpContextID   =   519
                         Left            =   72
-                        OleObjectBlob   =   "ZZSEBPRC.frx":1D96
+                        OleObjectBlob   =   "ZZSEBPRC.frx":1FBA
                         TabIndex        =   25
                         Top             =   696
                         Width           =   5892
@@ -1222,7 +1333,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   3036
                         HelpContextID   =   520
                         Left            =   6036
-                        OleObjectBlob   =   "ZZSEBPRC.frx":29D5
+                        OleObjectBlob   =   "ZZSEBPRC.frx":2BF9
                         TabIndex        =   26
                         Top             =   696
                         Width           =   2268
@@ -1232,7 +1343,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Total Hours/Dollars:"
                         Height          =   252
                         Left            =   2892
-                        TabIndex        =   88
+                        TabIndex        =   92
                         Top             =   3828
                         Width           =   1692
                      End
@@ -1240,7 +1351,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Social Security Number"
                         Height          =   252
                         Left            =   6036
-                        TabIndex        =   87
+                        TabIndex        =   91
                         Top             =   24
                         Width           =   2268
                      End
@@ -1248,7 +1359,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Employee Name"
                         Height          =   252
                         Left            =   2028
-                        TabIndex        =   86
+                        TabIndex        =   90
                         Top             =   24
                         Width           =   1968
                      End
@@ -1256,7 +1367,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "Employee Number"
                         Height          =   252
                         Left            =   72
-                        TabIndex        =   85
+                        TabIndex        =   89
                         Top             =   24
                         Width           =   1848
                      End
@@ -1265,7 +1376,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "PC Total:"
                         Height          =   252
                         Left            =   6048
-                        TabIndex        =   84
+                        TabIndex        =   88
                         Top             =   3828
                         Width           =   888
                      End
@@ -1496,7 +1607,7 @@ Begin VB.Form frmZZSEBPRC
                Begin FACTFRMLib.FactorFrame efraBaseSales 
                   Height          =   4692
                   Left            =   12
-                  TabIndex        =   80
+                  TabIndex        =   84
                   TabStop         =   0   'False
                   Top             =   12
                   Width           =   8472
@@ -1564,7 +1675,7 @@ Begin VB.Form frmZZSEBPRC
                         Left            =   72
                         ScaleHeight     =   216
                         ScaleWidth      =   228
-                        TabIndex        =   90
+                        TabIndex        =   94
                         Top             =   768
                         Visible         =   0   'False
                         Width           =   255
@@ -1572,7 +1683,7 @@ Begin VB.Form frmZZSEBPRC
                      Begin FACTFRMLib.FactorFrame efraOptSales 
                         Height          =   648
                         Left            =   72
-                        TabIndex        =   89
+                        TabIndex        =   93
                         TabStop         =   0   'False
                         Top             =   72
                         Width           =   4392
@@ -1668,7 +1779,7 @@ Begin VB.Form frmZZSEBPRC
                         Height          =   3324
                         HelpContextID   =   508
                         Left            =   72
-                        OleObjectBlob   =   "ZZSEBPRC.frx":3618
+                        OleObjectBlob   =   "ZZSEBPRC.frx":383C
                         TabIndex        =   11
                         Top             =   768
                         Width           =   8244
@@ -1696,7 +1807,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":48F4
+                        Picture         =   "ZZSEBPRC.frx":4B18
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1732,7 +1843,7 @@ Begin VB.Form frmZZSEBPRC
                            Strikethrough   =   0   'False
                         EndProperty
                         CaptionPos      =   4
-                        Picture         =   "ZZSEBPRC.frx":4A06
+                        Picture         =   "ZZSEBPRC.frx":4C2A
                         Style           =   3
                         BorderWidth     =   4
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -1749,7 +1860,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "From Date"
                         Height          =   252
                         Left            =   4536
-                        TabIndex        =   83
+                        TabIndex        =   87
                         Top             =   96
                         Width           =   1380
                      End
@@ -1757,7 +1868,7 @@ Begin VB.Form frmZZSEBPRC
                         Caption         =   "To Date"
                         Height          =   252
                         Left            =   6444
-                        TabIndex        =   82
+                        TabIndex        =   86
                         Top             =   108
                         Width           =   1500
                      End
@@ -1776,7 +1887,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1813,7 +1924,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.2
+                        Size            =   10.05
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1850,7 +1961,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.2
+                        Size            =   10.05
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1887,7 +1998,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1924,7 +2035,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1961,7 +2072,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.6
+                        Size            =   9.46
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1990,7 +2101,7 @@ Begin VB.Form frmZZSEBPRC
          Begin FACTFRMLib.FactorFrame efraBaseView 
             Height          =   4716
             Left            =   14520
-            TabIndex        =   69
+            TabIndex        =   73
             TabStop         =   0   'False
             Top             =   0
             Width           =   8796
@@ -2022,7 +2133,7 @@ Begin VB.Form frmZZSEBPRC
             Begin FACTFRMLib.FactorFrame efraBaseIIView 
                Height          =   4152
                Left            =   60
-               TabIndex        =   74
+               TabIndex        =   78
                TabStop         =   0   'False
                Top             =   60
                Width           =   8664
@@ -2049,11 +2160,24 @@ Begin VB.Form frmZZSEBPRC
                   Italic          =   0   'False
                   Strikethrough   =   0   'False
                EndProperty
+               Begin VB.PictureBox picTextExtension 
+                  Appearance      =   0  'Flat
+                  BackColor       =   &H80000005&
+                  ForeColor       =   &H80000008&
+                  Height          =   288
+                  Left            =   4116
+                  ScaleHeight     =   264
+                  ScaleWidth      =   1488
+                  TabIndex        =   108
+                  TabStop         =   0   'False
+                  Top             =   384
+                  Width           =   1512
+               End
                Begin DBTrueGrid.TDBGrid tblApprove 
                   Height          =   4044
                   HelpContextID   =   550
                   Left            =   60
-                  OleObjectBlob   =   "ZZSEBPRC.frx":4B18
+                  OleObjectBlob   =   "ZZSEBPRC.frx":4D3C
                   TabIndex        =   48
                   Top             =   60
                   Width           =   8556
@@ -2244,11 +2368,11 @@ Begin VB.Form frmZZSEBPRC
          End
       End
       Begin DBTrueGrid.TDBGrid tblComboDropdown 
-         Bindings        =   "ZZSEBPRC.frx":5DF6
+         Bindings        =   "ZZSEBPRC.frx":601A
          Height          =   2484
          Left            =   108
-         OleObjectBlob   =   "ZZSEBPRC.frx":5E15
-         TabIndex        =   68
+         OleObjectBlob   =   "ZZSEBPRC.frx":6039
+         TabIndex        =   72
          TabStop         =   0   'False
          Top             =   12
          Width           =   3756
@@ -2274,7 +2398,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame ffraStatusbar 
       Height          =   360
       Left            =   0
-      TabIndex        =   62
+      TabIndex        =   66
       TabStop         =   0   'False
       Top             =   5700
       Width           =   8880
@@ -2307,7 +2431,7 @@ Begin VB.Form frmZZSEBPRC
    Begin FACTFRMLib.FactorFrame efraToolBar 
       Height          =   468
       Left            =   0
-      TabIndex        =   64
+      TabIndex        =   68
       TabStop         =   0   'False
       Top             =   0
       Width           =   8880
@@ -2317,7 +2441,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2330,7 +2454,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2374,22 +2498,22 @@ Begin VB.Form frmZZSEBPRC
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":70F9
+      Bindings        =   "ZZSEBPRC.frx":731D
       Height          =   1008
       Index           =   0
       Left            =   168
-      OleObjectBlob   =   "ZZSEBPRC.frx":7113
-      TabIndex        =   92
+      OleObjectBlob   =   "ZZSEBPRC.frx":7337
+      TabIndex        =   96
       Top             =   684
       Width           =   2604
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZSEBPRC.frx":83F5
+      Bindings        =   "ZZSEBPRC.frx":8619
       Height          =   1008
       Index           =   4
       Left            =   144
-      OleObjectBlob   =   "ZZSEBPRC.frx":840F
-      TabIndex        =   93
+      OleObjectBlob   =   "ZZSEBPRC.frx":8633
+      TabIndex        =   97
       Top             =   624
       Width           =   2604
    End
@@ -2498,25 +2622,19 @@ Private Const t_szCANCEL As String = "Cancel"
 Private Const t_szPRINT As String = "Print"
 Private Const t_szHELP As String = "Help"
 
-Private Const nWeek As Integer = 0
-Private Const sWeek As String = "W"
-Private Const nOneMth As Integer = 1
-Private Const sOneMth As String = "M"
-Private Const nGas As Integer = 2
-Private Const sGas As String = "G"
-Private Const nThreeMth As Integer = 3
-Private Const sThreeMth As String = "Q"
-
 Private tgfDropdown(4) As clsFloatingDropDown
 
 Private bCancelProcess As Boolean
 Private cValidate As cValidateInput
 Private cValidSls As cValidateInput
+Private cValidDetail As cValidateInput
 
 Private bSalesRecordExist As Boolean
 Private sFreqRegExp As String
 
 Private objHours As clsPRFHOURS
+
+Private bLoadingBonusDetail As Boolean
 '
 
 Private Sub cmdApprove_Click()
@@ -2566,7 +2684,8 @@ Private Sub cmdOK_Click()
     Dim sArBCodes() As String, sArCodeLvls() As String
     Dim rsTemp As Recordset
     Dim lEmpNo As Long
-
+    Dim nPrftCtr As Integer
+    
     #If PROTOTYPE Then
         Exit Sub
     #End If
@@ -2576,18 +2695,19 @@ Private Sub cmdOK_Click()
     For i = 0 To tgmApprove.RowCount - 1
         If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
             lEmpNo = tgmApprove.CellValue(colAEmpNo, i)
+            nPrftCtr = tgmApprove.CellValue(colAPrftCtr, i)
             'Get the amount for each pay code from the hidden column...
             sArBCodes = Split(tgmApprove.CellValue(colAHdnBAmtLvls, i), ",")
             'Get the SQL for loading the details...
             strSQL = "ABC"
-            If fnLoadBonusDetails(lEmpNo, strSQL) Then
+            If fnLoadBonusDetails(lEmpNo, nPrftCtr, strSQL) Then
                 If GetRecordSet(rsTemp, strSQL, , "cmdOK_Click") <= 0 Then
                     MsgBox "Failed to insert the record", vbExclamation
                     Exit Sub
                 End If
                 rsTemp.MoveFirst
+                ReDim vArrDetail(4, rsTemp.RecordCount - 1)
                 For j = 0 To rsTemp.RecordCount - 1
-                    ReDim Preserve vArrDetail(4, j)
                     vArrDetail(0, j) = lEmpNo
                     vArrDetail(1, j) = fnGetField(rsTemp!bm_bonus_code)
                     If InStr(1, sArBCodes(j), "~") > 0 Then
@@ -3133,7 +3253,8 @@ Private Sub tfnResetScreen(Index As Integer)
             txtEmpProcess = ""
             txtEmpNameProcess = ""
             lstProcess.Clear
-    
+            bLoadingBonusDetail = False
+            
             cValidate.ResetFlags
             
             eTabMain.TabEnabled(TabSales) = True
@@ -3160,13 +3281,21 @@ Private Sub tfnResetScreen(Index As Integer)
                     End If
                 End If
             End If
+            
+            bLoadingBonusDetail = False
         Case TabDetails
             txtEmployee = ""
             txtEmpName = ""
+            txtDPrftCtr = ""
+            txtDPrftCtrName = ""
+            bLoadingBonusDetail = False
             tgmDetail.ClearData
             subEnableEmployee True
-            tblDetails.Enabled = False
+            subEnableDPrftCtr True
+            'tblDetails.Enabled = False
+            tblDetails.Enabled = True
             subEnablePrint Index, False
+            cValidDetail.ResetFlags
             If eTabMain.CurrTab = TabDetails Then
                 subSetFocus txtEmployee
             End If
@@ -3224,6 +3353,10 @@ Private Sub tblApprove_Click()
     tgsApprove.Click
 End Sub
 
+Private Sub tblApprove_DblClick()
+    subEnterBonusPhaseII
+End Sub
+
 Private Sub tblApprove_FirstRowChange()
     tgmApprove.FirstRowChange
 End Sub
@@ -3240,8 +3373,6 @@ Private Sub tblApprove_KeyDown(KeyCode As Integer, Shift As Integer)
 End Sub
 
 Private Sub tblApprove_KeyPress(KeyAscii As Integer)
-    Dim nRow As Integer
-    
     If KeyAscii <> vbKeyReturn Then
         Exit Sub
     End If
@@ -3251,19 +3382,15 @@ Private Sub tblApprove_KeyPress(KeyAscii As Integer)
         Exit Sub
     End If
     
-    nRow = tgmApprove.GetCurrentRowNumber
-    txtEmployee = tgmApprove.CellValue(colAEmpNo, nRow)
-    txtEmpName = tgmApprove.CellValue(colAEmpName, nRow)
     subEnterBonusPhaseII
-    
 End Sub
 
 Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsApprove.MouseUp Button, Shift, Y
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsApprove.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3278,6 +3405,10 @@ End Sub
 
 Private Sub tblApprove_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     tgmApprove.ReadData RowBuf, StartLocation, ReadPriorRows
+End Sub
+
+Private Sub tblDetails_DblClick()
+    subShowFormulaDetails
 End Sub
 
 Private Sub tblDetails_GotFocus()
@@ -3300,6 +3431,10 @@ End Sub
 
 Private Sub tmrKeyboard_Timer() 'status bar timer - 250ms
     tfnUpdateStatusBar Me 'process the status bar
+
+    If Not tgcExtension Is Nothing Then
+        tgcExtension.ShowColumnExt
+    End If
 End Sub
 
 Private Sub subInitErrorHandler()
@@ -3384,7 +3519,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3456,7 +3591,7 @@ Private Sub cmdProcess_Click()
         Exit Sub
     #End If
     
-    If Not tfnCancelExit("Processing may take several minutes, are you sure you want to continue?") Then
+    If Not tfnCancelExit("Processing may take several minutes. Are you sure you want to continue?") Then
         Exit Sub
     End If
     
@@ -3474,10 +3609,11 @@ Private Sub cmdProcess_Click()
     subLogErrMsg " "
     
     strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bf_level, "
-    strSQL = strSQL & " bm_eligible_pc, bm_sequence"
-    strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula"
+    strSQL = strSQL & " bm_eligible_pc, bm_sequence, prft_name"
+    strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula, sys_prft_ctr"
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
+    strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
     If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
         strSQL = strSQL & " AND bm_eligible_pc = " & Trim(txtPrftCtr)
     End If
@@ -3523,7 +3659,9 @@ Private Sub cmdProcess_Click()
                 vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
                 vArrBonus(colADate, nSize) = txtEndDate
                 vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
+                vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
                 vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
                 vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
             End If
             dBLvlAmt = fnGetBonusAmount(rsTemp)
@@ -3548,7 +3686,9 @@ Private Sub cmdProcess_Click()
             vArrBonus(colAEmpName, nSize) = fnGetEmployeeName(sEmpNo)
             vArrBonus(colADate, nSize) = txtEndDate
             vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
+            vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
             vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+            vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
             vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
         End If
         rsTemp.MoveNext
@@ -3723,6 +3863,8 @@ Private Sub subInitSpreadsheets()
     Set tgmApprove.engFactor = t_engFactor
     tgmApprove.AddEditColumn colAApprove, "Select Yes, No"
     tgmApprove.AllowAddNew = False
+    
+    colAHdnPrftName = tgmApprove.AddHiddenField("HiddenPrftName")
     colAHdnBAmtLvls = tgmApprove.AddHiddenField("HiddenLevels")
     
     'Implement the selector class
@@ -3743,105 +3885,30 @@ Private Sub subInitSpreadsheets()
     tgmDetail.ClearData
     tgmDetail.AllowAddNew = False
 
+    'setup the text extension
+    subSetupExetension
 End Sub
 
-Private Sub txtEmployee_Change()
-    cValidate.Change txtEmployee
-    tgcDropdown.Change txtEmployee
-End Sub
-
-Private Sub txtEmployee_GotFocus()
-    tgcDropdown.GotFocus txtEmployee
-    cValidate.GotFocus txtEmployee
+Private Sub subSetupExetension()
+    Set tgcExtension = New clsColumnExtension
+    Set tgcExtension.Form = Me
+    Set tgcExtension.PictureBox = picTextExtension
+    Set tgcExtension.Table = tblApprove
     
-    If tgcDropdown.SingleRecordSelected Then
-        subEnterBonusPhaseII
-        Screen.MousePointer = vbDefault
-    End If
-    
+    tgcExtension.AddColumn colAPrftCtr
+    tgcExtension.Style(colAPrftCtr) = 3
 End Sub
 
-Private Sub txtEmployee_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtEmployee) = fnSetComboSQL(txtEmployee.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-        
-    bKeyCode = tgcDropdown.Keypress(txtEmployee, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-       If KeyAscii = vbKeyReturn Then
-          If tgcDropdown.SingleRecordSelected Then
-                subEnterBonusPhaseII
-                Screen.MousePointer = vbDefault
-          End If
-          KeyAscii = 0
-       End If
-    Else
-        cValidate.Keypress txtEmployee, KeyAscii
-    End If
+Public Function fnGetText(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Integer) As String
+    fnGetText = tgmApprove.CellValue(colAHdnPrftName, nRow)
+End Function
 
-End Sub
-
-Private Sub txtEmployee_LostFocus()
-    tgcDropdown.LostFocus txtEmployee
-    cValidate.LostFocus txtEmployee, cmdEmployee
-    Screen.MousePointer = vbDefault
-
-End Sub
-
-Private Sub txtEmpName_Change()
-    tgcDropdown.Change txtEmpName
-End Sub
-
-Private Sub txtEmpName_GotFocus()
-    tfnSetStatusBarMessage "Enter Employee Name"
-    tgcDropdown.GotFocus txtEmpName
-    Screen.MousePointer = vbDefault
-    
-    If tgcDropdown.SingleRecordSelected Then
-        subEnterBonusPhaseII
-        Screen.MousePointer = vbDefault
-    End If
-End Sub
-
-Private Sub txtEmpName_KeyPress(KeyAscii As Integer)
-    Dim bKeyCode As Boolean
-    
-    If KeyAscii = vbKeyReturn Then
-        tgcDropdown.ComboSQL(txtEmpName) = fnSetComboSQL(txtEmpName.TabIndex)
-        Screen.MousePointer = vbHourglass
-    End If
-    
-    bKeyCode = tgcDropdown.Keypress(txtEmpName, KeyAscii)
-    Screen.MousePointer = vbDefault
-    
-    If Not bKeyCode Then
-        If KeyAscii = vbKeyReturn Then
-            If tgcDropdown.SingleRecordSelected Then
-                subEnterBonusPhaseII
-                Screen.MousePointer = vbDefault
-            End If
-        KeyAscii = 0
-        End If
-    End If
-
-End Sub
-
-Private Sub cmdEmployee_Click()
-    Screen.MousePointer = vbHourglass
-    tgcDropdown.ComboSQL(txtEmployee) = fnSetComboSQL(txtEmployee.TabIndex)
-    tgcDropdown.Click cmdEmployee
-    Screen.MousePointer = vbDefault
-End Sub
-
-Private Sub cmdEmpName_Click()
-    tgcDropdown.ComboSQL(txtEmpName) = fnSetComboSQL(txtEmpName.TabIndex)
-    tgcDropdown.Click cmdEmpName
-End Sub
+'put all codes in tmrKeyboard_Timer()
+'Private Sub tmrExtension_Timer()
+'    If Not tgcExtension Is Nothing Then
+'        tgcExtension.ShowColumnExt
+'    End If
+'End Sub
 
 Private Sub subInitValidation()
 
@@ -3854,10 +3921,10 @@ Private Sub subInitValidation()
     cValidate.AddEditBox txtFrequency, "Enter Frequency"
     cValidate.AddEditBox txtPrftCtr, "Enter Profit Center Number"
     cValidate.AddEditBox txtEmpProcess, "Enter Employee Number"
-    cValidate.AddEditBox txtEmployee, "Enter Employee Number"
     cValidate.MinTabIndex = txtStartDate.TabIndex
     cValidate.MaxTabIndex = txtEmpName.TabIndex
     cValidate.ESCControl = cmdCancel(TabProcess)
+    cValidate.ESCControl = cmdExitCancelBtn
     
     'Class implementation for Sales Tab
     Set cValidSls = New cValidateInput
@@ -3871,10 +3938,26 @@ Private Sub subInitValidation()
     Set cValidSls.LastBox = txtToDate
     cValidSls.SetFirstControls cmdDelete(TabSales), cmdRefresh(TabSales), cmdCancel(TabSales), cmdUpdateInsertBtn(TabSales), cmdExitCancelBtn
     
+    Set cValidDetail = New cValidateInput
+    Set cValidDetail.Form = Me
+    Set cValidDetail.StatusBar = ffraStatusbar
+    cValidDetail.AddEditBox txtEmployee, "Enter Employee Number"
+    cValidDetail.AddEditBox txtEmpName, "Enter Employee Name"
+    cValidDetail.GreenMessage(txtEmpName) = False
+    cValidDetail.AddEditBox txtDPrftCtr, "Enter Profit Center Number"
+    cValidDetail.AddEditBox txtDPrftCtrName, "Enter Profit Center Name"
+    cValidDetail.GreenMessage(txtDPrftCtrName) = False
+    cValidDetail.MinTabIndex = txtEmployee.TabIndex
+    cValidDetail.MaxTabIndex = tblDetails.TabIndex
+    cValidDetail.ESCControl = cmdPrint(TabDetails)
+    cValidDetail.ESCControl = cmdCancel(TabDetails)
+    cValidDetail.ESCControl = cmdExitCancelBtn
+    
 End Sub
 
 Private Function fnSetComboSQL(nTabIndex As Integer) As String
     Dim strSQL As String
+    Dim sApproveEmpList As String
     
     Select Case nTabIndex
         Case txtPrftCtr.TabIndex, txtPrftCtrName.TabIndex
@@ -3882,9 +3965,35 @@ Private Function fnSetComboSQL(nTabIndex As Integer) As String
             strSQL = strSQL & "(SELECT DISTINCT bm_eligible_pc FROM bonus_master)"
         Case txtFrequency.TabIndex
             strSQL = "SELECT bfq_frequency, bfq_freq_desc FROM bonus_frequency"
-        Case txtEmployee.TabIndex, txtEmpName.TabIndex, txtEmpProcess.TabIndex, txtEmpNameProcess.TabIndex
+        Case txtEmpProcess.TabIndex, txtEmpNameProcess.TabIndex
             strSQL = "SELECT prm_empno, prm_empname FROM sTmpEmpTable"
             strSQL = strSQL & " WHERE prm_empno IN (SELECT bm_empno FROM bonus_master)"
+        Case txtEmployee.TabIndex, txtEmpName.TabIndex
+            strSQL = "SELECT prm_empno, prm_empname FROM sTmpEmpTable"
+            strSQL = strSQL & " WHERE prm_empno IN (SELECT bm_empno FROM bonus_master)"
+            
+            If cValidDetail.ValidInput(txtDPrftCtr) Then
+                sApproveEmpList = fnBuildList(tgmApprove, colAEmpNo, 1, False, True, True, colAPrftCtr, txtDPrftCtr)
+            Else
+                sApproveEmpList = fnBuildList(tgmApprove, colAEmpNo, 1, False, True, True)
+            End If
+            
+            If sApproveEmpList <> "" Then
+                strSQL = strSQL & " AND prm_empno IN (" + sApproveEmpList + ")"
+            End If
+        Case txtDPrftCtr.TabIndex, txtDPrftCtrName.TabIndex
+            strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
+            strSQL = strSQL & " WHERE prft_ctr IN (SELECT DISTINCT bm_eligible_pc FROM bonus_master)"
+            
+            If cValidDetail.ValidInput(txtEmployee) Then
+                sApproveEmpList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True, colAEmpNo, txtEmployee)
+            Else
+                sApproveEmpList = fnBuildList(tgmApprove, colAPrftCtr, 1, False, True, True)
+            End If
+            
+            If sApproveEmpList <> "" Then
+                strSQL = strSQL & " AND prft_ctr IN (" + sApproveEmpList + ")"
+            End If
         Case txtFromDate.TabIndex
             strSQL = fnGetSalesSQL(txtFromDate)
         Case txtToDate.TabIndex
@@ -3907,13 +4016,33 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
             fnInValidData = Not fnValidBonusFreq(txtBox)
         Case txtPrftCtr.TabIndex
             fnInValidData = Not fnValidPrftCtr(txtBox)
-        Case txtEmployee.TabIndex, txtEmpProcess.TabIndex
+        Case txtEmpProcess.TabIndex
             fnInValidData = Not fnValidEmployee(txtBox)
+        Case txtEmployee.TabIndex, txtDPrftCtr.TabIndex
+            fnInValidData = Not fnValidDetailEmpPrftCtr(txtBox)
         Case txtEmployeeNumber.TabIndex, txtEmployeeName.TabIndex, txtSSN.TabIndex
             fnInValidData = objHours.fnInValidData(txtBox)
         Case txtFromDate.TabIndex, txtToDate.TabIndex
             fnInValidData = Not fnValidSalesDate(txtBox)
+        Case Else
+            fnInValidData = False
     End Select
+End Function
+
+Private Function fnGetPrftName(nPrftCtr As Integer) As String
+    Const SUB_NAME As String = "fnGetPrftName"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT prft_name FROM sys_prft_ctr"
+    strSQL = strSQL + " WHERE prft_ctr = " & nPrftCtr
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
+        Exit Function
+    End If
+
+    fnGetPrftName = fnGetField(rsTemp!prft_name)
 End Function
 
 Private Function fnValidBonusFreq(txtBox As Textbox) As Boolean
@@ -4032,6 +4161,70 @@ Private Function fnValidEmployee(txtBox As Textbox) As Boolean
     
 End Function
 
+Private Function fnValidDetailEmpPrftCtr(txtBox As Textbox) As Boolean
+    Dim sTemp As String
+    Dim lEmpNo As Long
+    Dim nPrftCtr As Integer
+    Dim i As Long
+    
+    If txtBox Is txtEmployee Then
+        sTemp = "Employee Number"
+    Else
+        sTemp = "Profit Center"
+    End If
+    
+    If txtBox = "" Then
+        cValidDetail.SetErrorMessage txtBox, "You must enter a" + IIf(Left(sTemp, 1) = "E", "n ", " ") + sTemp
+        Exit Function
+    End If
+    
+    If txtBox Is txtEmployee Then
+        If Not cValidDetail.ValidInput(txtDPrftCtr) Then
+            fnValidDetailEmpPrftCtr = True
+            Exit Function
+        End If
+    Else
+        If Not cValidDetail.ValidInput(txtEmployee) Then
+            fnValidDetailEmpPrftCtr = True
+            Exit Function
+        End If
+    End If
+    
+    If txtBox Is txtEmployee Then
+        lEmpNo = txtBox
+        nPrftCtr = txtDPrftCtr
+    Else
+        nPrftCtr = txtBox
+        lEmpNo = txtEmployee
+    End If
+    
+    txtDPrftCtrName = fnGetPrftName(nPrftCtr)
+    
+    For i = 0 To tgmApprove.RowCount - 1
+        If tfnRound(tgmApprove.CellValue(colAEmpNo, i)) = lEmpNo And _
+           tfnRound(tgmApprove.CellValue(colAPrftCtr, i)) = nPrftCtr Then
+            If txtBox Is txtEmployee Then
+                cValidDetail.ValidInput(txtDPrftCtr) = True
+            Else
+                cValidDetail.ValidInput(txtEmployee) = True
+            End If
+            
+            fnValidDetailEmpPrftCtr = True
+            Exit Function
+        End If
+    Next i
+    
+    If txtBox Is txtEmployee Then
+        cValidDetail.ValidInput(txtDPrftCtr) = False
+        cValidDetail.SetErrorMessage txtDPrftCtr, "Employee/Profit Center is not in the Comm. Approval Grid"
+    Else
+        cValidDetail.ValidInput(txtEmployee) = False
+        cValidDetail.SetErrorMessage txtEmployee, "Employee/Profit Center is not in the Comm. Approval Grid"
+    End If
+    
+    cValidDetail.SetErrorMessage txtBox, "Employee/Profit Center is not in the Comm. Approval Grid"
+End Function
+
 Private Sub tblComboDropDown_Click()
     tgcDropdown.Click tblComboDropdown
 End Sub
@@ -4065,8 +4258,8 @@ Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcDropdown.TableMouseUp Y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcDropdown.TableMouseUp y
 End Sub
 
 Private Sub subSetupCombos()
@@ -4096,40 +4289,62 @@ Private Sub subSetupCombos()
         .SetExtend txtFrequency, 2
         
         .AddCombo
-        .AddComboBox txtEmployee, cmdEmployee, "prm_empno", .SQL_LONG_TYPE
-        .AddComboBox txtEmpName, cmdEmpName, "prm_empname", .SQL_STRING_TYPE(60)
-        
-        .AddCombo
         .AddComboBox txtFromDate, cmdFromDate, "bs_from_date", .SQL_DATE_TYPE
         .SetOrderingDescent txtFromDate
 
         .AddCombo
         .AddComboBox txtToDate, cmdToDate, "bs_to_date", .SQL_DATE_TYPE
         .SetOrderingDescent txtToDate
+     
+        
+        .AddCombo
+        .AddComboBox txtEmployee, cmdEmployee, "prm_empno", .SQL_LONG_TYPE
+        .AddComboBox txtEmpName, cmdEmpName, "prm_empname", .SQL_STRING_TYPE(60)
+     
+        .AddCombo
+        .AddComboBox txtDPrftCtr, cmdDPrftCtr, "prft_ctr", .SQL_INT_TYPE
+        .AddComboBox txtDPrftCtrName, cmdDPrftCtrName, "prft_name", .SQL_STRING_TYPE(40)
      End With
 End Sub
 
 Private Sub subEnterBonusPhaseII()
     Dim sArBCodes() As String
     Dim sArCodeLvls() As String
-    Dim nRow As Integer
+    Dim lRow As Long
+    Dim nPrftCtr As Integer
     Dim i As Integer, j As Integer, k As Integer
 
-    nRow = tgmApprove.GetCurrentRowNumber
-    Screen.MousePointer = vbHourglass
-    subEnableEmployee False
-    tblDetails.Enabled = True
-    
-    If Not fnLoadBonusDetails(txtEmployee) Then
-        cmdCancel_Click (TabDetails)
+    If bLoadingBonusDetail Then
         Exit Sub
     End If
     
-    sArBCodes = Split(tgmApprove.CellValue(colAHdnBAmtLvls, nRow), ",")
+    bLoadingBonusDetail = True
+    
+    lRow = tgmApprove.GetCurrentRowNumber
+    
+    If eTabMain.CurrTab = TabApprove Then
+        txtEmployee = tgmApprove.CellValue(colAEmpNo, lRow)
+        txtEmpName = tgmApprove.CellValue(colAEmpName, lRow)
+        nPrftCtr = tgmApprove.CellValue(colAPrftCtr, lRow)
+        txtDPrftCtr = tgmApprove.CellValue(colAPrftCtr, lRow)
+        txtDPrftCtrName = fnGetPrftName(txtDPrftCtr)
+    End If
+    
+    Screen.MousePointer = vbHourglass
+    subEnableEmployee False
+    subEnableDPrftCtr False
+    tblDetails.Enabled = True
+    
+    If Not fnLoadBonusDetails(txtEmployee, txtDPrftCtr) Then
+        cmdCancel_Click TabDetails
+        Exit Sub
+    End If
+    
+    sArBCodes = Split(tgmApprove.CellValue(colAHdnBAmtLvls, lRow), ",")
     For i = 0 To UBound(sArBCodes)
         sArCodeLvls = Split(sArBCodes(i), "~")
         For j = 0 To UBound(sArCodeLvls)
-            tgmDetail.CellValue(colDBAmt, k) = Format(sArCodeLvls(j), "#,#0.00")
+            tgmDetail.CellValue(colDBAmt, k) = Format(sArCodeLvls(j), "#,##0.00")
             k = k + 1
         Next j
     Next i
@@ -4147,8 +4362,12 @@ Private Sub subEnterBonusPhaseII()
     
 End Sub
 
-Private Function fnLoadBonusDetails(lEmpNbr As Long, Optional sSql As String) As Boolean
+Private Function fnLoadBonusDetails(lEmpNbr As Long, _
+                                    nPrftCtr As Integer, _
+                                    Optional sSql As String) As Boolean
+    
     Const SUB_NAME As String = "fnLoadBonusDetails"
+    
     Dim strSQL As String
     Dim rsTemp As Recordset
     
@@ -4172,14 +4391,11 @@ Private Function fnLoadBonusDetails(lEmpNbr As Long, Optional sSql As String) As
     If txtFrequency <> "" Then
         strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(Trim(txtFrequency))
     End If
-    If txtStartDate <> "" Then
-        strSQL = strSQL & " AND bm_eligible_date <= " & tfnDateString(txtStartDate, True)
-        strSQL = strSQL & " AND bm_stop_date >= " & tfnDateString(txtStartDate, True)
-    Else
-        strSQL = strSQL & " AND bm_eligible_date <= " & tfnDateString(Date, True)
-        strSQL = strSQL & " AND bm_stop_date >= " & tfnDateString(Date, True)
-    End If
+    
+    strSQL = strSQL & " AND bm_eligible_date <= " & tfnDateString(txtStartDate, True)
+    strSQL = strSQL & " AND bm_stop_date >= " & tfnDateString(txtEndDate, True)
     strSQL = strSQL & " ORDER BY bm_bonus_code, bm_sequence"
+    
     If sSql = "" Then
         strSQL = strSQL & ", bf_level"
     End If
@@ -4205,6 +4421,15 @@ Private Sub subEnableEmployee(bOnOff As Boolean)
     cmdEmpName.Enabled = bOnOff
     subEnableSearchbtn cmdEmployee, bOnOff
     subEnableSearchbtn cmdEmpName, bOnOff
+End Sub
+
+Private Sub subEnableDPrftCtr(bOnOff As Boolean)
+    txtDPrftCtr.Enabled = bOnOff
+    cmdDPrftCtr.Enabled = bOnOff
+    txtDPrftCtrName.Enabled = bOnOff
+    cmdDPrftCtrName.Enabled = bOnOff
+    subEnableSearchbtn cmdDPrftCtr, bOnOff
+    subEnableSearchbtn cmdDPrftCtrName, bOnOff
 End Sub
 
 Private Sub subShowFormulaDetails()
@@ -5019,13 +5244,15 @@ End Sub
 
 Private Sub subSetFloatingSQL(Index As Integer)
     Dim strSQL As String
-    Dim sPrftCtrList As String
     
     Select Case Index
         Case TabSales
             strSQL = "SELECT prft_ctr, prft_name FROM sys_prft_ctr"
             strSQL = strSQL + " WHERE prft_type IN ('R', 'B')"
-            sPrftCtrList = fnBuildPrftCtrList()
+            
+            Dim sPrftCtrList As String
+            sPrftCtrList = fnBuildList(tgmSales, colSPrftCtr, 1, True, False, True)
+            
             If sPrftCtrList <> "" Then
                 strSQL = strSQL + " AND prft_ctr NOT IN (" + sPrftCtrList + ")"
             End If
@@ -5058,11 +5285,11 @@ Private Sub tblDropDown_LostFocus(Index As Integer)
     End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
     If Index = nTabHours Then
-        objHours.tblFloating_MouseUp Button, Shift, X, Y
+        objHours.tblFloating_MouseUp Button, Shift, x, y
     Else
-        tgfDropdown(Index).MouseUp Y
+        tgfDropdown(Index).MouseUp y
     End If
 End Sub
 
@@ -5553,8 +5780,8 @@ Private Sub tblSales_LostFocus()
     subSetStdBtn TabSales, tgmSales
 End Sub
 
-Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsSales.MouseUp Button, Shift, Y
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsSales.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -5905,27 +6132,269 @@ Private Function fnCstr(v) As String
     End If
 End Function
 
-Private Function fnBuildPrftCtrList() As String
-    Dim sTemp As String
-    Dim i As Long
+Private Sub txtEmployee_Change()
+    cValidDetail.Change txtEmployee
+    tgcDropdown.Change txtEmployee
+End Sub
+
+Private Sub txtEmployee_GotFocus()
+    tgcDropdown.GotFocus txtEmployee
+    cValidDetail.GotFocus txtEmployee
     
-    If tgmSales.RowCount <= 1 Then
-        Exit Function
+    If tgcDropdown.SingleRecordSelected Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            subEnterBonusPhaseII
+        Else
+            subSetFocus txtDPrftCtr
+        End If
     End If
     
-    For i = 0 To tgmSales.RowCount - 1
-        If i <> tgmSales.GetCurrentRowNumber Then
-            If tgmSales.ValidCell(colSPrftCtr, i) Then
-                sTemp = sTemp & tfnRound(tgmSales.CellValue(colSPrftCtr, i)) & ","
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtEmployee_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtEmployee) = fnSetComboSQL(txtEmployee.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtEmployee, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+       If KeyAscii = vbKeyReturn Then
+          If tgcDropdown.SingleRecordSelected Then
+                If cValidDetail.FirstInvalidInput < 0 Then
+                    subEnterBonusPhaseII
+                Else
+                    subSetFocus txtDPrftCtr
+                End If
+                Screen.MousePointer = vbDefault
+          End If
+          KeyAscii = 0
+       End If
+    Else
+        cValidDetail.Keypress txtEmployee, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtEmployee_LostFocus()
+    tgcDropdown.LostFocus txtEmployee
+    If cValidDetail.LostFocus(txtEmployee, cmdEmployee, txtEmpName, cmdEmpName) Then
+        
+    End If
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtEmpName_Change()
+    cValidDetail.Change txtEmpName
+    tgcDropdown.Change txtEmpName
+End Sub
+
+Private Sub txtEmpName_GotFocus()
+    tgcDropdown.GotFocus txtEmpName
+    cValidDetail.GotFocus txtEmpName
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            subEnterBonusPhaseII
+        Else
+            subSetFocus txtDPrftCtr
+        End If
+    End If
+
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtEmpName_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtEmpName) = fnSetComboSQL(txtEmpName.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+    
+    bKeyCode = tgcDropdown.Keypress(txtEmpName, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                If cValidDetail.FirstInvalidInput < 0 Then
+                    subEnterBonusPhaseII
+                Else
+                    subSetFocus txtDPrftCtr
+                End If
+                
+                Screen.MousePointer = vbDefault
+            End If
+            KeyAscii = 0
+        End If
+    Else
+        cValidDetail.Keypress txtEmpName, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtEmpName_LostFocus()
+    tgcDropdown.LostFocus txtEmpName
+    If cValidDetail.LostFocus(txtEmployee, cmdEmployee, txtEmpName, cmdEmpName) Then
+        'MsgBox ""
+    End If
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdEmployee_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.ComboSQL(txtEmployee) = fnSetComboSQL(txtEmployee.TabIndex)
+    tgcDropdown.Click cmdEmployee
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdEmpName_Click()
+    tgcDropdown.ComboSQL(txtEmpName) = fnSetComboSQL(txtEmpName.TabIndex)
+    tgcDropdown.Click cmdEmpName
+End Sub
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Private Sub txtDPrftCtr_Change()
+    cValidDetail.Change txtDPrftCtr
+    tgcDropdown.Change txtDPrftCtr
+End Sub
+
+Private Sub txtDPrftCtr_GotFocus()
+    tgcDropdown.GotFocus txtDPrftCtr
+    cValidDetail.GotFocus txtDPrftCtr
+    
+    If tgcDropdown.SingleRecordSelected Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            subEnterBonusPhaseII
+        End If
+    End If
+    
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtDPrftCtr_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtDPrftCtr) = fnSetComboSQL(txtDPrftCtr.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+        
+    bKeyCode = tgcDropdown.Keypress(txtDPrftCtr, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+       If KeyAscii = vbKeyReturn Then
+          If tgcDropdown.SingleRecordSelected Then
+                If cValidDetail.FirstInvalidInput < 0 Then
+                    subEnterBonusPhaseII
+                End If
+                Screen.MousePointer = vbDefault
+          End If
+          KeyAscii = 0
+       End If
+    Else
+        cValidDetail.Keypress txtDPrftCtr, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtDPrftCtr_LostFocus()
+    tgcDropdown.LostFocus txtDPrftCtr
+    If cValidDetail.LostFocus(txtDPrftCtr, cmdDPrftCtr, txtDPrftCtrName, cmdDPrftCtrName) Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            If ActiveControl Is tblDetails Then
+                subEnterBonusPhaseII
             End If
         End If
-    Next i
-    
-    If sTemp <> "" Then
-        fnBuildPrftCtrList = Left(sTemp, Len(sTemp) - 1)
     End If
-End Function
+    Screen.MousePointer = vbDefault
+End Sub
 
+Private Sub txtDPrftCtrName_Change()
+    cValidDetail.Change txtDPrftCtrName
+    tgcDropdown.Change txtDPrftCtrName
+End Sub
+
+Private Sub txtDPrftCtrName_GotFocus()
+    tgcDropdown.GotFocus txtDPrftCtrName
+    cValidDetail.GotFocus txtDPrftCtrName
+    Screen.MousePointer = vbDefault
+    
+    If tgcDropdown.SingleRecordSelected Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            subEnterBonusPhaseII
+        End If
+    End If
+
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub txtDPrftCtrName_KeyPress(KeyAscii As Integer)
+    Dim bKeyCode As Boolean
+    
+    If KeyAscii = vbKeyReturn Then
+        tgcDropdown.ComboSQL(txtDPrftCtrName) = fnSetComboSQL(txtDPrftCtrName.TabIndex)
+        Screen.MousePointer = vbHourglass
+    End If
+    
+    bKeyCode = tgcDropdown.Keypress(txtDPrftCtrName, KeyAscii)
+    Screen.MousePointer = vbDefault
+    
+    If Not bKeyCode Then
+        If KeyAscii = vbKeyReturn Then
+            If tgcDropdown.SingleRecordSelected Then
+                If cValidDetail.FirstInvalidInput < 0 Then
+                    subEnterBonusPhaseII
+                End If
+                
+                Screen.MousePointer = vbDefault
+            End If
+            KeyAscii = 0
+        End If
+    Else
+        cValidDetail.Keypress txtDPrftCtrName, KeyAscii
+    End If
+
+End Sub
+
+Private Sub txtDPrftCtrName_LostFocus()
+    tgcDropdown.LostFocus txtDPrftCtrName
+    If cValidDetail.LostFocus(txtDPrftCtr, cmdDPrftCtr, txtDPrftCtrName, cmdDPrftCtrName) Then
+        If cValidDetail.FirstInvalidInput < 0 Then
+            If ActiveControl Is tblDetails Then
+                subEnterBonusPhaseII
+            End If
+        End If
+    End If
+    
+    If ActiveControl Is tblDetails Then
+        If tgmDetail.RowCount <= 0 Then
+            SendKeys "{TAB}", True
+        End If
+    End If
+    
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdDPrftCtr_Click()
+    Screen.MousePointer = vbHourglass
+    tgcDropdown.ComboSQL(txtDPrftCtr) = fnSetComboSQL(txtDPrftCtr.TabIndex)
+    tgcDropdown.Click cmdDPrftCtr
+    Screen.MousePointer = vbDefault
+End Sub
+
+Private Sub cmdDPrftCtrName_Click()
+    tgcDropdown.ComboSQL(txtDPrftCtrName) = fnSetComboSQL(txtDPrftCtrName.TabIndex)
+    tgcDropdown.Click cmdDPrftCtrName
+End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -5955,6 +6424,10 @@ End Sub
 
 Private Sub txtEmployeeName_KeyPress(KeyAscii As Integer)
     objHours.txtEmployeeName_KeyPress KeyAscii
+End Sub
+
+Private Sub txtEmployeeName_LostFocus()
+    objHours.txtEmployeeName_LostFocus
 End Sub
 
 Private Sub cmdEmployeeNumber_Click()
@@ -6021,8 +6494,8 @@ Private Sub tblTimeCard_LostFocus()
     objHours.tblTimeCard_LostFocus
 End Sub
 
-Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, x, y
 End Sub
 
 Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)

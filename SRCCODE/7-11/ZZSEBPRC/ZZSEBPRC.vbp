@@ -29,6 +29,7 @@ Class=clsFloatingDropDown; ..\..\..\SHARED\ClsFiles\Fltdrpdn.cls
 Class=clsColumns; ..\..\..\SHARED\ClsFiles\COLUMN.CLS
 Class=clsCondition; ..\..\..\SHARED\ClsFiles\Condition.cls
 Class=clsPRFHOURS; PRFHOURS.CLS
+Class=clsColumnExtension; ..\..\..\SHARED\ClsFiles\textext.cls
 IconForm="frmZZSEBPRC"
 Startup="Sub Main"
 HelpFile="FACTOR.HLP"

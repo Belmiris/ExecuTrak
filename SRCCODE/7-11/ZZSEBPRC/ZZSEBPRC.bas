@@ -14,8 +14,11 @@ Public Const EDIT_MODE As Integer = 2
 Public sLogFilePath As String
 Public tgmSales As clsTGSpreadSheet
 Public tgsSales As clsTGSelector
+
 Public tgmApprove As clsTGSpreadSheet
 Public tgsApprove As clsTGSelector
+Public tgcExtension As clsColumnExtension
+
 Public tgmDetail As clsTGSpreadSheet
 
 Public Const TabSales As Integer = 0
@@ -58,6 +61,7 @@ Public Const colAPrftCtr As Integer = 4
 Public Const colAPayCode As Integer = 5
 Public Const colAPayHours As Integer = 6
 Public Const colABonusAmt As Integer = 7
+Public colAHdnPrftName As Integer
 Public colAHdnBAmtLvls As Integer
 
 'Detail Grid Column Names
@@ -68,6 +72,15 @@ Public Const colDBType As Integer = 3
 Public Const colDBFreq As Integer = 4
 Public Const colDElgDate As Integer = 5
 Public Const colDBAmt As Integer = 6
+
+Public Const nWeek As Integer = 0
+Public Const sWeek As String = "W"
+Public Const nOneMth As Integer = 1
+Public Const sOneMth As String = "M"
+Public Const nGas As Integer = 2
+Public Const sGas As String = "G"
+Public Const nThreeMth As Integer = 3
+Public Const sThreeMth As String = "Q"
 
 Public vArrBonus() As Variant
 Public objMath As clsEquation
@@ -403,7 +416,7 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
         Exit Function
     End If
     
-    fnGetBonusAmount = fnCalculateBonus(nPrftCtr, _
+    fnGetBonusAmount = fnCalculateBonus(lEmployeeNo, nPrftCtr, _
         tfnRound(rsTemp!bf_percent, DEFAULT_DECIMALS), _
         tfnRound(rsTemp!bf_dollar, 2), _
         tfnRound(rsTemp!bf_amount1, 2), _
@@ -445,7 +458,8 @@ Public Function fnInsertHoldBonus(lEmpNo As Long, sPayCode As String, dChkAmt As
 End Function
 
 'This function will calculate the amount for 1 Employee, 1 BCode and 1 Level at a time
-Private Function fnCalculateBonus(nPrftCtr As Integer, _
+Private Function fnCalculateBonus(lEmpNo As Long, _
+                                  nPrftCtr As Integer, _
                                   PCT As Double, _
                                   DOL As Double, _
                                   AMT1 As Double, _
@@ -527,13 +541,19 @@ Private Function fnCalculateBonus(nPrftCtr As Integer, _
     End If
     
     'Get real values...
-    V1 = fnGetVarValue(nPrftCtr, sV1, sErrMsg)
-    V2 = fnGetVarValue(sV2, sErrMsg)
-    V3 = fnGetVarValue(sV3, sErrMsg)
-    
+    V1 = fnGetVarValue(lEmpNo, nPrftCtr, "v1", sV1, sErrMsg)
     If sErrMsg <> "" Then
         subLogErrMsg sErrMsg
-        Exit Function
+    End If
+    
+    V2 = fnGetVarValue(lEmpNo, nPrftCtr, "v2", sV2, sErrMsg)
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
+    End If
+    
+    V3 = fnGetVarValue(lEmpNo, nPrftCtr, "v3", sV3, sErrMsg)
+    If sErrMsg <> "" Then
+        subLogErrMsg sErrMsg
     End If
     
     'set the variables value for condition
@@ -614,6 +634,7 @@ End Function
 
 Private Function fnGetVarValue(lEmpNo As Long, _
                                nPrftCtr As Integer, _
+                               sV As String, _
                                ByVal sVariable As String, _
                                sErrMsg As String) As Double
                                
@@ -621,17 +642,11 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     
     Dim strSQL As String
     Dim rsTemp As Recordset
-    Dim lSysParm3004  As Long
-    Dim nEmpLevel As Integer
-    Dim sDateHired As String
-    Dim sDateTerminated As String
-    Dim sDateStart As String
-    Dim sDateEnd As String
-    Dim lDiff As Long
-    Dim dDebitAmt As Double
-    Dim dCreditAmt As Double
     Dim i As Long
     Dim sarrVariable()
+    Dim sVinV As String
+    
+    sVinV = sVariable + " in " + sV
     
     'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
     sarrVariable = Array("inside_sales", _
@@ -692,134 +707,23 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
             
         Case sarrVariable(4)  'months in grade
-            strSQL = "SELECT prm_emp_level, prm_date_hired, prm_date_termed"
-            strSQL = strSQL & " FROM pr_master"
-            strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-                sErrMsg = "Failed to access the database to get " & sVariable
-                Exit Function
-            End If
-            If rsTemp.RecordCount = 0 Then
-                sErrMsg = "Employee record not found for " & sVariable
-                Exit Function
-            End If
-            If IsNull(rsTemp!prm_emp_level) Then
-                sErrMsg = "Employee level is NULL for " & sVariable
-                Exit Function
-            End If
-            
-            nEmpLevel = tfnRound(rsTemp!prm_emp_level)
-            sDateHired = tfnFormatDate(fnGetField(rsTemp!prm_date_hired))
-            sDateTerminated = tfnFormatDate(fnGetField(rsTemp!prm_date_termed))
-            
-            strSQL = "SELECT prhs_effect_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
-            strSQL = strSQL & " FROM pr_history"
-            strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
-            strSQL = strSQL & " ORDER BY prhs_effect_dt"
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-                sErrMsg = "Failed to access the database to get " & sVariable
-                Exit Function
-            End If
-            If rsTemp.RecordCount = 0 Then
-                sErrMsg = "Employee history record not found for " & sVariable
-                
-                If IsValidDate(sDateHired) Then
-                    If IsValidDate(sDateTerminated) Then
-                        lDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
-                    Else
-                        lDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(Date)))
-                    End If
-                End If
-                
-                fnGetVarValue = lDiff
-                Exit Function
-            End If
-            
-            If rsTemp.RecordCount = 1 Then
-                If tfnRound(rsTemp!prhs_emp_level) = nEmpLevel Then
-                    sDateStart = tfnFormatDate(rsTemp!prhs_effective_dt)
-                    sDateEnd = tfnFormatDate(Date)
-                    lDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
-                End If
-            Else
-                For i = 1 To rsTemp.RecordCount
-                    If tfnRound(rsTemp!prhs_emp_level) = nEmpLevel Then
-                        sDateStart = tfnFormatDate(rsTemp!prhs_effective_dt)
-                        If i <= rsTemp.RecordCount - 1 Then
-                            
-                        End If
-                    Else
-                        sDateStart = ""
-                    End If
-                    rsTemp.MoveNext
-                Next i
-            End If
-            
+            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo)
             Exit Function
-            
+        
         Case sarrVariable(5)  'months as manager
+            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M")
+            Exit Function
+        
         Case sarrVariable(6)  'years as manager
+            fnGetVarValue = fnMonthsInGrade(sVinV, sErrMsg, lEmpNo, "M", True)
+            Exit Function
+        
         Case sarrVariable(7)  'months employed
-            strSQL = "SELECT prm_date_hired, prhs_date_termed"
-            strSQL = strSQL & " FROM pr_master, pr_history"
-            strSQL = strSQL & " WHERE prm_empno = prhs_empno"
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-                sErrMsg = "Failed to access the database to get " & sVariable
-                Exit Function
-            End If
-            If rsTemp.RecordCount = 0 Then
-                sErrMsg = "No record found for " & sVariable
-                Exit Function
-            End If
-            If fnGetField(rsTemp!prhs_date_termed) <> "" Then
-                fnGetVarValue = DateDiff("m", rsTemp!prm_date_hired, rsTemp!prhs_date_termed)
-            End If
-            
+            fnGetVarValue = fnMonthsEmployed(sVinV, sErrMsg, lEmpNo)
             Exit Function
             
         Case sarrVariable(8)  'shortage amount
-            strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 3004"
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-                sErrMsg = "Failed to access the database to get " & tfnSQLString(sVariable)
-                Exit Function
-            End If
-            
-            If rsTemp.RecordCount = 0 Then
-                sErrMsg = "SysParm#3004 not found for " & sVariable
-                Exit Function
-            End If
-                
-            lSysParm3004 = tfnRound(rsTemp!parm_field)
-            
-            strSQL = "SELECT SUM (gljrs_amount) AS var_value, gljrs_flag "
-            strSQL = strSQL & " FROM gl_jrnl_rs, rs_shiftlink"
-            strSQL = strSQL & " WHERE gljrs_shl = rssl_shl"
-            strSQL = strSQL & " AND gljrs_account = " & lSysParm3004
-            strSQL = strSQL & " AND rssl_prft_ctr = " & nPrftCtr
-            strSQL = strSQL & " AND rssl_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
-            strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
-            strSQL = strSQL & " GROUP BY gljrs_flag"
-            If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-                sErrMsg = "Failed to access the database to get " & tfnSQLString(sVariable)
-                Exit Function
-            End If
-            
-            If rsTemp.RecordCount = 0 Then
-                sErrMsg = "No record found for " & sVariable
-                Exit Function
-            End If
-            
-            rsTemp.MoveFirst
-            For i = 1 To rsTemp.RecordCount
-                If fnGetField(rsTemp!gljrs_flag) = "D" Then
-                    dDebitAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
-                Else
-                    dCreditAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
-                End If
-            Next i
-            
-            fnGetVarValue = dDebitAmt - dCreditAmt
-            
+            fnGetVarValue = fnShortageAmount(sVinV, sErrMsg, nPrftCtr)
             Exit Function
             
         Case sarrVariable(9)  'check_amount
@@ -842,7 +746,7 @@ Private Function fnGetVarValue(lEmpNo As Long, _
             Exit Function
         
         Case Else
-            sErrMsg = "Variable " + tfnSQLString(sVariable) + " is not defined"
+            sErrMsg = "Variable " + sVinV + " is not defined"
             Exit Function
     
     End Select
@@ -853,14 +757,349 @@ Private Function fnGetVarValue(lEmpNo As Long, _
     End If
     
     If rsTemp.RecordCount = 0 Then
-        sErrMsg = "No record found for " & sVariable
+        sErrMsg = "No record found for " & sVinV
         Exit Function
     End If
     
     If rsTemp.RecordCount > 0 Then
         fnGetVarValue = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
     End If
+End Function
+
+Private Function fnMonthsInGrade(sVinV As String, _
+                                 sErrMsg As String, _
+                                 lEmpNo As Long, _
+                                 Optional sGrade As String = "", _
+                                 Optional bConvertToYear As Boolean = False) As Double
+                                 
+    Const SUB_NAME As String = "fnMonthsInGrade"
     
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim nEmpLevel As Integer
+    Dim aryEmpLevelList()
+    Dim sDateHired As String
+    Dim sDateTerminated As String
+    Dim sDateStart As String
+    Dim sDateEnd As String
+    Dim dDiff As Double
+    Dim i As Long
+    Dim nEmpLevelCount As Integer
+    
+    fnMonthsInGrade = 0#
+    
+    'get the employee level list for the Grade
+    nEmpLevelCount = -1
+    ReDim aryEmpLevelList(0)
+    
+    If sGrade <> "" Then
+        strSQL = "SELECT bg_emp_level"
+        strSQL = strSQL & " FROM bonus_grades"
+        strSQL = strSQL & " WHERE bg_grade = " + tfnSQLString(sGrade)
+        If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+            sErrMsg = "Failed to access the database to get " & sVinV
+            Exit Function
+        End If
+        If rsTemp.RecordCount = 0 Then
+            sErrMsg = "Grade record not found for " & sVinV
+            Exit Function
+        End If
+        
+        For i = 1 To rsTemp.RecordCount
+            If Not IsNull(rsTemp!bg_emp_level) Then
+                nEmpLevelCount = nEmpLevelCount + 1
+                ReDim Preserve aryEmpLevelList(nEmpLevelCount)
+                aryEmpLevelList(nEmpLevelCount) = tfnRound(rsTemp!bg_emp_level)
+            End If
+            rsTemp.MoveNext
+        Next i
+    End If
+    
+    strSQL = "SELECT prm_emp_level, prm_date_hired, prm_date_termed"
+    strSQL = strSQL & " FROM pr_master"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee record not found for " & sVinV
+        Exit Function
+    End If
+    If IsNull(rsTemp!prm_emp_level) Then
+        sErrMsg = "Employee level is NULL for " & sVinV
+        Exit Function
+    End If
+    
+    nEmpLevel = tfnRound(rsTemp!prm_emp_level)
+    sDateHired = fnGetField(rsTemp!prm_date_hired)
+    sDateTerminated = fnGetField(rsTemp!prm_date_termed)
+    
+    strSQL = "SELECT prhs_effect_dt, prhs_emp_level, prhs_date_hired, prhs_date_termed"
+    strSQL = strSQL & " FROM pr_history"
+    strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+    strSQL = strSQL & " ORDER BY prhs_effect_dt"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee history record not found for " & sVinV
+        'use date hired and/or date terminated for calculation
+        If Not IsValidDate(sDateHired) Then
+            sErrMsg = "Date Hired is not valid for " & sVinV
+            Exit Function
+        End If
+        
+        If nEmpLevelCount < 0 Or fnFindInList(nEmpLevel, aryEmpLevelList, nEmpLevelCount) Then
+            If Not IsValidDate(sDateTerminated) Then
+                sDateTerminated = frmZZSEBPRC!txtEndDate
+            End If
+            dDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+        End If
+        
+        If bConvertToYear Then
+            fnMonthsInGrade = dDiff / 12
+        Else
+            fnMonthsInGrade = dDiff
+        End If
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 1 Then
+        If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+           (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+            sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+            If Not IsValidDate(sDateStart) Then
+                sErrMsg = "Effective Date is not valid for " & sVinV
+                Exit Function
+            End If
+            
+            sDateEnd = frmZZSEBPRC!txtEndDate
+            dDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+        End If
+    Else
+        dDiff = 0
+        i = 1
+        Do
+            If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+               (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+                sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+                If IsValidDate(sDateStart) Then
+                    If i <= rsTemp.RecordCount - 1 Then
+                        rsTemp.MoveNext
+                        sDateEnd = fnGetField(rsTemp!prhs_effective_dt)
+                        If Not IsValidDate(sDateEnd) Then
+                            sErrMsg = "Effective Date is not valid for " & sVinV
+                            Exit Function
+                        End If
+                        
+                        dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                    Else
+                        sDateStart = fnGetField(rsTemp!prhs_effective_dt)
+                        Exit Do
+                    End If
+                Else
+                    sDateStart = ""
+                    sErrMsg = "Effective Date is not valid for " & sVinV
+                    Exit Function
+                End If
+            Else
+                sDateStart = ""
+                rsTemp.MoveNext
+            End If
+        Loop Until rsTemp.EOF
+        
+        'last record - from last effective date until now
+        If sDateStart <> "" Then
+            If (nEmpLevelCount < 0 And tfnRound(rsTemp!prhs_emp_level) = nEmpLevel) Or _
+               (fnFindInList(tfnRound(rsTemp!prhs_emp_level), aryEmpLevelList, nEmpLevelCount)) Then
+                sDateEnd = frmZZSEBPRC!txtEndDate
+                dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+            End If
+        End If
+    End If
+    
+    If bConvertToYear Then
+        fnMonthsInGrade = dDiff / 12
+    Else
+        fnMonthsInGrade = dDiff
+    End If
+End Function
+
+Private Function fnFindInList(vItemToFind As Variant, _
+                                aryList() As Variant, _
+                                nListCount As Integer) As Boolean
+    Dim i As Integer
+    Dim sItemToFind As String
+    Dim lItemToFind As Long
+    Dim bIsStringType As Boolean
+    
+    If VarType(vItemToFind) = vbString Then
+        bIsStringType = True
+    End If
+    
+    For i = 0 To nListCount
+        If bIsStringType Then
+            If CStr(aryList(i)) = CStr(vItemToFind) Then
+                fnFindInList = True
+                Exit Function
+            End If
+        Else
+            If Val(aryList(i)) = Val(vItemToFind) Then
+                fnFindInList = True
+                Exit Function
+            End If
+        End If
+    Next i
+End Function
+
+Private Function fnMonthsEmployed(sVinV As String, _
+                                  sErrMsg As String, _
+                                  lEmpNo As Long) As Double
+    
+    Const SUB_NAME As String = "fnMonthsEmployed"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sDateHired As String
+    Dim sDateTerminated As String
+    Dim sDateStart As String
+    Dim sDateEnd As String
+    Dim dDiff As Double
+    Dim i As Long
+
+    fnMonthsEmployed = 0#
+            
+    strSQL = "SELECT prm_date_hired, prm_date_termed"
+    strSQL = strSQL & " FROM pr_master"
+    strSQL = strSQL & " WHERE prm_empno = " & lEmpNo
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee record not found for " & sVinV
+        Exit Function
+    End If
+    
+    sDateHired = fnGetField(rsTemp!prm_date_hired)
+    sDateTerminated = fnGetField(rsTemp!prm_date_termed)
+    
+    strSQL = "prhs_date_hired, prhs_date_termed"
+    strSQL = strSQL & " FROM pr_history"
+    strSQL = strSQL & " WHERE prhs_empno = " & lEmpNo
+    strSQL = strSQL & " AND prhs_date_hired <> " + tfnDateString(sDateHired)
+    strSQL = strSQL & " AND prhs_date_termed IS NOT NULL"
+    strSQL = strSQL & " ORDER BY prhs_date_hired"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & sVinV
+        Exit Function
+    End If
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "Employee history record not found for " & sVinV
+        'use date hired and/or date terminated for calculation
+        If Not IsValidDate(sDateHired) Then
+            sErrMsg = "Date Hired is not valid for " & sVinV
+            Exit Function
+        End If
+            
+        If Not IsValidDate(sDateTerminated) Then
+            sDateTerminated = frmZZSEBPRC!txtEndDate
+        End If
+        
+        dDiff = Abs(DateDiff("m", CDate(sDateHired), CDate(sDateTerminated)))
+        
+        fnMonthsEmployed = dDiff
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 1 Then
+        sDateStart = fnGetField(rsTemp!prhs_date_hired)
+        sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
+        If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
+            If CDate(sDateStart) < CDate(sDateHired) Then
+                dDiff = Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+            End If
+        End If
+    Else
+        dDiff = 0
+        i = 1
+        Do
+            sDateStart = fnGetField(rsTemp!prhs_date_hired)
+            sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
+            If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
+                If CDate(sDateStart) < CDate(sDateHired) Then
+                    dDiff = dDiff + Abs(DateDiff("m", CDate(sDateStart), CDate(sDateEnd)))
+                End If
+            End If
+            rsTemp.MoveNext
+        Loop Until rsTemp.EOF
+        
+        'from date hired until now (ending date)
+        dDiff = dDiff + Abs(DateDiff("m", CDate(sDateHired), CDate(frmZZSEBPRC!txtEndDate)))
+    End If
+    
+    fnMonthsEmployed = dDiff
+End Function
+
+Private Function fnShortageAmount(sVinV As String, _
+                                  sErrMsg As String, _
+                                  nPrftCtr As Integer) As Double
+    
+    Const SUB_NAME As String = "fnShortageAmount"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lSysParm3004  As Long
+    Dim dDebitAmt As Double
+    Dim dCreditAmt As Double
+    Dim i As Long
+
+    fnShortageAmount = 0#
+            
+    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 3004"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & tfnSQLString(sVinV)
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "SysParm#3004 not found for " & sVinV
+        Exit Function
+    End If
+        
+    lSysParm3004 = tfnRound(rsTemp!parm_field)
+    
+    strSQL = "SELECT SUM (gljrs_amount) AS var_value, gljrs_flag "
+    strSQL = strSQL & " FROM gl_jrnl_rs, rs_shiftlink"
+    strSQL = strSQL & " WHERE gljrs_shl = rssl_shl"
+    strSQL = strSQL & " AND gljrs_account = " & lSysParm3004
+    strSQL = strSQL & " AND rssl_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND rssl_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtEndDate, True)
+    strSQL = strSQL & " GROUP BY gljrs_flag"
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access the database to get " & tfnSQLString(sVinV)
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        sErrMsg = "No record found for " & sVinV
+        Exit Function
+    End If
+    
+    rsTemp.MoveFirst
+    For i = 1 To rsTemp.RecordCount
+        If fnGetField(rsTemp!gljrs_flag) = "D" Then
+            dDebitAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+        Else
+            dCreditAmt = tfnRound(rsTemp!var_value, DEFAULT_DECIMALS)
+        End If
+    Next i
+    
+    fnShortageAmount = dDebitAmt - dCreditAmt
+
 End Function
 
 'return error message if any
@@ -1159,4 +1398,92 @@ Public Function IsValidDate(ByVal sDate As String) As Boolean
     
     IsValidDate = True
 End Function
+
+Public Function fnBuildList(tgmEditor As clsTGSpreadSheet, _
+                             nColIndex As Integer, _
+                             sColType As Integer, _
+                             Optional bCheckValid As Boolean = True, _
+                             Optional bIncludeCurrentRow As Boolean = False, _
+                             Optional bUnique As Boolean = False, _
+                             Optional nWhereCol As Integer = -1, _
+                             Optional sWhereItem As String = "") As String
+    
+    Const ColType_NUMERIC As Integer = 1
+    Const ColType_STRING As Integer = 2
+    
+    Dim sTemp As String
+    Dim i As Long
+    Dim bAdd As Boolean
+    Dim aryList() As Variant
+    Dim nListCount As Integer
+    Dim j As Integer
+    Dim sPrev As String
+    
+    If tgmEditor.RowCount < 1 Then
+        Exit Function
+    End If
+    
+    If tgmEditor.RowCount = 1 And Not bIncludeCurrentRow Then
+        Exit Function
+    End If
+    
+    sTemp = ""
+    
+    nListCount = -1
+    
+    For i = 0 To tgmEditor.RowCount - 1
+        If fnGetField(tgmEditor.CellValue(nColIndex, i)) <> "" Then
+            If nWhereCol < 0 Then
+                bAdd = True
+            Else
+                bAdd = fnGetField(tgmEditor.CellValue(nWhereCol, i)) = sWhereItem
+            End If
+            If bAdd Then
+                If bUnique Then
+                    If sColType = ColType_NUMERIC Then
+                        bAdd = Not fnFindInList(tfnRound(tgmEditor.CellValue(nColIndex, i)), aryList, nListCount)
+                    Else
+                        bAdd = Not fnFindInList(fnGetField(tgmEditor.CellValue(nColIndex, i)), aryList, nListCount)
+                    End If
+                Else
+                    bAdd = True
+                End If
+            End If
+            If bAdd Then
+                bAdd = bIncludeCurrentRow Or ((Not bIncludeCurrentRow) And _
+                    (i <> tgmEditor.GetCurrentRowNumber))
+            End If
+            
+            If bAdd Then
+                If bCheckValid Then
+                    bAdd = tgmEditor.ValidCell(nColIndex, i)
+                End If
+            End If
+            
+            If bAdd Then
+                If sColType = ColType_NUMERIC Then
+                    sTemp = sTemp & tfnRound(tgmEditor.CellValue(nColIndex, i)) & ","
+                Else
+                    sTemp = sTemp & tfnSQLString(tgmEditor.CellValue(nColIndex, i)) & ","
+                End If
+                
+                If bUnique Then
+                    nListCount = nListCount + 1
+                    ReDim Preserve aryList(nListCount)
+                    
+                    If sColType = ColType_NUMERIC Then
+                        aryList(nListCount) = tfnRound(tgmEditor.CellValue(nColIndex, i))
+                    Else
+                        aryList(nListCount) = CStr(tgmEditor.CellValue(nColIndex, i))
+                    End If
+                End If
+            End If
+        End If
+    Next i
+    
+    If sTemp <> "" Then
+        fnBuildList = Left(sTemp, Len(sTemp) - 1)
+    End If
+End Function
+
 

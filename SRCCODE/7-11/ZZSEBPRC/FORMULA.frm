@@ -543,16 +543,21 @@ Private Sub cmdClose_GotFocus()
     frmZZSEBPRC.tfnSetStatusBarMessage "Close Bonus Formula Details"
 End Sub
 
-Private Sub Form_Load()
-    Move frmZZSEBPRC.Left + 162, frmZZSEBPRC.Top + 1160
+Private Sub Form_Activate()
+    DoEvents
     subSetFocus frmFORMULA.cmdClose
     DoEvents
+End Sub
+
+Private Sub Form_Load()
+    Move frmZZSEBPRC.Left + 162, frmZZSEBPRC.Top + 2050
 End Sub
 
 Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolean
     Const SUB_NAME As String = "fnLoadBonusFormula"
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim sType  As String
     
     fnLoadBonusFormula = False
     subClearFormulaDetails
@@ -561,16 +566,31 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
         Exit Function
     End If
     
-    strSQL = "SELECT * FROM bonus_formula WHERE bf_bonus_code = " & tfnSQLString(Trim(sCode))
-    strSQL = strSQL & " AND bf_level = " & tfnRound(nLevel)
+    'get the bonus code type
+    strSQL = "SELECT bc_type FROM bonus_codes WHERE bc_bonus_code = " & tfnSQLString(sCode)
     
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
-        MsgBox "Failed to access database to get formula details", vbExclamation
+        MsgBox "Failed to access database to get commission code type.", vbExclamation
         Exit Function
     End If
     
     If rsTemp.RecordCount = 0 Then
-        MsgBox "No details available", vbExclamation
+        MsgBox "Commission Code does not exist.", vbExclamation
+        Exit Function
+    End If
+    
+    sType = fnGetField(rsTemp!bc_type)
+    
+    strSQL = "SELECT * FROM bonus_formula WHERE bf_bonus_code = " & tfnSQLString(sCode)
+    strSQL = strSQL & " AND bf_level = " & tfnRound(nLevel)
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database to get formula details.", vbExclamation
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        MsgBox "Formula does not exist.", vbExclamation
         Exit Function
     End If
     
@@ -580,19 +600,9 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
         lblAmount1 = tfnRound(rsTemp!bf_amount1, DEFAULT_DECIMALS)
         lblAmount2 = tfnRound(rsTemp!bf_amount2, DEFAULT_DECIMALS)
         lblMaxTotal = tfnRound(rsTemp!bf_max_total, 2)
-        lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
-        lblVariable2 = fnGetField(rsTemp!bf_variable2)
-        If lblVariable2 = "" Then
-            lblVariable2 = "Not Used :"
-        Else
-            lblVariable2 = lblVariable2 & "(v2) :"
-        End If
-        lblVariable3 = fnGetField(rsTemp!bf_variable3)
-        If lblVariable3 = "" Then
-            lblVariable3 = "Not Used :"
-        Else
-            lblVariable3 = lblVariable3 & "(v3) :"
-        End If
+        
+        subEnableVariables sType, rsTemp
+        
         lblFormula = fnGetField(rsTemp!bf_formula)
         lblCondition = fnGetField(rsTemp!bf_condition)
         lblAFormula = fnGetField(rsTemp!bf_adj_formula)
@@ -603,6 +613,54 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
     subSetFocus cmdClose
 
 End Function
+
+Private Sub subEnableVariables(sBonusType As String)
+    If sBonusType = "" Then
+        Exit Sub
+    End If
+    
+    On Error GoTo errTrap
+        
+    lblVariable2 = fnGetField(rsTemp!bf_variable2)
+    If lblVariable2 = "" Then
+        lblVariable2 = "Not Used :"
+    Else
+    End If
+    lblVariable3 = fnGetField(rsTemp!bf_variable3)
+    If lblVariable3 = "" Then
+        lblVariable3 = "Not Used :"
+    Else
+        lblVariable3 = lblVariable3 & "(v3) :"
+    End If
+    
+    If Len(sBonusType) = 3 Then
+        'number of variables allowed
+        Select Case tfnRound(Mid(sBonusType, 2, 1))
+            Case 1
+                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
+                lblVariable2 = "Not Used"
+                lblVariable3 = "Not Used"
+            Case 2
+                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
+                lblVariable2 = lblVariable2 & "(v2) :"
+                lblVariable3 = "Not Used"
+            Case 3
+                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
+                lblVariable2 = lblVariable2 & "(v2) :"
+                lblVariable3 = lblVariable3 & "(v3) :"
+        End Select
+        
+        'max total allowed
+        If UCase(Right(sBonusType, 1)) <> "E" Then
+            txtMaxTotal = "Not Used"
+        End If
+    End If
+
+    Exit Sub
+    
+errTrap:
+    tfnErrHandler "subEnableVariables"
+End Sub
 
 Private Sub subClearFormulaDetails()
     lblPercent = ""
