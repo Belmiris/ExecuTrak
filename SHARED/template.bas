@@ -2010,17 +2010,15 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
 
     Dim sWinSysDir As String
     
-    On Error GoTo errHandler
-    
     sWinSysDir = UCase(Trim(tfnGetSystemDir()))
     
-    'create C:\FACTOR\CRYSTAL if not exists.
-    If Dir("C:\FACTOR", vbDirectory) = "" Then
-        MkDir "C:\FACTOR"
-    End If
-    
-    If Dir("C:\FACTOR\CYSTAL", vbDirectory) = "" Then
-        MkDir "C:\FACTOR\CYSTAL"
+    'delete the bad directory
+    On Error Resume Next
+    If Dir("C:\FACTOR\CYSTAL", vbDirectory) <> "" Then
+        If Dir("C:\FACTOR\CYSTAL\FACTOR.MDB") <> "" Then
+            Kill "C:\FACTOR\CYSTAL\FACTOR.MDB"
+        End If
+        RmDir "C:\FACTOR\CYSTAL"
     End If
 
     If Dir(sWinSysDir + "\FACTOR.MDB", vbNormal) = "" Then
@@ -2031,17 +2029,26 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
         Exit Function
     End If
     
-    If Dir("C:\FACTOR\CYSTAL\FACTOR.MDB", vbNormal) <> "" Then
+    'create C:\FACTOR\CRYSTAL if not exists.
+    If Dir("C:\FACTOR", vbDirectory) = "" Then
+        MkDir "C:\FACTOR"
+    End If
+    
+    If Dir("C:\FACTOR\CRYSTAL", vbDirectory) = "" Then
+        MkDir "C:\FACTOR\CRYSTAL"
+    End If
+    
+    If Dir("C:\FACTOR\CRYSTAL\FACTOR.MDB", vbNormal) <> "" Then
         On Error GoTo errFileInUsed
-        Kill "C:\FACTOR\CYSTAL\FACTOR.MDB"
+        Kill "C:\FACTOR\CRYSTAL\FACTOR.MDB"
     End If
     
     Dim lRet As Long
     
-    lRet = CopyFile(sWinSysDir + "\FACTOR.MDB", "C:\FACTOR\CYSTAL\FACTOR.MDB", 1)
+    lRet = CopyFile(sWinSysDir + "\FACTOR.MDB", "C:\FACTOR\CRYSTAL\FACTOR.MDB", 1)
     
     If lRet = 0 Then
-        sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\CYSTAL'."
+        sErrMsg = "Failed to copy FACTOR.MDB to 'C:\FACTOR\CRYSTAL'."
         If bShowError Then
             MsgBox sErrMsg, vbExclamation
         End If
@@ -2051,17 +2058,8 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
     
     Exit Function
     
-errHandler:
-    sErrMsg = "An error occurred while copying data." + vbCrLf + vbCrLf _
-        + "Error Code: " & Err.Number & ". Error Desc: " & Err.Description + "."
-    If bShowError Then
-        MsgBox sErrMsg, vbExclamation
-    End If
-    
-    Exit Function
-    
 errFileInUsed:
-    sErrMsg = "'C:\FACTOR\CYSTAL\FACTOR.MDB' is in used by another program."
+    sErrMsg = "'C:\FACTOR\CRYSTAL\FACTOR.MDB' is in used by another program."
     If bShowError Then
         MsgBox sErrMsg, vbExclamation
     End If
