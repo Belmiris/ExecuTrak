@@ -527,13 +527,13 @@ Public Sub tblTimeCard_AfterColEdit(ByVal ColIndex As Integer)
     subSetFormStatus
 End Sub
 
-Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    tgcEditor.BeforeColEdit ColIndex, KeyAscii, CANCEL
+Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+    tgcEditor.BeforeColEdit ColIndex, KeyAscii, Cancel
     
     If ColIndex <= COL_EMPNAME Then
             
         If tgcEditor.GetCurrentRowNumber < g_lOriginalRowCount Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     
@@ -543,19 +543,19 @@ Public Sub tblTimeCard_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
             Case COL_PAYCODE1
             
                 If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE1 Then
-                    CANCEL = True
+                    Cancel = True
                 End If
                 
             Case COL_PAYCODE2
                 
                 If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE2 Then
-                    CANCEL = True
+                    Cancel = True
                 End If
                 
             Case COL_PAYCODE3
                 
                 If tblTimeCard.Columns(ColIndex).Caption = sDefaultPAYCODE3 Then
-                    CANCEL = True
+                    Cancel = True
                 End If
                 
         End Select
@@ -722,12 +722,12 @@ Public Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer
     
 End Sub
 
-Public Sub tblTimeCard_Scroll(CANCEL As Integer)
+Public Sub tblTimeCard_Scroll(Cancel As Integer)
     tgcFEditor.Scroll
 End Sub
 
-Public Sub tblTimeCard_SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub tblTimeCard_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Public Sub tblTimeCard_UnboundReadData(ByVal RowBuf As RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -1220,6 +1220,8 @@ Private Function fnValidHours(szText As String, nCol As Integer, lRow As Long) A
         strSQL = "SELECT  * FROM " & sTempPrPay
         strSQL = strSQL & " WHERE pcode = " & tfnSQLString(sPayCode)
         strSQL = strSQL & " AND pempno = " & tfnRound(tgcEditor.CellValue(COL_EMPNO, lRow))
+        'add by junsong 01/21/2003, call 398327
+        strSQL = strSQL & " AND pYear = " & Year(CDate(txtEHDate))
     Else
         tgcEditor.ErrorMessage(nCol) = "No Pay Code, can't enter data here"
         fnValidHours = False
