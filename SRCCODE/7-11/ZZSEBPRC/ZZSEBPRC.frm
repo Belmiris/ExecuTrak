@@ -2790,7 +2790,7 @@ Private Sub eTabMain_Click()
                 tblApprove.Enabled = False
                 Exit Sub
             #End If
-            frmContext.ButtonEnabled(FO_HOLD_UP) = False
+            frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
         Case TabDetails
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
@@ -3489,7 +3489,6 @@ Private Sub subSetupToolBar()
             .AddButton "Add Commission &Code", PRDCLS_UP
             .AddButton "Add Co&mmission Formula", SYS_LOCKS_UP
             .AddButton "&Launch Commssion Master", POFAPLVL_UP
-            .AddButton "&Export to Payroll", PRAPPROV_UP
             .AddButton "View Formula Details", FO_HOLD_UP, , True
         .EndSetupToolbar
     
@@ -5569,6 +5568,7 @@ Private Function fnValidSalesDate(Box As Textbox) As Boolean
             
             txtToDate = fnGetProposedEndDate(txtFromDate, sFreq)
             cValidSls.ValidInput(txtToDate) = True
+            SelectIt txtToDate
         End If
     Else
         If Not IsValidDate(txtFromDate) Then
@@ -5661,8 +5661,13 @@ Private Function fnValidProcessDate(Box As Textbox) As Boolean
     
     If Box Is txtStartDate Then
         If Not IsValidDate(txtEndDate) Then
-            fnValidProcessDate = True
-            Exit Function
+            If cValidate.ValidInput(txtFrequency) And txtEndDate = "" Then
+                txtEndDate = fnGetProposedEndDate(txtStartDate, txtFrequency)
+                cValidate.ResetFlags txtEndDate
+            Else
+                fnValidProcessDate = True
+                Exit Function
+            End If
         End If
     Else
         If Not IsValidDate(txtStartDate) Then
@@ -5755,12 +5760,6 @@ Private Sub txtFromDate_KeyPress(KeyAscii As Integer)
                       Screen.MousePointer = vbDefault
                 End If
             Else
-                If txtToDate = "" And fnGetSalesType() <> sGas Then
-                    If IsValidDate(txtFromDate) Then
-                        txtToDate = fnGetProposedEndDate(txtFromDate, fnGetSalesType())
-                    End If
-                End If
-                    
                 subSetFocus txtToDate
             End If
           KeyAscii = 0

@@ -288,17 +288,17 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             sHeadTitle = fnTranc("", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee", 9, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee Name", 46, vbLeftJustify) & Space(1)
-            sHeadTitle = sHeadTitle & fnTranc("Profit", 6, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Prft", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Pay", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Pay", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Process", 10, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("", 10, vbRightJustify)
             'second line
             sHeadTitle = sHeadTitle & vbCrLf
-            sHeadTitle = fnTranc("Apprv", 5, vbLeftJustify) & Space(1)
+            sHeadTitle = sHeadTitle & fnTranc("Apprv", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Number", 9, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee Name", 46, vbLeftJustify) & Space(1)
-            sHeadTitle = sHeadTitle & fnTranc("Center", 6, vbLeftJustify) & Space(2)
+            sHeadTitle = sHeadTitle & fnTranc("Ctr", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Code", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Hours", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Date", 10, vbLeftJustify) & Space(1)
@@ -1862,8 +1862,14 @@ Public Function fnBuildEmpPrftCtrList() As String
     End If
 End Function
 
-Public Function fnGetProposedEndDate(sStartDate As String, sFreq As String) As String
+Public Function fnGetProposedEndDate(ByVal sStartDate As String, sFreq As String) As String
     Dim sEndDate As String
+    
+    sStartDate = tfnFormatDate(sStartDate)
+    
+    If Not IsValidDate(sStartDate) Then
+        Exit Function
+    End If
     
     Select Case sFreq
     Case "D"
