@@ -2285,14 +2285,15 @@ Property Get CaseSensitive() As Boolean
      CaseSensitive = m_bCaseSensitive
 End Property
 
-'david 10/30/2001
+'david 01/30/2002
+'take care of '%', '_' and '% %'
 'this function will rebuild the criteria string so that it can be used for case insensitive WHERE clause
 'NOTE: need to use the MATCHES keyword in the WHERE clause
 Public Function CaseInSensitiveString(ByVal S As String) As String
     Dim i As Integer
     Dim sRet As String
     Dim sChar As String
-    Dim bSpaceFound As Boolean
+    Dim bStartInserted As Boolean
     
     S = Trim(S)
     
@@ -2302,10 +2303,8 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
         For i = 1 To Len(S)
             sChar = Mid(S, i, 1)
             If sChar = " " Then
-                If Not bSpaceFound Then
-                    sRet = sRet + "*"
-                    bSpaceFound = True
-                End If
+                sRet = sRet + " "
+                bStartInserted = False
             Else
                 If IsAphabet(sChar) Then
                     sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
@@ -2313,17 +2312,15 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
                     sRet = sRet + "?"
                 ElseIf sChar = "%" Then
                     sRet = sRet + "*"
-                    bSpaceFound = True
+                    bStartInserted = True
                 Else
                     sRet = sRet + sChar
                 End If
                 
-                bSpaceFound = False
+                bStartInserted = False
             End If
         Next i
             
-        'david 11/26/2001
-        'sRet = "*" + sRet + "*"
         sRet = sRet + "*"
     End If
     
