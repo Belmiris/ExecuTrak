@@ -104,7 +104,10 @@ Private bNeverDelet As Boolean
 Private sDecimalString As String
 
 Private sTempPrMaster As String
-Private sTempPrPay As String
+'david 03/11/2003  #403275
+'make it public so that can be accessed by clsOTProcessor
+Public sTempPrPay As String
+''''''''''''''''''''''''''
 Private nDataStatus As Integer
 Private Const DATA_INI = 0
 Private Const DATA_LOADED = 1

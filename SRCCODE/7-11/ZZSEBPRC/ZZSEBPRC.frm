@@ -53,7 +53,6 @@ Begin VB.Form frmZZSEBPRC
       ShowFocusRect   =   -1  'True
       Style           =   3
       BorderWidth     =   4
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -87,7 +86,6 @@ Begin VB.Form frmZZSEBPRC
       EndProperty
       BevelOuter      =   0
       PicturePos      =   0
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   9.75
@@ -142,7 +140,6 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -173,7 +170,6 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -264,7 +260,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":12DE
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -301,7 +296,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":13F0
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -338,7 +332,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1502
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -375,7 +368,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1614
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -446,7 +438,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -484,7 +475,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -519,7 +509,6 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -552,7 +541,6 @@ Begin VB.Form frmZZSEBPRC
                EndProperty
                BevelOuter      =   5
                Caption         =   " "
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -592,7 +580,6 @@ Begin VB.Form frmZZSEBPRC
                      Strikethrough   =   0   'False
                   EndProperty
                   BevelOuter      =   6
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -661,7 +648,6 @@ Begin VB.Form frmZZSEBPRC
                      Picture         =   "ZZSEBPRC.frx":1726
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -795,7 +781,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":183C
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -832,7 +817,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":194E
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -869,7 +853,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1A60
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -906,7 +889,6 @@ Begin VB.Form frmZZSEBPRC
                   Picture         =   "ZZSEBPRC.frx":1B72
                   Style           =   3
                   BorderWidth     =   4
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -976,7 +958,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -1014,7 +995,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -1052,7 +1032,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -1088,7 +1067,6 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -1111,7 +1089,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   68
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.76
+                  Size            =   9.75
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1144,7 +1122,6 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -1180,7 +1157,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1217,7 +1193,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1253,7 +1228,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1289,7 +1263,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1320,7 +1293,6 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1452,7 +1424,6 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -1483,7 +1454,6 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1517,7 +1487,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1C84
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1599,7 +1568,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1D96
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1636,7 +1604,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":1EA8
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1678,7 +1645,6 @@ Begin VB.Form frmZZSEBPRC
                         EndProperty
                         BevelOuter      =   5
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -1710,7 +1676,6 @@ Begin VB.Form frmZZSEBPRC
                            EndProperty
                            Style           =   3
                            BorderWidth     =   4
-                           TitleBarHeight  =   24
                            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                               Name            =   "MS Sans Serif"
                               Size            =   9.75
@@ -1743,7 +1708,6 @@ Begin VB.Form frmZZSEBPRC
                            EndProperty
                            Style           =   3
                            BorderWidth     =   4
-                           TitleBarHeight  =   24
                            BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                               Name            =   "MS Sans Serif"
                               Size            =   9.75
@@ -1902,7 +1866,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1940,7 +1903,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -1978,7 +1940,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2016,7 +1977,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2054,7 +2014,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2092,7 +2051,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2128,7 +2086,6 @@ Begin VB.Form frmZZSEBPRC
                   EndProperty
                   BevelOuter      =   0
                   BorderWidth     =   0
-                  TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
                      Size            =   9.75
@@ -2150,7 +2107,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.74
+                        Size            =   9.75
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2158,7 +2115,6 @@ Begin VB.Form frmZZSEBPRC
                         Strikethrough   =   0   'False
                      EndProperty
                      BevelOuter      =   5
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2252,7 +2208,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":3ED5
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2289,7 +2244,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":3FE7
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2326,7 +2280,6 @@ Begin VB.Form frmZZSEBPRC
                         Picture         =   "ZZSEBPRC.frx":40F9
                         Style           =   3
                         BorderWidth     =   4
-                        TitleBarHeight  =   24
                         BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                            Name            =   "MS Sans Serif"
                            Size            =   9.75
@@ -2389,7 +2342,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2427,7 +2379,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2465,7 +2416,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2503,7 +2453,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2541,7 +2490,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2579,7 +2527,6 @@ Begin VB.Form frmZZSEBPRC
                      ShowFocusRect   =   -1  'True
                      Style           =   3
                      BorderWidth     =   4
-                     TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
                         Size            =   9.75
@@ -2617,7 +2564,6 @@ Begin VB.Form frmZZSEBPRC
             EndProperty
             BevelOuter      =   0
             BorderWidth     =   0
-            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -2648,7 +2594,6 @@ Begin VB.Form frmZZSEBPRC
                   Strikethrough   =   0   'False
                EndProperty
                BevelOuter      =   5
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2707,7 +2652,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2745,7 +2689,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2782,7 +2725,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2819,7 +2761,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2857,7 +2798,6 @@ Begin VB.Form frmZZSEBPRC
                ShowFocusRect   =   -1  'True
                Style           =   3
                BorderWidth     =   4
-               TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
                   Size            =   9.75
@@ -2921,7 +2861,6 @@ Begin VB.Form frmZZSEBPRC
       Align           =   2
       CaptionPos      =   1
       Style           =   5
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -2957,7 +2896,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2968,10 +2907,9 @@ Begin VB.Form frmZZSEBPRC
       FMName          =   "ZZSEBPRC"
       CaptionPos      =   4
       Style           =   6
-      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            =   9.75
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -3155,7 +3093,10 @@ Private cValidDetail As cValidateInput
 Private bSalesRecordExist As Boolean
 Private sFreqRegExp As String
 
-Private objHours As clsPRFHOURS
+'david 03/11/2003  #403275
+'make it public so that can be accessed by clsOTProcessor
+Public objHours As clsPRFHOURS
+''''''''''''''''''''''''''
 Private objOTProcessor As clsOTProcessor
 
 Private bLoadingBonusDetail As Boolean
@@ -3194,7 +3135,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -3246,7 +3187,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -3255,8 +3196,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -3394,10 +3335,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -3908,7 +3849,7 @@ Private Sub tfnResetScreen(Index As Integer)
             txtEmpNameProcess = ""
             bLoadingBonusDetail = False
             chkHourly.Enabled = False
-            chkHourly.Value = vbUnchecked
+            chkHourly.value = vbUnchecked
             bShowDetail = mnuDetailLog.CHECKED
 
             cValidate.ResetFlags
@@ -3957,10 +3898,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -4022,10 +3963,10 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOK.Enabled = True
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -4275,13 +4216,13 @@ Private Sub subSetProgress(sngPercent As Single)
         End If
     Else
         'pbBarMain.Visible = False
-        pbBarMain.Value = 0
+        pbBarMain.value = 0
         If pbBarMain.ToolTipText = "" Then
             pbBarMain.ToolTipText = "Process Checks progress bar"
         End If
     End If
     
-    pbBarMain.Value = sngPercent
+    pbBarMain.value = sngPercent
     pbBarMain.Refresh
 End Sub
 
@@ -4341,7 +4282,7 @@ Private Sub cmdProcess_Click()
     'david 12/27/2002  #393054
     'SHOW WARNING MESSAGE
     'ONLY WHEN the 'Process Hourly Employee only' checkbox is NOT checked
-    If frmZZSEBPRC.chkHourly.Value = vbUnchecked Then
+    If frmZZSEBPRC.chkHourly.value = vbUnchecked Then
         i = fnCheckBonusHold()
     
         If i = vbCancel Then
@@ -4380,7 +4321,7 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
     
     'added  by junsong 10/16/2002 call #379824-3
-    If chkHourly.Value = vbChecked Then
+    If chkHourly.value = vbChecked Then
         strSQL = strSQL & " AND bm_empno IN (SELECT prm_empno FROM pr_master WHERE prm_pay_type = 'H')"
     End If
     
@@ -4609,8 +4550,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
         Case "tblApprove"
             tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
-            VItem.Value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
-            VItem.Value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
+            VItem.value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
+            VItem.value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
             vitems.Presentation = 1
             vitems.CycleOnClick = True
             vitems.Translate = True
@@ -4962,7 +4903,7 @@ Private Function fnValidFrequency(txtBox As Textbox) As Boolean
     If UCase(Trim(txtBox.Text)) = "M" Then
         chkHourly.Enabled = True
     Else
-        chkHourly.Value = vbUnchecked
+        chkHourly.value = vbUnchecked
         chkHourly.Enabled = False
     End If
     
@@ -5547,7 +5488,7 @@ Private Sub txtFrequency_Change()
     tgcDropdown.Change txtFrequency
     cmdProcess.Enabled = False
     chkHourly.Enabled = False
-    chkHourly.Value = vbUnchecked
+    chkHourly.value = vbUnchecked
 End Sub
 
 Private Sub txtFrequency_GotFocus()

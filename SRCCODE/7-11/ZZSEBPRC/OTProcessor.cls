@@ -75,7 +75,7 @@ Private Const t_szHELP As String = "Help"
 
 Private cValidate As cValidateInput
 Private Const sHOURLYPAYCODE As String = "7HRP"
-Private Const sHourpayCodeList As String = "('7HRP', '7HRA', '7HRD', '7HRI', '7HRO')"
+Private Const sHourPayCodeList As String = "('7HRP', '7HRA', '7HRD', '7HRI', '7HRO')"
 Enum MaintenanceType
     TypeHold = 0
     TypeInsert
@@ -116,6 +116,11 @@ Private Const MAXWEEKHOURS As Integer = 40
 Private g_dWeek1EmployeeHours As Single
 Private g_dWeek2EmployeeHours As Single
 Private g_lHoldEmpNO As Long
+
+'david 03/11/2003  #403275
+Private bOverTimePayCodeSet As Boolean
+''''''''''''''''''''''''''
+'
 
 '===========================
 'public properties/functions
@@ -492,6 +497,7 @@ Public Sub cmdOTProcess_Click()
     
     g_bOverTimeRecordFound = False
     g_bOverPayCodeNotSet = False
+    bOverTimePayCodeSet = True
     
     'First Check the date set are correctly or not.
     If cValidate.FirstInvalidInput >= 0 Then
@@ -552,20 +558,30 @@ EXITSUB:
     subSetProgress 0
     
     If Not g_bOverTimeRecordFound Then
-        subWriteLog "No Record selected"
-        tfnSetStatusBarCorrect "Process Done."
+        If Not bOverTimePayCodeSet Then
+            cmdOTPrintBtn.Enabled = True
+            subSetFocus cmdOTPrintBtn
+            'force statusbar message to show
+            DoEvents
+            tfnSetStatusBarError "Process failed"
+        Else
+            subWriteLog "No Record selected"
+            tfnSetStatusBarCorrect "Process Done."
+        End If
     ElseIf g_bOverPayCodeNotSet Then
         tfnSetStatusBarError "Process failed"
     Else
         cmdUpdateInsertBtn.Enabled = True
         cmdOTPrintBtn.Enabled = True
         subSetFocus cmdOTPrintBtn
+        'force statusbar message to show
+        DoEvents
+        tfnSetStatusBarCorrect "Process Done."
         
         If g_lBonusCount > 0 Then
             ReDim Preserve g_ArrayBonus(g_lBonusCount - 1)
         End If
-                
-        tfnSetStatusBarCorrect "Process Done."
+    
     End If
     
     Screen.MousePointer = vbDefault
@@ -597,8 +613,22 @@ Private Function fnParseOneEmployee(lEmpNo As Long) As Boolean
     Dim dRegHours As Single
     Dim sMsg As String
     
-       
     On Error GoTo ErrorHandler
+    
+    'david 03/11/2003  #403275
+    'validate ot paycode for the employee
+    Dim bError As Boolean
+    sMsg = fnValidOtPaycode(lEmpNo, sHourPayCodeList, bError)
+    
+    fnParseOneEmployee = Not bError
+    
+    If sMsg <> "" Then
+        subWriteLog sMsg
+        bOverTimePayCodeSet = False
+        Exit Function
+    End If
+    ''''''''''''''''''''''''''
+    
     g_dWeek1EmployeeHours = 0
     g_dWeek2EmployeeHours = 0
     
@@ -606,7 +636,7 @@ Private Function fnParseOneEmployee(lEmpNo As Long) As Boolean
     strSQL = strSQL & " WHERE bh_empno = " & lEmpNo
     strSQL = strSQL & " AND bh_chk_link =  0"
     'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-    strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+    strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
     
     If Trim(txtOTWeek2BeginDate) <> "" Then
         strSQL = strSQL & " AND ((bh_date BETWEEN " & tfnDateString(txtOTWeek1BeginDate, True)
@@ -855,7 +885,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
     strSQL = "SELECT bh_empno, bh_prft_ctr, SUM(bh_hours) as Hours FROM bonus_hold"
     strSQL = strSQL & " WHERE bh_chk_link =  0"
     'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-    strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+    strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
     strSQL = strSQL & " AND bh_date BETWEEN " & tfnDateString(txtOTWeek1BeginDate, True)
     strSQL = strSQL & " AND " & tfnSQLString(txtOTWeek1EndDate, True)
     strSQL = strSQL & " AND bh_empno IN(SELECT b2.bh_empno FROM bonus_hold b2 "
@@ -863,7 +893,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
     strSQL = strSQL & " AND " & tfnSQLString(txtOTWeek1EndDate, True)
     strSQL = strSQL & " AND bh_chk_link =  0"
     'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-    strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+    strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
     strSQL = strSQL & " GROUP BY b2.bh_empno "
     strSQL = strSQL & " HAVING SUM(b2.bh_hours) > 40)"
     strSQL = strSQL & " GROUP BY bh_empno, bh_prft_ctr"
@@ -937,7 +967,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
         strSQL = "SELECT bh_empno, bh_prft_ctr, SUM(bh_hours) as Hours FROM bonus_hold"
         strSQL = strSQL & " WHERE bh_chk_link =  0"
 '        strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-        strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+        strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
         strSQL = strSQL & " AND bh_date BETWEEN " & tfnDateString(txtOTWeek2BeginDate, True)
         strSQL = strSQL & " AND " & tfnSQLString(txtOTWeek2EndDate, True)
         strSQL = strSQL & " AND bh_empno IN(SELECT b2.bh_empno FROM bonus_hold b2 "
@@ -945,7 +975,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
         strSQL = strSQL & " AND " & tfnSQLString(txtOTWeek2EndDate, True)
         strSQL = strSQL & " AND bh_chk_link =  0"
         'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-        strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+        strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
         strSQL = strSQL & " GROUP BY b2.bh_empno "
         strSQL = strSQL & " HAVING SUM(b2.bh_hours) > 40)"
         strSQL = strSQL & " GROUP BY bh_empno, bh_prft_ctr"
@@ -1024,7 +1054,7 @@ Private Function fnGetTotalHoursForEmployee(lEmpNo As Long, nWeek As Integer) As
     strSQL = strSQL & " WHERE bh_empno = " & lEmpNo
     strSQL = strSQL & " AND bh_chk_link =  0"
     'strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(sHOURLYPAYCODE)
-    strSQL = strSQL & " AND bh_pay_code IN " & sHourpayCodeList
+    strSQL = strSQL & " AND bh_pay_code IN " & sHourPayCodeList
     
     If nWeek = 1 Then
         strSQL = strSQL & " AND bh_date BETWEEN " & tfnDateString(txtOTWeek1BeginDate, True)
@@ -1593,7 +1623,7 @@ Private Sub subSetProgress(sngPercent As Single)
         pbStatus.Visible = False
     End If
     
-    pbStatus.Value = sngPercent
+    pbStatus.value = sngPercent
 End Sub
 
 Private Function fnInsertUpdate() As Boolean
@@ -1723,4 +1753,92 @@ SQLError:
       On Error GoTo 0
 End Function
 
+'david 03/11/2003  #403275
+'validate ot paycode for the employee
+'return error message
+Private Function fnValidOtPaycode(lEmpNo As Long, sHourPayCodeList As String, bError As Boolean) As String
+    Dim strSQL As String
+    Dim aryPayCodes() As String
+    Dim i As Integer
+    Dim j As Integer
+    Dim sOverPayCode As String
+    Dim lCount As Long
+    Dim sInvalidOtPayCode As String
+    Dim nYear(4) As Integer
+    
+    'get the year
+    On Error Resume Next
+    nYear(1) = Year(tfnFormatDate(txtOTWeek1BeginDate))
+    nYear(2) = Year(tfnFormatDate(txtOTWeek1EndDate))
+    
+    If nYear(2) = nYear(1) Then
+        nYear(2) = 0
+    End If
+    
+    If Trim(txtOTWeek2BeginDate) <> "" Then
+        nYear(3) = Year(tfnFormatDate(txtOTWeek2BeginDate))
+        nYear(4) = Year(tfnFormatDate(txtOTWeek2EndDate))
+    
+        If nYear(4) = nYear(3) Then
+            nYear(4) = 0
+        Else
+            If nYear(4) = nYear(1) Or nYear(4) = nYear(2) Then
+                nYear(4) = 0
+            End If
+        End If
+        
+        If nYear(3) = nYear(1) Or nYear(3) = nYear(2) Then
+            nYear(3) = 0
+        End If
+    End If
+    
+    On Error GoTo 0
+    On Error GoTo errTrap
+    
+    'constant
+    'sHourPayCodeList = "('7HRP', '7HRA', '7HRD', '7HRI', '7HRO')"
+    aryPayCodes = Split(Mid(sHourPayCodeList, 2, Len(sHourPayCodeList) - 2), ",")
+    bError = False
+    
+    For i = 0 To UBound(aryPayCodes)
+        If aryPayCodes(i) <> "" Then
+            sOverPayCode = fnGetOverTimePayCode(Mid(aryPayCodes(i), 2, Len(aryPayCodes(i)) - 2))
+            
+            If sOverPayCode <> "" Then
+                For j = 1 To 4
+                    If nYear(j) > 0 Then
+                        strSQL = "SELECT  * FROM " & frmZZSEBPRC.objHours.sTempPrPay
+                        strSQL = strSQL & " WHERE pcode = " & tfnSQLString(sOverPayCode)
+                        strSQL = strSQL & " AND pempno = " & lEmpNo
+                        strSQL = strSQL & " AND pYear = " & nYear(j)
+                        
+                        lCount = GetRecordCount(strSQL)
+                        
+                        If lCount < 0 Then
+                            fnValidOtPaycode = "Failed to access database when checking overtime paycode."
+                            bError = True
+                            Exit Function
+                        ElseIf lCount = 0 Then
+                            If sInvalidOtPayCode <> "" Then
+                                sInvalidOtPayCode = sInvalidOtPayCode + ","
+                            End If
+                            
+                            sInvalidOtPayCode = sInvalidOtPayCode + sOverPayCode
+                        End If
+                    End If
+                Next j
+            End If
+        End If
+    Next i
 
+    If sInvalidOtPayCode <> "" Then
+        fnValidOtPaycode = "Pay Code (" & sInvalidOtPayCode & ") not set for employee#" & lEmpNo
+    End If
+    
+    Exit Function
+    
+errTrap:
+    fnValidOtPaycode = Err.Number & " - " & Err.Description
+    tfnErrHandler "", False
+    bError = True
+End Function
