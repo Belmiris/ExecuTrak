@@ -46,6 +46,16 @@ if not exist ..\disk\%1client.14 goto splitdone
 move ..\disk\%1client.14 ..\disk\disk14
 if not exist ..\disk\%1client.15 goto splitdone
 move ..\disk\%1client.15 ..\disk\disk15
+if not exist ..\disk\%1client.16 goto splitdone
+move ..\disk\%1client.16 ..\disk\disk16
+if not exist ..\disk\%1client.17 goto splitdone
+move ..\disk\%1client.17 ..\disk\disk17
+if not exist ..\disk\%1client.18 goto splitdone
+move ..\disk\%1client.18 ..\disk\disk18
+if not exist ..\disk\%1client.19 goto splitdone
+move ..\disk\%1client.19 ..\disk\disk19
+if not exist ..\disk\%1client.20 goto splitdone
+move ..\disk\%1client.20 ..\disk\disk20
 
 :splitdone
 

@@ -2,6 +2,12 @@
 echo .
 echo Making Distribution Disk
 
+if exist ..\disk\disk20\??client.20 goto disk20
+if exist ..\disk\disk19\??client.19 goto disk19
+if exist ..\disk\disk18\??client.18 goto disk18
+if exist ..\disk\disk17\??client.17 goto disk17
+if exist ..\disk\disk16\??client.16 goto disk16
+if exist ..\disk\disk15\??client.15 goto disk15
 if exist ..\disk\disk14\??client.14 goto disk14
 if exist ..\disk\disk13\??client.13 goto disk13
 if exist ..\disk\disk12\??client.12 goto disk12
@@ -69,6 +75,30 @@ goto start
 
 :disk14
 echo Total Distribution Diskette Required = 14
+goto start
+
+:disk15
+echo Total Distribution Diskette Required = 15
+goto start
+
+:disk16
+echo Total Distribution Diskette Required = 16
+goto start
+
+:disk17
+echo Total Distribution Diskette Required = 17
+goto start
+
+:disk18
+echo Total Distribution Diskette Required = 18
+goto start
+
+:disk19
+echo Total Distribution Diskette Required = 19
+goto start
+
+:disk20
+echo Total Distribution Diskette Required = 20
 goto start
 
 :start
@@ -189,8 +219,56 @@ pause
 echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk14\*.* a:
+if not exist ..\disk\disk15\??client.15 goto makedisk_done
 
-if exist ..\disk\disk15\??client.15 goto need_more_disk
+echo insert disk#15
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk15\*.* a:
+if not exist ..\disk\disk16\??client.16 goto makedisk_done
+
+echo insert disk#16
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk16\*.* a:
+if not exist ..\disk\disk17\??client.17 goto makedisk_done
+
+echo insert disk#17
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk17\*.* a:
+if not exist ..\disk\disk18\??client.18 goto makedisk_done
+
+echo insert disk#18
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk18\*.* a:
+if not exist ..\disk\disk19\??client.19 goto makedisk_done
+
+echo insert disk#19
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk19\*.* a:
+if not exist ..\disk\disk20\??client.20 goto makedisk_done
+
+echo insert disk#20
+pause
+
+echo Delete all Files in A drive
+del a:\*.* 
+xcopy ..\disk\disk20\*.* a:
+
+if exist ..\disk\disk21\??client.21 goto need_more_disk
 
 :makedisk_done
 echo .
