@@ -1,0 +1,816 @@
+//***************************************************************************
+//
+// Installation script for the Factor EDI Translator release
+//
+//Setup log "EPRSETUP.TXT"
+//
+//***************************************************************************
+
+// includes
+
+#include "winapi.h"
+
+#define CHECK_ONE_COPY		0
+// constants
+#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
+
+#define SIZE_REQ_LOCAL          3
+#define SIZE_REQ_REMOTE         1
+
+#define PROGRAM_GROUP   	"Factor Applications"
+#define APP_BASE_PATH		"Factor"
+#define COMPANY_NAME		"FACTOR"
+#define PRODUCT_NAME            "Factor EDI Translator"
+#define MODULE_NAME             "EDI Translator"
+#define PRODUCT_KEY             "ediproc.exe"
+#define PRODUCT_SUBDIR		"ExecTrak"
+
+#define KEY_DEFAULT             ""
+#define HELP_FILE               ""
+
+#define WELCOME_TITLE           "Factor EDI Translator Installation"
+#define SETUP_LOG               "EPRSETUP.TXT"
+
+
+
+// global variables
+
+declare
+
+#include "sddialog.h"
+
+        //log setup variables and write log function prototype
+	NUMBER nvFileOut;
+        STRING INSTALL_OPTION;
+	STRING INSWARN,LOGMSG,RESULTLOG;
+
+	prototype LOGWRITE(STRING);
+
+        STRING KEY_ROOT, KEY_PRODUCT, KEY_VERSION;
+        NUMBER nReturn;
+        NUMBER nTemp, i;
+        STRING szComponents, szBaseDirectory;
+        STRING szDestMsg, svUninstLogFile;
+        STRING szMsg, szNumber, szTemp, szFolder;
+        STRING szSCIcon, szSCExe, szSCWork, szAppDir;
+        STRING szForceInstall, szDisk;
+
+        BOOL bZFailure, bProgramFoundInLocal, bProgramFoundInRemote;
+	BOOL bTemp, bTemp1, bTemp2,bInstallToLocal, bInstallToRemote;
+	BOOL bRunRemote;
+
+        LIST    listInfo;
+
+        // function prototypes
+        prototype CheckDiskSpace(NUMBER);
+	prototype fnFindFile(STRING, STRING);
+	prototype UpdateFACTOR_INI();
+	prototype UpdateEDIPROC_INI();
+	prototype fnSaveOriginalMDBINI();
+	prototype RestoreBackupMDBINI();
+	prototype fnUpdateFiles();
+
+
+// the script starts here
+program
+
+
+StartHere:
+
+	// the script starts here
+        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;        
+
+        //set installation header
+        szMsg = "Installing " + PRODUCT_NAME;
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+                szMsg = szMsg + "\nForced Installation";
+        endif;
+        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+        SetTitle(szMsg , 24, WHITE);
+
+        if (CMDLINE = "-A" || CMDLINE = "-a") then
+        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
+                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+                szForceInstall = "1 ";
+        else
+                szForceInstall = "0 ";
+	endif;
+
+        if( CreateFile( nvFileOut, WINSYSDIR, SETUP_LOG ) < 0 ) then
+
+    		MessageBeep( 0 );
+                MessageBox( SETUP_LOG + " could not be opened", SEVERE );
+            	abort;
+	else
+                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+		LOGWRITE(LOGMSG);
+	endif;   
+
+	// set registry keys
+	KEY_ROOT = "SOFTWARE\\" + COMPANY_NAME;
+	KEY_PRODUCT = KEY_ROOT + "\\" + PRODUCT_NAME;
+	KEY_VERSION = KEY_PRODUCT + "\\" + PRODUCT_VERSION;
+
+
+	RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+
+	// set title for all dialog boxes
+        SetDialogTitle(DLG_ASK_OPTIONS, WELCOME_TITLE + "Options");
+	SetDialogTitle(DLG_ASK_TEXT, WELCOME_TITLE);
+	SetDialogTitle(DLG_ASK_YESNO, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_INFORMATION, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_SEVERE, WELCOME_TITLE);
+	SetDialogTitle(DLG_MSG_WARNING, WELCOME_TITLE);
+	SetDialogTitle(DLG_USER_CAPTION, WELCOME_TITLE);
+
+
+	//**************************************************
+	//
+	//		         MAIN INSTALLATION
+	//
+	//**************************************************
+
+
+SkipToMain:
+	// set some stuff
+	Enable(INDVFILESTATUS);
+			
+	// set installation information
+	InstallationInfo(COMPANY_NAME, PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_KEY);
+
+
+	// restore the backup MDB and INI to original (if any)
+	RestoreBackupMDBINI();
+
+SayWelcome:
+	// welcome message and get desired target path
+	Disable(BACKBUTTON);
+
+	Welcome(WELCOME_TITLE, 0);
+
+
+InstallationType:
+
+	szComponents = "Installation Type";
+	ComponentAddItem(szComponents, "Software Installation", 1024, TRUE);
+	ComponentAddItem(szComponents, "Run from Remote Server", 2000, FALSE);
+	
+	szTemp = "";
+	Enable(BACKBUTTON);
+	if (SdAskOptions("Select Installation Type", "Choose the installation type by clicking " +
+	         "the circle next to the appropriate option.",
+	         "Once you have selected the installation type, click the Next " +
+	         "button to continue.", szTemp, szComponents, EXCLUSIVE) = BACK) then
+	                goto SayWelcome;
+	endif;
+
+	if (ComponentIsItemSelected(szComponents,"Run from Remote Server")) then
+	        bRunRemote = TRUE;
+	else
+	        bRunRemote = FALSE;
+	endif;
+
+	if (bRunRemote) then
+        	NumToStr(szNumber, SIZE_REQ_REMOTE * 1024);
+        	szBaseDirectory = "J:" ^ APP_BASE_PATH;
+	else
+		bProgramFoundInLocal = fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
+		bProgramFoundInRemote = fnFindFile("J:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.EXE");
+	
+		if (bProgramFoundInRemote) then
+	        	szBaseDirectory = "J:" ^ APP_BASE_PATH;
+		else
+	        	szBaseDirectory = "C:" ^ APP_BASE_PATH;
+		endif;
+
+        	NumToStr(szNumber, SIZE_REQ_LOCAL * 1024);
+	endif;
+
+
+// get target path for local installation
+GetTargetPath:
+	if (bRunRemote) then
+	        szDestMsg = "Setup will create Shortcuts for the " + PRODUCT_NAME + " programs.\n\n";
+	        szDestMsg = szDestMsg + "To create Shortcuts for program in this directory, click Next.\n\n";
+	        szDestMsg = szDestMsg + "To create Shortcuts for program in a different directory, click Browse and select another\n";
+	        szDestMsg = szDestMsg + "directory.\n\n";
+	        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to ";
+	        szDestMsg = szDestMsg + "exit Setup.\n\n";
+	        szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
+	else
+	        szDestMsg = "Setup will install " + PRODUCT_NAME + " in the Destination Directory.\n\n";
+	        szDestMsg = szDestMsg + "To install to this directory, click Next.\n\n";
+	        szDestMsg = szDestMsg + "To install to a different directory, click Browse and select another\n";
+	        szDestMsg = szDestMsg + "directory.\n\n";
+	        szDestMsg = szDestMsg + "You can choose not to install " + PRODUCT_NAME + " by clicking Cancel to ";
+	        szDestMsg = szDestMsg + "exit Setup.\n\n";
+	        szDestMsg = szDestMsg + PRODUCT_NAME + " requires " + szNumber + " Kbytes of free disk space.\n";
+	endif;
+
+        if (AskDestPath("", szDestMsg, szBaseDirectory, 0) = BACK) then
+                goto InstallationType;
+        endif;
+
+        // make sure destination directory is \factor
+        szTemp = szBaseDirectory ^ "";
+        StrToLower(szTemp, szTemp);
+
+        ParsePath(szDisk, szBaseDirectory, DISK);
+        StrToLower(szDisk, szDisk);
+
+        nTemp = StrFind(szTemp, szDisk ^ "factor");
+
+        StrToUpper(szDisk, szDisk);
+	
+	if (!bRunRemote) then
+	        if (nTemp < 0) then   //incorrect directory
+	                szMsg = PRODUCT_NAME + " Program Directory '" +
+	                    szBaseDirectory + "\\' is not valid.\n\n";
+	                szMsg = szMsg + PRODUCT_NAME + " will be installed to '" +
+	                    szDisk ^ APP_BASE_PATH + "' directory.";
+	
+	                MessageBox(szMsg, MB_ICONEXCLAMATION + MB_TASKMODAL);
+	        endif;
+	endif;
+
+        szBaseDirectory = szDisk ^ APP_BASE_PATH;
+
+	if (bRunRemote) then
+		if (!fnFindFile(szBaseDirectory ^ "EXECTRAK" ^ "BIN", "EDIPROC.EXE")) then
+	                MessageBox(PRODUCT_NAME + " program file does not exist.\n\nPlease install " + 
+				PRODUCT_NAME + " software on a Server before" +
+	                        " selecting the 'Run from Remote Server' option.", INFORMATION);
+	                abort;
+		endif;
+	else
+		if (!fnFindFile(szBaseDirectory ^ "EXECTRAK", "FACTMENU.EXE")) then
+			if (!fnFindFile(szBaseDirectory ^ "EXECTRAK" ^ "BIN", "*.EXE")) then
+		                MessageBox("ExecuTrak program file does not exist.\n\nPlease install " + 
+					" ExecuTrak System before installing the " + PRODUCT_NAME + ".", INFORMATION);
+		                abort;
+			endif;
+		endif;
+
+		if (szDisk = "C:") then
+			if (CHECK_ONE_COPY) then
+				if (bProgramFoundInRemote) then
+				        if (AskYesNo(PRODUCT_NAME + " Program found in 'J:\\FACTOR' directory." +
+						" Are you sure you want to install another copy to 'C:\\FACTOR'" +
+						" directory?", NO) = NO) then
+		        				szBaseDirectory = "J:" ^ APP_BASE_PATH;
+							goto GetTargetPath;
+				        endif;
+				endif;
+			endif;
+			bInstallToLocal = TRUE;
+		else
+			if (CHECK_ONE_COPY) then
+				if (bProgramFoundInLocal) then
+				        if (AskYesNo(PRODUCT_NAME + " Program found in 'J:\\FACTOR' directory." +
+						" Are you sure you want to install another copy to 'C:\\FACTOR'" +
+						" directory?", NO) = NO) then
+					        	szBaseDirectory = "C:" ^ APP_BASE_PATH;
+							goto GetTargetPath;
+				        endif;
+				endif;
+			endif;
+			bInstallToRemote = TRUE;
+		endif;
+	endif;
+
+
+Check_Disk_Space:
+	if (bRunRemote) then
+        	nTemp = SIZE_REQ_REMOTE;
+	else
+        	nTemp = SIZE_REQ_LOCAL;
+	endif;
+
+        // check available disk space
+        if (CheckDiskSpace(nTemp * 1024 * 1024) = FALSE) then
+                goto GetTargetPath;
+        endif;
+
+
+ConfirmCopy:
+        // Show SdStartCopy dialog to confirm file transfer operation.
+        listInfo = ListCreate( STRINGLIST );
+
+        //Construct the Info List
+	ListAddString(listInfo, WELCOME_TITLE + ":", AFTER);
+	if (bRunRemote) then
+	        ListAddString(listInfo, "        Run from Remote Server", AFTER);
+	else
+	        ListAddString(listInfo, "        Software Installation", AFTER);
+	endif;
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, "Intallation Type:", AFTER);
+	if (!bRunRemote) then
+	        if (szForceInstall = "1 ") then
+	                ListAddString(listInfo, "        FORCE INSTALLATION", AFTER);
+	        else
+	                ListAddString(listInfo, "        NORMAL INSTALLATION", AFTER);
+	        endif;
+	endif;
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, PRODUCT_NAME + " program directory:", AFTER);
+        ListAddString(listInfo, "        " + szBaseDirectory, AFTER);
+        ListAddString(listInfo, "", AFTER);
+        ListAddString(listInfo, PRODUCT_NAME + " Program Folder:", AFTER);
+        ListAddString(listInfo, "        Program\\Factor" + "\\" + MODULE_NAME, AFTER);
+
+        szMsg = "Setup has enough information to start copying " + PRODUCT_NAME + " files.  " +
+                "If you want to review or change any settings, click Back.  If you are " +
+                "satisfied with the settings, click Next to begin copying files.";
+        if ( SdStartCopy( "Confirm Current Settings", szMsg, listInfo ) = BACK ) then
+		ListDestroy( listInfo );
+		goto GetTargetPath;
+        endif;
+
+        ListDestroy( listInfo );
+		
+
+StartCopy:
+
+        szBaseDirectory = szBaseDirectory ^ PRODUCT_SUBDIR;
+
+	LOGMSG="INSTALLING IN : " + szBaseDirectory;
+	LOGWRITE(LOGMSG);
+
+        Disable(HOURGLASS);
+        SdShowMsg("", FALSE);
+
+        StatusUpdate(ON, 90);
+
+	UpdateFACTOR_INI();
+
+	if (bRunRemote) then
+		goto CreateShortcut;
+	endif;
+
+	// Software Installation
+	// Rename the original MDB and INI file
+	if ((bInstallToLocal && bProgramFoundInLocal) || (bInstallToRemote && bProgramFoundInRemote)) then
+		if (!fnSaveOriginalMDBINI()) then
+                        MessageBox("Failed to back up " + PRODUCT_NAME + " files. Installation aborts.", SEVERE);
+			abort;
+		endif;
+	endif;
+
+	SetStatusWindow(0, "Copying " + PRODUCT_NAME + " files...");
+	Enable(STATUS);
+       
+	FileSetBeginDefine("All Files");
+
+// ************************* if command line =-a then FORCED INSTALLATION of ALL FILES
+
+        TARGETDIR = szBaseDirectory;
+
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+
+                LOGMSG="START FORCED COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the FACTOR\EXECTRAK directory
+                if (CompressGet("ediproc.z", "*.*", COMP_NORMAL | INCLUDE_SUBDIR) < 0) then
+                        MessageBox("EDIPROC.Z could not be decompressed", SEVERE);
+                        goto ZFAILURE;
+                endif;
+
+                LOGMSG="END FORCED COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+
+
+	else
+
+// ************************* Normal install
+ 
+                LOGMSG="START NORMAL COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
+                LOGWRITE(LOGMSG);
+
+                // These go into the FACTOR\EXECTRAK directory
+                if (CompressGet("ediproc.z", "*.*", COMP_UPDATE_VERSION | COMP_UPDATE_DATE | 
+			COMP_UPDATE_SAME | INCLUDE_SUBDIR) < 0) then
+	                        MessageBox("EDIPROC.Z could not be decompressed", SEVERE);
+	                        goto ZFAILURE;
+                endif;
+
+                LOGMSG="END NORMAL COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
+		LOGWRITE(LOGMSG);
+
+	endif;
+
+	FileSetEndDefine("All Files");
+	
+	nReturn = FileSetPerformEz("All Files", 0);
+
+        //  write file problem to log
+        if (nReturn != FS_DONE) then
+                LOGMSG="ERRORFILENAME=" + ERRORFILENAME;
+                LOGWRITE(LOGMSG);
+        endif;
+
+        switch(nReturn)
+                case FS_CREATEDIR:
+                        MessageBox("Failed to Create target directory", SEVERE);
+			LOGMSG="Failed to Create target directory";
+			LOGWRITE(LOGMSG);
+	                goto ZFAILURE;
+                case FS_PACKAGING:
+                        MessageBox("Unable to find file in package list", SEVERE);
+       			LOGMSG="Unable to find file in package list";
+			LOGWRITE(LOGMSG);
+	                goto ZFAILURE;
+                case FS_FILENOTINLIB:
+                        MessageBox("Unable to find target file in compressed lib", INFORMATION);
+       			LOGMSG="Unable to find target file in compressed lib";
+			LOGWRITE(LOGMSG);
+                        goto ZFAILURE;
+                case FS_DONE:
+                        // do nothing
+                default:
+                        MessageBox("General file copy failure", SEVERE);
+			LOGMSG="General file copy failure";
+			LOGWRITE(LOGMSG);
+                        goto ZFAILURE;
+        endswitch;
+
+        SetStatusWindow(91, "Update " + PRODUCT_NAME + " files...");
+	
+	if (!fnUpdateFiles()) then
+		RestoreBackupMDBINI();
+                MessageBox("Failed to update " + PRODUCT_NAME + " files. Installation aborts.", SEVERE);
+		abort;
+	endif;
+
+
+CreateShortcut:
+
+        SetStatusWindow(97, "Create Shortcuts...");
+        
+        StatusUpdate(OFF, 0);
+        
+       	szFolder = COMPANY_NAME ^ MODULE_NAME;
+
+        szAppDir = szBaseDirectory;
+
+	// create folder shortcuts
+	LOGMSG="CREATING FOLDER SHORTCUTS";
+	LOGWRITE(LOGMSG);
+
+	szSCIcon = "";
+        szSCWork = szBaseDirectory ^ "BIN";
+
+        szSCExe = szAppDir ^ "BIN" ^ PRODUCT_KEY;
+        LongPathToQuote(szSCExe, TRUE);
+        AddFolderIcon(szFolder, MODULE_NAME,
+		szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+        SetStatusWindow(98, "Finishing " + PRODUCT_NAME + " intallation...");
+
+        szSCExe = szAppDir ^ "BIN" ^ "EDISETUP.EXE";
+        LongPathToQuote(szSCExe, TRUE);
+        AddFolderIcon(szFolder, "EDI Translator Setup",
+		szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+	if (HELP_FILE != "") then
+	        szSCExe = szAppDir ^ "BIN" ^ HELP_FILE;
+		LongPathToQuote(szSCExe, TRUE);
+	        AddFolderIcon(szFolder, MODULE_NAME + " Help",
+					  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+	endif;
+
+	LOGMSG="FOLDER SHORTCUTS CREATED";
+	LOGWRITE(LOGMSG);
+
+        SetStatusWindow(99, "Finishing " + PRODUCT_NAME + " intallation...");
+
+	// add registry information
+	LOGMSG="ADDING REGISTRY INFORMATION";
+	LOGWRITE(LOGMSG);
+
+        RegDBSetKeyValueEx(KEY_ROOT, PRODUCT_NAME, REGDB_STRING, szBaseDirectory, -1);
+
+        SetStatusWindow(100, "Finishing " + PRODUCT_NAME + " intallation...");
+
+        Delay( 1 );
+	Disable(STATUS);
+	Disable(FEEDBACK_FULL);
+
+	SdFinish(WELCOME_TITLE + " Complete",
+       		WELCOME_TITLE + " has finished copying files to your computer.",
+       		"Click Finish to complete " + WELCOME_TITLE,
+       		"", "", bTemp1, bTemp2);
+
+	exit;
+
+ZFAILURE:
+        LOGMSG="INSTALLATION FAILED";
+        LOGWRITE(LOGMSG);
+
+	MessageBox("Installation incomplete.  Close any running\n" +
+			   "applications before intalling " + PRODUCT_NAME + ".",
+			   INFORMATION);
+        abort;
+	
+/*--------------- END OF PROGRAM --------------*\
+	
+CloseFile (nvFileOut)		
+/*---------------------------------------------*\
+*
+*	CheckDiskSpace
+*
+*	Checks the available disk space against the
+*	amount requested and returns TRUE if the
+*	requested space is available
+*
+\*---------------------------------------------*/
+	
+function CheckDiskSpace(nBytesRequired)
+
+    number nActualSize;
+	number nSpaceAvailable;
+	number nReturn;
+	string szNumber;
+	string szMessage;
+	BOOL bSpaceOK;
+		    
+begin
+	
+    nSpaceAvailable = GetDiskSpace(szBaseDirectory);
+
+	NumToStr(szNumber, nSpaceAvailable / 1024);
+	LOGMSG="DISK SPACE AVAILABLE :" + szNumber + " Kbytes Free"; 
+	LOGWRITE(LOGMSG);
+
+	if (nSpaceAvailable < nBytesRequired) then
+		NumToStr(szNumber, nBytesRequired / 1024);
+		szMessage = szNumber + " Kbytes of disk space is required for this installation.\nThe targe drive has ";
+		NumToStr(szNumber, nSpaceAvailable / 1024);
+		szMessage = szMessage + szNumber + " Kbytes available.\n\nContinuing may result in an incomplete installation.\n\n";
+		szMessage = szMessage + "Do you still want to install to \"" + szBaseDirectory + "\"?";
+		
+		nReturn = MessageBox(szMessage, MB_ICONEXCLAMATION + MB_TASKMODAL + MB_YESNO + MB_DEFBUTTON2);
+		
+		if (nReturn = IDYES) then
+			bSpaceOK = TRUE;
+		else
+			bSpaceOK = FALSE;
+		endif;
+    else
+    	bSpaceOK = TRUE;
+    endif;
+    
+    return bSpaceOK;
+
+end;
+
+
+// write log function
+function LOGWRITE(logline)
+
+begin
+	logline=logline + "\n";
+	WriteLine( nvFileOut, logline);
+	return;
+end;
+
+
+function fnFindFile(szPath, szFile)
+
+        STRING svResult;
+
+begin
+
+        svResult = "";
+
+        FindFile(szPath, szFile, svResult);
+
+        if (svResult = "") then
+                return FALSE;
+        else
+                return TRUE;
+        endif;
+
+end;
+
+
+function fnSaveOriginalMDBINI()
+
+	BOOL bPass;
+
+begin
+
+        VarSave(SRCTARGETDIR);
+
+	TARGETDIR = szBaseDirectory ^ "BIN";
+	SRCDIR=TARGETDIR;
+
+	bPass = TRUE;
+
+	if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
+		return FALSE;
+	endif;
+
+	if (bPass) then
+		if (CopyFile("ediproc.ini", "ediproc.ini.$$$") < 0) then
+			DeleteFile("edixlate.mdb.$$$");
+			bPass = FALSE;
+		endif;
+	endif;
+
+	if (bPass) then
+		if (DeleteFile("edixlate.mdb") < 0) then
+			DeleteFile("edixlate.mdb.$$$");
+			DeleteFile("ediproc.ini.$$$");
+			bPass = FALSE;
+		endif;
+	endif;
+
+	if (bPass) then
+		if (DeleteFile("ediproc.ini") < 0) then
+			CopyFile("edixlate.mdb.$$$", "edixlate.mdb");
+			DeleteFile("edixlate.mdb.$$$");
+			DeleteFile("ediproc.ini.$$$");
+			bPass = FALSE;
+		endif;
+	endif;
+
+        VarRestore(SRCTARGETDIR);
+	
+	return bPass;	
+
+end;
+
+
+function RestoreBackupMDBINI()
+
+	STRING szKey, szOldValue, szINI, szDir;
+begin
+
+	szINI = "FACTOR.INI";
+        szKey = "EDI XLATOR";
+
+        GetProfString(szINI, "Program", szKey, szOldValue);
+
+	szDir = "";
+
+	if (szOldValue = "") then
+		if (fnFindFile("C:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.*")) then
+			szDir = "C:\\FACTOR\\EXECTRAK\\BIN";
+		else
+			if (fnFindFile("J:\\FACTOR\\EXECTRAK\\BIN", "EDIPROC.*")) then
+				szDir = "J:\\FACTOR\\EXECTRAK\\BIN";
+			endif;
+		endif;
+	else
+		szDir = szOldValue;
+	endif;
+
+	if (szDir = "") then
+		return;
+	endif;
+
+        VarSave(SRCTARGETDIR);
+
+	TARGETDIR = szDir;
+	SRCDIR=TARGETDIR;
+
+	if (fnFindFile(TARGETDIR, "edixlate.mdb.$$$")) then
+		if (!fnFindFile(TARGETDIR, "edixlate.mdb")) then
+			CopyFile("edixlate.mdb.$$$", "edixlate.mdb");
+		endif;
+
+		DeleteFile("edixlate.mdb.$$$");
+	endif;
+
+	if (fnFindFile(TARGETDIR, "ediproc.ini.$$$")) then
+		if (!fnFindFile(TARGETDIR, "ediproc.ini")) then
+			CopyFile("ediproc.ini.$$$", "ediproc.ini");
+		endif;
+
+		DeleteFile("ediproc.ini.$$$");
+	endif;
+
+        VarRestore(SRCTARGETDIR);
+	
+	return;	
+
+end;
+
+
+function fnUpdateFiles()
+
+	BOOL bPass;
+	STRING szOrigFile, szUpdFile, szParm;
+
+begin
+
+        VarSave(SRCTARGETDIR);
+
+	bPass = TRUE;
+
+	TARGETDIR = szBaseDirectory ^ "BIN";
+	SRCDIR=TARGETDIR;
+
+	if (fnFindFile(TARGETDIR, "ediproc.ini.$$$")) then
+		DeleteFile("ediproc.ini");
+		if (RenameFile("ediproc.ini.$$$", "ediproc.ini") < 0) then
+			bPass = FALSE;
+		endif;
+	endif;
+
+        SetStatusWindow(92, "Update " + PRODUCT_NAME + " files...");
+
+	if (bPass) then
+		if (fnFindFile(TARGETDIR, "edixlate.mdb.$$$")) then
+			DeleteFile("edixlupd.mdb.$$$");
+		
+			if (fnFindFile(TARGETDIR, "edixlupd.mdb")) then
+				if (RenameFile("edixlupd.mdb", "edixlupd.mdb.$$$") < 0) then
+					bPass = FALSE;
+				endif;
+			endif;
+
+			if (RenameFile("edixlate.mdb", "edixlupd.mdb") < 0) then
+				bPass = FALSE;
+			else
+				if (RenameFile("edixlate.mdb.$$$", "edixlate.mdb") < 0) then
+					bPass = FALSE;
+				endif;
+			endif;
+			
+			if (bPass) then
+				//ORIGINAL=FileName,UPDATE=FileName,FORCE=[0|1]
+				szOrigFile = TARGETDIR ^ "edixlate.mdb";
+				szUpdFile = TARGETDIR ^ "edixlupd.mdb";
+				szParm = "ORIGINAL=" + szOrigFile + ",UPDATE=" + szUpdFile;
+				szParm = szParm + ",FORCE=" + szForceInstall;
+
+        			SetStatusWindow(93, "Update " + PRODUCT_NAME + " files...");
+
+				LOGMSG="Launching " + TARGETDIR ^ "edisetup.exe";
+				LOGWRITE(LOGMSG);
+				LOGMSG="Arguments = " + szParm;
+				LOGWRITE(LOGMSG);
+
+             			LaunchAppAndWait(TARGETDIR ^ "edisetup.exe", szParm, WAIT);
+			endif;
+		endif;
+	endif;
+
+        SetStatusWindow(95, "Update " + PRODUCT_NAME + " files...");
+
+        VarRestore(SRCTARGETDIR);
+	
+	return bPass;	
+
+end;
+
+
+function UpdateFACTOR_INI()
+
+        STRING szNewValue, szKey, szINI;
+
+begin
+
+	szINI = "FACTOR.INI";
+
+        LOGMSG="START UPDATING " + szINI;
+        LOGWRITE(LOGMSG);
+
+        szKey = "EDI XLATOR";
+        szNewValue = szBaseDirectory ^ "BIN";
+
+	WriteProfString(szINI, "Program", szKey, szNewValue);
+
+        LOGMSG="END UPDATING " + szINI;
+        LOGWRITE(LOGMSG);
+
+end;
+
+
+function UpdateEDIPROC_INI()
+
+        STRING szNewValue, szKey, szINI;
+
+begin
+
+	szINI = szBaseDirectory ^ "BIN" ^ "EDIPROC.INI";
+
+        LOGMSG="START UPDATING " + szINI;
+        LOGWRITE(LOGMSG);
+
+        szKey = "GENERAL";
+        szNewValue = szBaseDirectory ^ "EDI" ^ "";
+
+        WriteProfString(szINI, "WorkPath", szKey, szNewValue);
+
+        LOGMSG="END UPDATING " + szINI;
+        LOGWRITE(LOGMSG);
+
+end;
+
+
+#include "sddialog.rul"
