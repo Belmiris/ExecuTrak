@@ -1,0 +1,66 @@
+Type=Exe
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\SYSTEM\stdole2.tlb#Standard OLE Types
+Reference=*\G{00025E04-0000-0000-C000-000000000046}#3.5#0#C:\PROGRAM FILES\COMMON FILES\MICROSOFT SHARED\DAO\dao2535.tlb#Microsoft DAO 2.5 Object Library
+Object={C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0; FACTFRM.OCX
+Object={3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0; FACTTAB.OCX
+Object={01028C21-0000-0000-0000-000000000046}#4.0#0; TG32OV.OCX
+Object={831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0; mscomctl.ocx
+Form=..\..\..\Shared\context.frm
+Form=..\..\..\Shared\ABOUT.FRM
+Module=modWinApi; ..\..\..\Shared\Winapi.bas
+Module=modTemplate; ..\..\..\Shared\Template.bas
+Module=modRegexp; ..\..\..\Shared\regexp.bas
+Module=modErrorHandler; ..\..\..\Shared\errhndle.bas
+Class=clsErrorHandler; ..\..\..\Shared\ClsFiles\clserror.cls
+Class=clsTGSpreadSheet; ..\..\..\Shared\ClsFiles\Tgeditor.cls
+Form=ZZSESLIP.FRM
+Class=clsFloatingDropDown; ..\..\..\Shared\ClsFiles\Fltdrpdn.cls
+Class=clsColumns; ..\..\..\Shared\ClsFiles\COLUMN.CLS
+Class=cValidateInput; ..\..\..\Shared\ClsFiles\Cvalid.cls
+Module=modWJBASIC; ..\..\..\SHARED\WJBASIC.bas
+IconForm="frmZZSESLIP"
+Startup="frmZZSESLIP"
+HelpFile="FACTOR.HLP"
+Title="ZZSESLIP"
+ExeName32="ZZSESLIP.EXE"
+Path32="G:\PROGRAM\DOC\Special Projects\7-11\Prototype"
+Command32=""
+Name="ZZSESLIP"
+HelpContextID="0"
+Description="Day off Slip Days Entry"
+CompatibleMode="0"
+MajorVer=3
+MinorVer=25
+RevisionVer=1
+AutoIncrementVer=0
+ServerSupportFiles=0
+VersionComments="ZZSESLIP"
+VersionCompanyName="FACTOR, A Division of WR Hess Company"
+VersionFileDescription="ZZSESLIP.EXE"
+VersionLegalCopyright="Copyright © 1997-2000 FACTOR, A Division of WR Hess Company"
+VersionLegalTrademarks="FACTOR"
+VersionProductName="FACTOR"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
+CompilationType=0
+OptimizationType=0
+FavorPentiumPro(tm)=0
+CodeViewDebugInfo=0
+NoAliasing=0
+BoundsCheck=0
+OverflowCheck=0
+FlPointCheck=0
+FDIVCheck=0
+UnroundedFP=0
+StartMode=0
+Unattended=0
+Retained=0
+ThreadPerObject=0
+MaxNumberOfThreads=1
+DebugStartupOption=0
+
+[SQA]
+DisableUpdate=1
+UpdateMode=0
+
+[MS Transaction Server]
+AutoRefresh=1
