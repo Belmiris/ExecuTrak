@@ -52,163 +52,167 @@ Attribute VB_Exposed = False
 '       EndTrans:   Write EDI header record and close the file
 
 Option Explicit
-    Private Const EDI_TYPE_R = "R"
-    Private Const EDI_TYPE_D = "D"
-    Private Const MODE_PRODUCT = "P"
-    Private Const MODE_TEST = "T"
-    Private Const SYSPARM_FED_ID = 9008
-    Private Const ARRAY_INC = 10
-    Private Const FILE_HANDLE = 21
-    Private Const REPORT_STATE = "AR"
     
-    Private Const EDI_FMTAX_RECORD_LENGGH = 232
-    
-    Private Const EC_INITIAL = 0
-    Private Const EC_INVALID_START_DATE = -1001
-    Private Const EC_INVALID_END_DATE = -1002
-    Private Const EC_NULL_SCHD_CODE = -2001
-    Private Const EC_NULL_TAX_CLASS = -3001
-    Private Const EC_INVALID_EDI_TYPE = -4001
-    Private Const EC_INVALID_TYPE_CODE = -4002
-    Private Const EC_NULL_FEIN = -4003
-    Private Const EC_CREATE_TT1_R = -5001
-    Private Const EC_CREATE_TT2_R = -5002
-    Private Const EC_CREATE_TT3_R = -5003
-    Private Const EC_GET_RECORD_R = -5004
-    Private Const EC_CREATE_TT1_D = -5101
-    Private Const EC_CREATE_TT2_D = -5102
-    Private Const EC_CREATE_TT3_D = -5103
-    Private Const EC_GET_RECORD_D = -5104
-    Private Const EC_INVALID_THIER_ID = -6001
-    Private Const EC_INVALID_TAX_LICENSE = -7001
-    Private Const EC_INVALID_MODE = -8001
-    Private Const EC_INIT_PARM1_1 = -9101
-    Private Const EC_INIT_PARM1_2 = -9101
-    Private Const EC_INIT_PARM2_1 = -9201
-    Private Const EC_INIT_PARM2_2 = -9202
-    
-    Private Const EC_CANCEL_PROCESS = -9203
-    Private Const EC_EXIT_PROGRAM = -9204
-    
-    Private Const EDI_ITM_RECORD_TYPE = "ITM"
-    Private Const EDI_ITM_TAX_SCHEDULE_CODE = "T3"
-    Private Const EDI_ITM_PRODUCT_TYPE = "PG"
-    Private Const EDI_ITM_RECEIVER_TRANS_SET = "94"
-    Private Const EDI_ITM_SHIP_METHOD_R = "J "
-    Private Const EDI_ITM_SHIP_METHOD_D = "J "
-    Private Const EDI_ITM_CARRIER_ID_CODE = "CA"
-    Private Const EDI_ITM_CARRIER_FEIN_TYPE = "24"
-    Private Const EDI_ITM_ORIGIN_TYPE = "N"
-    Private Const EDI_ITM_ORIGIN_ENTITY_ID = "SF"
-    Private Const EDI_ITM_ORIGIN_IRS_T_ID = "TC"
-    Private Const EDI_ITM_DEST_TYPE = "N"
-    Private Const EDI_ITM_DEST_ENTITY_ID = "ST"
-    Private Const EDI_ITM_DEST_IRS_T_ID = "TC"
-    Private Const EDI_ITM_BUY_SELL_ENTITY_ID_R = "SE"
-    Private Const EDI_ITM_BUY_SELL_ENTITY_ID_D = "BY"
-    Private Const EDI_ITM_BUY_SELL_FEIN_TYPE = "24"
-    Private Const EDI_ITM_REF_TYPE_CODE = "BM"
-    Private Const EDI_ITM_DATE_TYPE_CODE = "095"
-    Private Const EDI_ITM_TAX_INFO_ID = "5010"
-    Private Const EDI_ITM_UOM = "GA"
-    
-    Private Const EDI_ITM_ORIGIN_IRS_T_CODE = "         "
-    Private Const EDI_ITM_DEST_IRS_T_CODE = "         "
-    
-    Private Const EDI_HDR_RECORD_TYPE = "HDR"
-    Private Const EDI_HDR_REF_NBR_CODE = "T6"
-    Private Const EDI_HDR_TAX_AUTHORITY_CODE = "47"
-    Private Const EDI_HDR_STATE_CODE = "AR"
-    Private Const EDI_HDR_TAXPAYER_FEIN_TYPE = "24"
-    Private Const EDI_HDR_STATE_ID_NBR = "49"
-    Private Const EDI_HDR_FILING_PERIOD_CODE = "194"
-    Private Const EDI_HDR_RANGE_OF_DATE = "RD6"
-    Private Const EDI_HDR_TAX_INFO_ID_NBR_1 = "5010"
-    Private Const EDI_HDR_UOM = "GA"
-    Private Const EDI_HDR_TAX_INFO_ID_NBR_2 = "5067"
-    Private Const EDI_HDR_VERSION_NBR = "1.00"
-    Private Const EDI_HDR_PRIMARY_TAXPAYER_COD = "TP"
-    Private Const EDI_HDR_TEST_PRODUCTION = "T"
-    
-    Private Type tpLinkName
-        m_sName As String
-        m_lLink As Long
-    End Type
-    Private aryProduct() As tpLinkName
-    Private nProductCount As Integer
-    Private aryTerminal() As tpLinkName
-    Private nTerminalCount As Integer
-    Private aryProfitCenter() As tpLinkName
-    Private nProfitCenterCount As Integer
-    
-    Private aryCustomerCity() As tpLinkName
-    Private nCustomerCityCount As Integer
-    
-    Private Type tpLinkInfo
-        m_sLink As String
-        m_sInfo1 As String
-        m_sInfo2 As String
-        m_sInfo3 As String
-    End Type
-    
-    Private aryCity() As tpLinkInfo
-    Private nCityCount As Integer
-    Private aryCarrier() As tpLinkInfo
-    Private nCarrierCount As Integer
-    Private aryCustomer() As tpLinkInfo
-    Private nCustomerCount As Integer
-    Private aryVendor() As tpLinkInfo
-    Private nVendorCount As Integer
-    
-    Private Type tpVendorTaxID
-        m_lVendor As Long
-        m_sState As String
-        m_sTaxClass As String
-        m_sTaxID As String
-    End Type
-    Private aryVendorTaxID() As tpVendorTaxID
-    Private nVTaxIDCount As Integer
-    
-    Private Type tpCustomerTaxID
-        m_lCustomer As Long
-        m_lTrnLink As Long
-        m_sTaxID As String
-    End Type
-    Private aryCustomerTaxID() As tpCustomerTaxID
-    Private nCTaxIDCount As Integer
-    
-    'Variables(properties) need to set by the program
-    Private m_sStartDate As String
-    Private m_sEndDate As String
-    Private m_sEDIType As String
-    Private m_sTheirID As String
-    Private m_sTaxTypeCode As String
-    Private m_sTaxpayerLicense As String
-    Private m_sMode As String
-    Private m_sFileName As String
-    
-    Private m_sCarrier_Name As String
-    Private m_sCarrier_FEIN As String
-    
-    'Variables need to set inside the program
-    Private m_nTypeCode As String
-    Private m_nProductRefCode As String
-    Private m_lTotalGallons As Long
-    Private m_sCompany As String
-    Private m_sTaxpayerID As String
-    Private m_nLineLength As Integer
-    Private m_nErrorNumber As Integer
-    Private m_sLastVBError As String
-    Private m_lHeaderPosition As Long
+Private Const EDI_TYPE_R = "R"
+Private Const EDI_TYPE_D = "D"
+Private Const MODE_PRODUCT = "P"
+Private Const MODE_TEST = "T"
+Private Const SYSPARM_FED_ID = 9008
+Private Const ARRAY_INC = 10
+Private Const FILE_HANDLE = 21
+Private Const REPORT_STATE = "AR"
 
-    Private sFMTaxLineBuffer As String * EDI_FMTAX_RECORD_LENGGH
+Private Const EDI_FMTAX_RECORD_LENGGH = 232
+
+Private Const EC_INITIAL = 0
+Private Const EC_INVALID_START_DATE = -1001
+Private Const EC_INVALID_END_DATE = -1002
+Private Const EC_NULL_SCHD_CODE = -2001
+Private Const EC_NULL_TAX_CLASS = -3001
+Private Const EC_INVALID_EDI_TYPE = -4001
+Private Const EC_INVALID_TYPE_CODE = -4002
+Private Const EC_NULL_FEIN = -4003
+Private Const EC_CREATE_TT1_R = -5001
+Private Const EC_CREATE_TT2_R = -5002
+Private Const EC_CREATE_TT3_R = -5003
+Private Const EC_GET_RECORD_R = -5004
+Private Const EC_CREATE_TT1_D = -5101
+Private Const EC_CREATE_TT2_D = -5102
+Private Const EC_CREATE_TT3_D = -5103
+Private Const EC_GET_RECORD_D = -5104
+Private Const EC_INVALID_THIER_ID = -6001
+Private Const EC_INVALID_TAX_LICENSE = -7001
+Private Const EC_INVALID_MODE = -8001
+Private Const EC_INIT_PARM1_1 = -9101
+Private Const EC_INIT_PARM1_2 = -9101
+Private Const EC_INIT_PARM2_1 = -9201
+Private Const EC_INIT_PARM2_2 = -9202
+
+Private Const EC_CANCEL_PROCESS = -9203
+Private Const EC_EXIT_PROGRAM = -9204
+
+Private Const EDI_ITM_RECORD_TYPE = "ITM"
+Private Const EDI_ITM_TAX_SCHEDULE_CODE = "T3"
+Private Const EDI_ITM_PRODUCT_TYPE = "PG"
+Private Const EDI_ITM_RECEIVER_TRANS_SET = "94"
+Private Const EDI_ITM_SHIP_METHOD_R = "J "
+Private Const EDI_ITM_SHIP_METHOD_D = "J "
+Private Const EDI_ITM_CARRIER_ID_CODE = "CA"
+Private Const EDI_ITM_CARRIER_FEIN_TYPE = "24"
+Private Const EDI_ITM_ORIGIN_TYPE = "N"
+Private Const EDI_ITM_ORIGIN_ENTITY_ID = "SF"
+Private Const EDI_ITM_ORIGIN_IRS_T_ID = "TC"
+Private Const EDI_ITM_DEST_TYPE = "N"
+Private Const EDI_ITM_DEST_ENTITY_ID = "ST"
+Private Const EDI_ITM_DEST_IRS_T_ID = "TC"
+Private Const EDI_ITM_BUY_SELL_ENTITY_ID_R = "SE"
+Private Const EDI_ITM_BUY_SELL_ENTITY_ID_D = "BY"
+Private Const EDI_ITM_BUY_SELL_FEIN_TYPE = "24"
+Private Const EDI_ITM_REF_TYPE_CODE = "BM"
+Private Const EDI_ITM_DATE_TYPE_CODE = "095"
+Private Const EDI_ITM_TAX_INFO_ID = "5010"
+Private Const EDI_ITM_UOM = "GA"
+
+Private Const EDI_ITM_ORIGIN_IRS_T_CODE = "         "
+Private Const EDI_ITM_DEST_IRS_T_CODE = "         "
+
+Private Const EDI_HDR_RECORD_TYPE = "HDR"
+Private Const EDI_HDR_REF_NBR_CODE = "T6"
+Private Const EDI_HDR_TAX_AUTHORITY_CODE = "47"
+Private Const EDI_HDR_STATE_CODE = "AR"
+Private Const EDI_HDR_TAXPAYER_FEIN_TYPE = "24"
+Private Const EDI_HDR_STATE_ID_NBR = "49"
+Private Const EDI_HDR_FILING_PERIOD_CODE = "194"
+Private Const EDI_HDR_RANGE_OF_DATE = "RD6"
+Private Const EDI_HDR_TAX_INFO_ID_NBR_1 = "5010"
+Private Const EDI_HDR_UOM = "GA"
+Private Const EDI_HDR_TAX_INFO_ID_NBR_2 = "5067"
+Private Const EDI_HDR_VERSION_NBR = "1.00"
+Private Const EDI_HDR_PRIMARY_TAXPAYER_COD = "TP"
+Private Const EDI_HDR_TEST_PRODUCTION = "T"
+
+Private Type tpLinkName
+    m_sName As String
+    m_lLink As Long
+End Type
+Private aryProduct() As tpLinkName
+Private nProductCount As Integer
+Private aryTerminal() As tpLinkName
+Private nTerminalCount As Integer
+Private aryProfitCenter() As tpLinkName
+Private nProfitCenterCount As Integer
+
+Private aryCustomerCity() As tpLinkName
+Private nCustomerCityCount As Integer
+
+Private Type tpLinkInfo
+    m_sLink As String
+    m_sInfo1 As String
+    m_sInfo2 As String
+    m_sInfo3 As String
+End Type
+
+Private aryCity() As tpLinkInfo
+Private nCityCount As Integer
+Private aryCarrier() As tpLinkInfo
+Private nCarrierCount As Integer
+Private aryCustomer() As tpLinkInfo
+Private nCustomerCount As Integer
+Private aryVendor() As tpLinkInfo
+Private nVendorCount As Integer
+
+Private Type tpVendorTaxID
+    m_lVendor As Long
+    m_sState As String
+    m_sTaxClass As String
+    m_sTaxID As String
+End Type
+Private aryVendorTaxID() As tpVendorTaxID
+Private nVTaxIDCount As Integer
+
+Private Type tpCustomerTaxID
+    m_lCustomer As Long
+    m_lTrnLink As Long
+    m_sTaxID As String
+End Type
+Private aryCustomerTaxID() As tpCustomerTaxID
+Private nCTaxIDCount As Integer
+
+'Variables(properties) need to set by the program
+Private m_sStartDate As String
+Private m_sEndDate As String
+Private m_sEDIType As String
+Private m_sTheirID As String
+Private m_sTaxTypeCode As String
+Private m_sTaxpayerLicense As String
+Private m_sMode As String
+Private m_sFileName As String
+
+Private m_sCarrier_Name As String
+Private m_sCarrier_FEIN As String
+
+'Variables need to set inside the program
+Private m_nTypeCode As String
+Private m_nProductRefCode As String
+Private m_lTotalGallons As Long
+Private m_sCompany As String
+Private m_sTaxpayerID As String
+Private m_nLineLength As Integer
+Private m_nErrorNumber As Integer
+Private m_sLastVBError As String
+Private m_lHeaderPosition As Long
+
+Private m_lTaxPaidTrn(20) As Long
+Private m_nTPTCount As Integer
+
+Private sFMTaxLineBuffer As String * EDI_FMTAX_RECORD_LENGGH
 '
 
 Public Sub AddEDIRecords(sSchedule As String, _
                          nTypeCode As String, _
                          sTaxClass As String, _
                          nProdRefCode As String, _
-                         sSchedule3 As String)
+                         Optional vExtractFrom)
 
     Dim ciTemp As ETFMTaxRecord
     Dim colItems As Collection
@@ -221,36 +225,14 @@ Public Sub AddEDIRecords(sSchedule As String, _
     m_nTypeCode = nTypeCode
     m_nProductRefCode = nProdRefCode
     
-    If Trim(sSchedule) <> "" Then
-        Set colItems = fnOpenFMTaxRecord(sSchedule, nTypeCode, sTaxClass, nProdRefCode)
-        If m_nErrorNumber <> EC_INITIAL Then
-            Exit Sub
-        End If
-        
-        If fnCheckExitCancel Then
-            Exit Sub
-        End If
+    Set colItems = fnOpenFMTaxRecord(sSchedule, nTypeCode, sTaxClass, nProdRefCode, vExtractFrom)
+    If m_nErrorNumber <> EC_INITIAL Then
+        Exit Sub
     End If
     
-    'Use a special code 1199 to identify tax-paid import
-    'which goes to Schedule Category 1. Ma 11/1/99
-    '==========================================================
-    If nTypeCode = "1" And nTPTCount > 0 Then
-        Dim colItems1 As Collection
-        Set colItems1 = fnOpenFMTaxRecord(sSchedule3, sTaxPaidTCSpecial, sTaxClass, nProdRefCode)
-        If m_nErrorNumber <> EC_INITIAL Then
-            Exit Sub
-        End If
-        If colItems Is Nothing Then
-            Set colItems = New Collection
-        End If
-        If Not colItems1 Is Nothing Then
-            For Each ciTemp In colItems1
-                colItems.Add ciTemp
-            Next
-        End If
+    If fnCheckExitCancel Then
+        Exit Sub
     End If
-    '==========================================================
     
     If Not colItems Is Nothing Then
         subCheckFEIN colItems
@@ -262,12 +244,10 @@ Public Sub AddEDIRecords(sSchedule As String, _
     If Not colItems Is Nothing Then
         For Each ciTemp In colItems
             m_lTotalGallons = m_lTotalGallons + ciTemp.Quantity
-'            If ciTemp.Movement = 30703 Then
-                sEDIItem = fnBuildEDIFMTaxItem(ciTemp)
-                If Not fnWriteLine(sEDIItem) Then
-                    Exit Sub
-                End If
-'            End If
+            sEDIItem = fnBuildEDIFMTaxItem(ciTemp)
+            If Not fnWriteLine(sEDIItem) Then
+                Exit Sub
+            End If
         Next ciTemp
     End If
 End Sub
@@ -481,20 +461,6 @@ Private Function fnCStr(vTemp As Variant) As String
     End If
 End Function
 
-Private Function fnTrnNumbers(lSource() As Long, _
-                             ByVal nCount As Integer) As String
-
-    Dim I As Integer
-    Dim sTemp As String
-    
-    sTemp = lSource(0)
-    For I = 1 To nTPTCount - 1
-        sTemp = sTemp & "," & CStr(lSource(I))
-    Next I
-    fnTrnNumbers = "(" & sTemp & ")"
-End Function
-
-
 Private Function fnFixLength(sSrc As String, _
                              nLen As Integer) As String
 
@@ -588,9 +554,10 @@ Property Get ModeProduct() As String
 End Property
 
 Private Function fnOpenFMTaxRecord(sSchedule As String, _
-                         nTypeCode As String, _
+                         ByVal nTypeCode As String, _
                          sTaxClass As String, _
-                         nProdRefCode As String) As Collection
+                         nProdRefCode As String, _
+                         Optional vExtractFrom) As Collection
 
     Const SUB_NAME = "fnOpenFMTaxRecord"
 
@@ -608,16 +575,10 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     fnExecuteSQL strSQL, SUB_NAME
     strSQL = "DROP TABLE fm_temp2"
     fnExecuteSQL strSQL, SUB_NAME
+    
     If m_sEDIType = EDI_TYPE_R Then
         sType = "B"
-        'remove the fml_int_ext = 'E' from the where clause. David 10/14/99
-        'strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal, fml_date" _
-               & " FROM fm_lading, fm_movement WHERE fml_date" _
-               & " BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
-               & " AND fml_int_ext = 'E'" _
-               & " AND fmm_dispatch_flag = 'C'" _
-               & " AND fml_movement = fmm_movement" _
-               & " INTO TEMP fm_temp1"
+        
         strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal," _
             & " fml_int_ext, fml_date FROM fm_lading, fm_movement WHERE fml_date" _
             & " BETWEEN '" & m_sStartDate & "' AND '" & m_sEndDate & "'" _
@@ -644,58 +605,20 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
             & ") AND fmldt_type = '" & sType & "'"
         
-        'Fix for tax-paid import. Ma 11/1/99
-        '=====================================
-        If nTPTCount > 0 Then
-            If nTypeCode = 3 Then
-                strSQL = "DROP TABLE fm_temp3"
-                fnExecuteSQL strSQL, SUB_NAME
-                strSQL = "SELECT DISTINCT fmm_movement FROM fm_temp1, fm_lad_tax" _
-                       & " WHERE fmldt_movement = fmm_movement" _
-                       & " AND fmldt_trn IN " & fnTrnNumbers(lTaxPaidTrn, nTPTCount) _
-                       & " INTO TEMP fm_temp3"
-                If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
-                    m_nErrorNumber = EC_CREATE_TT1_R
-                    Exit Function
+        If m_nTPTCount >= 0 Then
+            Select Case nTypeCode
+            Case "1"
+                If Not IsMissing(vExtractFrom) Then
+                    strSQL = strSQL & " AND (fmldt_trn IN " & _
+                        fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
                 End If
-                strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn," _
-                    & " fml_int_ext, fml_vendor, fml_terminal, fml_date" _
-                    & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
-                    & " WHERE fmldt_movement = fmm_movement" _
-                    & " AND fmldt_bl_nbr = fml_bl_nbr" _
-                    & " AND fmldt_trn = tul_trn" _
-                    & " AND fmldt_ulink = tul_link" _
-                    & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
-                    & ") AND fmldt_type = '" & sType & "'" _
-                    & " AND fmm_movement NOT IN (SELECT fmm_movement FROM fm_temp3)"
-            ElseIf nTypeCode = sTaxPaidTCSpecial Then
-                strSQL = "DROP TABLE fm_temp3"
-                fnExecuteSQL strSQL, SUB_NAME
-                strSQL = "SELECT DISTINCT fmm_movement" _
-                    & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
-                    & " WHERE fmldt_movement = fmm_movement" _
-                    & " AND fmldt_bl_nbr = fml_bl_nbr" _
-                    & " AND fmldt_trn = tul_trn" _
-                    & " AND fmldt_ulink = tul_link" _
-                    & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
-                    & ") AND fmldt_type = '" & sType & "'" _
-                    & " INTO TEMP fm_temp3"
-                If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
-                    m_nErrorNumber = EC_CREATE_TT1_R
-                    Exit Function
-                End If
-                strSQL = "SELECT fm_temp1.fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn," _
-                    & " fml_int_ext, fml_vendor, fml_terminal, fml_date" _
-                    & " FROM fm_lad_tax, fm_temp1, fm_temp3" _
-                    & " WHERE fmldt_movement = fm_temp3.fmm_movement" _
-                    & " AND fmldt_movement = fm_temp1.fmm_movement" _
-                    & " AND fmldt_bl_nbr = fml_bl_nbr" _
-                    & " AND fmldt_trn IN " & fnTrnNumbers(lTaxPaidTrn, nTPTCount) _
-                    & " AND fmldt_type = '" & sType & "'"
-            End If
+            Case "3"
+                strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
+                    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+            End Select
         End If
+        
         strSQL = strSQL & " INTO TEMP fm_temp2"
-        '=====================================
         
         If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
             m_nErrorNumber = EC_CREATE_TT2_R
@@ -717,12 +640,13 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             & " AND fmd_movement = fmmb_movement" _
             & " AND fmmb_bl_prodlnk = ivh_link" _
             & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-        
-        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+
+         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
 
         m_nErrorNumber = EC_GET_RECORD_R
     Else
         sType = "I"
+        
         strSQL = "SELECT fmm_movement, fmm_carrier, fmd_invoice, fmd_dest_code, fmd_dest_flag," _
             & " fmd_prft_ctr, fmd_date" _
             & " FROM fm_delivery, fm_movement WHERE fmd_date" _
@@ -801,8 +725,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 & " FROM fm_temp2, fm_mv_bal, fm_lading, inv_header" _
                 & " WHERE fmm_movement = fmmb_movement" _
                 & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
-                & " AND fmd_invoice = fmmb_dv_nbr"  ' _
-                & " AND fmldt_line = fmmb_dv_line"
+                & " AND fmd_invoice = fmmb_dv_nbr"
             strSQL = strSQL & " AND fml_bl_nbr = fmmb_bl_nbr" _
                 & " AND fml_movement = fmmb_movement" _
                 & " AND fmmb_dv_prodlnk = ivh_link" _
@@ -839,19 +762,10 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 ciTemp.CarrierName = sInfo1
                 ciTemp.CarrierFedID = fnConvertFEDID(sInfo2)
                 ciTemp.TTTrnNumber = tfnRound(!fmldt_trn)
-                'If nTypeCode = "5J" Or nTypeCode = "10A" Then
-                '    If rsTemp!fml_int_ext = "E" Then
-                '        sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
-                '    Else
-                '        sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
-                '    End If
-                'Else
-                    sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
-                'End If
+                sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
                 subGetCityInfo sInfo1, sInfo2, sTemp
                 ciTemp.OriginCity = sInfo1
                 ciTemp.OriginState = sInfo2
-                'sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
                 sTemp = fnGetDestCity(tfnRound(!fmd_dest_code), !fmd_dest_flag)
                 If sTemp = "" Then
                     sTemp = fnProfitCenterCity(tfnRound(!fmd_prft_ctr))
@@ -908,7 +822,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 ciTemp.LadingNumber = tfnRound(!fmldt_bl_nbr)
                 ciTemp.Quantity = tfnRound(!namount)
                 ciTemp.Movement = tfnRound(!fmm_movement)
+                
                 colTemp.Add ciTemp
+                
                 .MoveNext
             
                 If fnCheckExitCancel Then
@@ -1747,4 +1663,49 @@ Private Function fnCheckExitCancel() As Boolean
     End If
     fnCheckExitCancel = False
 End Function
+
+Property Let TaxPaidTaxCode(sCode As String)
+    Const SUB_NAME = "TaxPaidTaxCode"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    m_nTPTCount = -1
+    
+    If sCode = "" Then
+        Exit Property
+    End If
+    
+    strSQL = "SELECT DISTINCT tt_trn FROM tx_table" _
+           & " WHERE tt_level = 'S'" _
+           & " AND (" & fnAppenCriteria("tt_code", sCode) & ")"
+
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    If rsTemp Is Nothing Then
+        Exit Property
+    End If
+    
+    While Not rsTemp.EOF
+        m_nTPTCount = m_nTPTCount + 1
+        If m_nTPTCount <= 20 Then
+            m_lTaxPaidTrn(m_nTPTCount) = tfnRound(rsTemp!tt_trn)
+        End If
+        rsTemp.MoveNext
+    Wend
+End Property
+
+Private Function fnTrnNumbers(lSource() As Long, _
+                             ByVal nCount As Integer) As String
+
+    Dim I As Integer
+    Dim sTemp As String
+    
+    sTemp = lSource(0)
+    For I = 1 To nCount
+        sTemp = sTemp & "," & CStr(lSource(I))
+    Next I
+    fnTrnNumbers = "(" & sTemp & ")"
+End Function
+
+
 

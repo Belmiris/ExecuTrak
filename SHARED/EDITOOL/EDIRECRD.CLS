@@ -43,3 +43,4 @@ Option Explicit
     
     'FOr internal use
     Public Movement As Long
+
