@@ -3587,6 +3587,8 @@ Private Function fnGetVarValue(sV As String, _
     'predefined variables - SHOULD BE THE SAME AS THE DEFINITION IN ZZSEBFMT
     sarrVariable = Array("3_mo_shortage_avg", _
                          "3_month_sales_avg", _
+                         "asst_mgr_3_m_sales", _
+                         "asst_mgr_gals_sold", _
                          "day_off_slip_day", _
                          "days_employed", _
                          "gallons_sold", _
@@ -3617,6 +3619,10 @@ Private Function fnGetVarValue(sV As String, _
             fnGetVarValue = 1.1
         Case "3_month_sales_avg"
             fnGetVarValue = 2.2
+        Case "asst_mgr_3_m_sales"
+            fnGetVarValue = 32.32
+        Case "asst_mgr_gals_sold"
+            fnGetVarValue = 33.33
         Case "day_off_slip_day"
             fnGetVarValue = 3.3
         Case "days_employed"
