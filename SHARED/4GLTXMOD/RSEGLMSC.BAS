@@ -392,6 +392,8 @@ Public Function compute_fuel_taxes(w As Integer) As Double
     Set pr_inv_header = fproduct(aryComp(w).lProductLink, t_dbMainDatabase)
 
     set_this_pc lProfitCenter
+    '#WJ add the next line on 06/10/2003
+    init_detax
 'pass
     detax aryComp(w).sUseGroup, aryComp(w).sTaxClass, _
         aryComp(w).dfCompDollars, aryComp(w).dfCompUnits
