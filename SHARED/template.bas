@@ -1103,7 +1103,7 @@ Public Sub tfnUpdateStatusBar(frmForm As Form)
     '-------------- Fix the Frm Caption  -- WJ 03/26/2002 -----
     Dim sOn As String
     sOn = " on " & Trim(tfnGetDataSourceName)
-    If InStr(Me.Caption, sOn) <= 0 Then
+    If InStr(frmForm.Caption, sOn) <= 0 Then
         frmForm.Caption = frmForm.Caption & sOn
     End If
     '----------------------------------------------------------
