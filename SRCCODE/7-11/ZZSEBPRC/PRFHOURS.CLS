@@ -307,7 +307,6 @@ Public Sub cmdAddBtn_Click()
     tblTimeCard.Enabled = False
     tblProfitCenter.Enabled = False
     txtEmployeeNumber.SetFocus
-    subEnableRuns True
     
 End Sub
 
@@ -925,17 +924,6 @@ Public Function fnInValidData(txtBox As Textbox) As Boolean
     End Select
 End Function
 
-Public Sub TBButtonCallBack(ByVal nID As Integer)
-    Select Case nID
-        Case EMP_MST_UP
-            frmContext.RunProgram "prfmstmn"
-        Case PROFITCENTER_UP
-            'subAddProfitCenter
-        Case CANCEL_UP
-            subCancel
-    End Select
-End Sub
-
 Public Function fnExit() As Boolean
     
     If nDataStatus = DATA_CHANGED Then
@@ -1526,19 +1514,6 @@ Private Sub subAddEmployee()
     End If
 End Sub
 
-Private Sub subAddProfitCenter()
-    If tblTimeCard.Enabled Then
-        subSetFocus tblTimeCard
-    ElseIf txtEmployeeNumber.Enabled Then
-        subSetFocus txtEmployeeNumber
-    ElseIf cmdAddBtn.Enabled Then
-        subSetFocus cmdAddBtn
-    Else
-        subSetFocus cmdExitCancelBtn
-    End If
-    
-End Sub
-
 Private Sub subCancel()
 
     If nDataStatus >= DATA_CHANGED Then 'If t_bDataChanged = True Then
@@ -1604,7 +1579,6 @@ Private Sub tfnResetScreen()
     txtTotalDollars.Text = ""
     txtTotal.Text = ""
     
-    subEnableRuns False
     cmdDeleteBtn.Enabled = False
     cmdUpdateInsertBtn.Enabled = False
     cmdRefreshSelectBtn.Enabled = False
@@ -1613,6 +1587,9 @@ Private Sub tfnResetScreen()
     cValidate.ResetFlags
     
     tfnSetStatusBarMessage t_szADD
+    
+    frmContext.ButtonEnabled(PROFITCENTER_UP) = True
+    frmContext.ButtonEnabled(EMP_MST_UP) = True
     
     frmContext.ButtonEnabled(CANCEL_UP) = False
     cmdExitCancelBtn.Enabled = False
@@ -2278,18 +2255,6 @@ Private Sub subSetFloatingDropDown()
          .AddExtraColumn "Pay Description", "prpa_desc", 2500
     
     End With
-End Sub
-
-Private Sub subEnableRuns(bFlag As Boolean)
-
-    If Not bFlag Then
-        frmContext.ButtonEnabled(PROFITCENTER_UP) = False
-        frmContext.ButtonEnabled(EMP_MST_UP) = False
-    Else
-        frmContext.ButtonEnabled(PROFITCENTER_UP) = True
-        frmContext.ButtonEnabled(EMP_MST_UP) = True
-    End If
-    
 End Sub
 
 Private Sub Class_Terminate()

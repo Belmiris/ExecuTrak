@@ -299,7 +299,12 @@ Public Function fnCreateReport(Index As Integer) As Boolean
     Dim sReportTitle As String
     Dim sApprove As String
     Dim nArSize As Integer
+    Dim sCondition As String
     Dim sFormula As String
+    Dim sFormulaLine As String
+    Dim sAdjCond As String
+    Dim sAdjFormula As String
+    Dim sAdjFormulaLine As String
     Dim i As Integer, j As Integer
     
     Dim sReportID As String
@@ -328,6 +333,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
                     & fnTranc(tgmApprove.CellValue(colADate, i), 10, vbLeftJustify) & Space(1) _
                     & fnTranc(tgmApprove.CellValue(colABonusAmt, i), 10, vbRightJustify)
             Next i
+            
             sReportTitle = "Employee Commission Approval Report"
             sHeadTitle = fnTranc("", 5, vbLeftJustify) & Space(1)
             sHeadTitle = sHeadTitle & fnTranc("Employee", 9, vbLeftJustify) & Space(1)
@@ -336,7 +342,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             sHeadTitle = sHeadTitle & fnTranc("Pay", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Pay", 5, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Process", 10, vbLeftJustify) & Space(1)
-            sHeadTitle = sHeadTitle & fnTranc("", 10, vbRightJustify)
+            sHeadTitle = sHeadTitle & fnTranc("Comm.", 10, vbRightJustify)
             'second line
             sHeadTitle = sHeadTitle & vbCrLf
             sHeadTitle = sHeadTitle & fnTranc("Apprv", 5, vbLeftJustify) & Space(1)
@@ -350,24 +356,74 @@ Public Function fnCreateReport(Index As Integer) As Boolean
         Case TabDetails
             sReportID = "ZZSEBPRD"
             
-            nArSize = (tgmDetail.RowCount * 2) - 1
-            i = 0
+            nArSize = ((tgmDetail.RowCount - 1) * 4)
+            j = 0
             ReDim sArrReport(nArSize)
-            For j = 0 To UBound(sArrReport)
-                If j Mod 2 = 0 Then
-                    sArrReport(j) = fnTranc(tgmDetail.CellValue(colDBCode, i), 5, vbLeftJustify) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDBCDesc, i), 49, vbLeftJustify) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDBLevel, i), 5, vbCenter) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDBType, i), 4, vbCenter) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDBFreq, i), 9, vbCenter) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDElgDate, i), 10, vbCenter) & Space(2) _
-                     & fnTranc(tgmDetail.CellValue(colDBAmt, i), 10, vbRightJustify)
-                     sFormula = fnGetBFormula(tgmDetail.CellValue(colDBCode, i), tgmDetail.CellValue(colDBLevel, i))
-                    i = i + 1
-                Else
-                    sArrReport(j) = Space(7) & "Formula: (" & sFormula & ")" & vbCrLf
+            For i = 0 To tgmDetail.RowCount - 1
+                sArrReport(j) = fnTranc(tgmDetail.CellValue(colDBCode, i), 5, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDBCDesc, i), 49, vbLeftJustify) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDBLevel, i), 5, vbCenter) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDBType, i), 4, vbCenter) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDBFreq, i), 9, vbCenter) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDElgDate, i), 10, vbCenter) & Space(2) _
+                    & fnTranc(tgmDetail.CellValue(colDBAmt, i), 10, vbRightJustify)
+                
+                j = j + 1
+                
+                'display condition, formula, adj.condition, adj.formula
+                subGetBFormula tgmDetail.CellValue(colDBCode, i), _
+                   tgmDetail.CellValue(colDBLevel, i), _
+                   sCondition, sFormula, sAdjCond, sAdjFormula
+                
+                sFormulaLine = ""
+                If sCondition <> "" Then
+                    If Len(sCondition) >= 4 Then
+                        If Left(sCondition, 2) <> "if" And Left(sCondition, 4) <> "when" Then
+                            sFormulaLine = "if "
+                        End If
+                    End If
+                    
+                    sFormulaLine = sFormulaLine + sCondition + ", "
                 End If
-            Next j
+                
+                sFormulaLine = sFormulaLine + sFormula
+                
+                If sFormulaLine <> "" Then
+                    sArrReport(j) = Space(3) & "Formula: " & sFormulaLine
+                    j = j + 1
+                End If
+                
+                sAdjFormulaLine = ""
+                If sAdjCond <> "" Then
+                    If Len(sAdjCond) >= 4 Then
+                        If Left(sAdjCond, 2) <> "if" And Left(sAdjCond, 4) <> "when" Then
+                            sAdjFormulaLine = "if "
+                        End If
+                    End If
+                    
+                    sAdjFormulaLine = sAdjFormulaLine + sAdjCond + ", "
+                End If
+                
+                sAdjFormulaLine = sAdjFormulaLine + sAdjFormula
+                
+                If sAdjFormulaLine <> "" Then
+                    sArrReport(j) = Space(3) & "Adj. Formula: " & sAdjFormulaLine
+                    j = j + 1
+                End If
+                
+                If sFormulaLine = "" And sAdjFormulaLine = "" Then
+                    sArrReport(j) = Space(3) & "Formula not found."
+                    j = j + 1
+                End If
+                
+                sArrReport(j) = ""
+                j = j + 1
+            Next i
+            
+            If j > 0 Then
+                ReDim Preserve sArrReport(j - 1)
+            End If
+            
             sReportTitle = "Employee Commission Details"
             If frmZZSEBPRC.txtEmployee <> "" Then
                 sReportTitle = frmZZSEBPRC.txtEmployee & "-" & frmZZSEBPRC.txtEmpName & " Commission Details"
@@ -378,7 +434,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
             sHeadTitle = sHeadTitle & fnTranc("Type", 4, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Frequency", 9, vbLeftJustify) & Space(2)
             sHeadTitle = sHeadTitle & fnTranc("Eligible", 10, vbCenter) & Space(2)
-            sHeadTitle = sHeadTitle & fnTranc("Bonus", 10, vbRightJustify)
+            sHeadTitle = sHeadTitle & fnTranc("Comm.", 10, vbRightJustify)
             sHeadTitle = sHeadTitle & vbCrLf
             sHeadTitle = sHeadTitle & fnTranc("Code", 5, vbLeftJustify) & Space(77)
             sHeadTitle = sHeadTitle & fnTranc("Date", 10, vbCenter) & Space(2)
@@ -1573,21 +1629,29 @@ Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As 
     fnCheckVarAllowed = ""
 End Function
 
-Private Function fnGetBFormula(sBCode As String, nBLevel As Integer) As String
-    Const SUB_NAME As String = "fnGetBFormula"
+Private Sub subGetBFormula(sBCode As String, _
+                          nBLevel As Integer, _
+                          sCondition As String, _
+                          sFormula As String, _
+                          sAdjCond As String, _
+                          sAdjFormula As String)
+    
+    Const SUB_NAME As String = "subGetBFormula"
     Dim strSQL As String
     Dim rsTemp As Recordset
     
-    fnGetBFormula = ""
-    
-    strSQL = "SELECT bf_formula FROM bonus_formula WHERE bf_bonus_code = " & tfnSQLString(sBCode)
+    strSQL = "SELECT bf_condition, bf_formula, bf_adj_condition, bf_adj_formula"
+    strSQL = strSQL + " FROM bonus_formula"
+    strSQL = strSQL + " WHERE bf_bonus_code = " & tfnSQLString(sBCode)
     strSQL = strSQL & " AND bf_level = " & tfnRound(nBLevel)
     
-    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) = 1 Then
-        fnGetBFormula = fnGetField(rsTemp!bf_formula)
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) > 0 Then
+        sCondition = LCase(fnGetField(rsTemp!bf_condition))
+        sFormula = LCase(fnGetField(rsTemp!bf_formula))
+        sAdjCond = LCase(fnGetField(rsTemp!bf_adj_condition))
+        sAdjFormula = LCase(fnGetField(rsTemp!bf_adj_formula))
     End If
-
-End Function
+End Sub
 
 Public Function fnDeleteSalesRecord() As Boolean
     Const SUB_NAME As String = "fnDeleteSalesRecord"

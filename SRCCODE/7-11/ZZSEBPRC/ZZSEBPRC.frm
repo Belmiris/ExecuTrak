@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -933,7 +933,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -970,7 +970,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1007,7 +1007,7 @@ Begin VB.Form frmZZSEBPRC
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1395,7 +1395,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.59
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1432,7 +1432,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.59
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1469,7 +1469,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.59
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1506,7 +1506,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.59
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1543,7 +1543,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1580,7 +1580,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1870,7 +1870,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1907,7 +1907,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1944,7 +1944,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1981,7 +1981,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2018,7 +2018,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2055,7 +2055,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2424,7 +2424,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2437,7 +2437,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2671,7 +2671,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -2680,8 +2680,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -2773,16 +2773,16 @@ Private Sub eTabMain_Click()
             frmContext.ButtonEnabled(FO_HOLD_UP) = False
             subSetFocus efraBaseIIProcess
         Case TabApprove
+            frmContext.ButtonEnabled(FO_HOLD_UP) = False
             #If PROTOTYPE Then
                 tblApprove.Enabled = False
                 Exit Sub
             #End If
-            frmContext.ButtonEnabled(FO_HOLD_UP) = True
             subSetFocus efraBaseIIView
                 
-            cmdOK.Enabled = tgmApprove.RowCount > 0
+            cmdOk.Enabled = tgmApprove.RowCount > 0
         Case TabDetails
-            frmContext.ButtonEnabled(FO_HOLD_UP) = False
+            frmContext.ButtonEnabled(FO_HOLD_UP) = True
             #If PROTOTYPE Then
                 tblDetails.Enabled = False
                 Exit Sub
@@ -3277,7 +3277,7 @@ Private Sub tfnResetScreen(Index As Integer)
                             tblApprove.col = 0
                         End If
                         
-                        cmdOK.Enabled = tgmApprove.RowCount > 0
+                        cmdOk.Enabled = tgmApprove.RowCount > 0
                     End If
                 End If
             End If
@@ -3384,8 +3384,8 @@ Private Sub tblApprove_LostFocus()
     tgmApprove.LostFocus
 End Sub
 
-Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgsApprove.MouseUp Button, Shift, y
+Private Sub tblApprove_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsApprove.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblApprove_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3467,13 +3467,18 @@ Private Sub subSetupToolBar()
     With frmContext
         .BeginSetupToolbar Me
             'for PRFHOURS
-            .AddButton "Add &Profit Center", PROFITCENTER_UP
-            .AddButton "Add E&mployee", EMP_MST_UP, , True
+            If t_oleObject Is Nothing Then
+                .AddButton "Add &Profit Center", PROFITCENTER_UP, , True
+                .AddButton "Add Emplo&yee", EMP_MST_UP, , True
+            Else
+                .AddButton "Add &Profit Center", PROFITCENTER_UP
+                .AddButton "Add Emplo&yee", EMP_MST_UP
+            End If
             
-            .AddButton "Add Commission &Code", PRDCLS_UP
-            .AddButton "Add Co&mmission Formula", SYS_LOCKS_UP
-            .AddButton "&Launch Commssion Master", POFAPLVL_UP
-            .AddButton "View Formula Details", FO_HOLD_UP, , True
+            .AddButton "Add Commission Co&de", PRDCLS_UP, , True
+            .AddButton "Add Commission &Formula", SYS_LOCKS_UP, , True
+            .AddButton "Launch Commssion &Master", POFAPLVL_UP, , True
+            .AddButton "&View Formula Details", FO_HOLD_UP, , True
         .EndSetupToolbar
     
         .HelpFile = szHelpFileName
@@ -3500,12 +3505,20 @@ Public Sub TBButtonCallBack(ByVal nID As Integer)
             Else
                 subExit
             End If
-        Case FO_HOLD_UP  'Approve PR
+        Case FO_HOLD_UP
             subShowFormulaDetails
         Case PRINT_UP
             subPrint eTabMain.CurrTab
-        Case Else
-            objHours.TBButtonCallBack nID
+        Case PROFITCENTER_UP
+            tfnRun "syfprftc"
+        Case EMP_MST_UP
+            tfnRun "prfmstmn"
+        Case PRDCLS_UP
+            tfnRun "zzsebcmt"
+        Case SYS_LOCKS_UP
+            tfnRun "zzsebfmt"
+        Case POFAPLVL_UP
+            tfnRun "zzsebmfm"
     End Select
 End Sub
 
@@ -3517,7 +3530,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -3716,7 +3729,7 @@ Private Sub cmdProcess_Click()
     
     nDataStatus = DATA_CHANGED
     
-    cmdOK.Enabled = tgmApprove.RowCount > 0
+    cmdOk.Enabled = tgmApprove.RowCount > 0
     
     cmdPrint(TabApprove).Enabled = True
     eTabMain.TabEnabled(TabDetails) = True
@@ -3835,7 +3848,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colAPrftCtr).Caption = "Profit Center"
             tbl.Columns(colAPayCode).Caption = "Pay Code"
             tbl.Columns(colAPayHours).Caption = "Pay Hours"
-            tbl.Columns(colABonusAmt).Caption = "Amount"
+            tbl.Columns(colABonusAmt).Caption = "Comm. Amount"
             tbl.Columns(colABonusAmt).Alignment = vbRightJustify
         Case "tblDetails"
             tbl.Caption = "Commission Details"
@@ -3848,7 +3861,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colDBFreq).Caption = "Frequency"
             tbl.Columns(colDBFreq).Alignment = vbCenter
             tbl.Columns(colDElgDate).Caption = "Eligible Date"
-            tbl.Columns(colDBAmt).Caption = "Amount"
+            tbl.Columns(colDBAmt).Caption = "Comm. Amount"
             tbl.Columns(colDBAmt).Alignment = vbRightJustify
     End Select
 End Sub
@@ -3943,6 +3956,7 @@ Private Sub subInitSpreadsheets()
 
     colDHdnEmpNo = tgmDetail.AddHiddenField("bm_empno")
     colDHdnPrftCtr = tgmDetail.AddHiddenField("bm_eligible_pc")
+    tgmDetail.DisplayFormat(colDBAmt) = "###,###,##0.00"
 
     'setup the text extension
     subSetupExetension
@@ -4363,8 +4377,8 @@ Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub subSetupCombos()
@@ -5390,11 +5404,11 @@ Private Sub tblDropDown_LostFocus(Index As Integer)
     End If
 End Sub
 
-Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tblDropDown_MouseUp(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Index = nTabHours Then
-        objHours.tblFloating_MouseUp Button, Shift, x, y
+        objHours.tblFloating_MouseUp Button, Shift, X, Y
     Else
-        tgfDropdown(Index).MouseUp y
+        tgfDropdown(Index).MouseUp Y
     End If
 End Sub
 
@@ -6011,8 +6025,8 @@ Private Sub tblSales_LostFocus()
     tgfDropdown(TabSales).LostFocus tblSales
 End Sub
 
-Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgsSales.MouseUp Button, Shift, y
+Private Sub tblSales_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsSales.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblSales_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -6723,8 +6737,8 @@ Private Sub tblTimeCard_LostFocus()
     objHours.tblTimeCard_LostFocus
 End Sub
 
-Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-    objHours.tblTimeCard_MouseDown Button, Shift, x, y
+Private Sub tblTimeCard_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    objHours.tblTimeCard_MouseDown Button, Shift, X, Y
 End Sub
 
 Private Sub tblTimeCard_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
