@@ -652,6 +652,12 @@ Private Function fnLoadTable(nColumn As Integer) As Boolean
     If dbMain Is Nothing Then
         Exit Function
     End If
+    If tgMain.Row < 0 Then
+        On Error Resume Next
+        tgMain.SetFocus
+        fnMoveButton
+        Exit Function
+    End If
 
     DoEvents
 
@@ -1469,7 +1475,7 @@ Private Sub fnMoveButton()
         If Not m_clsEdit Is Nothing Then
             nVisibleRows = tgMain.Height / tgMain.RowHeight - tgMain.HeadLines
             If tgMain.Caption <> "" Then
-                nVisibleRows = nVisibleRows - tgMain.HeadLines
+                nVisibleRows = nVisibleRows - 1
             End If
             If IsNull(tgMain.Row) Then
                 lRow = 0
