@@ -398,9 +398,21 @@ Public Function fncheck_cust_exits(MastCustomerNo As Long) As Boolean
         Exit Function
     End If
     
-    strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(MastCustomerNo)
-    If fnGetRecord(rsTemp, strSQL, nDBRemote, FUNC_NAME) > 0 Then
+'    strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(MastCustomerNo)
+'    If fnGetRecord(rsTemp, strSQL, nDBRemote, FUNC_NAME) > 0 Then
+'        Exit Function
+'    End If
+
+'#wj120204 comment out codes above and replace with direct open database
+'#(like GetMaxAR does) so that we can share this module without relying on "nDBRemote"
+    On Error GoTo errTrap
+    strSQL = "SELECT an_customer FROM ar_altname WHERE an_customer =" & CStr(MastCustomerNo)
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rsTemp.RecordCount > 0 Then
         Exit Function
     End If
     fncheck_cust_exits = False
+    Exit Function
+errTrap:
+    tfnErrHandler strSQL, "fncheck_cust_exits"
 End Function
