@@ -60,12 +60,15 @@ echo .
 echo Compress all files in g:\program\release\exectrak\shared directory to shared.z
 icomp g:\program\release\exectrak\shared\*.* ..\disk\shared.z
 
+goto showinfo
+
 
 :quitbuild
 echo .
 echo DISK BUILD PROCESS has been cancelled
 
 goto finished
+
 
 :showinfo
 echo .

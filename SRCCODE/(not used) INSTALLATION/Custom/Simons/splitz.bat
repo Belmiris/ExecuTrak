@@ -11,29 +11,27 @@ echo NO split factole.z
 copy ..\disk\factole.z ..\disk\disk1
 
 echo split custctl.z
-call fsplit ..\disk\custctl.z ..\disk 250
+call fsplit ..\disk\custctl.z ..\disk 183
 move ..\disk\custctl.1 ..\disk\disk1
 move ..\disk\custctl.2 ..\disk\disk2
+move ..\disk\custctl.3 ..\disk\disk3
 
 echo NO split factdll.z
-copy ..\disk\factdll.z ..\disk\disk2
+copy ..\disk\factdll.z ..\disk\disk3
 
 echo split rtm.z
-call fsplit ..\disk\rtm.z ..\disk 619
-move ..\disk\rtm.1 ..\disk\disk2
-move ..\disk\rtm.2 ..\disk\disk3
-move ..\disk\rtm.3 ..\disk\disk4
+call fsplit ..\disk\rtm.z ..\disk 638
+move ..\disk\rtm.1 ..\disk\disk3
+move ..\disk\rtm.2 ..\disk\disk4
+move ..\disk\rtm.3 ..\disk\disk5
 
-echo NO split shared.z
-copy ..\disk\shared.z ..\disk\disk4
+echo split shared.z
+call fsplit ..\disk\shared.z ..\disk 102
+move ..\disk\shared.1 ..\disk\disk5
+move ..\disk\shared.2 ..\disk\disk6
 
-REM echo NO split factdb.z
-REM copy ..\disk\factdb.z ..\disk\disk4
-echo split factdb.z
-call fsplit ..\disk\factdb.z ..\disk 240
-move ..\disk\factdb.1 ..\disk\disk4
-move ..\disk\factdb.2 ..\disk\disk5
-
+echo NO split factdb.z
+copy ..\disk\factdb.z ..\disk\disk6
 
 echo .
 echo split .z files is finished.  Run makedisk.bat to copy distribution disk.
