@@ -458,6 +458,10 @@ Public Const VENDOR_CATEGORY_UP = 14900
 Public Const CSTORE_TIER_MAINT_UP = 14950
 '''''''''''''''''
 
+'david 03/27/2002
+Public Const NO_DELIVERY_REASON_UP = 15000
+'''''''''''''''''
+
 '''
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
@@ -1566,7 +1570,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1574,7 +1578,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2049,7 +2053,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2177,7 +2181,7 @@ Public Function tfnRun(szExeName As String, _
             szCmd = szCmd & " " & Trim(sParms)
         End If
         
-        hTempInstance = shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
+        hTempInstance = Shell(szCmd, vWindowStyle) 'run the program selected, save the instance handle
         If hTempInstance > SHELL_OK Or hTempInstance < 0 Then 'if hInstance greater than 32 application is running
             tfnRun = True 'application running
             Exit Function
@@ -2305,14 +2309,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
