@@ -2095,7 +2095,7 @@ End Sub
 '# This function calculates the tax amt where the limit applies to
 '# the total invoice and not just a line item.
 Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long)
-    Dim X As Integer
+    Dim x As Integer
     Dim not_found As Boolean
 
     If calc_tax = 0 Then
@@ -2103,21 +2103,21 @@ Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long
         Exit Function
     End If
     not_found = True
-    For X = 1 To sls_tax_cnt
-        If sls_tax_arry(X).trn = trn Then
+    For x = 1 To sls_tax_cnt
+        If sls_tax_arry(x).trn = trn Then
             not_found = False
             Exit For
         End If
     Next
     If not_found Then
         sls_tax_cnt = sls_tax_cnt + 1
-        X = sls_tax_cnt
-        sls_tax_arry(X).trn = trn
+        x = sls_tax_cnt
+        sls_tax_arry(x).trn = trn
     End If
-    sls_tax_arry(X).amount = sls_tax_arry(X).amount + calc_tax
-    If sls_tax_arry(X).amount > limit Then
-        calc_tax = calc_tax - sls_tax_arry(X).amount + limit
-        sls_tax_arry(X).amount = limit
+    sls_tax_arry(x).amount = sls_tax_arry(x).amount + calc_tax
+    If sls_tax_arry(x).amount > limit Then
+        calc_tax = calc_tax - sls_tax_arry(x).amount + limit
+        sls_tax_arry(x).amount = limit
     End If
     sales_tax_limit = calc_tax
 End Function
@@ -2280,30 +2280,36 @@ Public Sub set_tax_date(txdt As String, Optional bCheckGlSeries As Boolean = Tru
     
     Static bAlready_check As Boolean
     
-    t_tax_date = tfnFormatDate(txdt)
-    If bCheckGlSeries Then
-        Set pr_gl_period = fgl_period(CDate(t_tax_date), t_dbMainDatabase)
-        If Not pr_gl_period Is Nothing Then
-            If pr_gl_period.RecordCount > 0 Then
-                sSeries = fnCStr(pr_gl_period!glp_series)
+    #If Not NO_DST Then
+        t_tax_date = tfnFormatDate(txdt)
+        If bCheckGlSeries Then
+            Set pr_gl_period = fgl_period(CDate(t_tax_date), t_dbMainDatabase)
+            If Not pr_gl_period Is Nothing Then
+                If pr_gl_period.RecordCount > 0 Then
+                    sSeries = fnCStr(pr_gl_period!glp_series)
+                Else
+                    sSeries = "^^^^^"
+                End If
             Else
                 sSeries = "^^^^^"
             End If
-        Else
-            sSeries = "^^^^^"
         End If
-    End If
-    
-    If Not bAlready_check Then
-        'Changed the following code by JQ 06/11/2004
-        'If the txd_order not in the tx_detail (database verison 3.28.2)
-        'we need to use data the tx_table
-        'Otherwise, customer will get problem if they don't update database!
-        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'bExists_tx_header = fnCheckTableFieldExist("tx_header", "txh_code")
-        bExists_tx_header = fnCheckTableFieldExist("tx_detail", "txd_order")
-        bAlready_check = True
-    End If
+        
+        If Not bAlready_check Then
+            'Changed the following code by JQ 06/11/2004
+            'If the txd_order not in the tx_detail (database verison 3.28.2)
+            'we need to use data the tx_table
+            'Otherwise, customer will get problem if they don't update database!
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            'bExists_tx_header = fnCheckTableFieldExist("tx_header", "txh_code")
+            bExists_tx_header = fnCheckTableFieldExist("tx_detail", "txd_order")
+            bAlready_check = True
+        End If
+    #Else
+        'IF Non-Date Sensitive Taxes we need to flag set to false
+        'so it won't look tx_header and tx_detail.
+        bExists_tx_header = False
+    #End If
 End Sub
 
 Public Function fnCheckTableFieldExist(sTable As String, sField As String) As Boolean
