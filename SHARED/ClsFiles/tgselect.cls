@@ -734,7 +734,7 @@ Public Sub LostFocus(Optional bClearHighlight As Boolean = True)
 End Sub
 
 'david 04/12/2004  #401172-1
-Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     Dim ShiftTest As Integer
    
     If Button = vbLeftButton Then
@@ -751,7 +751,7 @@ Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Sing
         'End Select
         
         'david 02/09/2004  #401172-1
-        If IsMultiSelectCellColumn(m_tgTable.ColContaining(X)) Then
+        If IsMultiSelectCellColumn(m_tgTable.ColContaining(x)) Then
             If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
                 If ShiftTest <> vbShiftMask Then
                     m_nLastClickedRow = -1
@@ -763,8 +763,8 @@ Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Sing
         ''''''''''''''''''''''''''''
         
         m_nShiftControl = Shift
-        m_nClickPointX = X
-        m_nClickPointY = Y
+        m_nClickPointX = x
+        m_nClickPointY = y
     End If
 End Sub
 ''''''''''''''''''''''''''''
@@ -773,11 +773,11 @@ End Sub
 'NEED TO ADD THE X parameter into this function
 'The calls made to this function need to be changed
 'Sorry for the inconvinence
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Integer)
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Integer)
     If Button = vbLeftButton Then
         m_nShiftControl = Shift
-        m_nClickPointX = X
-        m_nClickPointY = Y
+        m_nClickPointX = x
+        m_nClickPointY = y
     End If
 End Sub
 
@@ -1084,9 +1084,9 @@ Property Get Temp() As Integer
 End Property
 
 Private Sub SetRowHighLighted(bHighLighted As Boolean)
-    Dim m_styRow As Style  ' row style
-    Dim m_styCurrentCell As Style   ' current cell style
-    Dim m_styHighLightedRow As Style
+    Dim m_styRow As DBTRUEGRID.Style  ' row style
+    Dim m_styCurrentCell As DBTRUEGRID.Style   ' current cell style
+    Dim m_styHighLightedRow As DBTRUEGRID.Style
     
     m_tgTable.ClearCellStyle dbgAllCells
     
@@ -1158,8 +1158,8 @@ Private Sub subSortArray(v())
     
     lRow = UBound(v)
     
-    For j = 0 To lRow
-        For k = j + 1 To lRow - 1
+    For j = 0 To lRow - 1
+        For k = j + 1 To lRow
             If tfnRound(v(j)) > tfnRound(v(k)) Then
                 vTemp = v(j)
                 v(j) = v(k)
