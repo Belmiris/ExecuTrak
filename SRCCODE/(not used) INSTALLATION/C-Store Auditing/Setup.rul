@@ -15,9 +15,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.10"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "StoreAudit310"
-#define UNINSTALL_NAME          "C-Store Auditing System Version3.10"
+#define PRODUCT_VERSION         "3.11"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "StoreAudit311"
+#define UNINSTALL_NAME          "C-Store Auditing System Version3.11"
 
 #define SIZE_REQ_LOCAL          5       // 5 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes

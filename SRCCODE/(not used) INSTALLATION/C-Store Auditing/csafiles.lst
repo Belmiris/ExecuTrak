@@ -1,4 +1,4 @@
-DIR=G:\program\release\cstormnt\*.* MASK=*.*
+DIR=G:\program\release\cstormnt MASK=*.*
 DIR=I:\program\release\exectrak\custctl MASK=*.*
 DIR=I:\program\release\exectrak\dll MASK=*.*
 DIR=I:\program\release\exectrak\local_db MASK=*.*
