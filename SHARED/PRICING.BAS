@@ -259,9 +259,9 @@ End Function
 Public Function fnGetOverRideFlag() As String
     fnGetOverRideFlag = m_OverRideFlag_YN
 End Function
-Public Function fnGetPricingStatus(Optional sMSG As String) As Integer
-    If Not IsMissing(sMSG) Then
-        sMSG = m_rtn_msg
+Public Function fnGetPricingStatus(Optional sMsg As String) As Integer
+    If Not IsMissing(sMsg) Then
+        sMsg = m_rtn_msg
     End If
     fnGetPricingStatus = m_status
     
@@ -529,8 +529,8 @@ End Function
 ''#(3) 'COST_CAL_DONE' - the cost passed in will be used.
 ''#                      this is for future use when a complicated
 ''#                      fuel cost already calcualted (such as blending)
-
-Private Sub set_fuel_load_datetime(ByVal sFuelLoadDate As String, _
+'#Change it to public for Murphy FM Upload WJ 04/26/2004
+Public Sub set_fuel_load_datetime(ByVal sFuelLoadDate As String, _
                                   ByVal sFuelLoadTime As String, _
                                   Optional bUseCalcualtedFmCost As Boolean = False)
     If bUseCalcualtedFmCost Then
