@@ -71,7 +71,7 @@ Private m_tgcSelector As clsTGSelector
 
 Private m_bTableGotFocus As Boolean
 Private m_bTableClicked As Boolean
-Private m_nClickPointY As Integer
+Private m_nClickPointY As Single
 Private m_vLastRow As Variant
 
 Private m_nIdleColumn As Integer
@@ -82,7 +82,62 @@ Private m_bRowHighLighted As Boolean
 Private m_bAvoidBeep As Boolean
 Private m_bSelectCurrRow As Boolean
 Private m_vLastSelected As Variant
+
+'david 02/09/2004  #401172-1
+Private m_bMultiSelectRowFeature As Boolean
+
+Private m_objCellColor As Object
+
+Private m_colMultiSelCellColumns As Collection
+Private m_colMultiSelectedCells As Collection
+
+Private m_nClickPointX As Single
+Private m_nClickCol As Integer
+Private m_sLastClickedCell As String
+''''''''''''''''''''''''''''
 '
+
+Property Set EditorClass(clsTemp As Object)
+    Set m_tgcEditor = clsTemp
+    Set Table = m_tgcEditor.Table
+    
+    Set m_tgcEditor.SelectorClass = Me
+    
+    'david 02/09/2004  #401172-1
+    'turn off the FetchCell
+    Dim i As Integer
+    
+    If m_objCellColor Is Nothing Then
+        For i = 0 To m_tgTable.Columns.Count - 1
+            m_tgTable.Columns(i).FetchStyle = False
+        Next i
+    Else
+        For i = 0 To m_tgTable.Columns.Count - 1
+            If m_objCellColor.IsColumnForCellColor(i) Then
+                m_tgTable.Columns(i).FetchStyle = False
+            End If
+        Next i
+    End If
+    ''''''''''''''''''''''''''''
+End Property
+
+Property Get EditorClass() As Object
+    Set EditorClass = m_tgcEditor
+End Property
+
+Property Set Table(objTemp As Object)
+    Set m_tgTable = objTemp
+    
+    If m_bAvoidBeep Then
+        With m_tgTable.Columns
+            If .Item(.Count - 1).Visible Then
+                m_nIdleColumn = .Count
+                .Add .Count
+                .Item(m_nIdleColumn).Width = 50
+            End If
+        End With
+    End If
+End Property
 
 Property Let AllowMultipleSelect(bTemp As Boolean)
 
@@ -193,42 +248,67 @@ Public Sub Delete(Optional vRowIndex As Variant)
     End If
 End Sub
 
-Property Set EditorClass(clsTemp As Object)
-    Set m_tgcEditor = clsTemp
-    Set Table = m_tgcEditor.Table
-End Property
-
-Property Get EditorClass() As Object
-    Set EditorClass = m_tgcEditor
-End Property
-
 Public Sub Click()
-    If m_bTableGotFocus Then
-        If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
-            subMarkSelected m_vLastRow
-            subSetCurrentRow
-            If Not m_tgTable.EditActive Then
-                SetRowHighLighted m_bRowHighLighted
-            End If
-        Else
-            m_bTableClicked = True
-        End If
-        If m_bAvoidBeep Then
-            If m_nIdleColumn >= 0 Then
-                If m_nIdleColumn >= m_tgTable.Columns.Count Then
-                    m_nIdleColumn = m_tgTable.Columns.Count - 1
+    'david 02/09/2004  #401172-1
+    m_nClickCol = m_tgTable.ColContaining(m_nClickPointX)
+    
+    If IsMultiSelectCellColumn(m_nClickCol) Then
+        If m_bTableGotFocus Then
+            Clear
+            
+            If m_nClickPointY < m_tgTable.RowTop(0) Then
+                'header click, do nothing
+            Else
+                If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
+                    If m_tgcEditor.RowCount > 0 Then
+                        Dim sColRow As String
+                        
+                        sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
+                        
+                        If Not m_tgTable.EditActive Then
+                            subMarkCellSelected sColRow
+                        End If
+                    
+                        subSetLastClickedCell sColRow
+                    End If
+                Else
+                    m_bTableClicked = True
                 End If
-                If m_tgTable.Columns(m_nIdleColumn).Visible Then
-                    If m_tgTable.Columns.Count > 0 Then
+            End If
+        End If
+    ''''''''''''''''''''''''''''
+    Else
+        If m_bTableGotFocus Then
+            '02/09/2004
+            ClearSelectedCells True
+            '''''''''''
+            
+            If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
+                subMarkSelected m_vLastRow
+                subSetCurrentRow
+                If Not m_tgTable.EditActive Then
+                    SetRowHighLighted m_bRowHighLighted
+                End If
+            Else
+                m_bTableClicked = True
+            End If
+            If m_bAvoidBeep Then
+                If m_nIdleColumn >= 0 Then
+                    If m_nIdleColumn >= m_tgTable.Columns.Count Then
                         m_nIdleColumn = m_tgTable.Columns.Count - 1
-                        If m_tgTable.Columns(m_nIdleColumn).Visible Then
-                            m_nIdleColumn = m_nIdleColumn + 1
-                            m_tgTable.Columns.Add m_nIdleColumn
-                            m_tgTable.Columns(m_nIdleColumn).Width = 50
+                    End If
+                    If m_tgTable.Columns(m_nIdleColumn).Visible Then
+                        If m_tgTable.Columns.Count > 0 Then
+                            m_nIdleColumn = m_tgTable.Columns.Count - 1
+                            If m_tgTable.Columns(m_nIdleColumn).Visible Then
+                                m_nIdleColumn = m_nIdleColumn + 1
+                                m_tgTable.Columns.Add m_nIdleColumn
+                                m_tgTable.Columns(m_nIdleColumn).Width = 50
+                            End If
                         End If
                     End If
+                    m_tgTable.Col = m_nIdleColumn
                 End If
-                m_tgTable.col = m_nIdleColumn
             End If
         End If
     End If
@@ -320,13 +400,13 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         'fixed the highlighting problem
         'when focus is in last editable cell and right arrow key is pressed
         'or when focus is in first editable cell and left arrow key is pressed
-        ElseIf KeyCode = vbKeyLeft And m_tgTable.col = m_tgcEditor.FirstEditableCol Then
+        ElseIf KeyCode = vbKeyLeft And m_tgTable.Col = m_tgcEditor.FirstEditableCol Then
             If nRow <= 0 Then
                 Exit Function
             End If
             
             nRow = nRow - 1
-        ElseIf KeyCode = vbKeyRight And m_tgTable.col = m_tgcEditor.LastEditableCol Then
+        ElseIf KeyCode = vbKeyRight And m_tgTable.Col = m_tgcEditor.LastEditableCol Then
             If nRow >= m_tgcEditor.RowCount Then
                 Exit Function
             End If
@@ -343,14 +423,14 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
             m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
             
             If m_tgcEditor.FirstEditableCol >= 0 Then
-                m_tgTable.col = m_tgcEditor.FirstEditableCol
+                m_tgTable.Col = m_tgcEditor.FirstEditableCol
             End If
         ElseIf KeyCode = vbKeyEnd Then
             nRow = m_tgcEditor.RowCount - 1
             m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
             
             If m_tgcEditor.LastEditableCol >= 0 Then
-                m_tgTable.col = m_tgcEditor.LastEditableCol
+                m_tgTable.Col = m_tgcEditor.LastEditableCol
             End If
         End If
     ElseIf bAltDown Then
@@ -459,6 +539,23 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     bAltDown = (Shift And vbAltMask) > 0
     bCtrlDown = (Shift And vbCtrlMask) > 0
      
+    
+    'david 02/09/2004  #401172-1
+    If IsMultiSelectCellColumn(m_nClickCol) Then
+        m_nShiftControl = Shift
+        
+        If (Not bShiftDown) And (Not bCtrlDown) And (Not (bShiftDown And bCtrlDown)) Then
+            If m_colMultiSelectedCells.Count > 0 Then
+                If m_tgTable.EditActive Then
+                    ClearSelectedCells IIf(m_tgTable.EditActive, False, True)
+                Else
+                    ClearSelectedCells IIf(m_tgTable.EditActive, False, True)
+                End If
+            End If
+        End If
+    End If
+    ''''''''''''''''''''''''''''
+        
     If m_nSelectMode = MODE_NO_KEY_CONTROL Then
         If KeyCode = vbKeyReturn Then
             m_nShiftControl = Shift
@@ -487,7 +584,9 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
         ElseIf bCtrlDown And bAltDown Then
             'do nothing
         ElseIf bShiftDown Then
-            If Not m_tgTable.EditActive Then
+            'david 02/09/2004  #401172-1
+            If (Not m_tgTable.EditActive) And m_bMultiSelectRowFeature Then
+            ''''''''''''''''''''''''''''
                 If m_bSelectCurrRow Then
                     If Count > 0 Then
                         fnMarkCurrent KeyCode, m_nShiftControl
@@ -594,12 +693,38 @@ Public Sub LostFocus(Optional bClearHighlight As Boolean = True)
     End If
 End Sub
 
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal y As Integer)
+'david 02/09/2004  #401172-1
+'NEED TO ADD THE X parameter into this function
+'The calls made to this function need to be changed
+'Sorry for the inconvinence
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Integer)
+    Dim ShiftTest As Integer
+   
     If Button = vbLeftButton Then
-        If Shift <> vbShiftMask Then
-            m_nLastClickedRow = -1
+        ShiftTest = Shift And 7
+        
+        Select Case ShiftTest
+        Case 1 ' or vbShiftMask
+        Case 2 ' or vbCtrlMask
+        Case 4 ' or vbAltMask
+        Case 3  'SHIFT and CTRL
+        Case 5  'SHIFT and ALT
+        Case 6  'CTRL and ALT
+        Case 7  'SHIFT, CTRL, and ALT
+        End Select
+        
+        'david 02/09/2004  #401172-1
+        If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
+            If ShiftTest <> vbShiftMask Then
+                m_nLastClickedRow = -1
+            End If
+        
+            ClearSelectedCells
         End If
+        ''''''''''''''''''''''''''''
+        
         m_nShiftControl = Shift
+        m_nClickPointX = x
         m_nClickPointY = y
         DoEvents
     End If
@@ -655,6 +780,12 @@ Public Sub SelectAll()
     Dim i As Long
     Dim nRows As Long
     
+    'david 02/09/2004  #401172-1
+    If Not m_bMultiSelectRowFeature Then
+        Exit Sub
+    End If
+    ''''''''''''''''''''''''''''
+    
     If Not m_tgcEditor Is Nothing Then
         nRows = m_tgcEditor.RowCount
     End If
@@ -685,6 +816,12 @@ Property Let SelectCurrRow(ByVal bTemp As Boolean)
 End Property
 
 Public Sub SelectRow(ByVal lRow As Long)
+    'david 02/09/2004  #401172-1
+    If Not m_bMultiSelectRowFeature Then
+        Exit Sub
+    End If
+    ''''''''''''''''''''''''''''
+    
     'david 04/24/2002
     'subMarkSelected m_tgcEditor.MakeBookmark(lRow)
     
@@ -706,6 +843,12 @@ Public Sub InvertSelect()
     Dim lCountSelected As Long
     Dim lMidPoint As Long
     Dim bAdd As Boolean
+    
+    'david 02/09/2004  #401172-1
+    If Not m_bMultiSelectRowFeature Then
+        Exit Sub
+    End If
+    ''''''''''''''''''''''''''''
     
     If m_tgcEditor Is Nothing Then
         Exit Sub
@@ -766,6 +909,12 @@ Private Sub subMarkSelected(vBkMark As Variant)
     Dim nStart As Integer
     Dim bFound As Boolean
     
+    'david 02/09/2004  #401172-1
+    If Not m_bMultiSelectRowFeature Then
+        Exit Sub
+    End If
+    ''''''''''''''''''''''''''''
+    
     If m_tgcEditor.RowCount <= 0 Then
         Exit Sub
     End If
@@ -813,6 +962,29 @@ Private Sub subMarkSelected(vBkMark As Variant)
 End Sub
 
 Public Sub RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+    'david 02/09/2004  #401172-1
+    If IsMultiSelectCellColumn(m_nClickCol) Then
+        Clear
+    Else
+        ClearSelectedCells
+    End If
+
+    'm_nClickCol = m_tgTable.Col
+
+    If IsMultiSelectCellColumn(m_nClickCol) Then
+        If m_tgcEditor.RowCount > 0 Then
+            If m_bTableClicked Then
+                Dim sColRow As String
+                sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
+                
+                subMarkCellSelected sColRow, IIf(CStr(LastRow) <> CStr(m_tgTable.Row), True, False)
+                m_bTableClicked = False
+                subSetLastClickedCell
+            End If
+        End If
+    End If
+    ''''''''''''''''''''''''''''
+        
     If m_tgcEditor.RowCount > 0 Then
         m_vLastRow = m_tgTable.Bookmark
         If m_nSelectMode = MODE_KEY_CONTROL Then
@@ -855,20 +1027,6 @@ Private Sub subToggleSelected(vBkMark As Variant)
         End If
     End With
 End Sub
-
-Property Set Table(objTemp As Object)
-    Set m_tgTable = objTemp
-    
-    If m_bAvoidBeep Then
-        With m_tgTable.Columns
-            If .Item(.Count - 1).Visible Then
-                m_nIdleColumn = .Count
-                .Add .Count
-                .Item(m_nIdleColumn).Width = 50
-            End If
-        End With
-    End If
-End Property
 
 Property Get Temp() As Integer
     Temp = m_nShiftControl
@@ -936,21 +1094,6 @@ Private Sub SetRowHighLighted(bHighLighted As Boolean)
     m_tgTable.AddCellStyle dbgUpdatedCell, m_styCurrentCell
 End Sub
 
-Private Sub Class_Initialize()
-    m_nSelectMode = MODE_KEY_CONTROL
-    m_bTableGotFocus = True
-    m_nLastClickedRow = -1
-    m_nIdleColumn = -1
-    m_bAvoidBeep = True
-    m_bSelectCurrRow = True
-End Sub
-
-Private Sub Class_Terminate()
-    Set m_tgTable = Nothing
-    Set m_tgcEditor = Nothing
-    Set m_tgcSelector = Nothing
-End Sub
-
 'david 09/17/2003  #412827-4
 Private Sub subSortArray(v())
     Dim lRow As Long
@@ -977,3 +1120,436 @@ Private Sub subSortArray(v())
 errTrap:
     'do nothing
 End Sub
+
+Private Sub Class_Initialize()
+    m_nSelectMode = MODE_KEY_CONTROL
+    m_bTableGotFocus = True
+    m_nLastClickedRow = -1
+    m_nIdleColumn = -1
+    m_bAvoidBeep = True
+    m_bSelectCurrRow = True
+    m_bMultiSelectRowFeature = True
+    m_nClickCol = -1
+End Sub
+
+Private Sub Class_Terminate()
+    While m_colMultiSelCellColumns.Count > 0
+        m_colMultiSelCellColumns.Remove 1
+    Wend
+    
+    While m_colMultiSelectedCells.Count > 0
+        m_colMultiSelectedCells.Remove 1
+    Wend
+    
+    Set m_colMultiSelCellColumns = Nothing
+    Set m_colMultiSelectedCells = Nothing
+    
+    Set m_tgTable = Nothing
+    Set m_tgcEditor = Nothing
+    Set m_tgcSelector = Nothing
+End Sub
+
+'david 02/09/2004  #401172-1
+Property Set CellColor(objCellColor As Object)
+    If objCellColor Is Nothing Then
+        MsgBox "CellColor object is not valid. Setup the clsCellColor before setting up clsSelector.", vbInformation
+        Exit Property
+    End If
+    
+    Set m_objCellColor = objCellColor
+    
+    Dim i As Integer
+    
+    'turn the FetchStyle on if the column has the cellcolor feature turned on
+    For i = 0 To m_objCellColor.Table.Columns.Count - 1
+        If m_objCellColor.IsColumnForCellColor(i) Then
+            m_objCellColor.Table.Columns(i).FetchStyle = True
+        End If
+    Next i
+End Property
+
+Public Sub AddMultiSelectCellColumn(nCol As Integer)
+    On Error Resume Next
+    
+    If m_colMultiSelCellColumns Is Nothing Then
+        Set m_colMultiSelCellColumns = New Collection
+    End If
+
+    If m_colMultiSelectedCells Is Nothing Then
+        Set m_colMultiSelectedCells = New Collection
+    End If
+    
+    m_colMultiSelCellColumns.Add "+", fnMakeKey(nCol)
+    m_tgTable.Columns(nCol).FetchStyle = True
+End Sub
+
+Public Sub RemoveMultiSelectCellColumn(nCol As Integer)
+    On Error Resume Next
+    m_colMultiSelCellColumns.Remove fnMakeKey(nCol)
+End Sub
+
+Property Let MultiSelectRowFeature(bOnOff As Boolean)
+    m_bMultiSelectRowFeature = bOnOff
+End Property
+
+Property Get MultiSelectRowFeature() As Boolean
+    MultiSelectRowFeature = m_bMultiSelectRowFeature
+End Property
+
+Property Let FetchStyle(nCol As Integer, bOnOff As Boolean)
+    m_tgTable.Columns(nCol).FetchStyle = bOnOff
+End Property
+
+Public Sub FetchCellStyle(ByVal Condition As Integer, _
+                          ByVal Split As Integer, _
+                          Bookmark As Variant, _
+                          ByVal Col As Integer, _
+                          ByVal CellStyle As Object)
+    
+    'if column and row found in the collection
+    If IsCellSelected(Col, Bookmark) Then
+        CellStyle.ForeColor = vbBlue
+        CellStyle.BackColor = &HE0E0E0
+    ElseIf Condition = dbgSelectedRow + dbgMarqueeRow Or Condition = dbgSelectedRow + dbgMarqueeRow + dbgCurrentCell Or Condition = dbgSelectedRow Then    'selected row(s)
+        CellStyle.ForeColor = &H8000000E
+        CellStyle.BackColor = &H8000000D
+    End If
+
+End Sub
+
+Public Sub HeadClick(ColIndex As Integer)
+    If Not IsMultiSelectCellColumn(ColIndex) Then
+        Exit Sub
+    End If
+    
+    On Error Resume Next
+    
+    Dim i As Long
+    Dim sColRow As String
+    Dim bShiftDown As Boolean
+    Dim bAltDown As Boolean
+    Dim bCtrlDown As Boolean
+    
+    bShiftDown = (m_nShiftControl And vbShiftMask) > 0
+    bCtrlDown = (m_nShiftControl And vbCtrlMask) > 0
+     
+    'If bShiftDown And bCtrlDown Then
+    If (Not bShiftDown) And (Not bCtrlDown) Then
+        ClearSelectedCells True
+    End If
+    
+    m_nClickCol = ColIndex
+    
+    For i = 0 To m_tgcEditor.RowCount - 1
+        subAddSelectedCell ColIndex, i
+    Next i
+End Sub
+
+Property Get IsMultiSelectCellColumn(ByVal nCol As Integer) As Boolean
+    On Error GoTo notfound
+    
+    Dim sTemp As String
+    sTemp = m_colMultiSelCellColumns.Item(fnMakeKey(nCol))
+    IsMultiSelectCellColumn = True
+    
+    Exit Property
+    
+notfound:
+    IsMultiSelectCellColumn = False
+End Property
+
+Property Get IsCellSelected(ByVal Col As Integer, ByVal Bookmark As Variant) As Boolean
+    On Error GoTo notfound
+    
+    Dim sTemp As String
+    sTemp = m_colMultiSelectedCells.Item(fnMakeKey(Col, Bookmark))
+    IsCellSelected = True
+    
+    Exit Property
+    
+notfound:
+    IsCellSelected = False
+End Property
+
+Property Get SelectedCellCount() As Long
+    SelectedCellCount = m_colMultiSelectedCells.Count
+End Property
+
+'return the selectedcellcount and put the selected cell "col,row" into the string array
+Public Function GetSelectedCells(ary() As String) As Long
+    Dim i As Long
+    
+    If m_colMultiSelectedCells.Count > 0 Then
+        ReDim ary(m_colMultiSelectedCells.Count - 1)
+        
+        For i = 1 To m_colMultiSelectedCells.Count
+            ary(i) = m_colMultiSelectedCells.Item(i)
+        Next i
+    Else
+        ReDim ary(0)
+    End If
+    
+    GetSelectedCells = m_colMultiSelectedCells.Count
+End Function
+
+'return the selected cell "col,row" by using index
+'return empty string if not found
+Public Function GetSelectedCell(ndx As Long) As String
+    On Error Resume Next
+    GetSelectedCell = ""
+    GetSelectedCell = m_colMultiSelectedCells.Item(ndx)
+End Function
+
+'set nCol and lRow if found
+'set nCol=-1 and lRow=-1 if not found
+Public Sub GetSelectedColRow(ndx As Long, nCol As Integer, lRow As Long)
+    Dim sTemp As String
+    
+    On Error Resume Next
+    sTemp = m_colMultiSelectedCells.Item(ndx)
+    
+    If sTemp <> "" Then
+        subGetColRow sTemp, nCol, lRow
+    Else
+        nCol = -1
+        lRow = -1
+    End If
+End Sub
+
+Public Sub ClearSelectedCells(Optional bRebind As Boolean = False)
+    If m_colMultiSelectedCells Is Nothing Then
+        Exit Sub
+    End If
+    
+    While m_colMultiSelectedCells.Count > 0
+        m_colMultiSelectedCells.Remove 1
+    Wend
+    
+    m_sLastClickedCell = ""
+    m_nClickCol = -1
+    
+    If bRebind Then
+        m_tgTable.Rebind
+    End If
+End Sub
+
+'need to have 3 parm in a group
+'namely Column, Operator (=, +, -, *, /), Value
+'= is direct assignment, + is increase, - is decrease, * is multply, / is divide
+'e.g. 2, "=", "02/03/02"
+'e.g. 6, "+", "," + sMoreMessage
+'e.g. 5, "=", "1.059"
+'e.g. 4, "*", "0.95"
+'return True if any cellvalue is changed in the function
+Public Function ChangeValues(ParamArray aryColOpValue() As Variant) As Boolean
+    Dim i As Integer
+    Dim j As Long
+    Dim nCol As Integer
+    Dim sOP As String
+    Dim sValue As String
+    Dim nCellCol As Integer
+    Dim lCellRow As Long
+    Dim bChanged As Boolean
+    
+    On Error GoTo errTrap
+    
+    i = -1
+    
+    On Error Resume Next
+    i = UBound(aryColOpValue)
+    On Error GoTo 0
+    
+    If i < 0 Then
+        Exit Function
+    End If
+    
+    'need to have 3 parm in a group
+    'namely Column, Operator (=, +, -, *, /), Value
+    '= is direct assignment, + is increase, - is decrease, * is multply, / is divide
+    'e.g. 2, "=", "02/03/02"
+    'e.g. 6, "+", "," + sMoreMessage
+    'e.g. 5, "=", "1.059"
+    'e.g. 4, "*", "0.95"
+    
+    If (i + 1) Mod 3 <> 0 Then
+        Exit Function
+    End If
+    
+    i = (i + 1) / 3
+    
+    For i = 0 To i
+        If Not IsNull(aryColOpValue(i)) Then
+            nCol = Val(aryColOpValue(i))
+        Else
+            nCol = -1
+        End If
+        
+        sOP = CStr(aryColOpValue(i + 1) & "")
+        sValue = CStr(aryColOpValue(i + 2) & "")
+        
+        If nCol >= 0 And IsMultiSelectCellColumn(nCol) Then
+            'update the cellvalue
+            For j = 1 To m_colMultiSelectedCells.Count
+                GetSelectedColRow j, nCellCol, lCellRow
+                
+                If nCellCol = nCol Then
+                    Select Case sOP
+                    Case "="  'direct assignment
+                        If CStr(m_tgcEditor.CellValue(nCol, lCellRow) & "") <> sValue Then
+                            m_tgcEditor.CellValue(nCol, lCellRow) = sValue
+                            'revalidate column
+                            m_tgcEditor.Revalidate nCol, i
+                            bChanged = True
+                        End If
+                    Case "+"
+                        m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) + sValue
+                        bChanged = True
+                    Case "-"
+                        m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) - sValue
+                        bChanged = True
+                    Case "*"
+                        m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) * Val(sValue)
+                        bChanged = True
+                    Case "/"
+                        If Val(sValue) <> 0 Then
+                            m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) / Val(sValue)
+                            bChanged = True
+                        End If
+                    End Select
+                End If
+            Next j
+        End If
+    Next i
+    
+    Exit Function
+    
+errTrap:
+    'do nothing
+End Function
+
+Private Function fnMakeKey(ByVal nCol As Integer, Optional ByVal lBookmark As Long = -1) As String
+    'On Error Resume Next
+    fnMakeKey = CStr(nCol) + "," + CStr(lBookmark)
+End Function
+
+Private Sub subSetLastClickedCell(Optional sColRow As String = "")
+    On Error Resume Next
+    
+    If sColRow = "" Then
+        If m_tgcEditor Is Nothing Then
+            If m_tgTable.Row >= 0 Then
+                sColRow = fnMakeKey(m_nClickCol, m_tgTable.Bookmark)
+            End If
+        Else
+            sColRow = fnMakeKey(m_nClickCol, m_tgcEditor.GetCurrentRowNumber)
+        End If
+    End If
+    
+    m_sLastClickedCell = sColRow
+End Sub
+
+Private Sub subMarkCellSelected(ByVal sColRow As String, Optional ByVal bRebind As Boolean = False)
+    If m_tgcEditor.RowCount <= 0 Then
+        Exit Sub
+    End If
+
+    Clear
+
+    Dim bShiftDown As Boolean
+    Dim bAltDown As Boolean
+    Dim bCtrlDown As Boolean
+     
+    Dim nCol As Integer
+    Dim lRow As Long
+    Dim nStartCol As Integer
+    Dim nCurCol As Integer
+    Dim lStartRow As Long
+    Dim lCurRow As Long
+    
+    bShiftDown = (m_nShiftControl And vbShiftMask) > 0
+    bAltDown = (m_nShiftControl And vbAltMask) > 0
+    bCtrlDown = (m_nShiftControl And vbCtrlMask) > 0
+     
+    subGetColRow sColRow, nCurCol, lCurRow
+     
+    'If bShiftDown And bCtrlDown Then
+    If bShiftDown Then
+        nStartCol = -1
+        lStartRow = -1
+        
+        If m_sLastClickedCell <> "" Then
+            subGetColRow m_sLastClickedCell, nStartCol, lStartRow
+        End If
+            
+        If nStartCol >= 0 And lStartRow >= 0 And nCurCol >= 0 And lCurRow >= 0 Then
+            'swap start and end, make sure start is less than end
+            If nStartCol > nCurCol Then
+                nCol = nStartCol
+                nStartCol = nCurCol
+                nCurCol = nCol
+            End If
+            If lStartRow > lCurRow Then
+                lRow = lStartRow
+                lStartRow = lCurRow
+                lCurRow = lRow
+            End If
+            
+            For nCol = nStartCol To nCurCol
+                If IsMultiSelectCellColumn(nCol) Then
+                    For lRow = lStartRow To lCurRow
+                        subAddSelectedCell nCol, lRow
+                    Next lRow
+                End If
+            Next nCol
+                    
+            If Not bRebind Then
+                If lStartRow <> lCurRow Then
+                    bRebind = True
+                End If
+            End If
+        End If
+    ElseIf bCtrlDown Then
+        subToggleCellSelected nCurCol, lCurRow
+    Else
+        'all selected cells have already been cleared in MouseUp event
+        'no need to call ClearSelectedCells() function here
+        subAddSelectedCell nCurCol, lCurRow
+    End If
+
+    If bRebind Then
+        m_tgTable.Rebind
+    End If
+End Sub
+
+Private Sub subAddSelectedCell(ByVal nCol As Integer, ByVal lRow As Long)
+    Dim sColRow As String
+    
+    sColRow = fnMakeKey(nCol, lRow)
+    
+    On Error Resume Next
+    m_colMultiSelectedCells.Add sColRow, sColRow
+End Sub
+
+Private Sub subGetColRow(sColRow As String, nCol As Integer, lRow As Long)
+    Dim nPosi As Integer
+    
+    nPosi = InStr(sColRow, ",")
+    
+    If nPosi > 0 Then
+        nCol = Val(Left(sColRow, nPosi - 1))
+        lRow = Mid(sColRow, nPosi + 1)
+    Else
+        nCol = Val(sColRow)
+        lRow = -1
+    End If
+End Sub
+
+Private Sub subToggleCellSelected(ByVal nCol As Integer, ByVal lRow As Long)
+    If IsCellSelected(nCol, lRow) Then
+        m_colMultiSelectedCells.Remove fnMakeKey(nCol, lRow)
+    Else
+        subAddSelectedCell nCol, lRow
+    End If
+End Sub
+'''''''''''''''''''''''''''''''''''''
+
