@@ -320,6 +320,8 @@ End Sub
 
 
 Private Sub Form_Activate()
+    DoEvents
+    Screen.MousePointer = vbDefault
     If bAuthCodeSet Then
         subEnableOK False
         txtAuthCode.Text = ""
