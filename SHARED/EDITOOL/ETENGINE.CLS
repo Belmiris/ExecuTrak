@@ -913,7 +913,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     ciTemp.Quantity = tfnRound(!ilt_units)
                     ciTemp.Movement = tfnRound(!ih_nbr)
                     
-                    'david 07/19/2004  #??????
+                    'david 07/19/2004  #453858
                     Dim bOkToAdd As Boolean
                     bOkToAdd = False
                     
@@ -923,14 +923,14 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                         End If
                     Else
                         If m_sTaxPaidOriginState = "" Then
-                            'david 07/19/2004  #??????
+                            'david 07/19/2004  #453858
                             'colTemp.Add ciTemp
                             bOkToAdd = True
                         Else
                             If nTypeCode = "1" Then
                                 If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                                     If ciTemp.DestState = "AR" Then
-                                        'david 07/19/2004  #??????
+                                        'david 07/19/2004  #453858
                                         'colTemp.Add ciTemp
                                         bOkToAdd = True
                                     End If
@@ -938,13 +938,13 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                             ElseIf nTypeCode = "3" Then
                                 If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
                                     If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                        'david 07/19/2004  #??????
+                                        'david 07/19/2004  #453858
                                         'colTemp.Add ciTemp
                                         bOkToAdd = True
                                     End If
                                 End If
                             Else
-                                'david 07/19/2004  #??????
+                                'david 07/19/2004  #453858
                                 'colTemp.Add ciTemp
                                 bOkToAdd = True
                             End If
@@ -1057,7 +1057,7 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 ciTemp.Quantity = tfnRound(!namount)
                 ciTemp.Movement = tfnRound(!fmm_movement)
                 
-                'david 07/19/2004  #??????
+                'david 07/19/2004  #453858
                 Dim bOkToAdd As Boolean
                 bOkToAdd = False
                 
@@ -1067,14 +1067,14 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     End If
                 Else
                     If m_sTaxPaidOriginState = "" Then
-                        'david 07/19/2004  #??????
+                        'david 07/19/2004  #453858
                         'colTemp.Add ciTemp
                         bOkToAdd = True
                     Else
                         If nTypeCode = "1" Then
                             If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
                                 If ciTemp.DestState = "AR" Then
-                                    'david 07/19/2004  #??????
+                                    'david 07/19/2004  #453858
                                     'colTemp.Add ciTemp
                                     bOkToAdd = True
                                 End If
@@ -1082,13 +1082,13 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                         ElseIf nTypeCode = "3" Then
                             If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
                                 If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                    'david 07/19/2004  #??????
+                                    'david 07/19/2004  #453858
                                     'colTemp.Add ciTemp
                                     bOkToAdd = True
                                 End If
                             End If
                         Else
-                            'david 07/19/2004  #??????
+                            'david 07/19/2004  #453858
                             'colTemp.Add ciTemp
                             bOkToAdd = True
                         End If
