@@ -77,6 +77,10 @@ Public Const szDatePattern As String = "^(((\0[1-9]|\1[0-2])(\0[1-9]|[1-2]#)|(\0
 Public Const szIntegerPattern As String = "^(#{0,4}|[0-2]#{0,4}|\3([0-1]#{0,3}|\2([0-6]#?#?|\7([0-5]#?|\6[0-7]?)?)?)?)$"
 Public Const szLongPattern As String = "^(#{0,9}|[0-1]#{0,9}|\2(\0#{0,8}|\1([0-3]#{0,7}|\4([0-6]#{0,6}|\7([0-3]#{0,5}|\4([0-7]#{0,4}|\8([0-2]#{0,3}|\3([0-5]#?#?|\6([0-3]#?|\4[0-7]?)?)?)?)?)?)?)?)?)$"
 
+'david 01/03/2001
+Public Const szDateTimeToMinutePattern = "^(((\0[1-9]|\1[0-2])(\0[1-9]|[1-2]#)|(\0\1|\0[3-9]|\1[0-2])\3\0|(\0(\1|\3|\5|\7|\8)|\1\0|\1\2)\3\1)|((\0?[1-9]|\1[0-2])[/\-](\0?[1-9]|[1-2]#)[/\-]|(\0?\1|\0?[3-9]|\1[0-2])[/\-]\3\0[/\-]|\0?(\1|\3|\5|\7|\8|\1\0|\1\2)[/\-]\3\1[/\-]))((\1\9##|\2[0-5]##)|##)(((\ )(([01][0-9])|(\2[0-3]))((:[0-5][0-9])|([0-5][0-9])))?)$"
+Public Const szDateTimeToSecondPattern = "^(((\0[1-9]|\1[0-2])(\0[1-9]|[1-2]#)|(\0\1|\0[3-9]|\1[0-2])\3\0|(\0(\1|\3|\5|\7|\8)|\1\0|\1\2)\3\1)|((\0?[1-9]|\1[0-2])[/\-](\0?[1-9]|[1-2]#)[/\-]|(\0?\1|\0?[3-9]|\1[0-2])[/\-]\3\0[/\-]|\0?(\1|\3|\5|\7|\8|\1\0|\1\2)[/\-]\3\1[/\-]))((\1\9##|\2[0-5]##)|##)(((\ )(([01][0-9])|(\2[0-3]))((:[0-5][0-9])|([0-5][0-9]))((:[0-5][0-9])|([0-5][0-9])))?)$"
+
 Public Const FMT_DATE_SHORT = "MM/DD/YY"
 Public Const FMT_DATE_LONG = "MM/DD/YYYY"
 
@@ -666,8 +670,11 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
 End Function
 
 'david 12/28/00
-Public Function tfnFormatDateTime(sDateTime As String) As String
+'S - to second
+'M - to minute
+Public Function tfnFormatDateTime(sDateTime As String, sToMinuteOrSecond As String) As String
     Dim sDate As String, sTime As String, nPosi As Integer
+    Dim sFormatedTime As String
     
     tfnFormatDateTime = ""
     sDateTime = Trim(sDateTime)
@@ -678,60 +685,112 @@ Public Function tfnFormatDateTime(sDateTime As String) As String
     
     If nPosi > 0 Then
         sDate = Left(sDateTime, nPosi - 1)
-        sDate = tfnFormatDate(sDate)
         
-        If Not IsDate(tfnDateString(sDate)) Then Exit Function
+        If InStr(sDate, "-") > 0 Then
+            sDate = Format(sDate, "yyyy-mm-dd")
+        Else
+            sDate = tfnFormatDate(sDate)
+        End If
+        
+        If Not IsDate(tfnDateString(sDate)) Then
+            tfnFormatDateTime = sDateTime
+            Exit Function
+        End If
         
         sTime = Mid(sDateTime, nPosi + 1)
-        tfnFormatDateTime = sDate & " " & fnFormatTime(sTime)
+        
+        sFormatedTime = fnFormatTime(sTime, sToMinuteOrSecond)
+        
+        If sFormatedTime = "" Then
+            tfnFormatDateTime = sDateTime
+        Else
+            tfnFormatDateTime = sDate & " " & sFormatedTime
+        End If
     Else
         sDate = sDateTime
-        sDate = tfnFormatDate(sDate)
-        
-        If IsDate(tfnDateString(sDate)) Then tfnFormatDateTime = sDate
-    
+        tfnFormatDateTime = tfnFormatDate(sDate)
     End If
 End Function
 
-'sTime is in the format of (hh:mm)
-Private Function fnFormatTime(sTime As String) As String
+'sTime is in the format of (hh:mm[:ss])
+'S - to second
+'M - to minute
+Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String) As String
     Dim nPosi As Integer
+    Dim sTemp As String
+    Dim sHH As String
+    Dim sMM As String
+    Dim sSS As String
     
-    'default time
+    sToMinuteOrSecond = UCase(sToMinuteOrSecond)
+    
     fnFormatTime = ""
+    
     sTime = Trim(sTime)
     
     If sTime = "" Then Exit Function
     
-    If Len(sTime) < 2 Or Len(sTime) > 5 Then Exit Function
+    If Len(sTime) < 2 Or Len(sTime) > 8 Then
+        Exit Function
+    End If
     
     nPosi = InStr(sTime, ":")
     
     If nPosi > 0 Then
-        
-        If Val(Left(sTime, nPosi - 1)) > 23 Or Val(Mid(sTime, nPosi + 1)) > 59 Then
-            Exit Function
-        Else
-            fnFormatTime = Format(Left(sTime, nPosi - 1), "00") & ":" & Format(Mid(sTime, nPosi + 1), "00")
+        'parse hh:mm:ss
+        sHH = Left(sTime, nPosi - 1)
+        If Len(sHH) > 2 Then
+            sMM = Format(Right(sHH, 2), "00")
+            sHH = Format(Left(sHH, 2), "00")
+        Else  '= 2
+            sHH = Format(Left(sTime, nPosi - 1), "00")
         End If
-    
+        
+        sTemp = Mid(sTime, nPosi + 1)
+        
+        nPosi = InStr(sTemp, ":")
+        
+        If nPosi > 0 Then
+            sMM = Format(Left(sTemp, nPosi - 1), "00")
+            sSS = Format(Mid(sTemp, nPosi + 1), "00")
+        Else
+            If Len(sTemp) > 2 Then
+                sMM = Format(Left(sTemp, 2), "00")
+                sSS = Format(Right(sTemp, 2), "00")
+            Else  '= 2
+                sMM = Format(sTemp, "00")
+                sSS = "00"
+            End If
+        End If
     Else
+        If Len(sTime) Mod 2 <> 0 Then
+            Exit Function
+        End If
+        
         Select Case Len(sTime)
             Case 2
-                fnFormatTime = Format(Left(sTime, 1), "00") & ":" & Format(Right(sTime, 1), "00")
-            Case 3
-                If Val(Left(sTime, 2)) > 23 Then
-                    If Val(Right(sTime, 2)) > 59 Then Exit Function
-                    fnFormatTime = Format(Left(sTime, 1), "00") & ":" & Format(Right(sTime, 2), "00")
-                ElseIf Val(Right(sTime, 2)) > 59 Then
-                    If Val(Left(sTime, 2)) > 23 Then Exit Function
-                    fnFormatTime = Format(Left(sTime, 2), "00") & ":" & Format(Right(sTime, 1), "00")
-                End If
+                sHH = Format(sTime, "00")
+                sMM = "00"
+                sSS = "00"
             Case 4
-                If Val(Left(sTime, 2)) > 23 Or Val(Right(sTime, 2)) > 59 Then Exit Function
-                fnFormatTime = Format(Left(sTime, 2), "00") & ":" & Format(Right(sTime, 2), "00")
+                sHH = Format(Left(sTime, 2), "00")
+                sMM = Format(Right(sTime, 2), "00")
+                sSS = "00"
+            Case 6
+                sHH = Format(Left(sTime, 2), "00")
+                sMM = Format(Mid(sTime, 3, 2), "00")
+                sSS = Format(Right(sTime, 2), "00")
         End Select
+    End If
+
+    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
+        Exit Function
+    Else
+        fnFormatTime = sHH + ":" & sMM
         
+        If sToMinuteOrSecond = "S" Then
+            fnFormatTime = fnFormatTime + ":" & sSS
+        End If
     End If
 End Function
 
@@ -744,22 +803,27 @@ Public Function tfnDateTimeString(sDateTime As String) As String
     tfnDateTimeString = "''"
     sDateTime = Trim(sDateTime)
     
-    If sDateTime = "" Then Exit Function
+    If sDateTime = "" Then
+        Exit Function
+    End If
     
     nPosi = InStr(sDateTime, " ")
     
     If nPosi > 0 Then
         sDate = Left(sDateTime, nPosi - 1)
         
-        If Not IsDate(tfnDateString(sDate)) Then Exit Function
+        If Not IsDate(tfnDateString(sDate)) Then
+            Exit Function
+        End If
         
-        sTime = Mid(sDateTime, nPosi + 1)
+        sTime = Trim(Mid(sDateTime, nPosi + 1))
         tfnDateTimeString = "{ts " & tfnSQLString(Format(tfnDateString(sDate), FORMAT_DATE) & " " & Format(sTime, FORMAT_TIME)) & "}"
     Else
         sDate = sDateTime
         
-        If IsDate(tfnDateString(sDate)) Then tfnDateTimeString = "{ts '" & Format(tfnDateString(sDate), FORMAT_DATE) & " 00:00:00'" & "}"
-    
+        If IsDate(tfnDateString(sDate)) Then
+            tfnDateTimeString = "{ts '" & Format(tfnDateString(sDate), FORMAT_DATE) & " 00:00:00'" & "}"
+        End If
     End If
     
 End Function
