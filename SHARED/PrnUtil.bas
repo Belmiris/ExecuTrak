@@ -28,7 +28,7 @@ Option Explicit
     Private nCharPerLine As Integer
     
     Private Const CHAR_PERLINE_132 = 132
-    Private Const CHAR_PERLINE_110 = 110
+    Private Const CHAR_PERLINE_110 = 104 '110
     
     '**********************************************
     Private Const szFACTOR_INI As String = "FACTOR.INI" 'application INI filename
@@ -43,6 +43,10 @@ Private Function fnGetTitle(sReportType As String, _
     Dim sLine1 As String
     Dim sLine2 As String
     Dim sLine3 As String
+    Dim sLine4 As String
+    Dim sLine5 As String
+    Dim nPos As Integer
+    Dim sTemp As String
     
     Dim sModName As String
     Dim sCompanyName As String
@@ -64,7 +68,7 @@ Private Function fnGetTitle(sReportType As String, _
     sModName = App.Title '"CMFARMS" 'CC_INFO.Program_ID
     sCompanyName = fnGetCompany 'CC_INFO.Company_Name
     
-    sReportName = sReportType & " REPORT"
+    sReportName = sReportType '& " REPORT"
 '    If IsMissing(vOldReport) Then
 '        sRunDate = "RUN DATE " & CStr(Date) 'CC_INFO.RunDate '& CStr(Date)
 '        sRunTime = "RUN TIME " & Format(Now, "hh:mm AMPM") 'CC_INFO.RunTime 'Format(Now, "hh:mm AMPM")
@@ -74,18 +78,21 @@ Private Function fnGetTitle(sReportType As String, _
 '    End If
     sRunDate = "DATE " & CStr(Date) 'CC_INFO.RunDate '& CStr(Date)
     sRunTime = "TIME " & Format(Now, "hh:mm AMPM") 'CC_INFO.RunTime 'Format(Now, "hh:mm AMPM")
-    nMax = Len(sModName)
-    If Len(sRunDate) > nMax Then
-        nMax = Len(sRunDate)
-    End If
-    If Len(sRunTime) > nMax Then
-        nMax = Len(sRunTime)
-    End If
-    nLeft = nCharPerLine - nMax - Len(sPage)
+    
+    nLeft = nCharPerLine - Len(sModName) - Len(sPage)
         
-    sLine1 = sModName & Space(nMax - Len(sModName)) & fnTranc(sCompanyName, nLeft, vbCenter) & sPage
-    sLine2 = sRunDate & Space(nMax - Len(sRunDate)) & fnTranc(sReportName, nLeft, vbCenter)
-    sLine3 = sRunTime & Space(nMax - Len(sRunTime)) ' & fnTranc(sReportType, nLeft, CENTER_JUSTIFY)
+    sLine1 = sModName & fnTranc(sCompanyName, nLeft, vbCenter) & sPage
+    nLeft = nCharPerLine
+    sLine2 = fnTranc(sRunDate, nLeft, vbLeftJustify)
+    sLine3 = fnTranc(sRunTime, nLeft, vbLeftJustify)
+    nPos = InStr(sReportName, vbCrLf)
+    If nPos > 0 Then
+        sLine4 = fnTranc(Left(sReportName, nPos - 1), nLeft, vbCenter)
+        sLine5 = fnTranc(Right(sReportName, Len(sReportName) - nPos - 1), nLeft, vbCenter)
+    Else
+        sLine4 = fnTranc(sReportName, nLeft, vbCenter)
+    End If
+    
     If Not IsMissing(vPrint) Then
         Printer.CurrentX = nLeftMargin
         Printer.Print sLine1
@@ -95,10 +102,19 @@ Private Function fnGetTitle(sReportType As String, _
         Printer.Print sLine3
         
         Printer.CurrentX = nLeftMargin
+        Printer.Print sLine4
+        If nPos > 0 Then
+            Printer.CurrentX = nLeftMargin
+            Printer.Print sLine5
+        End If
+        Printer.CurrentX = nLeftMargin
         Printer.Print ""
         
         Printer.CurrentX = nLeftMargin
-        Printer.Print String(nCharPerLine, "-")
+        Printer.Print String(nCharPerLine, "=")
+        Printer.CurrentX = nLeftMargin
+        Printer.Print ""
+        
         If Trim(HEADER_PT) <> "" Then
             n1 = 1
             Do
