@@ -11,9 +11,9 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.00"  //CHANGE THE VESION BEFORE BUILDING DISK
-#define DEINSTALL_KEY           "ProfitReportV300"
-#define UNINSTALL_NAME          "Profit Report Version 3.00"
+#define PRODUCT_VERSION         "3.10"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define DEINSTALL_KEY           "ProfitReportV310"
+#define UNINSTALL_NAME          "Profit Report Version 3.10"
 
 #define SIZE_REQ_LOCAL          7       // 7 MBytes
 #define SIZE_REQ_REMOTE         1       // 1 MBytes

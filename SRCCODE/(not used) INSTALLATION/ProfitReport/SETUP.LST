@@ -6,10 +6,11 @@
 3;
 ..\DISK\CUSTCTL.Z
 4;
+5;
 ..\DISK\FACTDLL.Z
 ..\DISK\RTM.z
-5;
 6;
 7;
 ..\DISK\SHARED.Z
+8;
 ..\DISK\FACTDB.Z

@@ -3,6 +3,7 @@ echo .
 echo Making Distribution Disk
 echo .
 
+if exist ..\disk\disk8\factdb.z goto disk8
 if exist ..\disk\disk7\factdb.z goto disk7
 if exist ..\disk\disk6\factdb.z goto disk6
 if exist ..\disk\disk5\factdb.z goto disk5
@@ -31,9 +32,14 @@ goto start
 
 :disk6
 echo Total Distribution Diskette Required = 6
+goto start
 
 :disk7
 echo Total Distribution Diskette Required = 7
+goto start
+
+:disk8
+echo Total Distribution Diskette Required = 8
 
 :start
 
@@ -92,7 +98,14 @@ xcopy ..\disk\disk7\*.* a:
 
 if exist ..\disk\disk7\factdb.z goto makedisk_done
 
-if not exist ..\disk\disk7\factdb.z goto need_more_disk
+echo insert disk#8
+pause
+
+deltree /Y a:\*.* 
+xcopy ..\disk\disk8\*.* a:
+
+if exist ..\disk\disk8\factdb.z goto makedisk_done
+if not exist ..\disk\disk8\factdb.z goto need_more_disk
 
 :makedisk_done
 echo .
