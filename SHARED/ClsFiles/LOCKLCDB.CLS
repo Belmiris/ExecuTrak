@@ -106,13 +106,6 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
         Beep
         Beep
         
-        #If DEBUG_LOG Then
-            If Not objDebugLog Is Nothing Then
-                objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
-                    fnCStr(rsTemp!srl_table) + "]"
-            End If
-        #End If
-        
         m_lLockedSerial = tfnRound(rsTemp!srl_nbr)
         sExtraData = GetLockData(fnCStr(rsTemp!srl_criteria))
         
@@ -133,6 +126,11 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                             Exit Do
                     End If
             Else
+                If Not objDebugLog Is Nothing Then
+                    objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                        fnCStr(rsTemp!srl_table) + "] - ABORTED."
+                End If
+                
                 m_lLockedSerial = 0
                 sExtraData = ""
                 Exit Function
