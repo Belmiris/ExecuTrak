@@ -1,0 +1,78 @@
+Context Help ID's for ZZSEBPRC (Process Commission Checks)
+Help ID's Range (500-599)
+
+Screen Pay Entry (500-524)
+
+	Sub Screen Store Sales(500-512)
+		500	Week Sales Option
+		501	One Month Sales
+		502	Three Month Sales
+		503	Gas Sales
+		504	From Date Text Box
+		505	From Date Search Button (only for edit mode)
+		506	To Date Text Box
+		507	To Date Search Button (Used only in edit mode)
+		508	Store Sales True Grid
+ 			 Profit Center 
+			 Profit Center Name
+			 Amount 
+			 From Date
+			 To Date
+
+	Sub Screen Employee Hours(513-524)
+		513	Employee Number Text Box
+		514	Employee Search Button 
+		515	Employee Name Text Box
+		516	Employee Name Search Button
+		517	Social Security Text Box
+		518	Social Secutity Search Text Box
+		519	Table Time Card Entry
+			 Clock-In Date
+			 Profit Center
+			 Pay Code
+			 Pay Type
+			 Hours/Dollars
+		520	Table Profit Center Total
+			 Profit
+			 Total
+
+Screen Process Checks(525-549)
+	525	Profit Center Text Box
+	526	Profit Center Search Button
+	527	Profit Center Name Text Box
+	528	Profit Center Name Search Button
+	529	Date Text Box
+	530	Frequency Text Box
+	531	Frequency Search Button
+	532	Employee Number Text Box
+	533	Employee Number Search Button
+	534	Employee Name Text Box
+	535	Employee Name Search Button
+	536	Process List Box
+	537	Process Command Button
+
+Screen View / Approve Commission Checks(550-574)
+	550	Table View/Approve Commission Checks
+		 Approve(Y/N)
+		 Employee Number
+		 Employee Name
+		 Pay Code
+		 Pay Hours
+		 Date
+		 Amount
+	551	Select All Command Button
+	552	Approve Command Button
+	
+Screen View Commission Details(575-600)
+	575	Employee Number Text Box
+	576	Employee Number Search Button
+	577	Employee Name Text Box
+	578	Employee Name Search Button
+	579	Table View Commission Details True Grid
+		 Commission Code
+		 Commission Code Description
+		 Level
+		 Type
+		 Frequency
+		 Eligible Date 
+		 Amount
