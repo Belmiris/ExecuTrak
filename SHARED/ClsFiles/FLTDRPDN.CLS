@@ -98,11 +98,11 @@ Option Explicit
     Private bKeyPressed As Boolean
     Private bNavigating As Boolean
     Private bShowList As Boolean
+    Private bAutoHide As Boolean
 
     Private nOriginalTableWidth As Integer
     Private nOriginalTableHeight As Integer
     Private nFontSize As Integer
-
 
     Private Const STATUS_INIT = 0
     Private Const STATUS_FILLED = 1
@@ -119,6 +119,10 @@ Option Explicit
         Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
     #End If
     
+
+Property Let AutoHide(ByVal bTemp As Boolean)
+    bAutoHide = bTemp
+End Property
 
 Property Get CurrentDropDown() As Integer
     CurrentDropDown = m_nCurrentDropDown
@@ -1532,7 +1536,7 @@ Public Sub LostFocus(objControl As Object)
             End If
         End If
     ElseIf objControl.TabIndex = tgDropDown.TabIndex Then
-        If bShowList Then
+        If bShowList And Not bAutoHide Then
             tgDropDown.SetFocus
         Else
             tgDropDown.Visible = False
@@ -1911,6 +1915,7 @@ Private Sub Class_Initialize()
     m_bDefaultCursorControl = False
     bKeyPressed = False
     bSearchOnReturn = False
+    bAutoHide = True
 End Sub
 Private Sub Class_Terminate()
     Dim colTemp As clsColumns
