@@ -1098,11 +1098,10 @@ Public Sub Keypress(tgTable As Object, KeyAscii As Integer)
         If frmParent.ActiveControl Is tgMain And tgTable Is tgDropDown Then
             'Work arround for true grid problems
             On Error Resume Next
+            tgMain.SetFocus
             If IsNumeric(Chr(KeyAscii)) Then
-                tgMain.SetFocus
                 SendKeys KeyAscii - &H30, True
             ElseIf (KeyAscii >= 32 And KeyAscii <= 47) Or (KeyAscii >= 58 And KeyAscii <= 127) Then
-                tgMain.SetFocus
                 SendKeys "{" & UCase(Chr(KeyAscii)) & "}", True
             ElseIf KeyAscii = vbKeyReturn Then
                 SendKeys "{ENTER}"
