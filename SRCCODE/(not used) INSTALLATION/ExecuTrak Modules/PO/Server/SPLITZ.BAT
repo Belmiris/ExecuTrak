@@ -26,6 +26,7 @@ if not exist ..\disk\%1client.4 goto splitdone
 move ..\disk\%1client.4 ..\disk\disk4
 if not exist ..\disk\%1client.5 goto splitdone
 move ..\disk\%1client.5 ..\disk\disk5
+if not exist ..\disk\%1client.6 goto splitdone
 
 :copyfile
 copy ..\disk\%1client.z ..\disk\disk1
