@@ -542,6 +542,10 @@ Private m_sDriver As String
 Private m_sODBC_INI_Path As String
 Private m_lODBC_INI_Key As Long
 '
+'david 04/04/2001
+Private m_bAutoConnect As Boolean
+Private m_sConnectionError As String
+'
 
 Private Function fnAllBoxFilled() As Boolean
 
@@ -669,7 +673,7 @@ Private Function fnIsPath(sPath As String) As Boolean
 
     On Error Resume Next
     ChDir sPath
-    If err.Number > 0 Then
+    If Err.Number > 0 Then
         fnIsPath = False
     Else
         fnIsPath = True
@@ -695,7 +699,7 @@ Private Function fnIsFile(ByVal szFilename As String) As Boolean
     Exit Function
 errNotFile:
     #If DEVELOP Then
-        MsgBox "Error # " & err.Number & vbCrLf & "Error Message: " & err.Description & " - " & szFilename
+        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
     #End If
 End Function
 
@@ -723,9 +727,9 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
             sPath = sPath & "\" & sDirs(i)
         End If
         If Not fnIsPath(sPath) Then
-            err.Clear
+            Err.Clear
             MkDir sPath
-            If err.Number <> 0 Then
+            If Err.Number <> 0 Then
                 Exit Function
             End If
         End If
@@ -1018,7 +1022,12 @@ Private Sub btnOK_Click()
     m_sPWD = sPWD
     
     If Not fnSetODBCINIPath(m_sDSN) Then
-        subCriticalMsg "Cannot find ODBC.INI in the Windows registry. Please report this message to support.", szFORM_NAME
+        m_sConnectionError = "Cannot find ODBC.INI in the Windows registry. Please report this message to support."
+        
+        If Not m_bAutoConnect Then
+            subCriticalMsg m_sConnectionError, szFORM_NAME
+        End If
+        
         Exit Sub
     End If
     
@@ -1033,12 +1042,12 @@ Private Sub btnOK_Click()
 errTrap:
     Screen.MousePointer = vbDefault
     
-    If err.Number = 5 Then
+    If Err.Number = 5 Then
         subCriticalMsg "Data Source Name is not valid.", szFORM_NAME
         subSetFocus cmbDataSet
     Else
         subCriticalMsg "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
-            err.Number & vbCrLf & "Error Desc: " + err.Description + "." + vbCrLf + vbCrLf + _
+            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "." + vbCrLf + vbCrLf + _
             "Please report this message to support.", szFORM_NAME
         subSetFocus txtPassword
     End If
@@ -1082,6 +1091,8 @@ Private Sub Form_Load()
         MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
         End
     End If
+
+    m_bAutoConnect = False
 End Sub
 
 Private Sub picMain_Paint()
@@ -1163,13 +1174,28 @@ Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     picFrame.Line (X1, Y2 - 2 * Screen.TwipsPerPixelY)-(X1, Y1), LINE_COLOR2
 End Sub
 
-Public Sub Connect(sDSN As String, sUID As String, sPWD As String)
+Public Function Connect(sDSN As String, _
+                        sUID As String, _
+                        sPWD As String, _
+                        Optional sErrMsg As String = "") As Boolean
+    
+    m_bAutoConnect = True
+    m_sConnectionError = ""
+    
     cmbDataSet = sDSN
     cmbDataSet_Click
     txtUserName = sUID
     txtPassword = sPWD
+    
     btnOK_Click
-End Sub
+    
+    If m_sConnectionError <> "" Then
+        sErrMsg = m_sConnectionError
+        Connect = False
+    Else
+        Connect = True
+    End If
+End Function
 
 '
 'This routine fills a list or combo box with all available

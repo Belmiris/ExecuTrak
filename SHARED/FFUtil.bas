@@ -301,7 +301,7 @@ End Function
 Private Function fnStr2BoolTrue(sTemp As String) As Boolean
     fnStr2BoolTrue = False
     If IsNumeric(sTemp) Then
-        If val(sTemp) <> 0 Then
+        If Val(sTemp) <> 0 Then
             fnStr2BoolTrue = True
         End If
     ElseIf UCase(sTemp) = PV_TRUE Then
@@ -741,10 +741,13 @@ Public Sub subPrint(lstOutput As ListBox)
 End Sub
 
 Public Sub Main()
+    Dim szCommand As String
     
-    subInitialize
+    szCommand = Command
     
-    subParseCmdLine Command
+    subInitialize szCommand
+    
+    subParseCmdLine szCommand
     subAddSlash m_sWorkPath
     subProcessPath udtLogInfo.m_sPath
     subProcessPath udtBackupInfo.m_sPath
@@ -769,7 +772,7 @@ Public Sub Main()
     End If
 End Sub
 
-Private Sub subInitialize()
+Private Sub subInitialize(sCommand As String)
     
     Dim aryInfo() As String
     Dim i As Integer
@@ -801,6 +804,7 @@ Private Sub subInitialize()
             Next i
         End With
     End If
+    
     m_nRunParm = 0
     
     aryCmdLineParms(CLP_IDX_IPATH) = UCase(CLP_ID_IPATH)
@@ -824,10 +828,10 @@ Private Sub subInitialize()
     subSetFileMode FILE_MODE_READ
     
     If fnAllowStandalone Then
-        subCheckRunMethod Command
+        subCheckRunMethod sCommand
     End If
     
-    If Not tfnAuthorizeExecute(Command) Then 'Check for handshake if not in the development mode
+    If Not tfnAuthorizeExecute(sCommand) Then 'Check for handshake if not in the development mode
         End
     End If
     
@@ -843,12 +847,19 @@ Private Sub subInitialize()
 End Sub
 
 Private Sub subCheckRunMethod(sCommand As String)
+    Dim sErrMsg As String
     
     If sCommand = t_szHandShake Then
         Load LogForm
     Else
-        frmSplash.Caption = "Select Data Sources"
-        frmSplash.Show vbModal
+        If Not fnRunWithCommandLine(sCommand, sErrMsg) Then
+            If sErrMsg = "" Then
+                frmSplash.Caption = "Select Data Sources"
+                frmSplash.Show vbModal
+            Else
+                MsgBox sErrMsg, vbCritical
+            End If
+        End If
     End If
 
 End Sub
@@ -1217,4 +1228,71 @@ errWriteLog:
     LogForm.ShowLog "Error # " & Err.Number & ", Error: " & Err.Description
 End Sub
 
+'david 04/04/2001
+'functions to handler the program when it is launching from the EC Scheduler
+Private Function fnRunWithCommandLine(sCommand As String, sErrMsg As String) As Boolean
+    Const CMD_LINE_DELIMITER = "ï"  '239   '"º"  '186
+    
+    Const PARM_MODE As Integer = 0
+    Const PARM_DSN As Integer = 1
+    Const PARM_USERID As Integer = 2
+    Const PARM_PASSWORD As Integer = 3
+    
+    Dim aryParm() As String
+    
+    If sCommand = "" Then
+        Exit Function
+    End If
+    
+    If InStr(sCommand, CMD_LINE_DELIMITER) <= 0 Then
+        Exit Function
+    End If
+    
+    aryParm = Split(sCommand, CMD_LINE_DELIMITER)
+    
+    If UBound(aryParm) < PARM_PASSWORD Then
+        Exit Function
+    End If
+    
+    If UCase(aryParm(PARM_MODE)) <> "AUTO" Or _
+       aryParm(PARM_DSN) = "" Or _
+       aryParm(PARM_USERID) = "" Or _
+       aryParm(PARM_PASSWORD) = "" Then
+        Exit Function
+    End If
+    
+    'connect automatically
+    If Not frmSplash.Connect(aryParm(PARM_DSN), aryParm(PARM_USERID), _
+       fnUncrypt(aryParm(PARM_PASSWORD)), sErrMsg) Then
+        Exit Function
+    End If
+    
+    're-construct command line
+    sCommand = ""
+    If UBound(aryParm) > PARM_PASSWORD Then
+        Dim i As Integer
+        sCommand = aryParm(PARM_PASSWORD + 1)
+        For i = PARM_PASSWORD + 2 To UBound(aryParm)
+            sCommand = sCommand + CMD_LINE_DELIMITER + aryParm(i)
+        Next i
+    End If
+    
+    fnRunWithCommandLine = True
+End Function
 
+Private Function fnUncrypt(sSource As String) As String
+
+    Dim i As Integer
+    Dim nLen As Integer
+    Dim sTemp As String
+    Dim nAsc As Integer
+    
+    sTemp = ""
+    nLen = Len(sSource)
+    For i = 3 To nLen
+        nAsc = Asc(Mid(sSource, nLen - i + 3, 1))
+        sTemp = sTemp & Chr(nAsc - 2 * nLen + i + 1)
+    Next i
+    fnUncrypt = sTemp
+    
+End Function
