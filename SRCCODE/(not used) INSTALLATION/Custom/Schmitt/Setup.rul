@@ -142,7 +142,7 @@ SayWelcome:
 
 	Welcome(WELCOME_TITLE, 0);
 
-        szBaseDirectory = "C:" ^ APP_BASE_PATH;
+        szBaseDirectory = "J:" ^ APP_BASE_PATH;
 
         NumToStr(szNumber, SIZE_REQ_LOCAL * 1024);
 

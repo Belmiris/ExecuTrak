@@ -1,8 +1,10 @@
 @echo off
 call makedir.bat
 
-echo NO split factbin.z
-copy ..\disk\factbin.z ..\disk\disk1
+echo split factbin.z
+call fsplit ..\disk\factbin.z ..\disk 700
+move ..\disk\factbin.1 ..\disk\disk1
+move ..\disk\factbin.2 ..\disk\disk2
 
 echo .
 echo split .z files is finished.  Run makedisk.bat to copy distribution disk.
