@@ -61,6 +61,7 @@ Public Const colAPrftCtr As Integer = 4
 Public Const colAPayCode As Integer = 5
 Public Const colAPayHours As Integer = 6
 Public Const colABonusAmt As Integer = 7
+Public colAHdsOverride As Integer
 Public colAHdnPrftName As Integer
 Public colAHdnBAmtLvls As Integer
 
@@ -433,28 +434,230 @@ Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
                 
 End Function
 
-Public Function fnInsertHoldBonus(lEmpNo As Long, sPayCode As String, dChkAmt As Double, _
-                                  lHours As Long, sDate As String) As Boolean
+Public Function fnInsertHoldBonus() As String
     Const SUB_NAME As String = "fnInsertHoldBonus"
+    
+    Dim strSQL As String
+    Dim strSQL1 As String
+    Dim i As Long
+    Dim lRow As Long
+    Dim lEmpNo As Long
+    Dim nPrftCtr As Integer
+    Dim sEndDate  As String
+    Dim sErrMsg As String
+    
+    strSQL = "INSERT INTO bonus_hold (bh_empno, bh_prft_ctr, bh_pay_code, bh_check_amount,"
+    strSQL = strSQL & " bh_hours, bh_date, bh_override, bh_chk_link) VALUES ("
+    
+    For i = 0 To tgmApprove.RowCount - 1
+        lEmpNo = tfnRound(tgmApprove.CellValue(colAEmpNo, lRow))
+        nPrftCtr = tfnRound(tgmApprove.CellValue(colAPrftCtr, lRow))
+        sEndDate = tgmApprove.CellValue(colADate, lRow)
+        
+        If Not fnChkLinkIsZero(lEmpNo, nPrftCtr, sEndDate, sErrMsg) Then
+            If sErrMsg <> "" Then
+                fnInsertHoldBonus = sErrMsg
+                Exit Function
+            Else
+                Exit For
+            End If
+        End If
+        
+        'delete the old data in bonus_hold first
+        strSQL1 = "DELETE FROM bonus_hold WHERE bh_empno = " & lEmpNo
+        strSQL1 = strSQL1 & " AND bh_prft_ctr = " & nPrftCtr
+        strSQL1 = strSQL1 & " AND bh_date = " & tfnDateString(sEndDate)
+        'strSQL1 = strSQL1 & " AND bh_chk_link = 0"
+
+        If Not fnExecuteSQL(strSQL1, , SUB_NAME) Then
+            fnInsertHoldBonus = "Failed to delete Old Commission Data"
+            Exit Function
+        End If
+        
+        For lRow = 0 To tgmApprove.RowCount - 1
+            strSQL1 = lEmpNo & ", "
+            strSQL1 = strSQL1 & nPrftCtr & ", "
+            strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAPayCode, lRow)) & ", "
+            strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colABonusAmt, lRow), 2) & ", "
+            If fnGetField(tgmApprove.CellValue(colAPayHours, lRow)) = "" Then
+                strSQL1 = strSQL1 & "NULL, "
+            Else
+                strSQL1 = strSQL1 & tfnRound(tgmApprove.CellValue(colAPayHours, lRow), 2) & ", "
+            End If
+            strSQL1 = strSQL1 & tfnDateString(sEndDate, True) & ", "
+            strSQL1 = strSQL1 & tfnSQLString(tgmApprove.CellValue(colAHdsOverride, lRow)) & ", "
+            strSQL1 = strSQL1 & "0"  'per weigong insert 0 for bh_chk_link
+            
+            If Not fnExecuteSQL(strSQL + strSQL1 + ")", , SUB_NAME) Then
+                fnInsertHoldBonus = "Failed to insert Commission Data"
+                Exit Function
+            End If
+        Next lRow
+    Next i
+    
+    fnInsertHoldBonus = ""
+End Function
+
+Private Function fnChkLinkIsZero(lEmpNo As Long, _
+                                nPrftCtr As Integer, _
+                                sEndDate As String, _
+                                sErrMsg As String) As Boolean
+    
+    Const SUB_NAME As String = "fnChkLinkIsZero"
+    
     Dim strSQL As String
     Dim rsTemp As Recordset
     
-    fnInsertHoldBonus = False
+    strSQL = "SELECT bh_chk_link FROM bonus_hold"
+    strSQL = strSQL & " WHERE bh_chk_link <> 0"
+    strSQL = strSQL & " AND bh_empno = " & lEmpNo
+    strSQL = strSQL & " AND bh_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND bh_date = " & tfnDateString(sEndDate)
+
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        sErrMsg = "Failed to access database"
+    End If
     
-    strSQL = "INSERT INTO bonus_hold(bh_empno, bh_pay_code, bh_check_amount, bh_hours, bh_date)"
-    strSQL = strSQL & " VALUES(" & tfnRound(lEmpNo) & ","
-    strSQL = strSQL & tfnSQLString(Trim(sPayCode)) & ", "
-    strSQL = strSQL & tfnRound(dChkAmt, DEFAULT_DECIMALS) & ", "
-    strSQL = strSQL & tfnRound(lHours) & ", "
-    strSQL = strSQL & tfnDateString(Trim(sDate), True) & ")"
-    
-    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
-        MsgBox "Failed to insert the record", vbExclamation
+    If rsTemp.RecordCount > 0 Then
         Exit Function
     End If
     
-    fnInsertHoldBonus = True
+    fnChkLinkIsZero = True
+End Function
+
+Public Function fnCheckBonusHold() As Boolean
+    Const SUB_NAME As String = "fnChkLinkIsZero"
     
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sMsg As String
+    Dim nBonusMasterCount As Long
+    Dim nChkLinkIsZero As Long
+    Dim nChkLinkNotZero As Long
+    
+    strSQL = "SELECT bm_empno, bm_eligible_pc FROM bonus_master, bonus_formula"
+    strSQL = strSQL & " WHERE " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
+    strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
+    If frmZZSEBPRC!txtPrftCtr <> "" Then
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
+    End If
+    If frmZZSEBPRC!txtEmpProcess <> "" Then
+        strSQL = strSQL & " AND bm_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
+    End If
+    strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
+    strSQL = strSQL & " GROUP BY bm_empno, bm_eligible_pc"
+    
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database", vbExclamation
+        Exit Function
+    End If
+    
+    nBonusMasterCount = rsTemp.RecordCount
+    
+    If nBonusMasterCount = 0 Then
+        fnCheckBonusHold = True
+        Exit Function
+    End If
+    
+    strSQL = "SELECT bh_chk_link FROM bonus_hold"
+    strSQL = strSQL & " WHERE bh_chk_link <> 0"
+    If frmZZSEBPRC!txtPrftCtr <> "" Then
+        strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
+    End If
+    If frmZZSEBPRC!txtEmpProcess <> "" Then
+        strSQL = strSQL & " AND bh_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
+    End If
+    strSQL = strSQL & " AND bh_date = " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
+
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database", vbExclamation
+        Exit Function
+    End If
+    
+    nChkLinkNotZero = rsTemp.RecordCount
+
+    strSQL = "SELECT bh_chk_link FROM bonus_hold"
+    strSQL = strSQL & " WHERE bh_chk_link = 0"
+    If frmZZSEBPRC!txtPrftCtr <> "" Then
+        strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(frmZZSEBPRC!txtPrftCtr)
+    End If
+    If frmZZSEBPRC!txtEmpProcess <> "" Then
+        strSQL = strSQL & " AND bh_empno = " & tfnRound(frmZZSEBPRC!txtEmpProcess)
+    End If
+    strSQL = strSQL & " AND bh_date = " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
+
+    If GetRecordSet(rsTemp, strSQL, , SUB_NAME) < 0 Then
+        MsgBox "Failed to access database", vbExclamation
+        Exit Function
+    End If
+    
+    nChkLinkIsZero = rsTemp.RecordCount
+
+    If nChkLinkNotZero >= nBonusMasterCount Then
+        If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
+            sMsg = "All the Commission Records have been selected into Payroll Print Group, " _
+                + "and cannot be processed."
+        ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
+            sMsg = "All the Commission Records for the Employee Number have been " _
+                + "selected into Payroll Print Group, and cannot not be processed."
+        Else
+            sMsg = "All the Commission Records for the Profit Center have been selected " _
+                + "into Payroll Print Group, and cannot not be processed."
+        End If
+        
+        MsgBox sMsg, vbExclamation
+        Exit Function
+    Else
+        If nChkLinkNotZero > 0 Then
+            If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
+                sMsg = "Some Commission Records have been selected into Payroll Print " _
+                    + "Group, and cannot be processed. Are you sure you want to continue?"
+            ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
+                sMsg = "Some Commission Records for the Employee Number have been " _
+                    + "selected into Payroll Print Group, and cannot not be processed. " _
+                    + "Are you sure you want to continue?"
+            Else
+                sMsg = "Some Commission Records for the Profit Center have been selected " _
+                    + "into Payroll Print Group, and cannot not be processed. " _
+                    + "Are you sure you want to continue?"
+            End If
+            
+            fnCheckBonusHold = MsgBox(sMsg, vbQuestion + vbYesNo + vbDefaultButton2) = vbYes
+            Exit Function
+        End If
+    End If
+    
+    sMsg = ""
+    
+    If nChkLinkIsZero >= nBonusMasterCount Then
+        If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
+            sMsg = "All the Commission Records"
+        ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
+            sMsg = "All the Commission Records for the Employee Number"
+        Else
+            sMsg = "All the Commission Records for the Profit Center"
+        End If
+    Else
+        If nChkLinkNotZero > 0 Then
+            If frmZZSEBPRC!txtPrftCtr = "" And frmZZSEBPRC!txtEmpProcess = "" Then
+                sMsg = "Some Commission Records"
+            ElseIf frmZZSEBPRC!txtPrftCtr = "" Then
+                sMsg = "Some Commission Records for the Employee Number"
+            Else
+                sMsg = "Some Commission Records for the Profit Center"
+            End If
+        End If
+    End If
+    
+    If sMsg <> "" Then
+        sMsg = sMsg + " have been processed, and will be replaced! " _
+            + "Are you sure you want to continue?"
+
+        fnCheckBonusHold = MsgBox(sMsg, vbQuestion + vbYesNo + vbDefaultButton2) = vbYes
+        Exit Function
+    End If
+    
+    fnCheckBonusHold = True
 End Function
 
 'This function will calculate the amount for 1 Employee, 1 BCode and 1 Level at a time
@@ -1486,4 +1689,50 @@ Public Function fnBuildList(tgmEditor As clsTGSpreadSheet, _
     End If
 End Function
 
+Public Function fnLoadBonusDetails(lEmpNbr As Long, nPrftCtr As Integer) As Boolean
+    
+    Const SUB_NAME As String = "fnLoadBonusDetails"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT bm_empno, bm_eligible_pc, bm_bonus_code, bm_eligible_date, bc_type,"
+    strSQL = strSQL & " bc_frequency, bc_code_desc, bm_sequence, bf_level"
+    strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula"
+    strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
+    strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
+    strSQL = strSQL & " AND bm_empno = " & tfnRound(lEmpNbr)
+    strSQL = strSQL & " AND bm_eligible_pc = " & nPrftCtr
+    strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(frmZZSEBPRC!txtFrequency)
+    strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC!txtEndDate, True)
+    strSQL = strSQL & " BETWEEN bm_eligible_date AND bm_stop_date"
+    strSQL = strSQL & " ORDER BY bm_empno, bm_eligible_pc, bm_sequence, bf_level"
+        
+    tgmDetail.FillWithSQL t_dbMainDatabase, strSQL
+    If tgmDetail.RowCount <= 0 Then
+        MsgBox "No record found for the selection criteria", vbExclamation
+        Exit Function
+    End If
+    
+    fnLoadBonusDetails = True
+End Function
+
+Public Function fnGetProposedEndDate(sStartDate As String, sFreq As String) As String
+    Dim sEndDate As String
+    
+    Select Case sFreq
+    Case "D"
+        sEndDate = DateAdd("d", -1, DateAdd("d", 1, CDate(sStartDate)))
+    Case "W"
+        sEndDate = DateAdd("d", -1, DateAdd("ww", 1, CDate(sStartDate)))
+    Case "M"
+        sEndDate = DateAdd("d", -1, DateAdd("m", 1, CDate(sStartDate)))
+    Case "Q"
+        sEndDate = DateAdd("d", -1, DateAdd("q", 1, CDate(sStartDate)))
+    Case "Y", "A"
+        sEndDate = DateAdd("d", -1, DateAdd("yyyy", 1, CDate(sStartDate)))
+    End Select
+    
+    fnGetProposedEndDate = tfnFormatDate(sEndDate)
+End Function
 

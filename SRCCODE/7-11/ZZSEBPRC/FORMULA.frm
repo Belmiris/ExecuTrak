@@ -82,7 +82,7 @@ Begin VB.Form frmFORMULA
       End
       Begin VB.Label Label1 
          BackStyle       =   0  'Transparent
-         Caption         =   "Percent(pct) :"
+         Caption         =   "Percent (pct) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -266,7 +266,7 @@ Begin VB.Form frmFORMULA
       End
       Begin VB.Label Label1 
          BackStyle       =   0  'Transparent
-         Caption         =   "Amount2(amt2) :"
+         Caption         =   "Amount2 (amt2) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -285,7 +285,7 @@ Begin VB.Form frmFORMULA
       End
       Begin VB.Label Label1 
          BackStyle       =   0  'Transparent
-         Caption         =   "Amount1(amt1) :"
+         Caption         =   "Amount1 (amt1) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -323,7 +323,7 @@ Begin VB.Form frmFORMULA
       Begin VB.Label lblVariable1 
          Alignment       =   1  'Right Justify
          BackStyle       =   0  'Transparent
-         Caption         =   "Variable1(v1) :"
+         Caption         =   "Variable1 (v1) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -359,7 +359,7 @@ Begin VB.Form frmFORMULA
       End
       Begin VB.Label Label1 
          BackStyle       =   0  'Transparent
-         Caption         =   "Dollar(dol) :"
+         Caption         =   "Dollar (dol) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -397,7 +397,7 @@ Begin VB.Form frmFORMULA
       Begin VB.Label Label1 
          Alignment       =   1  'Right Justify
          BackStyle       =   0  'Transparent
-         Caption         =   "Max. Total(mxt) :"
+         Caption         =   "Max. Total (mxt) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -453,7 +453,7 @@ Begin VB.Form frmFORMULA
       Begin VB.Label lblVariable3 
          Alignment       =   1  'Right Justify
          BackStyle       =   0  'Transparent
-         Caption         =   "Variable3(v3) :"
+         Caption         =   "Variable3 (v3) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -472,7 +472,7 @@ Begin VB.Form frmFORMULA
       Begin VB.Label lblVariable2 
          Alignment       =   1  'Right Justify
          BackStyle       =   0  'Transparent
-         Caption         =   "Variable2(v2) :"
+         Caption         =   "Variable2 (v2) :"
          BeginProperty Font 
             Name            =   "Arial"
             Size            =   9
@@ -599,7 +599,6 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
         lblDollar = tfnRound(rsTemp!bf_dollar, 2)
         lblAmount1 = tfnRound(rsTemp!bf_amount1, DEFAULT_DECIMALS)
         lblAmount2 = tfnRound(rsTemp!bf_amount2, DEFAULT_DECIMALS)
-        lblMaxTotal = tfnRound(rsTemp!bf_max_total, 2)
         
         subEnableVariables sType, rsTemp
         
@@ -610,49 +609,39 @@ Public Function fnLoadBonusFormula(sCode As String, nLevel As Integer) As Boolea
     End If
     
     fnLoadBonusFormula = True
-    subSetFocus cmdClose
-
+    'subSetFocus cmdClose
+    Me.Caption = "Bonus Formula Details ('" + sCode + "', " & nLevel & ", '" + sType + "')"
 End Function
 
-Private Sub subEnableVariables(sBonusType As String)
+Private Sub subEnableVariables(sBonusType As String, rsTemp As Recordset)
     If sBonusType = "" Then
         Exit Sub
     End If
     
     On Error GoTo errTrap
         
-    lblVariable2 = fnGetField(rsTemp!bf_variable2)
-    If lblVariable2 = "" Then
-        lblVariable2 = "Not Used :"
-    Else
-    End If
-    lblVariable3 = fnGetField(rsTemp!bf_variable3)
-    If lblVariable3 = "" Then
-        lblVariable3 = "Not Used :"
-    Else
-        lblVariable3 = lblVariable3 & "(v3) :"
-    End If
-    
     If Len(sBonusType) = 3 Then
         'number of variables allowed
         Select Case tfnRound(Mid(sBonusType, 2, 1))
             Case 1
-                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
-                lblVariable2 = "Not Used"
-                lblVariable3 = "Not Used"
+                lblVar1 = fnGetField(rsTemp!bf_variable1)
+                lblVar2 = "Not Used"
+                lblVar3 = "Not Used"
             Case 2
-                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
-                lblVariable2 = lblVariable2 & "(v2) :"
-                lblVariable3 = "Not Used"
+                lblVar1 = fnGetField(rsTemp!bf_variable1)
+                lblVar2 = fnGetField(rsTemp!bf_variable2)
+                lblVar3 = "Not Used"
             Case 3
-                lblVariable1 = fnGetField(rsTemp!bf_variable1) & "(v1) :"
-                lblVariable2 = lblVariable2 & "(v2) :"
-                lblVariable3 = lblVariable3 & "(v3) :"
+                lblVar1 = fnGetField(rsTemp!bf_variable1)
+                lblVar2 = fnGetField(rsTemp!bf_variable2)
+                lblVar3 = fnGetField(rsTemp!bf_variable3)
         End Select
         
         'max total allowed
         If UCase(Right(sBonusType, 1)) <> "E" Then
-            txtMaxTotal = "Not Used"
+            lblMaxTotal = "Not Used"
+        Else
+            lblMaxTotal = tfnRound(rsTemp!bf_max_total, 2)
         End If
     End If
 

@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBPRC 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Process Commission Checks"
@@ -40,7 +40,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1887,7 +1887,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1924,7 +1924,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.05
+                        Size            =   10.2
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1961,7 +1961,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   10.05
+                        Size            =   10.2
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1998,7 +1998,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2035,7 +2035,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2072,7 +2072,7 @@ Begin VB.Form frmZZSEBPRC
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.46
+                        Size            =   9.6
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -2441,7 +2441,7 @@ Begin VB.Form frmZZSEBPRC
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2454,7 +2454,7 @@ Begin VB.Form frmZZSEBPRC
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2624,7 +2624,6 @@ Private Const t_szHELP As String = "Help"
 
 Private tgfDropdown(4) As clsFloatingDropDown
 
-Private bCancelProcess As Boolean
 Private cValidate As cValidateInput
 Private cValidSls As cValidateInput
 Private cValidDetail As cValidateInput
@@ -2635,22 +2634,24 @@ Private sFreqRegExp As String
 Private objHours As clsPRFHOURS
 
 Private bLoadingBonusDetail As Boolean
+Private bProcessing As Boolean
+Private bCancelProcess As Boolean
 '
 
 Private Sub cmdApprove_Click()
-    Dim nRow As Integer
+    Dim lRow As Long
     
-    nRow = tgmApprove.GetCurrentRowNumber
+    lRow = tgmApprove.GetCurrentRowNumber
     
     If tgsApprove.Count = 0 Then
-        tgmApprove.CellValue(colAApprove, nRow) = colAppYes
+        tgmApprove.CellValue(colAApprove, tgmApprove.GetCurrentRowNumber) = colAppYes
+        tblApprove.col = 1
+        tblApprove.col = 0
     Else
         subSetAction colAppYes
     End If
     
     tgmApprove.Rebind
-    nDataStatus = DATA_CHANGED
-    
 End Sub
 
 Private Sub cmdApprove_GotFocus()
@@ -2679,67 +2680,34 @@ Private Sub cmdDropDown_LostFocus(Index As Integer)
 End Sub
 
 Private Sub cmdOK_Click()
-    Dim strSQL As String
-    Dim vArrDetail() As Variant
-    Dim sArBCodes() As String, sArCodeLvls() As String
-    Dim rsTemp As Recordset
-    Dim lEmpNo As Long
-    Dim nPrftCtr As Integer
-    
     #If PROTOTYPE Then
         Exit Sub
     #End If
-
-    Dim i As Integer, j As Integer, k As Integer
     
-    For i = 0 To tgmApprove.RowCount - 1
-        If tgmApprove.CellValue(colAApprove, i) = colAppYes Then
-            lEmpNo = tgmApprove.CellValue(colAEmpNo, i)
-            nPrftCtr = tgmApprove.CellValue(colAPrftCtr, i)
-            'Get the amount for each pay code from the hidden column...
-            sArBCodes = Split(tgmApprove.CellValue(colAHdnBAmtLvls, i), ",")
-            'Get the SQL for loading the details...
-            strSQL = "ABC"
-            If fnLoadBonusDetails(lEmpNo, nPrftCtr, strSQL) Then
-                If GetRecordSet(rsTemp, strSQL, , "cmdOK_Click") <= 0 Then
-                    MsgBox "Failed to insert the record", vbExclamation
-                    Exit Sub
-                End If
-                rsTemp.MoveFirst
-                ReDim vArrDetail(4, rsTemp.RecordCount - 1)
-                For j = 0 To rsTemp.RecordCount - 1
-                    vArrDetail(0, j) = lEmpNo
-                    vArrDetail(1, j) = fnGetField(rsTemp!bm_bonus_code)
-                    If InStr(1, sArBCodes(j), "~") > 0 Then
-                        'Add all the levels...
-                        sArCodeLvls = Split(sArBCodes(j), "~")
-                        For k = 0 To UBound(sArCodeLvls)
-                            vArrDetail(2, j) = vArrDetail(2, j) + tfnRound(sArCodeLvls(k), 6)
-                        Next k
-                    Else
-                        vArrDetail(2, j) = sArBCodes(j)
-                    End If
-                    vArrDetail(3, j) = 0
-                    vArrDetail(4, j) = fnGetField(rsTemp!bm_eligible_date)
-                    rsTemp.MoveNext
-                Next j
-                
-                'Now Insert the values from the array created above into the hold table...
-                For j = 0 To UBound(vArrDetail, 2)
-                    If Not fnInsertHoldBonus(CLng(vArrDetail(0, j)), CStr(vArrDetail(1, j)), _
-                            tfnRound(vArrDetail(2, j), 6), CLng(vArrDetail(3, j)), CStr(vArrDetail(4, j))) Then
-                        Exit Sub
-                    End If
-                Next j
-            End If
-        End If
-    Next i
+    cmdOk.Enabled = False
+    Me.Enabled = False
+    
+    Dim sErrMsg As String
+    
+    sErrMsg = fnInsertHoldBonus()
+    
+    If sErrMsg <> "" Then
+        Me.Enabled = True
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
+        DoEvents
+        tfnSetStatusBarError sErrMsg
+        Exit Sub
+    End If
+    
+    Me.Enabled = True
+    
+    nDataStatus = DATA_INIT
     
     tfnResetScreen TabApprove
     tfnResetScreen TabProcess
     tfnResetScreen TabDetails
     eTabMain.CurrTab = TabProcess
-    
 End Sub
 
 Private Sub cmdPrint_Click(Index As Integer)
@@ -2780,8 +2748,12 @@ Private Sub efraBaseIIProcess_GotFocus()
     
     If txtStartDate.Enabled Then
         subSetFocus txtStartDate
-    Else
+    ElseIf cmdPrint(TabProcess).Enabled Then
+        subSetFocus cmdPrint(TabProcess)
+    ElseIf cmdProcess.Enabled Then
         subSetFocus cmdProcess
+    Else
+        subSetFocus cmdCancel(TabProcess)
     End If
 End Sub
 
@@ -3060,7 +3032,7 @@ Private Sub subCancel(Index As Integer)
     #End If
     
     If Index = TabProcess Then
-        If cmdProcess.Enabled = False And cValidate.FirstInvalidInput < 0 Then
+        If bProcessing Then
             bCancelProcess = True
             Exit Sub
         End If
@@ -3072,7 +3044,9 @@ Private Sub subCancel(Index As Integer)
 End Sub
 
 Private Sub subExit()
-    If t_bDataChanged Then
+    Screen.MousePointer = vbDefault
+    
+    If nDataStatus = DATA_CHANGED Then
         If Not tfnCancelExit(t_szEXIT_MESSAGE) Then
             Exit Sub
         End If
@@ -3262,8 +3236,9 @@ Private Sub tfnResetScreen(Index As Integer)
             eTabMain.TabEnabled(TabApprove) = False
             subEnablePrint Index, False
             subEnableFirstLineProcess True
+            bProcessing = False
             bCancelProcess = False
-            'cmdProcess.Enabled = False
+            cmdProcess.Enabled = False
             subSetProgress 0
             
             If eTabMain.CurrTab = TabProcess Then
@@ -3354,6 +3329,7 @@ Private Sub tblApprove_Click()
 End Sub
 
 Private Sub tblApprove_DblClick()
+    bLoadingBonusDetail = False
     subEnterBonusPhaseII
 End Sub
 
@@ -3382,6 +3358,7 @@ Private Sub tblApprove_KeyPress(KeyAscii As Integer)
         Exit Sub
     End If
     
+    bLoadingBonusDetail = False
     subEnterBonusPhaseII
 End Sub
 
@@ -3419,6 +3396,10 @@ Private Sub tblDetails_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then
         subShowFormulaDetails
     End If
+End Sub
+
+Private Sub tblDetails_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblDetails_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
@@ -3564,7 +3545,7 @@ Private Function fnCheckCancel() As Boolean
     fnCheckCancel = False
     
     If bCancelProcess Then
-        If MsgBox("Are you sure you want to cancel the process?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
+        If MsgBox("Are you sure you want to cancel the Commission calculation process?", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
             bCancelProcess = False
             Exit Function
         End If
@@ -3591,12 +3572,17 @@ Private Sub cmdProcess_Click()
         Exit Sub
     #End If
     
+    If Not fnCheckBonusHold() Then
+        Exit Sub
+    End If
+    
     If Not tfnCancelExit("Processing may take several minutes. Are you sure you want to continue?") Then
         Exit Sub
     End If
     
     ReDim vArrBonus(colAHdnBAmtLvls, 0)
     eTabMain.TabEnabled(TabSales) = False
+    bProcessing = True
     bCancelProcess = False
     cmdProcess.Enabled = False
     eTabMain.TabEnabled(TabApprove) = False
@@ -3609,13 +3595,16 @@ Private Sub cmdProcess_Click()
     subLogErrMsg " "
     
     strSQL = "SELECT bm_empno, bc_type, bc_grade, bc_bonus_code, bf_level, "
-    strSQL = strSQL & " bm_eligible_pc, bm_sequence, prft_name"
+    strSQL = strSQL & " bm_eligible_pc, bm_sequence, bm_override, prft_name"
     strSQL = strSQL & " FROM bonus_master, bonus_codes, bonus_formula, sys_prft_ctr"
     strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
     strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
     If cValidate.ValidInput(txtPrftCtr) And txtPrftCtr <> "" Then
-        strSQL = strSQL & " AND bm_eligible_pc = " & Trim(txtPrftCtr)
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(txtPrftCtr)
+    End If
+    If cValidate.ValidInput(txtEmpProcess) And txtEmpProcess <> "" Then
+        strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmpProcess)
     End If
     If cValidate.ValidInput(txtFrequency) And txtFrequency <> "" Then
         strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(Trim(txtFrequency))
@@ -3661,6 +3650,7 @@ Private Sub cmdProcess_Click()
                 vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
                 vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
                 vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+                vArrBonus(colAHdsOverride, nSize) = fnGetField(rsTemp!bm_override)
                 vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
                 vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
             End If
@@ -3688,6 +3678,7 @@ Private Sub cmdProcess_Click()
             vArrBonus(colAPrftCtr, nSize) = fnGetField(rsTemp!bm_eligible_pc)
             vArrBonus(colAPayCode, nSize) = fnGetField(rsTemp!bc_bonus_code)
             vArrBonus(colABonusAmt, nSize) = Format(dTotalBonus, "##,##0.00")
+            vArrBonus(colAHdsOverride, nSize) = fnGetField(rsTemp!bm_override)
             vArrBonus(colAHdnPrftName, nSize) = fnGetField(rsTemp!prft_name) 'Hidden Column
             vArrBonus(colAHdnBAmtLvls, nSize) = Trim(sAmtAllBCodes) 'Hidden Column
         End If
@@ -3695,23 +3686,33 @@ Private Sub cmdProcess_Click()
     Next i
     
     tgmApprove.FillWithArray vArrBonus
+    
+    nDataStatus = DATA_CHANGED
+    
+    eTabMain.TabEnabled(TabDetails) = True
     eTabMain.TabEnabled(TabApprove) = True
     eTabMain.CurrTab = TabApprove
     subSetFocus tblApprove
     
 TERMINATE_PROCESS:
     
+    bProcessing = False
+    
     subLogErrMsg " "
     
     If bCancelProcess Then
         subLogErrMsg "Processing terminated on user's request"
+        cmdProcess.Enabled = True
+    End If
+    
+    If bError Then
+        cmdProcess.Enabled = True
     End If
     
     subLogErrMsg "*Finished Processing*"
     Screen.MousePointer = vbDefault
     
     subSetProgress 0
-    cmdProcess.Enabled = True
     subEnablePrint TabProcess, True
     
     If bError Then
@@ -3787,6 +3788,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
             tbl.Columns(colPTotal).Caption = "Total"
             tbl.Columns(colPTotal).Alignment = vbRightJustify
         Case "tblApprove"
+            tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
             VItem.Value = colAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
             VItem.Value = colAppNo: VItem.DisplayValue = "N": vitems.Add VItem
@@ -3863,7 +3865,8 @@ Private Sub subInitSpreadsheets()
     Set tgmApprove.engFactor = t_engFactor
     tgmApprove.AddEditColumn colAApprove, "Select Yes, No"
     tgmApprove.AllowAddNew = False
-    
+                
+    colAHdsOverride = tgmApprove.AddHiddenField("HiddenOverride")
     colAHdnPrftName = tgmApprove.AddHiddenField("HiddenPrftName")
     colAHdnBAmtLvls = tgmApprove.AddHiddenField("HiddenLevels")
     
@@ -4314,7 +4317,7 @@ Private Sub subEnterBonusPhaseII()
     Dim nPrftCtr As Integer
     Dim i As Integer, j As Integer, k As Integer
 
-    If bLoadingBonusDetail Then
+    If bLoadingBonusDetail Or tgmApprove.RowCount <= 0 Then
         Exit Sub
     End If
     
@@ -4362,58 +4365,6 @@ Private Sub subEnterBonusPhaseII()
     
 End Sub
 
-Private Function fnLoadBonusDetails(lEmpNbr As Long, _
-                                    nPrftCtr As Integer, _
-                                    Optional sSql As String) As Boolean
-    
-    Const SUB_NAME As String = "fnLoadBonusDetails"
-    
-    Dim strSQL As String
-    Dim rsTemp As Recordset
-    
-    strSQL = "SELECT bm_bonus_code, bm_eligible_date, bc_type, bc_frequency,"
-    strSQL = strSQL & " bc_code_desc, bm_sequence"
-    If sSql = "" Then
-        strSQL = strSQL & ", bf_level"
-    End If
-    strSQL = strSQL & " FROM bonus_master, bonus_codes"
-    If sSql = "" Then
-        strSQL = strSQL & ", bonus_formula"
-    End If
-    strSQL = strSQL & " WHERE bm_bonus_code = bc_bonus_code"
-    If sSql = "" Then
-        strSQL = strSQL & " AND bm_bonus_code = bf_bonus_code"
-    End If
-    strSQL = strSQL & " AND bm_empno = " & tfnRound(lEmpNbr)
-    If txtPrftCtr <> "" Then
-        strSQL = strSQL & " AND bm_eligible_pc = " & Trim(txtPrftCtr)
-    End If
-    If txtFrequency <> "" Then
-        strSQL = strSQL & " AND bc_frequency = " & tfnSQLString(Trim(txtFrequency))
-    End If
-    
-    strSQL = strSQL & " AND bm_eligible_date <= " & tfnDateString(txtStartDate, True)
-    strSQL = strSQL & " AND bm_stop_date >= " & tfnDateString(txtEndDate, True)
-    strSQL = strSQL & " ORDER BY bm_bonus_code, bm_sequence"
-    
-    If sSql = "" Then
-        strSQL = strSQL & ", bf_level"
-    End If
-    
-    If sSql = "" Then
-        tgmDetail.FillWithSQL t_dbMainDatabase, strSQL
-        If tgmDetail.RowCount <= 0 Then
-            MsgBox "No record found for the selection criteria", vbExclamation
-            Exit Function
-        End If
-    Else
-        sSql = strSQL
-    End If
-    
-    fnLoadBonusDetails = True
-    
-End Function
-
 Private Sub subEnableEmployee(bOnOff As Boolean)
     txtEmployee.Enabled = bOnOff
     cmdEmployee.Enabled = bOnOff
@@ -4437,7 +4388,9 @@ Private Sub subShowFormulaDetails()
     Dim nLevel As Integer
     Dim nRow As Integer
     
-    If tgmDetail.RowCount = 0 Then Exit Sub
+    If tgmDetail.RowCount <= 0 Then
+        Exit Sub
+    End If
     
     Screen.MousePointer = vbHourglass
     nRow = tgmDetail.GetCurrentRowNumber
@@ -4918,7 +4871,7 @@ Private Sub subSetAction(nCol As Integer)
     
     For i = 0 To lCount - 1
         Screen.MousePointer = vbHourglass
-        tgmApprove.CellValue(colAApprove, lTemp(i)) = nCol
+        tgmApprove.CellValue(colAApprove, lTemp(i)) = colAppYes
     Next i
     
     Screen.MousePointer = vbDefault
@@ -6577,50 +6530,29 @@ Private Sub subFillStartEndDateFreq()
     Dim nDD As Integer
     Dim nYY As Integer
     
+    If nDataStatus = DATA_CHANGED Then
+        Exit Sub
+    End If
+    
     If cValidate.ValidInput(txtStartDate) Then
         Exit Sub
     End If
     
+    nDD = 1
     nMM = Month(tfnDateString(Date))
     nYY = Year(tfnDateString(Date))
     
     'set start date to first day of the month
-    nDD = 1
-    
     txtStartDate = tfnFormatDate(Format(nMM, "00") + "/" + _
         Format(nDD, "00") + "/" + Format(nYY, "0000"))
     
-    nDD = fnLastDayOfMonth(nMM, nYY)
-    
-    txtEndDate = tfnFormatDate(Format(nMM, "00") + "/" + _
-        Format(nDD, "00") + "/" + Format(nYY, "0000"))
-        
     txtFrequency = "M"
+    
+    txtEndDate = fnGetProposedEndDate(txtStartDate, txtFrequency)
     
     cValidate.ResetFlags
     cmdProcess.Enabled = cValidate.FirstInvalidInput < 0
 End Sub
-
-Private Function fnLastDayOfMonth(nMM As Integer, nYY As Integer) As Integer
-    Dim sTemp As String
-    Dim nDD As Integer
-    
-    Select Case nMM
-    Case 1, 3, 5, 7, 8, 10, 12
-        nDD = 31
-    Case 2
-        nDD = 29
-        sTemp = tfnFormatDate(Format(nMM, "00") + "/" + _
-            Format(nDD, "00") + "/" + Format(nYY, "0000"))
-        If Not IsDate(nDD) Then
-            nDD = 28
-        End If
-    Case Else
-        nDD = 30
-    End Select
-    
-    fnLastDayOfMonth = nDD
-End Function
 
 Private Function fnCheckFrequency(sStartDate, sEndDate, sFrequency) As String
     Select Case sFrequency
