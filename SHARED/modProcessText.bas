@@ -14,6 +14,8 @@ Const EM_GETLINE = &HC4
 
 '************************************************************************************
 '   Functions to implement the multi-line text box
+'   This modules may cause problem when the space exists at the position of nMaxlen -1 in the text box, so set the size of textbox
+'   to hold maxLen characters, and use courrier new font name and 11 font size may avoid this problem.
 '************************************************************************************
 
 ' Return an array with all the lines in the multiline textbox.
@@ -110,7 +112,7 @@ Public Function fnBuildMultiLines(sParam() As String, _
                 If Len(sParam(j)) < nMaxLen Then
                     sParam(j) = sParam(j) + Space(nMaxLen - Len(sParam(j)))
                 End If
-                Debug.Print sParam(j)
+                
                 j = j + 1
             Next I
             
@@ -141,6 +143,7 @@ End Function
 
 '   The following function accepts a recordset, and returns a string which can
 '   be put into the text box.
+
 Public Function fnGetMultiLines(rsTemp As Recordset, Optional nMaxLen As Variant = 70, Optional fieldNum As Variant) As String
     Dim sTemp As String
     Dim stext As String
