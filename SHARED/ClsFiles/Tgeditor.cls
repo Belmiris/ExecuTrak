@@ -169,6 +169,7 @@ Option Explicit
     Private bCtrlYClearLocked As Boolean
     Private bLocked As Boolean
     Private bAllowAddNew As Boolean
+    Private m_bAllowRevalidate As booleaan
 
     Private tgTable As TDBGrid
     Private lblStatusbar As Control
@@ -408,6 +409,10 @@ End Property
 
 Property Get AllowAddNew() As Boolean
     AllowAddNew = bAllowAddNew
+End Property
+
+Property Let AllowRevalidate(bTemp As Boolean)
+    m_bAllowRevalidate = bTemp
 End Property
 
 Public Sub Append(vData() As Variant)
@@ -1149,7 +1154,7 @@ Property Let MaxRows(lTemp As Long)
     lMaxRows = lTemp
 End Property
 
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
     nKeyProcessing = KEY_P_FINISHED
 End Sub
 
@@ -1759,7 +1764,7 @@ Private Function fnValidate(nCurrCol As Integer, _
 
     Dim szText As String
     
-    If bValidating Then
+    If bValidating And Not m_bAllowRevalidate Then
         Exit Function
     End If
     bValidating = True
@@ -1900,12 +1905,13 @@ Public Sub GetRecords(vData() As Variant, _
         subGetAffectedRows lRowNos, lRows, ""
     End If
     If lRows > 0 Then
-        ReDim vData(nParamCount - 1, lRows - 1)
+        ReDim vData(nParamCount, lRows - 1)
         
         For i = 0 To lRows - 1
             For j = 0 To nParamCount - 1
                 vData(j, i) = GridArray(nParams(j), lRowNos(i))
             Next j
+            vData(nParamCount, i) = lRowNos(i)
         Next i
     End If
 End Sub
@@ -3786,7 +3792,7 @@ errKeyDown:
     nKeyProcessing = KEY_P_FINISHED
 
 End Sub
-Public Function KeyPress(KeyAscii As Integer) As Boolean
+Public Function Keypress(KeyAscii As Integer) As Boolean
 
 '
 ' Check the key pressed against the regular expression
@@ -3798,7 +3804,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
     Dim sTemp As String
     Dim lRow As Long
     
-    KeyPress = False
+    Keypress = False
     
     If tgTable Is Nothing Then
         Exit Function
@@ -3811,7 +3817,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
 
     ' check enter, backspace, escape
     If KeyAscii = vbKeyReturn Or KeyAscii = vbKeyBack Or KeyAscii = vbKeyEscape Then
-        KeyPress = True
+        Keypress = True
         If bHighlightInvalidCell Then
             If bAllowAddNew Then
                 If GetCurrentRowNumber = RowCount - 1 Then
@@ -3831,7 +3837,7 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
 
     ' check for cut/copy/paste keys
     If KeyAscii = ASC_CTRL_C Or KeyAscii = ASC_CTRL_V Or KeyAscii = ASC_CTRL_X Then
-        KeyPress = True
+        Keypress = True
         Exit Function
     ElseIf KeyAscii = vbKeyCtrlY Then
         If bCtrlYClearRow Then
@@ -3848,13 +3854,13 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
             End If
             subClearRow lRow
         End If
-        KeyPress = False
+        Keypress = False
         Exit Function
     End If
         
     fnCheckForValueItem KeyAscii
     If sPatternCode(nCol) = "" Then
-        KeyPress = True
+        Keypress = True
         If bHighlightInvalidCell Then
             If lEditingRow >= 0 And lEditingRow < nMaxRow Then
                 nCellChanged(nCol, lEditingRow) = STATUS_CHANGED
@@ -3882,10 +3888,10 @@ Public Function KeyPress(KeyAscii As Integer) As Boolean
     #End If
     
     If nCode < 0 Or (nCode <> 0 And nCode <> tgTable.SelStart + 2) Then
-        KeyPress = False
+        Keypress = False
         Beep
     Else
-        KeyPress = True
+        Keypress = True
         If bForcedEditing Then
             BeforeColEdit tgTable.col, 0, False
             bForcedEditing = False
@@ -4349,6 +4355,7 @@ Private Sub Class_Initialize()
     nReturnKeyAction = RETURN_KEY_RIGHT
     bFirstTimeGotFocus = True
     m_bKeepData = False
+    m_bAllowRevalidate = False
     lMaxRows = -1
     sDownArrowMessage = "No new rows can be added unless previous input is valid"
 End Sub
