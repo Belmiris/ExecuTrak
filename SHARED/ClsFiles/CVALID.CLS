@@ -185,12 +185,12 @@ End Property
 
 Private Function fnGetFirstControl() As Object
 
-    Dim i As Integer
+    Dim I As Integer
     
     Set fnGetFirstControl = Nothing
-    For i = 0 To nFirstControls
-        If ctrlFirstControls(i).Enabled Then
-            Set fnGetFirstControl = ctrlFirstControls(i)
+    For I = 0 To nFirstControls
+        If ctrlFirstControls(I).Enabled Then
+            Set fnGetFirstControl = ctrlFirstControls(I)
             Exit For
         End If
     Next
@@ -247,13 +247,13 @@ Public Sub SetChangeFlags(Optional vFlag As Variant)
 End Sub
 
 Public Sub SetESCLevel(oCtrl As Object, nLevel As Integer)
-    Dim i As Integer
-    For i = 0 To nESCCount - 1
-        If frmParent.ActiveControl Is arryESCControls(i).m_objControl Then
-            arryESCControls(i).m_nLevel = nLevel
+    Dim I As Integer
+    For I = 0 To nESCCount - 1
+        If frmParent.ActiveControl Is arryESCControls(I).m_objControl Then
+            arryESCControls(I).m_nLevel = nLevel
             Exit For
         End If
-    Next i
+    Next I
 End Sub
 
 Public Sub SetFirstControls(ParamArray arryTemp() As Variant)
@@ -262,7 +262,7 @@ Public Sub SetFirstControls(ParamArray arryTemp() As Variant)
     ' order of getting focus. A value of true means it is.
     'The default value is false.
     
-    Dim i As Integer
+    Dim I As Integer
     Dim j As Integer
     Dim k As Integer
     Dim bFlag As Boolean
@@ -276,23 +276,23 @@ Public Sub SetFirstControls(ParamArray arryTemp() As Variant)
     End If
     ReDim ctrlFirstControls(nFirstControls)
     If bFlag Then
-        For i = 0 To nFirstControls
-            For j = 0 To i - 1
-                If ctrlFirstControls(j).TabIndex > arryTemp(i).TabIndex Then
+        For I = 0 To nFirstControls
+            For j = 0 To I - 1
+                If ctrlFirstControls(j).TabIndex > arryTemp(I).TabIndex Then
                     Exit For
                 End If
             Next j
-            For k = i - 1 To j Step -1
+            For k = I - 1 To j Step -1
                 Set ctrlFirstControls(k + 1) = ctrlFirstControls(k)
             Next k
-            Set ctrlFirstControls(j) = arryTemp(i)
-        Next i
+            Set ctrlFirstControls(j) = arryTemp(I)
+        Next I
     Else
         If nFirstControls >= 0 Then
             ReDim ctrlFirstControls(nFirstControls)
-            For i = 0 To nFirstControls
-                Set ctrlFirstControls(i) = arryTemp(i)
-            Next i
+            For I = 0 To nFirstControls
+                Set ctrlFirstControls(I) = arryTemp(I)
+            Next I
         End If
     End If
 End Sub
@@ -335,7 +335,7 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
         If bShowBusyMessage Then
             sMsg = lblStatus.Caption
             lColor = lblStatus.ForeColor
-            bBold = lblStatus.Font.bOld
+            bBold = lblStatus.Font.Bold
             subShowMessage "Validating entry. Please wait . . ."
         End If
     End If
@@ -355,7 +355,7 @@ Private Function fnValidate(ByVal nNum As Integer) As Boolean
         If bShowBusyMessage Then
             lblStatus.Caption = sMsg
             lblStatus.ForeColor = lColor
-            lblStatus.Font.bOld = bBold
+            lblStatus.Font.Bold = bBold
             lblStatus.Refresh
         End If
     End If
@@ -371,14 +371,14 @@ Private Sub subShowMessage(sMsg As String)
 '    frmContext.ShowSBMessage sMsg
 'Exit Sub
     lblStatus.ForeColor = STANDARD_TEXT_COLOR
-    lblStatus.Font.bOld = False
+    lblStatus.Font.Bold = False
     lblStatus.Caption = sMsg
     lblStatus.Refresh
 End Sub
 
 Public Function FocusIsLost(txtBox As Object, _
                             ParamArray arryControls()) As Boolean
-    Dim i As Integer
+    Dim I As Integer
 
     If frmParent.ActiveControl Is Nothing Then
         Exit Function
@@ -387,8 +387,8 @@ Public Function FocusIsLost(txtBox As Object, _
         FocusIsLost = False
         Exit Function
     End If
-    For i = 0 To UBound(arryControls)
-        If frmParent.ActiveControl.TabIndex = arryControls(i).TabIndex Then
+    For I = 0 To UBound(arryControls)
+        If frmParent.ActiveControl.TabIndex = arryControls(I).TabIndex Then
             FocusIsLost = False
             Exit Function
         End If
@@ -419,8 +419,6 @@ Public Sub SetInputValid(txtBox As Object, bStatus As Boolean)
         End With
     End If
 End Sub
-
-
 
 Public Sub ShowErrorMessage(txtBox As Object)
     Dim nNum As Integer
@@ -464,7 +462,6 @@ Public Sub Change(txtBox As Object)
     End If
 End Sub
 
-
 Property Let ESCControl(oCtrl As Object)
     ReDim Preserve arryESCControls(nESCCount)
     Set arryESCControls(nESCCount).m_objControl = oCtrl
@@ -472,46 +469,45 @@ Property Let ESCControl(oCtrl As Object)
 End Property
 
 Public Function FirstChanged() As Integer
-    Dim i As Integer
+    Dim I As Integer
     FirstChanged = -1
     
-    For i = 0 To nCount - 1
-        If tpControls(i).m_nInputFlag > 0 Then
-            FirstChanged = i
+    For I = 0 To nCount - 1
+        If tpControls(I).m_nInputFlag > 0 Then
+            FirstChanged = I
             Exit For
         End If
-    Next i
+    Next I
 End Function
 
 Private Function fnEscapable() As Integer
-    Dim i As Integer
+    Dim I As Integer
     On Error Resume Next
     fnEscapable = ESC_LEVEL_0
-    For i = 0 To nESCCount - 1
-        If frmParent.ActiveControl.TabIndex = arryESCControls(i).m_objControl.TabIndex Then
-            fnEscapable = arryESCControls(i).m_nLevel
+    For I = 0 To nESCCount - 1
+        If frmParent.ActiveControl.TabIndex = arryESCControls(I).m_objControl.TabIndex Then
+            fnEscapable = arryESCControls(I).m_nLevel
             Exit For
         End If
-    Next i
+    Next I
     On Error GoTo 0
 End Function
 
 Public Function FirstInvalidInput() As Integer
-    Dim i As Integer
+    Dim I As Integer
     FirstInvalidInput = -1
     
-    For i = 0 To nCount - 1
-        fnValidate i
-        If tpControls(i).m_nStatusFlag > STATUS_ERROR_FREE Then
-            FirstInvalidInput = i
+    For I = 0 To nCount - 1
+        fnValidate I
+        If tpControls(I).m_nStatusFlag > STATUS_ERROR_FREE Then
+            FirstInvalidInput = I
             Exit For
         End If
-    Next i
+    Next I
 End Function
 
-
 Public Sub ResetFlags(Optional txtBox, Optional vInputFlag)
-    Dim i As Integer
+    Dim I As Integer
     If IsMissing(txtBox) Then
         If frmParent.ActiveControl Is Nothing Then
             Exit Sub
@@ -523,15 +519,15 @@ Public Sub ResetFlags(Optional txtBox, Optional vInputFlag)
             On Error GoTo 0
         End If
         bResetFlag = True
-        For i = 0 To nCount - 1
-            With tpControls(i)
+        For I = 0 To nCount - 1
+            With tpControls(I)
                 .m_nChangeFlag = FLAG_TEXT_NOCHANGE
                 .m_nTextChanged = FLAG_TEXT_CHANGED
                 .m_sErrorMsgs = ""
-                fnValidate i
+                fnValidate I
                 .m_nInputFlag = 0
             End With
-        Next i
+        Next I
         bResetFlag = False
         nPreviousControl = 0
         If txtLastBox Is Nothing Then
@@ -543,11 +539,11 @@ Public Sub ResetFlags(Optional txtBox, Optional vInputFlag)
         End If
         bNeedBack = False
     Else
-        i = fnBoxNumber(txtBox.TabIndex)
-        If i >= 0 Then
-            With tpControls(i)
+        I = fnBoxNumber(txtBox.TabIndex)
+        If I >= 0 Then
+            With tpControls(I)
                 .m_nTextChanged = FLAG_TEXT_CHANGED
-                fnValidate i
+                fnValidate I
                 If IsMissing(vInputFlag) Then
                     .m_nInputFlag = 0
                 Else
@@ -593,14 +589,14 @@ Public Sub AddEditBox(Box As Object, _
 End Sub
 
 Private Function fnBoxNumber(nIndex As Integer) As Integer
-    Dim i
+    Dim I
     fnBoxNumber = -1
-    For i = 0 To nCount - 1
-        If tpControls(i).m_txtEdit.TabIndex = nIndex Then
-            fnBoxNumber = i
+    For I = 0 To nCount - 1
+        If tpControls(I).m_txtEdit.TabIndex = nIndex Then
+            fnBoxNumber = I
             Exit For
         End If
-    Next i
+    Next I
 End Function
 
 Private Sub fnShowStatus(nControlNumber As Integer)
@@ -609,21 +605,21 @@ Private Sub fnShowStatus(nControlNumber As Integer)
         If .m_nStatusFlag > STATUS_ERRORS And .m_nInputFlag > 0 Then
             sAddMessage = "Invalid input; " & .m_sPrompt
             lblStatus.ForeColor = ERROR_TEXT_COLOR
-            lblStatus.Font.bOld = True
+            lblStatus.Font.Bold = True
             If .m_sErrorMsgs <> "" Then
                 sAddMessage = .m_sErrorMsgs
             End If
 '            frmContext.ShowSBError sAddMessage
         Else
             If .m_nInputFlag > 0 And .m_nStatusFlag = STATUS_ERROR_FREE And .m_bValidMessage Then
-                lblStatus.Font.bOld = False
+                lblStatus.Font.Bold = False
                 lblStatus.ForeColor = &H8000&  'Green text
                 sAddMessage = "Data is valid"
 '                frmContext.ShowSBRight sAddMessage
             Else
                 sAddMessage = .m_sPrompt
                 lblStatus.ForeColor = STANDARD_TEXT_COLOR
-                lblStatus.Font.bOld = False
+                lblStatus.Font.Bold = False
 '                frmContext.ShowSBMessage sAddMessage
             End If
         End If
@@ -631,6 +627,7 @@ Private Sub fnShowStatus(nControlNumber As Integer)
     lblStatus.Caption = sAddMessage
     lblStatus.Refresh
 End Sub
+
 Property Set Form(fForm As Object)
     Set frmParent = fForm
 End Property
@@ -699,6 +696,7 @@ Public Sub GotFocus(txtBox As Object)
         nFlagFocus = FOCUS_GOT
     End If
 End Sub
+
 Public Sub Keypress(txtBox As Object, nKeyAscii As Integer, Optional bMsg As Variant)
     Dim nNum As Integer
     If Not bLocked Then
@@ -713,11 +711,12 @@ Public Sub Keypress(txtBox As Object, nKeyAscii As Integer, Optional bMsg As Var
         End If
     End If
 End Sub
+
 Public Function LostFocus(txtBox As Object, _
                           ParamArray arryControls()) As Boolean
     Dim nNum As Integer
     Dim bBack As Boolean
-    Dim i As Integer
+    Dim I As Integer
     Dim nEscapable As Integer
     
     LostFocus = True
@@ -758,8 +757,8 @@ Public Function LostFocus(txtBox As Object, _
 '            End If
 '        End If
 '    End If
-    For i = 0 To UBound(arryControls)
-        If frmParent.ActiveControl.TabIndex = arryControls(i).TabIndex Then
+    For I = 0 To UBound(arryControls)
+        If frmParent.ActiveControl.TabIndex = arryControls(I).TabIndex Then
             LostFocus = False
             nFlagFocus = FOCUS_GOT
             Exit Function
@@ -841,7 +840,6 @@ Property Get BackAlways() As Integer
     BackAlways = TYPE_BACK_ALWAYS
 End Property
 
-
 Property Get BackOnce() As Integer
     BackOnce = TYPE_BACK_ONCE
 End Property
@@ -860,7 +858,6 @@ Public Sub SetPrompt(oBox As Object, Msg As String)
         tpControls(nBox).m_sPrompt = Msg
     End If
 End Sub
-
 
 Public Sub SetFocus(nCtrl As Integer)
     Const nTrialNumber As Integer = 1
@@ -888,7 +885,6 @@ Property Set StatusBar(lblBar As Object)
     Set lblStatus = lblBar
 End Property
 
-
 Public Function Validating() As Boolean
     If nValidating >= 0 Then
         Validating = True
@@ -912,6 +908,7 @@ Property Get ValidInput(txtBox As Object) As Boolean
     End If
 
 End Property
+
 Property Let ValidInput(txtBox As Object, bStatus As Boolean)
     Dim nNum As Integer
     nNum = fnBoxNumber(txtBox.TabIndex)
@@ -944,23 +941,49 @@ Private Sub Class_Initialize()
     Set txtLastBox = Nothing
 End Sub
 
-
 Private Sub Class_Terminate()
-    Dim i As Integer
+    Dim I As Integer
     Set frmParent = Nothing
     Set lblStatus = Nothing
-    For i = 0 To nCount - 1
-        Set tpControls(i).m_txtEdit = Nothing
-    Next i
-    For i = 0 To nESCCount - 1
-        Set arryESCControls(i).m_objControl = Nothing
-    Next i
-    For i = 0 To nFirstControls - 1
-        Set ctrlFirstControls(i) = Nothing
-    Next i
+    For I = 0 To nCount - 1
+        Set tpControls(I).m_txtEdit = Nothing
+    Next I
+    For I = 0 To nESCCount - 1
+        Set arryESCControls(I).m_objControl = Nothing
+    Next I
+    For I = 0 To nFirstControls - 1
+        Set ctrlFirstControls(I) = Nothing
+    Next I
     Set ctrlForFocus = Nothing
     Set txtLastBox = Nothing
     Set txtLastAsscBox = Nothing
 End Sub
 
+Public Function ErrorMessage(txtBox As Object) As String
+    Dim nNum As Integer
+    Dim nFlg As Integer
+    Dim nErr As Integer
+    
+    nNum = fnBoxNumber(txtBox.TabIndex)
+    If nNum >= 0 Then
+        ErrorMessage = fnGetErrorMessage(nNum)
+    End If
+End Function
+
+Private Function fnGetErrorMessage(nControlNumber As Integer) As String
+    Dim sAddMessage As String
+    
+    With tpControls(nControlNumber)
+        If .m_nStatusFlag > STATUS_ERRORS And .m_nInputFlag > 0 Then
+            sAddMessage = "Data is not valid"
+            If .m_sErrorMsgs <> "" Then
+                sAddMessage = .m_sErrorMsgs
+            End If
+        Else
+            sAddMessage = ""
+        End If
+    End With
+    
+    fnGetErrorMessage = sAddMessage
+End Function
 
