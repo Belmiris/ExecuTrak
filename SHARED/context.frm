@@ -82,60 +82,64 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-    Private Const t_szOLETBKit As String = "TBKIT.clsToolbar"
-    Private Const TBKIT_DLL_PATH = "OLE\TBKIT.DLL"
+
+Private Const t_szOLETBKit As String = "TBKIT.clsToolbar"
+Private Const TBKIT_DLL_PATH = "OLE\TBKIT.DLL"
+
+Private Const CONTROL_TB = 0
+Private Const CONTROL_TB_FRAME = 1
+Private Const CONTROL_TB_RIGHT = 2
+Private Const CONTROL_TB_PANEL = 3
+'david 08/07/2003
+'delay too much
+'Private Const DELAY_FOR_START = 10
+Private Const DELAY_FOR_START = 3
+
+Private objToolbar As Object
+Private frmMainForm As Form
+Private sLastMessage As String
+Private m_nMenuItems As Integer
+
+'Api definitions
+Private Type RECT
+    Left As Long
+    Top As Long
+    Right As Long
+    Bottom As Long
+End Type
+Private Type POINTAPI
+    x As Long
+    y As Long
+End Type
+
+Private Declare Function GetMenu Lib "user32" ( _
+    ByVal hwnd As Long) As Long
+
+Private Declare Function GetCursorPos Lib "user32" ( _
+    lpPoint As POINTAPI) As Long
+
+Private Declare Function GetSubMenu Lib "user32" ( _
+    ByVal hMenu As Long, _
+    ByVal nPos As Long) As Long
+
+Private Declare Function TrackPopupMenu Lib "user32" ( _
+    ByVal hMenu As Long, _
+    ByVal wFlags As Long, _
+    ByVal x As Long, _
+    ByVal y As Long, _
+    ByVal nReserved As Long, _
+    ByVal hwnd As Long, _
+    lprc As RECT) As Long
+
+Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
+
+'david 10/30/00
+Private sngMainFormHeight As Single
+Private sngMainFormWidth As Single
     
-    Private Const CONTROL_TB = 0
-    Private Const CONTROL_TB_FRAME = 1
-    Private Const CONTROL_TB_RIGHT = 2
-    Private Const CONTROL_TB_PANEL = 3
-    'david 08/07/2003
-    'delay too much
-    'Private Const DELAY_FOR_START = 10
-    Private Const DELAY_FOR_START = 3
-    
-    Private objToolbar As Object
-    Private frmMainForm As Form
-    Private sLastMessage As String
-    Private m_nMenuItems As Integer
-
-    'Api definitions
-    Private Type RECT
-        Left As Long
-        Top As Long
-        Right As Long
-        Bottom As Long
-    End Type
-    Private Type POINTAPI
-        x As Long
-        y As Long
-    End Type
-
-    Private Declare Function GetMenu Lib "user32" ( _
-        ByVal hwnd As Long) As Long
-    
-    Private Declare Function GetCursorPos Lib "user32" ( _
-        lpPoint As POINTAPI) As Long
-
-    Private Declare Function GetSubMenu Lib "user32" ( _
-        ByVal hMenu As Long, _
-        ByVal nPos As Long) As Long
-
-    Private Declare Function TrackPopupMenu Lib "user32" ( _
-        ByVal hMenu As Long, _
-        ByVal wFlags As Long, _
-        ByVal x As Long, _
-        ByVal y As Long, _
-        ByVal nReserved As Long, _
-        ByVal hwnd As Long, _
-        lprc As RECT) As Long
-
-    Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
-
-
-    'david 10/30/00
-    Private sngMainFormHeight As Single
-    Private sngMainFormWidth As Single
+Private Declare Function GetFileVersionInfo Lib "version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwHandle As Long, ByVal dwLen As Long, lpData As Any) As Long
+Private Declare Function GetFileVersionInfoSize Lib "version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
+'
 
 '
 'Function : ShowPopup - shows a context menu
@@ -470,7 +474,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
     
     objToolbar.GetMenuInfo sCap, sTag, bEnabled, nKey
     mnuContextItems(DEFAULT_MENU).Caption = sCap
-    mnuContextItems(DEFAULT_MENU).Tag = sTag
+    mnuContextItems(DEFAULT_MENU).tag = sTag
     mnuContextItems(DEFAULT_MENU).Enabled = bEnabled
     mnuContextItems(ADDITIONAL_MENU).Visible = False
     If Not IsMissing(vExKeys) Then
@@ -480,10 +484,10 @@ Public Sub MouseDown(ByVal Button As Integer, _
                 Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
-            mnuContextItems(i + 1).Tag = sTag
+            mnuContextItems(i + 1).tag = sTag
             mnuContextItems(i + 1).Enabled = bEnabled
         End If
         Next i
@@ -519,7 +523,16 @@ Public Function RunProgram(sProgram As String, Optional sModuleID As String = ""
             ''''''''''''''''''''''''''''
             
             subShowBusyState True, VENDOR_UP
-            RunProgram = t_oleObject.RunExe(sProgram, sModuleID)
+            
+            Dim bNewFactmenu As Boolean
+            bNewFactmenu = GetFactmenuVersion() > "3.27.0001"
+            
+            If bNewFactmenu Then
+                RunProgram = t_oleObject.RunExe(sProgram, , sModuleID)
+            Else
+                RunProgram = t_oleObject.RunExe(sProgram)
+            End If
+            
             tfnWaitSeconds DELAY_FOR_START
             subShowBusyState False, VENDOR_UP
             subCheckError
@@ -569,7 +582,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If Val(App.Minor) < 20 Then
+    If val(App.Minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
@@ -592,7 +605,7 @@ Private Sub mnuContextItems_Click(Index As Integer)
     If Not objToolbar Is Nothing Then
         subShowBusyState True, Index
 '        objToolbar.ContextMenuClick Index
-        objToolbar.CMenuClick mnuContextItems(Index).Tag
+        objToolbar.CMenuClick mnuContextItems(Index).tag
         subShowBusyState False, Index
         subCheckError
     End If
@@ -614,3 +627,51 @@ Private Function fnGetFactorPath() As String
     End If
 End Function
 
+Public Function GetFactmenuVersion() As String
+
+    On Error GoTo GetFileVersionData_Error
+    
+    Dim sInfo As String
+    Dim lResult As Long
+    Dim iDelim As Integer
+    Dim lHandle As Long
+    Dim lSizeof As Long
+    Dim sFile As String
+
+    sFile = fnGetFactorPath + "\factmenu.exe"
+    lHandle = 0
+    
+    'how big is the Version Info block?
+    lSizeof = GetFileVersionInfoSize(sFile, lHandle)
+    
+    If lSizeof > 0 Then
+        sInfo = String$(lSizeof, 0)
+        
+        lResult = GetFileVersionInfo(ByVal sFile, 0&, ByVal lSizeof, ByVal sInfo)
+        
+        If lResult Then
+            sInfo = Replace(sInfo, Chr(0), "")
+    
+            iDelim = InStr(sInfo, "ProductVersion")
+            If iDelim > 0 Then
+                iDelim = iDelim + Len("ProductVersion")
+                GetFactmenuVersion = Mid$(sInfo, iDelim, 9)
+                Exit Function
+            End If
+        Else
+            GoTo invalid_file_info_error
+        End If
+    Else
+        GoTo invalid_file_info_error
+    End If
+
+GetFileVersionData_Exit:
+
+Exit Function
+
+GetFileVersionData_Error:
+    Resume GetFileVersionData_Exit
+
+invalid_file_info_error:
+    GoTo GetFileVersionData_Exit
+End Function
