@@ -215,7 +215,28 @@ Private nInfoCount As Integer
 Private fLadingTypeATax As Double
 Private lInternalFuel As Long
 Private m_Disable_A_Taxes As Boolean
-'
+
+''#452155wj101304 New LOading Fees Routine VVVVVVVVVVVV
+Public Type BOL_AtAx
+     fmld_bl_nbr As Long
+     fmld_seq_nbr As Long
+     sum_bunits As Long
+     bl_ngu As String
+     a_tax_tot As Double
+     a_tax_used As Double
+End Type
+    
+Public Type Loading_Fees
+    dv_nbr As Long
+    dv_line As Long
+    dv_prodlnk As Long
+    dv_prodtcl  As String
+    dv_vol As Long
+    dv_atax As Double
+    dv_IE As String
+End Type
+Public aryLDF() As Loading_Fees
+Public ldf_cnt As Integer '#this is the Ubound of the Array
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
     
@@ -1253,14 +1274,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     End If
     
@@ -1865,7 +1886,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = Val(lLimit)
+                .m_lLimit = val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -1987,8 +2008,8 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
         'new dll
         Do
-            hld_miles = Round(hld_miles)
-            hld_tot_gals = Round(hld_tot_gals, 1)
+            hld_miles = round(hld_miles)
+            hld_tot_gals = round(hld_tot_gals, 1)
             nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2118,4 +2139,832 @@ errTrap:
 
 End Sub
 ''''''''''''''''''''''''''''''''
+'#------------------------------------------------------------
+'#"Start ATax Region" - 452155wj101304
+'# We intend to fix the Loading Fees display issue. The temp patch made
+'# in 1999 did not reflect the real Atax charged in the Back Ends. The backends
+'# routine starts with BOL side loading Fees and prorate based delivery. Then
+'# monkey with the numbers ... We now will follow the same logic as 4GL.
+'# The Next public function is the only entry point of this new ATax routine.
+'#(1)This routine will be used only by Fuel Movement and Its Editor
+'#   Thus, m_Disable_A_Taxes must be false
+'#(2)Call this sub at the end of "Delivery and Lading OK click" code
+'#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
+'#   For now, we still keep the codes in place. When field cTaxBasis (local
+'#   mtaxdetail) is in every user's PC, we can remove the "temp patch".
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+    Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim rsLadHeader As Recordset
+    Dim fTaxes As Double
+    Dim fBase As Double
+    Dim sNGU As String
+    Dim nLine As Integer
+    Dim lATaxGal As Long
+    
+    Dim aryATax() As BOL_AtAx
+    Dim BOL_atx_ptr As Integer
+    
+    Dim rsLadD As Recordset
+    Dim rsMvBal As Recordset
+    Dim rsDelD As Recordset
+    Dim lTotATaxGal As Long
+         
+    Dim bTexasTax As Boolean
+    Dim bTexasDiverted As Boolean
+    Dim bFound As Boolean
+    Dim sum_atax As Double
+    Dim this_tax As Double
+    Dim i As Integer
+    Dim this_units As Long
+    Dim dsl_fuel_group As String
+    
+    Dim sTaxCode As String
+    Dim sTaxDesc As String
+    Dim sTaxState As String
+    Dim fTaxRate As Double
+    Dim delta As Double
+    
+    Dim lLadGal As Long
+    Dim lDelGal As Long
+    
+    Dim sIEFlag As String
+    
+    '#Make sure it is FM or Its Editor
+    If m_Disable_A_Taxes Then
+        Exit Sub
+    End If
+    
+    '#Test if "cTaxBasis" is a column in local table
+    '#MTaxDetail. If not, this routine will exist. In other
+    '#words, the new routine needes this field. This is why
+    '#we did not remove the old "temp patch " codes -- does not
+    '#hurt if new routine is used
+    strSQL = "SELECT cTaxBasis FROM MTaxDetail"
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+         Exit Sub
+    End If
+
+    '#If not balanced, do not need to do it
+    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MLading WHERE lMovement = " & lMovement
+    Set rsTemp = txMod_OpenRecord(strSQL, , , m_local)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    ElseIf rsTemp.RecordCount = 0 Then
+        Exit Sub
+    End If
+    lLadGal = tfnRound(rsTemp!gal)
+    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MDelivery WHERE lMovement = " & lMovement
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    ElseIf rsTemp.RecordCount = 0 Then
+        Exit Sub
+    End If
+    lDelGal = tfnRound(rsTemp!gal)
+    If lLadGal <> lDelGal Or lDelGal = 0 Then
+        Exit Sub
+    End If
+    
+    sTaxState = "TX" '#Defalt to Texas
+    
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & CStr(lMovement)
+    Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsMvBal Is Nothing Then
+         Exit Sub
+    ElseIf rsMvBal.RecordCount = 0 Then
+         Exit Sub
+    End If
+
+    strSQL = "SELECT * FROM MLading WHERE lMovement = " & CStr(lMovement)
+    Set rsLadHeader = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsLadHeader Is Nothing Then
+        Exit Sub
+    ElseIf rsLadHeader.RecordCount = 0 Then
+        Exit Sub
+    End If
+    
+    strSQL = "SELECT MDeliveryDetail.*,MDelivery.lDestination,MDelivery.bExternal FROM MDelivery,MDeliveryDetail " _
+             & " WHERE MDelivery.lMovement=MDeliveryDetail.lMovement " _
+             & " AND MDelivery.lDelivery=MDeliveryDetail.lDelivery " _
+             & " AND MDelivery.lMovement = " & CStr(lMovement)
+             
+    Set rsDelD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsDelD Is Nothing Then
+         Exit Sub
+    ElseIf rsDelD.RecordCount = 0 Then
+         Exit Sub
+    End If
+    
+    '#Build Lading side A-Taxes array --> aryATax
+    BOL_atx_ptr = -1
+    While Not rsLadHeader.EOF
+        strSQL = "SELECT * " _
+               & " FROM MLadingDetail " _
+               & " WHERE lLading = " & CStr(rsLadHeader!lLading) _
+               & " AND lMovement = " & CStr(lMovement) _
+               & " ORDER BY lLineNumber"
+               
+        Set rsLadD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+        If rsLadD Is Nothing Then
+            Exit Sub
+        End If
+        subResetTaxes True, True
+        lTotATaxGal = 0
+        nLine = 0
+        
+        strSQL = "SELECT dPickupDate FROM mlading"
+        strSQL = strSQL & " WHERE lMovement=" & lMovement
+        strSQL = strSQL & " AND lLading=" & tfnRound(rsLadHeader!lLading)
+        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+        If rsTemp Is Nothing Then
+            Exit Sub
+        End If
+        If rsTemp.RecordCount > 0 Then
+            t_tax_date = rsTemp!dPickupDate & ""
+        Else
+            t_tax_date = Date
+        End If
+        With rsLadD
+            If .RecordCount > 0 Then
+                While Not .EOF
+                    If !bGross Then
+                        sNGU = "G"
+                        fBase = !lGross * !fCost
+                        lTotATaxGal = lTotATaxGal + !lGross
+                    Else
+                        sNGU = "N"
+                        fBase = !lNet * !fCost
+                        lTotATaxGal = lTotATaxGal + !lNet
+                    End If
+                    If Not fnAddTaxInfoItem(rsLadHeader!lLading, nLine, _
+                            !szProductCode, !szTaxUseGroup, _
+                            fBase, 0, _
+                            CDbl(!lGross), CDbl(!lNet), _
+                            sNGU) Then
+                        Exit Sub
+                    End If
+                    nLine = nLine + 1
+                    .MoveNext
+                Wend
+                subProrateBOLATax rsLadHeader!lLading, _
+                                   nLine, _
+                                   bTexasTax, sTaxState
+                
+                fTaxes = fnGetTypeATax
+                .MoveFirst
+                While Not .EOF
+                    If !bGross Then
+                        sNGU = "G"
+                        lATaxGal = !lGross
+                    Else
+                        sNGU = "N"
+                        lATaxGal = !lNet
+                    End If
+                    BOL_atx_ptr = BOL_atx_ptr + 1
+                    ReDim Preserve aryATax(BOL_atx_ptr) As BOL_AtAx
+                    aryATax(BOL_atx_ptr).fmld_bl_nbr = !lLading
+                    aryATax(BOL_atx_ptr).fmld_seq_nbr = !lLineNumber
+                    aryATax(BOL_atx_ptr).sum_bunits = lATaxGal
+                    aryATax(BOL_atx_ptr).bl_ngu = sNGU
+                    If lTotATaxGal = 0 Then
+                        aryATax(BOL_atx_ptr).a_tax_tot = 0
+                    Else
+                        aryATax(BOL_atx_ptr).a_tax_tot = fTaxes * lATaxGal / lTotATaxGal
+                    End If
+                    aryATax(BOL_atx_ptr).a_tax_used = 0
+                    .MoveNext
+                Wend
+            End If
+        End With
+        rsLadHeader.MoveNext
+    Wend
+    If BOL_atx_ptr < 0 Then
+        Exit Sub
+    End If
+    
+    '#(2) Build Loading Fees in Delivery Side --> put_ldfee_rec
+    
+    start_ldfee_rec
+    Do While Not rsDelD.EOF
+        'sum_bunits = 0
+        sum_atax = 0
+        rsMvBal.MoveFirst
+        Do While Not rsMvBal.EOF
+            this_tax = 0
+            If rsMvBal!lDelivery = rsDelD!lDelivery And rsMvBal!lDeliveryLine = rsDelD!lLineNumber Then
+                bFound = False
+                For i = 0 To BOL_atx_ptr
+                    If aryATax(i).fmld_bl_nbr = rsMvBal!lLading And aryATax(i).fmld_seq_nbr = rsMvBal!lLadingLine Then
+                        bFound = True
+                        Exit For
+                    End If
+                Next i
+                this_tax = 0
+                this_units = 0
+                If bFound Then
+                    sNGU = aryATax(i).bl_ngu
+                    If (sNGU = "N") Then
+                        this_units = rsMvBal!lNet
+                    Else
+                        this_units = rsMvBal!lGross
+                    End If
+                    If aryATax(i).sum_bunits <> 0 Then
+                        this_tax = (Abs(this_units) / Abs(aryATax(i).sum_bunits)) * Abs(aryATax(i).a_tax_tot)
+                    End If
+                    this_tax = tfnRound(this_tax, 2)
+                End If
+                  
+                this_tax = tfnRound(Abs(this_tax), 2)
+                delta = Abs(aryATax(i).a_tax_tot) - (this_tax + Abs(aryATax(i).a_tax_used))
+                delta = tfnRound(Abs(delta), 2)
+                If (delta < 0.05) Then
+                    this_tax = Abs(aryATax(i).a_tax_tot) - Abs(aryATax(i).a_tax_used)
+                End If
+                
+                If Not bTexasTax Then
+                     If rsDelD!bExternal = False Then
+                         bTexasTax = True
+                         bTexasDiverted = False
+                     Else
+                         Set rsTemp = far_altname(rsDelD!lDestination, t_dbMainDatabase)
+                         If Not rsTemp Is Nothing Then
+                            If rsTemp.RecordCount > 0 Then
+                                strSQL = "SELECT * FROM sys_city WHERE city_code = " & tfnSQLString(rsTemp!an_city)
+                                Set rsTemp = txMod_OpenRecord(strSQL)
+                                If Not rsTemp Is Nothing Then
+                                    If rsTemp.RecordCount > 0 Then
+                                        sTaxState = Trim(rsTemp!city_state & "")
+                                        If sTaxState = "TX" Then
+                                            bTexasDiverted = True
+                                        End If
+                                    End If
+                                End If
+                            End If
+                         End If
+                    End If
+               End If
+            End If
+            sum_atax = sum_atax + tfnRound(this_tax, 2)
+            aryATax(i).a_tax_used = aryATax(i).a_tax_used + this_tax
+            
+            rsMvBal.MoveNext
+        Loop
+        If rsDelD!bExternal Then
+            sIEFlag = "E"
+        Else
+            sIEFlag = "I"
+        End If
+        put_ldfee_rec rsDelD!lDelivery, _
+                          rsDelD!lLineNumber, _
+                          rsDelD!lNet, _
+                          sum_atax, _
+                          rsDelD!lProductLink, _
+                          sIEFlag
+                          
+        rsDelD.MoveNext
+    Loop
+    
+    If bTexasTax Or bTexasDiverted Then
+        dsl_fuel_group = sSysParm1055
+    Else
+        dsl_fuel_group = "NONE"
+    End If
+    monkey_the_numbers Trim(dsl_fuel_group), bTexasDiverted
+    
+    strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & CStr(lMovement) & " AND cTaxBasis = 'A'"
+    txMod_ExeCuteSQL strSQL, , , m_local
+    
+    For i = 0 To ldf_cnt
+        '#We do not need to populate Internal Loading Fees
+        If aryLDF(i).dv_nbr <> 0 And tfnRound(aryLDF(i).dv_atax, 2) <> 0 And aryLDF(i).dv_IE = "E" Then
+            '#Try to Get the same desc as 4GL does.
+            subGetATaxCodeDesc sTaxState, aryLDF(i).dv_vol, sTaxCode, sTaxDesc, fTaxRate
+            If aryLDF(i).dv_nbr * aryLDF(i).dv_atax < 0 Then
+                aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
+            End If
+            strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
+                     & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
+            strSQL = strSQL & CStr(lMovement) & ","
+            strSQL = strSQL & CStr(aryLDF(i).dv_nbr) & ","
+            strSQL = strSQL & CStr(aryLDF(i).dv_line) & ","
+            strSQL = strSQL & tfnSQLString(sTaxCode) & ","
+            strSQL = strSQL & tfnSQLString(sTaxDesc) & ","
+            strSQL = strSQL & aryLDF(i).dv_vol & ","
+            strSQL = strSQL & CStr(fTaxRate) & ","
+            strSQL = strSQL & tfnRound(aryLDF(i).dv_atax, 2) & ",'A')"
+            
+            txMod_ExeCuteSQL strSQL, , , m_local
+        End If
+    Next
+End Sub
+
+Private Sub subGetATaxCodeDesc(ByVal sState As String, ByVal lGal As Long, _
+                               ByRef sTxCode As String, ByRef sTaxDesc As String, ByRef fTaxRate As Double)
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    sTxCode = sState & "LDF"
+    sTaxDesc = "Loading Fees"
+    
+    strSQL = "SELECT tt_code,tt_descr,tt_rate,tt_limit FROM tx_table WHERE tt_level = 'S' AND tt_where = '" & sState & "' AND tt_charge = 'Y'"
+    strSQL = tfnFix_tx_table(strSQL) & " ORDER BY tt_limit DESC"
+    
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    ElseIf rsTemp.RecordCount = 0 Then
+        Exit Sub
+    End If
+    Do While Not rsTemp.EOF
+        If Abs(tfnRound(rsTemp!tt_limit)) >= Abs(lGal) Then
+            sTxCode = rsTemp!tt_code & ""
+            sTaxDesc = rsTemp!tt_descr & ""
+            fTaxRate = tfnRound(rsTemp!tt_rate, 2)
+            Exit Do
+        End If
+        rsTemp.MoveNext
+    Loop
+End Sub
+Private Sub start_ldfee_rec()
+    ldf_cnt = -1
+    ReDim aryLDF(0)
+End Sub
+Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
+                          ByVal dv_line As Long, _
+                          ByVal bunits As Long, _
+                          ByVal atax As Double, _
+                          ByVal prodlnk As Long, _
+                          ByVal sIE As String)
+    Dim rsTemp As Recordset
+    Dim sClass As String
+    Dim strSQL As String
+    
+    strSQL = "SELECT * FROM inv_header WHERE ivh_link = " & prodlnk
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If rsTemp Is Nothing Then
+        sClass = "*****"
+    ElseIf rsTemp.RecordCount = 0 Then
+        sClass = "*****"
+    Else
+        sClass = Trim(rsTemp!ivh_prodtcl & "")
+    End If
+    ldf_cnt = ldf_cnt + 1
+    ReDim Preserve aryLDF(ldf_cnt) As Loading_Fees
+    
+    aryLDF(ldf_cnt).dv_nbr = dv_nbr
+    aryLDF(ldf_cnt).dv_line = dv_line
+    aryLDF(ldf_cnt).dv_prodlnk = prodlnk
+    aryLDF(ldf_cnt).dv_prodtcl = sClass
+    aryLDF(ldf_cnt).dv_vol = bunits
+    aryLDF(ldf_cnt).dv_atax = atax
+    aryLDF(ldf_cnt).dv_IE = sIE
+
+End Sub
+
+'#Monkey around just like 4GL does so that we can match the
+'#T-Tax 4GL gives
+Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
+                               ByVal texas_diverted As Boolean)
+    Dim atax_tot        As Double
+    Dim atax_new        As Double
+    Dim atax_inv        As Double
+    Dim atax_wrk        As Double
+    Dim wrk_nbr         As Long
+    Dim gal_inv         As Double
+    Dim gal_wrk         As Double
+    Dim x               As Integer
+    Dim y               As Integer
+
+    '# New variables to loads of 10,000+
+    Dim low_end         As Long
+    Dim high_end        As Long
+    Dim incr_qty        As Long
+    Dim incr_amt        As Double
+
+    If ldf_cnt < 0 Then
+        Exit Sub
+    End If
+    '# Return if not Texas routine
+    If dsl_fuel_group = "NONE" Then
+        Exit Sub
+    End If
+     
+    Dim dsl_gals As Long
+    Dim gas_gals As Long
+    
+    On Error GoTo Stop_Monkey_Around
+    
+    dsl_gals = 0
+    gas_gals = 0
+    
+    For x = 0 To ldf_cnt
+        If Trim(aryLDF(x).dv_prodtcl) = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        Else
+            gas_gals = gas_gals + aryLDF(x).dv_vol
+        End If
+    Next
+    '# Return if LPG only
+    If gas_gals = 0 And dsl_gals = 0 Then
+        Exit Sub
+    End If
+
+    '# Add all of the 'A' tax amounts
+    atax_tot = 0
+    For x = 1 To ldf_cnt
+        atax_tot = atax_tot + tfnRound(aryLDF(x).dv_atax, 2)
+    Next
+    
+    If tfnRound(atax_tot, 2) = 0 And texas_diverted = False Then
+        Exit Sub
+    End If
+
+    '# Calculate Texas loading fees without prorating
+    wrk_nbr = 0
+    atax_new = 0
+    atax_inv = 0
+    gal_inv = 0
+    gas_gals = 0
+    dsl_gals = 0
+    x = -1
+    ReDim Preserve aryLDF(ldf_cnt + 10)
+    
+    Do While True
+        If tfnRound(atax_tot, 2) = 0 And texas_diverted Then
+            Exit Do
+        End If
+
+        x = x + 1
+        If x > ldf_cnt Then
+            aryLDF(x).dv_nbr = 0
+        End If
+        If wrk_nbr = 0 Then
+            wrk_nbr = aryLDF(x).dv_nbr
+        End If
+        If wrk_nbr <> aryLDF(x).dv_nbr Then
+            gal_wrk = Abs(gal_inv)
+            If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
+                gal_wrk = 8000
+            End If
+            If gal_wrk < 2500 Then
+                atax_inv = 10#
+            End If
+            If gal_wrk >= 2500 And gal_wrk < 5000 Then
+                atax_inv = 20#
+            End If
+            If gal_wrk >= 5000 And gal_wrk < 8000 Then
+                atax_inv = 30#
+            End If
+            If gal_wrk >= 8000 And gal_wrk < 10000 Then
+                atax_inv = 40#
+            End If
+            If gal_wrk >= 10000 Then
+                low_end = 10000
+                incr_qty = 5000
+                incr_amt = 20#
+                atax_inv = 40#
+                Do While True
+                    high_end = low_end + incr_qty
+                    atax_inv = atax_inv + incr_amt
+                    If gal_wrk >= low_end And gal_wrk < high_end Then
+                        Exit Do
+                    End If
+                    low_end = high_end
+                Loop
+            End If
+            atax_new = atax_new + atax_inv
+            wrk_nbr = aryLDF(x).dv_nbr
+            If wrk_nbr = 0 Then
+                Exit Do
+            End If
+            gal_inv = 0
+            gas_gals = 0
+            dsl_gals = 0
+        End If
+        gal_inv = gal_inv + aryLDF(x).dv_vol
+        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        Else
+            gas_gals = gas_gals + aryLDF(x).dv_vol
+        End If
+    Loop
+
+    '# Screw with the numbers only if new $ <= old $!
+    If atax_new > atax_tot Then
+        Exit Sub
+    End If
+
+    '# So, do it again, but this time save the numbers!
+    wrk_nbr = 0
+    atax_inv = 0
+    gal_inv = 0
+    gas_gals = 0
+    dsl_gals = 0
+    x = -1
+
+    Do While True
+        x = x + 1
+        If x > ldf_cnt Then
+            aryLDF(x).dv_nbr = 0
+        End If
+        If wrk_nbr = 0 Then
+            wrk_nbr = aryLDF(x).dv_nbr
+        End If
+        If wrk_nbr <> aryLDF(x).dv_nbr Then
+            gal_wrk = abs_value(gal_inv)
+            If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
+                gal_wrk = 8000
+            End If
+            If gal_wrk < 2500 Then
+                atax_inv = 10#
+            End If
+            If gal_wrk >= 2500 And gal_wrk < 5000 Then
+                atax_inv = 20#
+            End If
+            If gal_wrk >= 5000 And gal_wrk < 8000 Then
+                atax_inv = 30#
+            End If
+            If gal_wrk >= 8000 And gal_wrk < 10000 Then
+                atax_inv = 40#
+            End If
+            If gal_wrk >= 10000 Then
+                low_end = 10000
+                incr_qty = 5000
+                incr_amt = 20#
+                atax_inv = 40#
+                Do While True
+                    high_end = low_end + incr_qty
+                    atax_inv = atax_inv + incr_amt
+                    If gal_wrk >= low_end And gal_wrk < high_end Then
+                        Exit Do
+                    End If
+                    low_end = high_end
+                Loop
+            End If
+            atax_new = 0
+            If ldf_cnt > 0 Then
+                For y = 0 To ldf_cnt - 1
+                    If aryLDF(y).dv_nbr = wrk_nbr Then
+                        If gal_inv <> 0 Then
+                            atax_wrk = (aryLDF(y).dv_vol / gal_inv) * atax_inv
+                        Else
+                            atax_wrk = 0
+                        End If
+                        atax_wrk = tfnRound(atax_wrk, 2)
+                        aryLDF(y).dv_atax = atax_wrk
+                        atax_new = atax_new + atax_wrk
+                    End If
+                Next
+            End If
+            atax_wrk = atax_inv - atax_new
+            aryLDF(ldf_cnt).dv_atax = tfnRound(atax_wrk, 2)
+            wrk_nbr = aryLDF(x).dv_nbr
+            If wrk_nbr = 0 Then
+                Exit Do
+            End If
+            gal_inv = 0
+            gas_gals = 0
+            dsl_gals = 0
+        End If
+        gal_inv = gal_inv + aryLDF(x).dv_vol
+        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        Else
+            gas_gals = gas_gals + aryLDF(x).dv_vol
+        End If
+    Loop
+    Exit Sub
+Stop_Monkey_Around:
+    MsgBox "An Error Occurred In Calculating Loading Fees. Error Description: " & Err.Description
+End Sub
+
+'#based on the Total Gallons of the BOL, find the A Tax
+'#Then prorate it
+Private Sub subProrateBOLATax(ByVal lBOL As Long, _
+                              ByVal nLadDCnt As Integer, _
+                              ByRef bTexasLDFee As Boolean, _
+                              ByRef sTaxState As String)
+    Dim i As Integer
+    Dim j As Integer
+    Dim nLadDIdx As Integer
+    Dim lFuelAmount As Long
+    Dim lTaxableAmount As Long
+    Dim lGasAmount As Long
+    Dim sParm1055 As String
+    Dim fTaxes As Double
+    Dim fTaxRate As Double
+    Dim sTaxGroup As String
+    Dim nIdx As Integer
+    Dim lUnits() As Long
+    Dim fTypeATaxes() As Double
+    
+    Dim nSign As Integer
+    
+    If nInfoCount <= 0 Or nLadDCnt <= 0 Then
+        Exit Sub
+    End If
+    ReDim fTypeATaxes(nLadDCnt - 1) As Double
+    ReDim lUnits(nLadDCnt - 1) As Long
+    
+    sParm1055 = "NONE"
+    
+    For nLadDIdx = 0 To nLadDCnt - 1
+        nTaxItems = 0
+        lFuelAmount = 0
+        lGasAmount = 0
+        For nIdx = 0 To nInfoCount - 1
+            With aryTaxInfo(nIdx)
+                If .m_lInvoice = lBOL Then
+                    For i = 0 To .m_nRecord - 1
+                        If .m_Taxes(i).m_cCharge = vbKeyY Or .m_Taxes(i).m_cCharge = vbKeyC Then
+                            If .m_Taxes(i).m_cBasis = vbKeyA Then
+                                For j = 0 To nTaxItems - 1
+                                    If arryTaxSums(j).m_lTrn = .m_Taxes(i).m_lTrn Then
+                                        Exit For
+                                    End If
+                                Next j
+                                If j = nTaxItems Then
+                                    If UBound(arryTaxSums) < nTaxItems Then
+                                        ReDim Preserve arryTaxSums(UBound(arryTaxSums) + ARRAY_SIZE_INC)
+                                    End If
+                                    arryTaxSums(j).m_lTrn = .m_Taxes(i).m_lTrn
+                                    arryTaxSums(j).m_lLimit = .m_Taxes(i).m_lLimit
+                                    arryTaxSums(j).m_cBasis = .m_Taxes(i).m_cBasis
+                                    arryTaxSums(j).m_fAmount = .m_Taxes(i).m_dAmount
+                                    arryTaxSums(j).m_fRate = .m_Taxes(i).m_fRate
+                                    arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
+                                    nTaxItems = nTaxItems + 1
+                                Else
+                                    arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
+                                End If
+                                If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
+                                    sParm1055 = sSysParm1055
+                                    bTexasLDFee = True
+                                End If
+                            End If
+                        End If
+                    Next i
+                    
+                    sTaxGroup = fnGetTaxGroup(.m_InputParms.m_sProduct)
+                    
+                    If sTaxGroup <> sParm1055 Then
+                        lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
+                    End If
+                    
+                    lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
+                End If
+            End With
+        Next nIdx
+        If nTaxItems > 0 Then
+            nSign = 1
+            If lFuelAmount < 0 Then
+                nSign = -1
+                lFuelAmount = Abs(lFuelAmount)
+                lGasAmount = Abs(lGasAmount)
+            End If
+            lTaxableAmount = lFuelAmount
+            
+            If bTexasLDFee Then
+                If lGasAmount = lFuelAmount Then
+                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
+                        lTaxableAmount = 8000
+                    End If
+                End If
+            End If
+            fTypeATaxes(nLadDIdx) = arryTaxSums(nTaxItems - 1).m_lLimit
+            For i = 0 To nTaxItems - 1
+                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
+                    fTypeATaxes(nLadDIdx) = arryTaxSums(i).m_fRate * nSign
+                    Exit For
+                End If
+            Next i
+            
+            lUnits(nLadDIdx) = lFuelAmount * nSign
+        Else
+            fTypeATaxes(nLadDIdx) = 0
+        End If
+        
+    Next nLadDIdx
+    
+    If fTaxes <> 0 Then
+        'Now Need to redistribute to the individual line amount
+        For nLadDIdx = 0 To nLadDCnt - 1
+            If fTypeATaxes(nLadDIdx) <> 0 Then
+                If lUnits(nLadDIdx) = 0 Then
+                    fTaxRate = 0
+                Else
+                    fTaxRate = fTypeATaxes(nLadDIdx) / lUnits(nLadDIdx)
+                End If
+                For nIdx = 0 To nInfoCount - 1
+                    With aryTaxInfo(nIdx)
+                        If .m_lInvoice = lBOL Then
+                            For i = 0 To .m_nRecord - 1
+                                If .m_Taxes(i).m_cCharge = vbKeyY Then
+                                    If .m_Taxes(i).m_cBasis = vbKeyA Then
+                                            If .m_Taxes(i).m_dAmount <> 0 Then
+                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                sTaxState = .m_Taxes(i).m_sWhere
+                                            End If
+                                    End If
+                                End If
+                            Next i
+                        End If
+                    End With
+                Next nIdx
+            End If
+        Next nLadDIdx
+    End If
+End Sub
+
+Private Function txMod_ExeCuteSQL(strSQL As String, _
+                             Optional vCaller As Variant, _
+                             Optional vMsg As Variant, _
+                             Optional vDB As Variant) As Boolean
+
+    Dim objDB As DataBase
+    
+    If IsMissing(vDB) Then
+        Set objDB = t_dbMainDatabase
+    Else
+        Set objDB = vDB
+    End If
+
+    On Error GoTo errExecute
+    If objDB Is t_dbMainDatabase Then
+        txMod_ExeCuteSQL = objDB.ExecuteSQL(strSQL)
+    Else
+        objDB.Execute strSQL
+    End If
+    txMod_ExeCuteSQL = True
+extExecute:
+    On Error GoTo 0
+    Exit Function
+
+errExecute:
+    Dim bShow As Boolean
+    bShow = Not IsMissing(vMsg)
+    If IsMissing(vCaller) Then
+        tfnErrHandler "", strSQL, bShow
+    Else
+        tfnErrHandler CStr(vCaller), strSQL, bShow
+    End If
+    Err.Clear
+    txMod_ExeCuteSQL = False
+    Resume extExecute
+
+End Function
+
+Private Function txMod_OpenRecord(strSQL As String, _
+                              Optional vCaller As Variant, _
+                              Optional vMsg As Variant, _
+                              Optional vDB As Variant, _
+                              Optional bMoveLast As Boolean = True) As Recordset
+    ' Get records from the given SQL statement
+    Dim objDB As DataBase
+    Dim rsTemp As Recordset
+
+    If IsMissing(vDB) Then
+        Set objDB = t_dbMainDatabase
+    Else
+        Set objDB = vDB
+    End If
+    On Error GoTo SQLError
+    If objDB Is t_dbMainDatabase Then
+        Set rsTemp = objDB.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    Else
+        Set rsTemp = objDB.OpenRecordset(strSQL, dbOpenSnapshot)
+    End If
+    
+    If bMoveLast Then
+        If rsTemp.RecordCount > 0 Then
+            rsTemp.MoveLast
+            rsTemp.MoveFirst
+        End If
+    End If
+    
+    Set txMod_OpenRecord = rsTemp
+
+quitsub:
+    On Error GoTo 0
+    Exit Function
+
+SQLError:
+    Dim bShow As Boolean
+    bShow = Not IsMissing(vMsg)
+    If IsMissing(vCaller) Then
+        tfnErrHandler "", strSQL, bShow
+    Else
+        tfnErrHandler CStr(vCaller), strSQL, bShow
+    End If
+    Set txMod_OpenRecord = Nothing
+    Err.Clear
+    Resume quitsub
+End Function
+
+'#"End ATax Code Region" - 452155wj101304
+'#------------------------------------------------------------
+
 
