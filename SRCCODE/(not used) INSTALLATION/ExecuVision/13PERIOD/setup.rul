@@ -3,7 +3,7 @@
 // Installation script for the ExecuVision software release 3.00
 // Xijian, 9/7/199
 //
-//Setup log "EXVSETUP.TXT"
+//Setup log "13PSETUP.TXT"
 //
 //*******************************************************************
 //
@@ -77,6 +77,7 @@ declare
 
 // the script starts here
 program
+
 
 StartHere:
 	 
@@ -486,51 +487,52 @@ Finished:
 
 
 function SetupScreen()
-        number nDx, nDy;
+
+        	number nDx, nDy;
+
 begin
 
-        GetExtents( nDx, nDy );
-
-        Enable( INDVFILESTATUS );
-
-        INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;
-
-        //set installation header
-        if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
-                szMsg = "Installing " + PRODUCT_NAME;
-        else
-                szMsg = "Installing " + PRODUCT_NAME + "™";
-        endif; 
-
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-                szMsg = szMsg + "\nForced Installation";
-        endif;
-        szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
-        SetTitle(szMsg , 24, WHITE);
-
-        if (CMDLINE = "-A" || CMDLINE = "-a") then
-        	INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
+	GetExtents( nDx, nDy );
+	
+	Enable( INDVFILESTATUS );
+	
+	INSTALL_OPTION=PRODUCT_NAME + "\nVersion " + PRODUCT_VERSION;
+	
+	//set installation header
+	if (SetFont(FONT_TITLE, 0, "Arail") < 0) then
+	        szMsg = "Installing " + PRODUCT_NAME;
+	else
+	        szMsg = "Installing " + PRODUCT_NAME + "™";
+	endif; 
+	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+	        szMsg = szMsg + "\nForced Installation";
+	endif;
+	szMsg = szMsg + "\nVersion " + PRODUCT_VERSION;
+	SetTitle(szMsg , 24, WHITE);
+	
+	if (CMDLINE = "-A" || CMDLINE = "-a") then
+		INSTALL_OPTION=INSTALL_OPTION + "\n      FORCED INSTALLATION";
 		MessageBox("WARNING!  You are about to perform a " + "FORCED INSTALLATION of\n\n" + PRODUCT_NAME + " " + PRODUCT_VERSION
-                        + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
-                szForceInstall = "1 ";
-        else
-                szForceInstall = "0 ";
+	                + "\n\nThis will OVERWRITE ALL FILES associated with this program,\nand may effect the operation of other programs that use the same files.\n\nPress 'Cancel' on the next screen and \n'Exit Setup' if you do not wish to do this.", WARNING);
+	        szForceInstall = "1 ";
+	else
+	        szForceInstall = "0 ";
 	endif;
 
-        if( CreateFile( nvFileOut, WINSYSDIR, "EXVSETUP.TXT" ) < 0 ) then
-
-    		MessageBeep( 0 );
-                MessageBox( "EXVSETUP.TXT could not be opened", SEVERE );
-            abort;
+	if( CreateFile( nvFileOut, WINSYSDIR, "13PSETUP.TXT" ) < 0 ) then
+		MessageBeep( 0 );
+	        MessageBox( "13PSETUP.TXT could not be opened", SEVERE );
+	    abort;
 	else
-                LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
+	        LOGMSG=INSTALL_OPTION + " SETUP PARAM = " + CMDLINE;
 		LOGWRITE(LOGMSG);
 	endif;   
 
-        SetColor( BACKGROUND, BK_BLUE ); // Dark blue.
-        SetColor( STATUSBAR, BLUE );     // Bright blue.
-
-        Delay( 1 );
+	SetColor( BACKGROUND, BK_BLUE ); // Dark blue.
+	SetColor( STATUSBAR, BLUE );     // Bright blue.
+	
+	Delay( 1 );
 
 end;
         
