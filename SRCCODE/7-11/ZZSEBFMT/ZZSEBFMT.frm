@@ -1075,9 +1075,6 @@ Private Const t_szCAPTION_EXIT As String = "E&xit"
 Private Const t_szEXIT As String = "Exit"
 Private Const t_szCANCEL As String = "Cancel"
 
-Private sRxCnd As String
-Private sRxFmla As String
-
 Private Const t_szPRINT As String = "Print"
 Private Const t_szHELP As String = "Help"
 Private cValidate As cValidateInput
@@ -1660,8 +1657,8 @@ Private Sub tblComboDropDown_LostFocus()
     tgcDropdown.LostFocus tblComboDropdown
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgcDropdown.TableMouseUp Y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgcDropdown.TableMouseUp y
 End Sub
 
 Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -1737,7 +1734,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1997,12 +1994,8 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
             fnInvalidData = Not fnValidFormula(txtBox)
         Case txtCondition.TabIndex, txtAdjCond.TabIndex
             fnInvalidData = Not fnValidCondition(txtBox)
-        Case txtPercent.TabIndex, txtDollar.TabIndex, txtAmount1.TabIndex, txtAmount2.TabIndex
-            If t_nFormMode <> IDLE_MODE Then
-                If txtBox = "" Then
-                    txtBox = "0.00"
-                End If
-            End If
+        'Case txtPercent.TabIndex, txtDollar.TabIndex, txtAmount1.TabIndex, txtAmount2.TabIndex
+        '    fnInvalidData = False
         Case Else
             fnInvalidData = False
     End Select
@@ -2365,14 +2358,17 @@ Private Sub subEnterStageII()
         If txtBonusType.Caption <> "" Then
             subEnableVariables Trim(txtBonusType)
         End If
+        txtPercent = ""
     Else
         If fnLoadBonusFormula(txtBonusCode, txtLevel) Then
             cmdDelete.Enabled = True
         End If
     End If
-
-    subSetFocus txtPercent
     
+    subSetFocus txtPercent
+    If txtPercent.Enabled Then
+        SelectIt txtPercent
+    End If
 End Sub
 
 Private Function fnValidLevel(Box As Textbox) As Boolean
@@ -2436,6 +2432,11 @@ End Sub
 
 Private Sub txtPercent_LostFocus()
     cValidate.LostFocus txtPercent
+    
+    If txtPercent = "" Then
+        txtPercent = "0.00"
+    End If
+    
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
     End If
@@ -2468,6 +2469,11 @@ End Sub
 
 Private Sub txtDollar_LostFocus()
     cValidate.LostFocus txtDollar
+    
+    If txtDollar = "" Then
+        txtDollar = "0.00"
+    End If
+    
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
     End If
@@ -2500,6 +2506,10 @@ End Sub
 
 Private Sub txtAmount1_LostFocus()
     cValidate.LostFocus txtAmount1
+    If txtAmount1 = "" Then
+        txtAmount1 = "0.00"
+    End If
+    
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
     End If
@@ -2536,6 +2546,11 @@ End Sub
 
 Private Sub txtAmount2_LostFocus()
     cValidate.LostFocus txtAmount2
+    
+    If txtAmount2 = "" Then
+        txtAmount2 = "0.00"
+    End If
+    
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
     End If
@@ -2757,7 +2772,7 @@ Private Sub txtFormula_KeyPress(KeyAscii As Integer)
         subSetFocus txtCondition
         KeyAscii = 0
     Else
-        'tfnRegExpControlKeyPress txtFormula, KeyAscii, sRxFmla
+        tfnRegExpControlKeyPress txtFormula, KeyAscii, "^(P{1,80})$"
         cValidate.Keypress txtFormula, KeyAscii
     End If
 End Sub
@@ -2789,7 +2804,7 @@ Private Sub txtCondition_KeyPress(KeyAscii As Integer)
         subSetFocus txtAdjFormula
         KeyAscii = 0
     Else
-        'tfnRegExpControlKeyPress txtCondition, KeyAscii, sRxCnd
+        tfnRegExpControlKeyPress txtCondition, KeyAscii, "^(P{1,80})$"
         cValidate.Keypress txtCondition, KeyAscii
     End If
 End Sub
@@ -2821,7 +2836,7 @@ Private Sub txtAdjFormula_KeyPress(KeyAscii As Integer)
         subSetFocus txtAdjCond
         KeyAscii = 0
     Else
-        'tfnRegExpControlKeyPress txtAdjFormula, KeyAscii, sRxFmla
+        tfnRegExpControlKeyPress txtAdjFormula, KeyAscii, "^(P{1,80})$"
         cValidate.Keypress txtAdjFormula, KeyAscii
     End If
 End Sub
@@ -2857,7 +2872,7 @@ Private Sub txtAdjCond_KeyPress(KeyAscii As Integer)
         End If
         KeyAscii = 0
     Else
-        'tfnRegExpControlKeyPress txtAdjCond, KeyAscii, sRxCnd
+        tfnRegExpControlKeyPress txtAdjCond, KeyAscii, "^(P{1,80})$"
         cValidate.Keypress txtAdjCond, KeyAscii
     End If
 End Sub
@@ -2967,17 +2982,7 @@ Private Function fnValidFormula(Box As Textbox) As Boolean
         Exit Function
     End If
     
-    If Len(Trim(Box)) < 5 Then
-        cValidate.SetErrorMessage Box, "Invalid commission formula"
-        Exit Function
-    End If
-    
-    If Len(Trim(Box.Text)) > 80 Then
-        cValidate.SetErrorMessage Box, "Length exceeds 80 characters"
-        Exit Function
-    End If
-    
-    sErrMsg = fnCheckFormula(Box)
+    sErrMsg = fnCheckFormula(Box, txtBonusType)
     
     If sErrMsg <> "" Then
         cValidate.SetErrorMessage Box, sErrMsg
@@ -2991,6 +2996,8 @@ End Function
 Private Function fnValidCondition(Box As Textbox) As Boolean
     Const SUB_NAME As String = "fnValidCondition"
     
+    Dim sErrMsg As String
+    
     fnValidCondition = False
     
     If Box.Text = "" Then
@@ -2999,8 +3006,10 @@ Private Function fnValidCondition(Box As Textbox) As Boolean
         Exit Function
     End If
     
-    If Len(Trim(Box.Text)) > 80 Then
-        cValidate.SetErrorMessage Box, "Length exceeds 80 characters"
+    sErrMsg = fnCheckCondition(Box, txtBonusType)
+    
+    If sErrMsg <> "" Then
+        cValidate.SetErrorMessage Box, sErrMsg
         Exit Function
     End If
     
@@ -3045,26 +3054,6 @@ Private Sub subEnableVariables(sBonusType As String)
     
 errTrap:
     tfnErrHandler "subEnableVariables"
-End Sub
-
-Private Sub subBuildRegExp(nVariableInUse As Integer)
-    Dim i As Integer
-    Dim sVar As String
-
-    For i = 1 To nVariableInUse
-        sVar = sVar & CStr(i)
-    Next
-
-    sRxCnd = "^(((if)|(v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol))(([ ]))" 'First Position...
-    sRxFmla = "^(((v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol))(([ ]))"
-    For i = 0 To 40
-        sRxCnd = sRxCnd & "((v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol)|([-/+/*<>=/\(\)])|((if)|(when)|(and)|(or)))(([ ]))"
-        sRxFmla = sRxFmla & "((v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol)|([-/+/*<>=/\(\)])|((when)|(and)|(or)))(([ ]))"
-    Next
-    'Last Position...
-    sRxCnd = sRxCnd & "((v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol)|([-/+/*<>=/\(\)])|((if)|(when)|(and)|(or)))(([ ])))$"
-    sRxFmla = sRxFmla & "((v[" & sVar & "])|((amt)[12])|(pct)|(mxt)|(dol)|([-/+/*<>=/\(\)])|((when)|(and)|(or)))(([ ])))$"
-    
 End Sub
 
 Private Sub subEnableAddBtn(bOnOff As Boolean)
@@ -3256,8 +3245,8 @@ Private Sub tblEditSelect_LostFocus()
     tgmEditSelect.LostFocus
 End Sub
 
-Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    tgsEditSelect.MouseUp Button, Shift, Y
+Private Sub tblEditSelect_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    tgsEditSelect.MouseUp Button, Shift, y
 End Sub
 
 Private Sub tblEditSelect_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -3275,18 +3264,24 @@ Private Sub tblEditSelect_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, 
 End Sub
 
 'return error message if any
-Private Function fnCheckFormula(ByVal sFormula As String) As String
-    Const sOP As String = "+-*/()"
-    
+Private Function fnCheckFormula(ByVal sFormula As String, ByVal sBonusType As String) As String
     Dim i As Integer
-    Dim sTemp As String
-    Dim sTemp1 As String
-    Dim sChar As String
-    Dim nPosi As Integer
+    Dim sErrMsg As String
     Dim aryVariables As Variant
     Dim aryValues As Variant
     Dim objEvaluate As clsEquation
     
+    sFormula = LCase(Trim(sFormula))
+    
+    'check formula using bonus type
+    sErrMsg = fnCheckVarAllowed(sFormula, sBonusType)
+    
+    If sErrMsg <> "" Then
+        fnCheckFormula = sErrMsg
+        Exit Function
+    End If
+    
+    'start formula evaluation
     aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
     aryValues = Array(1.23, 4.56, 7.89, 2.34, 3.45, 5.67, 6.78, 8.91)
 
@@ -3305,57 +3300,130 @@ Private Function fnCheckFormula(ByVal sFormula As String) As String
 End Function
 
 'return error message if any
-Private Function fnCheckCondition(ByVal sCond As String) As String
-    Const sOP As String = "+-*/()"
-    
+Private Function fnCheckCondition(ByVal sCond As String, ByVal sBonusType As String) As String
     Dim i As Integer
     Dim sTemp As String
     Dim sTemp1 As String
-    Dim sChar As String
     Dim nPosi As Integer
-    Dim aryVariables As Variant
+    Dim aryCond As Variant
+    Dim aryOP As Variant
+    Dim aryInvalidOP As Variant
+    Dim sErrMsg As String
+    Dim bFoundOP As Boolean
     
-    aryVariables = Array("pct", "dol", "amt1", "amt2", "mxt", "v1", "v2", "v3")
+    sCond = LCase(Trim(sCond))
     
-    'remove condition operator
-    For i = 1 To Len(sCond)
-        sChar = Mid(sCond, i, 1)
-        If sChar <> " " Then
-            If InStr(sOP, sChar) <= 0 Then
-                sTemp = sTemp + Mid(sCond, i, 1)
-            End If
-        End If
-    Next i
-    
-    If sTemp = "" Then
-        fnCheckCondition = "variables is missing in condition"
+    If Len(sCond) < 4 Then
+        fnCheckCondition = "Condition clause is not correct"
         Exit Function
     End If
     
-    'remove variales
-    For i = 0 To UBound(aryVariables)
-        nPosi = InStr(sTemp, aryVariables(i))
-        If nPosi > 0 Then
+    If Left(sCond, 2) = "if" Then
+        sCond = Trim(Mid(sCond, 3))
+    End If
+    
+    If InStr(sCond, "if") > 0 Then
+        fnCheckCondition = "more than one 'if' found"
+        Exit Function
+    End If
+    
+    'check formula using bonus type
+    sErrMsg = fnCheckVarAllowed(sCond, sBonusType)
+    
+    If sErrMsg <> "" Then
+        fnCheckCondition = sErrMsg
+        Exit Function
+    End If
+    
+    aryCond = Array("and", "or", "not")
+    aryOP = Array("!=", "<>", "<=", ">=", "=", "<", ">")
+    aryInvalidOP = Array("! =", "< >", "< =", "> =")
+    
+    'check OP
+    sTemp = sCond
+    bFoundOP = False
+    For i = 0 To UBound(aryOP)
+        nPosi = InStr(sTemp, aryOP(i))
+        Do While nPosi > 0
             sTemp1 = ""
+            bFoundOP = True
+            'left part
             If nPosi > 1 Then
                 sTemp1 = Left(sTemp, nPosi - 1)
             End If
-            If nPosi < Len(sTemp) + Len(aryVariables(i)) Then
-                sTemp1 = sTemp1 + Mid(sTemp, nPosi + Len(aryVariables(i)))
+            sTemp1 = sTemp1 + "+"
+            'right part
+            If nPosi < Len(sTemp) Then
+                sTemp1 = sTemp1 + Mid(sTemp, nPosi + Len(aryOP(i)))
             End If
             sTemp = sTemp1
-        End If
-        
-        If sTemp = "" Then
-            Exit For
-        End If
+            nPosi = InStr(sTemp, aryOP(i))
+        Loop
     Next i
     
-    If sTemp <> "" Then
-        fnCheckCondition = "condition clause is not correct"
+    'check Cond
+    For i = 0 To UBound(aryCond)
+        nPosi = InStr(sTemp, aryCond(i))
+        Do While nPosi > 0
+            sTemp1 = ""
+            'left part
+            If nPosi > 1 Then
+                sTemp1 = Left(sTemp, nPosi - 1)
+            End If
+            sTemp1 = sTemp1 + "-"
+            'right part
+            If nPosi < Len(sTemp) Then
+                sTemp1 = sTemp1 + Mid(sTemp, nPosi + Len(aryCond(i)))
+            End If
+            sTemp = sTemp1
+            nPosi = InStr(sTemp, aryCond(i))
+        Loop
+    Next i
+    
+    sErrMsg = fnCheckFormula(sTemp, sBonusType)
+    
+    If sErrMsg = "" Then
+    End If
+    
+    If sErrMsg <> "" Then
+        fnCheckCondition = sErrMsg
         Exit Function
     End If
     
     fnCheckCondition = ""
 End Function
 
+Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As String
+    Dim sInvalidVar As String
+    Dim aryInvalidVar() As String
+    Dim i As Integer
+    
+    'check formula using bonus type
+    'vaid bonus type format: T[123][ECX]
+    If Len(sBonusType) = 3 Then
+        Select Case tfnRound(Mid(sBonusType, 2, 1))
+        Case 1
+            sInvalidVar = sInvalidVar + "v2,v3"
+        Case 2
+            sInvalidVar = sInvalidVar + "v3"
+        End Select
+    
+        If UCase(Right(sBonusType, 1)) <> "E" Then
+            sInvalidVar = sInvalidVar + ",mxt"
+        End If
+    End If
+    
+    aryInvalidVar = Split(sInvalidVar, ",")
+    
+    For i = 0 To UBound(aryInvalidVar)
+        If aryInvalidVar(i) <> "" Then
+            If InStr(sFormula, aryInvalidVar(i)) > 0 Then
+                fnCheckVarAllowed = tfnSQLString(aryInvalidVar(i)) + _
+                    " is not valid for Bonus Type " + tfnSQLString(sBonusType)
+                Exit Function
+            End If
+        End If
+    Next i
+
+    fnCheckVarAllowed = ""
+End Function
