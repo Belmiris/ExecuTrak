@@ -1,3 +1,14 @@
+''''''''''''''''' DONE - 3.26.0013 - 12/03/2002 ''''''''''''''''''''''''
+version: 3.26.0013 davidc
+Date: 11/22/2002
+#383715
+
+Description: 
+	Program is fixed so that Company Name would appear on top of the report 
+	each time they print the "Journal Entry Listing" report.
+
+	add new table called co_company_name.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ''''''''''''''''' DONE - 3.26.0012 - 09/26/2002 ''''''''''''''''''''''''
 version: 3.26.0012 davidc
 Date: 09/13/2002
