@@ -12,7 +12,7 @@ del ..\disk\*.z
 
 echo .
 echo call DISKBILD.BAT
-call buildlog.bat pioneer %1
+call buildlog.bat PIONEER %1
 
 echo .
 echo Compress all files to factbin.z

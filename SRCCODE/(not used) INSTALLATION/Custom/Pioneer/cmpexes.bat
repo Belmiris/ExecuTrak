@@ -11,7 +11,7 @@ echo Compress Application files
 
 echo .
 echo call DISKBILD.BAT
-call buildlog.bat %1
+call buildlog.bat PIONEER %1
 
 echo .
 echo Compress all files in appfiles directory to factbin.z
