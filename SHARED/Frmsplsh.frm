@@ -317,6 +317,7 @@ Option Explicit
     Private Const PARM_YIELDPROC = "YieldProc"
     Private Const PARM_CB = "CursorBehavior"
     
+    Private Const FACTOR_REGISTER = "Software\Factor\ExecTrak\"
     Private Const szODBC_REG_KEY1 = ".Default\Software\ODBC\ODBC.INI\"
     Private Const szODBC_REG_KEY2 = "Software\ODBC\ODBC.INI\"
     Private Const HKEY_CLASSES_ROOT = &H80000000
@@ -362,6 +363,16 @@ Option Explicit
     
     Private Declare Function RegCloseKey Lib "advapi32.dll" _
         (ByVal hKey As Long) As Long
+    
+    Private Declare Function RegCreateKeyEx Lib "advapi32.dll" Alias "RegCreateKeyExA" _
+        (ByVal hKey As Long, _
+         ByVal lpSubKey As String, _
+         ByVal Reserved As Long, _
+         ByVal lpClass As String, _
+         ByVal dwOptions As Long, _
+         ByVal samDesired As Long, _
+         lpSecurityAttributes As Long, _
+         phkResult As Long, lpdwDisposition As Long) As Long
     
     Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" _
         (ByVal hKey As Long, _
@@ -410,6 +421,14 @@ Option Explicit
         lpData As Any, _
         lpcbData As Long) As Long
         
+    Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" _
+        (ByVal hKey As Long, _
+         ByVal lpValueName As String, _
+         ByVal Reserved As Long, _
+         ByVal dwType As Long, _
+         ByVal lpData As String, _
+         ByVal cbData As Long) As Long         ' Note that if you declare the lpData parameter as String, you must pass it By Value.
+    
     Private Declare Function GetPrivateProfileSection Lib "kernel32" Alias "GetPrivateProfileStringA" ( _
         ByVal lpApplicationName As String, _
         ByVal lpKeyName As Long, _
@@ -417,6 +436,9 @@ Option Explicit
         ByVal lpReturnedString As String, _
         ByVal nSize As Long, _
         ByVal lpFileName As String) As Long
+
+    Private Declare Function RegisterDll Lib "REGDLL.DLL" _
+        Alias "RegisterDLL" (ByVal sPathName As String) As Long
 
 Private Function fnAllBoxFilled() As Boolean
 
@@ -496,7 +518,110 @@ Private Function QueryValue(ByVal lKey As Long, _
 End Function
 
 
-Private Function fnNeedFocus(txtBox As TextBox) As Boolean
+Public Function RegisterDll(sPathName As String, bCheck As Boolean) As Boolean
+
+    Dim sRegDateTime As String
+    Dim lRegSize As Long
+    Dim sFileDateTime As String
+    Dim lFileSize As Long
+    Dim sKeySize As String
+    Dim sKeyDate As String
+    
+    On Error GoTo errRegDll
+    sKeySize = fnExtractName(sPathName) & "Size"
+    sKeyDate = fnExtractName(sPathName) & "DateTime"
+    lFileSize = FileLen(sPathName)
+    sFileDateTime = Trim(FileDateTime(sPathName))
+    If bCheck Then
+        lRegSize = Val(QueryValue(HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeySize))
+        If lRegSize = lFileSize Then
+            sRegDateTime = Trim(QueryValue(HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate))
+            If sRegDateTime = sFileDateTime Then
+                fnRegisterDll = True
+                Exit Function
+            End If
+        End If
+    End If
+    If RegisterDll(sPathName) = 0 Then
+        fnRegisterDll = True
+        RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeySize, REG_SZ, lFileSize
+        RegSetValue HKEY_LOCAL_MACHINE, FACTOR_REGISTER, sKeyDate, REG_SZ, sFileDateTime
+    Else
+        fnRegisterDll = False
+    End If
+    Exit Function
+errRegDll:
+'    If Err.Number = 53 Then
+'        MsgBox "OLE server file: '" & sPathName & "' not found. Please contact Factor."
+'    Else
+'        MsgBox "Can not register OLE server (" & sPathName & "). Please contact Factor."
+'    End If
+End Function
+
+Private Function RegSetValue(ByVal lKey As Long, _
+                            sKeyName As String, _
+                            sValueName As String, _
+                            ByVal lType As Long, _
+                            ByVal sValue As String) As Boolean
+
+    Dim lRetVal As Long         'result of the API functions
+    Dim hKey As Long         'handle of opened key
+    Dim vValue As String      'setting of queried value
+    Dim cbData As Long
+    
+    RegSetValue = False
+'    lRetVal = RegOpenKeyEx(lKey, sKeyName, 0, KEY_ALL_ACCESS, hKey)
+    lRetVal = RegCreateKeyEx(lKey, sKeyName, 0, 0, REG_OPTION_VOLATILE, KEY_ALL_ACCESS, 0, hKey, cbData)
+    If lRetVal = 0 Then
+        If lType >= 0 Then
+            If lType = REG_DWORD Then
+                vValue = Chr(sValue)
+                cbData = 4
+            Else
+                vValue = sValue & Chr(0)
+                cbData = Len(vValue)
+            End If
+            lRetVal = RegSetValueEx(hKey, sValueName, 0, lType, vValue, cbData)
+            If lRetVal = 0 Then
+                RegSetValue = True
+            End If
+        End If
+        RegCloseKey (hKey)
+    End If
+End Function
+
+Private Function fnExtractName(sFile As String) As String
+    
+    Dim nPos As Integer
+    Dim sTemp As String
+    
+    nPos = Len(sFile)
+    Do While nPos > 0
+        If Mid(sFile, nPos, 1) = "\" Then
+            Exit Do
+        End If
+        nPos = nPos - 1
+    Loop
+    nPos = Len(sFile) - nPos
+    If nPos > 0 Then
+        sTemp = Right(sFile, nPos)
+    End If
+    nPos = Len(sTemp)
+    Do While nPos > 0
+        If Mid(sTemp, nPos, 1) = "." Then
+            Exit Do
+        End If
+        nPos = nPos - 1
+    Loop
+    If nPos > 1 Then
+        fnExtractName = Left(sTemp, nPos - 1)
+    Else
+        fnExtractName = sTemp
+    End If
+    
+End Function
+
+Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -553,7 +678,7 @@ Private Sub subLoadDSSection(aryDS() As String, _
     End If
 End Sub
 
-Private Sub subSelectText(txtBox As TextBox)
+Private Sub subSelectText(txtBox As Textbox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
