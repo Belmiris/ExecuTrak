@@ -502,8 +502,13 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
     
     fnSaveChangedKeys
 '    fnSaveBookMarks Bookmark(GetCurrentRowNumber)
-    m_nOldValue = GridArray(ColIndex, lEditingRow)
-
+    'david 01/24/2001
+    If KeyAscii <> -1 Then
+        m_nOldValue = GridArray(ColIndex, lEditingRow)
+    Else
+        KeyAscii = 0
+    End If
+    
     nCellChanged(nCol, lEditingRow) = STATUS_CHANGED
     GridArray(nFlagColumn, lEditingRow) = ROW_EDITED
     

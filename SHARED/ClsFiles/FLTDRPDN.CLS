@@ -1453,7 +1453,9 @@ Private Sub fnGetText(nCol As Integer)
             With colColumn.Item(i)
                 If .ColumnIndex < EXTRACOLUMNOFFSET Then
                     If Not m_clsEdit Is Nothing Then
-                        m_clsEdit.BeforeColEdit .ColumnIndex, 0, False
+                        'david 01/24/2001
+                        'm_clsEdit.BeforeColEdit .ColumnIndex, 0, False
+                        m_clsEdit.BeforeColEdit .ColumnIndex, -1, False
                     End If
                     If IsNull(datLink.Recordset(.DataField)) Then
                         tgMain.Columns(.ColumnIndex).Text = ""
