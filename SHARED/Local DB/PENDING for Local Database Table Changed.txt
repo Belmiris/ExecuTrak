@@ -1,3 +1,21 @@
+version: 3.26.????
+Date: 01/25/2002
+Description: 
+	Papco Fuel Movement Additonal Freight Charges Enhancement.
+
+	add new table zzpc_fm_charges
+
+CREATE TABLE zzpc_fm_charges (
+zzpcfm_movement      Long,
+zzpcfm_vendor_nbr    Long,
+zzpcfm_bl_nbr        Long,
+zzpcfm_prodlnk       Long,
+zzpcfm_invoice       Long,
+zzpcfm_amount        Double,
+zzpcfm_cost          Double
+zzpcfm_dv_prodlnk    Long);
+
+
 ''''''''''''''''' DONE - 3.26.0004 - 01/17/2002 ''''''''''''''''''''''''
 version: 3.26.????
 Date: 01/07/2002
