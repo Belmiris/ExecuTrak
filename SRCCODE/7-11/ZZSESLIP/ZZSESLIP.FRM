@@ -735,6 +735,14 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'***********************************************************'
+'
+' Copyright (c) 1996 FACTOR, A Division of W.R.Hess Company
+'
+' Module name   : ZZSESLIP.FRM
+' Date          : January 29, 2001
+' Programmer(s) : Junsong Qiu
+' This module is used to maintain the employee slip off.
 
 
 Option Explicit
@@ -1298,7 +1306,7 @@ Private Sub tfnResetScreen()
     cvalidate.ResetFlags
     tgmSlip.ClearData
     nDataStatus = DATA_INIT
-    subSetFocus cmdAddBtn
+    subSetFocus cmdaddbtn
     subHideHourGlass
     DoEvents
     
@@ -1440,7 +1448,7 @@ Private Sub subInitErrorHandler()
 End Sub
 
 Private Sub subEnableAddBtn(bOnOff As Boolean)
-    cmdAddBtn.Enabled = bOnOff
+    cmdaddbtn.Enabled = bOnOff
     mnuAdd.Enabled = bOnOff
 End Sub
 
@@ -1451,7 +1459,7 @@ End Sub
 
 Private Sub subEnableDeleteBtn(bOnOff As Boolean)
     cmdDeleteBtn.Enabled = bOnOff
-    mnuDelete.Enabled = bOnOff
+    mnudelete.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableRefreshBtn(bOnOff As Boolean)
