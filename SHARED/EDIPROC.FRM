@@ -37,6 +37,8 @@ Private m_AppPath As String
 Private m_frmParent As Form
 Private m_lstLog As ListBox
 
+Private m_ProgramPath As String
+
 'GENERAL
 Private m_MessageType As String
 Private m_WorkPath As String
@@ -147,16 +149,18 @@ Public Function LaunchEDIPROC() As String
     
     
     Dim dfTimer As Single, sExeFile As String, sMsg As String
-    Dim dfBeginRun As Single, sParm As String, sProgramPath As String
+    Dim dfBeginRun As Single, sParm As String
     Dim sFile As String, bDone As Boolean
 
+    m_ProgramPath = ""
+    
     m_ErrorMessage = ""
     
     'get the EDIPROC program path from factor.ini
-    sProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, szFACTOR_INI))
+    m_ProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, szFACTOR_INI))
     
-    If sProgramPath <> "" Then
-        sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+    If m_ProgramPath <> "" Then
+        sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
         sFile = Dir(sExeFile)
@@ -165,8 +169,8 @@ Public Function LaunchEDIPROC() As String
     
     If sFile = "" Then
         'search local bin
-        sProgramPath = sLocalBin
-        sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+        m_ProgramPath = sLocalBin
+        sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
         sFile = Dir(sExeFile)
@@ -174,8 +178,8 @@ Public Function LaunchEDIPROC() As String
         
         If sFile = "" Then
             'search remote bin
-            sProgramPath = sRemoteBin
-            sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+            m_ProgramPath = sRemoteBin
+            sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
             On Error Resume Next
             sFile = ""
             sFile = Dir(sExeFile)
@@ -186,7 +190,7 @@ Public Function LaunchEDIPROC() As String
     If sFile = "" Then
         cdlgOpen.Filter = "EDI Translator Program (" + sEDIPROC_EXE + ")|" + sEDIPROC_EXE
         On Error Resume Next
-        cdlgOpen.InitDir = sProgramPath
+        cdlgOpen.InitDir = m_ProgramPath
         cdlgOpen.FileName = ""
         On Error GoTo 0
         
@@ -210,17 +214,17 @@ Public Function LaunchEDIPROC() As String
             End If
         Loop Until bDone
         
-        sProgramPath = fnGetPath(sExeFile)
+        m_ProgramPath = fnGetPath(sExeFile)
         
         'update the EDIPROC program path to factor.ini
-        tfnWriteINI sSECTION_EDIXLATOR, sKEY_PROGRAM, sProgramPath, szFACTOR_INI
+        tfnWriteINI sSECTION_EDIXLATOR, sKEY_PROGRAM, m_ProgramPath, szFACTOR_INI
     End If
     
     'validate EDIPROC files
     'Database
     On Error Resume Next
     sFile = ""
-    sFile = Dir(fnAddBkSlash(sProgramPath) + sEDIPROC_MDB)
+    sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
     On Error GoTo 0
     
     If sFile = "" Then
@@ -233,7 +237,7 @@ Public Function LaunchEDIPROC() As String
     'INI
     On Error Resume Next
     sFile = ""
-    sFile = Dir(fnAddBkSlash(sProgramPath) + sEDIPROC_INI)
+    sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI)
     On Error GoTo 0
     
     If sFile = "" Then
@@ -310,7 +314,7 @@ End Function
 Private Function fnCheckEdiProcError() As String
     Const SUB_NAME As String = "fnCheckEdiProcError"
     
-    Dim dbEDI As Database
+    Dim dbEDI As DataBase
     Dim sSql As String
     Dim rsTemp As Recordset
     Dim sFileName As String
@@ -318,7 +322,7 @@ Private Function fnCheckEdiProcError() As String
     
     fnCheckEdiProcError = ""
     
-    sFileName = m_AppPath + "EDIXLATE.MDB"
+    sFileName = m_ProgramPath + "EDIXLATE.MDB"
     
     Set dbEDI = tfnOpenEdiXlateDatabase(sFileName)
     
@@ -352,7 +356,7 @@ Private Function fnCheckEdiProcError() As String
     fnCheckEdiProcError = sErrMsg
 End Function
 
-Private Function tfnOpenEdiXlateDatabase(sDatabaseNamePath As String) As Database
+Private Function tfnOpenEdiXlateDatabase(sDatabaseNamePath As String) As DataBase
     
     On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
 
@@ -375,7 +379,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnGetEdiXlateRecord(rsTemp As Recordset, strSQL As String, _
-                            dbLocal As Database, sCalledFrom As String, _
+                            dbLocal As DataBase, sCalledFrom As String, _
                             Optional bShowError, _
                             Optional vMoveLast) As Long
 
