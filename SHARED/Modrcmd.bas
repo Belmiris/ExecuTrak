@@ -77,20 +77,20 @@ End Function
 Private Function fnDBPath() As String
     Dim sDBPath As String
     Dim sStatus As String
-    Dim i As Integer
+    Dim I As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
-    i = Len(sDBPath)
+    I = Len(sDBPath)
     sStatus = " "
-    While i > 0 And sStatus <> "/"
-        sStatus = Mid(sDBPath, i, 1)
-        i = i - 1
+    While I > 0 And sStatus <> "/"
+        sStatus = Mid(sDBPath, I, 1)
+        I = I - 1
     Wend
-    If i > 0 Then
-        fnDBPath = Left(sDBPath, i)
+    If I > 0 Then
+        fnDBPath = Left(sDBPath, I)
     Else
         fnDBPath = sDBPath
     End If
@@ -158,7 +158,8 @@ Public Function fnExecute4GE(sCmdLine As String, _
             fnExecute4GE = True
         Else
             fnExecute4GE = False
-            tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, "Failed to execute 4ge program" & vbCrLf & sTemp & vbCrLf & "Command line string:" & sCmd
+            'comment out by junsong, we don't need show message two times. 11/30/00
+            'tfnErrHandler SUB_NAME, ERR_MSG_RUN4GE, "Failed to execute 4ge program" & vbCrLf & sTemp & vbCrLf & "Command line string:" & sCmd
         End If
     Else
         sCmd = "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;cd " & sDBPath & ";" _
@@ -302,6 +303,8 @@ Private Function fnRunRCmd(sHost As String, _
         RCmdClose nCode
         If sErrMsg <> "" Then
             tfnErrHandler SUB_NAME, ERR_MSG_RETURNED, "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
+            'add following statement by junsong 11/30/00 to return error message
+            fnRunRCmd = sErrMsg
         End If
     End If
     
