@@ -1014,7 +1014,7 @@ End Sub
 
 Public Sub KeyPress(tgTable As Object, KeyAscii As Integer)
     If Not t_dbMainDatabase Is Nothing Then
-        If frmParent.ActiveControl Is tgMain Then
+        If frmParent.ActiveControl Is tgMain And tgTable Is tgDropDown Then
             'Work arround for true grid problems
             On Error Resume Next
             If IsNumeric(Chr(KeyAscii)) Then
