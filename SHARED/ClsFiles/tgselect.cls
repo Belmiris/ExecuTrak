@@ -172,6 +172,11 @@ Public Sub Delete(Optional vRowIndex As Variant)
                 nRow = Val(m_tgTable.SelBookmarks.Item(i))
                 vBkMark(i) = m_tgcEditor.Bookmark(nRow)
             Next
+            
+            'david 09/17/2003  #412827-4
+            subSortArray vBkMark
+            ''''''''''''''''''''''''''''
+            
             For i = Count - 1 To 0 Step -1
                 m_tgcEditor.DeleteRow vBkMark(i), False
             Next
@@ -223,7 +228,7 @@ Public Sub Click()
                         End If
                     End If
                 End If
-                m_tgTable.Col = m_nIdleColumn
+                m_tgTable.col = m_nIdleColumn
             End If
         End If
     End If
@@ -315,13 +320,13 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
         'fixed the highlighting problem
         'when focus is in last editable cell and right arrow key is pressed
         'or when focus is in first editable cell and left arrow key is pressed
-        ElseIf KeyCode = vbKeyLeft And m_tgTable.Col = m_tgcEditor.FirstEditableCol Then
+        ElseIf KeyCode = vbKeyLeft And m_tgTable.col = m_tgcEditor.FirstEditableCol Then
             If nRow <= 0 Then
                 Exit Function
             End If
             
             nRow = nRow - 1
-        ElseIf KeyCode = vbKeyRight And m_tgTable.Col = m_tgcEditor.LastEditableCol Then
+        ElseIf KeyCode = vbKeyRight And m_tgTable.col = m_tgcEditor.LastEditableCol Then
             If nRow >= m_tgcEditor.RowCount Then
                 Exit Function
             End If
@@ -338,14 +343,14 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
             m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
             
             If m_tgcEditor.FirstEditableCol >= 0 Then
-                m_tgTable.Col = m_tgcEditor.FirstEditableCol
+                m_tgTable.col = m_tgcEditor.FirstEditableCol
             End If
         ElseIf KeyCode = vbKeyEnd Then
             nRow = m_tgcEditor.RowCount - 1
             m_tgTable.Bookmark = m_tgcEditor.MakeBookmark(nRow)
             
             If m_tgcEditor.LastEditableCol >= 0 Then
-                m_tgTable.Col = m_tgcEditor.LastEditableCol
+                m_tgTable.col = m_tgcEditor.LastEditableCol
             End If
         End If
     ElseIf bAltDown Then
@@ -946,4 +951,29 @@ Private Sub Class_Terminate()
     Set m_tgcSelector = Nothing
 End Sub
 
+'david 09/17/2003  #412827-4
+Private Sub subSortArray(v())
+    Dim lRow As Long
+    Dim j As Long
+    Dim k As Long
+    
+    Dim vTemp As Variant
+    Dim bSwapped As Boolean
+    
+    On Error GoTo errTrap
+    
+    lRow = UBound(v)
+    
+    For j = 0 To lRow
+        For k = j + 1 To lRow - 1
+            If tfnRound(v(j)) > tfnRound(v(k)) Then
+                vTemp = v(j)
+                v(j) = v(k)
+                v(k) = vTemp
+            End If
+        Next k
+    Next j
 
+errTrap:
+    'do nothing
+End Sub
