@@ -737,6 +737,7 @@ Private m_sOriginalSQL As String
 Private m_sCriteria As String
 Private m_sOrderBy As String
 Private m_sReturnSQL As String
+Private m_bOrderByRequired As Boolean
 
 Private Const t_szCANCEL As String = "Cancel"
 Private Const t_szOk As String = "OK"
@@ -1340,6 +1341,61 @@ Public Function PrefixTableName(ByVal strSQL As String, ParamArray aryFieldPrefi
     PrefixTableName = sTemp
 End Function
 
+Property Let OrderByRequired(bYesNo As Boolean)
+    m_bOrderByRequired = bYesNo
+End Property
+
+Property Get OrderByRequired() As Boolean
+    OrderByRequired = m_bOrderByRequired
+End Property
+
+'returns A for Ascending or D for Descending, "" for no sort
+Property Get SortOrder(vColIndexColName As Variant) As String
+    Dim sColName As String
+    Dim lRow As Long
+    
+    With tgmCriteria
+        If VarType(vColIndexColName) = vbString Then
+            sColName = fnCStr(vColIndexColName)
+            
+            If sColName = "" Then
+                MsgBox "Column Name is required.", vbCritical
+                Exit Property
+            End If
+            
+            For lRow = 0 To .RowCount - 1
+                If .CellValue(nCol_ColumnName, lRow) = sColName Then
+                    SortOrder = fnCStr(.CellValue(nCol_Sort, lRow))
+                    
+                    If SortOrder = "" And m_bOrderByRequired Then
+                        SortOrder = fnCStr(.CellValue(nCol_DefaultSort, lRow))
+                    End If
+                    
+                    Exit Property
+                End If
+            Next
+            
+            If lRow > .RowCount - 1 Then
+                MsgBox "Column Name '" + sColName + "' not found.", vbCritical
+                Exit Property
+            End If
+        Else
+            lRow = vColIndexColName
+            
+            If lRow < 0 Or lRow > .RowCount - 1 Then
+                MsgBox "Column Index '" & lRow & "' is not valid.", vbCritical
+                Exit Property
+            End If
+            
+            SortOrder = fnCStr(.CellValue(nCol_Sort, lRow))
+            
+            If SortOrder = "" And m_bOrderByRequired Then
+                SortOrder = fnCStr(.CellValue(nCol_DefaultSort, lRow))
+            End If
+        End If
+    End With
+End Property
+
 Private Sub cmdClearAll_Click()
     If Not tfnCancelExit("Are you sure you want to clear the Filters and Sort Options?") Then
         Screen.MousePointer = vbDefault
@@ -1785,15 +1841,19 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
                     Exit For
                 End If
                 
-                If .CellValue(nCol_Enabled, i) And fnCStr(.CellValue(nCol_Sort, i)) <> "" Then
-                    If sOrderBy = "" Then
-                        sOrderBy = "ORDER BY " & sColumnName
-                    Else
-                        sOrderBy = sOrderBy & ", " & sColumnName
-                    End If
-                    
-                    If fnCStr(.CellValue(nCol_Sort, i)) = "D" Then
-                        sOrderBy = sOrderBy & " DESC"
+                If .CellValue(nCol_Enabled, i) Then
+                    If fnCStr(.CellValue(nCol_Sort, i)) <> "" Or m_bOrderByRequired Then
+                        If sOrderBy = "" Then
+                            sOrderBy = "ORDER BY " & sColumnName
+                        Else
+                            sOrderBy = sOrderBy & ", " & sColumnName
+                        End If
+                        
+                        If fnCStr(.CellValue(nCol_Sort, i)) = "D" Then
+                            sOrderBy = sOrderBy & " DESC"
+                        ElseIf fnCStr(.CellValue(nCol_DefaultSort, i)) = "D" Then
+                            sOrderBy = sOrderBy & " DESC"
+                        End If
                     End If
                 End If
             End If
@@ -1870,6 +1930,12 @@ Private Sub tblCriteria_GotFocus()
         If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, lRow) Then
             m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
             Exit Sub
+        Else
+            'override the 'Data is valid' message
+            If tgmCriteria.ValidCell(nCol_Sort, lRow) Then
+                m_frmParent.tfnSetStatusBarMessage "Enter Sort Opt:(A)scending/(D)escending. Click on" _
+                    + " 'Filter' col to enter/change sel. criteria"
+            End If
         End If
     End If
     
@@ -1934,6 +2000,12 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
         ElseIf tblCriteria.Col = nCol_Sort Then
             If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, tgmCriteria.GetCurrentRowNumber) Then
                 m_frmParent.tfnSetStatusBarMessage "Click on 'Filter' column to enter/change selection criteria"
+            Else
+                'override the 'Data is valid' message
+                If tgmCriteria.ValidCell(nCol_Sort, lRow) Then
+                    m_frmParent.tfnSetStatusBarMessage "Enter Sort Opt:(A)scending/(D)escending. Click on" _
+                        + " 'Filter' col to enter/change sel. criteria"
+                End If
             End If
         End If
     
