@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBCMT 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Commission Code File Maintenance"
@@ -628,7 +628,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -665,7 +665,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -702,7 +702,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -739,7 +739,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -776,7 +776,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -885,7 +885,7 @@ Begin VB.Form frmZZSEBCMT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.46
+                  Size            =   9.6
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -924,7 +924,7 @@ Begin VB.Form frmZZSEBCMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -937,7 +937,7 @@ Begin VB.Form frmZZSEBCMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.59
+         Size            =   9.6
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1191,6 +1191,7 @@ Private Const nCOLBCOVERRIDE As Integer = 5
 Private Const nCOLBGLEVEL As Integer = 2
 
 Private nxColBCDuplicates As Integer
+Private nxColCalcMethod As Integer
 
 Private nxColBGOldLevel As Integer
 Private nxColBGDuplicates As Integer
@@ -1604,21 +1605,17 @@ Private Sub cmdEditBtn_Click(Index As Integer)
     subEnableUpdateBtn False, Index
     subEnableRefreshBtn False, Index
     subEnableCancel True, Index
+    
     If Index = nBONUSCODE Then
         eTabMain.TabEnabled(TABBONUSGRADE) = False
     ElseIf Index = nGRADE Then
         eTabMain.TabEnabled(TABBONUSCODE) = False
     End If
     
-'    subInitSpreadsheets Index
-'    subSetFloatingDropDown Index
     With tgmBonus(Index)
-        If Index = nBONUSCODE Then
-            .RemoveEditColumn nCOLCODE
-        Else
-            .RemoveEditColumn nCOLCODE
-        End If
+        .RemoveEditColumn nCOLCODE
     End With
+    
     tgmBonus(Index).AllowAddNew = False
     
     tblBonus(Index).Enabled = True
@@ -1630,7 +1627,6 @@ Private Sub cmdEditBtn_Click(Index As Integer)
     
     subSetFocus tblBonus(Index)
     If Not fnLoadData(Index) Then
-        'cmdTBCancel_Click Index
         tblBonus(Index).Enabled = False
     End If
     
@@ -2154,6 +2150,7 @@ Private Sub subInitSpreadsheets(Index As Integer)
             .AddEditColumn nCOLBCFREQ, "Enter Commission Frequency", szCommFreqPattern
             .AddEditColumn nCOLBCOVERRIDE, "Override the amount of this pay code in payroll (Y or N)", "^[YNyn]$"
             nxColBCDuplicates = .AddHiddenField("duplicates")
+            nxColCalcMethod = .AddHiddenField("prpa_calc_method")
             .ColumnForNewRow = 0
             .RemoveEditColumn nCOLCODE
         Else  'nGRADE
@@ -2405,7 +2402,11 @@ Private Function fnValidBonusCode(szText As String, ByVal lRow As Long, _
     tgmBonus(nBONUSCODE).CellValue(nxColBCDuplicates, lRow) = ""
     
     If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow)) = "" Then
-        tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow) = "N"
+        If tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, lRow) = "H" Then
+            tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow) = "Y"
+        Else
+            tgmBonus(nBONUSCODE).CellValue(nCOLBCOVERRIDE, lRow) = "N"
+        End If
     End If
     
     fnValidBonusCode = True
@@ -2597,10 +2598,13 @@ Private Function fnLoadData(Index As Integer, Optional bRefresh As Boolean = Fal
     
     tgmBonus(Index).FillWithRecordset rsTemp
     
-    If Index = nGRADE Then
+    If Index = nBONUSCODE Then
+        'fill the prpa_calc_method
+        subFillCalcMethod
+    Else  'Index = nGRADE
         If tgmBonus(nGRADE).RowCount > 0 Then
             'save the old grade level
-            For lRow = 1 To tgmBonus(nGRADE).RowCount - 1
+            For lRow = 0 To tgmBonus(nGRADE).RowCount - 1
                 tgmBonus(nGRADE).CellValue(nxColBGOldLevel, lRow) = _
                     tgmBonus(nGRADE).CellValue(nCOLBGLEVEL, lRow)
             Next lRow
@@ -2844,27 +2848,21 @@ Private Sub tblBonus_AfterColEdit(Index As Integer, ByVal ColIndex As Integer)
 End Sub
 
 Private Sub tblBonus_BeforeColEdit(Index As Integer, ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
-    
-    If Index = nGRADE And ColIndex = nCOLDESC Then
-        
-        If tgmBonus(Index).CellValue(nxColBGDescEditable, tgmBonus(Index).GetCurrentRowNumber) = "N" Then
+    If Index = nGRADE Then
+        If tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, tgmBonus(Index).GetCurrentRowNumber) = "H" Then
             CANCEL = True
             Exit Sub
         End If
-        
+    Else
+        If ColIndex = nCOLDESC Then
+            If tgmBonus(Index).CellValue(nxColBGDescEditable, tgmBonus(Index).GetCurrentRowNumber) = "N" Then
+                CANCEL = True
+                Exit Sub
+            End If
+        End If
     End If
     
     tgmBonus(Index).BeforeColEdit ColIndex, KeyAscii, CANCEL
-    
-    If t_nFormMode = ADD_MODE And Index = nBONUSCODE Then
-    
-        If Trim(tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber)) = "" Then
-            tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber) = "N"
-        End If
-        
-    End If
-    
-
 End Sub
 
 Private Sub tblBonus_Change(Index As Integer)
@@ -2898,7 +2896,6 @@ Private Sub tblBonus_KeyDown(Index As Integer, KeyCode As Integer, Shift As Inte
     tgfDropdown(Index).KeyDown tblBonus(Index), KeyCode
     
     If KeyCode = vbKeyDelete Then
-        
         If Not tblBonus(Index).EditActive Then
             tgmBonus(Index).CellValue(tblBonus(Index).col, tgmBonus(Index).GetCurrentRowNumber) = ""
             tgmBonus(Index).ResetFlags tgmBonus(Index).GetCurrentRowNumber, tblBonus(Index).col
@@ -2906,9 +2903,7 @@ Private Sub tblBonus_KeyDown(Index As Integer, KeyCode As Integer, Shift As Inte
             If t_nFormMode = EDIT_MODE Then
                 subEnableRefreshBtn True, Index
             End If
-            
         End If
-        
     End If
 End Sub
 
@@ -2925,6 +2920,13 @@ Private Sub tblBonus_KeyPress(Index As Integer, KeyAscii As Integer)
         KeyAscii = 0
     End If
     
+    If Index = nBONUSCODE Then
+        If KeyAscii <> vbKeyReturn Then
+            If tblBonus(Index).col = nCOLCODE Then
+                tgmBonus(Index).CellValue(nCOLBCOVERRIDE, tgmBonus(Index).GetCurrentRowNumber) = ""
+            End If
+        End If
+    End If
 End Sub
 
 Private Sub tblBonus_LeftColChange(Index As Integer)
@@ -2988,7 +2990,7 @@ Private Function fnValidBonusPayCode(szText As String, ByVal lRow As Long) As Bo
         Exit Function
     End If
 
-    strSQL = "SELECT prpa_desc, prpa_type FROM pr_pay WHERE prpa_pay_code = " & tfnSQLString(szText)
+    strSQL = "SELECT prpa_desc, prpa_type, prpa_calc_method FROM pr_pay WHERE prpa_pay_code = " & tfnSQLString(szText)
 
     If GetRecordSet(rsTemp, strSQL, , SUB_NAME) <= 0 Then
         tgmBonus(nBONUSCODE).ErrorMessage(nBONUSCODE) = "Pay code does not exist"
@@ -3003,6 +3005,8 @@ Private Function fnValidBonusPayCode(szText As String, ByVal lRow As Long) As Bo
     If fnGetField(tgmBonus(nBONUSCODE).CellValue(nCOLDESC, lRow)) = "" Then
         tgmBonus(nBONUSCODE).CellValue(nCOLDESC, lRow) = fnGetField(rsTemp!prpa_desc)
     End If
+
+    tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, lRow) = UCase(fnGetField(rsTemp!prpa_calc_method))
 
     fnValidBonusPayCode = True
 End Function
@@ -3313,38 +3317,22 @@ err_handler:
     tfnErrHandler SUB_NAME, strSQL
 End Function
 
-'Private Function fnUpdateTbl_tmpGradeLevel(tblIndex As Integer) As Boolean
-'    Const SUB_NAME = "fnUpdateTbl_tmpGradeLevel"
-'    Dim strSQL As String
-'    Dim vTemp() As Variant
-'    Dim rsTemp As Recordset
-'    Dim lRows As Long
-'
-'    fnCreateTbl_tmpGradeLevel = False
-'
-'    On Error GoTo err_handler
-'    If Not fnCreateTbl_tmpGradeLevel Then
-'        Exit Function
-'    End If
-'
-'    tgmBonus(tblIndex).GetRecords vTemp, lRows, "bg_emp_level"
-'
-'    If lRows <= 0 Then
-'        fnUpdateTbl_tmpGradeLevel = True
-'        Exit Function
-'    End If
-'
-'    Dim i As Integer
-'    Dim nLevel As Integer
-'    For i = 0 To lRows - 1
-'        nLevel = vTemp(0, i)
-'        strSQL = "DELETE FROM tmpGradeLevel WHERE grade_level=" & nLevel
-'        t_dbMainDatabase.ExecuteSQL strSQL
-'
-'    Next
-'    fnUpdateTbl_tmpGradeLevel = True
-'    Exit Function
-'err_handler:
-'    tfnErrHandler SUB_NAME, strSQL
-'End Function
-'
+Private Sub subFillCalcMethod()
+    Const SUB_NAME As String = "subFillCalcMethod"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sPayCode As String
+    Dim lRow As Long
+
+    strSQL = "SELECT prpa_calc_method FROM pr_pay WHERE prpa_pay_code = "
+    
+    For lRow = 0 To tgmBonus(nBONUSCODE).RowCount - 1
+        sPayCode = tfnSQLString(tgmBonus(nBONUSCODE).CellValue(nCOLCODE, lRow))
+        If GetRecordSet(rsTemp, strSQL + sPayCode, , SUB_NAME, False) > 0 Then
+            tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, lRow) = UCase(fnGetField(rsTemp!prpa_calc_method))
+        Else
+            tgmBonus(nBONUSCODE).CellValue(nxColCalcMethod, lRow) = "H"
+        End If
+    Next lRow
+End Sub
