@@ -363,6 +363,7 @@ Public Const CLOSEPO_UP = 12500
 Public Const POAPPROV_UP = 12550
 Public Const PRAPPROV_UP = 12600
 Public Const PRPRINT_UP = 12650
+Public Const TSTPRINT_UP = 12900
 
 'The following bitmaps need to be loaded into the form
 'And define 2 public functions to supply the bitmaps and module names:
@@ -372,6 +373,7 @@ Public Const IMPORT_UP = 12700
 Public Const IMPORT_DOWN = 12750
 Public Const EXPORT_UP = 12800
 Public Const EXPORT_DOWN = 12850
+
 
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
@@ -1578,12 +1580,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
