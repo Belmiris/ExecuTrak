@@ -4,7 +4,7 @@ Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
 Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "SQAOTE32.OCX"
-Begin VB.Form frmZZEININV 
+Begin VB.Form frmZZSEIMPT 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Import Invoice"
    ClientHeight    =   6060
@@ -363,7 +363,7 @@ Begin VB.Form frmZZEININV
                      Height          =   2616
                      HelpContextID   =   1310
                      Left            =   48
-                     OleObjectBlob   =   "ZZEININV.frx":0000
+                     OleObjectBlob   =   "ZZSEIMPT.frx":0000
                      TabIndex        =   48
                      Top             =   48
                      Width           =   8520
@@ -734,7 +734,7 @@ Begin VB.Form frmZZEININV
                      Height          =   1752
                      HelpContextID   =   1309
                      Left            =   0
-                     OleObjectBlob   =   "ZZEININV.frx":12DD
+                     OleObjectBlob   =   "ZZSEIMPT.frx":12DD
                      TabIndex        =   30
                      Top             =   36
                      Width           =   8520
@@ -1007,7 +1007,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1042,7 +1042,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1077,7 +1077,7 @@ Begin VB.Form frmZZEININV
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.6
+                  Size            =   9.59
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1114,7 +1114,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1150,7 +1150,7 @@ Begin VB.Form frmZZEININV
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1220,7 +1220,7 @@ Begin VB.Form frmZZEININV
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1228,12 +1228,12 @@ Begin VB.Form frmZZEININV
          Strikethrough   =   0   'False
       EndProperty
       Align           =   1
-      FMName          =   "ZZEININV"
+      FMName          =   "ZZSEIMPT"
       CaptionPos      =   4
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1277,10 +1277,10 @@ Begin VB.Form frmZZEININV
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblComboDropdown 
-      Bindings        =   "ZZEININV.frx":25BA
+      Bindings        =   "ZZSEIMPT.frx":25BA
       Height          =   2484
       Left            =   72
-      OleObjectBlob   =   "ZZEININV.frx":25D9
+      OleObjectBlob   =   "ZZSEIMPT.frx":25D9
       TabIndex        =   6
       TabStop         =   0   'False
       Top             =   576
@@ -1297,10 +1297,10 @@ Begin VB.Form frmZZEININV
       _ExtentY        =   804
    End
    Begin DBTrueGrid.TDBGrid tblDropDown 
-      Bindings        =   "ZZEININV.frx":38BD
+      Bindings        =   "ZZSEIMPT.frx":38BD
       Height          =   648
       Left            =   0
-      OleObjectBlob   =   "ZZEININV.frx":38D7
+      OleObjectBlob   =   "ZZSEIMPT.frx":38D7
       TabIndex        =   54
       TabStop         =   0   'False
       Top             =   600
@@ -1388,7 +1388,7 @@ Begin VB.Form frmZZEININV
       End
    End
 End
-Attribute VB_Name = "frmZZEININV"
+Attribute VB_Name = "frmZZSEIMPT"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True

@@ -1,4 +1,4 @@
-Attribute VB_Name = "modZZFINVMT"
+Attribute VB_Name = "modzzseinvp"
 Option Explicit
 
 Private Type RSINV_Header
@@ -462,22 +462,22 @@ Public Sub subSetProgress(sngPercent As Single)
     
     If sngPercent > 0# Then
         
-        If Not frmZZFINVMT.PbProgressBar.Visible Then
-            frmZZFINVMT.PbProgressBar.Visible = True
+        If Not frmzzseinvp.PbProgressBar.Visible Then
+            frmzzseinvp.PbProgressBar.Visible = True
         End If
     
     Else
-        frmZZFINVMT.PbProgressBar.Visible = False
+        frmzzseinvp.PbProgressBar.Visible = False
     End If
     
-    frmZZFINVMT.PbProgressBar.Value = sngPercent
-    frmZZFINVMT.PbProgressBar.Refresh
+    frmzzseinvp.PbProgressBar.Value = sngPercent
+    frmzzseinvp.PbProgressBar.Refresh
     DoEvents
 End Sub
 
 Public Sub subDisplayMsg(sMsg As String)
-    frmZZFINVMT.lstStatus.AddItem sMsg
-    frmZZFINVMT.lstStatus.Refresh
+    frmzzseinvp.lstStatus.AddItem sMsg
+    frmzzseinvp.lstStatus.Refresh
 End Sub
 
 Private Sub subWriteHeaderErrLog(udtInvHeader As RSINV_Header)
@@ -588,8 +588,8 @@ Private Sub subOpenAndClearLogFile()
 
     On Error Resume Next
     
-    sProcessLogFile = App.Path & "\zzrinvpl.log"
-    sErrorLogFile = App.Path & "\zzrinver.log"
+    sProcessLogFile = App.Path & "\zzseplog.log"
+    sErrorLogFile = App.Path & "\zzseelog.log"
     
     If fnFileExist(sProcessLogFile) Then
        Kill sProcessLogFile
@@ -1121,7 +1121,7 @@ Public Sub subSentErrorLogToPrinter()
     On Error GoTo EXITHERE
     
     If Not fnInitPrinter() Then
-        frmZZFINVMT.tfnSetStatusBarMessage "Printer not Ready"
+        frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"
         Exit Sub
     End If
     
@@ -1130,7 +1130,7 @@ Public Sub subSentErrorLogToPrinter()
     
     subPrintRptHeader "Error"
     nFileNum = FreeFile()
-    sErrorLogFile = App.Path & "\zzrinver.log"
+    sErrorLogFile = App.Path & "\zzseelog.log"
     
     Open sErrorLogFile For Input As #nFileNum
     bIsOpen = True
@@ -1167,7 +1167,7 @@ Public Sub subSentProcLogToPrinter()
     
     On Error GoTo EXITHERE
     If Not fnInitPrinter() Then
-        frmZZFINVMT.tfnSetStatusBarMessage "Printer not Ready"
+        frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"
         Exit Sub
     End If
     
@@ -1176,7 +1176,7 @@ Public Sub subSentProcLogToPrinter()
     
     subPrintRptHeader "PROCESSING"
     nFileNum = FreeFile()
-    sProcLogFile = App.Path & "\zzrinvpl.log"
+    sProcLogFile = App.Path & "\zzseplog.log"
     
     Open sProcLogFile For Input As #nFileNum
     bIsOpen = True
@@ -1219,15 +1219,8 @@ Private Sub subPrintRptHeader(sMsg As String)
     
     If fnGetCompanyName(sCompanyName) Then
         sPageNum = "Page No.  " + fnRightJustified(nPageNumber, "####")
-        
-        If UCase(sMsg) = "PROCESSING" Then
-            nSpc = (PAGELENGTH - Len(Trim(sCompanyName))) / 2 - Len("Program ID: ZZRINVPL")
-            sReportLine = "Program ID: ZZRINVPL" + Space(nSpc) + sCompanyName
-        Else
-            nSpc = (PAGELENGTH - Len(Trim(sCompanyName))) / 2 - Len("Program ID: ZZRINVER")
-            sReportLine = "Program ID: ZZRINVER" + Space(nSpc) + sCompanyName
-        End If
-        
+        nSpc = (PAGELENGTH - Len(Trim(sCompanyName))) / 2 - Len("Program ID: ZZRINVPL")
+        sReportLine = "Program ID: ZZSEINVP" + Space(nSpc) + sCompanyName
         sReportLine = sReportLine & Space(PAGELENGTH - Len(sReportLine) - Len(sPageNum)) & sPageNum
     End If
     

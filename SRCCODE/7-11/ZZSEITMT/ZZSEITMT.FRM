@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
-Begin VB.Form frmZZFITEMT 
+Begin VB.Form frmzzseitmt 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Item Cost Maintenance"
    ClientHeight    =   6348
@@ -108,7 +108,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -144,7 +144,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -180,7 +180,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -216,7 +216,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -252,7 +252,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -288,7 +288,7 @@ Begin VB.Form frmZZFITEMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -346,7 +346,7 @@ Begin VB.Form frmZZFITEMT
             Height          =   2880
             HelpContextID   =   708
             Left            =   84
-            OleObjectBlob   =   "ZZFITEMT.frx":0000
+            OleObjectBlob   =   "ZZSEITMT.frx":0000
             TabIndex        =   13
             Top             =   1644
             Width           =   8520
@@ -510,7 +510,7 @@ Begin VB.Form frmZZFITEMT
                   Strikethrough   =   0   'False
                EndProperty
                CaptionPos      =   4
-               Picture         =   "ZZFITEMT.frx":12F1
+               Picture         =   "ZZSEITMT.frx":12F1
                Style           =   3
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -546,7 +546,7 @@ Begin VB.Form frmZZFITEMT
                   Strikethrough   =   0   'False
                EndProperty
                CaptionPos      =   4
-               Picture         =   "ZZFITEMT.frx":1403
+               Picture         =   "ZZSEITMT.frx":1403
                Style           =   3
                BorderWidth     =   4
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -607,7 +607,7 @@ Begin VB.Form frmZZFITEMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -615,12 +615,12 @@ Begin VB.Form frmZZFITEMT
          Strikethrough   =   0   'False
       EndProperty
       Align           =   1
-      FMName          =   "ZZFITEMT"
+      FMName          =   "ZZSEITMT"
       CaptionPos      =   4
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -664,10 +664,10 @@ Begin VB.Form frmZZFITEMT
       Width           =   1920
    End
    Begin DBTrueGrid.TDBGrid tblComboDropdown 
-      Bindings        =   "ZZFITEMT.frx":1515
+      Bindings        =   "ZZSEITMT.frx":1515
       Height          =   2484
       Left            =   36
-      OleObjectBlob   =   "ZZFITEMT.frx":1534
+      OleObjectBlob   =   "ZZSEITMT.frx":1534
       TabIndex        =   21
       TabStop         =   0   'False
       Top             =   660
@@ -769,7 +769,7 @@ Begin VB.Form frmZZFITEMT
       End
    End
 End
-Attribute VB_Name = "frmZZFITEMT"
+Attribute VB_Name = "frmzzseitmt"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -1360,7 +1360,7 @@ Private Sub tfnResetScreen()
     cValidate.ResetFlags
     tgmDetail.ClearData
     nDataStatus = DATA_INIT
-    subSetFocus cmdaddbtn
+    subSetFocus cmdAddBtn
     subHideHourGlass
     DoEvents
     
@@ -1438,7 +1438,7 @@ Private Sub subInitErrorHandler()
 End Sub
 
 Private Sub subEnableAddBtn(bOnOff As Boolean)
-    cmdaddbtn.Enabled = bOnOff
+    cmdAddBtn.Enabled = bOnOff
     mnuAdd.Enabled = bOnOff
 End Sub
 
@@ -1449,7 +1449,7 @@ End Sub
 
 Private Sub subEnableDeleteBtn(bOnOff As Boolean)
     cmdDeleteBtn.Enabled = bOnOff
-    mnudelete.Enabled = bOnOff
+    mnuDelete.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableRefreshBtn(bOnOff As Boolean)

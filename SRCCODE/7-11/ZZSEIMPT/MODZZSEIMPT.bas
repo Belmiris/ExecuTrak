@@ -1,4 +1,4 @@
-Attribute VB_Name = "modzzeininv"
+Attribute VB_Name = "modzzseimpt"
 Option Explicit
 
 Public dbLocal As DataBase
