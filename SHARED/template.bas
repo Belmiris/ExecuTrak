@@ -1689,7 +1689,7 @@ Public Function tfnRun(szExeName As String, Optional vWindowStyle) As Boolean
         #If NO_ERROR_HANDLER Then
             MsgBox "Cannot execute program"
         #Else
-            tfnErrHandler "tfnRun", 60007, " - " & szExeName
+            tfnErrHandler "tfnRun", 60007, " - " & gszBINROOT & szExeName
         #End If
         tfnRun = False 'application failed to launch
         Exit Function
