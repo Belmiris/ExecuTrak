@@ -12,6 +12,7 @@ call buildlog EC %1
 
 echo Compress Application files
 icomp G:\program\release\exectrak\ec\bin\*.* ..\disk\factbin.z BIN
+icomp G:\program\release\exectrak\ec\ec.hlp ..\disk\factbin.z BIN
 icomp G:\program\release\exectrak\ec\dtnctrl\*.* ..\disk\factbin.z DTNCTRL
 icomp G:\program\release\exectrak\common\cpylocal.exe ..\disk\factbin.z BIN
 
