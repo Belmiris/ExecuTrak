@@ -403,6 +403,36 @@ Public objCurrTabControl As Object
 Public tgcDropdown As Object
 Public Const SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') " 'Hard coded sys ar tran codes WJ 4/14/99
 Private Const Log10 = 2.30258509299405
+Private SYS_PARM_14000 As String
+
+Public Function tfnIS_RM() As Boolean
+    Dim strSQl As String
+    Dim rsTemp As Recordset
+    On Error GoTo ErrTrap
+    If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
+        strSQl = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, SQL_PASSTHROUGH)
+        If Not rsTemp.EOF Then
+            If Not IsNull(rsTemp!parm_field) Then
+                SYS_PARM_14000 = UCase(Trim$(rsTemp!parm_field))
+            End If
+        End If
+        rsTemp.Close
+    End If
+    
+    If SYS_PARM_14000 = "Y" Then
+        tfnIS_RM = True
+    Else
+        tfnIS_RM = False
+    End If
+    Exit Function
+    
+ErrTrap:
+    tfnIS_RM = False
+    ''tfnErrHandler "tfnIS_RM", strSQl
+
+End Function
+
 '======================
 'Form Support Functions
 '======================
@@ -516,13 +546,13 @@ Public Function tfnLockRow(sProgramID As String, _
 
     Dim nPos1 As Integer
     Dim nPos2 As Integer
-    Dim strSQL As String
+    Dim strSQl As String
     Dim rsTemp As Recordset
     Dim sCriteria As String
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -540,8 +570,8 @@ Public Function tfnLockRow(sProgramID As String, _
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
-        strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
-        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        strSQl = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
+        Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
         rsTemp.Close
         sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
@@ -553,10 +583,10 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQL = UCase(sSql)
-    nPos2 = InStr(strSQL, " WHERE ")
+    strSQl = UCase(sSql)
+    nPos2 = InStr(strSQl, " WHERE ")
     If nPos2 > 0 Then
-        nPos1 = InStr(strSQL, " ORDER ")
+        nPos1 = InStr(strSQl, " ORDER ")
         If nPos1 = 0 Then
             nPos1 = Len(sSql) + 1
         End If
@@ -572,16 +602,16 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
-    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
-    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    strSQl = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
     If rsTemp.RecordCount > 0 Then
         t_lLockHandle = rsTemp.Fields(0)
         If t_lLockHandle = 0 Then
@@ -605,7 +635,7 @@ Public Function tfnLockRow(sProgramID As String, _
     rsTemp.Close
     Set rsTemp = Nothing
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount)
@@ -615,7 +645,7 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
         tfnLockRow = True
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -624,7 +654,7 @@ errOpenRecord:
         MsgBox "Cannot lock table"
     #Else
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQL
+            tfnErrHandler SUB_NAME, strSQl
         End If
     #End If
     Err.Clear
@@ -675,15 +705,15 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         Exit Function
     End If
 
-    Dim strSQL As String
+    Dim strSQl As String
     Dim rsTemp As Recordset
     
     tfnUnlockRow = False
     On Error GoTo errUnlock
     If IsMissing(vTable) Then
         While nHandleCount > 0
-            strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
-            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            strSQl = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
             If rsTemp.RecordCount > 0 Then
                 If rsTemp.Fields(0) > 0 Then
                     nHandleCount = nHandleCount - 1
@@ -699,13 +729,13 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Integer
+        Dim i As Integer
         
         sTable = LCase(Trim(vTable))
-        For I = 0 To nHandleCount
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
-                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        For i = 0 To nHandleCount
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQl = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+                Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
                         nHandleCount = nHandleCount - 1
@@ -719,7 +749,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 End If
                 Exit For
             End If
-        Next I
+        Next i
     End If
     Set rsTemp = Nothing
     tfnUnlockRow = True
@@ -730,7 +760,7 @@ errUnlock:
         MsgBox "Cannot unlock table"
     #Else
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler SUB_NAME, strSQL
+            tfnErrHandler SUB_NAME, strSQl
         End If
     #End If
 End Function
@@ -911,7 +941,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -962,7 +992,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -970,8 +1000,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
