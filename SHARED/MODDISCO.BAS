@@ -54,23 +54,22 @@ End If
     
 Set rsTerms = fnGetTerms(strTerms)
 
-'If no terms then get out
-If rsTerms Is Nothing Then
-    With udtDisc
-        .dInvoiceDate = dInvDate
-        .dDiscountDueDate = dInvDate
-        .fDiscountAmount = 0
-    End With
-    
-    fnComputeDiscount = udtDisc
-    Exit Function
-End If
-
 With udtDisc
-    .dInvoiceDate = fnComputeDueDate(dInvDate, rsTerms!term_due_operator, rsTerms!term_due_date_days)
-    .dDiscountDueDate = fnComputeDueDate(dInvDate, rsTerms!term_disc_operator, rsTerms!term_disc_date_day)
-    .fDiscountAmount = fnComputeDiscountAmount(rsTerms, fDollarAmount, fInvQuantity)
+    .dInvoiceDate = dInvDate
+    .dDiscountDueDate = dInvDate
+    .fDiscountAmount = 0
 End With
+
+'If no terms then get out
+If Not rsTerms Is Nothing Then
+    If rsTerms.RecordCount > 0 Then
+        With udtDisc
+            .dInvoiceDate = fnComputeDueDate(dInvDate, rsTerms!term_due_operator, rsTerms!term_due_date_days)
+            .dDiscountDueDate = fnComputeDueDate(dInvDate, rsTerms!term_disc_operator, rsTerms!term_disc_date_day)
+            .fDiscountAmount = fnComputeDiscountAmount(rsTerms, fDollarAmount, fInvQuantity)
+        End With
+    End If
+End If
 
 fnComputeDiscount = udtDisc
 
