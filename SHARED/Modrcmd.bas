@@ -177,7 +177,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
         Else
             fnExecute4GE = False
             'Vijaya on 10/25/02 Magic#387222 we need to show the password as **** characters.
-            sTemp = Replace(sTemp, tfnGetNamedString(sTemp, "PWD"), String(Len(tfnGetNamedString(sTemp, "PWD")), "*"))
+            sTemp = Replace(sTemp, "PWD=" & tfnGetNamedString(sTemp, "PWD"), "PWD=" & String(Len(tfnGetNamedString(sTemp, "PWD")), "*"))
             'end of Vijaya Code
             'david 01/18/2002
             If bShowMsgBox Then
