@@ -7,16 +7,18 @@ Begin VB.Form objEDIPROC
    ClientTop       =   336
    ClientWidth     =   2124
    LinkTopic       =   "Form1"
+   LockControls    =   -1  'True
    ScaleHeight     =   1368
    ScaleWidth      =   2124
    StartUpPosition =   3  'Windows Default
    Begin MSComDlg.CommonDialog cdlgOpen 
-      Left            =   288
-      Top             =   204
+      Left            =   276
+      Top             =   192
       _ExtentX        =   677
       _ExtentY        =   677
       _Version        =   393216
       CancelError     =   -1  'True
+      DialogTitle     =   "Select EDI Translator Program"
    End
 End
 Attribute VB_Name = "objEDIPROC"
@@ -132,33 +134,114 @@ Property Get ErrorMessage() As String
     ErrorMessage = m_ErrorMessage
 End Property
 
-Private Function fnOpenFile() As Integer
-    On Error GoTo errHandler
-    
-    cdlgOpen.Action = 1
-    
-    fnOpenFile = vbOK
-    Me.Hide
-    
-    Exit Function
-
-errHandler:
-    fnOpenFile = vbCancel
-    Me.Hide
-End Function
-
 'return an error message if failed
 Public Function LaunchEDIPROC() As String
     Const SUB_NAME As String = "LaunchEDIPROC"
     Const sEDIPROC_EXE As String = "EDIPROC.EXE"
+    Const sEDIPROC_INI As String = "EDIPROC.INI"
+    Const sEDIPROC_MDB As String = "EDIXLATE.MDB"
+    Const sSECTION_EDIXLATOR As String = "EDI TRANSLATOR"
+    Const sKEY_PROGRAM As String = "Program"
+    Const sLocalBin As String = "C:\FACTOR\EXECTRAK\BIN"
+    Const sRemoteBin As String = "J:\FACTOR\EXECTRAK\BIN"
+    
     
     Dim dfTimer As Single, sExeFile As String, sMsg As String
-    Dim dfBeginRun As Single, sParm As String
-    
+    Dim dfBeginRun As Single, sParm As String, sProgramPath As String
+    Dim sFile As String, bDone As Boolean
+
     m_ErrorMessage = ""
     
-    'get the EDIPROC program path
-    sExeFile = m_AppPath + sEDIPROC_EXE
+    'get the EDIPROC program path from factor.ini
+    sProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, szFACTOR_INI))
+    
+    If sProgramPath <> "" Then
+        sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+        On Error Resume Next
+        sFile = ""
+        sFile = Dir(sExeFile)
+        On Error GoTo 0
+    End If
+    
+    If sFile = "" Then
+        'search local bin
+        sProgramPath = sLocalBin
+        sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+        On Error Resume Next
+        sFile = ""
+        sFile = Dir(sExeFile)
+        On Error GoTo 0
+        
+        If sFile = "" Then
+            'search remote bin
+            sProgramPath = sRemoteBin
+            sExeFile = fnAddBkSlash(sProgramPath) + sEDIPROC_EXE
+            On Error Resume Next
+            sFile = ""
+            sFile = Dir(sExeFile)
+            On Error GoTo 0
+        End If
+    End If
+    
+    If sFile = "" Then
+        cdlgOpen.Filter = "EDI Translator Program (" + sEDIPROC_EXE + ")|" + sEDIPROC_EXE
+        On Error Resume Next
+        cdlgOpen.InitDir = sProgramPath
+        cdlgOpen.FileName = ""
+        On Error GoTo 0
+        
+        Do
+            If fnOpenFile() Then
+                sExeFile = UCase(cdlgOpen.FileName)
+                On Error Resume Next
+                sFile = ""
+                sFile = Dir(sExeFile)
+                On Error GoTo 0
+                If Dir(sFile) <> "" Then
+                    If UCase(Right(sFile, Len(sEDIPROC_EXE))) = sEDIPROC_EXE Then
+                        bDone = True
+                    End If
+                End If
+            Else
+                m_ErrorMessage = "EDI Translation Processor program not found."
+                tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+                LaunchEDIPROC = m_ErrorMessage
+                Exit Function
+            End If
+        Loop Until bDone
+        
+        sProgramPath = fnGetPath(sExeFile)
+        
+        'update the EDIPROC program path to factor.ini
+        tfnWriteINI sSECTION_EDIXLATOR, sKEY_PROGRAM, sProgramPath, szFACTOR_INI
+    End If
+    
+    'validate EDIPROC files
+    'Database
+    On Error Resume Next
+    sFile = ""
+    sFile = Dir(fnAddBkSlash(sProgramPath) + sEDIPROC_MDB)
+    On Error GoTo 0
+    
+    If sFile = "" Then
+        m_ErrorMessage = "EDI Translation Processor database not found."
+        tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+        LaunchEDIPROC = m_ErrorMessage
+        Exit Function
+    End If
+    
+    'INI
+    On Error Resume Next
+    sFile = ""
+    sFile = Dir(fnAddBkSlash(sProgramPath) + sEDIPROC_INI)
+    On Error GoTo 0
+    
+    If sFile = "" Then
+        m_ErrorMessage = "EDI Translation Processor INI file not found."
+        tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+        LaunchEDIPROC = m_ErrorMessage
+        Exit Function
+    End If
     
     sParm = fnBuildParm()
     
@@ -209,6 +292,19 @@ errEdiProcError:
         + "Report this message to Support."
 
     LaunchEDIPROC = m_ErrorMessage
+End Function
+
+Private Function fnOpenFile() As Boolean
+    On Error GoTo errHandler
+    
+    cdlgOpen.Action = 1
+    
+    fnOpenFile = True
+    
+    Exit Function
+
+errHandler:
+    'do nothing
 End Function
 
 Private Function fnCheckEdiProcError() As String
@@ -435,3 +531,16 @@ Private Sub Wait(dfSeconds As Single)
     Wend
 End Sub
 
+Private Function fnGetPath(sPathFile As String) As String
+    Dim i As Integer
+    
+    For i = Len(sPathFile) To 1 Step -1
+        If Mid(sPathFile, i, 1) = "\" Then
+            Exit For
+        End If
+    Next i
+    
+    If i > 0 Then
+        fnGetPath = Left(sPathFile, i - 1)
+    End If
+End Function
