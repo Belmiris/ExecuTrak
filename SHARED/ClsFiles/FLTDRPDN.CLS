@@ -1467,10 +1467,10 @@ Private Sub fnGetText(nCol As Integer)
                 End If
             End With
         Next i
-        DoEvents
         If Not m_clsEdit Is Nothing Then
             m_clsEdit.AddingValidate = False
         End If
+        DoEvents
         tgDropDown.Visible = False
         m_nCurrentDropDown = lDropDown
 '        subSetFlagSelection lDropDown, True
