@@ -1,4 +1,4 @@
-rem Assume: current directory is \project32\xx\xxserver\setup
+rem Assume: current directory is \Project6\xx\xxserver\setup
 
 @echo off
 cls
@@ -89,24 +89,24 @@ echo ******2 Compress client setup files to %2client.z
 icomp ..\..\%2client\disk\disk1\*.* ..\disk\%2client.z
 
 echo .
-echo Compress all files in project32\Ole directory to factole.z
+echo Compress all files in Ole directory to factole.z
 icomp G:\program\release\exectrak\ole\tbkit.dll ..\disk\factole.z
 icomp G:\program\release\exectrak\ole\olecombo.dll ..\disk\factole.z
 
 echo .
-echo Compress all files in project32\Custctl directory to custctl.z
+echo Compress all files in Custctl directory to custctl.z
 icomp G:\program\release\exectrak\custctl\*.* ..\disk\custctl.z
 
 echo .
-echo Compress all files in project32\Dll directory to factdll.z
+echo Compress all files in Dll directory to factdll.z
 icomp G:\program\release\exectrak\dll\*.* ..\disk\factdll.z
 
 echo .
-echo Compress all files in project32\Rtm directory to rtm.z
+echo Compress all files in Rtm directory to rtm.z
 icomp G:\program\release\exectrak\rtm\*.* ..\disk\rtm.z
 
 echo .
-echo Compress all files in project32\Shared directory to shared.z
+echo Compress all files in Shared directory to shared.z
 icomp G:\program\release\exectrak\shared\*.* ..\disk\shared.z
 
 

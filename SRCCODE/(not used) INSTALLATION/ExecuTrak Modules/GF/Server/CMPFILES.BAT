@@ -1,4 +1,4 @@
-rem Assume: current directory is \project32\xx\xxserver\setup
+rem Assume: current directory is \Project6\xx\xxserver\setup
 
 @echo off
 cls

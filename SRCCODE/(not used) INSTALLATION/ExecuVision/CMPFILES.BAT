@@ -39,7 +39,7 @@ echo .
 echo Compress all files in g:\PROGRAM\RELEASE\EXECTRAK\Dll directory to factdll.z
 icomp G:\PROGRAM\RELEASE\EXECTRAK\dll\*.* ..\disk\factdll.z
 echo .
-echo Compress all files in \PROJECT32\EXECVISN\Dll directory to factdll.z
+echo Compress all files in \EXECVISN\Dll directory to factdll.z
 icomp G:\program\release\execvisn\dll\*.* ..\disk\factdll.z
 
 echo .
