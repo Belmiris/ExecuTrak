@@ -1980,7 +1980,7 @@ Private Function fnSetComboSQL(nTabIndex) As String
                 strSQL = strSQL + " WHERE bc_bonus_code = bf_bonus_code"
             End If
         Case txtLevel.TabIndex
-            strSQL = "SELECT bf_level FROM bonus_formula"
+            strSQL = "SELECT DISTINCT bf_level FROM bonus_formula"
             If txtBonusCode <> "" Then
                 strSQL = strSQL & " WHERE bf_bonus_code = " & tfnSQLString(Trim(txtBonusCode))
             End If
