@@ -813,7 +813,7 @@ Private tgfDropdown As clsFloatingDropDown
 Private Const ColPrftCtr As Integer = 0
 Private Const ColBCode As Integer = 1
 Private Const ColBCDesc As Integer = 2
-Private Const colSequence As Integer = 3
+Private Const ColSequence As Integer = 3
 Private Const ColElgDate As Integer = 4
 Private Const ColStopDate As Integer = 5
 Private Const ColOverride As Integer = 6
@@ -822,11 +822,20 @@ Private Const ColElgClass As Integer = 7
 'hidden column
 Private nxOldPrftCtr As Integer
 Private nxOldBonusCode As Integer
+Private nxColPrftCtrValid As Integer
+Private nxColBonusCodeValid As Integer
+Private nxColSeqValid As Integer
+Private nxOldValidPrftCtr As Integer
+Private nxOldValidBonusCode As Integer
+Private nxOldValidSeq As Integer
 Private nxColBGDuplPrftCtrSeq As Integer
 Private nxColBGDuplPrftCtrBonusCode As Integer
 
 Private sEmpFirstPrftCtr As String
 Private sEmpPrftCtrList As String
+
+Private nDebugNum As Integer
+'
 '
 
 Public Function fnValidCellValue(tgTable As TDBGrid, ByVal nCol As Integer, _
@@ -838,7 +847,7 @@ Public Function fnValidCellValue(tgTable As TDBGrid, ByVal nCol As Integer, _
             fnValidCellValue = fnValidPrftCtr(sText, lRow, nCol)
         Case ColBCode, ColBCDesc
             fnValidCellValue = fnValidBonusCode(sText, lRow, nCol)
-        Case colSequence
+        Case ColSequence
             fnValidCellValue = fnValidSequence(sText, lRow, nCol)
         Case ColElgDate
             fnValidCellValue = fnValidDate(sText, lRow, nCol)
@@ -872,26 +881,34 @@ Private Sub subSetupMousePointer()
 End Sub
 
 Private Sub cmdDeleteBtn_Click()
-    Dim sBCode As String
-    Dim lRow As Long
-    
     'Just a check
     If tgmBonus.RowCount < 1 Then
         Exit Sub
     End If
     
-    lRow = tgmBonus.GetCurrentRowNumber
-    sBCode = tgmBonus.CellValue(ColBCode, lRow)
-    
     If t_nFormMode = EDIT_MODE Then
         If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
             Exit Sub
         End If
-        If Not fnDeleteBonusCode(sBCode, lRow) Then
+        If Not fnDeleteBonusCode() Then
             MsgBox "Failed to delete the Commission code", vbCritical
             Exit Sub
         End If
+    Else
+        Dim lRow As Long
+        Dim sBCode As String
+        Dim nPrftCtr As Integer
+        Dim nSeq As Integer
+        
+        lRow = tgmBonus.GetCurrentRowNumber
+        sBCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
+        nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+        nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
+    
+        'fix duplicate counter
+        subFixDuplicateCounter lRow, nPrftCtr, sBCode, nSeq
     End If
+    
     
     tgmBonus.DeleteRow
     
@@ -1410,9 +1427,6 @@ Private Sub tblDropDown_SelChange(CANCEL As Integer)
 End Sub
 
 Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
-    Dim lRow As Long
-    
-    lRow = tgmBonus.GetCurrentRowNumber
     tgmBonus.AfterColEdit ColIndex
     
     If t_nFormMode = EDIT_MODE Then
@@ -1503,11 +1517,29 @@ End Sub
 Private Sub tblBonus_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     Dim lRow As Long
     
+    lRow = tgmBonus.GetCurrentRowNumber
+    
+    'reset the error message
+    Select Case tblBonus.col
+    Case ColPrftCtr
+        If tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, lRow) > 0 Then
+            tgmBonus.ErrorMessage(tblBonus.col) = "Duplicate Profit Center/Bonus Code encountered"
+        ElseIf tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, lRow) > 0 Then
+            tgmBonus.ErrorMessage(tblBonus.col) = "Duplicate Profit Center/Sequence encountered"
+        End If
+    Case ColBCode
+        If tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, lRow) > 0 Then
+            tgmBonus.ErrorMessage(tblBonus.col) = "Duplicate Profit Center/Bonus Code encountered"
+        End If
+    Case ColSequence
+        If tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, lRow) > 0 Then
+            tgmBonus.ErrorMessage(tblBonus.col) = "Duplicate Profit Center/Sequence encountered"
+        End If
+    End Select
+    
     If tgfDropdown.RowColChange(tblBonus) Then
         tgmBonus.RowColChange LastRow, LastCol
     End If
-    
-    lRow = tgmBonus.GetCurrentRowNumber
     
     If t_nFormMode = ADD_MODE Then
         If tgmBonus.CellValue(ColBCode, lRow) <> "" Then
@@ -1666,7 +1698,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     tbl.Columns(ColPrftCtr).Caption = "Profit Center"
     tbl.Columns(ColBCode).Caption = "Comm. Code"
     tbl.Columns(ColBCDesc).Caption = "Commission Code Description"
-    tbl.Columns(colSequence).Caption = "Seq."
+    tbl.Columns(ColSequence).Caption = "Seq."
     tbl.Columns(ColElgDate).Caption = "Eligible Date"
     tbl.Columns(ColStopDate).Caption = "Stop Date"
     tbl.Columns(ColOverride).Caption = "Over- ride"
@@ -1689,7 +1721,7 @@ Private Sub subInitSpreadsheets()
         .AddEditColumn ColPrftCtr, "Enter Profit Center", szIntegerPattern
         .AddEditColumn ColBCode, "Enter Bonus Code", "^P{1,4}$"
         .AddEditColumn ColBCDesc, "Enter Bonus Code Description", "^P{1,40}"
-        .AddEditColumn colSequence, "Enter Sequence", szIntegerPattern
+        .AddEditColumn ColSequence, "Enter Sequence", szIntegerPattern
         .AddEditColumn ColElgDate, "Enter Eligible Date", szDatePattern
         .AddEditColumn ColStopDate, "Enter Stop Date", szDatePattern
         .AddEditColumn ColOverride, "Override the amount of this pay code in payroll (Y or N)", "^[YNyn]$"
@@ -1697,11 +1729,17 @@ Private Sub subInitSpreadsheets()
         .ColumnForNewRow = 0
         nxOldPrftCtr = .AddHiddenField("bm_eligible_pc")
         nxOldBonusCode = .AddHiddenField("bm_bonus_code")
+        nxColPrftCtrValid = .AddHiddenField("prft_ctr_valid")
+        nxColBonusCodeValid = .AddHiddenField("bonus_code_valid")
+        nxColSeqValid = .AddHiddenField("seq_valid")
+        nxOldValidPrftCtr = .AddHiddenField("valid_prft_ctr")
+        nxOldValidBonusCode = .AddHiddenField("valid_bonus_code")
+        nxOldValidSeq = .AddHiddenField("valid_seq")
         nxColBGDuplPrftCtrBonusCode = .AddHiddenField("dup_prft_bonus_code")
         nxColBGDuplPrftCtrSeq = .AddHiddenField("dup_prft_seq")
         
         .AddSortColumn ColPrftCtr, ColPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE, _
-            colSequence, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
+            ColSequence, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
         
         .AddSortColumn ColBCode, ColBCode, .STRING_TYPE, .ASCENDING, .CASE_SENSITIVE, _
             ColPrftCtr, .NUMERIC_TYPE, .ASCENDING, .CASE_SENSITIVE
@@ -1760,12 +1798,14 @@ Private Sub subSetFloatingSQL()
     If tblBonus.col = ColBCode Or tblBonus.col = ColBCDesc Then
         sCheckDubInGrid = fnCheckDubInGrid(ColBCode, lRow)
         
-        sSql = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes WHERE 1 = 1"
+        sSql = "SELECT bc_bonus_code, bc_code_desc FROM bonus_codes, bonus_grades WHERE 1 = 1"
+        sSql = sSql & " AND bc_grade = bg_grade"
         If t_nFormMode = ADD_MODE Then
+        sSql = sSql & " AND bg_emp_level = " & tfnRound(txtGrade)
             sSql = sSql & " AND bc_bonus_code NOT IN (SELECT bm_bonus_code FROM bonus_master"
             sSql = sSql & " WHERE bm_empno = " & tfnRound(txtEmployee)
             If tgmBonus.ValidCell(ColPrftCtr, lRow) Then
-                sSql = sSql & " AND bm_eligible_pc = " & tfnRound(tgmBonus.ValidCell(ColPrftCtr, lRow))
+                sSql = sSql & " AND bm_eligible_pc = " & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
             End If
             sSql = sSql & ")"
         End If
@@ -1801,49 +1841,97 @@ Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Function fnDeleteBonusCode(sCode As String, lRow As Long) As Boolean
+Private Function fnDeleteBonusCode() As Boolean
     Const SUB_NAME As String = "fnDeleteBonusCode"
+    
+    Dim lRow As Long
+    Dim sBCode As String
+    Dim nPrftCtr As Integer
+    Dim nSeq As Integer
     Dim strSQL As String
     
+    lRow = tgmBonus.GetCurrentRowNumber
+    sBCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
+    nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+    nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
     fnDeleteBonusCode = False
     
-    strSQL = "DELETE FROM bonus_master WHERE bm_bonus_code = " & tfnSQLString(Trim(sCode))
+    strSQL = "DELETE FROM bonus_master WHERE bm_bonus_code = " & tfnSQLString(sBCode)
     strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
+    strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(nPrftCtr)
     
     If fnExecuteSQL(strSQL, , SUB_NAME) Then
         fnDeleteBonusCode = True
     End If
 
+    'fix duplicate counter
+    subFixDuplicateCounter lRow, nPrftCtr, sBCode, nSeq
+    
 End Function
 
-Private Function fnInsertBonusCode(lRow As Long) As Boolean
+Private Sub subFixDuplicateCounter(lRow As Long, _
+                                   nPrftCtr As Integer, _
+                                   sBCode As String, _
+                                   nSeq As Integer)
+    
+    Dim i As Long
+    
+    For i = 0 To tgmBonus.RowCount - 1
+        If i <> lRow Then
+            If tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = nPrftCtr And _
+               fnGetField(tgmBonus.CellValue(ColBCode, i)) = sBCode Then
+                tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) = _
+                    tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) - 1
+            End If
+            If tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = nPrftCtr And _
+               tfnRound(tgmBonus.CellValue(ColSequence, i)) = nSeq Then
+                tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i) = _
+                    tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) - 1
+            End If
+            
+            If tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) <= 0 _
+               And tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i) <= 0 Then
+                tgmBonus.ValidCell(ColPrftCtr, i) = tgmBonus.CellValue(nxColPrftCtrValid, i)
+            End If
+            If tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) <= 0 Then
+                tgmBonus.ValidCell(ColBCode, i) = tgmBonus.CellValue(nxColBonusCodeValid, i)
+            End If
+            If tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i) <= 0 Then
+                tgmBonus.ValidCell(ColSequence, i) = tgmBonus.CellValue(nxColSeqValid, i)
+            End If
+        End If
+    Next i
+End Sub
+
+Private Function fnInsertBonusCode() As Boolean
     Const SUB_NAME As String = "fnInsertBonusCode"
+    
+    Dim lRow As Long
     Dim strSQL As String
-    Dim rsTemp As Recordset
     
     fnInsertBonusCode = False
     
-    If Trim(tgmBonus.CellValue(ColBCode, lRow)) = "" Then
-        fnInsertBonusCode = True
-        Exit Function
-    End If
-    
-    strSQL = "INSERT INTO bonus_master(bm_empno, bm_bonus_code, bm_sequence, bm_eligible_date,"
-    strSQL = strSQL & " bm_eligible_class, bm_eligible_pc, bm_stop_date, bm_entry_id, bm_entry_date)"
-    strSQL = strSQL & "VALUES(" & tfnRound(txtEmployee) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ", "
-    strSQL = strSQL & tfnRound(tgmBonus.CellValue(colSequence, lRow)) & ", "
-    strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ", "
-    strSQL = strSQL & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow)) & ", "
-    strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ", "
-    strSQL = strSQL & tfnSQLString(Trim(tfnGetUserName)) & ", "
-    strSQL = strSQL & tfnDateString(Trim(Date), True) & ")"
-    
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
-        fnInsertBonusCode = True
-    End If
+    For lRow = 0 To tgmBonus.RowCount - 1
+        If tgmBonus.ValidCell(ColBCode, lRow) Then
+            strSQL = "INSERT INTO bonus_master(bm_empno, bm_bonus_code, bm_sequence, bm_eligible_date,"
+            strSQL = strSQL & " bm_eligible_class, bm_eligible_pc, bm_stop_date, bm_entry_id, bm_entry_date)"
+            strSQL = strSQL & "VALUES(" & tfnRound(txtEmployee) & ", "
+            strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ", "
+            strSQL = strSQL & tfnRound(tgmBonus.CellValue(ColSequence, lRow)) & ", "
+            strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ", "
+            strSQL = strSQL & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ", "
+            strSQL = strSQL & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow)) & ", "
+            strSQL = strSQL & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ", "
+            strSQL = strSQL & tfnSQLString(Trim(tfnGetUserName)) & ", "
+            strSQL = strSQL & tfnDateString(Trim(Date), True) & ")"
+            
+            If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+                Exit Function
+            End If
+        End If
+    Next lRow
 
+    fnInsertBonusCode = True
 End Function
 
 Private Function fnLoadData() As Boolean
@@ -1886,28 +1974,39 @@ Private Function fnLoadData() As Boolean
         
 End Function
 
-Private Function fnUpdateBonusCode(lRow As Long) As Boolean
+Private Function fnUpdateBonusCode() As Boolean
     Const SUB_NAME As String = "fnUpdateBonusCode"
+    
+    Dim lRow As Long
     Dim strSQL As String
     Dim rsTemp As Recordset
   
     fnUpdateBonusCode = False
     
-    strSQL = "UPDATE bonus_master SET bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ","
-    strSQL = strSQL & " bm_sequence = " & tfnRound(tgmBonus.CellValue(colSequence, lRow)) & ","
-    strSQL = strSQL & " bm_eligible_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ","
-    strSQL = strSQL & " bm_eligible_class = " & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ","
-    strSQL = strSQL & " bm_eligible_pc = " & Trim(tgmBonus.CellValue(ColPrftCtr, lRow)) & ","
-    strSQL = strSQL & " bm_stop_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ","
-    strSQL = strSQL & " bm_entry_id = " & tfnSQLString(Trim(tfnGetUserName)) & ","
-    strSQL = strSQL & " bm_entry_date = " & tfnDateString(Trim(Date), True)
-    strSQL = strSQL & " WHERE bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(nxOldBonusCode, lRow)))
-    strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
     
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
-        fnUpdateBonusCode = True
-    End If
-
+    For lRow = 0 To tgmBonus.RowCount - 1
+        strSQL = "UPDATE bonus_master SET"
+    '    strSQL = strSQL & " bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(ColBCode, lRow))) & ","
+        strSQL = strSQL & " bm_sequence = " & tfnRound(tgmBonus.CellValue(ColSequence, lRow)) & ","
+    '    strSQL = strSQL & " bm_eligible_pc = " & Trim(tgmBonus.CellValue(ColPrftCtr, lRow)) & ","
+        strSQL = strSQL & " bm_eligible_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColElgDate, lRow)), True) & ","
+        strSQL = strSQL & " bm_eligible_class = " & tfnSQLString(Trim(tgmBonus.CellValue(ColElgClass, lRow))) & ","
+        strSQL = strSQL & " bm_stop_date = " & tfnDateString(Trim(tgmBonus.CellValue(ColStopDate, lRow)), True) & ","
+        strSQL = strSQL & " bm_entry_id = " & tfnSQLString(Trim(tfnGetUserName)) & ","
+        strSQL = strSQL & " bm_entry_date = " & tfnDateString(Trim(Date), True) & ","
+        strSQL = strSQL & " bm_override = " & tfnSQLString(tgmBonus.CellValue(ColOverride, lRow))
+        strSQL = strSQL & " WHERE bm_bonus_code = " & tfnSQLString(Trim(tgmBonus.CellValue(nxOldBonusCode, lRow)))
+        strSQL = strSQL & " AND bm_prft_ctr = " & tfnSQLString(Trim(tgmBonus.CellValue(nxOldPrftCtr, lRow)))
+        strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
+        
+        If fnExecuteSQL(strSQL, , SUB_NAME) Then
+            Exit Function
+        End If
+    Next lRow
+    
+    'fix seq
+    
+    fnUpdateBonusCode = True
 End Function
 
 Private Function fnCheckDubInGrid(nCol_Nbr As Integer, lCurrRow As Long) As String
@@ -2236,6 +2335,10 @@ Private Sub subEnterPhaseTwo()
 
     Screen.MousePointer = vbHourglass
 
+    If Not cvalidate.ValidInput(txtEmployee) Then
+        Exit Sub
+    End If
+    
     If Not tfnLockRow(efraToolBar.FMName, "bm_master", txtEmployee) Then
         Exit Sub
     End If
@@ -2291,6 +2394,9 @@ Private Function fnValidBonusCode(szText As String, lRow As Long, nCol As Intege
         fnValidBonusCode = True
         Exit Function
     Else
+        tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, lRow) = 0
+        tgmBonus.CellValue(nxColBonusCodeValid, lRow) = False
+        
         sBonusCode = szText
     End If
 
@@ -2310,37 +2416,47 @@ Private Function fnValidBonusCode(szText As String, lRow As Long, nCol As Intege
         sOverride = "N"
     End If
     
-    tgmBonus.CellValue(ColBCDesc, lRow) = fnGetField(rsTemp!bc_code_desc)
     tgmBonus.CellValue(ColOverride, lRow) = sOverride
     tgmBonus.CellValue(ColElgDate, lRow) = tfnFormatDate(Date)
    
-'    If Not tgmBonus.ValidCell(ColPrftCtr, lRow) Then
-'        fnValidBonusCode = True
-'        Exit Function
-'    End If
+    If Not tgmBonus.CellValue(nxColPrftCtrValid, lRow) Then
+        tgmBonus.ErrorMessage(ColBCode) = "Profit center is not valid"
+        Exit Function
+    End If
+    
+    'validate bonus grade and emp_level
+    strSQL = "SELECT bg_emp_level FROM bonus_grades WHERE"
+    strSQL = strSQL & " bg_grade = " + tfnSQLString(fnGetField(rsTemp!bc_grade))
+    strSQL = strSQL & " AND bg_emp_level = " & tfnRound(txtGrade)
+    If GetRecordCount(strSQL, , SUB_NAME) <= 0 Then
+        tgmBonus.ErrorMessage(ColBCode) = "Commission code is not valid for the Employee Level"
+        Exit Function
+    End If
+    
+    tgmBonus.CellValue(ColBCDesc, lRow) = fnGetField(rsTemp!bc_code_desc)
     
     'Check Dublication in the Table.
     If t_nFormMode = ADD_MODE Then
         strSQL = "SELECT * FROM bonus_master WHERE bm_bonus_code = " & tfnSQLString(sBonusCode)
         strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
-        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(tgmBonus.ValidCell(ColPrftCtr, lRow))
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
         If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
             tgmBonus.ErrorMessage(ColBCode) = "Commission code already exists in the table"
             Exit Function
         End If
     End If
     
+    tgmBonus.ValidCell(ColPrftCtr, lRow) = tgmBonus.CellValue(nxColPrftCtrValid, lRow)
+    tgmBonus.CellValue(nxColBonusCodeValid, lRow) = True
+    
     'Check Dublication in the Grid.
     If Not fnValidPrftCtrBonusCode(nCol, lRow, sBonusCode) Then
         Exit Function
     End If
     
-'    If sEmpFirstPrftCtr <> "" Then
-'        tgmBonus.CellValue(ColPrftCtr, lRow) = sEmpFirstPrftCtr
-'    End If
-'
-'    tgmBonus.CellValue(ColElgDate, lRow) = tfnFormatDate(Date)
-    'tblBonus.col = colSequence
+    If Not ActiveControl Is tblDropDown Then
+        tblBonus.col = ColBCDesc  'ColSequence  'ColBCDesc
+    End If
     
     fnValidBonusCode = True
 End Function
@@ -2352,29 +2468,30 @@ Private Function fnValidPrftCtrBonusCode(nColIndex As Integer, lRow As Long, szT
     Dim sOldBonusCode As String
     Dim nDuplicateCount As Integer
     Dim i As Long
+    Dim sDupliList As String
+    Dim aryDup() As String
     
     If nColIndex = ColPrftCtr Then
         nPrftCtr = tfnRound(szText)
-        nOldPrftCtr = tfnRound(tgmBonus.OldValue)
+        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxOldValidPrftCtr, lRow))
         sBonusCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
+        tgmBonus.CellValue(nxOldValidPrftCtr, lRow) = nPrftCtr
     Else  'ColBCode
         sBonusCode = szText
-        sOldBonusCode = fnGetField(tgmBonus.OldValue)
+        sOldBonusCode = fnGetField(tgmBonus.CellValue(nxOldValidBonusCode, lRow))
         nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+        tgmBonus.CellValue(nxOldValidBonusCode, lRow) = sBonusCode
     End If
-    
+
     'check for duplication
     nDuplicateCount = 0
     For i = 0 To tgmBonus.RowCount - 1
         If i <> lRow Then
             If tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = nPrftCtr And fnGetField(tgmBonus.CellValue(ColBCode, i)) = sBonusCode Then
-                'If fnGetField(tgmBonus.CellValue(ColBCode, i)) = sBonusCode Then
-                    tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) = _
-                        tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) + 1
-                    tgmBonus.ValidCell(ColPrftCtr, i) = False
-                    tgmBonus.ValidCell(ColBCode, i) = False
-                    nDuplicateCount = nDuplicateCount + 1
-                'End If
+                tgmBonus.ValidCell(ColPrftCtr, i) = False
+                tgmBonus.ValidCell(ColBCode, i) = False
+                sDupliList = sDupliList & i & ","
+                nDuplicateCount = nDuplicateCount + 1
             Else
                 If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) > 0 Then
                     'reset the duplication flag
@@ -2385,8 +2502,8 @@ Private Function fnValidPrftCtrBonusCode(nColIndex As Integer, lRow As Long, szT
                             tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) = _
                                 tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) - 1
                             If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) <= 0 Then
-                                tgmBonus.ValidCell(ColPrftCtr, i) = True
-                                tgmBonus.ValidCell(ColBCode, i) = True
+                                tgmBonus.ValidCell(ColPrftCtr, i) = tgmBonus.CellValue(nxColPrftCtrValid, i)
+                                tgmBonus.ValidCell(ColBCode, i) = tgmBonus.CellValue(nxColBonusCodeValid, i)
                             End If
                         End If
                     Else  'ColBCode
@@ -2396,8 +2513,8 @@ Private Function fnValidPrftCtrBonusCode(nColIndex As Integer, lRow As Long, szT
                             tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i) = _
                                 tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) - 1
                             If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, i)) <= 0 Then
-                                tgmBonus.ValidCell(ColPrftCtr, i) = True
-                                tgmBonus.ValidCell(ColBCode, i) = True
+                                tgmBonus.ValidCell(ColPrftCtr, i) = tgmBonus.CellValue(nxColPrftCtrValid, i)
+                                tgmBonus.ValidCell(ColBCode, i) = tgmBonus.CellValue(nxColBonusCodeValid, i)
                             End If
                         End If
                     End If
@@ -2407,18 +2524,123 @@ Private Function fnValidPrftCtrBonusCode(nColIndex As Integer, lRow As Long, szT
     Next i
 
     If nDuplicateCount > 0 Then
+        aryDup = Split(sDupliList, ",")
+        For i = 0 To UBound(aryDup)
+            If aryDup(i) <> "" Then
+                tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, Val(aryDup(i))) = nDuplicateCount
+            End If
+        Next i
+        
         tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, lRow) = nDuplicateCount
         tgmBonus.ErrorMessage(nColIndex) = "Duplicate Profit Center/Bonus Code encountered"
+        
+        If nColIndex = ColPrftCtr Then
+            tgmBonus.ValidCell(ColBCode, lRow) = False
+        Else  'ColBCode
+            tgmBonus.ValidCell(ColPrftCtr, lRow) = False
+        End If
+        
         Exit Function
     End If
 
     If nColIndex = ColPrftCtr Then
-        tgmBonus.ValidCell(ColBCode, lRow) = True
+        tgmBonus.ValidCell(ColBCode, lRow) = tgmBonus.CellValue(nxColBonusCodeValid, lRow)
     Else  'ColBCode
-        tgmBonus.ValidCell(ColPrftCtr, lRow) = True
+        tgmBonus.ValidCell(ColPrftCtr, lRow) = tgmBonus.CellValue(nxColPrftCtrValid, lRow)
     End If
 
     fnValidPrftCtrBonusCode = True
+End Function
+
+Private Function fnValidPrftCtrSequence(nColIndex As Integer, lRow As Long, szText As String) As Boolean
+    Dim nPrftCtr As Integer
+    Dim nSeq As Integer
+    Dim nOldPrftCtr As Integer
+    Dim nOldSeq As Integer
+    Dim nDuplicateCount As Integer
+    Dim i As Long
+    Dim sDupliList As String
+    Dim aryDup() As String
+    
+    If nColIndex = ColPrftCtr Then
+        nPrftCtr = tfnRound(szText)
+        nOldPrftCtr = tfnRound(tgmBonus.CellValue(nxOldValidPrftCtr, lRow))
+        nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
+        tgmBonus.CellValue(nxOldValidPrftCtr, lRow) = nPrftCtr
+    Else  'ColSequence
+        nSeq = szText
+        nOldSeq = tfnRound(tgmBonus.CellValue(nxOldValidSeq, lRow))
+        nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+        tgmBonus.CellValue(nxOldValidSeq, lRow) = nSeq
+    End If
+
+    'check for duplication
+    nDuplicateCount = 0
+    For i = 0 To tgmBonus.RowCount - 1
+        If i <> lRow Then
+            If tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = nPrftCtr And tfnRound(tgmBonus.CellValue(ColSequence, i)) = nSeq Then
+                tgmBonus.ValidCell(ColPrftCtr, i) = False
+                tgmBonus.ValidCell(ColSequence, i) = False
+                sDupliList = sDupliList & i & ","
+                nDuplicateCount = nDuplicateCount + 1
+            Else
+                If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) > 0 Then
+                    'reset the duplication flag
+                    If nColIndex = ColPrftCtr Then
+                        If tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = _
+                           nOldPrftCtr And tfnRound(tgmBonus.CellValue(ColSequence, i)) = _
+                           nSeq Then
+                            tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i) = _
+                                tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) - 1
+                            If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) <= 0 Then
+                                tgmBonus.ValidCell(ColPrftCtr, i) = tgmBonus.CellValue(nxColPrftCtrValid, i)
+                                tgmBonus.ValidCell(ColSequence, i) = tgmBonus.CellValue(nxColSeqValid, i)
+                            End If
+                        End If
+                    Else  'colsequence
+                        If tfnRound(tgmBonus.CellValue(ColSequence, i)) = _
+                           nOldSeq And tfnRound(tgmBonus.CellValue(ColPrftCtr, i)) = _
+                           nPrftCtr Then
+                            tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i) = _
+                                tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) - 1
+                            If tfnRound(tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, i)) <= 0 Then
+                                tgmBonus.ValidCell(ColPrftCtr, i) = tgmBonus.CellValue(nxColPrftCtrValid, i)
+                                tgmBonus.ValidCell(ColSequence, i) = tgmBonus.CellValue(nxColSeqValid, i)
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+        End If
+    Next i
+
+    If nDuplicateCount > 0 Then
+        aryDup = Split(sDupliList, ",")
+        For i = 0 To UBound(aryDup)
+            If aryDup(i) <> "" Then
+                tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, Val(aryDup(i))) = nDuplicateCount
+            End If
+        Next i
+        
+        tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, lRow) = nDuplicateCount
+        tgmBonus.ErrorMessage(nColIndex) = "Duplicate Profit Center/Sequence encountered"
+        
+        If nColIndex = ColPrftCtr Then
+            tgmBonus.ValidCell(ColSequence, lRow) = False
+        Else  'colsequence
+            tgmBonus.ValidCell(ColPrftCtr, lRow) = False
+        End If
+        
+        Exit Function
+    End If
+
+    If nColIndex = ColPrftCtr Then
+        tgmBonus.ValidCell(ColSequence, lRow) = tgmBonus.CellValue(nxColSeqValid, lRow)
+    Else  'colsequence
+        tgmBonus.ValidCell(ColPrftCtr, lRow) = tgmBonus.CellValue(nxColPrftCtrValid, lRow)
+    End If
+
+    fnValidPrftCtrSequence = True
 End Function
 
 Private Function fnCreateSearchTable(szNumber As String, szName As String) As Boolean
@@ -2472,6 +2694,10 @@ Private Function fnValidPrftCtr(szText As String, lRow As Long, nCol As Integer)
     
     fnValidPrftCtr = False
     
+    tgmBonus.CellValue(nxColBGDuplPrftCtrBonusCode, lRow) = 0
+    tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, lRow) = 0
+    tgmBonus.CellValue(nxColPrftCtrValid, lRow) = False
+    
     If Trim(szText) = "" Then
         tgmBonus.ErrorMessage(ColPrftCtr) = "You must enter a valid profit center"
         Exit Function
@@ -2483,28 +2709,40 @@ Private Function fnValidPrftCtr(szText As String, lRow As Long, nCol As Integer)
         Exit Function
     End If
     
-'    If Not tgmBonus.ValidCell(ColBCode, lRow) Then
-'        fnValidPrftCtr = True
-'        Exit Function
-'    End If
+    If Not fnInList(sEmpPrftCtrList, szText) Then
+        tgmBonus.ErrorMessage(ColPrftCtr) = "Profit center is not valid for the employee"
+        Exit Function
+    End If
+    
+    If Not tgmBonus.ValidCell(ColBCode, lRow) Then
+        tgmBonus.CellValue(nxColPrftCtrValid, lRow) = True
+        fnValidPrftCtr = True
+        Exit Function
+    End If
     
     'Check Dublication in the Table.
     If t_nFormMode = ADD_MODE Then
         strSQL = "SELECT * FROM bonus_master WHERE bm_eligible_pc = " & tfnRound(szText)
         strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
-        strSQL = strSQL & " AND bm_bonus_code = " & tfnSQLString(tgmBonus.ValidCell(ColBCode, lRow))
+        strSQL = strSQL & " AND bm_bonus_code = " & tfnSQLString(tgmBonus.CellValue(ColBCode, lRow))
         If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
             tgmBonus.ErrorMessage(ColBCode) = "Commission code already exists in the table"
             Exit Function
         End If
     End If
     
-    'Check Dublication in the Grid.
+    tgmBonus.CellValue(nxColPrftCtrValid, lRow) = True
+    
+    'Check Duplication in the Grid Profit Center/Bonus Code.
     If Not fnValidPrftCtrBonusCode(nCol, lRow, szText) Then
         Exit Function
     End If
     
-    
+    'Check Duplication in the Grid Profit Center/Sequence.
+    If Not fnValidPrftCtrSequence(nCol, lRow, szText) Then
+        Exit Function
+    End If
+
     fnValidPrftCtr = True
 
 End Function
@@ -2587,54 +2825,61 @@ Private Function fnValidSequence(szText As String, lRow As Long, nCol As Integer
     
     fnValidSequence = False
     
+    tgmBonus.CellValue(nxColBGDuplPrftCtrSeq, lRow) = 0
+    tgmBonus.CellValue(nxColSeqValid, lRow) = False
+    
     If Trim(szText) = "" Then
         tgmBonus.ErrorMessage(nCol) = "You must enter a sequence"
         Exit Function
     End If
     
+    If Not tgmBonus.CellValue(nxColPrftCtrValid, lRow) Then
+        tgmBonus.ErrorMessage(nCol) = "Profit center is not valid"
+        Exit Function
+    End If
+    
     If t_nFormMode = ADD_MODE Then
-        If tgmBonus.ValidCell(ColPrftCtr, lRow) Then
-            strSQL = "SELECT * FROM bonus_master WHERE bm_empno = " & tfnRound(txtEmployee)
-            strSQL = strSQL & " AND bm_sequence = " & tfnRound(szText)
-            strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
-        
-            If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
-                tgmBonus.ErrorMessage(nCol) = "Sequence for the profit center already exists"
-                Exit Function
-            End If
-        Else
-            fnValidSequence = True
+        strSQL = "SELECT * FROM bonus_master WHERE bm_empno = " & tfnRound(txtEmployee)
+        strSQL = strSQL & " AND bm_sequence = " & tfnRound(szText)
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+    
+        If GetRecordCount(strSQL, , SUB_NAME) > 0 Then
+            tgmBonus.ErrorMessage(nCol) = "Sequence for the profit center already exists"
             Exit Function
         End If
     End If
     
-    'check for duplication profit center, sequence
-'    bFoundDuplicate = False
-'    For i = 0 To tgmBonus.RowCount - 1
-'        If i <> lRow Then
-'            If tfnRound(tgmBonus.CellValue(nColBGLevel, i)) = tfnRound(szText) Then
-'                tgmBonus.CellValue(nxColBGDuplSeq, i) = "Y"
-'                tgmBonus.ValidCell(nColBGLevel, i) = False
-'                bFoundDuplicate = True
-'            Else
-'                If fnGetField(tgmBonus.CellValue(nxColBGDuplicates, i)) = "Y" Then
-'                    If tfnRound(tgmBonus.CellValue(nColBGLevel, i)) = tfnRound(tgmBonus.OldValue) Then
-'                        'reset the duplication flag
-'                        tgmBonus.CellValue(nxColBGDuplicates, i) = ""
-'                        tgmBonus.ValidCell(nColBGLevel, i) = True
-'                    End If
-'                End If
-'            End If
-'        End If
-'    Next i
-'
-'    If bFoundDuplicate Then
-'        tgmBonus.CellValue(nxColBGDuplicates, lRow) = "Y"
-'        tgmBonus.ErrorMessage(nColBGLevel) = "Duplicate Sequence for the profit center encountered"
-'        Exit Function
-'    End If
-'
-'    tgmBonus.CellValue(nxColBGDuplicates, lRow) = ""
+    tgmBonus.ValidCell(ColPrftCtr, lRow) = tgmBonus.CellValue(nxColPrftCtrValid, lRow)
+    tgmBonus.CellValue(nxColSeqValid, lRow) = True
+    
+    'Check Duplication in the Grid Profit Center/Sequence.
+    If Not fnValidPrftCtrSequence(nCol, lRow, szText) Then
+        Exit Function
+    End If
+    
     fnValidSequence = True
 
+End Function
+
+Private Function fnInList(sList As String, _
+                          sItem As String, _
+                          Optional sDelimiter As String = ",") As Boolean
+    
+    Dim aryList() As String
+    Dim i As Integer
+    
+    On Error GoTo errTrap
+    
+    aryList = Split(sList, sDelimiter)
+    
+    For i = 0 To UBound(aryList)
+        If aryList(i) = sItem Then
+            fnInList = True
+            Exit Function
+        End If
+    Next i
+
+errTrap:
+    'error
+    
 End Function
