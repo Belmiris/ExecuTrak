@@ -2,13 +2,13 @@ VERSION 5.00
 Begin VB.Form frmDlgPath 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "Select Output Path"
-   ClientHeight    =   3096
-   ClientLeft      =   3156
-   ClientTop       =   4044
-   ClientWidth     =   5196
+   ClientHeight    =   3090
+   ClientLeft      =   3150
+   ClientTop       =   4050
+   ClientWidth     =   5205
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   10.2
+      Size            =   10.5
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -20,12 +20,21 @@ Begin VB.Form frmDlgPath
    MaxButton       =   0   'False
    MinButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
-   ScaleHeight     =   3096
-   ScaleWidth      =   5196
+   ScaleHeight     =   3090
+   ScaleWidth      =   5205
    ShowInTaskbar   =   0   'False
    Begin VB.CommandButton cmdCancel 
       Caption         =   "&Cancel"
-      Height          =   384
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   360
       HelpContextID   =   15
       Left            =   3540
       TabIndex        =   6
@@ -34,7 +43,16 @@ Begin VB.Form frmDlgPath
    End
    Begin VB.CommandButton cmdOk 
       Caption         =   "O&K"
-      Height          =   384
+      BeginProperty Font 
+         Name            =   "Arial"
+         Size            =   9.75
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   360
       HelpContextID   =   16
       Left            =   3540
       TabIndex        =   5
