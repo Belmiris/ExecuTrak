@@ -718,6 +718,7 @@ Public Sub tfnLockElasticControls(frmForm As Form)
     #End If
 
 End Sub
+
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
                            sSql As String, _
@@ -741,7 +742,9 @@ Public Function tfnLockRow(sProgramID As String, _
         tfnLockRow = True
         Exit Function
     #End If
+    
     tfnLockRow = False
+    
     #If DEVELOP Then
         If Trim(sTable) = "" Then
             MsgBox "You have to provide the table name in which you want to lock a row", , sErrID
@@ -777,6 +780,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Else
         sCriteria = sSql
     End If
+    
     #If DEVELOP Then
         If Len(sCriteria) > 80 Then
             MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
@@ -785,6 +789,7 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
     
     sTemp = LCase(Trim(sTable))
+    
     For i = 0 To nHandleCount - 1
         If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
@@ -793,10 +798,12 @@ Public Function tfnLockRow(sProgramID As String, _
     Next i
 
     On Error GoTo errOpenRecord
-    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTable) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
+    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
     If rsTemp.RecordCount > 0 Then
         t_lLockHandle = rsTemp.Fields(0)
+        
         If t_lLockHandle = 0 Then
             If Trim(rsTemp.Fields(1)) = "" Then
                 #If DEVELOP Then
@@ -804,6 +811,7 @@ Public Function tfnLockRow(sProgramID As String, _
                 #End If
             Else
                 Dim bShowMsg As Boolean
+                
                 If IsMissing(vShowMsg) Then
                     bShowMsg = True
                 Else
@@ -820,19 +828,23 @@ Public Function tfnLockRow(sProgramID As String, _
             End If
         End If
     End If
+    
     rsTemp.Close
     Set rsTemp = Nothing
+    
     If t_lLockHandle > 0 Then
         If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
-                ReDim arryLockHandles(nHandleCount)
+                ReDim arryLockHandles(nHandleCount - 1)
             Else
                 nHandleCount = nHandleCount + 1
-                ReDim Preserve arryLockHandles(nHandleCount)
+                ReDim Preserve arryLockHandles(nHandleCount - 1)
             End If
         End If
+        
         tfnLockRow = True
+        arryLockHandles(i).m_sTable = sTemp
         arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
@@ -847,6 +859,7 @@ errOpenRecord:
     #End If
     Err.Clear
     Exit Function
+
 errTableName:
     #If DEVELOP Then
         MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
@@ -879,8 +892,6 @@ Public Sub tfnStoreFontInfo(frmForm As Form, arrayFontSizes() As Integer)
 
 End Sub
 
-
-
 Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     Const SUB_NAME = "tfnUnlockRow"
     
@@ -898,6 +909,7 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
     
     tfnUnlockRow = False
     On Error GoTo errUnlock
+    
     If IsMissing(vTable) Then
         While nHandleCount > 0
             strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(nHandleCount - 1).m_lHandle) & ")"
@@ -905,6 +917,8 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
             If rsTemp.RecordCount > 0 Then
                 If rsTemp.Fields(0) > 0 Then
                     nHandleCount = nHandleCount - 1
+                    arryLockHandles(nHandleCount - 1).m_sTable = ""
+                    arryLockHandles(nHandleCount - 1).m_lHandle = -1
                 Else
                     rsTemp.Close
                     Exit Function
@@ -914,19 +928,25 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 Exit Function
             End If
         Wend
+        
+        ReDim arryLockHandles(0)
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Integer
+        Dim i As Long
+        Dim j As Long
         
         sTable = LCase(Trim(vTable))
-        For i = 0 To nHandleCount
+        
+        For i = 0 To nHandleCount - 1
             If sTable = arryLockHandles(i).m_sTable Then
                 strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
                         nHandleCount = nHandleCount - 1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                     Else
                         rsTemp.Close
                         Exit Function
@@ -935,10 +955,25 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                     rsTemp.Close
                     Exit Function
                 End If
+                
                 Exit For
             End If
         Next i
+        
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
+                arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
+                arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
+            Next j
+        End If
+        
+        If nHandleCount > 0 Then
+            ReDim Preserve arryLockHandles(nHandleCount - 1)
+        Else
+            ReDim arryLockHandles(0)
+        End If
     End If
+    
     Set rsTemp = Nothing
     tfnUnlockRow = True
     Exit Function
