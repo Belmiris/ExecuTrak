@@ -477,9 +477,10 @@ End Sub
 
 
 Public Sub SelectAll()
-    
-    Dim i As Integer
-    Dim nRows As Integer
+
+    'changed for two variables from integer type to long by junsong Oct. 9, 2000
+    Dim i As Long
+    Dim nRows As Long
     
     If Not m_tgcEditor Is Nothing Then
         nRows = m_tgcEditor.RowCount
