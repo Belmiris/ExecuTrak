@@ -4,8 +4,7 @@ Date: 07/25/2003
 #403928, #412188
 
 Description: 
-	1. System Parameter #30083 ("Y","N","Y 0").
-	2. BLANKS in the quantity column for any sales tax (tx_table.tt_basis = "$" or "F")
+	BLANKS in the quantity column for any sales tax (tx_table.tt_basis = "$" or "F")
 
 	alter table MTaxDetail add cTaxBasis char(1);
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
