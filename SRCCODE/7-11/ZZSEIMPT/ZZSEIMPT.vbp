@@ -19,8 +19,8 @@ Class=clsTGSpreadSheet; ..\..\..\SHARED\ClsFiles\Tgeditor.cls
 Class=clsColumnExtension; ..\..\..\SHARED\ClsFiles\textext.cls
 Class=clsColumns; ..\..\..\SHARED\ClsFiles\COLUMN.CLS
 Class=clsFloatingDropDown; ..\..\..\SHARED\ClsFiles\Fltdrpdn.cls
-Form=ZZSEIMPT.FRM
 Module=modzzseimpt; MODZZSEIMPT.bas
+Form=ZZSEIMPT.FRM
 IconForm="frmZZSEIMPT"
 Startup="frmZZSEIMPT"
 HelpFile="FACTOR.HLP"
@@ -34,7 +34,7 @@ Description="Import Invoices"
 CompatibleMode="0"
 MajorVer=3
 MinorVer=25
-RevisionVer=601
+RevisionVer=602
 AutoIncrementVer=0
 ServerSupportFiles=0
 VersionComments="ZZSEIMPT"
@@ -43,7 +43,7 @@ VersionFileDescription="ZZSEIMPT.EXE"
 VersionLegalCopyright="Copyright © 1997-2001 FACTOR, A Division of WR Hess Company"
 VersionLegalTrademarks="FACTOR"
 VersionProductName="FACTOR"
-CondComp="FACTOR_MENU = -1 : DEVELOP = 0 : PROTOTYPE = 0"
+CondComp="FACTOR_MENU = 0 : DEVELOP = 0 : PROTOTYPE = 0"
 CompilationType=0
 OptimizationType=0
 FavorPentiumPro(tm)=0
