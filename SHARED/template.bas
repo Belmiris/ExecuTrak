@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 
 Global CRLF As String 'carriage return linefeed string
 
@@ -1258,12 +1258,12 @@ Private Function fnShowODBCError() As String
     
     If Err.Number = 3146 Then
         With t_engFactor.Errors
-            If .count > 0 Then
-                For i = 0 To .count - 2
+            If .Count > 0 Then
+                For i = 0 To .Count - 2
                     sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .count <= 2 Then
+            If .Count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -1324,7 +1324,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1525,7 +1525,9 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         End If
         'first line
         If Not IsNull(rsTemp.Fields(fieldNum)) Then
-            sTemp = RTrim$(rsTemp.Fields(fieldNum))
+            'david 04/29/2002
+            sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+            '''''''''''''''''
         Else
             sTemp = ""
         End If
@@ -1535,7 +1537,9 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         'the rest
         While Not rsTemp.EOF
             If Not IsNull(rsTemp.Fields(fieldNum)) Then
-                sTemp = sTemp + vbCrLf + RTrim$(rsTemp.Fields(fieldNum))
+                'david 04/29/2002
+                sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+                '''''''''''''''''
             Else
                 sTemp = sTemp + vbCrLf + ""
             End If
@@ -1954,7 +1958,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     On Error Resume Next
     
-    For nIndex = 0 To frmWindow.Controls.count
+    For nIndex = 0 To frmWindow.Controls.Count
         
         If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
@@ -2414,7 +2418,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2635,5 +2639,30 @@ Public Function fnSetScreenResolution(nScreenWidth As Integer, nScreenHeight As 
         MsgBox "Mode not supported", vbSystemModal, "Error"
     End Select
 End Function
+
+'david 04/29/2002
+Public Function fnRemoveChr0(vText) As String
+    Dim sText As String
+    Dim sTemp As String
+    Dim sChar As String
+    Dim i As Long
+    
+    sText = vText & ""
+    
+    sTemp = ""
+    
+    If sText <> "" Then
+        For i = 1 To Len(sText)
+            sChar = Mid(sText, i, 1)
+            
+            If sChar <> Chr(0) Then
+                sTemp = sTemp + sChar
+            End If
+        Next i
+    End If
+    
+    fnRemoveChr0 = sTemp
+End Function
+'''''''''''''''
 
 
