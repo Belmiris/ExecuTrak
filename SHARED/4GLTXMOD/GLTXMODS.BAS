@@ -412,7 +412,9 @@ Public Sub filter_trn()
         End If
         For j = i To trn_arry_cnt
             k = j + 1
-            trn_arry(j) = trn_arry(k)
+            If k <= trn_arry_cnt Then
+                trn_arry(j) = trn_arry(k)
+            End If
         Next
         
         trn_arry_cnt = trn_arry_cnt - 1
@@ -1176,7 +1178,7 @@ Public Function tax_batch(e_num As Integer) As String
         Case 10
              fe_msg = "G/L Account" & Str$(pr_gl_master_glm_account) & " not found for Profit Center" & Str$(pr_gl_master_glm_prft_ctr) & "."
         Case 11
-             fe_msg = "Y flag not allowed on Internal Transactions."
+             fe_msg = "'Y' flag is not allowed on Internal Transactions."
         Case 12
              fe_msg = "Tax Class Not Found."
         Case 13
