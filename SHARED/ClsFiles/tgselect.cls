@@ -572,7 +572,7 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
     Dim bAltDown As Boolean
     Dim bCtrlDown As Boolean
     
-    If m_tgTable.EditActive And KeyCode = vbKeyDelete Then
+    If m_tgTable.EditActive And (KeyCode = vbKeyLeft Or KeyCode = vbKeyDelete) Then
         Exit Sub
     End If
     
@@ -734,7 +734,7 @@ Public Sub LostFocus(Optional bClearHighlight As Boolean = True)
 End Sub
 
 'david 04/12/2004  #401172-1
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Public Sub MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     Dim ShiftTest As Integer
    
     If Button = vbLeftButton Then
@@ -751,7 +751,7 @@ Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Sing
         'End Select
         
         'david 02/09/2004  #401172-1
-        If IsMultiSelectCellColumn(m_tgTable.ColContaining(x)) Then
+        If IsMultiSelectCellColumn(m_tgTable.ColContaining(X)) Then
             If ShiftTest <> vbShiftMask And Shift <> vbCtrlMask And Shift <> 3 Then
                 If ShiftTest <> vbShiftMask Then
                     m_nLastClickedRow = -1
@@ -763,8 +763,8 @@ Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Sing
         ''''''''''''''''''''''''''''
         
         m_nShiftControl = Shift
-        m_nClickPointX = x
-        m_nClickPointY = y
+        m_nClickPointX = X
+        m_nClickPointY = Y
     End If
 End Sub
 ''''''''''''''''''''''''''''
@@ -773,11 +773,11 @@ End Sub
 'NEED TO ADD THE X parameter into this function
 'The calls made to this function need to be changed
 'Sorry for the inconvinence
-Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Integer)
+Public Sub MouseUp(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Integer)
     If Button = vbLeftButton Then
         m_nShiftControl = Shift
-        m_nClickPointX = x
-        m_nClickPointY = y
+        m_nClickPointX = X
+        m_nClickPointY = Y
     End If
 End Sub
 
@@ -822,8 +822,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Public Sub SelectAll()
