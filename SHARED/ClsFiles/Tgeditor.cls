@@ -875,15 +875,19 @@ Private Sub fnChangeToEditingCol(ByVal nLastCol As Integer)
                 End If
             End If
         Else
-            If fnGotoPreviousRow Then
-                If LastEditableCol < tgTable.Columns.Count Then
-                    tgTable.Col = LastEditableCol
-                End If
-            Else
-                If nLastCol < tgTable.Columns.Count Then
-                    tgTable.Col = nLastCol
-                End If
-            End If
+            'david 12/11/2002
+            'WHY GOTO THE PREVIOUS ROW ???
+            'THE CAUSE PROBLEM WHEN IMPLEMENTING THE POPUP ON DOUBLE CLICKING A ROW!!!
+'            If fnGotoPreviousRow Then
+'                If LastEditableCol < tgTable.Columns.Count Then
+'                    tgTable.Col = LastEditableCol
+'                End If
+'            Else
+'                If nLastCol < tgTable.Columns.Count Then
+'                    tgTable.Col = nLastCol
+'                End If
+'            End If
+            tgTable.Col = FirstEditableCol
         End If
     End If
 
@@ -3680,13 +3684,14 @@ Private Function fnGotoNextRow(Optional bAction As Variant) As Boolean
     On Error GoTo retFalse
     fnGotoNextRow = False
     lRow = GetCurrentRowNumber()
-'    lRow = tgTable.FirstRow + tgTable.Row
     nECol = fnColumnNumber(tgTable.Col)
+    
     If lRow >= nRowCount - 1 Then
         If Not bAllowAddNew Then
             Exit Function
         End If
     End If
+    
     If nColumnCount = 1 Then
         If lRow > nRowCount Or (lRow >= nRowCount And nRowCount > 0) Then
             Exit Function
@@ -3696,12 +3701,14 @@ Private Function fnGotoNextRow(Optional bAction As Variant) As Boolean
             Exit Function
         End If
     End If
+    
     If lRow >= nRowCount - 1 Then
         If nECol >= 0 Then
             If Not fnCheckRowValid(nECol, lRow) Then
                 Exit Function
             End If
         End If
+        
         For i = nColumnCount - 1 To 0 Step -1
             If Not fnCheckRowValid(i, lRow) Then
                 Exit Function
@@ -3716,9 +3723,9 @@ Private Function fnGotoNextRow(Optional bAction As Variant) As Boolean
             End If
         End If
     End If
+    
     If lRow >= nRowCount - 1 Then
         subAddNewRow nColumnForNewRow
-        'fnSaveBookMarks GridArray(nBookMarkColumn, nRowCount - 1)
     End If
 
     If IsMissing(bAction) Then

@@ -291,7 +291,11 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                 Exit Function
             End If
             
-            nRow = nRow - m_tgTable.VisibleRows + 1
+            'david 12/11/2002
+            'fixed pageup highlighting row
+            'nRow = nRow - m_tgTable.VisibleRows + 1
+            nRow = nRow - m_tgTable.VisibleRows + 2
+            '''''''''''''''''
             
             If nRow < 0 Then
                 nRow = 0
@@ -516,6 +520,22 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
                     Shift = 0
                     KeyCode = 0
                     Exit Sub
+                ElseIf KeyCode = vbKeyUp Or KeyCode = vbKeyDown Then
+                    'david 12/12/2002
+                    'fixed ctrl-up, ctrl-down
+                    If m_bSelectCurrRow Then
+                        If Count > 0 Then
+                            fnMarkCurrent KeyCode, m_nShiftControl
+                        End If
+                    Else
+                        If Count = 0 Then
+                            If m_tgcEditor.GetCurrentRowNumber >= 0 Then
+                                m_tgTable.SelBookmarks.Add m_tgcEditor.MakeBookmark(m_tgcEditor.GetCurrentRowNumber)
+                            End If
+                        Else
+                            fnMarkCurrent KeyCode, m_nShiftControl
+                        End If
+                    End If
                 End If
             End If
         ElseIf bAltDown Then
@@ -621,8 +641,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Public Sub SelectAll()
