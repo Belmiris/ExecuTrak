@@ -205,6 +205,8 @@ Private m_lHeaderPosition As Long
 Private m_lTaxPaidTrn(20) As Long
 Private m_nTPTCount As Integer
 
+Private m_sTaxPaidOriginState As String
+
 Private sFMTaxLineBuffer As String * EDI_FMTAX_RECORD_LENGGH
 '
 
@@ -383,14 +385,14 @@ End Property
 
 Private Function fnConvertFEDID(sID As Variant) As String
     Dim sTemp As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sChar As String
     
     sTemp = ""
     
     If Not IsNull(sID) Then
-        For I = 1 To Len(sID)
-            sChar = Mid(sID, I, 1)
+        For i = 1 To Len(sID)
+            sChar = Mid(sID, i, 1)
             If sChar <> "-" And sChar <> " " Then
                 sTemp = sTemp & sChar
             End If
@@ -588,7 +590,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
 
     Const SUB_NAME = "fnOpenFMTaxRecord"
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     Dim ciTemp As ETFMTaxRecord
     Dim sInfo1 As String
@@ -598,12 +600,12 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Dim colTemp As Collection
     Dim sType As String
 
-    strSQl = "DROP TABLE fm_temp1"
-    fnExecuteSQL strSQl, SUB_NAME
-    strSQl = "DROP TABLE fm_temp2"
-    fnExecuteSQL strSQl, SUB_NAME
-    strSQl = "DROP TABLE fm_temp3"
-    fnExecuteSQL strSQl, SUB_NAME
+    strSQL = "DROP TABLE fm_temp1"
+    fnExecuteSQL strSQL, SUB_NAME
+    strSQL = "DROP TABLE fm_temp2"
+    fnExecuteSQL strSQL, SUB_NAME
+    strSQL = "DROP TABLE fm_temp3"
+    fnExecuteSQL strSQL, SUB_NAME
     
     If m_sEDIType = EDI_TYPE_R Then
         sType = "B"
@@ -614,15 +616,21 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         #If True Then
             'Begin Change. Ma. 06/16/00
             ' Add one criteria (fml_int_ext = 'E') to limit out internal BOL
-            strSQl = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal," _
-                & " fml_int_ext, fml_date FROM fm_lading, fm_movement WHERE fml_date" _
-                & " BETWEEN " & tfnDateString(m_sStartDate, True) & " AND " _
-                & tfnDateString(m_sEndDate, True) & " AND fmm_dispatch_flag = 'C'" _
-                & " AND fml_movement = fmm_movement" _
-                & " AND fml_int_ext = 'E'" _
+            strSQL = "SELECT fmm_movement, fmm_carrier, fml_bl_nbr, fml_vendor, fml_terminal,"
+            strSQL = strSQL + " fml_int_ext, fml_date"
+            strSQL = strSQL + " FROM fm_lading, fm_movement WHERE fml_date"
+            strSQL = strSQL + " BETWEEN " & tfnDateString(m_sStartDate, True)
+            strSQL = strSQL + " AND " + tfnDateString(m_sEndDate, True)
+            strSQL = strSQL + " AND fmm_dispatch_flag = 'C'"
+            strSQL = strSQL + " AND fml_movement = fmm_movement"
+            strSQL = strSQL + " INTO TEMP fm_temp1"
+'david 08/10/00
+'No Magic# found for the fixes!!!
+'UNDO Ma's changes, comment out
+'                & " AND fml_int_ext = 'E'" _
                 & " INTO TEMP fm_temp1"
             'End Change. Ma
-            If fnExecuteSQL(strSQl, SUB_NAME, "") < 0 Then
+            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
                 m_nErrorNumber = EC_CREATE_TT1_R
                 Exit Function
             End If
@@ -631,32 +639,32 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 Exit Function
             End If
             
-            strSQl = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn," _
-                & " fml_int_ext, fml_vendor, fml_terminal, fml_date" _
-                & " FROM fm_lad_tax, tx_use_link, fm_temp1" _
-                & " WHERE fmldt_movement = fmm_movement" _
-                & " AND fmldt_bl_nbr = fml_bl_nbr" _
-                & " AND fmldt_trn = tul_trn" _
-                & " AND fmldt_ulink = tul_link" _
-                & " AND (" & fnAppenCriteria("tul_sched", sSchedule) _
-                & ") AND fmldt_type = '" & sType & "'"
+            strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn,"
+            strSQL = strSQL + " fml_int_ext, fml_vendor, fml_terminal, fml_date"
+            strSQL = strSQL + " FROM fm_lad_tax, tx_use_link, fm_temp1"
+            strSQL = strSQL + " WHERE fmldt_movement = fmm_movement"
+            strSQL = strSQL + " AND fmldt_bl_nbr = fml_bl_nbr"
+            strSQL = strSQL + " AND fmldt_trn = tul_trn"
+            strSQL = strSQL + " AND fmldt_ulink = tul_link"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("tul_sched", sSchedule) + ")"
+            strSQL = strSQL + " AND fmldt_type = '" & sType & "'"
             
             If m_nTPTCount >= 0 Then
                 Select Case nTypeCode
                 Case "1"
                     If Not IsMissing(vExtractFrom) Then
-                        strSQl = strSQl & " AND (fmldt_trn IN " & _
+                        strSQL = strSQL & " AND (fmldt_trn IN " & _
                             fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
                     End If
                 Case "3"
-                    strSQl = strSQl & " AND (fmldt_trn NOT IN " & _
+                    strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
                         fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
                 End Select
             End If
             
-            strSQl = strSQl & " INTO TEMP fm_temp2"
+            strSQL = strSQL & " INTO TEMP fm_temp2"
             
-            If fnExecuteSQL(strSQl, SUB_NAME, "") < 0 Then
+            If fnExecuteSQL(strSQL, SUB_NAME, "") < 0 Then
                 m_nErrorNumber = EC_CREATE_TT2_R
                 Exit Function
             End If
@@ -665,82 +673,83 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                 Exit Function
             End If
         
-            strSQl = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
-                & " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn," _
-                & " fmd_dest_code, fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount" _
-                & " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
-            strSQl = strSQl & " WHERE fmldt_line = fmmb_bl_line" _
-                & " AND fmldt_bl_nbr = fmmb_bl_nbr" _
-                & " AND fmm_movement = fmmb_movement" _
-                & " AND fmd_invoice= fmmb_dv_nbr" _
-                & " AND fmd_movement = fmmb_movement" _
-                & " AND fmmb_bl_prodlnk = ivh_link" _
-                & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
+            strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
+            strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
+            strSQL = strSQL + " fmmb_dv_vol namount"
+            strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
+            strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
+            strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
+            strSQL = strSQL + " AND fmm_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
+            strSQL = strSQL + " AND fmd_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
     
-             strSQl = strSQl & " ORDER BY fmldt_bl_nbr"
+            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         #Else
             'david 04/01/00
             'NOT USED
             'BOB'S SQL STATEMENT
-            strSQl = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor," _
                 & " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl, fmldt_trn," _
                 & " fmd_dest_code, fmd_prft_ctr, fmd_dest_flag, fmmb_dv_vol namount"
                 
-            strSQl = strSQl & " FROM ssfactor.fm_delivery fm_delivery,"
-            strSQl = strSQl & " ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQl = strSQl & " ssfactor.fm_lad_tax fm_lad_tax,"
-            strSQl = strSQl & " ssfactor.fm_lading fm_lading,"
-            strSQl = strSQl & " ssfactor.fm_lading_d fm_lading_d,"
-            strSQl = strSQl & " ssfactor.fm_movement fm_movement,"
-            strSQl = strSQl & " ssfactor.fm_mv_bal fm_mv_bal,"
-            strSQl = strSQl & " ssfactor.inv_header inv_header,"
-            strSQl = strSQl & " ssfactor.tx_use_link tx_use_link"
+            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
+            strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
+            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
+            strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
+            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
+            strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
+            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
+            strSQL = strSQL & " ssfactor.inv_header inv_header,"
+            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
             
-            strSQl = strSQl & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQl = strSQl & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQl = strSQl & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQl = strSQl & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQl = strSQl & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQl = strSQl & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
-            strSQl = strSQl & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
+            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
+            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
+            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
+            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
+            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
+            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
+            strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
             
-            strSQl = strSQl & " AND fml_date BETWEEN " & tfnDateString(m_sStartDate, True)
-            strSQl = strSQl & " AND " & tfnDateString(m_sEndDate, True)
-            strSQl = strSQl & " AND fmm_dispatch_flag = 'C'"
-            strSQl = strSQl & " AND (" & fnAppenCriteria("tul_sched", sSchedule)
-            strSQl = strSQl & ") AND fmldt_type = '" & sType & "'"
+            strSQL = strSQL & " AND fml_date BETWEEN " & tfnDateString(m_sStartDate, True)
+            strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
+            strSQL = strSQL & " AND fmm_dispatch_flag = 'C'"
+            strSQL = strSQL & " AND (" & fnAppenCriteria("tul_sched", sSchedule)
+            strSQL = strSQL & ") AND fmldt_type = '" & sType & "'"
             
             If m_nTPTCount >= 0 Then
                 Select Case nTypeCode
                 Case "1"
                     If Not IsMissing(vExtractFrom) Then
-                        strSQl = strSQl & " AND (fmldt_trn IN " & _
+                        strSQL = strSQL & " AND (fmldt_trn IN " & _
                             fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
                     End If
                 Case "3"
-                    strSQl = strSQl & " AND (fmldt_trn NOT IN " & _
+                    strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
                         fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
                 End Select
             End If
             
-            strSQl = strSQl & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-            strSQl = strSQl & " ORDER BY fmldt_bl_nbr"
+            strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         #End If
         
         m_nErrorNumber = EC_GET_RECORD_R
     
-        Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
         If rsTemp Is Nothing Then
             Exit Function
@@ -750,7 +759,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
         
-        If Not fnFillCollection(sSchedule, rsTemp, colTemp) Then
+        If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp, vExtractFrom) Then
             Exit Function
         End If
     Else
@@ -759,84 +768,84 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             'for Export fmldt_type should be 'B'
             sType = "B"
         
-            strSQl = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
-            strSQl = strSQl & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
-            strSQl = strSQl & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
-            strSQl = strSQl & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
+            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
+            strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
+            strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
     
-            strSQl = strSQl & " FROM ssfactor.fm_delivery fm_delivery,"
-            strSQl = strSQl & " ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQl = strSQl & " ssfactor.fm_lad_tax fm_lad_tax,"
-            strSQl = strSQl & " ssfactor.fm_lading fm_lading,"
-            strSQl = strSQl & " ssfactor.fm_lading_d fm_lading_d,"
-            strSQl = strSQl & " ssfactor.fm_movement fm_movement,"
-            strSQl = strSQl & " ssfactor.fm_mv_bal fm_mv_bal,"
-            strSQl = strSQl & " ssfactor.inv_header inv_header,"
-            strSQl = strSQl & " ssfactor.tx_use_link tx_use_link"
-            strSQl = strSQl & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQl = strSQl & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQl = strSQl & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQl = strSQl & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQl = strSQl & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQl = strSQl & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
-            strSQl = strSQl & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
+            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery,"
+            strSQL = strSQL & " ssfactor.fm_delvr_d fm_delvr_d,"
+            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax,"
+            strSQL = strSQL & " ssfactor.fm_lading fm_lading,"
+            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d,"
+            strSQL = strSQL & " ssfactor.fm_movement fm_movement,"
+            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal,"
+            strSQL = strSQL & " ssfactor.inv_header inv_header,"
+            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
+            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
+            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
+            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
+            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
+            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
+            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lad_tax.fmldt_bl_nbr"
+            strSQL = strSQL & " AND fm_lading_d.fmld_seq_nbr = fm_lad_tax.fmldt_line"
         Else
             sType = "I"
         
-            strSQl = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
-            strSQl = strSQl & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
-            strSQl = strSQl & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
-            strSQl = strSQl & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
+            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
+            strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
+            strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
     
-            strSQl = strSQl & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
-            strSQl = strSQl & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
-            strSQl = strSQl & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
-            strSQl = strSQl & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
-            strSQl = strSQl & " ssfactor.tx_use_link tx_use_link"
+            strSQL = strSQL & " FROM ssfactor.fm_delivery fm_delivery, ssfactor.fm_delvr_d fm_delvr_d,"
+            strSQL = strSQL & " ssfactor.fm_lad_tax fm_lad_tax, ssfactor.fm_lading fm_lading,"
+            strSQL = strSQL & " ssfactor.fm_lading_d fm_lading_d, ssfactor.fm_movement fm_movement,"
+            strSQL = strSQL & " ssfactor.fm_mv_bal fm_mv_bal, ssfactor.inv_header inv_header,"
+            strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
     
-            strSQl = strSQl & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
-            strSQl = strSQl & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
-            strSQl = strSQl & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
-            strSQl = strSQl & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
-            strSQl = strSQl & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
-            strSQl = strSQl & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
-            strSQl = strSQl & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
-            strSQl = strSQl & " AND fm_delvr_d.fmdd_invoice = fm_lad_tax.fmldt_bl_nbr"
-            strSQl = strSQl & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
-            strSQl = strSQl & " AND fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line"
+            strSQL = strSQL & " WHERE fm_movement.fmm_movement = fm_mv_bal.fmmb_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_movement = fm_delvr_d.fmdd_movement"
+            strSQL = strSQL & " AND fm_delivery.fmd_invoice = fm_delvr_d.fmdd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_nbr = fm_delivery.fmd_invoice"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_delivery.fmd_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_prodlnk = fm_delvr_d.fmdd_prodlnk"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_dv_line = fm_delvr_d.fmdd_dt_seq_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_movement = fm_lading.fml_movement"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_nbr = fm_lading.fml_bl_nbr"
+            strSQL = strSQL & " AND fm_lading.fml_movement = fm_lading_d.fmld_movement"
+            strSQL = strSQL & " AND fm_lading.fml_bl_nbr = fm_lading_d.fmld_bl_nbr"
+            strSQL = strSQL & " AND fm_mv_bal.fmmb_bl_line = fm_lading_d.fmld_seq_nbr"
+            strSQL = strSQL & " AND fm_lading_d.fmld_movement = fm_lad_tax.fmldt_movement"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_trn = tx_use_link.tul_trn"
+            strSQL = strSQL & " AND fm_delvr_d.fmdd_prodlnk = inv_header.ivh_link"
+            strSQL = strSQL & " AND fm_delvr_d.fmdd_invoice = fm_lad_tax.fmldt_bl_nbr"
+            strSQL = strSQL & " AND fm_lad_tax.fmldt_ulink = tx_use_link.tul_link"
+            strSQL = strSQL & " AND fm_delvr_d.fmdd_dt_seq_nbr = fm_lad_tax.fmldt_line"
         End If
         
-        strSQl = strSQl & " AND fm_movement.fmm_dispatch_flag='C'"
-        strSQl = strSQl & " AND (fm_lad_tax.fmldt_type='" + sType + "')"
-        strSQl = strSQl & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
-        strSQl = strSQl & " AND fml_date BETWEEN " + tfnDateString(m_sStartDate, True)
-        strSQl = strSQl & " AND " + tfnDateString(m_sEndDate, True)
-        strSQl = strSQl & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+        strSQL = strSQL & " AND fm_movement.fmm_dispatch_flag='C'"
+        strSQL = strSQL & " AND (fm_lad_tax.fmldt_type='" + sType + "')"
+        strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
+        strSQL = strSQL & " AND fml_date BETWEEN " + tfnDateString(m_sStartDate, True)
+        strSQL = strSQL & " AND " + tfnDateString(m_sEndDate, True)
+        strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
     
-        strSQl = strSQl & " ORDER BY fmldt_bl_nbr"
+        strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
         m_nErrorNumber = EC_GET_RECORD_R
 
-        Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
         If rsTemp Is Nothing Then
             Exit Function
@@ -846,42 +855,42 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
         
-        If Not fnFillCollection(sSchedule, rsTemp, colTemp) Then
+        If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp) Then
             Exit Function
         End If
     End If
 
     'retrieve wholesale fuel taxes
     If m_sEDIType = EDI_TYPE_D Then
-        strSQl = "DROP TABLE fm_temp1"
-        fnExecuteSQL strSQl, SUB_NAME
-        strSQl = "DROP TABLE fm_temp2"
-        fnExecuteSQL strSQl, SUB_NAME
+        strSQL = "DROP TABLE fm_temp1"
+        fnExecuteSQL strSQL, SUB_NAME
+        strSQL = "DROP TABLE fm_temp2"
+        fnExecuteSQL strSQL, SUB_NAME
         
-        strSQl = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, " _
+        strSQL = "SELECT ih_nbr, ih_cust, ih_prft_ctr, ih_shipto, " _
             & "ih_date, idp_seq_nbr, idp_prodlnk, ilt_trn, ilt_units "
         
-        strSQl = strSQl & " FROM ssfactor.inv_header inv_header,"
-        strSQl = strSQl & " ssfactor.si_inv_line si_inv_line,"
-        strSQl = strSQl & " ssfactor.si_inv_tax si_inv_tax,"
-        strSQl = strSQl & " ssfactor.si_invoice si_invoice,"
-        strSQl = strSQl & " ssfactor.tx_use_link tx_use_link"
-        strSQl = strSQl & " WHERE si_invoice.ih_nbr = si_inv_line.idp_nbr"
-        strSQl = strSQl & " AND si_inv_line.idp_prodlnk = inv_header.ivh_link"
-        strSQl = strSQl & " AND si_inv_line.idp_nbr = si_inv_tax.ilt_nbr"
-        strSQl = strSQl & " AND si_inv_line.idp_seq_nbr = si_inv_tax.ilt_line"
-        strSQl = strSQl & " AND si_inv_tax.ilt_ulink = tx_use_link.tul_link"
-        strSQl = strSQl & " AND si_inv_tax.ilt_trn = tx_use_link.tul_trn"
+        strSQL = strSQL & " FROM ssfactor.inv_header inv_header,"
+        strSQL = strSQL & " ssfactor.si_inv_line si_inv_line,"
+        strSQL = strSQL & " ssfactor.si_inv_tax si_inv_tax,"
+        strSQL = strSQL & " ssfactor.si_invoice si_invoice,"
+        strSQL = strSQL & " ssfactor.tx_use_link tx_use_link"
+        strSQL = strSQL & " WHERE si_invoice.ih_nbr = si_inv_line.idp_nbr"
+        strSQL = strSQL & " AND si_inv_line.idp_prodlnk = inv_header.ivh_link"
+        strSQL = strSQL & " AND si_inv_line.idp_nbr = si_inv_tax.ilt_nbr"
+        strSQL = strSQL & " AND si_inv_line.idp_seq_nbr = si_inv_tax.ilt_line"
+        strSQL = strSQL & " AND si_inv_tax.ilt_ulink = tx_use_link.tul_link"
+        strSQL = strSQL & " AND si_inv_tax.ilt_trn = tx_use_link.tul_trn"
         
-        strSQl = strSQl & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-        strSQl = strSQl & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
-        strSQl = strSQl & " AND ih_date BETWEEN " & tfnDateString(m_sStartDate, True)
-        strSQl = strSQl & " AND " & tfnDateString(m_sEndDate, True)
-        strSQl = strSQl & " AND (si_inv_line.idp_movement_flag = 0 OR si_inv_line.idp_movement_flag IS NULL)"
+        strSQL = strSQL & " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+        strSQL = strSQL & " AND (" + fnAppenCriteria("tul_sched", sSchedule) + ")"
+        strSQL = strSQL & " AND ih_date BETWEEN " & tfnDateString(m_sStartDate, True)
+        strSQL = strSQL & " AND " & tfnDateString(m_sEndDate, True)
+        strSQL = strSQL & " AND (si_inv_line.idp_movement_flag = 0 OR si_inv_line.idp_movement_flag IS NULL)"
         
         m_nErrorNumber = EC_GET_RECORD_R
         
-        Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
         If rsTemp Is Nothing Then
             Exit Function
@@ -941,8 +950,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Set fnOpenFMTaxRecord = colTemp
 End Function
 
-Private Function fnFillCollection(sSchedule As String, rsTemp As Recordset, colTemp As Collection) As Boolean
-    Dim strSQl As String
+Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
+                                  rsTemp As Recordset, colTemp As Collection, _
+                                  Optional vExtractFrom) As Boolean
+    
+    Dim strSQL As String
     Dim ciTemp As ETFMTaxRecord
     Dim sInfo1 As String
     Dim sInfo2 As String
@@ -1020,12 +1032,35 @@ Private Function fnFillCollection(sSchedule As String, rsTemp As Recordset, colT
                         fnCStr(!fmd_dest_flag))
                     ciTemp.LadingDate = tfnFormatDate(!fmd_date)
                 End If
+                
                 ciTemp.DetailType = m_sEDIType
                 ciTemp.LadingNumber = tfnRound(!fmldt_bl_nbr)
                 ciTemp.Quantity = tfnRound(!namount)
                 ciTemp.Movement = tfnRound(!fmm_movement)
                 
-                colTemp.Add ciTemp
+                If m_sTaxPaidOriginState = "" Then
+                    colTemp.Add ciTemp
+                Else
+                    If nTypeCode = "1" Then
+                        If Not IsMissing(vExtractFrom) Then
+                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
+                                If ciTemp.DestState = "AR" Then
+                                    colTemp.Add ciTemp
+                                End If
+                            End If
+                        Else
+                            colTemp.Add ciTemp
+                        End If
+                    ElseIf nTypeCode = "3" Then
+                        If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
+                            If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
+                                colTemp.Add ciTemp
+                            End If
+                        End If
+                    Else
+                        colTemp.Add ciTemp
+                    End If
+                End If
                 
                 .MoveNext
             
@@ -1058,11 +1093,11 @@ Private Function fnProductCode(ByVal lLink As Long) As String
 
     Const SUB_NAME = "fnProductCode"
     
-    Dim strSQl As String
+    Dim strSQL As String
     
-    strSQl = "SELECT ivh_product msname FROM inv_header" _
+    strSQL = "SELECT ivh_product msname FROM inv_header" _
            & " WHERE ivh_link = " & CStr(lLink)
-    fnProductCode = fnGetName(aryProduct, nProductCount, strSQl, lLink)
+    fnProductCode = fnGetName(aryProduct, nProductCount, strSQL, lLink)
     
 End Function
 
@@ -1096,11 +1131,11 @@ End Sub
 Private Sub subInitialParms()
     Const SUB_NAME = "subInitialParms"
     
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
-    strSQl = "SELECT parm_field FROM sys_parm WHERE parm_nbr = " & SYSPARM_FED_ID
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = " & SYSPARM_FED_ID
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If rsTemp Is Nothing Then
         m_nErrorNumber = EC_INIT_PARM1_1
         Exit Sub
@@ -1112,8 +1147,8 @@ Private Sub subInitialParms()
     m_sTaxpayerID = fnConvertFEDID(fnCStr(rsTemp!parm_field))
     rsTemp.Close
     
-    strSQl = "SELECT con_name FROM co_company_name"
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    strSQL = "SELECT con_name FROM co_company_name"
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If rsTemp Is Nothing Then
         m_nErrorNumber = EC_INIT_PARM2_1
         Exit Sub
@@ -1186,7 +1221,7 @@ Private Function fnAppenCriteria(sField As String, _
     Const sERR_CODE  As String = "ERR"
     
     Dim sTemp As String, sPosi As Integer, aryCodes() As String, aryOp() As String
-    Dim nPosi As Integer, I As Integer, j As Integer, aryCriteria() As String
+    Dim nPosi As Integer, i As Integer, j As Integer, aryCriteria() As String
     
     'parse the code
     sTemp = sCriteria
@@ -1245,7 +1280,7 @@ Private Function fnAppenCriteria(sField As String, _
                     Exit Function
                 End If
                 
-                fnAppenCriteria = fnAppenCriteria + "(" + sField + " " + aryOp(I) + _
+                fnAppenCriteria = fnAppenCriteria + "(" + sField + " " + aryOp(i) + _
                     " " + tfnSQLString(aryCodes(0)) + ") OR "
             End If
         End If
@@ -1303,22 +1338,22 @@ End Function
 
 Private Function fnGetName(aryStore() As tpLinkName, _
                            nCount As Integer, _
-                           strSQl As String, _
+                           strSQL As String, _
                            ByVal lLink As Long) As String
 
     Const SUB_NAME = "fnGetName"
-    Dim I As Integer
+    Dim i As Integer
     
-    For I = 0 To nCount - 1
-        If lLink = aryStore(I).m_lLink Then
-            fnGetName = aryStore(I).m_sName
+    For i = 0 To nCount - 1
+        If lLink = aryStore(i).m_lLink Then
+            fnGetName = aryStore(i).m_sName
             Exit Function
         End If
-    Next I
+    Next i
     
     Dim rsTemp As Recordset
     
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If Not rsTemp Is Nothing Then
         If rsTemp.RecordCount > 0 Then
             If nCount = 0 Then
@@ -1340,15 +1375,15 @@ End Function
 
 Private Function fnTerminalCity(ByVal nTerminal As Integer, sIntExtFlag As String) As String
     
-    Dim strSQl As String
+    Dim strSQL As String
     
     If sIntExtFlag = "I" Then
         fnTerminalCity = fnProfitCenterCity(nTerminal)
     Else
-        strSQl = "SELECT fmt_city msname FROM fm_terminal" _
+        strSQL = "SELECT fmt_city msname FROM fm_terminal" _
                & " WHERE fmt_code = " & CStr(nTerminal)
     
-        fnTerminalCity = fnGetName(aryTerminal, nTerminalCount, strSQl, nTerminal)
+        fnTerminalCity = fnGetName(aryTerminal, nTerminalCount, strSQL, nTerminal)
     End If
 End Function
 
@@ -1357,13 +1392,13 @@ Private Sub subVendorInfo(sName As String, _
                           sFedId As String, _
                           sVendor As String)
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim nIdx As Integer
     
-    strSQl = "SELECT pn_name info1, pn_city info2, pm_fed_id info3 FROM p_altname, p_vendor" _
+    strSQL = "SELECT pn_name info1, pn_city info2, pm_fed_id info3 FROM p_altname, p_vendor" _
            & " WHERE pn_alt = " & sVendor _
            & " AND pm_vendor = pn_vendor "
-    nIdx = fnGetInfoLink(aryVendor, nVendorCount, strSQl, sVendor)
+    nIdx = fnGetInfoLink(aryVendor, nVendorCount, strSQL, sVendor)
     If nIdx >= 0 Then
         sName = aryVendor(nIdx).m_sInfo1
         sCity = aryVendor(nIdx).m_sInfo2
@@ -1376,14 +1411,14 @@ Private Sub subCarrierInfo(sName As String, _
                            sFedId As String, _
                            sCarrier As String)
     
-    Dim strSQl As String
+    Dim strSQL As String
     Dim nIdx As Integer
     
-    strSQl = "SELECT pn_name info1, pm_fed_id info2, ' ' info3 FROM p_altname, p_vendor" _
+    strSQL = "SELECT pn_name info1, pm_fed_id info2, ' ' info3 FROM p_altname, p_vendor" _
            & " WHERE pn_vendor = " & sCarrier _
            & " AND pm_vendor = pn_vendor "
 
-    nIdx = fnGetInfoLink(aryCarrier, nCarrierCount, strSQl, sCarrier)
+    nIdx = fnGetInfoLink(aryCarrier, nCarrierCount, strSQL, sCarrier)
     If nIdx >= 0 Then
         sName = aryCarrier(nIdx).m_sInfo1
         sFedId = aryCarrier(nIdx).m_sInfo2
@@ -1398,17 +1433,17 @@ Private Sub subCustomerInfo(sName As String, _
                             sCustomer As String, _
                             sEI As String)
     
-    Dim strSQl As String
+    Dim strSQL As String
     Dim nIdx As Integer
     
     If sEI = "E" Then
-        strSQl = "SELECT an_name info1, an_city info2, ' ' info3 FROM ar_altname" _
+        strSQL = "SELECT an_name info1, an_city info2, ' ' info3 FROM ar_altname" _
                & " WHERE an_customer = " & sCustomer
     Else
-        strSQl = "SELECT prft_name info1, prft_city info2, ' ' info3 FROM sys_prft_ctr" _
+        strSQL = "SELECT prft_name info1, prft_city info2, ' ' info3 FROM sys_prft_ctr" _
                & " WHERE prft_ctr = " & sCustomer
     End If
-    nIdx = fnGetInfoLink(aryCustomer, nCustomerCount, strSQl, sCustomer)
+    nIdx = fnGetInfoLink(aryCustomer, nCustomerCount, strSQL, sCustomer)
     If nIdx >= 0 Then
         sName = aryCustomer(nIdx).m_sInfo1
         sCity = aryCustomer(nIdx).m_sInfo2
@@ -1418,17 +1453,17 @@ End Sub
 
 Private Function fnProfitCenterCity(ByVal nProfitCenter As Integer) As String
     
-    Dim strSQl As String
+    Dim strSQL As String
     
-    strSQl = "SELECT prft_city msname FROM sys_prft_ctr" _
+    strSQL = "SELECT prft_city msname FROM sys_prft_ctr" _
            & " WHERE prft_ctr = " & CStr(nProfitCenter)
 
-    fnProfitCenterCity = fnGetName(aryProfitCenter, nProfitCenterCount, strSQl, nProfitCenter)
+    fnProfitCenterCity = fnGetName(aryProfitCenter, nProfitCenterCount, strSQL, nProfitCenter)
 End Function
 
 Private Function fnGetDestCity(ByVal fmd_dest_code As Long, fmd_dest_flag As Variant) As String
     Dim sDestFlag As String
-    Dim strSQl As String
+    Dim strSQL As String
     
     fnGetDestCity = ""
     
@@ -1438,10 +1473,10 @@ Private Function fnGetDestCity(ByVal fmd_dest_code As Long, fmd_dest_flag As Var
     If sDestFlag = "I" Then
         fnGetDestCity = fnProfitCenterCity(fmd_dest_code)
     Else
-        strSQl = "SELECT an_city msname FROM ar_altname" _
+        strSQL = "SELECT an_city msname FROM ar_altname" _
                & " WHERE an_customer = " & fmd_dest_code
     
-        fnGetDestCity = fnGetName(aryCustomerCity, nCustomerCityCount, strSQl, fmd_dest_code)
+        fnGetDestCity = fnGetName(aryCustomerCity, nCustomerCityCount, strSQL, fmd_dest_code)
     End If
 End Function
 
@@ -1450,13 +1485,13 @@ Private Sub subGetCityInfo(sName As String, _
                            sState As String, _
                            sCode As String)
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim nIdx As Integer
     
-    strSQl = "SELECT city_name info1, city_state info2, ' ' info3 FROM sys_city" _
+    strSQL = "SELECT city_name info1, city_state info2, ' ' info3 FROM sys_city" _
            & " WHERE city_code = " & tfnSQLString(sCode)
 
-    nIdx = fnGetInfoLink(aryCity, nCityCount, strSQl, sCode)
+    nIdx = fnGetInfoLink(aryCity, nCityCount, strSQL, sCode)
     If nIdx >= 0 Then
         sName = aryCity(nIdx).m_sInfo1
         sState = aryCity(nIdx).m_sInfo2
@@ -1466,23 +1501,23 @@ End Sub
 
 Private Function fnGetInfoLink(aryInfo() As tpLinkInfo, _
                                nCount As Integer, _
-                               strSQl As String, _
+                               strSQL As String, _
                                sCode As String) As Integer
 
     Const SUB_NAME = "fnGetInfoLink"
-    Dim I As Integer
+    Dim i As Integer
     
     fnGetInfoLink = -1
-    For I = 0 To nCount - 1
-        If sCode = aryInfo(I).m_sLink Then
-            fnGetInfoLink = I
+    For i = 0 To nCount - 1
+        If sCode = aryInfo(i).m_sLink Then
+            fnGetInfoLink = i
             Exit Function
         End If
-    Next I
+    Next i
 
     Dim rsTemp As Recordset
     
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If Not rsTemp Is Nothing Then
         If rsTemp.RecordCount > 0 Then
             If nCount = 0 Then
@@ -1509,21 +1544,21 @@ Private Function fnVendorTaxID(ByVal lVendor As Long, _
                                sTaxClass As String) As String
 
     Const SUB_NAME = "fnVendorTaxID"
-    Dim I As Integer
+    Dim i As Integer
     
     fnVendorTaxID = ""
-    For I = 0 To nVTaxIDCount - 1
-        If lVendor = aryVendorTaxID(I).m_lVendor Then
-            If sState = aryVendorTaxID(I).m_sState Then
-                If sTaxClass = aryVendorTaxID(I).m_sTaxClass Then
-                    fnVendorTaxID = aryVendorTaxID(I).m_sTaxID
+    For i = 0 To nVTaxIDCount - 1
+        If lVendor = aryVendorTaxID(i).m_lVendor Then
+            If sState = aryVendorTaxID(i).m_sState Then
+                If sTaxClass = aryVendorTaxID(i).m_sTaxClass Then
+                    fnVendorTaxID = aryVendorTaxID(i).m_sTaxID
                     Exit Function
                 End If
             End If
         End If
-    Next I
+    Next i
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
     If nVTaxIDCount = 0 Then
@@ -1537,11 +1572,11 @@ Private Function fnVendorTaxID(ByVal lVendor As Long, _
     aryVendorTaxID(nVTaxIDCount).m_sState = sState
     aryVendorTaxID(nVTaxIDCount).m_sTaxClass = sTaxClass
     aryVendorTaxID(nVTaxIDCount).m_sTaxID = ""
-    strSQl = "SELECT pvt_id_nbr FROM p_vend_txid" _
+    strSQL = "SELECT pvt_id_nbr FROM p_vend_txid" _
            & " WHERE pvt_vendor = " & CStr(lVendor) _
            & " AND pvt_state = '" & sState & "'" _
            & " AND pvt_tcl = '" & sTaxClass & "'"
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If Not rsTemp Is Nothing Then
         If rsTemp.RecordCount > 0 Then
             aryVendorTaxID(nVTaxIDCount).m_sTaxID = fnConvertFEDID(fnCStr(rsTemp!pvt_id_nbr))
@@ -1557,19 +1592,19 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
                                  sEI As String) As String
 
     Const SUB_NAME = "fnCustomerTaxID"
-    Dim I As Integer
+    Dim i As Integer
     
     fnCustomerTaxID = ""
-    For I = 0 To nCTaxIDCount - 1
-        If lCustomer = aryCustomerTaxID(I).m_lCustomer Then
-            If lTrn = aryCustomerTaxID(I).m_lTrnLink Then
-                fnCustomerTaxID = aryCustomerTaxID(I).m_sTaxID
+    For i = 0 To nCTaxIDCount - 1
+        If lCustomer = aryCustomerTaxID(i).m_lCustomer Then
+            If lTrn = aryCustomerTaxID(i).m_lTrnLink Then
+                fnCustomerTaxID = aryCustomerTaxID(i).m_sTaxID
                 Exit Function
             End If
         End If
-    Next I
+    Next i
 
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
     If nCTaxIDCount = 0 Then
@@ -1585,11 +1620,11 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
     aryCustomerTaxID(nCTaxIDCount).m_sTaxID = ""
     
     If sEI = "E" Then
-        strSQl = "SELECT txcp_permit FROM tx_cust_prmt" _
+        strSQL = "SELECT txcp_permit FROM tx_cust_prmt" _
                & " WHERE txcp_customer = " & CStr(lCustomer) _
                & " AND txcp_trn = " & CStr(lTrn)
         
-        Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         If Not rsTemp Is Nothing Then
             If rsTemp.RecordCount > 0 Then
                 aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnCStr(rsTemp!txcp_permit))
@@ -1598,11 +1633,11 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
     Else
         'david 03/28/00
         'get the fein from tx_term
-        strSQl = "SELECT txtm_fein FROM tx_term" _
+        strSQL = "SELECT txtm_fein FROM tx_term" _
                & " WHERE txtm_code = " & CStr(lCustomer) _
                & " AND txtm_type = 'P'"
         
-        Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         If Not rsTemp Is Nothing Then
             If rsTemp.RecordCount > 0 Then
                 aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(rsTemp!txtm_fein)
@@ -1617,7 +1652,7 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
     
 End Function
 
-Private Function fnExecuteSQL(strSQl As String, _
+Private Function fnExecuteSQL(strSQL As String, _
                              Optional vCaller As Variant, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Integer
@@ -1631,9 +1666,9 @@ Private Function fnExecuteSQL(strSQl As String, _
     End If
     On Error GoTo errExecute
     If objDB Is t_dbMainDatabase Then
-        objDB.ExecuteSQL strSQl
+        objDB.ExecuteSQL strSQL
     Else
-        objDB.Execute strSQl
+        objDB.Execute strSQL
     End If
     fnExecuteSQL = objDB.RecordsAffected
 
@@ -1645,15 +1680,15 @@ errExecute:
     Dim bShow As Boolean
     bShow = Not IsMissing(vMsg)
     If IsMissing(vCaller) Then
-        tfnErrHandler SUB_NAME, strSQl, bShow
+        tfnErrHandler SUB_NAME, strSQL, bShow
     Else
-        tfnErrHandler SUB_NAME & "," & CStr(vCaller), strSQl, bShow
+        tfnErrHandler SUB_NAME & "," & CStr(vCaller), strSQL, bShow
     End If
     m_sLastVBError = fnGetVBError
 End Function
 
 
-Private Function fnOpenRecord(strSQl As String, _
+Private Function fnOpenRecord(strSQL As String, _
                               Optional vCaller As Variant, _
                               Optional vMsg As Variant, _
                               Optional vDB As Variant, _
@@ -1678,9 +1713,9 @@ Private Function fnOpenRecord(strSQl As String, _
     
     On Error GoTo SQLError
     If objDB Is t_dbMainDatabase Then
-        Set rsTemp = objDB.OpenRecordset(strSQl, dbOpenSnapshot, dbSQLPassThrough)
+        Set rsTemp = objDB.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     Else
-        Set rsTemp = objDB.OpenRecordset(strSQl, dbOpenSnapshot)
+        Set rsTemp = objDB.OpenRecordset(strSQL, dbOpenSnapshot)
     End If
     
     If bMoveLast Then
@@ -1701,9 +1736,9 @@ SQLError:
     Dim bShow As Boolean
     bShow = Not IsMissing(vMsg)
     If IsMissing(vCaller) Then
-        tfnErrHandler SUB_NAME, strSQl, bShow
+        tfnErrHandler SUB_NAME, strSQL, bShow
     Else
-        tfnErrHandler SUB_NAME & "," & CStr(vCaller), strSQl, bShow
+        tfnErrHandler SUB_NAME & "," & CStr(vCaller), strSQL, bShow
     End If
     m_sLastVBError = fnGetVBError
 End Function
@@ -1728,10 +1763,10 @@ End Sub
 
 Private Sub subCheckFEIN(colItems As Collection)
     Dim ciTemp As ETFMTaxRecord, sErrMsg As String
-    Dim I As Integer
+    Dim i As Integer
     
     sErrMsg = ""
-    I = -1
+    i = -1
     
     For Each ciTemp In colItems
         If Trim(ciTemp.CarrierFedID) = "" Then
@@ -1791,7 +1826,7 @@ End Function
 Property Let TaxPaidTaxCode(sCode As String)
     Const SUB_NAME = "TaxPaidTaxCode"
     
-    Dim strSQl As String
+    Dim strSQL As String
     Dim rsTemp As Recordset
     
     m_nTPTCount = -1
@@ -1800,11 +1835,11 @@ Property Let TaxPaidTaxCode(sCode As String)
         Exit Property
     End If
     
-    strSQl = "SELECT DISTINCT tt_trn FROM tx_table" _
+    strSQL = "SELECT DISTINCT tt_trn FROM tx_table" _
            & " WHERE tt_level = 'S'" _
            & " AND (" & fnAppenCriteria("tt_code", sCode) & ")"
 
-    Set rsTemp = fnOpenRecord(strSQl, SUB_NAME, "", , False)
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
     If rsTemp Is Nothing Then
         Exit Property
     End If
@@ -1821,15 +1856,19 @@ End Property
 Private Function fnTrnNumbers(lSource() As Long, _
                              ByVal nCount As Integer) As String
 
-    Dim I As Integer
+    Dim i As Integer
     Dim sTemp As String
     
     sTemp = lSource(0)
-    For I = 1 To nCount
-        sTemp = sTemp & "," & CStr(lSource(I))
-    Next I
+    For i = 1 To nCount
+        sTemp = sTemp & "," & CStr(lSource(i))
+    Next i
     fnTrnNumbers = "(" & sTemp & ")"
 End Function
+
+Property Let TaxPaidOriginState(sCode As String)
+    m_sTaxPaidOriginState = Trim(sCode)
+End Property
 
 #If NEW_XLATOR Then
     Public Sub FileHeaderID()
