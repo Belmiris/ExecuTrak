@@ -800,174 +800,12 @@ Private Function fnLoadTable(nColumn As Integer, _
     Set colTemp = colDropDowns.Item(lDropDown)
     
     szQuery = colTemp.Item(1).SQL
-    nPos = InStr(UCase(szQuery), " GROUP BY ")
     
-    If nPos > 1 Then
-        sGroupByClause = Right(szQuery, Len(szQuery) - nPos + 1)
-        szQuery = Left(szQuery, nPos - 1)
-    Else
-        sGroupByClause = ""
-    End If
-    
-    If colTemp.Item(1).DropDownType <> TYPE_DRPDN_NO_CRITERIA And colTemp.Item(1).DropDownType <> TYPE_DRPDN_NO_CRITERIA2 Then
-        nPos = InStr(UCase(szQuery), "UNION")
-        If nPos = 0 Then
-            nPos = InStr(UCase$(szQuery), "WHERE")
-            If nPos = 0 Then
-                szLink = " WHERE ("
-            Else
-                szLink = " AND ("
-            End If
-            
-            For lCol = 1 To colTemp.Count
-                If colTemp.Item(lCol).ColumnIndex < EXTRACOLUMNOFFSET Then
-                    szCode = Trim$(tgMain.Columns(colTemp.Item(lCol).ColumnIndex).Text)
-                    ' if a code mask has been entered, add to the SQL
-                    If szCode <> "" Then
-                        'david 10/22/2003
-                        If colTemp.Item(lCol).SourceDataField = "" Then
-                            sField = colTemp.Item(lCol).DataField
-                        Else
-                            sField = colTemp.Item(lCol).SourceDataField
-                        End If
-                        '''''''''''''''''
-                    
-                        If colTemp.Item(lCol).ColType = TYPE_STRING Then
-                            
-                            'Add if by junsong 10/16/01, % does not work for DAO right now.
-                            If nDatabase = DB_ACCESS Then
-                                szQuery = szQuery & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "*") & ")"
-                            Else
-                                If m_bCaseSensitive Then
-                                    'david 10/22/2003
-                                    szQuery = szQuery & szLink & sField & " LIKE " & fnSQLString(szCode & "%") & ")"
-                                    '''''''''''''''''
-                                Else
-                                    'david 10/22/2003
-                                    szQuery = szQuery & szLink & sField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
-                                    '''''''''''''''''
-                                End If
-                            End If
-                            
-                            szLink = " AND ("
-                        ElseIf colTemp.Item(lCol).ColType = TYPE_INTEGER Then
-                            'david 10/22/2003
-                            szQuery = szQuery & szLink & fnGenetateSearchString(sField, szCode) & ")"
-                            '''''''''''''''''
-                            szLink = " AND ("
-                        End If
-                    End If
-                End If
-            Next
-            
-            If colTemp.Item(1).Unique Then
-                If Not m_clsEdit Is Nothing Then
-                    m_clsEdit.GetColumn vData, lCount, nColumn
-                    lCol = m_clsEdit.GetCurrentRowNumber
-                    sTemp = ""
-                    For i = 0 To lCount - 1
-                        If i <> lCol Then
-                            If Not IsNull(vData(i)) Then
-                                If Trim(vData(i)) <> "" Then
-                                    If sTemp = "" Then
-                                        sTemp = fnSQLString(vData(i))
-                                    Else
-                                        sTemp = sTemp & "," & fnSQLString(vData(i))
-                                    End If
-                                End If
-                            End If
-                        End If
-                    Next
-                    If sTemp <> "" Then
-                        'david 10/22/2003 VJ on 10/27/03 Changed from lCol to lColIndex
-                        'Causing Run time error
-                        If colTemp.Item(lColIndex).SourceDataField = "" Then
-                            sField = colTemp.Item(lColIndex).DataField
-                        Else
-                            sField = colTemp.Item(lColIndex).SourceDataField
-                        End If
-                        '''''''''''''''''
-                        
-                        If InStr(UCase(szQuery), "WHERE ") > 0 Then
-                            'david 10/22/2003
-                            szQuery = szQuery & " AND " & sField & " NOT IN (" & sTemp & ")"
-                            '''''''''''''''''
-                        Else
-                            'david 10/22/2003
-                            szQuery = szQuery & " WHERE " & sField & " NOT IN (" & sTemp & ")"
-                            '''''''''''''''''
-                        End If
-                    End If
-                End If
-            End If
-            
-            sTemp = colTemp.Item(lColIndex).DataField
-        Else
-            lCol = fnCoulmnOrder(lDropDown, nColumn)
-            
-            If lCol > 0 Then
-                sTemp = Str$(lCol)
-            End If
-        End If
-    Else
-        sTemp = colTemp.Item(lColIndex).DataField
-    End If
-    
-    Dim sDataField As String
-    Dim stCol As New clsColumns
-    Dim bIndexFound As Boolean
-    
-    'david 10/25/2001
-    If bCalledByHeaderClick Then
-        sDataField = LCase(tgDropDown.Columns(ColIndex).DataField)
-    Else
-        sDataField = sTemp
-    End If
-        
-    Set stCol = Nothing
-
-    bIndexFound = False
-    
-    For Each stCol In colTemp
-        If sDataField = LCase(stCol.DataField) Then
-            bIndexFound = True
-            Exit For
-        End If
-    Next
-    
-    If bIndexFound Then
-        'override the sTemp (ORDER BY fields)
-        If stCol.OrderByFields <> "" Then
-            sTemp = stCol.OrderByFields
-        Else
-            sTemp = sDataField
-        End If
-    End If
-        
-    If bCalledByHeaderClick Then
-        bHeaderClick = True
-        
-        sTemp = fnCnvtOrderByFieldsToColIndex(szQuery, sTemp)
-        
-        If stCol.PrevOrderIsAscending() Then
-            'order by descending
-            sTemp = fnFixFirstSortOrder(sTemp, True)
-            stCol.PrevOrderIsAscending() = False
-        Else
-            'order by ascending
-            sTemp = fnFixFirstSortOrder(sTemp, False)
-            stCol.PrevOrderIsAscending() = True
-        End If
-    Else
-        stCol.PrevOrderIsAscending() = True
-    End If
-    ''''''''''''''''''
-    
-    szQuery = szQuery & sGroupByClause
-    
-    If sTemp <> "" Then
-        szQuery = szQuery & " ORDER BY " & sTemp
-    End If
+    'david 04/04/2005  #478130
+    Screen.MousePointer = vbHourglass
+    szQuery = fnAppendCriteria(bCalledByHeaderClick, ColIndex, szQuery, lColIndex, _
+        lDropDown, nColumn, colTemp, sTemp)
+    ''''''''''''''''''''''''''
     
     Screen.MousePointer = vbHourglass
     'Get the records
@@ -1258,7 +1096,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If val(tgMain.Row) >= 0 Then
+                    If Val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1580,9 +1418,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(val(sPrefix))
+    sTrimedPrefix = CStr(Val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If val(sPrefix) > 0 Then
+    If Val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1753,7 +1591,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = val(tgMain.Row)
+                lRow = Val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -2076,7 +1914,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2093,7 +1931,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2608,7 +2446,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = val(sYear)
+        tfnYear = Val(sYear)
     End If
 End Function
 
@@ -2644,112 +2482,39 @@ Private Function fnFixFirstSortOrder(ByVal sOrder As String, bDescending As Bool
     fnFixFirstSortOrder = sTemp + sOthers
 End Function
 
-Private Function fnCnvtOrderByFieldsToColIndex(strSQL As String, sOrderByList As String) As String
-    Const szUNION As String = " UNION "
-    Const szSELECT As String = "SELECT "
-    Const szFROM As String = " FROM "
-    
-    Dim arySQL() As String
-    Dim aryField() As String
-    Dim aryOrderBy() As String
-    Dim aryByColIndex() As String
-    Dim nCountOrderBy As Integer
-    
-    Dim sField As String
-    Dim sOrderBy As String
-    
-    Dim sTemp As String
-    Dim nPosi1 As Integer
-    Dim nPosi2 As Integer
-    
-    Dim i As Integer
+Private Sub subCnvtFieldsToSelectColSeq(aryField() As String, aryGroupByOrderBy() As String, sErrMsg As String)
     Dim j As Integer
     Dim k As Integer
+    Dim sTemp As String
+    Dim nPosi As Integer
     
-    On Error GoTo errTrap
+    sErrMsg = ""
     
-    If InStr(strSQL, szUNION) <= 0 Then
-        fnCnvtOrderByFieldsToColIndex = sOrderByList
-        Exit Function
-    End If
-    
-    arySQL() = Split(strSQL, szUNION)
-    aryOrderBy() = Split(sOrderByList, ",")
-    
-    nCountOrderBy = UBound(aryOrderBy)
-    ReDim aryByColIndex(nCountOrderBy)
-    
-    For i = 0 To UBound(arySQL)
-        'extract fields
-        nPosi1 = InStr(UCase(arySQL(i)), szSELECT)
-        nPosi2 = InStr(UCase(arySQL(i)), szFROM)
+    For j = 0 To UBound(aryGroupByOrderBy)
+        sTemp = Trim(aryGroupByOrderBy(j))
         
-        If nPosi1 > 0 And nPosi2 > 0 And nPosi1 < nPosi2 Then
-            sTemp = Trim(Mid(arySQL(i), nPosi1 + Len(szSELECT), nPosi2 - (Len(szSELECT) + nPosi1)))
-            aryField() = Split(sTemp, ",")
+        If Not IsNumeric(sTemp) Then
+            'sort by field descending
+            nPosi = InStrRev(UCase(sTemp), " DESC")
             
-            For j = 0 To UBound(aryOrderBy)
-                sOrderBy = UCase(Trim(aryOrderBy(j)))
-                'check asc/desc
-                sTemp = ""
-                nPosi1 = InStr(sOrderBy, " ")
-                
-                If nPosi1 > 0 Then
-                    sTemp = Trim(Mid(sOrderBy, nPosi1 + 1))
-                    sOrderBy = Left(sOrderBy, nPosi1 - 1)
-                End If
-                
-                If aryByColIndex(j) = "" Then
-                    If IsNumeric(sOrderBy) Then
-                        aryByColIndex(j) = sOrderBy & Trim(" " + sTemp)
-                        nCountOrderBy = nCountOrderBy - 1
-                    Else
-                        For k = 0 To UBound(aryField)
-                            sField = UCase(Trim(aryField(k)))
-                            
-                            If InStr(sField, sOrderBy) > 0 Then
-                                aryByColIndex(j) = (k + 1) & Trim(" " + sTemp)
-                                nCountOrderBy = nCountOrderBy - 1
-                            End If
-                            
-                            If nCountOrderBy < 0 Then
-                                Exit For
-                            End If
-                        Next k
-                    End If
-                End If
-                
-                If nCountOrderBy < 0 Then
-                    Exit For
-                End If
-            Next j
-        End If
-    
-        If nCountOrderBy < 0 Then
-            Exit For
-        End If
-    Next i
-    
-    sTemp = ""
-    
-    For j = 0 To UBound(aryByColIndex)
-        If aryByColIndex(j) <> 0 Then
-            If sTemp <> "" Then
-                sTemp = sTemp + ", "
+            If nPosi > 0 Then
+                sTemp = Left(sTemp, nPosi - 1)
             End If
             
-            sTemp = sTemp + aryByColIndex(j)
+            For k = 0 To UBound(aryField)
+                If InStr(Trim(aryField(k)), sTemp) Then
+                    aryGroupByOrderBy(j) = (k + 1) & IIf(nPosi > 0, " DESC", "")
+                    Exit For
+                End If
+            Next k
+            
+            If k > UBound(aryField) Then
+                sErrMsg = "group by fields not found in select"
+                Exit Sub
+            End If
         End If
     Next j
-    
-    fnCnvtOrderByFieldsToColIndex = sTemp
-    
-    Exit Function
-    
-errTrap:
-    'error, return empty order by
-    fnCnvtOrderByFieldsToColIndex = ""
-End Function
+End Sub
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'Junsong 05/05/2004
@@ -2778,4 +2543,357 @@ Private Function fnDataFieldInRecordSet(ByVal sField As String, ByVal rsDat As R
         
     End If
     
+End Function
+
+'david 04/04/2005  #478130
+'this function is called by fnLoadTable() function
+'the purpose of this function is to replace the existing functionalities
+'and particularly make it work for the SQL that contains UNION clause.
+'This function returns the modified SQL (including added where clause,
+'fixed group by clause, and fixed order by clause) to the calling function.
+'the sErrMsg will be set if an error occurrs in this function.
+Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal ColIndex As Integer, _
+                                  ByVal strSQL As String, lColIndex As Long, lDropDown As Long, _
+                                  ndxCol As Integer, colTemp As Collection, sOrderCol As String, _
+                                  Optional sErrMsg As String = "") As String
+    
+    Const szUNION As String = " UNION "
+    Const szSELECT As String = "SELECT "
+    Const szFROM As String = " FROM "
+    Const szWHERE As String = " WHERE "
+    Const szHAVING As String = " HAVING "
+    Const szGROUP_BY As String = " GROUP BY "
+    Const szORDER_BY As String = " ORDER BY "
+    
+    Dim bUnionFound As Boolean
+    Dim arySQL() As String
+    Dim aryField() As String
+    Dim aryGroupBy() As String
+    Dim aryOrderBy() As String
+    
+    Dim szQuery As String
+    Dim sField As String
+    Dim sWhere As String
+    Dim sHaving As String
+    Dim sGroupBy As String
+    Dim sOrderBy As String
+    Dim sNewSQL As String
+    
+    Dim sTemp As String
+    Dim nPosi1 As Integer
+    Dim nPosi2 As Integer
+    
+    Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    
+    Dim lCol As Integer
+    Dim szLink As String
+    Dim szCode As String
+    Dim nColumn As Integer
+    Dim vData() As Variant
+    Dim lCount As Long
+    
+    On Error GoTo errTrap
+    
+    sErrMsg = ""
+    
+    'default: returns the original SQL
+    fnAppendCriteria = strSQL
+    
+    arySQL() = Split(strSQL, szUNION)
+    
+    bUnionFound = UBound(arySQL) > 0
+    
+    For i = 0 To UBound(arySQL)
+        szQuery = Trim(arySQL(i))
+        
+        If szQuery <> "" Then
+            'remove ( and ) if any
+            If Left(szQuery, 1) = "(" Then
+                szQuery = Mid(szQuery, 2, Len(szQuery) - 2)
+            End If
+            
+            'seperate order by clause
+            sOrderBy = ""
+            nPosi1 = InStrRev(UCase(szQuery), szORDER_BY)
+            
+            If nPosi1 > 0 Then
+                sOrderBy = Trim(Mid(szQuery, nPosi1 + Len(szORDER_BY)))
+                szQuery = Trim(Left(szQuery, nPosi1 - 1))
+            End If
+            
+            aryOrderBy = Split(sOrderBy, ",")
+            
+            'seperate having clause
+            sHaving = ""
+            nPosi1 = InStrRev(UCase(szQuery), szHAVING)
+            
+            If nPosi1 > 0 Then
+                sHaving = Trim(Mid(szQuery, nPosi1 + Len(szHAVING)))
+                szQuery = Trim(Left(szQuery, nPosi1 - 1))
+            End If
+            
+            'seperate group by clause
+            sGroupBy = ""
+            nPosi1 = InStrRev(UCase(szQuery), szGROUP_BY)
+            
+            If nPosi1 > 0 Then
+                sGroupBy = Trim(Mid(szQuery, nPosi1 + Len(szGROUP_BY)))
+                szQuery = Trim(Left(szQuery, nPosi1 - 1))
+            End If
+            
+            aryGroupBy = Split(sGroupBy, ",")
+            
+            'seperate where clause
+            sWhere = ""
+            nPosi1 = InStr(UCase(szQuery), szWHERE)
+            
+            If nPosi1 > 0 Then
+                sWhere = Trim(Mid(szQuery, nPosi1 + Len(szWHERE)))
+                szQuery = Trim(Left(szQuery, nPosi1 - 1))
+            End If
+            
+            'extract fields
+            nPosi1 = InStr(UCase(szQuery), szSELECT)
+            nPosi2 = InStr(UCase(szQuery), szFROM)
+            
+            If nPosi1 > 0 And nPosi2 > 0 And nPosi1 < nPosi2 Then
+                sField = Trim(Mid(arySQL(i), nPosi1 + Len(szSELECT), nPosi2 - (Len(szSELECT) + nPosi1)))
+                aryField() = Split(sField, ",")
+            Else
+                sErrMsg = "select field error"
+                Exit Function
+            End If
+            
+            If colTemp.Item(1).DropDownType <> TYPE_DRPDN_NO_CRITERIA And _
+               colTemp.Item(1).DropDownType <> TYPE_DRPDN_NO_CRITERIA2 Then
+                'append criteria
+                If sWhere = "" Then
+                    szLink = " WHERE ("
+                Else
+                    szLink = " AND ("
+                End If
+                
+                For lCol = 1 To colTemp.Count
+                    If colTemp.Item(lCol).ColumnIndex < EXTRACOLUMNOFFSET Then
+                        szCode = Trim$(tgMain.Columns(colTemp.Item(lCol).ColumnIndex).Text)
+                        ' if a code mask has been entered, add to the SQL
+                        If szCode <> "" Then
+                            If colTemp.Item(lCol).SourceDataField = "" Then
+                                sField = colTemp.Item(lCol).DataField
+                            Else
+                                sField = colTemp.Item(lCol).SourceDataField
+                            End If
+                            
+                            'find the field name to be used in where clause
+                            If bUnionFound Then
+                                For j = 0 To UBound(aryField)
+                                    sTemp = Trim(aryField(j))
+                                    
+                                    If InStr(sTemp, sField) > 0 Then
+                                        nPosi1 = InStr(sTemp, " ")
+                                        If nPosi1 > 0 Then
+                                            sField = Left(sTemp, nPosi1 - 1)
+                                        End If
+                                        
+                                        Exit For
+                                    End If
+                                Next j
+                            End If
+                            
+                            If colTemp.Item(lCol).ColType = TYPE_STRING Then
+                                If nDatabase = DB_ACCESS Then
+                                    sWhere = sWhere & szLink & colTemp.Item(lCol).DataField & " LIKE " & fnSQLString(szCode & "*") & ")"
+                                Else
+                                    If m_bCaseSensitive Then
+                                        sWhere = sWhere & szLink & sField & " LIKE " & fnSQLString(szCode & "%") & ")"
+                                    Else
+                                        sWhere = sWhere & szLink & sField & " MATCHES " & fnSQLString(CaseInSensitiveString(szCode)) & ")"
+                                    End If
+                                End If
+                                
+                                szLink = " AND ("
+                            ElseIf colTemp.Item(lCol).ColType = TYPE_INTEGER Then
+                                sWhere = sWhere & szLink & fnGenetateSearchString(sField, szCode) & ")"
+                                szLink = " AND ("
+                            End If
+                        End If
+                    End If
+                Next lCol
+                    
+                If colTemp.Item(1).Unique Then
+                    If Not m_clsEdit Is Nothing Then
+                        m_clsEdit.GetColumn vData, lCount, nColumn
+                        lCol = m_clsEdit.GetCurrentRowNumber
+                        sTemp = ""
+                        For j = 0 To lCount - 1
+                            If j <> lCol Then
+                                If Not IsNull(vData(j)) Then
+                                    If Trim(vData(j)) <> "" Then
+                                        If sTemp = "" Then
+                                            sTemp = fnSQLString(vData(j))
+                                        Else
+                                            sTemp = sTemp & "," & fnSQLString(vData(j))
+                                        End If
+                                    End If
+                                End If
+                            End If
+                        Next j
+                        
+                        If sTemp <> "" Then
+                            If colTemp.Item(lColIndex).SourceDataField = "" Then
+                                sField = colTemp.Item(lColIndex).DataField
+                            Else
+                                sField = colTemp.Item(lColIndex).SourceDataField
+                            End If
+                            
+                            'find the field name to be used in where clause
+                            If bUnionFound Then
+                                For j = 0 To UBound(aryField)
+                                    sTemp = Trim(aryField(j))
+                                    
+                                    If InStr(sTemp, sField) > 0 Then
+                                        nPosi1 = InStr(sTemp, " ")
+                                        If nPosi1 > 0 Then
+                                            sField = Left(sTemp, nPosi1 - 1)
+                                        End If
+                                        
+                                        Exit For
+                                    End If
+                                Next j
+                            End If
+                            
+                            If InStr(UCase(szQuery), "WHERE ") > 0 Then
+                                szQuery = szQuery & " AND " & sField & " NOT IN (" & sTemp & ")"
+                            Else
+                                szQuery = szQuery & " WHERE " & sField & " NOT IN (" & sTemp & ")"
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+            
+            're-construct SQL
+            If sNewSQL <> "" Then
+                sNewSQL = sNewSQL + szUNION
+            End If
+            
+            sNewSQL = sNewSQL + szQuery
+            
+            'concatenate where clause
+            If sWhere <> "" Then
+                sNewSQL = sNewSQL + IIf(Left(UCase(sWhere), 6) = "WHERE ", "", szWHERE) + sWhere
+            End If
+            
+            'fix group by clause
+            If bUnionFound Then
+                subCnvtFieldsToSelectColSeq aryField, aryGroupBy, sErrMsg
+                
+                If sErrMsg <> "" Then
+                    Exit Function
+                End If
+            End If
+            
+            'concatenate group by clause
+            If UBound(aryGroupBy) >= 0 Then
+                sNewSQL = sNewSQL + szGROUP_BY + Trim(aryGroupBy(0))
+                
+                For j = 1 To UBound(aryGroupBy)
+                    sNewSQL = sNewSQL + ", " + Trim(aryGroupBy(j))
+                Next j
+            End If
+            
+            'concatenate having clause
+            If sHaving <> "" Then
+                sNewSQL = sNewSQL + szHAVING + sHaving
+            End If
+        End If
+    Next i
+
+    If UBound(aryOrderBy) < 0 Then
+        'default the order by to the datafield of the current column
+        sOrderCol = colTemp.Item(lColIndex).DataField
+    
+        'sort column override
+        Dim sDataField As String
+        Dim stCol As New clsColumns
+        Dim bIndexFound As Boolean
+        
+        If bCalledByHeaderClick Then
+            sDataField = LCase(tgDropDown.Columns(ColIndex).DataField)
+        Else
+            sDataField = sOrderCol
+        End If
+            
+        Set stCol = Nothing
+    
+        bIndexFound = False
+        
+        For Each stCol In colTemp
+            If sDataField = LCase(stCol.DataField) Then
+                bIndexFound = True
+                Exit For
+            End If
+        Next
+        
+        If bIndexFound Then
+            'override the sOrderCol (ORDER BY fields)
+            If stCol.OrderByFields <> "" Then
+                sOrderCol = stCol.OrderByFields
+            Else
+                sOrderCol = sDataField
+            End If
+        
+            If bCalledByHeaderClick Then
+                bHeaderClick = True
+                
+                If stCol.PrevOrderIsAscending() Then
+                    'order by descending
+                    sOrderCol = fnFixFirstSortOrder(sOrderCol, True)
+                    stCol.PrevOrderIsAscending() = False
+                Else
+                    'order by ascending
+                    sOrderCol = fnFixFirstSortOrder(sOrderCol, False)
+                    stCol.PrevOrderIsAscending() = True
+                End If
+            Else
+                stCol.PrevOrderIsAscending() = True
+            End If
+        End If
+        
+        'save the order by into aryOrderBy()
+        If sOrderCol <> "" Then
+            aryOrderBy = Split(sOrderCol, ",")
+        End If
+    Else
+        'use order by in the original SQL
+        'already save in aryOrderBy(). so, do nothing
+    End If
+    
+    If UBound(aryOrderBy) >= 0 Then
+        'fix order by clause
+        If bUnionFound Then
+            subCnvtFieldsToSelectColSeq aryField, aryOrderBy, sErrMsg
+                
+            If sErrMsg <> "" Then
+                Exit Function
+            End If
+        End If
+    
+        'concatenate order by clause
+        sNewSQL = sNewSQL + szORDER_BY + Trim(aryOrderBy(0))
+        
+        For j = 1 To UBound(aryOrderBy)
+            sNewSQL = sNewSQL + ", " + Trim(aryOrderBy(j))
+        Next j
+    End If
+    
+    fnAppendCriteria = sNewSQL
+    
+    Exit Function
+    
+errTrap:
+    'error, returns the original SQL
+    fnAppendCriteria = strSQL
 End Function
