@@ -38,3 +38,19 @@ copy disk.id ..\disk\disk9\disk9.id
 deltree /Y ..\disk\disk10
 md ..\disk\disk10
 copy disk.id ..\disk\disk10\disk10.id
+
+deltree /Y ..\disk\disk11
+md ..\disk\disk11
+copy disk.id ..\disk\disk11\disk11.id
+
+deltree /Y ..\disk\disk12
+md ..\disk\disk12
+copy disk.id ..\disk\disk12\disk12.id
+
+deltree /Y ..\disk\disk13
+md ..\disk\disk13
+copy disk.id ..\disk\disk13\disk13.id
+
+deltree /Y ..\disk\disk14
+md ..\disk\disk14
+copy disk.id ..\disk\disk14\disk14.id

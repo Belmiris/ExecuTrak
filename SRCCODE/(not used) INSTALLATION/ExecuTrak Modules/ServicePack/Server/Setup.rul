@@ -10,7 +10,7 @@
 #include "winapi.h"
 
 // constants
-#define PRODUCT_VERSION         "3.05"  //CHANGE THE VESION BEFORE BUILDING DISK
+#define PRODUCT_VERSION         "3.07"  //CHANGE THE VESION BEFORE BUILDING DISK
 
 #define SIZE_REQ_SERVER         4
 
@@ -152,15 +152,6 @@ StartHere:
 	InstallationInfo(COMPANY_NAME, PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_KEY);
 
 
-CheckBaseInstalled:
-        if (!BaseInstalled()) then
-             szMsg = "Please install the ExecuTrak Base System BEFORE " +
-                 "installing this module.\n\nSetup will be terminated.";
-             MessageBox(szMsg,SEVERE);
-             abort;
-        endif;
-
-
 WelcomeScreen:
 
 	// welcome message and get desired target path
@@ -225,6 +216,15 @@ GetTargetPath:
 
         ParsePath(szDisk, szBaseDirectory, DISK);
         szBaseDirectory = szDisk ^ APP_BASE_PATH;
+
+
+CheckBaseInstalled:
+        if (!BaseInstalled()) then
+             szMsg = "Please install the ExecuTrak Base System BEFORE " +
+                 "installing this module.\n\nSetup will be terminated.";
+             MessageBox(szMsg,SEVERE);
+             abort;
+        endif;
 
 
 ConfirmCopy:
@@ -754,8 +754,8 @@ end;
 
 function CheckCopyFiles(lstFileList, szFrom, szDest, bSharedFile, bSelfRegister)
 
-	STRING szName, szTemp, szVersionFrom, szVersionTo
-	NUMBER nReturn, nvXCopyFileParm, nvPosi;
+	STRING szName, szTemp, szVersionFrom, szVersionTo, szDateFrom, szDateTo;
+	NUMBER nReturn, nvXCopyFileParm, nvPosi, nvNotApplicable;
 	BOOL bGoCopy;
 begin
 
@@ -778,19 +778,37 @@ begin
 			else // EXE file
 				if fnFindFile(szDest, szName) then
 					szTemp = szFrom ^ szName;
-					VerGetFileVersion(szTemp, szVersionFrom);
+					if VerGetFileVersion(szTemp, szVersionFrom) != 0 then
+						szVersionFrom = "";
+					endif;
+
+					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateFrom);
+
 					szTemp = szDest ^ szName;
-					VerGetFileVersion(szTemp, szVersionTo);
+					if VerGetFileVersion(szTemp, szVersionTo) != 0 then
+						szVersionTo = "";
+					endif;
+
+					GetFileInfo (szTemp, FILE_DATE, nvNotApplicable, szDateTo);
 
 					if DEVELOP then
 						MessageBox(szFrom ^ szName + ":\nszVersionFrom=" + szVersionFrom +
-							szTemp + ":\nszVersionTo=" + szVersionTo, INFORMATION);
+							szVersionFrom + ":\nszVersionTo=" + szVersionTo, INFORMATION);
 					endif;
 
-					if szVersionFrom <= szVersionTo then
+					if szVersionFrom < szVersionTo then
 						bGoCopy = FALSE;
 					else
-						bGoCopy = TRUE;
+						if szVersionFrom = szVersionTo then
+							// check the date
+							if szDateFrom > szDateTo then
+								bGoCopy = TRUE;
+							else
+								bGoCopy = FALSE;
+							endif;
+						else
+							bGoCopy = TRUE;
+						endif;
 					endif;
 				else
 					bGoCopy = FALSE;
@@ -928,20 +946,17 @@ end;
 
 function BaseInstalled()
 
-        NUMBER nReturn, nvIconIndex, nvMinimizeFlag;
-
-        STRING svWorkingDir, svIcon;
-        STRING svProgram, svShortCutKey;
+	STRING szTemp;
 
 begin
 
-        nReturn = QueryProgItem(COMPANY_NAME ^ "ExecuTrak", "ExecuTrak", svProgram, svWorkingDir, svIcon, nvIconIndex, svShortCutKey, nvMinimizeFlag);
-
-        if (nReturn = 0) then
+	// search for factmenu.exe
+        if (FindFile(szBaseDirectory ^ PRODUCT_SUBDIR, PRODUCT_KEY, szTemp) >= 0) then
                 return TRUE;
         else
                 return FALSE;
         endif;
+
 
 end;
 
