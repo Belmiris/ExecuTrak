@@ -1056,7 +1056,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1108,7 +1108,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1116,8 +1116,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -2533,7 +2533,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2541,13 +2541,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sText)
         Else
@@ -2637,7 +2637,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -2691,12 +2691,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -2734,7 +2734,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -2745,8 +2745,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -2942,19 +2942,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -2967,10 +2967,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -3172,3 +3172,48 @@ ErrorAccessRecords:
     tfnErrHandler SUB_NAME, strSQL, False
     status_message = "Failed to access remote database (see error log)."
 End Function
+
+'##############################################################################
+' Function/Subroutine: tfnGetDbName
+' Author:               David Chai
+' Date:                 02/10/2003
+' Project Number:       373807
+' Program Version:      N/A
+' ARGS:                 none.
+' Returns:              Database name: String
+' Description:          get/extract the database name from the odbc connection
+'                       string
+'Intersolve Informix ODBC Driver:
+'ODBC;DSN=vbdev;UID=davidc;PWD=xxxxx;DB=/factor/vbdev/factor;HOST=ether;SERV=sqlexec;YLD=;CB=0;PRO=sesoctcp;SRVR=ether
+'Informix ODBC Driver:
+'ODBC;DSN=aaaavbdev;UID=davidc;PWD=xxxxx;DATABASE=/factor/vbdev/factor;HOST=ether;SRVR=ether;SERV=;PRO=;CLOC=en_US.CP1252;DLOC=en_US.CP1252;VMB=1;CURB=0;OPT=;DESC=informix 3.32;SCUR=0;ICUR=0;OAC=1;OPTOFC=0;RKC=0;ODTYP=0;DDFP=0;
+'-
+'##############################################################################
+Public Function tfnGetDbName() As String
+    Const CONNECT_DBPATH1 = ";DB"
+    Const CONNECT_DBPATH2 = "DATABASE"
+    
+    Dim sDBPath As String
+    Dim sDBName As String
+    Dim i As Integer
+    
+    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    If Trim(sDBPath) = "" Then
+        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+    End If
+    
+    i = InStrRev(sDBPath, "/")
+    
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
+    
+        i = InStrRev(sDBPath, "/")
+    
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
+        End If
+    End If
+    
+    tfnGetDbName = sDBName
+End Function
+
