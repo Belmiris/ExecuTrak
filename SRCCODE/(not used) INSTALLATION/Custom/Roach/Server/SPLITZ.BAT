@@ -33,10 +33,6 @@ copy ..\disk\%1client.z ..\disk\disk1
 :splitdone
 
 echo .
-echo split Z files has finished.
-choice /c:yn /t:n,5 Do you want to make the Distribution Disk.
-
-if errorlevel 2 goto end
 
 :makedisk
 call makedisk
