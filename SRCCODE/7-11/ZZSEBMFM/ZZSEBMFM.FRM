@@ -1,7 +1,7 @@
 VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBMFM 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Commission Master File Maintenance"
@@ -823,6 +823,7 @@ Private tgmBonus As clsTGSpreadSheet
 Private cvalidate As cValidateInput
 Private tgfDropdown As clsFloatingDropDown
 Private tgcExtension As clsColumnExtension
+Private tgsBonus As clsTGSelector
 
 Private Const ColPrftCtr As Integer = 0
 Private Const ColBCode As Integer = 1
@@ -896,34 +897,82 @@ Private Sub subSetupMousePointer()
 End Sub
 
 Private Sub cmdDeleteBtn_Click()
+    Dim lEmpNo As Long
+    Dim aryPrftCtr() As Integer
+    Dim aryBonusCode() As String
+    Dim arySeq() As Integer
+    Dim sMsg As String
+    Dim lTemp() As Long
+    Dim lCount As Long
+    Dim i As Long
+    
     'Just a check
     If tgmBonus.RowCount < 1 Then
         Exit Sub
     End If
     
-    If t_nFormMode = EDIT_MODE Then
-        If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
+    If tgsBonus.Count > 0 Then
+        If tgsBonus.Count = tgmBonus.RowCount Then
+            If t_nFormMode = EDIT_MODE Then
+                sMsg = "Are you sure you want to delete all the records?"
+            Else
+                sMsg = "Are you sure you want to delete all the rows from the Grid?"
+            End If
+        Else
+            If t_nFormMode = EDIT_MODE Then
+                sMsg = "Are you sure you want to delete the " & IIf(tgsBonus.Count > 1, tgsBonus.Count & " ", "") & "selected records?"
+            Else
+                sMsg = "Are you sure you want to delete the " & IIf(tgsBonus.Count > 1, tgsBonus.Count & " ", "") & "selected rows from the Grid?"
+            End If
+        End If
+        If Not tfnCancelExit(sMsg) Then
             Exit Sub
         End If
-        If Not fnDeleteBonusCode() Then
-            MsgBox "Failed to delete the Commission code", vbCritical
-            Exit Sub
-        End If
-    Else
-        Dim lRow As Long
-        Dim sBCode As String
-        Dim nPrftCtr As Integer
-        Dim nSeq As Integer
         
-        lRow = tgmBonus.GetCurrentRowNumber
-        sBCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
-        nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
-        nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
-    
-        'fix duplicate counter
-        subFixDuplicateCounter lRow, nPrftCtr, sBCode, nSeq
+        tgsBonus.GetSelected lTemp, lCount
+        
+        If lCount > 0 Then
+            ReDim aryPrftCtr(lCount - 1)
+            ReDim aryBonusCode(lCount - 1)
+            ReDim arySeq(lCount - 1)
+            For i = 0 To lCount - 1
+                aryPrftCtr(i) = tfnRound(tgmBonus.CellValue(ColPrftCtr, lTemp(i)))
+                aryBonusCode(i) = fnGetField(tgmBonus.CellValue(ColBCode, lTemp(i)))
+                arySeq(i) = tfnRound(tgmBonus.CellValue(ColSequence, lTemp(i)))
+            Next i
+            
+            lEmpNo = tfnRound(txtEmployee)
+            
+            For i = lCount - 1 To 0 Step -1
+                Screen.MousePointer = vbHourglass
+                If Not fnDeleteBonusCode(lEmpNo, aryPrftCtr(i), aryBonusCode(i), arySeq(i)) Then
+                    tfnSetStatusBarError "Failed to delete the record(s)"
+                    Screen.MousePointer = vbDefault
+                    Exit Sub
+                End If
+            Next i
+            
+            tgsBonus.Delete
+            
+            If tgsBonus.Count = tgmBonus.RowCount Then
+                cmdTBCancel_Click
+            Else
+                'tblBonus.SetFocus
+            End If
+            Screen.MousePointer = vbDefault
+        End If
+        
+        Exit Sub
     End If
     
+    If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
+        Exit Sub
+    End If
+    
+    If Not fnDeleteBonusCode() Then
+        MsgBox "Failed to delete the Commission code", vbCritical
+        Exit Sub
+    End If
     
     tgmBonus.DeleteRow
     
@@ -1324,7 +1373,7 @@ End Sub
 'Passed Variables: message string
 'Returns         : none
 '
-Private Sub tfnSetStatusBarMessage(szMessage As String)
+Public Sub tfnSetStatusBarMessage(szMessage As String)
     
     If t_bStartupFlag Then
         Exit Sub
@@ -1432,8 +1481,12 @@ Private Sub tfnResetScreen()
     
 End Sub
 
-Private Sub tblDropDown_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblBonus_Click()
+    tgsBonus.Click
+End Sub
+
+Private Sub tblBonus_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgsBonus.MouseUp Button, Shift, Y
 End Sub
 
 Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
@@ -1447,6 +1500,7 @@ Private Sub tblBonus_AfterColEdit(ByVal ColIndex As Integer)
         End If
     End If
 
+    subSetStdBtn
 End Sub
 
 Private Sub tblBonus_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
@@ -1469,17 +1523,36 @@ Private Sub tblBonus_FirstRowChange()
     tgfDropdown.FirstRowChange
     
     If tblBonus.Row = -1 Then
-        subEnableDeleteBtn False
+        If tgsBonus.Count = 0 Then
+            subEnableDeleteBtn False
+        Else
+            subEnableDeleteBtn True
+        End If
+    Else
+        subEnableDeleteBtn True
     End If
 End Sub
 
 Private Sub tblBonus_GotFocus()
     tfnSetStatusBarMessage "Commission Master"
+    tgsBonus.GotFocus
     tgmBonus.GotFocus
     tgfDropdown.GotFocus
+    
+    If tgfDropdown.ValidSelection Then
+        tblBonus_AfterColEdit tblBonus.col
+    End If
 End Sub
 
 Private Sub tblBonus_KeyDown(KeyCode As Integer, Shift As Integer)
+    If tblBonus.SelBookmarks.Count > 0 Then
+        If KeyCode = vbKeyDelete And Shift = 0 Then
+            KeyCode = 0
+            cmdDeleteBtn_Click
+            Exit Sub
+        End If
+    End If
+    tgsBonus.KeyDown KeyCode, Shift
     tgmBonus.KeyDown KeyCode, Shift
     tgfDropdown.KeyDown tblBonus, KeyCode
 End Sub
@@ -1487,7 +1560,7 @@ End Sub
 Private Sub tblBonus_KeyPress(KeyAscii As Integer)
     Dim lRow As Long
     
-    If tblBonus.col = ColBCode Or tblBonus.col = ColOverride Then
+    If tblBonus.col = ColBCode Or tblBonus.col = ColElgClass Or tblBonus.col = ColOverride Then
         KeyAscii = Asc(UCase$(Chr$(KeyAscii)))
     End If
     
@@ -1498,16 +1571,16 @@ Private Sub tblBonus_KeyPress(KeyAscii As Integer)
         KeyAscii = 0
     End If
     
-    If t_nFormMode = EDIT_MODE Then
-        If KeyAscii = vbKeyReturn And tgmBonus.RowCount - 1 = lRow And tblBonus.col = ColStopDate Then
-            If cmdUpdateInsertBtn.Enabled Then
-                subSetFocus cmdUpdateInsertBtn
-            Else
-                subSetFocus cmdExitCancelBtn
-            End If
+    If KeyAscii = vbKeyReturn Then
+        If tgmBonus.RowCount - 1 = lRow And tblBonus.col = ColElgClass Then
+            subSetStdBtn
+'            If cmdUpdateInsertBtn.Enabled Then
+'                subSetFocus cmdUpdateInsertBtn
+'            Else
+'                subSetFocus cmdExitCancelBtn
+'            End If
         End If
     End If
-    
 End Sub
 
 Private Sub tblBonus_LeftColChange()
@@ -1517,10 +1590,9 @@ End Sub
 Private Sub tblBonus_LostFocus()
     tgmBonus.LostFocus
     tgfDropdown.LostFocus tblBonus
-    subSetStdBtn
 End Sub
 
-Private Sub tblBonus_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tblBonus_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
@@ -1565,11 +1637,11 @@ Private Sub tblBonus_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
         End If
     End If
 
-    subSetStdBtn
-    
+    tgsBonus.RowColChange LastRow, LastCol
 End Sub
 
 Private Sub tblBonus_SelChange(CANCEL As Integer)
+    tgsBonus.SelChange CANCEL
     CANCEL = True
 End Sub
 
@@ -1640,7 +1712,7 @@ End Sub
 Private Sub subSetupToolBar()
     With frmContext
         .BeginSetupToolbar Me
-        .AddButton "Add &Employee", EMP_MST_UP
+        .AddButton "Add Emplo&yee", EMP_MST_UP
         .EndSetupToolbar
     
         .HelpFile = szHelpFileName
@@ -1664,7 +1736,7 @@ Private Sub tbToolbar_ButtonClick(ByVal Button As Button)
     frmContext.ButtonClick Button
 End Sub
 
-Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub tbToolbar_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     frmContext.TBMouseMove
 End Sub
 
@@ -1684,7 +1756,7 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
     
     Dim i As Integer
     
-    myWidth = Array(0.11, 0.1, 0.32, 0.07, 0.11, 0.11, 0.08, 0.08)
+    myWidth = Array(0.11, 0.1, 0.3, 0.07, 0.12, 0.12, 0.08, 0.08)
     myField = Array("bm_eligible_pc", "bm_bonus_code", "bc_code_desc", "bm_sequence", _
         "bm_eligible_date", "bm_stop_date", "bm_override", "bm_eligible_class")
     
@@ -1768,6 +1840,14 @@ Private Sub subInitSpreadsheets()
     
     tgmBonus.AllowAddNew = False
     
+    'Implement the selector class
+    Set tgsBonus = New clsTGSelector
+    tgsBonus.AvoidBeep = False
+    Set tgsBonus.EditorClass = tgmBonus
+    tgsBonus.SelectCurrRow = False
+    tgsBonus.AllowMultipleSelect = True
+    tgsBonus.RowHighLighted = True
+    
     'setup the text extension
     subSetupExetension
 End Sub
@@ -1850,37 +1930,48 @@ Private Sub tblDropDown_LostFocus()
     tgfDropdown.LostFocus tblDropDown
 End Sub
 
-Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgfDropdown.MouseUp y
+Private Sub tblDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgfDropdown.MouseUp Y
 End Sub
 
 Private Sub tblDropDown_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     tgfDropdown.RowColChange tblDropDown
 End Sub
 
-Private Function fnDeleteBonusCode() As Boolean
+Private Sub tblDropDown_SelChange(CANCEL As Integer)
+    CANCEL = True
+End Sub
+
+Private Function fnDeleteBonusCode(Optional lEmpNo As Long = -1, _
+                                   Optional nPrftCtr As Integer = -1, _
+                                   Optional sBCode As String = "", _
+                                   Optional nSeq As Integer = -1) As Boolean
+    
     Const SUB_NAME As String = "fnDeleteBonusCode"
     
     Dim lRow As Long
-    Dim sBCode As String
-    Dim nPrftCtr As Integer
-    Dim nSeq As Integer
     Dim strSQL As String
     
-    lRow = tgmBonus.GetCurrentRowNumber
-    sBCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
-    nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
-    nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
-    fnDeleteBonusCode = False
+    If lEmpNo < 0 Then
+        lEmpNo = tfnRound(txtEmployee)
+        lRow = tgmBonus.GetCurrentRowNumber
+        sBCode = fnGetField(tgmBonus.CellValue(ColBCode, lRow))
+        nPrftCtr = tfnRound(tgmBonus.CellValue(ColPrftCtr, lRow))
+        nSeq = tfnRound(tgmBonus.CellValue(ColSequence, lRow))
+    End If
     
-    strSQL = "DELETE FROM bonus_master WHERE bm_bonus_code = " & tfnSQLString(sBCode)
-    strSQL = strSQL & " AND bm_empno = " & tfnRound(txtEmployee)
-    strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(nPrftCtr)
-    
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
+    If t_nFormMode = EDIT_MODE Then
+        strSQL = "DELETE FROM bonus_master WHERE bm_bonus_code = " & tfnSQLString(sBCode)
+        strSQL = strSQL & " AND bm_empno = " & lEmpNo
+        strSQL = strSQL & " AND bm_eligible_pc = " & tfnRound(nPrftCtr)
+        
+        If fnExecuteSQL(strSQL, , SUB_NAME) Then
+            fnDeleteBonusCode = True
+        End If
+    Else
         fnDeleteBonusCode = True
     End If
-
+    
     'fix duplicate counter
     subFixDuplicateCounter lRow, nPrftCtr, sBCode, nSeq
     
@@ -2203,16 +2294,11 @@ End Sub
 Private Sub txtEmployee_LostFocus()
     tgcDropdown.LostFocus txtEmployee
     cvalidate.LostFocus txtEmployee, cmdEmployee
-    
-    If txtEmployee <> "" Then
-        't_bDataChanged = True
-    End If
     Screen.MousePointer = vbDefault
-
 End Sub
 
-Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-    'frmContext.MouseDown Button, EMP_MST_UP
+Private Sub txtEmployee_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    frmContext.MouseDown Button, EMP_MST_UP
 End Sub
 
 Private Sub txtEmpName_Change()
@@ -2311,7 +2397,7 @@ Private Function fnValidEmployee(Box As Textbox) As Boolean
     fnValidEmployee = False
     
     If Trim(Box.Text) = "" Then
-        cvalidate.SetErrorMessage Box, "You Must Enter a Employee Number"
+        cvalidate.SetErrorMessage Box, "You must enter an Employee Number"
         Exit Function
     End If
     
@@ -2397,8 +2483,8 @@ Private Sub tblComboDropdown_SelChange(CANCEL As Integer)
     tgcDropdown.SelChange CANCEL
 End Sub
 
-Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-    tgcDropdown.TableMouseUp y
+Private Sub tblComboDropDown_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    tgcDropdown.TableMouseUp Y
 End Sub
 
 Private Sub subSetupCombos()
@@ -3067,12 +3153,17 @@ Private Sub subSetupExetension()
     Set tgcExtension.PictureBox = picTextExtension
     Set tgcExtension.Table = tblBonus
     
+    tgcExtension.AddColumn ColBCDesc
+    
     tgcExtension.AddColumn ColPrftCtr
     tgcExtension.Style(ColPrftCtr) = 3
 End Sub
 
 Public Function fnGetText(tgTable As TDBGrid, ByVal nCol As Integer, ByVal nRow As Integer) As String
-    fnGetText = tgmBonus.CellValue(nxColPrftName, nRow)
+    Select Case nCol
+    Case ColPrftCtr
+        fnGetText = tgmBonus.CellValue(nxColPrftName, nRow)
+    End Select
 End Function
 
 'put all codes in tmrKeyboard_Timer()
