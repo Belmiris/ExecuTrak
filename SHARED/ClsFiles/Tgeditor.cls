@@ -141,6 +141,7 @@ Option Explicit
     Private nKeyColumnCount As Integer
     Private lKeyRows As Long
     Private lMaxKeys As Long
+    Private lMaxRows As Long
     
     Private nOriginalTableWidth As Integer
     Private nOriginalTableHeight As Integer
@@ -1144,7 +1145,11 @@ Property Let KeepData(bTemp As Boolean)
 End Property
 
 
-Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Property Let MaxRows(lTemp As Long)
+    lMaxRows = lTemp
+End Property
+
+Public Sub MouseDown(Button As Integer, Shift As Integer, x As Single, Y As Single)
     nKeyProcessing = KEY_P_FINISHED
 End Sub
 
@@ -2287,6 +2292,11 @@ Public Sub subAddNewRow(nCol As Integer)
     If nCol < nColumnForNewRow Then
         Exit Sub
     End If
+    If lMaxRows > 0 Then
+        If UBound(GridArray, 2) >= lMaxRows - 1 Then
+            Exit Sub
+        End If
+    End If
     If bAllowAddNew Then
         lRow = GetCurrentRowNumber
         If lRow >= nRowCount - 1 And lRow > 0 Then
@@ -3392,6 +3402,8 @@ errFill:
     Err.Clear
     Resume extFill
 End Sub
+
+
 Private Function fnColumnNumber(ByVal nIndex As Integer) As Integer
     Dim i As Integer
     
@@ -4337,6 +4349,7 @@ Private Sub Class_Initialize()
     nReturnKeyAction = RETURN_KEY_RIGHT
     bFirstTimeGotFocus = True
     m_bKeepData = False
+    lMaxRows = -1
     sDownArrowMessage = "No new rows can be added unless previous input is valid"
 End Sub
 
