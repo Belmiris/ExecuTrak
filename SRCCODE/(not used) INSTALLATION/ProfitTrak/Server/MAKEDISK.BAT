@@ -58,7 +58,7 @@ echo Delete all Files in A drive
 del a:\*.* 
 xcopy ..\disk\disk3\*.* a:
 
-if not exist ..\disk\disk3\crystal.z goto makedisk_done
+if exist ..\disk\disk3\crystal.z goto makedisk_done
 
 echo insert disk#4
 pause
