@@ -712,7 +712,8 @@ Public Function tfnFormatDateTime(sDateTime As String, sToMinuteOrSecond As Stri
         End If
     Else
         sDate = sDateTime
-        tfnFormatDateTime = tfnFormatDate(sDate)
+        tfnFormatDateTime = tfnFormatDate(sDate) + " " _
+            + IIf(sToMinuteOrSecond = "M", "00:00", "00:00:00")
     End If
 End Function
 
