@@ -453,6 +453,11 @@ Public Const MASS_BESTBUY_UP = 14800
 Public Const PRINT_SINGLE_ORDER_UP = 14850
 '''''''''''''''''
 
+'david 03/27/2002
+Public Const VENDOR_CATEGORY_UP = 14900
+Public Const CSTORE_TIER_MAINT_UP = 14950
+'''''''''''''''''
+
 
 '''
 'generic buttons for toolbar button that requires new bitmap
@@ -652,7 +657,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -866,7 +871,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.title
+        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
 End Function
@@ -1006,8 +1011,8 @@ Public Sub tfnUpdateVersion()
     #End If
     
     sProgramName = UCase(Trim(App.FileDescription))
-    sMajorVersion = Trim(CStr(App.major))
-    sMinorVersion = Trim(CStr(App.minor))
+    sMajorVersion = Trim(CStr(App.Major))
+    sMinorVersion = Trim(CStr(App.Minor))
     sRevision = Trim(CStr(App.Revision))
     
     On Error GoTo 0
@@ -1283,14 +1288,14 @@ Public Function tfnRound(vTemp As Variant, _
                         'If format with 2 decimal point places, we suppose that it is dealing with money
                         fTempD = CDbl(vTemp)
                         fOffset = Sgn(vTemp) * 10 ^ (Log(Abs(vTemp)) / Log10 - 7.375)
-                        tfnRound = val(Format(vTemp + fOffset, sFmt))
+                        tfnRound = Val(Format(vTemp + fOffset, sFmt))
                     Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
                     End If
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1369,7 +1374,7 @@ Public Function tfnAuthorizeExecute(szHandShake As String) As Boolean
         tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
     Else  'you don't know squat!
         If Trim(t_szConnect) = "" Then
-            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.title 'display error message to the user
+            MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
             tfnAuthorizeExecute = False 'return error flag
         Else
             tfnAuthorizeExecute = True
@@ -1421,9 +1426,9 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
-  If MsgBox(szMessage, nStyle, App.title) = vbYes Then
+  If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
   Else
     tfnConfirm = False
@@ -1533,7 +1538,7 @@ End Function
 '
 Public Function tfnCancelExit(szMessage As String) As Boolean
   
-  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.title) = vbYes Then
+  If MsgBox(szMessage, vbYesNo + vbQuestion + vbDefaultButton2 + vbApplicationModal, App.Title) = vbYes Then
     tfnCancelExit = True
   Else
     tfnCancelExit = False
