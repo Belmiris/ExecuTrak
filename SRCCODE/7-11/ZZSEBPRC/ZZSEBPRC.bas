@@ -2352,7 +2352,7 @@ Private Function fnMonthsEmployed(sVinV As String, _
     
     If rsTemp.RecordCount = 1 Then
         sDateStart = fnGetField(rsTemp!prhs_date_hired)
-        sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
+        sDateEnd = fnGetField(rsTemp!prhs_date_termed)
         
         If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
             
@@ -2373,7 +2373,7 @@ Private Function fnMonthsEmployed(sVinV As String, _
         
         Do
             sDateStart = fnGetField(rsTemp!prhs_date_hired)
-            sDateEnd = fnGetField(frmZZSEBPRC!prhs_date_termed)
+            sDateEnd = fnGetField(rsTemp!prhs_date_termed)
             
             If IsValidDate(sDateStart) And IsValidDate(sDateEnd) Then
                 
