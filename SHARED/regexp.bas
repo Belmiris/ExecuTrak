@@ -425,21 +425,21 @@ End Function
 
 
 Private Function tfnYear(sText As String) As Integer
-    Dim i As Integer
+    Dim I As Integer
     Dim sChar As String * 1
     Dim sYear As String
     
-    i = Len(sText)
+    I = Len(sText)
     sYear = ""
     Do
-        sChar = Mid(sText, i, 1)
+        sChar = Mid(sText, I, 1)
         If sChar <> "/" And sChar <> "-" Then
             sYear = sChar & sYear
         Else
             Exit Do
         End If
-        i = i - 1
-    Loop Until i <= 1
+        I = I - 1
+    Loop Until I <= 1
     If Len(sYear) <= 4 Then
         tfnYear = Val(sYear)
     End If
@@ -663,5 +663,104 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
         End If
     End If
 
+End Function
+
+'david 12/28/00
+Public Function tfnFormatDateTime(sDateTime As String) As String
+    Dim sDate As String, sTime As String, nPosi As Integer
+    
+    tfnFormatDateTime = ""
+    sDateTime = Trim(sDateTime)
+    
+    If sDateTime = "" Then Exit Function
+    
+    nPosi = InStr(sDateTime, " ")
+    
+    If nPosi > 0 Then
+        sDate = Left(sDateTime, nPosi - 1)
+        sDate = tfnFormatDate(sDate)
+        
+        If Not IsDate(tfnDateString(sDate)) Then Exit Function
+        
+        sTime = Mid(sDateTime, nPosi + 1)
+        tfnFormatDateTime = sDate & " " & fnFormatTime(sTime)
+    Else
+        sDate = sDateTime
+        sDate = tfnFormatDate(sDate)
+        
+        If IsDate(tfnDateString(sDate)) Then tfnFormatDateTime = sDate
+    
+    End If
+End Function
+
+'sTime is in the format of (hh:mm)
+Private Function fnFormatTime(sTime As String) As String
+    Dim nPosi As Integer
+    
+    'default time
+    fnFormatTime = ""
+    sTime = Trim(sTime)
+    
+    If sTime = "" Then Exit Function
+    
+    If Len(sTime) < 2 Or Len(sTime) > 5 Then Exit Function
+    
+    nPosi = InStr(sTime, ":")
+    
+    If nPosi > 0 Then
+        
+        If Val(Left(sTime, nPosi - 1)) > 23 Or Val(Mid(sTime, nPosi + 1)) > 59 Then
+            Exit Function
+        Else
+            fnFormatTime = Format(Left(sTime, nPosi - 1), "00") & ":" & Format(Mid(sTime, nPosi + 1), "00")
+        End If
+    
+    Else
+        Select Case Len(sTime)
+            Case 2
+                fnFormatTime = Format(Left(sTime, 1), "00") & ":" & Format(Right(sTime, 1), "00")
+            Case 3
+                If Val(Left(sTime, 2)) > 23 Then
+                    If Val(Right(sTime, 2)) > 59 Then Exit Function
+                    fnFormatTime = Format(Left(sTime, 1), "00") & ":" & Format(Right(sTime, 2), "00")
+                ElseIf Val(Right(sTime, 2)) > 59 Then
+                    If Val(Left(sTime, 2)) > 23 Then Exit Function
+                    fnFormatTime = Format(Left(sTime, 2), "00") & ":" & Format(Right(sTime, 1), "00")
+                End If
+            Case 4
+                If Val(Left(sTime, 2)) > 23 Or Val(Right(sTime, 2)) > 59 Then Exit Function
+                fnFormatTime = Format(Left(sTime, 2), "00") & ":" & Format(Right(sTime, 2), "00")
+        End Select
+        
+    End If
+End Function
+
+Public Function tfnDateTimeString(sDateTime As String) As String
+    Const FORMAT_DATE = "YYYY-MM-DD"
+    Const FORMAT_TIME = "HH:MM:SS"
+
+    Dim sDate As String, sTime As String, nPosi As Integer
+    
+    tfnDateTimeString = "''"
+    sDateTime = Trim(sDateTime)
+    
+    If sDateTime = "" Then Exit Function
+    
+    nPosi = InStr(sDateTime, " ")
+    
+    If nPosi > 0 Then
+        sDate = Left(sDateTime, nPosi - 1)
+        
+        If Not IsDate(tfnDateString(sDate)) Then Exit Function
+        
+        sTime = Mid(sDateTime, nPosi + 1)
+        tfnDateTimeString = "{ts " & tfnSQLString(Format(tfnDateString(sDate), FORMAT_DATE) & " " & Format(sTime, FORMAT_TIME)) & "}"
+    Else
+        sDate = sDateTime
+        
+        If IsDate(tfnDateString(sDate)) Then tfnDateTimeString = "{ts '" & Format(tfnDateString(sDate), FORMAT_DATE) & " 00:00:00'" & "}"
+    
+    End If
+    
 End Function
 
