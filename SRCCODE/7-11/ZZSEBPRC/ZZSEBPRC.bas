@@ -31,6 +31,7 @@ Public Const colSPrftName As Integer = 1
 Public Const colSAmount As Integer = 2
 Public Const colSFromDate As Integer = 3
 Public Const colSToDate As Integer = 4
+Public ColxSOldPrftCtr As Integer
 
 'Time Card Grid Column Names
 Public Const colHClockIn As Integer = 0
@@ -349,15 +350,24 @@ Public Sub subPrintProcess(lstOutput As ListBox)
 End Sub
 
 'This function will calculate bonus for only one bonus code including all its levels
-Public Function fnGetBonusAmount(lEmployeeNo As Long, sBType As String, _
-                                    sBCode As String, nLevel As Integer) As Double
+Public Function fnGetBonusAmount(rsBonus As Recordset) As Double
     Const SUB_NAME As String = "fnGetBonusAmount"
+    
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim i As Integer
+    Dim lEmployeeNo As Long
+    Dim sBType As String
+    Dim sBGrade As String
+    Dim sBCode As String
+    Dim nLevel As Integer
+                                 
+    lEmployeeNo = tfnRound(rsBonus!bm_empno)
+    sBType = fnGetField(rsBonus!bc_type)
+    sBGrade = fnGetField(rsBonus!bc_grade)
+    sBCode = fnGetField(rsBonus!bc_bonus_code)
+    nLevel = tfnRound(rsBonus!bf_level)
     
-    sBCode = Trim(sBCode)
-    sBType = Trim(sBType)
     fnGetBonusAmount = 0#
     
     If sBCode = "" Or sBType = "" Then
@@ -373,10 +383,11 @@ Public Function fnGetBonusAmount(lEmployeeNo As Long, sBType As String, _
     End If
     
     fnGetBonusAmount = fnCalculateBonus(rsTemp!bf_percent, rsTemp!bf_dollar, _
-                        rsTemp!bf_amount1, rsTemp!bf_amount2, rsTemp!bf_variable1, _
-                        rsTemp!bf_variable2, rsTemp!bf_variable3, rsTemp!bf_max_total, _
-                        rsTemp!bf_formula, fnGetField(rsTemp!bf_condition), _
-                        fnGetField(rsTemp!bf_adj_formula), fnGetField(rsTemp!bf_adj_condition), sBType)
+        rsTemp!bf_amount1, rsTemp!bf_amount2, rsTemp!bf_variable1, _
+        rsTemp!bf_variable2, rsTemp!bf_variable3, rsTemp!bf_max_total, _
+        rsTemp!bf_formula, fnGetField(rsTemp!bf_condition), _
+        fnGetField(rsTemp!bf_adj_formula), _
+        fnGetField(rsTemp!bf_adj_condition), sBType)
                 
 End Function
 
@@ -417,6 +428,7 @@ Private Function fnCalculateBonus(PCT As Double, DOL As Double, AMT1 As Double, 
     Dim dBonusAmt As Double
     
     fnCalculateBonus = 0#
+    
     sFmla = Trim(sFmla): sCond = Trim(sCond): sACond = Trim(sACond): sAFmla = Trim(sAFmla)
     sV1 = Trim(sV1): sV2 = Trim(sV2): sV3 = Trim(sV3)
     PCT = tfnRound(PCT, DEFAULT_DECIMALS): DOL = tfnRound(DOL, DEFAULT_DECIMALS)
@@ -485,8 +497,8 @@ Private Function fnGetVarValue(sVariable As String, sErrMsg As String) As Double
     
     If frmZZSEBPRC.txtPrftCtr <> "" Then
         szAltSQL = " AND rssl_prft_ctr = " & frmZZSEBPRC.txtPrftCtr
-        If frmZZSEBPRC.txtDate <> "" Then
-            szAltSQL = szAltSQL & " AND rssl_date = " & tfnDateString(frmZZSEBPRC.txtDate, True)
+        If frmZZSEBPRC.txtStartDate <> "" Then
+            szAltSQL = szAltSQL & " AND rssl_date = " & tfnDateString(frmZZSEBPRC.txtStartDate, True)
         Else
             szAltSQL = szAltSQL & " AND rssl_date = " & tfnDateString(Date, True)
         End If
@@ -602,8 +614,6 @@ Public Function fnDeleteSalesRecord() As Boolean
     
     Dim strSQL As String
     
-    fnDeleteSalesRecord = False
-    
     strSQL = "DELETE FROM bonus_sales"
     strSQL = strSQL & " WHERE bs_sales_type = " & tfnSQLString(frmZZSEBPRC.fnGetSalesType())
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
@@ -636,30 +646,25 @@ Public Function fnDeleteSalesRecord() As Boolean
     strSQL = strSQL & " AND bs_to_date BETWEEN " & tfnDateString(frmZZSEBPRC.txtFromDate, True)
     strSQL = strSQL & " AND " & tfnDateString(frmZZSEBPRC.txtToDate, True)
     
-    If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
-        Exit Function
-    End If
-
-    fnDeleteSalesRecord = True
+    fnDeleteSalesRecord = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
 
 Public Function fnInsertUpdateSales() As Boolean
     Const SUB_NAME As String = "fnInsertUpdateSales"
+    
     Dim i As Integer
     Dim strSQL As String
-    
     Dim nPrftCtr As Integer
+    Dim sOldPrftCtr As String
     Dim sFrmDt As String
     Dim sToDt As String
     Dim dSlsAmt As Double
     Dim sSType As String
     
-    fnInsertUpdateSales = False
-    
     sSType = tfnSQLString(frmZZSEBPRC.fnGetSalesType())
     
     For i = 0 To tgmSales.RowCount - 1
-        If tgmSales.ValidCell(colSPrftCtr, i) And fnGetField(tgmSales.CellValue(colSPrftCtr, i)) <> "" Then
+        If tgmSales.ValidCell(colSPrftCtr, i) Then
             nPrftCtr = tfnRound(tgmSales.CellValue(colSPrftCtr, i))
 '            sFrmDt = tfnDateString(tgmSales.CellValue(colSFromDate, i), True)
 '            sToDt = tfnDateString(tgmSales.CellValue(colSToDate, i), True)
@@ -667,7 +672,9 @@ Public Function fnInsertUpdateSales() As Boolean
             sToDt = tfnDateString(frmZZSEBPRC!txtToDate, True)
             dSlsAmt = tfnRound(tgmSales.CellValue(colSAmount, i), 2)
             
-            If t_nFormMode = ADD_MODE Then
+            sOldPrftCtr = fnGetField(tgmSales.CellValue(ColxSOldPrftCtr, i))
+            
+            If sOldPrftCtr = "" Then
                 strSQL = "INSERT INTO bonus_sales (bs_prft_ctr, bs_from_date, bs_to_date,"
                 strSQL = strSQL & " bs_sales_amount, bs_sales_type) VALUES ("
                 strSQL = strSQL & nPrftCtr & ","
@@ -675,43 +682,62 @@ Public Function fnInsertUpdateSales() As Boolean
                 strSQL = strSQL & sToDt & ","
                 strSQL = strSQL & dSlsAmt & ","
                 strSQL = strSQL & sSType & ")"
+            
+                If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+                    Exit Function
+                End If
             Else
                 strSQL = "UPDATE bonus_sales SET"
-                'strSQL = strSQL & " bs_prft_ctr = " & nPrftCtr & ","
+                If nPrftCtr <> tfnRound(sOldPrftCtr) Then
+                    strSQL = strSQL & " bs_prft_ctr = " & nPrftCtr * -1 & ","
+                End If
                 'strSQL = strSQL & " bs_from_date = " & sFrmDt & ","
                 'strSQL = strSQL & " bs_to_date = " & sToDt & ","
                 strSQL = strSQL & " bs_sales_amount = " & dSlsAmt
                 strSQL = strSQL & " WHERE bs_sales_type = " & sSType
-                strSQL = strSQL & " AND bs_prft_ctr = " & nPrftCtr
+                strSQL = strSQL & " AND bs_prft_ctr = " & tfnRound(sOldPrftCtr)
                 strSQL = strSQL & " AND bs_from_date = " & sFrmDt
                 strSQL = strSQL & " AND bs_to_date = " & sToDt
-            End If
-        
-            If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
-                Exit Function
+            
+                If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+                    Exit Function
+                End If
             End If
         End If
     Next i
     
-    fnInsertUpdateSales = True
+    If t_nFormMode = EDIT_MODE Then
+        'change bs_prft_ctr back to positive
+        strSQL = "UPDATE bonus_sales SET"
+        strSQL = strSQL & " bs_prft_ctr = bs_prft_ctr * -1"
+        strSQL = strSQL & " WHERE bs_sales_type = " & sSType
+        strSQL = strSQL & " AND bs_from_date = " & sFrmDt
+        strSQL = strSQL & " AND bs_to_date = " & sToDt
+        strSQL = strSQL & " AND bs_prft_ctr < 0"
+    
+        If Not fnExecuteSQL(strSQL, , SUB_NAME) Then
+            Exit Function
+        End If
+    End If
 
+    fnInsertUpdateSales = True
 End Function
 
-Public Function fnDeleteSales(sSType As String, nPrftCtr As Integer, sToDt As String, sFrmDt As String) As Boolean
+Public Function fnDeleteSales(sSType As String, sOldPrftCtr As String, sToDt As String, sFrmDt As String) As Boolean
     Const SUB_NAME As String = "fnDeleteSales"
     Dim strSQL As String
     
-    fnDeleteSales = False
+    If sOldPrftCtr = "" Then
+        fnDeleteSales = True
+        Exit Function
+    End If
     
     strSQL = "DELETE FROM bonus_sales WHERE bs_sales_type = " & tfnSQLString(Trim(sSType))
-    strSQL = strSQL & " AND bs_prft_ctr = " & nPrftCtr
+    strSQL = strSQL & " AND bs_prft_ctr = " & tfnRound(sOldPrftCtr)
     strSQL = strSQL & " AND bs_from_date = " & tfnDateString(Trim(sFrmDt), True)
     strSQL = strSQL & " AND bs_to_date = " & tfnDateString(Trim(sToDt), True)
     
-    If fnExecuteSQL(strSQL, , SUB_NAME) Then
-        fnDeleteSales = True
-    End If
-
+    fnDeleteSales = fnExecuteSQL(strSQL, , SUB_NAME)
 End Function
 
 Public Function fnCreateTempTableVar() As Boolean
