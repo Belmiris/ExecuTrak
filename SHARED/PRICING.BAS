@@ -53,6 +53,9 @@ Private bBook_city As Boolean
 Private bBook_term As Boolean
 
 Private m_OverRideFlag_YN As String 'Add per magic 312713-48
+'Added by junsong per magic 355816'
+Private Const PRICE_BOOK_NOT_FOUND = "Price book was not set for customer"
+Private m_sSysParm6203 As String
 
 Public Function product_price( _
                                 DEST_FLAG As String, _
@@ -62,7 +65,7 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -73,6 +76,37 @@ Public Function product_price( _
     product_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+    
+    'add by junsong per magic 355816
+    'If we can't find the price book for altnate customer, we try to find
+    'the price book for its master customer
+    
+    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
+        Dim lMasterCust As Long
+        Dim rsCust As Recordset
+        
+        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
+        
+        If Not (rsCust Is Nothing) Then
+            lMasterCust = tfnRound(rsCust!an_cust)
+            
+            If lMasterCust <> lCustomer Then
+                ' I changed from 'Y' to 'N' if we can not find the book for master vendor too,
+                ' then I don't want it to return error, so I use the master customer level
+                ' to calculate the price Junsong 02/26/01
+                m_sSysParm6203 = "N"
+                    
+                product_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                m_sSysParm6203 = "Y"
+    
+            End If
+            
+        End If
+        
+    End If
+    '
 End Function ' product_price
 
 'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
@@ -85,7 +119,7 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -96,6 +130,37 @@ Public Function Fuel_price( _
     Fuel_price = sp_price(sProductLink, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+    
+    'add by junsong per magic 355816
+    'If we can't find the price book for altnate customer, we try to find
+    'the price book for its master customer
+    
+    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
+        Dim lMasterCust As Long
+        Dim rsCust As Recordset
+        
+        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
+        
+        If Not (rsCust Is Nothing) Then
+            lMasterCust = tfnRound(rsCust!an_cust)
+            
+            If lMasterCust <> lCustomer Then
+                ' I changed from 'Y' to 'N' if we can not find the book for master vendor too,
+                ' then I don't want it to return error, so I use the master customer level
+                ' to calculate the price Junsong 02/26/01
+                m_sSysParm6203 = "N"
+        
+                Fuel_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
+                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+    
+                m_sSysParm6203 = "Y"
+            End If
+            
+        End If
+        
+    End If
+    
 End Function ' product_price
 
 Public Function prod_price( _
@@ -105,7 +170,7 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -117,6 +182,36 @@ Public Function prod_price( _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 
+    'add by junsong per magic 355816
+    'If we can't find the price book for altnate customer, we try to find
+    'the price book for its master customer
+    
+    If sErrMsg = PRICE_BOOK_NOT_FOUND And m_sSysParm6203 = "Y" Then
+        Dim lMasterCust As Long
+        Dim rsCust As Recordset
+        
+        Set rsCust = far_altname(lCustomer, t_dbMainDatabase)
+        
+        If Not (rsCust Is Nothing) Then
+            lMasterCust = tfnRound(rsCust!an_cust)
+            
+            If lMasterCust <> lCustomer Then
+                ' I changed from 'Y' to 'N' if we can not find the book for master vendor
+                ' then I don't want it to return error, so I use the master customer level
+                ' to calculate the price Junsong 02/26/01
+                m_sSysParm6203 = "N"
+                
+                prod_price = sp_price(sProductLink, lProfitCenter, lMasterCust, _
+                                dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                m_sSysParm6203 = "Y"
+                'change back to yes for other customer
+            End If
+            
+        End If
+        
+    End If
+    
 End Function ' prod_price
 
 Private Function sp_price(ByVal sProductLink As String, _
@@ -128,7 +223,7 @@ Private Function sp_price(ByVal sProductLink As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As DataBase, _
+                            t_dbMainDatabase As Database, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
@@ -292,9 +387,10 @@ Private Function sp_price(ByVal sProductLink As String, _
         
         If zzerc_contract_nbr >= 0 Then
             c_book_price = "SELECT zzerc_customer spb_customer, zzerc_loc spb_loc," & _
-                           "zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
-                           "zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
-                           "zzerc_oper spb_oper,zzerc_price spb_price" & _
+                           " zzerc_prodlnk spb_prodlnk,zzerc_date spb_date" & _
+                           " zzerc_pterminal spb_pterminal,zzerc_pvendor spb_pvendor" & _
+                           " zzerc_oper spb_oper,zzerc_price spb_price" & _
+                           " FROM zzer_contract " & _
                            " WHERE zzerc_contract_nbr=" & tfnRound(zzerc_contract_nbr) & _
                            " AND zzerc_date <= " & QStr(wrk_date) & _
                            " ORDER BY spb_customer, spb_loc, spb_prodlnk, spb_date desc"
@@ -330,10 +426,18 @@ Private Function sp_price(ByVal sProductLink As String, _
             sErrMsg = "Failed to get sp_book info"
             Exit Function
         End If
+        
         If pr_sp_book.RecordCount > 0 Then
             pr_sp_book.MoveFirst 'populate with first record
         Else
-            Exit Do 'while bBook_active
+            'changed by junsong 02/26/02
+            If m_sSysParm6203 = "Y" Then
+                sErrMsg = PRICE_BOOK_NOT_FOUND
+                Exit Function
+            Else
+                Exit Do 'while bBook_active
+            End If
+            
         End If
         ' close c_book_price
         
@@ -784,7 +888,7 @@ End Function ' sp_price pppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 '       Public cust_adv_action As String * 1
 '       Public mstpc As Integer
 
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
     Dim pr_sys_parm As Recordset
    
     #If cDEBUG Then
@@ -820,9 +924,22 @@ Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
         End Select
     End If
     
+    'added by junsong 02/26/02
+    m_sSysParm6203 = "N"
+    Set pr_sys_parm = fsys_parm(6203, t_dbMainDatabase)
+    
+    If Not (pr_sys_parm Is Nothing) Then
+        
+        If fnFirstCharU(pr_sys_parm!parm_field) = "Y" Then
+            m_sSysParm6203 = "Y"
+        End If
+        
+    End If
+    'end added
+    
 End Sub ' set_wrk_date
 
-Private Sub book_pricing(t_dbMainDatabase As DataBase)
+Private Sub book_pricing(t_dbMainDatabase As Database)
     Const SUB_NAME = "book_pricing"
     
     Dim pr_sys_parm As Recordset
@@ -894,7 +1011,7 @@ Sub Main()          'include for testing
     Dim t_szConnect As String            'holds ODBC connect string
     Dim t_engFactor As DBEngine          'pointer to database engine
     Dim t_wsWorkSpace As Workspace       'pointer to the default workspace
-    Dim t_dbMainDatabase As DataBase     'main database handle
+    Dim t_dbMainDatabase As Database     'main database handle
 
     #If cDEBUG Then
         Debug.Print " "
