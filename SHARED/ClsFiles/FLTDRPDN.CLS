@@ -1016,7 +1016,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
     bKeyPressed = False
 End Sub
 
-Public Sub KeyPress(tgTable As Object, KeyAscii As Integer)
+Public Sub Keypress(tgTable As Object, KeyAscii As Integer)
     If Not t_dbMainDatabase Is Nothing Then
         If frmParent.ActiveControl Is tgMain And tgTable Is tgDropDown Then
             'Work arround for true grid problems
@@ -1501,7 +1501,9 @@ Private Sub fnMoveButton()
                 cmdSearch.Left = nLeft
                 If tgMain.Enabled Then
                     cmdSearch.Visible = True
-                    tgMain.SetFocus
+                    If Not frmParent.ActiveControl Is tgMain Then
+                        tgMain.SetFocus
+                    End If
                 End If
                 cmdSearch.ZOrder 0
             End If
