@@ -18,6 +18,16 @@ Private Declare Function GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (By
 
 Private m_frmFormMain As Form
 Private m_sFormID As String
+
+Private m_bLogTableExists As Boolean
+
+'-1 no log, 0 - minimium details, 9 - maximium details
+Const DEBUG_NO_LOG As Integer = -1
+Const DEBUG_MIN_LOG As Integer = 0
+Const DEBUG_MAX_LOG As Integer = 9
+
+Private m_nMinDebugLevel As Integer
+Private m_nMaxDebugLevel As Integer
 '
 
 Public Sub Initialize(formMain As Form, sID As String)
@@ -29,6 +39,23 @@ Public Sub Initialize(formMain As Form, sID As String)
     Else
         m_sFormID = sID
     End If
+
+    If t_dbMainDatabase Is Nothing Then
+        MsgBox "Database Object not set!", vbCritical
+        Exit Sub
+    End If
+
+    m_bLogTableExists = fnTableExists("sys_ini")
+    
+    If m_bLogTableExists Then
+        subCheckDebugLevel
+    Else
+        m_nMinDebugLevel = DEBUG_NO_LOG
+    End If
+End Sub
+
+Private Sub Class_Initialize()
+    m_nMinDebugLevel = DEBUG_NO_LOG
 End Sub
 
 Private Sub Class_Terminate()
@@ -45,7 +72,7 @@ Public Sub StartDebugLog()
         Exit Sub
     #End If
     
-    If Not fnTableExists("sys_ini") Then
+    If m_nMinDebugLevel < DEBUG_MIN_LOG Then
         Exit Sub
     End If
     
@@ -68,7 +95,7 @@ Public Sub StopDebugLog()
         Exit Sub
     #End If
     
-    If Not fnTableExists("sys_ini") Then
+    If m_nMinDebugLevel < DEBUG_MIN_LOG Then
         Exit Sub
     End If
     
@@ -83,10 +110,21 @@ Public Sub StopDebugLog()
     WriteSysIni m_sFormID, "AUTO", "DEBUG_LOG", sField, sValue
 End Sub
 
-Public Sub LogMsg(sMsg As String, Optional bQueryFirst As Boolean = False)
+Public Sub LogMsg(sMsg As String, _
+                  Optional nLogLevel As Integer = 0, _
+                  Optional bQueryFirst As Boolean = False, _
+                  Optional bForceLog As Boolean = False)
     Dim sField As String
     
-    If Not fnTableExists("sys_ini") Then
+    If Not m_bLogTableExists Then
+        Exit Sub
+    End If
+    
+    If ((Not bForceLog) And m_nMinDebugLevel < DEBUG_MIN_LOG) Then
+        Exit Sub
+    End If
+    
+    If Not (nLogLevel >= m_nMinDebugLevel And nLogLevel <= m_nMaxDebugLevel) Then
         Exit Sub
     End If
     
@@ -94,6 +132,12 @@ Public Sub LogMsg(sMsg As String, Optional bQueryFirst As Boolean = False)
     
     WriteSysIni m_sFormID, "AUTO", "PROG_LOG", sField, " [" + ComputerName() + _
         "] <" + UserName() + "> " + sMsg, bQueryFirst, False
+End Sub
+
+Public Sub RefreshLogLevel()
+    If m_bLogTableExists Then
+        subCheckDebugLevel
+    End If
 End Sub
 
 Public Function fnTableExists(sTableName As String) As Boolean
@@ -117,6 +161,42 @@ errTrap:
         tfnErrHandler SUB_NAME, strSQL, True
     End If
 End Function
+
+'-1 no log, 0 - minimium details, 9 - maximium details
+Private Sub subCheckDebugLevel()
+    Const SUB_NAME As String = "subCheckDebugLevel"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sSysParm97 As String
+    Dim nPosi As Integer
+    
+    'debugging level
+    strSQL = "SELECT * FROM sys_parm WHERE parm_nbr = 97"
+    
+    On Error GoTo errTrap
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    If rsTemp.RecordCount > 0 Then
+        sSysParm97 = Trim(rsTemp!parm_field & "")
+        If sSysParm97 <> "" Then
+            nPosi = InStr(sSysParm97, "-")
+            If nPosi > 0 Then
+                m_nMinDebugLevel = tfnRound(Left(sSysParm97, nPosi - 1))
+                m_nMaxDebugLevel = tfnRound(Mid(sSysParm97, nPosi + 1))
+            Else
+                m_nMinDebugLevel = tfnRound(sSysParm97)
+                m_nMaxDebugLevel = tfnRound(sSysParm97)
+            End If
+        End If
+    End If
+    Exit Sub
+    
+errTrap:
+    If Not objErrHandler Is Nothing Then
+        tfnErrHandler SUB_NAME, strSQL, False
+    End If
+End Sub
 
 'return error message if any
 'will set the sValue upon return
