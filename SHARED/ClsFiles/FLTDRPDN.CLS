@@ -1501,6 +1501,7 @@ Private Sub fnMoveButton()
                 cmdSearch.Left = nLeft
                 If tgMain.Enabled Then
                     cmdSearch.Visible = True
+                    tgMain.SetFocus
                 End If
                 cmdSearch.ZOrder 0
             End If
@@ -1545,7 +1546,7 @@ Public Sub LostFocus(objControl As Object)
     nTab = frmParent.ActiveControl.TabIndex
 
     If objControl.TabIndex = tgMain.TabIndex Then
-        If nTab <> cmdSearch.TabIndex And nTab <> tgDropDown.TabIndex Then
+        If nTab <> cmdSearch.TabIndex And nTab <> tgDropDown.TabIndex And nTab <> tgMain.TabIndex Then
             cmdSearch.Visible = False
             cmdSearch.ZOrder 1
         Else
