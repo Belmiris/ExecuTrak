@@ -1,4 +1,11 @@
 version: 3.25.11
+Date: 09/17/2001
+Description: 
+	1. Update INDEX smg_indx_1 ON sm_gas_check_L
+	2. Create Primary Key on smg_fo_tank and smg_customer fields.
+		CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank, smg_customer);
+
+version: 3.25.11
 Date: 09/12/2001
 Module(s): ZZEFOGCK
 Description: 
@@ -95,10 +102,10 @@ smg_vent_position2  text (10),
 smg_protected       text (10),
 smg_protected2      text (10));
 
-CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank, smg_customer);
+CREATE UNIQUE INDEX smg_indx_1 ON sm_gas_check_L (smg_fo_tank);
 
 
-Notes:  This change was done from ZZEFOGCK 3.25.1201.
+Notes:  This change was done for ZZEFOGCK 3.25.1201.
 
 version: 3.25.10
 Date: 07/20/2001
