@@ -697,6 +697,7 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
 
     'Display errors during the tax mod call
     Const nButtons = vbOKOnly + vbCritical
+    
     Select Case nMsgNo
         Case TXMOD_LINETAX_OK = 0           ' All's well
         Case TXMOD_LINETAX_NOMEM         ' Out of memory
@@ -722,7 +723,7 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
     End Select
 
     If bShowMsgBox Then
-        MsgBox sMsg + ".", , nButtons
+        MsgBox sMsg + ".", nButtons
     Else
         sErrMsg = sMsg + "."
     End If
