@@ -576,7 +576,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -612,7 +612,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -648,7 +648,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -684,7 +684,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -720,7 +720,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -756,7 +756,7 @@ Begin VB.Form frmZZSEBFMT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.6
+            Size            =   9.46
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -877,7 +877,7 @@ Begin VB.Form frmZZSEBFMT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -890,7 +890,7 @@ Begin VB.Form frmZZSEBFMT
       Style           =   6
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.6
+         Size            =   9.59
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1123,9 +1123,12 @@ Private Sub cmdAddBtn_Click()
 End Sub
 
 Private Sub cmdDelete_Click()
-
-    If Not fnDeleteBonusFormula(txtBonusCode, txtLevel) Then
-        MsgBox "Failed to delete the Commission formula", vbExclamation
+    If Not tfnCancelExit("Are you sure you want to delete the current record?") Then
+        Exit Sub
+    End If
+    
+    If Not fnDeleteBonusFormula(txtBonusCode, txtLevel.Tag) Then
+        tfnSetStatusBarError "Failed to delete the Commission formula"
         Exit Sub
     End If
     
@@ -2029,8 +2032,6 @@ Public Function fnInvalidData(txtBox As Textbox) As Boolean
             fnInvalidData = Not fnValidFormula(txtBox)
         Case txtCondition.TabIndex, txtAdjCond.TabIndex
             fnInvalidData = Not fnValidCondition(txtBox)
-        'Case txtPercent.TabIndex, txtDollar.TabIndex, txtAmount1.TabIndex, txtAmount2.TabIndex
-        '    fnInvalidData = False
         Case Else
             fnInvalidData = False
     End Select
@@ -2496,10 +2497,7 @@ End Sub
 
 Private Sub txtPercent_LostFocus()
     cValidate.LostFocus txtPercent
-    
-    If txtPercent = "" Then
-        txtPercent = "0.00"
-    End If
+    subFormatTo2Dec txtPercent
     
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
@@ -2533,10 +2531,7 @@ End Sub
 
 Private Sub txtDollar_LostFocus()
     cValidate.LostFocus txtDollar
-    
-    If txtDollar = "" Then
-        txtDollar = "0.00"
-    End If
+    subFormatTo2Dec txtDollar
     
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
@@ -2570,9 +2565,7 @@ End Sub
 
 Private Sub txtAmount1_LostFocus()
     cValidate.LostFocus txtAmount1
-    If txtAmount1 = "" Then
-        txtAmount1 = "0.00"
-    End If
+    subFormatTo2Dec txtAmount1
     
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
@@ -2610,10 +2603,7 @@ End Sub
 
 Private Sub txtAmount2_LostFocus()
     cValidate.LostFocus txtAmount2
-    
-    If txtAmount2 = "" Then
-        txtAmount2 = "0.00"
-    End If
+    subFormatTo2Dec txtAmount2
     
     If cValidate.FirstInvalidInput < 0 Then
         subEnableUpdateBtn True
@@ -3489,3 +3479,16 @@ Private Function fnCheckVarAllowed(sFormula As String, sBonusType As String) As 
 
     fnCheckVarAllowed = ""
 End Function
+
+'will be call in textbox lostfocus event ONLY
+Private Sub subFormatTo2Dec(txtBox As Textbox)
+    If ActiveControl Is cmdAddBtn Then
+        Exit Sub
+    End If
+    
+    If txtBox = "" Then
+        txtBox = "0.00"
+    Else
+        txtBox = Format(txtBox, "###,###,###,##0.00########")
+    End If
+End Sub
