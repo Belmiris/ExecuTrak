@@ -204,6 +204,9 @@ Public Sub Click()
         If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
             subMarkSelected m_vLastRow
             subSetCurrentRow
+            If Not m_tgTable.EditActive Then
+                SetRowHighLighted m_bRowHighLighted
+            End If
         Else
             m_bTableClicked = True
         End If
@@ -225,10 +228,7 @@ Public Sub Click()
                 m_tgTable.col = m_nIdleColumn
             End If
         End If
-        'subSetCurrentRow
     End If
-
-    SetRowHighLighted m_bRowHighLighted
 End Sub
 
 Private Function fnLong(vTemp As Variant) As Long
