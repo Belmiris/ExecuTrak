@@ -398,7 +398,7 @@ StartCopy:
                 LOGMSG="END FORCED COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-		if (!bProgramFoundInRemote) then
+		//if (!bProgramFoundInRemote) then
 	                TARGETDIR = szBaseDirectory ^ "OLE";
 	
 	                LOGMSG="START FORCED COPY OF factole.z FILES IN " + TARGETDIR;
@@ -412,7 +412,7 @@ StartCopy:
 	                LOGMSG="END FORCED COPY OF factole.z FILES IN " + TARGETDIR;
 			LOGWRITE(LOGMSG);
 
-		endif;
+		//endif;
 
                 TARGETDIR = WINSYSDIR;
 
@@ -479,7 +479,7 @@ StartCopy:
                 LOGMSG="END NORMAL COPY OF EDIPROC.Z FILES IN " + TARGETDIR;
 		LOGWRITE(LOGMSG);
 
-		if (!bProgramFoundInRemote) then
+		//if (!bProgramFoundInRemote) then
 	                TARGETDIR = szBaseDirectory ^ "OLE";
 	        
 	                LOGMSG="START NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
@@ -492,7 +492,7 @@ StartCopy:
 	
 	                LOGMSG="END NORMAL COPY OF factole.z FILES IN " + TARGETDIR;
 	                LOGWRITE(LOGMSG);
-		endif;
+		//endif;
 
                 TARGETDIR = WINSYSDIR;
 
@@ -596,6 +596,13 @@ StartCopy:
 			LOGWRITE(LOGMSG);
                         goto ZFAILURE;
         endswitch;
+        
+        //selfregistering DLLs & Ocxs
+        LOGMSG="START SELFREGISTERING FILES ";
+        LOGWRITE(LOGMSG);
+
+	SetStatusWindow(91, "Registering DLLs and OCXs...");
+        Do(SELFREGISTRATIONPROCESS);
 
 	SetStatusWindow(92, "Registering DLLs and OCXs...");
 
@@ -809,35 +816,23 @@ begin
     	SdShowMsg(WELCOME_TITLE + " is making a backup copy of " + MODULE_NAME + " Database...", TRUE);
 
         Enable(HOURGLASS);
-
-	if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
-		return FALSE;
+	
+	if (fnFindFile(TARGETDIR, "edixlate.mdb")) then
+		if (CopyFile("edixlate.mdb", "edixlate.mdb.$$$") < 0) then
+			return FALSE;
+		endif;
 	endif;
 
-	if (bPass) then
+	if (fnFindFile(TARGETDIR, "ediproc.ini")) then
 		if (CopyFile("ediproc.ini", "ediproc.ini.$$$") < 0) then
 			DeleteFile("edixlate.mdb.$$$");
-			bPass = FALSE;
+			return FALSE;
 		endif;
 	endif;
 
-	if (bPass) then
-		if (DeleteFile("edixlate.mdb") < 0) then
-			DeleteFile("edixlate.mdb.$$$");
-			DeleteFile("ediproc.ini.$$$");
-			bPass = FALSE;
-		endif;
-	endif;
-
-	if (bPass) then
-		if (DeleteFile("ediproc.ini") < 0) then
-			CopyFile("edixlate.mdb.$$$", "edixlate.mdb");
-			DeleteFile("edixlate.mdb.$$$");
-			DeleteFile("ediproc.ini.$$$");
-			bPass = FALSE;
-		endif;
-	endif;
-
+	DeleteFile("edixlate.mdb");
+	DeleteFile("ediproc.ini"); 
+	
         VarRestore(SRCTARGETDIR);
 	
 	return bPass;	
