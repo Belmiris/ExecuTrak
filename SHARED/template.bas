@@ -69,7 +69,7 @@ Public Const szHelpMANNATEC As String = "MANNATEC.HLP"
 Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
 Public Const sHelpTABLECHG  As String = "SYFTBCHG.HLP"  'Junsong 02/24/03 call 373319-1
 Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 call 379860-5
-Global Const szHelpHedging As String = "PAPCO.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-2
+Global Const szHelpPapco As String = "PAPCO.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-2
 '#######################################################################################
 '# Logging constants
 Global Const LE_SQL As Integer = 1 'Log level for SQL Only
