@@ -749,7 +749,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -803,12 +803,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -846,7 +846,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -857,8 +857,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(i).m_sTable = sTemp
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_sTable = sTemp
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -946,19 +946,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Long
+        Dim I As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For i = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(i).m_sTable = ""
-                        arryLockHandles(i).m_lHandle = -1
+                        arryLockHandles(I).m_sTable = ""
+                        arryLockHandles(I).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -971,10 +971,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next i
+        Next I
         
-        If i < UBound(arryLockHandles) Then
-            For j = i + 1 To UBound(arryLockHandles)
+        If I < UBound(arryLockHandles) Then
+            For j = I + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -1191,7 +1191,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1243,7 +1243,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1251,8 +1251,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -2009,6 +2009,9 @@ Public Function tfnSQLString(ByVal vTemp As Variant, Optional vNoQuotes As Varia
         nIdx = nPos + 2
         nPos = InStr(nIdx, szParameter, "'")
     Wend
+    'Robert Atwood 02-08-23 373550 modified function to replace all carets with CR's
+    'using tfnCRToCaret
+    szParameter = tfnCRToCaret(szParameter)
     
     ' quote the whole string - optional
     If IsMissing(vNoQuotes) Then
@@ -2648,7 +2651,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim i As Long
+    Dim I As Long
     
     sText = vText & ""
     
@@ -2656,13 +2659,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For i = 1 To Len(sText)
-                sChar = Mid(sText, i, 1)
+            For I = 1 To Len(sText)
+                sChar = Mid(sText, I, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next i
+            Next I
         
             sTemp = RTrim(sText)
         Else
@@ -2696,4 +2699,37 @@ Public Function tfnSaveDoNotShowClosedCustSettings(ByVal nChkBoxValue As Integer
           IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
 End Function
 
+'##############################################################################
+' Function/Subroutine: tfnCaretToCR
+' Author:               Robert Atwood
+' Date:                 02/08/23
+' Project Number:       373550
+' Program Version:      N/A
+' ARGS:                 strInput: String, input string
+' Returns:              string, strInput with every "^" set as vbCR
+' Description:          Used to convert text stored in database fields (with
+'                       embedded CR's translated to Carets) back into formatted
+'                       visible output.
+'-
+'##############################################################################
+Public Function tfnCaretToCR(strInput As String) As String
+    tfnCaretToCR = Replace(strInput, "^", vbCr)
+End Function
+
+'##############################################################################
+' Function/Subroutine: tfnCRToCaret
+' Author:               Robert Atwood
+' Date:                 02/08/23
+' Project Number:       373550
+' Program Version:      N/A
+' ARGS:                 strInput: String, input string
+' Returns:              string, strInput with every vbCR set as "^"
+' Description:          Used to convert text formatted in windows with embedded
+'                       CR's to be stored in database fields (with
+'                       embedded CR's translated to Carets)
+'-
+'##############################################################################
+Public Function tfnCRToCaret(strInput As String) As String
+    tfnCRToCaret = Replace(strInput, vbCr, "^")
+End Function
 
