@@ -244,55 +244,59 @@ End Function
 Private Function fnInsertData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim bSkipLine As Boolean
     
     subWriteDetailProcLog udtInvHeader, udtInvDetail
     
-    If fnValidData(udtInvHeader, udtInvDetail) Then
+    If fnValidData(udtInvHeader, udtInvDetail, bSkipLine) Then
         
-        'insert header data
-        If g_bNeedWriteHeader Then
-        
-            If Not fnDeleteData(udtInvHeader.lVendor, udtInvHeader.lInvNum) Then
-                 Exit Function
-            End If
-                                
-            strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
-            strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt, rsphh_status)"
-            strSQL = strSQL & " VALUES(" & udtInvHeader.nPrftCtr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
-            strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
-            strSQL = strSQL & tfnDateString(udtInvHeader.dtInvdate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
-            strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
-            strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ",'N')"
+        If Not bSkipLine Then
+            'insert header data
+            If g_bNeedWriteHeader Then
             
-            g_bNeedWriteHeader = False
-            g_lDetailLineNbr = 1
+                If Not fnDeleteData(udtInvHeader.lVendor, udtInvHeader.lInvNum) Then
+                     Exit Function
+                End If
+                                    
+                strSQL = "INSERT INTO rs_p_hold_header(rsphh_prft_ctr, rsphh_rpt_date, rsphh_shift, rsphh_vendor,"
+                strSQL = strSQL & "rsphh_invoice, rsphh_inv_date, rsphh_std_term, rsphh_type, rsphh_draft_nbr, rsphh_invoice_amt, rsphh_status)"
+                strSQL = strSQL & " VALUES(" & udtInvHeader.nPrftCtr & "," & tfnDateString(udtInvHeader.dtReportDate, True) & ","
+                strSQL = strSQL & udtInvHeader.nShiftNum & "," & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
+                strSQL = strSQL & tfnDateString(udtInvHeader.dtInvdate, True) & "," & tfnSQLString(udtInvHeader.sTerm) & ","
+                strSQL = strSQL & tfnSQLString(udtInvHeader.sPayType) & "," & IIf(Trim(udtInvHeader.sDraftNum) = "", "NULL", udtInvHeader.sDraftNum) & ","
+                strSQL = strSQL & tfnRound(udtInvHeader.dInvAmount, 3) & ",'N')"
+                
+                g_bNeedWriteHeader = False
+                g_lDetailLineNbr = 1
+                
+                If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
+                    Exit Function
+                End If
+                
+                strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
+                strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
+                    
+                If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
+                    Exit Function
+                End If
+                       
+            End If
+            
+            strSQL = "INSERT INTO rs_p_hold_detail(rsphd_vendor, rsphd_invoice, rsphd_line_nbr, rsphd_type, "
+            strSQL = strSQL & " rsphd_code, rsphd_qty, rsphd_stock_unit, rsphd_cost, rsphd_retail)"
+            strSQL = strSQL & " VALUES( " & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
+            strSQL = strSQL & g_lDetailLineNbr & "," & tfnSQLString(udtInvDetail.sTypeCode) & ","
+            strSQL = strSQL & tfnSQLString(udtInvDetail.sItemCode) & "," & tfnRound(udtInvDetail.dQuantity, 3) & ","
+            strSQL = strSQL & tfnSQLString(udtInvDetail.sUOM) & "," & tfnRound(udtInvDetail.dCost, 3) & ","
+            strSQL = strSQL & tfnRound(udtInvDetail.sRetail, 3) & ")"
             
             If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
                 Exit Function
             End If
             
-            strSQL = "INSERT INTO p_nbr(pno_vendor, pno_invoice, pno_lnk) VALUES"
-            strSQL = strSQL & "(" & udtInvHeader.lVendor & "," & tfnSQLString(udtInvHeader.lInvNum) & ",0)"
-                
-            If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnValidInvNum") Then
-                Exit Function
-            End If
-                   
+            g_lDetailLineNbr = g_lDetailLineNbr + 1
         End If
         
-        strSQL = "INSERT INTO rs_p_hold_detail(rsphd_vendor, rsphd_invoice, rsphd_line_nbr, rsphd_type, "
-        strSQL = strSQL & " rsphd_code, rsphd_qty, rsphd_stock_unit, rsphd_cost, rsphd_retail)"
-        strSQL = strSQL & " VALUES( " & udtInvHeader.lVendor & "," & udtInvHeader.lInvNum & ","
-        strSQL = strSQL & g_lDetailLineNbr & "," & tfnSQLString(udtInvDetail.sTypeCode) & ","
-        strSQL = strSQL & tfnSQLString(udtInvDetail.sItemCode) & "," & tfnRound(udtInvDetail.dQuantity, 3) & ","
-        strSQL = strSQL & tfnSQLString(udtInvDetail.sUOM) & "," & tfnRound(udtInvDetail.dCost, 3) & ","
-        strSQL = strSQL & tfnRound(udtInvDetail.sRetail, 3) & ")"
-        
-        If Not fnExecuteSQL(strSQL, nDB_REMOTE, "fnInsertData") Then
-            Exit Function
-        End If
-        
-        g_lDetailLineNbr = g_lDetailLineNbr + 1
         fnInsertData = True
     Else
         fnInsertData = False
@@ -332,18 +336,27 @@ Private Function fnDeleteData(lVendor As Long, lInvoice As Long) As Boolean
     fnDeleteData = True
 End Function
 
-Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail) As Boolean
+Private Function fnValidData(ByRef udtInvHeader As RSINV_Header, ByRef udtInvDetail As RSINV_Detail, bSkipThisLine As Boolean) As Boolean
     Dim sErrMsg As String
     Dim sItemDesc As String
     Dim sStockUnit As String
     Dim sPayTerm As String
     Dim bUOMMatch As Boolean
+    Dim bQuantityZero As Boolean
+    Dim sHoldMsg As String
+    
     fnValidData = True
+    bSkipThisLine = False
+    
+    If tfnRound(udtInvDetail.dQuantity, DEFAULT_DECIMALS) = 0 Then
+        bQuantityZero = True
+    End If
     
     'valid this one first, because it item description is required in the log file
     sErrMsg = fnValidItemCode(udtInvHeader.lVendor, udtInvDetail.sItemCode, sItemDesc, sStockUnit)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -351,6 +364,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidPrftCtr(udtInvHeader.nPrftCtr)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -358,6 +372,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidReportDate(udtInvHeader.nPrftCtr, udtInvHeader.dtReportDate)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -365,6 +380,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidShiftNum(udtInvHeader.nPrftCtr, udtInvHeader.nShiftNum, udtInvHeader.dtReportDate)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -372,6 +388,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidVendor(udtInvHeader.lVendor, sPayTerm)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -379,6 +396,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidInvNum(udtInvHeader.lVendor, udtInvHeader.lInvNum)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -386,6 +404,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidInvDate(udtInvHeader.dtInvdate, udtInvHeader.dtReportDate)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -393,6 +412,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidPayTerm(udtInvHeader.lVendor, udtInvHeader.sTerm, sPayTerm)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -400,6 +420,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidPayType(udtInvHeader.sPayType)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -407,6 +428,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidDraftNum(udtInvHeader.sPayType, udtInvHeader.sDraftNum)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -414,6 +436,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidInvAmount(udtInvHeader.dInvAmount)
     
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -422,6 +445,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidPurchaseType(udtInvDetail.sTypeCode)
         
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -429,6 +453,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidPurchaseQty(udtInvDetail.dQuantity)
         
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -436,6 +461,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
     sErrMsg = fnValidUOM(udtInvHeader, udtInvDetail, sStockUnit, bUOMMatch)
         
     If sErrMsg <> "" Then
+        sHoldMsg = sErrMsg
         fnValidData = False
         subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
     End If
@@ -444,6 +470,7 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
         sErrMsg = fnValidPurchaseCost(udtInvDetail.dCost)
             
         If sErrMsg <> "" Then
+            sHoldMsg = sErrMsg
             fnValidData = False
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
@@ -451,12 +478,21 @@ Private Function fnValidData(udtInvHeader As RSINV_Header, udtInvDetail As RSINV
         sErrMsg = fnValidRetailPrice(udtInvDetail.sRetail, udtInvDetail.sItemCode, udtInvHeader.lVendor, udtInvHeader.nPrftCtr, udtInvHeader.dtInvdate)
             
         If sErrMsg <> "" Then
+            sHoldMsg = sErrMsg
             fnValidData = False
             subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
         End If
             
     End If
     
+    If sHoldMsg <> "" And bQuantityZero Then
+        sErrMsg = "****All errors for this item will be ignored since quantity is Zero"
+        fnValidData = True
+        bSkipThisLine = True
+        subWriteDetailErrLog udtInvHeader, udtInvDetail, sItemDesc, sErrMsg
+    End If
+    
+
 End Function
 
 Public Sub subSetProgress(sngPercent As Single)
@@ -504,7 +540,8 @@ End Sub
 
 Private Sub subWriteDetailErrLog(udtInvHeader As RSINV_Header, udtInvDetail As RSINV_Detail, sItemDesc As String, sErrMsg As String)
     Dim sLine As String
-   
+    Dim lSpaceLen As Long
+    
     If g_bNeedErrHeader Then
         subWriteHeaderErrLog udtInvHeader
         g_bNeedErrHeader = False
@@ -512,9 +549,27 @@ Private Sub subWriteDetailErrLog(udtInvHeader As RSINV_Header, udtInvDetail As R
     
     sLine = CStr(Format(udtInvHeader.dtReportDate, "MM/DD/YY"))
     sLine = sLine & Space(1) & CStr(udtInvHeader.lInvNum)
-    sLine = sLine & Space(11 - Len(CStr(udtInvHeader.lInvNum))) & udtInvDetail.sItemCode
-    sLine = sLine & Space(11 - Len(udtInvDetail.sItemCode)) & sItemDesc
-    sLine = sLine & Space(21 - Len(sItemDesc)) & sErrMsg
+    lSpaceLen = 11 - Len(CStr(udtInvHeader.lInvNum))
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & udtInvDetail.sItemCode
+    lSpaceLen = 11 - Len(udtInvDetail.sItemCode)
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & sItemDesc
+    lSpaceLen = 21 - Len(sItemDesc)
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & sErrMsg
     Print #g_nErrorLogFile, sLine
 End Sub
 
@@ -557,18 +612,50 @@ Private Sub subWriteDetailProcLog(udtInvHeader As RSINV_Header, udtInvDetail As 
     Dim sLine As String
     Dim sItemDesc As String
     Dim dExtCost As Double
+    Dim lSpaceLen As Long
     
     'write detail
     sLine = CStr(Format(udtInvHeader.dtReportDate, "MM/DD/YY"))
     sLine = sLine & Space(1) & CStr(udtInvHeader.lInvNum)
-    sLine = sLine & Space(11 - Len(CStr(udtInvHeader.lInvNum))) & udtInvDetail.sItemCode
+    
+    lSpaceLen = 11 - Len(CStr(udtInvHeader.lInvNum))
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & udtInvDetail.sItemCode
     sItemDesc = fnGetItemDesc(udtInvHeader.lVendor, udtInvDetail.sItemCode)
      
-    sLine = sLine & Space(11 - Len(udtInvDetail.sItemCode)) & sItemDesc
-    sLine = sLine & Space(21 - Len(sItemDesc)) & CStr(udtInvDetail.dQuantity)
-    sLine = sLine & Space(9 - Len(CStr(udtInvDetail.dQuantity))) & CStr(udtInvDetail.dCost)
+    lSpaceLen = 11 - Len(udtInvDetail.sItemCode)
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & sItemDesc
+    lSpaceLen = 21 - Len(sItemDesc)
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & CStr(udtInvDetail.dQuantity)
+    lSpaceLen = 9 - Len(CStr(udtInvDetail.dQuantity))
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & CStr(udtInvDetail.dCost)
     dExtCost = udtInvDetail.dQuantity * udtInvDetail.dCost
-    sLine = sLine & Space(11 - Len(CStr(udtInvDetail.dCost))) & CStr(dExtCost)
+    lSpaceLen = 11 - Len(CStr(udtInvDetail.dCost))
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = sLine & Space(lSpaceLen) & CStr(dExtCost)
     Print #g_nProcessingFile, sLine
     g_dTotalCost = g_dTotalCost + udtInvDetail.dCost
     
@@ -578,14 +665,20 @@ End Sub
 
 Private Sub subWriteSummary()
     Dim sLine As String
-    
+    Dim lSpaceLen As Long
     Print #g_nProcessingFile, ""
     'Added tfnRound before printing totals in order to make certain the length of g_dTotalCost
     '7-8-2002 Robert Atwood for Seven-11
     g_dTotalCost = tfnRound(g_dTotalCost, 2)
     g_dTotalExtCost = tfnRound(g_dTotalExtCost, 2)
     
-    sLine = "TOTAL" & Space(56) & CStr(g_dTotalCost) & Space(11 - Len(CStr(g_dTotalCost))) & CStr(g_dTotalExtCost)
+    lSpaceLen = 11 - Len(CStr(g_dTotalCost))
+    
+    If lSpaceLen < 0 Then
+        lSpaceLen = 0
+    End If
+    
+    sLine = "TOTAL" & Space(56) & CStr(g_dTotalCost) & Space(lSpaceLen) & CStr(g_dTotalExtCost)
     Print #g_nProcessingFile, sLine
     Print #g_nProcessingFile, ""
 End Sub
@@ -1096,7 +1189,8 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
         Exit Function
     End If
     
-    strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
+    'strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'Y'"
+    strSQL = "SELECT rsbp_ent_retail, rsbp_date FROM rs_b_price WHERE rsbp_promo = 'Y'"
     strSQL = strSQL & " AND " & tfnDateString(dtInvdate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
     strSQL = strSQL & " AND rsbp_bk_lnk = "
     strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
@@ -1104,12 +1198,14 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
     strSQL = strSQL & " AND rsbb_subbook = " & lSubBook
     strSQL = strSQL & " AND rsbb_ic_lnk = " & lIcLink
     strSQL = strSQL & ")"
-
+    strSQL = strSQL & " ORDER BY rsbp_date DESC "
+    
     If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetRetailPrice") > 0 Then
-        dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, rsTemp!rsbp_retail)
+        dRetailPrice = IIf(IsNull(rsTemp!rsbp_ent_retail), 0, rsTemp!rsbp_ent_retail)
         fnGetRetailPrice = True
     Else
-        strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
+        'strSQL = "SELECT rsbp_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
+        strSQL = "SELECT rsbp_ent_retail FROM rs_b_price WHERE rsbp_promo = 'N'"
         strSQL = strSQL & " AND " & tfnDateString(dtInvdate, True) & " BETWEEN rsbp_date and rsbp_ending_date "
         strSQL = strSQL & " AND rsbp_bk_lnk = "
         strSQL = strSQL & " (SELECT rsbb_bk_lnk FROM rs_b_book WHERE rsbb_vendor = " & lVendor
@@ -1119,7 +1215,7 @@ Private Function fnGetRetailPrice(sItemCode As String, lVendor As Long, _
         strSQL = strSQL & ")"
 
         If fnGetRecord(rsTemp, strSQL, nDB_REMOTE, "fnGetRetailPrice") > 0 Then
-            dRetailPrice = IIf(IsNull(rsTemp!rsbp_retail), 0, rsTemp!rsbp_retail)
+            dRetailPrice = IIf(IsNull(rsTemp!rsbp_ent_retail), 0, rsTemp!rsbp_ent_retail)
             fnGetRetailPrice = True
         Else
             fnGetRetailPrice = False
