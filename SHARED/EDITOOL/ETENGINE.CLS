@@ -1634,16 +1634,30 @@ Private Sub subCheckFEIN(colItems As Collection)
     For Each ciTemp In colItems
         If Trim(ciTemp.CarrierFedID) = "" Then
             subAddErrFEIN sErrMsg, ciTemp.CarrierName, ciTemp.CarrierCode
+            
+            #If Not CHECK_FEIN Then
+                ciTemp.CarrierFedID = "9090909"
+            #End If
         End If
         If Trim(ciTemp.BuySellFedID) = "" Then
             subAddErrFEIN sErrMsg, ciTemp.BuySellName, ciTemp.BuySellCode
+            
+            #If Not CHECK_FEIN Then
+                ciTemp.BuySellFedID = "9090909"
+            #End If
         End If
     Next ciTemp
     
     If sErrMsg <> "" Then
-        m_nErrorNumber = EC_NULL_FEIN
-        m_sLastVBError = "FEIN for the following Carrier,Vendor or Customer is Blank:\" + _
-            Left(sErrMsg, Len(sErrMsg) - 1)
+        #If CHECK_FEIN Then
+            m_nErrorNumber = EC_NULL_FEIN
+            m_sLastVBError = "FEIN for the following Carrier,Vendor or Customer is Blank:\" + _
+                Left(sErrMsg, Len(sErrMsg) - 1)
+        #Else
+            MsgBox "FEIN for the following Carrier,Vendor or Customer is Blank:\" + _
+                Left(sErrMsg, Len(sErrMsg) - 1)
+            sErrMsg = ""
+        #End If
     End If
 End Sub
 
