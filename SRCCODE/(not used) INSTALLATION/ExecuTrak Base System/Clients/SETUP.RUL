@@ -98,6 +98,10 @@ declare
 	prototype CopyServicePackFile(LIST, STRING);
 	prototype CheckCopyFiles(LIST, STRING, STRING, BOOL, BOOL, BOOL, BOOL);
 
+	prototype IS_UpdateServicePack(STRING, STRING);
+	prototype IS_CopyServicePackFile(LIST, STRING);
+	prototype IS_CheckCopyFiles(LIST, STRING, STRING, BOOL, BOOL, BOOL, BOOL);
+
 
 // the script starts here
 program
@@ -326,18 +330,11 @@ ClientOptions:
 SelectModule:
 	nvMByteRequired = 0;
 
-	if nvClientOption = BASE_AND_MOD || nvClientOption = MOD_ONLY then
+	if (nvClientOption = BASE_AND_MOD || nvClientOption = MOD_ONLY) then
 		if SelectModClients(lstClientID, lstClientName, nvClientCount, nvMByteRequired) = BACK then
 			goto ClientOptions;
 		endif;
 	endif;
-
-	switch (nvClientOption)
-	case BASE_ONLY:
-	case BASE_AND_MOD:
-	case MOD_ONLY:
-	case SERVICE_ONLY:
-	endswitch;
 
 
 CheckFreeSapce:
@@ -927,6 +924,11 @@ FinishBaseSystem:
 		SdShowMsg ("Updating Service Pack. Please wait...", TRUE);
 		UpdateServicePack(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, szTemp);
 		SdShowMsg ("", FALSE);
+		Delay( 1 );
+		szTemp = szBaseDirectory ^ PRODUCT_SUBDIR ^ "BIN";
+		SdShowMsg ("Updating Interim Service Pack. Please wait...", TRUE);
+		IS_UpdateServicePack(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, szTemp);
+		SdShowMsg ("", FALSE);
 	endif;
 
 	SetStatusWindow(100, "Finishing Factor " + PRODUCT_NAME + " System installation...");
@@ -1474,11 +1476,16 @@ function AskClientOptions(nvRetOption)
 
 begin
 
+	bServicePack = FALSE;
+
 	// Check Service Pack Files
 	if fnFindFile(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, "SERV*.*") then
 		bServicePack = TRUE;
-	else
-		bServicePack = FALSE;
+	endif;
+
+	// Check Interim Service Pack Files
+	if fnFindFile(szServerDirectory ^ "CLIENTS" ^ PRODUCT_SUBDIR, "ISRV*.*") then
+		bServicePack = TRUE;
 	endif;
 
 
@@ -1563,6 +1570,31 @@ begin
 
    	nReturn = SdOptionsButtons (szTitle, szMsg, listButtons, listDescrip);
 
+	switch (nReturn)
+	case BASE_ONLY:
+	case BASE_AND_MOD:
+		if nModuleCount > 0 then
+			//good return value
+		else
+			if (!bUpdateBase) &&  nModuleCount > 0 then
+				nReturn = MOD_ONLY;
+			else
+				if bServicePack then
+					nReturn = SERVICE_ONLY;
+				endif;
+			endif;
+		endif;
+	case MOD_ONLY:
+		if (!bUpdateBase) &&  nModuleCount > 0 then
+			//good return value
+		else
+			if bServicePack then
+				nReturn = SERVICE_ONLY;
+			endif;
+		endif;
+	case SERVICE_ONLY:
+	endswitch;
+	
        	Enable(NEXTBUTTON);
 
 	ListDestroy(listButtons);
@@ -2111,7 +2143,7 @@ function RunModClientInstallation()
 
 begin
 
-	Disable(INDVFILESTATUS);
+	Enable(INDVFILESTATUS);
 	StatusUpdate(OFF, 0);
 	Enable(STATUS);
 
@@ -2211,6 +2243,10 @@ begin
         endwhile;
 
 	VarSave(SRCTARGETDIR);
+
+	Enable(INDVFILESTATUS);
+	StatusUpdate(ON, 0);
+	Enable(STATUS);
 
 	// Decompress Service Pack
 	if !DecompressServicePack(szClientPath, lstServiceZFiles) then
@@ -2599,6 +2635,349 @@ begin
 	szSCExe = szAppDir ^ szHelpFile;
         AddFolderIcon(szFolder, szName + " Module Help",
 				  szSCExe, szSCWork, szSCIcon, 0, "", REPLACE);
+
+end;
+
+
+// MAKE SURE szClientPath = ?:\FACTOR\CLIENTS\EXECTRAK, ? is Drive Letter.
+//           szBin = ?:\FACTOR\EXECTRAK\BIN, ? is Drive Letter.
+function IS_UpdateServicePack(szClientPath, szBin)
+
+	STRING svFileName, szTemp, szMsg;
+	NUMBER nResult;
+	LIST lstServiceZFiles;
+begin
+
+	szMsg = "Interim Service Pack Update Failed.";
+
+	//scan SERV*.Z files in ?:\FACTOR\CLIENTS\EXECTRAK directory
+        lstServiceZFiles = ListCreate (STRINGLIST);
+        
+        if (lstServiceZFiles = LIST_NULL) then
+                MessageBox ("Unable to create necessary Lists 'lstServiceZFiles'!", SEVERE);
+                MessageBox (szMsg, SEVERE);
+                return FALSE;
+        endif;
+        
+        nResult = FindAllFiles(szClientPath, "ISRV*.Z", svFileName, RESET);
+        
+        if (nResult < 0) then
+		if DEVELOP then
+                	MessageBox ("'ISRV*.Z' file not found in '" + szClientPath + "'.", INFORMATION);
+		endif;
+		ListDestroy(lstServiceZFiles);
+                return TRUE;
+        endif;
+        
+        while (nResult = 0)
+        	ParsePath(szTemp, svFileName, FILENAME);
+		StrToUpper(szTemp, szTemp);
+                if (ListAddString(lstServiceZFiles, szTemp, AFTER) < 0) then
+                        MessageBox("ListAddString failed - 'lstServiceZFiles'.", SEVERE);
+	                MessageBox (szMsg, SEVERE);
+			ListDestroy(lstServiceZFiles);
+                        return FALSE;
+                endif;
+                nResult = FindAllFiles(szClientPath, "ISRV*.Z", svFileName, CONTINUE);
+        endwhile;
+        
+        if (fnFindFile(szClientPath, "LOCALDB.Z")) then
+                if (ListAddString(lstServiceZFiles, "LOCALDB.Z", AFTER) < 0) then
+                        MessageBox("ListAddString failed - 'lstServiceZFiles'.", SEVERE);
+	                MessageBox (szMsg, SEVERE);
+			ListDestroy(lstServiceZFiles);
+                        return FALSE;
+                endif;
+	endif;
+	
+	VarSave(SRCTARGETDIR);
+
+	Enable(INDVFILESTATUS);
+	StatusUpdate(ON, 0);
+	Enable(STATUS);
+
+	// Decompress Service Pack
+	if !DecompressServicePack(szClientPath, lstServiceZFiles) then
+                MessageBox (szMsg, SEVERE);
+		DeleteServiceZDirectory(lstServiceZFiles);
+		VarRestore(SRCTARGETDIR);
+		ListDestroy(lstServiceZFiles);
+		return FALSE;
+	endif;
+
+	VarRestore(SRCTARGETDIR);
+
+	if !IS_CopyServicePackFile(lstServiceZFiles, szBin) then
+                MessageBox (szMsg, SEVERE);
+		DeleteServiceZDirectory(lstServiceZFiles);
+		VarRestore(SRCTARGETDIR);
+		ListDestroy(lstServiceZFiles);
+		return FALSE;
+	endif;
+
+	DeleteServiceZDirectory(lstServiceZFiles);
+	VarRestore(SRCTARGETDIR);
+	ListDestroy(lstServiceZFiles);
+	return TRUE;
+
+end;
+
+
+function IS_CopyServicePackFile(lstZDir, szBin)
+
+	STRING szPath, szName, svFileName, szDest, szDir;
+	NUMBER nReturn, nResult, nvPosi;
+	LIST lstFileList;
+	BOOL bSharedFile, bSelfRegister, bAlwaysCopy, bNeverCopy;
+
+begin
+
+	StrToUpper(szBin, szBin);
+	nvPosi = StrFind(szBin, "BIN");
+
+	if nvPosi < 0 then
+        	MessageBox ("'" + szBin + "' directory is not valid. MUST BE '?:\\FACTOR\\EXECTRAK\\BIN'.", SEVERE);
+	else
+		StrSub(szDir, szBin, 0, nvPosi - 1);
+	endif;
+
+        nReturn = ListSetIndex (lstZDir, LISTFIRST);
+
+        while ((nReturn != END_OF_LIST))
+                ListCurrentString(lstZDir, szName);
+		szPath = WINDIR ^ "TEMP" ^ szName + "DIR";
+		
+		//scan *.* files in C:\WINDOWS\TEMP\ISRV????.Z directory
+	        nResult = FindAllFiles(szPath, "*.*", svFileName, RESET);
+	        
+	        if (nResult < 0) then
+			if DEVELOP then
+	                	MessageBox ("'*.*' file not found in '" + szPath + "'.", SEVERE);
+			endif;
+		else
+			if szName = "ISRVCTL.Z" || szName = "ISRVDLL.Z" || szName = "ISRVOLE.Z"
+			   || szName = "ISRVRTM.Z" || szName = "ISRVSHAR.Z" then
+				bSelfRegister = TRUE;
+			else
+				bSelfRegister = FALSE;
+			endif;
+
+			bSharedFile = FALSE;
+	
+			if szName = "ISRVFACT.Z" then
+				szDest = szDir;  // ?:\FACTOR\EXECTRAK
+			elseif szName = "ISRVBIN.Z" then
+				szDest = szBin;  // ?:\FACTOR\EXECTRAK\BIN
+			elseif szName = "ISRVDLL.Z" then
+				szDest = szDir ^ "DLL";  // ?:\FACTOR\EXECTRAK\DLL
+			elseif szName = "ISRVOLE.Z" then
+				szDest = szDir ^ "OLE";  // ?:\FACTOR\EXECTRAK\OLE
+			elseif szName = "ISRVDTNC.Z" then
+				szDest = szDir ^ "DTNCTRL";  // ?:\FACTOR\EXECTRAK\DTNCTRL
+			elseif szName = "LOCALDB.Z" then
+				szDest = WINDIR ^ "TEMP";
+			elseif szName = "ISRVSHAR.Z" then
+	        			szDest = WINSYSDISK ^ "Program Files" ^ "Common Files" ^ 
+					"Microsoft Shared" ^ "DAO";
+			else
+				szDest = WINSYSDIR;
+				bSharedFile = TRUE;
+			endif;
+
+			//david 07/12/00
+			//special handling
+
+			bAlwaysCopy = FALSE;
+			bNeverCopy = FALSE;
+
+			if (szName = "ISRVDTNC.Z") then
+				if fnFindFile(szBin, "ECEEFDIP.EXE") then
+					bAlwaysCopy = TRUE;
+				else
+					bNeverCopy = TRUE;
+				endif;
+			endif;
+			
+			if (szName = "ISRVOLE.Z") then
+				bAlwaysCopy = TRUE;
+			endif;
+
+			ListDestroy(lstFileList);
+		        lstFileList = ListCreate (STRINGLIST);
+		        
+		        if (lstFileList = LIST_NULL) then
+		                MessageBox ("Unable to create necessary Lists 'lstFileList'!", SEVERE);
+		                return FALSE;
+		        endif;
+
+		        while (nResult = 0)
+		        	ParsePath(szTemp, svFileName, FILENAME);
+				StrToUpper(szTemp, szTemp);
+		                if (ListAddString(lstFileList, szTemp, AFTER) < 0) then
+		                        MessageBox("ListAddString failed - 'lstFileList'.", SEVERE);
+					ListDestroy(lstFileList);
+		                        return FALSE;
+		                endif;
+		                nResult = FindAllFiles(szPath, "*.*", svFileName, CONTINUE);
+		        endwhile;
+
+			//david 07/12/00
+			IS_CheckCopyFiles(lstFileList, szPath, szDest, bSharedFile, 
+				bSelfRegister, bAlwaysCopy, bNeverCopy);
+	        endif;
+
+                nReturn = ListSetIndex (lstZDir, LISTNEXT);
+        endwhile;
+
+	ListDestroy(lstFileList);
+
+	return TRUE;
+
+end;
+
+//david 08/15/00
+//add one more parameter bAlwaysCopy to copy all files in a directory (such as DTNCTRL),
+//WARNING: for EXE, DLL and etc. directories i.e. ISRVBIN, ISRVDLL directories
+//this parameter must be set to TRUE
+function IS_CheckCopyFiles(lstFileList, szFrom, szDest, bSharedFile, bSelfRegister, bAlwaysCopy, bNeverCopy)
+
+	STRING szName, szTemp, szVersionFrom, szVersionTo, szDateFrom, szDateTo, szModID;
+	NUMBER nReturn, nvXCopyFileParm, nvPosi, nvNotApplicable;
+	BOOL bGoCopy;
+	BOOL bEC, bRS, bRP;
+begin
+
+	SRCDIR = szFrom;
+	TARGETDIR = szDest;
+	
+	if fnFindFile(szDest, "ECEEFDIP.EXE") then
+		bEC = TRUE;
+	else
+		bEC = FALSE;
+	endif;
+	
+	if fnFindFile(szDest, "RSENTRY.EXE") then
+		bRS = TRUE;
+	else
+		bRS = FALSE;
+	endif;
+	
+	if fnFindFile(szDest, "RPFBITEM.EXE") then
+		bRP = TRUE;
+	else
+		bRP = FALSE;
+	endif;
+
+        nReturn = ListSetIndex (lstFileList, LISTFIRST);
+
+        while ((nReturn != END_OF_LIST))
+                ListCurrentString(lstFileList, szName);
+
+		if (!bSelfRegister) then
+			//david 07/12/00
+			//special cases
+			if (bNeverCopy) then
+				bGoCopy = FALSE;
+			endif;
+
+			if (bAlwaysCopy) then
+				bGoCopy = TRUE;
+			endif;
+			
+			//modified by xijian on 8/14/2000			
+			//normal case
+			if ((!bNeverCopy) && (!bAlwaysCopy)) then
+				nvPosi = StrFind(szName, "APMENU.MDB");
+				if nvPosi <0 then
+					nvPosi = StrFind(szName, ".QRT");
+					if nvPosi <0 then
+						nvPosi = StrFind(szName, ".HLP");
+						if nvPosi <0 then
+							nvPosi = StrFind(szName, "APEINVCE.EXE");
+							if nvPosi <0 then
+								nvPosi = StrFind(szName, "APFTAXVN.EXE");
+							endif;
+						endif;
+					endif;
+				endif;
+				if nvPosi >=0 then
+					bGoCopy = TRUE;
+				else // EXE AND MDB files
+					if fnFindFile(szDest, szName) then
+						bGoCopy = TRUE;
+					else  //file not found
+						//david 07/12/00
+						//take care of releasing new EXE file in service pack
+						//check for first 2 characters in the file name (ModuleID)
+						//MODIFIED BY XIJIAN ON 8/14/2000
+						bGoCopy = FALSE;
+						StrSub(szModID, szName, 0, 2);
+	                			//FOR EC						
+						nvPosi = StrFind(szName, "AREPAYCC.EXE");
+						if (nvPosi >=0) && bEC then
+							bGoCopy = TRUE;
+						endif;
+						if (szModID = "EC") && bEC then
+        						bGoCopy = TRUE;
+        					endif;
+						//FOR RS
+						if (szModID = "RS") && bRS then
+        						bGoCopy = TRUE;
+        					endif; 
+        					//FOR RP
+						if ((szModID = "RP") || (szModID = "87") || (szModID = "88")) && bRP then
+        						bGoCopy = TRUE;
+        					endif; 		
+							
+					endif;
+				endif;
+			endif;
+		else
+			bGoCopy = TRUE;
+		endif;
+
+		if DEVELOP then
+			if bGoCopy then
+				MessageBox("File=" + szName + "\nbGoCopy=TRUE\nTo='" + szDest + "'", INFORMATION);
+			else
+				MessageBox("File=" + szName + "\nbGoCopy=FALSE", INFORMATION);
+			endif;
+		endif;
+
+		if bGoCopy then
+			if (szForceInstall = "1 ") then
+		        	nvXCopyFileParm = (COMP_NORMAL | INCLUDE_SUBDIR);
+			else
+		       		nvXCopyFileParm = (COMP_UPDATE_DATE | COMP_UPDATE_SAME | COMP_UPDATE_VERSION | INCLUDE_SUBDIR);
+			endif;
+
+			if bSharedFile then
+				nvXCopyFileParm = nvXCopyFileParm | SHAREDFILE;
+			endif;
+
+			if bSelfRegister then
+				nvXCopyFileParm = nvXCopyFileParm | SELFREGISTER;
+			endif;
+
+			XCopyFile(szName, szName, nvXCopyFileParm);
+
+			//launch and register some files
+			
+			if szName = "PPLINE32.EXE" then
+		        	LaunchAppAndWait(szDest ^ "PPLINE32.EXE", "", WAIT);
+			endif;
+			if szName = "TCLCOM32.EXE" then
+		        	LaunchAppAndWait(szDest ^ "TCLCOM32.EXE", "", WAIT);
+			endif;
+			if szName = "FACTOLE.EXE" then
+		        	LaunchAppAndWait(szDest ^ "FACTOLE.EXE", "", WAIT);
+			endif;
+		endif;
+
+                nReturn = ListSetIndex (lstFileList, LISTNEXT);
+        endwhile;
+
+	return TRUE;
 
 end;
 
