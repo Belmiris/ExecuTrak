@@ -399,6 +399,14 @@ Public Const CUST_ACCESS_UP = 13750
 Public Const SALESMAN_UP = 13800
 Public Const DISPATCH_ZONE_UP = 13850
 
+Public Const GENERIC1_UP = 32701
+Public Const GENERIC2_UP = 32702
+Public Const GENERIC3_UP = 32703
+Public Const GENERIC4_UP = 32704
+Public Const GENERIC5_UP = 32705
+Public Const GENERIC6_UP = 32706
+Public Const GENERIC7_UP = 32707
+
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
 
