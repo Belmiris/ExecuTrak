@@ -72,6 +72,7 @@ Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 ca
 Global Const szHelpPapco As String = "PAPCO.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-2
 Global Const szHelpBankRec As String = "BANKREC.HLP"  '387361-The Wills Group-Deposit Reconciliation
 Global Const szHelpCLSystem As String = "CL.HLP"  '435934/448855 - Wills - Track Collections/Auto-Dunning 'Chris Albrecht 02/17/2005
+Global Const szHelpAFMgt As String = "AF.HLP"  '419824-Campbell Oil- Citgo eletronic BOL  Auto Fuel Management Vijaya on 04/11/05
 
 '#######################################################################################
 '# Logging constants
@@ -508,6 +509,9 @@ Public Const COMMON_NOTES_UP = 15450  'ARFCOMNT.EXE
 
 '#464024wj022105 - AREPLKUP
 Public Const AR_PAYMT_LOOK_UP = 15460  'AREPLKUP.EXE
+
+'#448855
+Public Const TRACK_COLLECTIONS_UP = 15470  'CLFTCFMT.EXE (Track Collections File Maintenance)
 
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
