@@ -348,7 +348,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
     Dim i As Integer
     Dim nExtra As Integer
     Dim nTWidth As Integer
-    Dim objCol As DBTrueGrid.Column     'Vijaya added DBTRUEGRID. on 12/07/04
+    Dim objCol As DBTRUEGRID.Column     'Vijaya added DBTRUEGRID. on 12/07/04
     Dim nRight As Integer
     Dim nTemp As Integer
     Dim bFlag As Boolean
@@ -538,12 +538,12 @@ End Sub
     
     GetWindowRect n_hWnd, myRect
 
-    myPoint.X = myRect.Left
+    myPoint.x = myRect.Left
     myPoint.y = myRect.Top
     
     If ScreenToClient(nParenthWnd, myPoint) Then
 '        nLeft = (myPoint.X - 1) * Screen.TwipsPerPixelX    'For True Gridtable
-        nLeft = myPoint.X * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
+        nLeft = myPoint.x * Screen.TwipsPerPixelX     'For textbox, VedioSoftElastic
         If nLeft < -6000 Or nLeft > 6000 Then
             nLeft = Screen.TwipsPerPixelX
         End If
@@ -1605,7 +1605,7 @@ Private Sub fnMoveButton()
     End If
     
     If tgMain.Row >= 0 Then
-        Dim objCol As DBTrueGrid.Column
+        Dim objCol As DBTRUEGRID.Column
         Dim colTemp As Collection
         Set colTemp = colDropDowns.Item(lDropDown)
         Set objCol = tgMain.Columns(colTemp.Item(lCol).ColumnIndex)
@@ -2164,7 +2164,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
     Err.Clear
 
@@ -2774,17 +2774,27 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
                 End If
             End If
             
+            'concatenate where clause
+            If sWhere <> "" Then
+                'remove the "WHERE " from the sWhere
+                If Left(UCase(LTrim(sWhere)), 6) = "WHERE " Then
+                    sWhere = Mid(LTrim(sWhere), 7)
+                End If
+                
+                If InStr(UCase(szQuery), " WHERE ") > 0 Then
+                    szQuery = szQuery + " AND " + sWhere
+                Else
+                    szQuery = szQuery + szWHERE + sWhere
+                End If
+            End If
+            
             're-construct SQL
             If sNewSQL <> "" Then
                 sNewSQL = sNewSQL + szUNION
             End If
             
+            'combine the SQLs
             sNewSQL = sNewSQL + szQuery
-            
-            'concatenate where clause
-            If sWhere <> "" Then
-                sNewSQL = sNewSQL + IIf(Left(UCase(LTrim(sWhere)), 6) = "WHERE ", "", szWHERE) + sWhere
-            End If
             
             'fix group by clause
             If bUnionFound Then
