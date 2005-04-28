@@ -101,7 +101,8 @@ End Function
 
 
 '// Computes the discount due date
-Private Function fnComputeDueDate(dInvDate As Date, strOperator As Variant, vDays As Variant) As Date
+'david 04/28/2005  #479149
+Public Function fnComputeDueDate(dInvDate As Date, strOperator As Variant, vDays As Variant) As Date
 
     Dim sMonth As String
     Dim sYear As String
@@ -117,7 +118,7 @@ Private Function fnComputeDueDate(dInvDate As Date, strOperator As Variant, vDay
         Exit Function
     End If
     
-    nDays = val(vDays)
+    nDays = Val(vDays)
 
     strOperator = Left(strOperator, 1)
     Select Case strOperator
