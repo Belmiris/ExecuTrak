@@ -153,7 +153,10 @@ Public Function fnExeIsRunning(ByVal sExe As String) As Boolean
     Dim lRet As Long
     Dim hSnap As Long
     Dim proc As PROCESSENTRY32
+    Dim sRunningExe As String
+    Dim nPosi As Integer
     Dim sTemp As String
+    
     sExe = UCase(fnExtractFileName(sExe))
     
     ' Windows 95 uses ToolHelp32 functions
@@ -166,7 +169,15 @@ Public Function fnExeIsRunning(ByVal sExe As String) As Boolean
      ' Iterate through the processes
     lRet = Process32First(hSnap, proc)
     Do While lRet
-        sTemp = fnExtractFileName(UCase(Trim(proc.szExeFile)))
+        'get the running exe before the zero characters
+        nPosi = InStr(proc.szExeFile, Chr(0))
+        If nPosi > 0 Then
+            sRunningExe = Left(proc.szExeFile, nPosi - 1)
+        Else
+            sRunningExe = proc.szExeFile
+        End If
+        sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
+        Debug.Print sTemp
         If sTemp = sExe Then
             fnExeIsRunning = True
             CloseHandle hSnap
@@ -201,7 +212,7 @@ Public Function fnRunExe(sExe As String, _
      
     Dim lTempInstance As Long 'store the instnace handle in a long first
     
-    lTempInstance = shell(sExe, nMode) 'launch the application
+    lTempInstance = Shell(sExe, nMode) 'launch the application
     szErrorMessage = sExe & " " & Err.Description
              
     If (lTempInstance < 0) Or (lTempInstance > SHELL_OK) Then
