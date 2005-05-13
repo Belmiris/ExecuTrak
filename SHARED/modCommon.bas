@@ -14,6 +14,17 @@ End Enum
 
 Public dbLocal As DAO.Database 'Local MS Access Database
 
+Public Sub SelectAllText()
+    On Error GoTo ErrHandler
+    With Screen.ActiveControl
+        .SelStart = 0
+        .SelLength = Len(.Text)
+    End With
+    Exit Sub
+    
+ErrHandler:
+    Err.Clear
+End Sub
 Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
     Dim MaxIndex As Integer
     Dim Index    As Integer
@@ -96,7 +107,7 @@ On Error GoTo SQLError
             
     End Select
     
-    fnExecSQL True
+    fnExecSQL = True
     
     Exit Function
     
