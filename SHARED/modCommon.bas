@@ -12,8 +12,35 @@ Public Enum ButtonStatus
     Enable = 1
 End Enum
 
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 
+Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
+    Static SysParms As Collection
+    Dim SQL         As String
+    Dim rs          As DAO.Recordset
+    
+    On Error GoTo ErrHandler
+    
+    If (SysParms Is Nothing) Or Reload Then
+        Set SysParms = New Collection
+        SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
+        If fnRecordset(rs, SQL) > 0 Then
+            Do While Not rs.EOF
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
+                rs.MoveNext
+            Loop
+        End If
+        rs.Close
+        Set rs = Nothing
+    End If
+    
+    GetSysParm = SysParms("sp" & ParmNum)
+    Exit Function
+    
+ErrHandler:
+    GetSysParm = Default
+    Err.Clear
+End Function
 Public Sub SelectAllText()
     On Error GoTo ErrHandler
     With Screen.ActiveControl
