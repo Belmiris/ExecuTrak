@@ -70,17 +70,27 @@ Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
     If MaxIndex >= 0 Then
         Index = 0
         Do While Index <= MaxIndex
-            sTemp = Parms(Index + 1)
-            If InStrB(1, sTemp, "'") > 0 Then
-                sTemp = Replace(sTemp, "'", "''")
+            sTemp = Trim$(Parms(Index + 1) & vbNullString)
+            
+            If sTemp = "0" Or sTemp = vbNullString Then
+                If InStrB(1, SQL, "'" & Parms(Index)) > 0 Then
+                    sTemp = vbNullString
+                Else
+                    sTemp = "0"
+                End If
+            Else
+                If InStrB(1, sTemp, "'") > 0 Then
+                    sTemp = Replace(sTemp, "'", "''")
+                End If
             End If
+            
             SQL = Replace(SQL, Parms(Index), sTemp, , , vbTextCompare)
             Index = Index + 2
         Loop
     End If
     
     SQLParm = SQL
-    
+        
 End Function
 
 Public Function fnRecordset(rsTemp As Recordset, SQL As String, _
