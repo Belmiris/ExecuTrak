@@ -12,7 +12,7 @@ Public Enum ButtonStatus
     Enable = 1
 End Enum
 
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
@@ -26,7 +26,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
+                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
                 rs.MoveNext
             Loop
         End If
@@ -40,6 +40,16 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
 ErrHandler:
     GetSysParm = Default
     Err.Clear
+End Function
+Public Function ReadEntireFile(ByVal Filename As String) As String
+    Dim hFile As Integer
+    
+    If FileExists(Filename) Then
+        hFile = FreeFile()
+        Open Filename For Binary As #hFile
+        ReadEntireFile = Input(LOF(hFile), hFile)
+        Close #hFile
+    End If
 End Function
 Public Sub SelectAllText()
     On Error GoTo ErrHandler
@@ -240,7 +250,7 @@ Public Function FileExists(ByVal Filename As String) As Boolean
     FileLen Filename
     bExists = (Err.Number = 0)
     If bExists Then
-        bExists = (GetAttr(Filename) And vbDirectory = 0)
+        bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
     
     FileExists = bExists
@@ -269,3 +279,11 @@ Public Function FixPath(ByVal Path As String) As String
     
     FixPath = Path
 End Function
+Public Sub UnloadAllForms()
+    Dim Form As Form
+    
+    For Each Form In Forms
+        Unload Form
+    Next 'Form
+    Set Form = Nothing
+End Sub
