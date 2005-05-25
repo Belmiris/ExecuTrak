@@ -12,7 +12,12 @@ Public Enum ButtonStatus
     Enable = 1
 End Enum
 
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public Const SQL_INTO_TEMP As String = " @sql into temp @table"
+Public Const SQL_DROP_TABLE As String = "drop table @table"
+Public Const SQL_TABLE_EXISTS As String = _
+    "select tabname from systables where tabname = '@tabname'"
+
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
@@ -26,7 +31,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
                 rs.MoveNext
             Loop
         End If
@@ -162,6 +167,39 @@ SQLError:
     tfnErrHandler "fnExecSQL, " & sCalledFrom, SQL, bShowError
       
     On Error GoTo 0
+End Function
+
+Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
+    SQL = SQLParm(SQL_INTO_TEMP, _
+                              "@sql", SQL, _
+                              "@table_name", TableName)
+    
+    fnCreateTempTable = fnExecSQL(SQL)
+    
+End Function
+
+Public Sub subDropTable(TableName As String)
+    Dim sSQL As String
+    
+    'In case the table doesn't exist, just continue
+    On Error Resume Next
+    sSQL = SQLParm(SQL_DROP_TABLE, "@table_name", TableName)
+    
+    fnExecSQL sSQL
+    
+End Sub
+
+Public Function fnTableExists(TableName As String) As Boolean
+    Dim sSQL As String
+    Dim rsTemp As Recordset
+    
+    sSQL = SQLParm(SQL_TABLE_EXISTS, _
+                          "@table_name", TableName)
+                          
+    If fnRecordset(rsTemp, sSQL) > 0 Then
+        fnTableExists = True
+    End If
+    
 End Function
 
 Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonStatus, _
