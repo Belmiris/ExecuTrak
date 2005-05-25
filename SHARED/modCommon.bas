@@ -172,7 +172,7 @@ End Function
 Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
     SQL = SQLParm(SQL_INTO_TEMP, _
                               "@sql", SQL, _
-                              "@table_name", TableName)
+                              "@table", TableName)
     
     fnCreateTempTable = fnExecSQL(SQL)
     
@@ -183,7 +183,7 @@ Public Sub subDropTable(TableName As String)
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSQL = SQLParm(SQL_DROP_TABLE, "@table_name", TableName)
+    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
     fnExecSQL sSQL
     
@@ -194,7 +194,7 @@ Public Function fnTableExists(TableName As String) As Boolean
     Dim rsTemp As Recordset
     
     sSQL = SQLParm(SQL_TABLE_EXISTS, _
-                          "@table_name", TableName)
+                          "@table", TableName)
                           
     If fnRecordset(rsTemp, sSQL) > 0 Then
         fnTableExists = True
