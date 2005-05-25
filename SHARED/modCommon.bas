@@ -15,7 +15,7 @@ End Enum
 Public Const SQL_INTO_TEMP As String = " @sql into temp @table"
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
-    "select tabname from systables where tabname = '@tabname'"
+    "select tabname from systables where tabname = '@table'"
 
 Public dbLocal As DAO.DataBase 'Local MS Access Database
 
