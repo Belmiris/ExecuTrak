@@ -12,7 +12,7 @@ Public Enum ButtonStatus
     Enable = 1
 End Enum
 
-Public Const SQL_INTO_TEMP As String = " @sql into temp @table"
+Public Const INTO_TEMP As String = " into temp "
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
@@ -146,6 +146,50 @@ SQLError:
     
 End Function
 
+'---------------------------------------------------------------------------------------
+' Procedure : fnQueryForField
+' DateTime  : 5/26/2005 15:43
+' Author    : Chris Albrecht
+' Purpose   : Get a single field from the result of a query
+'---------------------------------------------------------------------------------------
+Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
+                   Optional dbLocation As DatabaseLocation = RemoteDB, Optional sCalledFrom As String, _
+                   Optional bShowErrow As Boolean = True) As Variant
+    
+    Dim rsTemp As Recordset
+    
+    On Error GoTo SQLError
+    
+    Select Case dbLocation
+        Case DatabaseLocation.LocalDB
+            Set rsTemp = dbLocal.OpenRecordset(SQL, dbOpenSnapshot)
+        Case DatabaseLocation.RemoteDB
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+    End Select
+    
+    If rsTemp.RecordCount > 0 Then
+        If Not IsMissing(FieldName) And FieldName <> vbNullString Then
+            fnQueryForField = fnGetField(rsTemp(FieldName))
+        Else
+            fnQueryForField = fnGetField(rsTemp.Fields(0))
+        End If
+    End If
+        
+    Exit Function
+    
+SQLError:
+    If IsMissing(sCalledFrom) Then
+        sCalledFrom = vbNullString
+    End If
+        
+    fnQueryForField = vbNullString
+    
+    tfnErrHandler "fnRecordset," & sCalledFrom, SQL, bShowErrow
+    
+    On Error GoTo 0
+    
+End Function
+
 Public Function fnExecSQL(SQL As String, Optional dbLocation As DatabaseLocation = RemoteDB, _
                 Optional sCalledFrom As Variant = vbNullString, Optional bShowError As Variant = True) As Boolean
 
@@ -170,11 +214,8 @@ SQLError:
 End Function
 
 Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
-    SQL = SQLParm(SQL_INTO_TEMP, _
-                              "@sql", SQL, _
-                              "@table", TableName)
-    
-    fnCreateTempTable = fnExecSQL(SQL)
+
+    fnCreateTempTable = fnExecSQL(SQL & INTO_TEMP & TableName)
     
 End Function
 
@@ -185,7 +226,7 @@ Public Sub subDropTable(TableName As String)
     On Error Resume Next
     sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSQL
+    fnExecSQL sSQL, , , False
     
 End Sub
 
@@ -325,3 +366,7 @@ Public Sub UnloadAllForms()
     Next 'Form
     Set Form = Nothing
 End Sub
+
+Public Function AsciiUCase(KeyAscii As Integer)
+    AsciiUCase = Asc(UCase(Chr(KeyAscii)))
+End Function
