@@ -1,7 +1,15 @@
 Attribute VB_Name = "modCommon"
 Option Explicit
 
+Private Const GWL_STYLE = (-16)
+
 'Enums
+Public Enum TextBoxStyles
+    UpperCase = &H8&
+    LowerCase = &H10&
+    Numeric = &H2000&
+End Enum
+
 Public Enum DatabaseLocation
     RemoteDB = 1
     LocalDB = 2
@@ -17,7 +25,18 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
+
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
+    ByVal hWnd As Long, _
+    ByVal nIndex As Long _
+) As Long
+
+Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
+    ByVal hWnd As Long, _
+    ByVal nIndex As Long, _
+    ByVal dwNewLong As Long _
+) As Long
 
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
@@ -31,7 +50,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
+                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
                 rs.MoveNext
             Loop
         End If
@@ -66,6 +85,17 @@ Public Sub SelectAllText()
     
 ErrHandler:
     Err.Clear
+End Sub
+Public Sub SetTextBoxStyle(TextBox As TextBox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
+    With TextBox
+        If EnableStyle Then
+            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
+        Else
+            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
+        End If
+        
+        SetWindowLong .hWnd, GWL_STYLE, Style
+    End With
 End Sub
 Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
     Dim MaxIndex As Integer
@@ -257,22 +287,23 @@ Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonSt
     End If
 End Sub
 
+'-------------------------------------------------------------------
+'   Author.: DenBorg
+'   Written: 04/27/2005
+'
+'   This function simplifies asking the user a Yes/No or OK/Cancel
+'   question and getting True/False as a result.
+'
+'   To ask a Yes/No question, set YesNoType to TRUE (the default)
+'   To ask a OK/Cancel question, set YesNoType to FALSE
+'
+'   By default, the default button on the MsgBox is the second
+'   button (No or Cancel). The default button can be changed to the
+'   first button (Yes or OK) by setting the DefaultToNo parameter
+'   to FALSE.
+'-------------------------------------------------------------------
+'
 Public Function IsUserSure(Prompt, Optional ByVal YesNoType As Boolean = True, Optional DefaultToNo As Boolean = True) As Boolean
-    '-------------------------------------------------------------------
-    '   Author.: DenBorg
-    '   Written: 04/27/2005
-    '
-    '   This function simplifies asking the user a Yes/No or OK/Cancel
-    '   question and getting True/False as a result.
-    '
-    '   To ask a Yes/No question, set YesNoType to TRUE (the default)
-    '   To ask a OK/Cancel question, set YesNoType to FALSE
-    '
-    '   By default, the default button on the MsgBox is the second
-    '   button (No or Cancel). The default button can be changed to the
-    '   first button (Yes or OK) by setting the DefaultToNo parameter
-    '   to FALSE.
-    '-------------------------------------------------------------------
     Dim Buttons As VbMsgBoxStyle
     Dim YesOK   As VbMsgBoxResult
     
@@ -367,6 +398,10 @@ Public Sub UnloadAllForms()
     Set Form = Nothing
 End Sub
 
-Public Function AsciiUCase(KeyAscii As Integer)
-    AsciiUCase = Asc(UCase(Chr(KeyAscii)))
+Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
+    If (KeyAscii >= 97) And (KeyAscii <= 122) Then
+        KeyAscii = KeyAscii - 32
+    End If
+    
+    AsciiUCase = KeyAscii
 End Function
