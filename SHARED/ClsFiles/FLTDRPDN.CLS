@@ -173,10 +173,16 @@ Property Let DataField(ByVal nCol As Integer, _
     
     Dim lIndex As Long
     Dim lColIndex As Long
+    Dim sOldDataField As String
     
     fnGetKeys lIndex, lColIndex, nCol
     If lIndex > 0 Then
+        sOldDataField = colDropDowns.Item(lIndex).Item(lColIndex).DataField
         colDropDowns.Item(lIndex).Item(lColIndex).DataField = sField
+        
+        If sOldDataField = colDropDowns.Item(lIndex).Item(lColIndex).SourceDataField Then
+            colDropDowns.Item(lIndex).Item(lColIndex).SourceDataField = sField
+        End If
     End If
                         
 End Property
@@ -348,7 +354,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
     Dim i As Integer
     Dim nExtra As Integer
     Dim nTWidth As Integer
-    Dim objCol As DBTRUEGRID.Column     'Vijaya added DBTRUEGRID. on 12/07/04
+    Dim objCol As DBTrueGrid.Column     'Vijaya added DBTRUEGRID. on 12/07/04
     Dim nRight As Integer
     Dim nTemp As Integer
     Dim bFlag As Boolean
@@ -1096,7 +1102,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                    If val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1418,9 +1424,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1591,7 +1597,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1605,7 +1611,7 @@ Private Sub fnMoveButton()
     End If
     
     If tgMain.Row >= 0 Then
-        Dim objCol As DBTRUEGRID.Column
+        Dim objCol As DBTrueGrid.Column
         Dim colTemp As Collection
         Set colTemp = colDropDowns.Item(lDropDown)
         Set objCol = tgMain.Columns(colTemp.Item(lCol).ColumnIndex)
@@ -1914,7 +1920,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1931,7 +1937,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2446,7 +2452,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
 End Function
 
