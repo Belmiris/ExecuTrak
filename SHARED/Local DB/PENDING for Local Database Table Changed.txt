@@ -1,3 +1,29 @@
+version 3.28.1010 davidc
+Date: 03/10/2005
+#412824
+
+Description:
+	1. add a new column to RSShiftHold table.
+		ADD szCode_2 TEXT(16) after szCode.
+
+	2. change the field width from TEXT(10) to TEXT(16)
+	   for the following:
+                                     Description 
+	(a)pHoldItem.phi_invoice             Designed for AP INV Entry. But Not Actually used. 
+										 Change anyway.                                                                                                    
+	(b)MladingDetail.szInvoice           Used in ALL FM entry programs and FM
+	                                     upload programs to reload Inv for editing.
+	(c)Pselection.ps_invoice             Seems not used. But change anyway.
+	(d)Vouch_jacket_rpt.vjr_invoice_nbr  Murphy Custom. Change the Table 
+	                                     Need to contact Muphy about printing. 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+''''DONE - 3.28.1009 - 03/10/2005 ''''''''''''''''''''''''
+version 3.28.1009 David Chai
+Date: 03/10/2005
+#448855
+
+Description:
+	Remove the szCode_2 field from the RSShiftHold table.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ''''DONE - 3.28.1008 - 03/09/2005 ''''''''''''''''''''''''
 version 3.28.1008 Chris Albrecht
