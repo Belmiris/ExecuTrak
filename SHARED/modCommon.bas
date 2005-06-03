@@ -97,6 +97,17 @@ Public Sub SetTextBoxStyle(TextBox As TextBox, ByVal Style As TextBoxStyles, Opt
         SetWindowLong .hWnd, GWL_STYLE, Style
     End With
 End Sub
+Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArray AppendValues() As Variant)
+    If LenB(Delimeter) = 0 Then
+        Delimeter = ","
+    End If
+    
+    If LenB(StrValue) Then
+        StrValue = StrValue & Delimeter
+    End If
+    
+    StringAppend = StrValue & Join(AppendValues, Delimeter)
+End Function
 Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
     Dim MaxIndex As Integer
     Dim Index    As Integer
