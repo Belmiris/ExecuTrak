@@ -513,6 +513,9 @@ Public Const AR_PAYMT_LOOK_UP = 15460  'AREPLKUP.EXE
 '#448855
 Public Const TRACK_COLLECTIONS_UP = 15470  'CLFTCFMT.EXE (Track Collections File Maintenance)
 
+'#451351
+Public Const DISP_REASON_CODE_UP = 15480  'no program (popup window)
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -2806,7 +2809,7 @@ End Function
 
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
-                           sSql As String, _
+                           sSQL As String, _
                            Optional vShowMsg As Variant, _
                            Optional sLockedUser As String = "") As Boolean
 
@@ -2837,7 +2840,7 @@ Public Function tfnLockRow(sProgramID As String, _
         If Trim(sProgramID) = "" Then
             MsgBox "You have to provide the program ID to lock a row", , sErrID
         End If
-        If Trim(sSql) = "" Then
+        If Trim(sSQL) = "" Then
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
@@ -2854,16 +2857,16 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQL = UCase(sSql)
+    strSQL = UCase(sSQL)
     nPos2 = InStr(strSQL, " WHERE ")
     If nPos2 > 0 Then
         nPos1 = InStr(strSQL, " ORDER ")
         If nPos1 = 0 Then
-            nPos1 = Len(sSql) + 1
+            nPos1 = Len(sSQL) + 1
         End If
-        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
+        sCriteria = Mid(sSQL, nPos2 + 7, nPos1 - nPos2 - 7)
     Else
-        sCriteria = sSql
+        sCriteria = sSQL
     End If
     
     #If DEVELOP Then
@@ -2966,7 +2969,7 @@ End Function
 '##############################################################################
 Public Function tfnLockRow_EX(sProgramID As String, _
                               sTable As String, _
-                              sSql As String, _
+                              sSQL As String, _
                               Optional vShowMsg As Variant, _
                               Optional sLockedUser As String = "", _
                               Optional sUserID As String = "") As Boolean
@@ -2989,7 +2992,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3004,7 +3007,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    If Trim(sSql) = "" Then
+    If Trim(sSQL) = "" Then
         MsgBox "Locking Criteria is missing when try to lock a row.", , SUB_NAME
         Exit Function
     End If
@@ -3035,7 +3038,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    sLockCriteria = sSql
+    sLockCriteria = sSQL
     
     If Len(sLockCriteria) > 80 Then
         MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
@@ -3206,7 +3209,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3709,7 +3712,7 @@ ErrorTrap:
 End Function
 
 'Vijaya on 02/05/04 Magic#395302
-Public Function tfnFix_tx_table(sSql As String, _
+Public Function tfnFix_tx_table(sSQL As String, _
                                     Optional bUseDate As Boolean = True) As String
     Const FUNC_NAME As String = "tfnFix_tx_table"
 #If Not NO_DST Then
@@ -3726,7 +3729,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Const sNewTableDet As String = "tx_detail"
     Static vColumArr(14, 1)
     
-    If sSql = "" Then Exit Function
+    If sSQL = "" Then Exit Function
     On Error GoTo SQLError
 
     If vColumArr(0, 0) = "" Then
@@ -3762,12 +3765,12 @@ Public Function tfnFix_tx_table(sSql As String, _
         vColumArr(14, 1) = "txd_chart_nbr"
     End If
     
-    nPos = InStr(1, LCase(sSql), " where ")
+    nPos = InStr(1, LCase(sSQL), " where ")
     If nPos > 0 Then
-        strSQL = Mid(sSql, 1, nPos - 1)
-        strSQL1 = Mid(sSql, nPos + 7)
+        strSQL = Mid(sSQL, 1, nPos - 1)
+        strSQL1 = Mid(sSQL, nPos + 7)
     Else
-        strSQL = sSql
+        strSQL = sSQL
         strSQL1 = ""
     End If
     bAllFields = InStr(1, strSQL, " * ") > 0
@@ -3852,10 +3855,10 @@ SQLError:
             tfnErrHandler FUNC_NAME, strSQL, False
         End If
     #End If
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
     Resume quitfunc
 #Else
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
 #End If
 End Function
 ''''''''''''''''''''''''''''''''
