@@ -56,70 +56,153 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private m_tgSpreadSheet   As clsTGSpreadSheet
+Private m_tgSelector As clsTGSelector
 Private m_Form            As Form
 Private m_StatusBar       As FactorFrame
+Private m_HasSelector As Boolean
 Private WithEvents m_Grid As TDBGrid
 Attribute m_Grid.VB_VarHelpID = -1
+
 Public Property Get Form() As Form
     Set Form = m_Form
 End Property
+
 Public Property Set Form(pForm As Form)
     Set m_Form = pForm
     Set m_tgSpreadSheet.Form = pForm
 End Property
+
 Public Property Get Table() As TDBGrid
     Set Table = m_Grid
 End Property
+
 Public Property Set Table(pTable As TDBGrid)
     Set m_Grid = pTable
     Set m_tgSpreadSheet.Table = pTable
 End Property
+
+Public Function CreateSelector()
+    Set m_tgSelector = New clsTGSelector
+    Set m_tgSelector.EditorClass = m_tgSpreadSheet
+    m_HasSelector = True
+End Function
+
+Public Property Get Selector() As clsTGSelector
+    Set Selector = m_tgSelector
+End Property
+
+Public Property Get HasSelector() As Boolean
+    HasSelector = m_HasSelector
+End Property
+
+Private Property Let HasSelector(bHasSelector As Boolean)
+    m_HasSelector = bHasSelector
+End Property
+
 Private Sub Class_Initialize()
     Set m_tgSpreadSheet = New clsTGSpreadSheet
 End Sub
+
 Private Sub Class_Terminate()
     Set m_tgSpreadSheet = Nothing
     Set m_Form = Nothing
     Set m_Grid = Nothing
     Set m_StatusBar = Nothing
 End Sub
+
 Private Sub m_Grid_AfterColEdit(ByVal ColIndex As Integer)
     m_tgSpreadSheet.AfterColEdit ColIndex
 End Sub
+
 Private Sub m_Grid_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     m_tgSpreadSheet.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
+
 Private Sub m_Grid_Change()
     m_tgSpreadSheet.Change
 End Sub
-Private Sub m_Grid_GotFocus()
-    m_tgSpreadSheet.GotFocus
+
+Private Sub m_grid_Click()
+    If HasSelector Then
+        m_tgSelector.Click
+    End If
 End Sub
+
+Private Sub m_grid_GotFocus()
+    m_tgSpreadSheet.GotFocus
+    
+    If HasSelector Then
+        m_tgSelector.GotFocus
+    End If
+End Sub
+
+Private Sub m_Grid_HeadClick(ByVal ColIndex As Integer)
+    m_tgSpreadSheet.HeadClick ColIndex
+End Sub
+
 Private Sub m_Grid_KeyDown(KeyCode As Integer, Shift As Integer)
     m_tgSpreadSheet.KeyDown KeyCode, Shift
+    
+    If HasSelector Then
+        m_tgSelector.KeyDown KeyCode, Shift
+    End If
 End Sub
-Private Sub m_Grid_KeyPress(KeyAscii As Integer)
-    m_tgSpreadSheet.Keypress KeyAscii
+
+Private Sub m_grid_KeyPress(KeyAscii As Integer)
+    If Not m_tgSpreadSheet.Keypress(KeyAscii) Then
+        KeyAscii = 0
+    End If
 End Sub
-Private Sub m_Grid_LostFocus()
+
+Private Sub m_grid_LostFocus()
     m_tgSpreadSheet.LostFocus
+    
+    If HasSelector Then
+        m_tgSelector.LostFocus
+    End If
 End Sub
-Private Sub m_Grid_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
+
+Private Sub m_Grid_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+    If HasSelector Then
+        m_tgSelector.MouseDown Button, Shift, x, y
+    End If
+End Sub
+
+Private Sub m_grid_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
+    If HasSelector Then
+        m_tgSelector.MouseUp Button, Shift, x, y
+    End If
+End Sub
+
+Private Sub m_grid_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     m_tgSpreadSheet.RowColChange LastRow, LastCol
+    
+    If HasSelector Then
+        m_tgSelector.RowColChange LastRow, LastCol
+    End If
 End Sub
-Private Sub m_Grid_SelChange(Cancel As Integer)
+
+Private Sub m_grid_SelChange(Cancel As Integer)
     Cancel = True
+    
+    If HasSelector Then
+        m_tgSelector.SelChange Cancel
+    End If
 End Sub
-Private Sub m_Grid_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+
+Private Sub m_Grid_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     m_tgSpreadSheet.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
+
 Public Property Get StatusBar() As FactorFrame
     Set StatusBar = m_StatusBar
 End Property
+
 Public Property Set StatusBar(pStatusBar As FactorFrame)
     Set m_StatusBar = pStatusBar
     Set m_tgSpreadSheet.StatusBar = pStatusBar
 End Property
+
 Public Property Get tgSpreadSheet() As clsTGSpreadSheet
     Set tgSpreadSheet = m_tgSpreadSheet
 End Property
