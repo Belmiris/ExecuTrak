@@ -38,6 +38,15 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
+Public Sub EnableControls(ByVal Enable As Boolean, ParamArray Controls() As Variant)
+    Dim Index As Long
+    
+    On Error Resume Next 'Just in case parameter does not have a property named 'Enabled'
+    For Index = LBound(Controls) To UBound(Controls)
+        Controls(Index).Enabled = Enabled
+    Next 'Index
+    On Error GoTo 0
+End Sub
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
     Dim SQL         As String
@@ -425,6 +434,9 @@ Public Sub UnloadAllForms()
     Next 'Form
     Set Form = Nothing
 End Sub
+
+
+
 
 Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     If (KeyAscii >= 97) And (KeyAscii <= 122) Then
