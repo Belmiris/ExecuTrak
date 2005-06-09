@@ -38,7 +38,7 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
-Public Sub EnableControls(ByVal Enable As Boolean, ParamArray Controls() As Variant)
+Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Variant)
     Dim Index As Long
     
     On Error Resume Next 'Just in case parameter does not have a property named 'Enabled'
