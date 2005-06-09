@@ -114,8 +114,8 @@ Private Sub m_Grid_AfterColEdit(ByVal ColIndex As Integer)
     m_tgSpreadSheet.AfterColEdit ColIndex
 End Sub
 
-Private Sub m_Grid_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    m_tgSpreadSheet.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub m_Grid_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    m_tgSpreadSheet.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
 Private Sub m_Grid_Change()
@@ -182,11 +182,11 @@ Private Sub m_grid_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     End If
 End Sub
 
-Private Sub m_grid_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub m_grid_SelChange(CANCEL As Integer)
+    CANCEL = True
     
     If HasSelector Then
-        m_tgSelector.SelChange Cancel
+        m_tgSelector.SelChange CANCEL
     End If
 End Sub
 

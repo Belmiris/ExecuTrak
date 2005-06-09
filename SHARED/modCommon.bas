@@ -25,15 +25,15 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
@@ -50,7 +50,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
                 rs.MoveNext
             Loop
         End If
@@ -86,15 +86,15 @@ Public Sub SelectAllText()
 ErrHandler:
     Err.Clear
 End Sub
-Public Sub SetTextBoxStyle(TextBox As TextBox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
-    With TextBox
+Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
+    With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hWnd, GWL_STYLE, Style
+        SetWindowLong .hwnd, GWL_STYLE, Style
     End With
 End Sub
 Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArray AppendValues() As Variant)
@@ -129,14 +129,25 @@ Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
             sTemp = Trim$(Parms(Index + 1) & vbNullString)
             
             If sTemp = "0" Or sTemp = vbNullString Then
+                'Check to if the default value should be string or
+                'numeric.  String values will be enclosed in single
+                'quotes, so check the SQL string for a preceding
+                'quote on the parm name e.g.
                 If InStrB(1, SQL, "'" & Parms(Index)) > 0 Then
                     sTemp = vbNullString
                 Else
                     sTemp = "0"
                 End If
             Else
-                If InStrB(1, sTemp, "'") > 0 Then
-                    sTemp = Replace(sTemp, "'", "''")
+                'If the second character in the Parameter name is a #,
+                'then we want to skip replacing single quotes with
+                'double quotes.  This would usually occur when the
+                'replacing value is an 'IN' clause of string values
+                'e.g.  ( and nbrstring in (@numstring) - with a parm value of  '123','456','789' )
+                If Mid$(Parms(Index), 2, 1) <> "#" Then
+                    If InStrB(1, sTemp, "'") > 0 Then
+                        sTemp = Replace(sTemp, "'", "''")
+                    End If
                 End If
             End If
             
@@ -215,7 +226,7 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
             fnQueryForField = fnGetField(rsTemp.Fields(0))
         End If
     End If
-        
+                
     Exit Function
     
 SQLError:
