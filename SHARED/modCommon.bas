@@ -227,6 +227,8 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
         End If
     End If
                 
+    Set rsTemp = Nothing
+                
     Exit Function
     
 SQLError:
@@ -237,6 +239,8 @@ SQLError:
     fnQueryForField = vbNullString
     
     tfnErrHandler "fnRecordset," & sCalledFrom, SQL, bShowErrow
+    
+    Set rsTemp = Nothing
     
     On Error GoTo 0
     
@@ -292,6 +296,8 @@ Public Function fnTableExists(TableName As String) As Boolean
     If fnRecordset(rsTemp, sSQL) > 0 Then
         fnTableExists = True
     End If
+    
+    Set rsTemp = Nothing
     
 End Function
 
