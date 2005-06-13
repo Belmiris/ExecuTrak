@@ -45,7 +45,10 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
-
+    '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
+    Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+    
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, _
@@ -81,7 +84,10 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
-
+    '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
+    Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+    
 #End If
 
 ' Error codes
@@ -291,7 +297,8 @@ Public Function fnCalculateTaxes(sProduct As String, _
                                   Optional hld_vessel As Integer = -1, _
                                   Optional hld_gals As Double = 0#, _
                                   Optional hld_miles As Double = 0#, _
-                                  Optional hld_tot_gals As Double = 0#) As Boolean
+                                  Optional hld_tot_gals As Double = 0#, _
+                                  Optional dAccmTxbleAmt As Double = 0#) As Boolean
 
     'Calculate taxes by calling the tax mods
     Dim myStruct As CMovementLineItem
@@ -326,6 +333,11 @@ Public Function fnCalculateTaxes(sProduct As String, _
     'Vijaya on 02/10/04 Magic#395302
     subSet_tx_date t_tax_date
     ''''''''''''''''''''''''''''''''
+    
+    '#411523wj042505
+    If Abs(dAccmTxbleAmt) >= 0.01 Then
+        subSet_AccmTxbleAmt dAccmTxbleAmt
+    End If
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
@@ -2138,6 +2150,82 @@ errTrap:
 #End If
 
 End Sub
+
+'#411523wj042505
+Private Function fnVersionOK(ByVal sFileName As String, ByVal sVerToChk As String) As Boolean
+    Dim vVer As Variant
+    Dim i As Integer
+    Static sVersion As String
+    
+    On Error GoTo errExit
+    If sVersion = "" Then
+        sVersion = frmContext.GetProductVersion(sFileName)
+        vVer = Split(sVersion, ".")
+        For i = 0 To UBound(vVer)
+            sVersion = Format(vVer(i), "00") & "."
+        Next
+    End If
+    
+    fnVersionOK = (Mid(sVersion, 1, 11) > Mid(sVerToChk, 1, 11))
+    Exit Function
+errExit:
+    fnVersionOK = False
+End Function
+'#411523wj042505
+Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
+                              Optional bShowMsgBox As Boolean = True, _
+                              Optional sErrMsg As String = "")
+    Static bAlreadyShowMsg As Boolean
+    Static bAlreadyShowErr As Boolean
+    
+    Dim nRet As Long
+    Dim nTries As Integer
+    Dim i As Integer
+    Dim sTxMod32 As String
+    
+    On Error GoTo errTrap
+        
+    If Abs(dAccmTxbleAmt) < 0.01 Then
+        '#Do not need to reset it. The variable get cleared
+        Exit Sub
+    End If
+    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+    
+    If fnVersionOK(sTxMod32, "03.28.10.04") Then
+        Do
+            nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hwnd, dAccmTxbleAmt)
+            If i = TXMOD_TASKBLOCKED Then
+                DoEvents
+            End If
+            nTries = nTries - 1
+        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+        
+        If nRet <> TXMOD_OK Then
+            subTaxModErrors nRet, bShowMsgBox, sErrMsg
+            Exit Sub
+        End If
+    Else
+        'old dll
+        If Not bAlreadyShowMsg Then
+            bAlreadyShowMsg = True
+            MsgBox "In order to use Single Article Taxes, the latest version of TXMOD32.DLL is required.", vbExclamation
+        End If
+    End If
+    
+    Exit Sub
+    
+errTrap:
+    If Not bAlreadyShowErr Then
+        bAlreadyShowErr = True
+        
+        If bShowMsgBox Then
+            MsgBox "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL." _
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+        Else
+            sErrMsg = "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL"
+        End If
+    End If
+End Sub
 ''''''''''''''''''''''''''''''''
 '#------------------------------------------------------------
 '#"Start ATax Region" - 452155wj101304
@@ -2152,7 +2240,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When field cTaxBasis (local
 '#   mtaxdetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3395,7 +3483,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -3434,7 +3522,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
