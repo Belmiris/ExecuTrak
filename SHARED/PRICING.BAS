@@ -58,12 +58,16 @@ Private m_LoadTimeCnt As Long         '#Array counter
 Private m_frmQueryTime As Form           '#Need to be set to frmQueryTime
                                          '#If not set, the popup feature is not
                                          '#Available. FM entry only
-Private m_local As Database              '#Local Table. Used to query load date
+Private m_local As DataBase              '#Local Table. Used to query load date
                                          '#if not set, the feature is not available
 Private m_bQueryTime_Active As Boolean           '#If false, the popup feature is not
                                          '#Available.
 '------------ #WJ 399465 03/01/04 -----------------
 
+' #448713 - Chris Albrecht - 06/13/2005
+' Add status flag parameter.  When status flag = "1", the ceiling price
+' and factor pricing functions will not be used when calculating the
+' market price
 Public Function product_price( _
                                 DEST_FLAG As String, _
                                 sProductCode As String, _
@@ -72,17 +76,18 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
-                                Optional zzerc_contract_nbr As String = "" _
+                                Optional zzerc_contract_nbr As String = "", _
+                                Optional sStatusFlag As String _
                              ) As Double
     ' dest_flag is I or E:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     product_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, sStatusFlag)
     
 End Function ' product_price
 
@@ -96,7 +101,7 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -139,7 +144,7 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -151,10 +156,14 @@ Public Function prod_price( _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 End Function ' prod_price
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     wrk_date = dDate
 End Sub
 
+' #448713 - Chris Albrecht - 06/13/2005
+' Add status flag parameter.  When status flag = "1", the ceiling price
+' and factor pricing functions will not be used when calculating the
+' market price
 Private Function sp_price(ByVal sProductCode As String, _
                             ByVal lProfitCenter As Long, _
                             ByVal lCustomer As Long, _
@@ -164,15 +173,16 @@ Private Function sp_price(ByVal sProductCode As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As Database, _
+                            t_dbMainDatabase As DataBase, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
-                            Optional zzerc_contract_nbr As String = "" _
+                            Optional zzerc_contract_nbr As String = "", _
+                            Optional sStatusFlag As String = "" _
                             ) As Double
                             
         Dim i As Integer
-        Dim arg_val(15) As String
+        Dim arg_val(16) As String   '#448713 - Increase from 15 to 16
         Dim sRunCmd As String
         Dim sOutPutstr As String
         Static sta_cnt As Long
@@ -206,14 +216,24 @@ Private Function sp_price(ByVal sProductCode As String, _
         
         '#Time sensitive Fuel Cost - used in FM Entry Programs
         If Trim(m_fuel_load_datetime) = szEMPTY Then
-            arg_val(15) = "" '"' '" use this if more arg added later
+            arg_val(15) = "' '"
         Else
             arg_val(15) = tfnSQLString(Trim(m_fuel_load_datetime))
         End If
         
+        ' #448713 - Chris Albrecht - 06/13/2005
+        ' Add status flag parameter.  When status flag = "1", the ceiling price
+        ' and factor pricing functions will not be used when calculating the
+        ' market price
+        If IsMissing(sStatusFlag) Or Trim(sStatusFlag) = szEMPTY Then
+            arg_val(16) = ""
+        Else
+            arg_val(16) = tfnSQLString(Trim(sStatusFlag))
+        End If
+        
         sRunCmd = arg_val(0)
         
-        For i = 1 To 15
+        For i = 1 To 16 '#448713 - Increase from 15 to 16
            sRunCmd = sRunCmd & Space(1) & arg_val(i)
         Next
         
@@ -282,7 +302,7 @@ End Function
 '#(2)Public Sub Pricing_AddToFuelLoadTimeAry
 '#Call this once in main form load of FM Program
 Public Sub Pricing_FuelCostSetQueryTimeForm(frm As Form, _
-                                       vLocalDB As Database, _
+                                       vLocalDB As DataBase, _
                                        bQueryTime As Boolean)
     '#if m_bQueryTime_Active=true, m_frmQueryTime
     '# and m_local must be set
@@ -547,7 +567,7 @@ Public Sub set_fuel_load_datetime(ByVal sFuelLoadDate As String, _
 End Sub
 
 Private Function Price_fnOpenRecord(ByRef rsTemp As Recordset, _
-                                    strSQL As String, objDB As Database) As Long
+                                    strSQL As String, objDB As DataBase) As Long
     On Error GoTo SQLError
     
     If objDB Is t_dbMainDatabase Then
