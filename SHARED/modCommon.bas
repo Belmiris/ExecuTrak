@@ -20,6 +20,11 @@ Public Enum ButtonStatus
     Enable = 1
 End Enum
 
+Public Enum HourglassStatus
+    ShowHourglass = vbHourglass
+    HideHourglass = vbNormal
+End Enum
+
 Public Const INTO_TEMP As String = " into temp "
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
@@ -285,24 +290,24 @@ Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 End Function
 
 Public Sub subDropTable(TableName As String)
-    Dim sSQL As String
+    Dim sSql As String
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
+    sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSQL, , , False
+    fnExecSQL sSql, , , False
     
 End Sub
 
 Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSQL As String
+    Dim sSql As String
     Dim rsTemp As Recordset
     
-    sSQL = SQLParm(SQL_TABLE_EXISTS, _
+    sSql = SQLParm(SQL_TABLE_EXISTS, _
                           "@table", TableName)
                           
-    If fnRecordset(rsTemp, sSQL) > 0 Then
+    If fnRecordset(rsTemp, sSql) > 0 Then
         fnTableExists = True
     End If
     
@@ -435,9 +440,6 @@ Public Sub UnloadAllForms()
     Set Form = Nothing
 End Sub
 
-
-
-
 Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     If (KeyAscii >= 97) And (KeyAscii <= 122) Then
         KeyAscii = KeyAscii - 32
@@ -445,3 +447,7 @@ Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     
     AsciiUCase = KeyAscii
 End Function
+
+Public Sub Hourglass(hgStatus As HourglassStatus)
+    Screen.MousePointer = hgStatus
+End Sub

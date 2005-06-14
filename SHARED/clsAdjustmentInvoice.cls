@@ -37,7 +37,7 @@ Private dPendingAmt As Double
 Private dClearedAmt As Double
 Private dAppliedAmt As Double
 Private bAmtsCalculated As Boolean
-Private sSql As String
+Private sSQL As String
 Private colAdjustments As clsAdjustments
 
 Private Const OPEN_STATUS As String = "O"
@@ -71,7 +71,6 @@ Private Const SQL_SELECT_ADJUSTMENTS As String = _
     " and   rsbs_prft_ctr = pia_prft_ctr " & _
     " and   rsbs_vendor   = rsbi_vendor " & _
     " and   pia_inv_lnk  = @inv_lnk " & _
-    " and   pia_adj_status = 'O' " & _
     " order by pia_seq "
     
 Private Const SQL_SELECT_PAY_AS_INVOICE_FLAG As String = _
@@ -94,9 +93,9 @@ Public Function BuildInvoice(lInvoiceLnk As Long) As Boolean
     Dim oAdjustment As clsAdjustment
     Dim bProcessedFirstRecord As Boolean
     
-    sSql = SQLParm(SQL_SELECT_ADJUSTMENTS, "@inv_lnk", lInvoiceLnk)
+    sSQL = SQLParm(SQL_SELECT_ADJUSTMENTS, "@inv_lnk", lInvoiceLnk)
     
-    If fnRecordset(rsTemp, sSql) > 0 Then
+    If fnRecordset(rsTemp, sSQL) > 0 Then
         iProfitCtr = tfnRound(rsTemp("pia_prft_ctr"))
         lVendor = tfnRound(rsTemp("pia_vendor"))
         sInvoiceNbr = fnGetField(rsTemp("pia_inv_nbr"))
@@ -127,11 +126,11 @@ Public Function BuildInvoice(lInvoiceLnk As Long) As Boolean
     
 End Function
 
-Public Function ClearAdjustments() As Boolean
+Public Function ClearAdjustments(sUserID As String) As Boolean
     Dim oAdjustment As clsAdjustment
     
     For Each oAdjustment In colAdjustments
-        If Not oAdjustment.Clear Then
+        If Not oAdjustment.Clear(sUserID) Then
             Exit Function
         End If
     Next
@@ -161,17 +160,17 @@ End Function
 Public Function GetCategoryPurchaseAcct(sCategoryCode) As Long
     Dim sAcct As String
     
-    sSql = SQLParm(SQL_SELECT_CATEGORY_PURCHASE_ACCT, _
+    sSQL = SQLParm(SQL_SELECT_CATEGORY_PURCHASE_ACCT, _
                           "@category", sCategoryCode)
     
-    sAcct = fnQueryForField(sSql, "rsct_gl_cogs")
+    sAcct = fnQueryForField(sSQL, "rsct_gl_cogs")
     
     'If not in the RS_CAT table, check the RS_ALT_CAT table
     If sAcct = vbNullString Then
-        sSql = SQLParm(SQL_SELECT_ALT_CATEGORY_PURCHASE_ACCT, _
+        sSQL = SQLParm(SQL_SELECT_ALT_CATEGORY_PURCHASE_ACCT, _
                           "@category", sCategoryCode)
     
-        sAcct = fnQueryForField(sSql, "rscta_gl_cogs")
+        sAcct = fnQueryForField(sSQL, "rscta_gl_cogs")
     End If
     
     GetCategoryPurchaseAcct = CLng(sAcct)
@@ -183,13 +182,13 @@ Public Property Get PayAsInvoiced() As Boolean
     Dim sPayAsInvoiced As String
     
     If Not bRetrievedFromDB Then
-        sSql = SQLParm(SQL_SELECT_PAY_AS_INVOICE_FLAG, _
+        sSQL = SQLParm(SQL_SELECT_PAY_AS_INVOICE_FLAG, _
                                  "@profit_ctr", iProfitCtr, _
                                  "@date", sShiftDate, _
                                  "@vendor", lVendor, _
                                  "@inv_nbr", sInvoiceNbr)
                                  
-        sPayAsInvoiced = fnQueryForField(sSql, "stmh_pay_proc")
+        sPayAsInvoiced = fnQueryForField(sSQL, "stmh_pay_proc")
         
         If sPayAsInvoiced = "Y" Then
             bPayAsInvoiced = True
@@ -206,10 +205,10 @@ Public Property Get PayMethod() As AdjustmentPayMethod
     Dim sPayMethod As String
     
     If Not bRetrievedFromDB Then
-        sSql = SQLParm(SQL_SELECT_VENDOR_PAY_METHOD, _
+        sSQL = SQLParm(SQL_SELECT_VENDOR_PAY_METHOD, _
                                 "@vendor", lVendor)
                                  
-        sPayMethod = fnQueryForField(sSql, "pm_discrep_meth")
+        sPayMethod = fnQueryForField(sSQL, "pm_discrep_meth")
         
         If sPayMethod = "H" Then
             adjPayMethod = HoldPayment
@@ -268,11 +267,11 @@ End Property
 
 Public Property Get GLPeriod() As Long
     
-    sSql = SQLParm(SQL_SELECT_GL_PERIOD, _
+    sSQL = SQLParm(SQL_SELECT_GL_PERIOD, _
                           "@vendor", lVendor, _
                           "@inv_nbr", sInvoiceNbr)
               
-    GLPeriod = fnQueryForField(sSql, "gljap_period")
+    GLPeriod = fnQueryForField(sSQL, "gljap_period")
     
     If GLPeriod = Null Then
         GLPeriod = 0

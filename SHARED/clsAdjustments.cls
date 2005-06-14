@@ -32,6 +32,24 @@ Public Function Item(ByVal Index As Variant) As clsAdjustment
    Set Item = colAdjustments.Item(Index)
 End Function
 
+Public Function GetBySequence(ByVal Sequence As Integer) As clsAdjustment
+    Dim i As Integer
+    Dim adj As clsAdjustment
+    
+    For Each adj In colAdjustments
+        If adj.Sequence = Sequence Then
+            Set GetBySequence = adj
+            GoTo ExitFunction
+        End If
+    Next
+    
+    Set GetBySequence = Nothing
+    
+ExitFunction:
+    Set adj = Nothing
+    
+End Function
+
 ' NewEnum must return the IUnknown interface of a
 ' collection's enumerator.
 Public Function NewEnum() As IUnknown

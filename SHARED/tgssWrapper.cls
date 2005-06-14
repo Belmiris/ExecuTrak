@@ -87,8 +87,8 @@ Public Function CreateSelector()
     m_HasSelector = True
 End Function
 
-Public Property Get Selector() As clsTGSelector
-    Set Selector = m_tgSelector
+Public Property Get tgSelector() As clsTGSelector
+    Set tgSelector = m_tgSelector
 End Property
 
 Public Property Get HasSelector() As Boolean

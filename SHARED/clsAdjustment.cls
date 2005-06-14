@@ -42,7 +42,7 @@ Private dUnitCost As Double
 Private dCreditUnitCost As Double
 Private bAmtsCalculated As Boolean
 Private iInvSeq As Integer
-Private sSql As String
+Private sSQL As String
 
 Private Const SQL_NULL As String = "null"
 Private Const ADJ_OPEN As String = "O"
@@ -77,6 +77,7 @@ Private Const SQL_UPDATE_ADJUSTMENT_STATUS As String = _
     " set pia_new_inv_nbr = '@credit_inv_nbr' " & _
     " ,pia_adj_status = '@status' " & _
     " ,pia_credit_amt = @credit_amt " & _
+    " ,pia_user_id = '@user_id' " & _
     " where pia_inv_lnk = @inv_lnk " & _
     " and pia_seq = @seq "
     
@@ -120,7 +121,6 @@ Public Property Get AdjustmentStatus() As AdjStatus
         Case ADJ_APPLIED: AdjustmentStatus = AppliedAdjustment
     End Select
         
-    AdjustmentStatus = sAdjustmentStatus
 End Property
 Public Property Get CreditInvoiceNbr() As String
     CreditInvoiceNbr = sCreditInvoiceNbr
@@ -163,6 +163,10 @@ Public Property Get Invoice() As clsAdjustmentInvoice
     Set Invoice = oInvoice
 End Property
 
+Public Property Get Sequence() As Integer
+    Sequence = iInvSeq
+End Property
+
 Private Sub CalcAmts()
     dCostDiff = dInvoiceCost - dPriceBookCost
     lQtyDiff = lInvoiceQty - lPriceBookQty
@@ -202,7 +206,7 @@ Public Sub Build(oAdjInvoice As clsAdjustmentInvoice, sCategory As String, lInvQ
         
 End Sub
     
-Public Function Clear() As Boolean
+Public Function Clear(sUserID As String) As Boolean
     
     On Error GoTo ErrHandler
     
@@ -221,7 +225,7 @@ Public Function Clear() As Boolean
             InsertGL oInvoice.GLPayableAccount, oInvoice.GLPeriod, dAdjustmentAmt, Credit
         End If
         
-        SaveAdjustment ClearedAdjustment
+        SaveAdjustment sUserID, ClearedAdjustment
         
         Clear = True
         
@@ -235,7 +239,7 @@ End Function
 Private Function InsertInvoice(lQty As Long, dCost As Double, _
                                             sCategory, lPBLnk, lGroupLnk) As Boolean
     
-    sSql = SQLParm(SQL_INSERT_RS_PURCLINE, _
+    sSQL = SQLParm(SQL_INSERT_RS_PURCLINE, _
                                 "@shift_link", oInvoice.ShiftLink, _
                                 "@vendor", oInvoice.Vendor, _
                                 "@inv_nbr", oInvoice.InvoiceNumber, _
@@ -247,17 +251,17 @@ Private Function InsertInvoice(lQty As Long, dCost As Double, _
                                 "@pb_link", lPBLnk, _
                                 "@group_lnk", lGroupLnk)
                           
-    InsertInvoice = fnExecSQL(sSql)
+    InsertInvoice = fnExecSQL(sSQL)
     
 End Function
 
 Private Function GetNewPurclineLineNbr() As Integer
     Dim sLineNbr As String
     
-    sSql = SQLParm(SQL_SELECT_NEXT_LINE_NBR, _
+    sSQL = SQLParm(SQL_SELECT_NEXT_LINE_NBR, _
                           "@shift_link", oInvoice.ShiftLink)
 
-    sLineNbr = fnQueryForField(sSql, "new_line_nbr")
+    sLineNbr = fnQueryForField(sSQL, "new_line_nbr")
     
     If sLineNbr = vbNullString Then
         GetNewPurclineLineNbr = 1
@@ -276,7 +280,7 @@ Private Function InsertGL(lacct As Long, lPeriod As Long, dAmt As Double, entryT
         sType = "D"
     End If
     
-    sSql = SQLParm(SQL_INSERT_GL_JRNL_AP, _
+    sSQL = SQLParm(SQL_INSERT_GL_JRNL_AP, _
                                 "@account", lacct, _
                                 "@period", lPeriod, _
                                 "@shift_link", oInvoice.ShiftLink, _
@@ -287,11 +291,11 @@ Private Function InsertGL(lacct As Long, lPeriod As Long, dAmt As Double, entryT
                                 "@profit_ctr", oInvoice.ProfitCenter, _
                                 "@inv_nbr", oInvoice.InvoiceNumber)
                                 
-    InsertGL = fnExecSQL(sSql)
+    InsertGL = fnExecSQL(sSQL)
     
 End Function
 
-Public Function SaveAdjustment(Optional Status As AdjStatus) As Boolean
+Public Function SaveAdjustment(sUserID As String, Status As AdjStatus) As Boolean
     Dim sStatus As String
     
     If IsMissing(sStatus) Then
@@ -305,14 +309,15 @@ Public Function SaveAdjustment(Optional Status As AdjStatus) As Boolean
         End Select
     End If
     
-    sSql = SQLParm(SQL_UPDATE_ADJUSTMENT_STATUS, _
+    sSQL = SQLParm(SQL_UPDATE_ADJUSTMENT_STATUS, _
                           "@credit_inv_nbr", sCreditInvoiceNbr, _
                           "@credit_amt", dCreditAmt, _
                           "@status", sStatus, _
+                          "@user_id", sUserID, _
                           "@inv_lnk", oInvoice.InvoiceLink, _
                           "@seq", iInvSeq)
 
-    SaveAdjustment = fnExecSQL(sSql)
+    SaveAdjustment = fnExecSQL(sSQL)
     
 End Function
 
