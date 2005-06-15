@@ -52,6 +52,32 @@ Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Var
     Next 'Index
     On Error GoTo 0
 End Sub
+'---------------------------------------------------------------------------------------
+' Procedure : EnableCtrlArray
+' DateTime  : 6/15/2005 10:24
+' Author    : DenBorg
+' Purpose   : Enables/Disables all elements in a control array if no control array
+'             indices are specified in Indices(). When indices are specified, then
+'             the specified subset of elements in the control array are enabled/disabled.
+'---------------------------------------------------------------------------------------
+'
+Public Sub EnableCtrlArray(CtrlArray As Object, ByVal Enabled As Boolean, ParamArray Indices() As Variant)
+    Dim ParmIndex As Long
+    Dim Ctrl      As Object
+    
+    If UBound(Indices) = -1 Then
+        'No specific elements were targetted, so enable/disable all elements in control array
+        For Each Ctrl In CtrlArray
+            Ctrl.Enabled = Enabled
+        Next 'Ctrl
+        Set Ctrl = Nothing
+    Else
+        'Certain elements were specified, so only enable/disable those that are listed.
+        For ParmIndex = 0 To UBound(Indices)
+            CtrlArray(Indices(ParmIndex)).Enabled = Enabled
+        Next 'ParmIndex
+    End If
+End Sub
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
     Dim SQL         As String
