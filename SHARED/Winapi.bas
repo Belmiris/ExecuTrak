@@ -103,10 +103,10 @@ Type WINDOWPLACEMENT
     rcNormalPosition As RECT
 End Type
 Declare Function GetDC Lib "user32" ( _
-    ByVal hwnd As Long) As Long
+    ByVal hWnd As Long) As Long
     
 Declare Function ReleaseDC Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal hDC As Long) As Long
     
 Declare Function ExtractIcon Lib "shell32.dll" Alias "ExtractIconA" ( _
@@ -127,7 +127,7 @@ Declare Function GetKeyState Lib "user32" ( _
     ByVal nVirtKey As Long) As Integer
     
 Declare Function GetWindowRect Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     lpRect As RECT) As Long
     
 Declare Function lstrcpy Lib "kernel32" Alias "lstrcpyA" ( _
@@ -153,7 +153,7 @@ Declare Function GetWindowsDirectory Lib "kernel32" Alias "GetWindowsDirectoryA"
     ByVal nSize As Long) As Long
     
 Declare Function GetWindowPlacement Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     lpwndpl As WINDOWPLACEMENT) As Long
     
 Declare Function GetDesktopWindow Lib "user32" () As Long
@@ -163,7 +163,7 @@ Declare Function GetSystemDirectory Lib "kernel32" Alias "GetSystemDirectoryA" (
     ByVal nSize As Long) As Long
     
 Declare Function SetWindowPos Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal hWndInsertAfter As Long, _
     ByVal x As Long, _
     ByVal y As Long, _
@@ -172,21 +172,21 @@ Declare Function SetWindowPos Lib "user32" ( _
     ByVal wFlags As Long) As Long
     
 Declare Function ShowWindow Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nCmdShow As Long) As Long
     
 Declare Function SetFocus Lib "user32" ( _
-    ByVal hwnd As Long) As Long
+    ByVal hWnd As Long) As Long
     
 Declare Function GetMenu Lib "user32" ( _
-    ByVal hwnd As Long) As Long
+    ByVal hWnd As Long) As Long
     
 Declare Function GetSubMenu Lib "user32" ( _
     ByVal hMenu As Long, _
     ByVal nPos As Long) As Long
     
 Declare Function GetSystemMenu Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal bRevert As Long) As Long
     
 Declare Function TrackPopupMenu Lib "user32" ( _
@@ -195,7 +195,7 @@ Declare Function TrackPopupMenu Lib "user32" ( _
     ByVal x As Long, _
     ByVal y As Long, _
     ByVal nReserved As Long, _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     lprc As RECT) As Long
     
 Declare Function InsertMenu Lib "user32" Alias "InsertMenuA" ( _
@@ -206,7 +206,7 @@ Declare Function InsertMenu Lib "user32" Alias "InsertMenuA" ( _
     ByVal lpNewItem As String) As Long
     
 Declare Function EnableWindow Lib "user32" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal fEnable As Long) As Long
     
 Declare Function ModifyMenu Lib "user32" Alias "ModifyMenuA" ( _
@@ -217,13 +217,13 @@ Declare Function ModifyMenu Lib "user32" Alias "ModifyMenuA" ( _
     ByVal lpString As String) As Long
     
 Declare Function WinHelp Lib "user32" Alias "WinHelpA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal lpHelpFile As String, _
     ByVal wCommand As Long, _
     ByVal dwData As Long) As Long
     
 Declare Function GetParent Lib "user32" ( _
-    ByVal hwnd As Long) As Long
+    ByVal hWnd As Long) As Long
     
 Declare Function GetLastActivePopup Lib "user32" ( _
     ByVal hwndOwnder As Long) As Long
@@ -249,7 +249,7 @@ Public Declare Function CopyFile Lib "kernel32.dll" Alias "CopyFileA" _
 
 'david 11/15/00
 Public Declare Function SendMessageByNum Lib "user32" Alias _
-"SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal _
+"SendMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal _
 wParam As Long, ByVal lParam As Long) As Long
 
 Public Const LB_SETHORIZONTALEXTENT = &H194
@@ -313,7 +313,7 @@ Declare Function ChangeDisplaySettings Lib "user32" Alias "ChangeDisplaySettings
 Declare Function ExitWindowsEx Lib "user32" _
     (ByVal uFlags As Long, ByVal dwReserved As Long) As Long
 Declare Function SendMessage Lib "user32" Alias "SendMessageA" _
-    (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+    (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
 Declare Function GetSystemMetrics Lib "user32.dll" (ByVal nIndex As Long) As Long
 
 '#API Call to get username
@@ -337,4 +337,8 @@ End Type
 Declare Sub GlobalMemoryStatus Lib "kernel32" (lpBuffer As LOG_MEMORY_STATUS)
 Declare Function GetCurrentProcessId Lib "kernel32" () As Long
 
-
+'472624 - Chris Albrecht - 06/15/2005
+'Added to handle the factor frame button lost focus event when displaying forms modally
+Public Declare Function GetCapture Lib "user32" () As Long
+Public Declare Function SetCapture Lib "user32" (ByVal hWnd As Long) As Long
+Public Declare Function ReleaseCapture Lib "user32" () As Long
