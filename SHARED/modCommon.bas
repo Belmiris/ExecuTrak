@@ -283,6 +283,14 @@ SQLError:
     On Error GoTo 0
 End Function
 
+Public Function fnDataExists(SQL As String) As Boolean
+    Dim rsTemp As Recordset
+    
+    fnDataExists = fnRecordset(rsTemp, SQL)
+    
+    Set rsTemp = Nothing
+End Function
+
 Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 
     fnCreateTempTable = fnExecSQL(SQL & INTO_TEMP & TableName)
@@ -290,24 +298,24 @@ Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 End Function
 
 Public Sub subDropTable(TableName As String)
-    Dim sSql As String
+    Dim sSQL As String
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
+    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSql, , , False
+    fnExecSQL sSQL, , , False
     
 End Sub
 
 Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSql As String
+    Dim sSQL As String
     Dim rsTemp As Recordset
     
-    sSql = SQLParm(SQL_TABLE_EXISTS, _
+    sSQL = SQLParm(SQL_TABLE_EXISTS, _
                           "@table", TableName)
                           
-    If fnRecordset(rsTemp, sSql) > 0 Then
+    If fnRecordset(rsTemp, sSQL) > 0 Then
         fnTableExists = True
     End If
     
