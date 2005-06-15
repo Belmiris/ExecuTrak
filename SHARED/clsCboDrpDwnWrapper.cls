@@ -11,8 +11,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Private WithEvents m_grid As TDBGrid
-Attribute m_grid.VB_VarHelpID = -1
+Private WithEvents m_Grid As TDBGrid
+Attribute m_Grid.VB_VarHelpID = -1
 Private m_tgcComboBox As Object
 
 Private Sub Class_Initialize()
@@ -21,7 +21,7 @@ End Sub
 
 Private Sub Class_Terminate()
     Set m_tgcComboBox = Nothing
-    Set m_grid = Nothing
+    Set m_Grid = Nothing
 End Sub
 
 Public Property Get ComboDropDown() As Object
@@ -29,7 +29,7 @@ Public Property Get ComboDropDown() As Object
 End Property
 
 Public Property Set Table(pTable As TDBGrid)
-    Set m_grid = pTable
+    Set m_Grid = pTable
     Set m_tgcComboBox.Table = pTable
 End Property
 
@@ -49,21 +49,20 @@ Public Property Set DataLink(pDataLink As Data)
     Set m_tgcComboBox.DataLink = pDataLink
 End Property
 
-
 Private Sub m_grid_Click()
-    m_tgcComboBox.Click m_grid
+    m_tgcComboBox.Click m_Grid
 End Sub
 
 Private Sub m_grid_GotFocus()
-    m_tgcComboBox.GotFocus m_grid
+    m_tgcComboBox.GotFocus m_Grid
 End Sub
 
 Private Sub m_grid_KeyPress(KeyAscii As Integer)
-    m_tgcComboBox.Keypress m_grid, KeyAscii
+    m_tgcComboBox.Keypress m_Grid, KeyAscii
 End Sub
 
 Private Sub m_grid_LostFocus()
-    m_tgcComboBox.LostFocus m_grid
+    m_tgcComboBox.LostFocus m_Grid
 End Sub
 
 Private Sub m_grid_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
