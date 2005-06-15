@@ -95,7 +95,7 @@ Type POINTAPI
     y As Long
 End Type
 Type WINDOWPLACEMENT
-    Length As Long
+    length As Long
     flags As Long
     showCmd As Long
     ptMinPosition As POINTAPI
