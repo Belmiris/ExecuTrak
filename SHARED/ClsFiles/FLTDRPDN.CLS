@@ -354,7 +354,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
     Dim i As Integer
     Dim nExtra As Integer
     Dim nTWidth As Integer
-    Dim objCol As DBTrueGrid.Column     'Vijaya added DBTRUEGRID. on 12/07/04
+    Dim objCol As DBTRUEGRID.Column     'Vijaya added DBTRUEGRID. on 12/07/04
     Dim nRight As Integer
     Dim nTemp As Integer
     Dim bFlag As Boolean
@@ -1102,7 +1102,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If val(tgMain.Row) >= 0 Then
+                    If Val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1424,9 +1424,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(val(sPrefix))
+    sTrimedPrefix = CStr(Val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If val(sPrefix) > 0 Then
+    If Val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1597,7 +1597,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = val(tgMain.Row)
+                lRow = Val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1611,7 +1611,7 @@ Private Sub fnMoveButton()
     End If
     
     If tgMain.Row >= 0 Then
-        Dim objCol As DBTrueGrid.Column
+        Dim objCol As DBTRUEGRID.Column
         Dim colTemp As Collection
         Set colTemp = colDropDowns.Item(lDropDown)
         Set objCol = tgMain.Columns(colTemp.Item(lCol).ColumnIndex)
@@ -1920,7 +1920,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1937,7 +1937,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -2452,7 +2452,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = val(sYear)
+        tfnYear = Val(sYear)
     End If
 End Function
 
@@ -2730,7 +2730,9 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
                     
                 If colTemp.Item(1).Unique Then
                     If Not m_clsEdit Is Nothing Then
-                        m_clsEdit.GetColumn vData, lCount, nColumn
+                        'david 06/17/2005  #??????
+                        'change nColumn to ndxCol
+                        m_clsEdit.GetColumn vData, lCount, ndxCol
                         lCol = m_clsEdit.GetCurrentRowNumber
                         sTemp = ""
                         For j = 0 To lCount - 1
