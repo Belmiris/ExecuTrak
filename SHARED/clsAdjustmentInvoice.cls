@@ -103,22 +103,22 @@ Public Function BuildInvoice(lInvoiceLnk As Long) As Boolean
     If fnRecordset(rsTemp, sSQL) > 0 Then
         iProfitCtr = tfnRound(rsTemp("pia_prft_ctr"))
         lVendor = tfnRound(rsTemp("pia_vendor"))
-        sInvoiceNbr = fnGetField(rsTemp("pia_inv_nbr"))
+        sInvoiceNbr = GetField(rsTemp("pia_inv_nbr"))
         lInvoiceLink = lInvoiceLnk
         lShiftLink = tfnRound(rsTemp("ph_shl"))
-        sShiftDate = fnGetField(rsTemp("pia_merch_date"))
+        sShiftDate = GetField(rsTemp("pia_merch_date"))
         
         Set colAdjustments = New clsAdjustments
         
         Do Until rsTemp.EOF
             
             Set oAdjustment = New clsAdjustment
-            oAdjustment.Build Me, fnGetField(rsTemp("pia_catagory")), tfnRound(rsTemp("pia_qty_inv")), _
+            oAdjustment.Build Me, GetField(rsTemp("pia_catagory")), tfnRound(rsTemp("pia_qty_inv")), _
                                        tfnRound(rsTemp("pia_qty_recv")), tfnRound(rsTemp("pia_cost_inv"), 4), _
                                        tfnRound(rsTemp("pia_cost_pb"), 4), _
                                        tfnRound(rsTemp("pia_ext_cost_inv"), 4) - tfnRound(rsTemp("pia_ext_cost_pb"), 4), _
-                                       fnGetField(rsTemp("pia_adj_status")), fnGetField(rsTemp("pia_seq")), fnGetField(rsTemp("pia_new_inv_nbr")), _
-                                       tfnRound(rsTemp("pia_credit_amt"), 4), fnGetField(rsTemp("pia_itm_code")), _
+                                       GetField(rsTemp("pia_adj_status")), GetField(rsTemp("pia_seq")), GetField(rsTemp("pia_new_inv_nbr")), _
+                                       tfnRound(rsTemp("pia_credit_amt"), 4), GetField(rsTemp("pia_itm_code")), _
                                        tfnRound(rsTemp("rsbb_bk_lnk")), tfnRound(rsTemp("rsbi_grp_nbr"))
                                        
             colAdjustments.Add oAdjustment

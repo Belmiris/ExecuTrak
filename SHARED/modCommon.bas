@@ -96,7 +96,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
                 rs.MoveNext
             Loop
         End If
@@ -277,9 +277,9 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
     
     If rsTemp.RecordCount > 0 Then
         If Not IsMissing(FieldName) And FieldName <> vbNullString Then
-            fnQueryForField = fnGetField(rsTemp(FieldName))
+            fnQueryForField = GetField(rsTemp(FieldName))
         Else
-            fnQueryForField = fnGetField(rsTemp.Fields(0))
+            fnQueryForField = GetField(rsTemp.Fields(0))
         End If
     End If
                 
@@ -498,16 +498,13 @@ Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     AsciiUCase = KeyAscii
 End Function
 
-Public Function fnGetField(field As Variant) As String
+Public Function GetField(field As Variant) As String
 
     If IsNull(field) Then
-        fnGetField = vbNullString
+        GetField = vbNullString
     Else
-        fnGetField = Trim(CStr(field))
+        GetField = Trim(CStr(field))
     End If
-    
-    'extra line
-    'extra line 2
     
 End Function
 
