@@ -508,6 +508,3 @@ Public Function GetField(field As Variant) As String
     
 End Function
 
-'Public Sub Hourglass(hgStatus As HourglassStatus)
-'    Screen.MousePointer = hgStatus
-'End Sub
