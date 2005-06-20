@@ -30,7 +30,7 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
     ByVal hwnd As Long, _
@@ -482,6 +482,16 @@ Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     AsciiUCase = KeyAscii
 End Function
 
-Public Sub Hourglass(hgStatus As HourglassStatus)
-    Screen.MousePointer = hgStatus
-End Sub
+Public Function fnGetField(field As Variant) As String
+
+    If IsNull(field) Then
+        fnGetField = vbNullString
+    Else
+        fnGetField = Trim(CStr(field))
+    End If
+    
+End Function
+
+'Public Sub Hourglass(hgStatus As HourglassStatus)
+'    Screen.MousePointer = hgStatus
+'End Sub
