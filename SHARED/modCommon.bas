@@ -30,7 +30,13 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
+
+Public Const VK_LBUTTON = &H1
+Public Const VK_RBUTTON = &H2
+Public Const VK_MBUTTON = &H4
+
+Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
     ByVal hwnd As Long, _
@@ -104,6 +110,16 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
 ErrHandler:
     GetSysParm = Default
     Err.Clear
+End Function
+'---------------------------------------------------------------------------------------
+' Procedure : IsKeyPressed
+' DateTime  : 6/20/2005 12:03
+' Author    : DenBorg
+' Purpose   : Returns TRUE if the specified key is currently pressed; returns FALSE if not.
+'---------------------------------------------------------------------------------------
+'
+Public Function IsKeyPressed(VirtualKey As Long) As Boolean
+    IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
 Public Function ReadEntireFile(ByVal Filename As String) As String
     Dim hFile As Integer
