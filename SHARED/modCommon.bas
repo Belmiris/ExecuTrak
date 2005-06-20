@@ -30,7 +30,7 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 
 Public Const VK_LBUTTON = &H1
 Public Const VK_RBUTTON = &H2
@@ -506,6 +506,7 @@ Public Function fnGetField(field As Variant) As String
         fnGetField = Trim(CStr(field))
     End If
     
+    'extra line
 End Function
 
 'Public Sub Hourglass(hgStatus As HourglassStatus)
