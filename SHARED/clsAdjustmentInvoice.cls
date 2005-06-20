@@ -88,6 +88,11 @@ Private Const SQL_SELECT_GL_PERIOD As String = _
     " and ph_vendor = @vendor " & _
     " and ph_invoice = '@inv_nbr' "
 
+Private Const SQL_SELECT_VENDOR_PAY_METHOD As String = _
+    " select pm_discrep_meth " & _
+    " from p_vendor " & _
+    " where pm_vendor = @vendor "
+
 Public Function BuildInvoice(lInvoiceLnk As Long) As Boolean
     Dim rsTemp As Recordset
     Dim oAdjustment As clsAdjustment
@@ -120,6 +125,7 @@ Public Function BuildInvoice(lInvoiceLnk As Long) As Boolean
             
             rsTemp.MoveNext
         Loop
+        BuildInvoice = True
     End If
     
     Set rsTemp = Nothing
@@ -340,14 +346,14 @@ Private Sub CalcAmts()
         dAdjustmentAmt = dAdjustmentAmt + oAdj.AdjustmentAmt
         dCreditAmt = dCreditAmt + oAdj.CreditAmt
         Select Case oAdj.AdjustmentStatus
-            Case ADJ_OPEN
-                dOpenAmt = dOpenAmt + IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt)
-            Case ADJ_PENDING
-                dPendingAmt = dPendingAmt + IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt)
-            Case ADJ_CLEARED
-                dClearedAmt = dClearedAmt + IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt)
-            Case ADJ_APPLIED
-                dAppliedAmt = dAppliedAmt + IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt)
+            Case OpenAdjustment
+                dOpenAmt = dOpenAmt + Abs(IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt))
+            Case PendingAdjustment
+                dPendingAmt = dPendingAmt + Abs(IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt))
+            Case ClearedAdjustment
+                dClearedAmt = dClearedAmt + Abs(IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt))
+            Case AppliedAdjustment
+                dAppliedAmt = dAppliedAmt + Abs(IIf(oAdj.CreditAmt <> 0, oAdj.CreditAmt, oAdj.AdjustmentAmt))
         End Select
     Next
     
