@@ -192,7 +192,7 @@ Public Sub Copy(Optional vSelIndex As Variant)
     If IsMissing(vSelIndex) Then
         'store the selected bookmarks
         For i = 0 To nRows - 1
-            j = Val(bmTemp.Item(i))
+            j = val(bmTemp.Item(i))
             m_tgcEditor.GetRow vBuffer, nCol, j
             For j = 0 To nColCount - 1
                 If j <> m_nIdleColumn Then
@@ -204,7 +204,7 @@ Public Sub Copy(Optional vSelIndex As Variant)
     Else
         If IsNumeric(vSelIndex) Then
             If vSelIndex >= 0 And vSelIndex < nRows Then
-                i = Val(bmTemp.Item(vSelIndex))
+                i = val(bmTemp.Item(vSelIndex))
                 ReDim vData(nColCount - 1, 0)
                 m_tgcEditor.GetRow vBuffer, nCol, i
                 For j = 0 To nColCount - 1
@@ -226,7 +226,7 @@ Public Sub Delete(Optional vRowIndex As Variant)
             Dim nRow As Long
             ReDim vBkMark(Count - 1) As Variant
             For i = 0 To Count - 1
-                nRow = Val(m_tgTable.SelBookmarks.Item(i))
+                nRow = val(m_tgTable.SelBookmarks.Item(i))
                 vBkMark(i) = m_tgcEditor.Bookmark(nRow)
             Next
             
@@ -240,9 +240,9 @@ Public Sub Delete(Optional vRowIndex As Variant)
             m_tgcEditor.Rebind
         Else
             If IsNumeric(vRowIndex) Then
-                i = Val(vRowIndex)
+                i = val(vRowIndex)
                 If i >= 0 And i < Count Then
-                    nRow = Val(m_tgTable.SelBookmarks.Item(i))
+                    nRow = val(m_tgTable.SelBookmarks.Item(i))
                     m_tgcEditor.DeleteRow m_tgcEditor.Bookmark(nRow), False
                 End If
             End If
@@ -335,7 +335,7 @@ Private Function fnLong(vTemp As Variant) As Long
     If IsNull(vTemp) Then
         fnLong = -1
     Else
-        fnLong = Val(vTemp)
+        fnLong = val(vTemp)
     End If
 End Function
 
@@ -494,8 +494,8 @@ Private Function fnMarkCurrent(ByVal KeyCode As Integer, _
                         m_tgTable.SelBookmarks.Remove i
                     Next
                 Else
-                    nCurrent = Val(vCurrent)
-                    nLast = Val(m_vLastRow)
+                    nCurrent = val(vCurrent)
+                    nLast = val(m_vLastRow)
                     If nCurrent < nLast Then
                         nStart = nCurrent
                         nEnd = nLast - 1
@@ -545,7 +545,7 @@ Public Sub GetSelected(lTemp() As Long, nCount As Long)
         If nCount > 0 Then
             ReDim lTemp(nCount - 1)
             For i = 0 To nCount - 1
-                lTemp(i) = Val(.Item(i))
+                lTemp(i) = val(.Item(i))
             Next i
         End If
     End With
@@ -790,7 +790,7 @@ Property Get RowIsSelected(ByVal lRow As Long) As Boolean
     Dim i As Long
     
     For i = 0 To m_tgTable.SelBookmarks.Count - 1
-        If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
+        If lRow = val(m_tgTable.SelBookmarks.Item(i)) Then
             RowIsSelected = True
             Exit Property
         End If
@@ -812,7 +812,7 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     Else
         If RowIsSelected(lRow) Then
             For i = 0 To m_tgTable.SelBookmarks.Count - 1
-                If lRow = Val(m_tgTable.SelBookmarks.Item(i)) Then
+                If lRow = val(m_tgTable.SelBookmarks.Item(i)) Then
                     m_tgTable.SelBookmarks.Remove i
                     Exit Property
                 End If
@@ -822,8 +822,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(Cancel As Integer)
-    Cancel = True
+Public Sub SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Public Sub SelectAll()
@@ -883,6 +883,29 @@ Public Sub SelectRow(ByVal lRow As Long)
         End With
     End If
 End Sub
+
+'david 06/21/2005
+Public Sub UnSelectRow(ByVal lRow As Long)
+    Dim i As Long
+    
+    If Not m_bMultiSelectRowFeature Then
+        Exit Sub
+    End If
+    
+    If Not m_tgcEditor Is Nothing Then
+        With m_tgTable.SelBookmarks
+            For i = 0 To .Count
+                If Not IsNull(m_tgTable.SelBookmarks(i)) Then
+                    If m_tgTable.SelBookmarks(i) = lRow Then
+                        .Remove i
+                        Exit For
+                    End If
+                End If
+            Next i
+        End With
+    End If
+End Sub
+'''''''''''''''''
 
 'david 04/24/2002
 'Invert Select
@@ -1087,9 +1110,9 @@ Property Get Temp() As Integer
 End Property
 
 Private Sub SetRowHighLighted(bHighLighted As Boolean)
-    Dim m_styRow As DBTRUEGRID.Style  ' row style
-    Dim m_styCurrentCell As DBTRUEGRID.Style   ' current cell style
-    Dim m_styHighLightedRow As DBTRUEGRID.Style
+    Dim m_styRow As DBTrueGrid.Style  ' row style
+    Dim m_styCurrentCell As DBTrueGrid.Style   ' current cell style
+    Dim m_styHighLightedRow As DBTrueGrid.Style
     
     m_tgTable.ClearCellStyle dbgAllCells
     
@@ -1458,7 +1481,7 @@ Public Function ChangeValues(ParamArray aryColOpValue() As Variant) As Boolean
     
     For i = 0 To i
         If Not IsNull(aryColOpValue(i)) Then
-            nCol = Val(aryColOpValue(i))
+            nCol = val(aryColOpValue(i))
         Else
             nCol = -1
         End If
@@ -1487,11 +1510,11 @@ Public Function ChangeValues(ParamArray aryColOpValue() As Variant) As Boolean
                         m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) - sValue
                         bChanged = True
                     Case "*"
-                        m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) * Val(sValue)
+                        m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) * val(sValue)
                         bChanged = True
                     Case "/"
-                        If Val(sValue) <> 0 Then
-                            m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) / Val(sValue)
+                        If val(sValue) <> 0 Then
+                            m_tgcEditor.CellValue(nCol, lCellRow) = m_tgcEditor.CellValue(nCol, lCellRow) / val(sValue)
                             bChanged = True
                         End If
                     End Select
@@ -1615,10 +1638,10 @@ Private Sub subGetColRow(sColRow As String, nCol As Integer, lRow As Long)
     nPosi = InStr(sColRow, ",")
     
     If nPosi > 0 Then
-        nCol = Val(Left(sColRow, nPosi - 1))
+        nCol = val(Left(sColRow, nPosi - 1))
         lRow = Mid(sColRow, nPosi + 1)
     Else
-        nCol = Val(sColRow)
+        nCol = val(sColRow)
         lRow = -1
     End If
 End Sub
