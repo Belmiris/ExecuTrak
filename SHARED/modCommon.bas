@@ -30,7 +30,7 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 
 Public Const VK_LBUTTON = &H1
 Public Const VK_RBUTTON = &H2
@@ -454,6 +454,7 @@ Public Function FileExists(ByVal Filename As String) As Boolean
     If bExists Then
         bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
+    On Error GoTo 0 'Clear Err & disable error handler
     
     FileExists = bExists
 End Function
@@ -470,6 +471,7 @@ Public Function DirExists(ByVal DirName As String) As Boolean
     If bExists Then
         bExists = (GetAttr(DirName) And vbDirectory = vbDirectory)
     End If
+    On Error GoTo 0 'Clear Err & disable error handler
     
     DirExists = bExists
 End Function
