@@ -255,6 +255,7 @@ Public Function CREATE_FIELD(pFieldName As String, _
     arrFieldName(i) = strFieldName
     arrFieldLength(i) = pFieldLength
     arrFieldPrecision(i) = pFieldPrecision
+    arrFieldNull(i) = pNull
     
     i = i + 1
     arrFieldName(i) = ""
@@ -852,7 +853,8 @@ Private Function fnCheckForChange(pField As String, pOld As String, pNew As Stri
     strInsertValue = ", " & pNew
     If pOld <> pNew Then
         If pOld <> pCurrent Then
-            blnDataChanged = 0
+            blnDataChanged = True
+            Debug.Print pField & "   " & pOld & "   " & pCurrent & "   " & pNew
         Else
             strUpdate = strUpdate & ", " & pField & " = " & pNew
         End If
