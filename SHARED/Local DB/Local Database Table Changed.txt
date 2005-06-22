@@ -1,4 +1,31 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version 3.28.1111 davidc
+Date: 06/02/2005
+#429933
+
+Description:
+	Add a new column to po_header_crp.
+		ADD poh_audit_copy TEXT(54) at the end of existing fields.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version 3.28.1010 davidc
+Date: 06/02/2005
+#412824
+
+Description:
+	1. add a new column to RSShiftHold table.
+		ADD szCode_2 TEXT(16) after szCode.
+
+	2. change the field width from TEXT(10) to TEXT(16)
+	   for the following:
+                                     Description 
+	(a)pHoldItem.phi_invoice             Designed for AP INV Entry. But Not Actually used. 
+										 Change anyway.                                                                                                    
+	(b)MladingDetail.szInvoice           Used in ALL FM entry programs and FM
+	                                     upload programs to reload Inv for editing.
+	(c)Pselection.ps_invoice             Seems not used. But change anyway.
+	(d)Vouch_jacket_rpt.vjr_invoice_nbr  Murphy Custom. Change the Table 
+	                                     Need to contact Muphy about printing. 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version 3.28.1009 David Chai
 Date: 03/10/2005
 #448855
