@@ -84,6 +84,9 @@ End Property
 Public Function CreateSelector()
     Set m_tgSelector = New clsTGSelector
     Set m_tgSelector.EditorClass = m_tgSpreadSheet
+    m_tgSelector.AvoidBeep = False
+    m_tgSelector.SelectCurrRow = True
+    m_tgSelector.RowHighLighted = True
     m_HasSelector = True
 End Function
 
@@ -130,7 +133,6 @@ End Sub
 
 Private Sub m_grid_GotFocus()
     m_tgSpreadSheet.GotFocus
-    
     If HasSelector Then
         m_tgSelector.GotFocus
     End If
@@ -142,7 +144,6 @@ End Sub
 
 Private Sub m_Grid_KeyDown(KeyCode As Integer, Shift As Integer)
     m_tgSpreadSheet.KeyDown KeyCode, Shift
-    
     If HasSelector Then
         m_tgSelector.KeyDown KeyCode, Shift
     End If
@@ -156,7 +157,6 @@ End Sub
 
 Private Sub m_grid_LostFocus()
     m_tgSpreadSheet.LostFocus
-    
     If HasSelector Then
         m_tgSelector.LostFocus
     End If
@@ -176,7 +176,6 @@ End Sub
 
 Private Sub m_grid_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     m_tgSpreadSheet.RowColChange LastRow, LastCol
-    
     If HasSelector Then
         m_tgSelector.RowColChange LastRow, LastCol
     End If
@@ -188,6 +187,7 @@ Private Sub m_grid_SelChange(CANCEL As Integer)
     If HasSelector Then
         m_tgSelector.SelChange CANCEL
     End If
+    
 End Sub
 
 Private Sub m_Grid_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
