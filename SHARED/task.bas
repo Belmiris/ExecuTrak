@@ -150,7 +150,7 @@ Private Function fnUINT2INT(lValue As Long) As Integer
 End Function
 
 Public Function fnExeIsRunning(ByVal sExe As String, _
-                               Optional ByVal lProcID As Long = 0) As Boolean
+                               Optional ByVal lProcID As Long = -1) As Boolean
                                '#lProcID added by wj 06/23/05
     Dim lRet As Long
     Dim hSnap As Long
@@ -181,7 +181,7 @@ Public Function fnExeIsRunning(ByVal sExe As String, _
         sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
         Debug.Print sTemp
         
-        If lProcID <= 0 Then
+        If lProcID < 0 Then
             '#Check EXE only - this is always the case before 06/23/05
             If sTemp = sExe Then
                 fnExeIsRunning = True
