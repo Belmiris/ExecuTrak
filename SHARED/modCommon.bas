@@ -30,7 +30,9 @@ Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
+#If Not dbLocalDef Then
 Public dbLocal As DAO.DataBase 'Local MS Access Database
+#End If
 
 Public Const VK_LBUTTON = &H1
 Public Const VK_RBUTTON = &H2
@@ -69,14 +71,14 @@ End Sub
 '
 Public Sub EnableCtrlArray(CtrlArray As Object, ByVal Enabled As Boolean, ParamArray Indices() As Variant)
     Dim ParmIndex As Long
-    Dim Ctrl      As Object
+    Dim ctrl      As Object
     
     If UBound(Indices) = -1 Then
         'No specific elements were targetted, so enable/disable all elements in control array
-        For Each Ctrl In CtrlArray
-            Ctrl.Enabled = Enabled
+        For Each ctrl In CtrlArray
+            ctrl.Enabled = Enabled
         Next 'Ctrl
-        Set Ctrl = Nothing
+        Set ctrl = Nothing
     Else
         'Certain elements were specified, so only enable/disable those that are listed.
         For ParmIndex = 0 To UBound(Indices)
@@ -84,12 +86,12 @@ Public Sub EnableCtrlArray(CtrlArray As Object, ByVal Enabled As Boolean, ParamA
         Next 'ParmIndex
     End If
 End Sub
-Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
+Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
     Dim SQL         As String
     Dim rs          As DAO.Recordset
     
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     
     If (SysParms Is Nothing) Or Reload Then
         Set SysParms = New Collection
@@ -107,8 +109,8 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal Default As Stri
     GetSysParm = SysParms("sp" & ParmNum)
     Exit Function
     
-ErrHandler:
-    GetSysParm = Default
+errHandler:
+    GetSysParm = DEFAULT
     Err.Clear
 End Function
 '---------------------------------------------------------------------------------------
@@ -132,14 +134,14 @@ Public Function ReadEntireFile(ByVal Filename As String) As String
     End If
 End Function
 Public Sub SelectAllText()
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     With Screen.ActiveControl
         .SelStart = 0
         .SelLength = Len(.Text)
     End With
     Exit Sub
     
-ErrHandler:
+errHandler:
     Err.Clear
 End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
