@@ -2240,7 +2240,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When field cTaxBasis (local
 '#   mtaxdetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2602,7 +2602,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
                     fTaxRate = tfnRound(Abs(fTaxRate))
                 End If
                 
-                If aryLDF(i).dv_nbr * aryLDF(i).dv_atax < 0 Then
+                If aryLDF(i).dv_vol * aryLDF(i).dv_atax < 0 Then
                     aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
                 End If
                 strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
@@ -3483,7 +3483,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -3522,7 +3522,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
