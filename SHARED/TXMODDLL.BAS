@@ -2834,7 +2834,7 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
 
     '# Add all of the 'A' tax amounts
     atax_tot = 0
-    For x = 1 To ldf_cnt
+    For x = 0 To ldf_cnt
         atax_tot = atax_tot + tfnRound(aryLDF(x).dv_atax, 2)
     Next
     
