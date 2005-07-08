@@ -483,6 +483,10 @@ Public Function fnUpdateRecord _
             status_flag = intNoError
             status_message = SuccessMsg
         
+            For i = 0 To UBound(arrFieldName) - 1
+                arrFieldValueOld(i) = arrFieldValueNew(i)
+            Next
+            
         End If
         
     End If
@@ -581,6 +585,10 @@ Public Function fnInsertRecord _
         ' Set flag to show that the update went as expected
         status_flag = intNoError
         status_message = SuccessMsg
+        
+        For i = 0 To UBound(arrFieldName) - 1
+            arrFieldValueOld(i) = arrFieldValueNew(i)
+        Next
     
     End If
 
@@ -776,19 +784,46 @@ End Function
 '---------------------------------------------------------------------------------------
 '
 Private Function fnCheckChar(pField As String, pOld As String, pNew As String, Optional pLength = -1, Optional pNull As String = "") As Boolean
+    Dim sCurrent As String
 
-    Dim sCurrent    As String
-
-    sCurrent = Trim(pNull)
-   
-    If Not rsCurrent Is Nothing Then
-        If pNull = "" Or Trim(fnGetField(rsCurrent.Fields(pField))) <> "" Then
-            sCurrent = fnGetField(rsCurrent.Fields(pField))
-            sCurrent = fnSQLString(sCurrent)
+    strInsertName = ", " & pField
+    strInsertValue = ", " & pNew
+    
+    If Not fnCharsAreEqual(pOld, pNew) Then
+        
+        sCurrent = Trim(pNull)
+        If Not rsCurrent Is Nothing Then
+            If pNull = "" Or Trim(fnGetField(rsCurrent.Fields(pField))) <> "" Then
+                sCurrent = fnGetField(rsCurrent.Fields(pField))
+                sCurrent = fnSQLString(sCurrent)
+            End If
         End If
+    
+        If Not fnCharsAreEqual(pOld, sCurrent) Then
+            blnDataChanged = True
+            Debug.Print pField & "   " & pOld & "   " & sCurrent & "   " & pNew
+        Else
+            strUpdate = strUpdate & ", " & pField & " = " & pNew
+        End If
+        
     End If
     
-    fnCheckChar = fnCheckForChange(pField, pOld, pNew, sCurrent)
+End Function
+
+Private Function fnCharsAreEqual(pChar1 As String, pChar2 As String) As Boolean
+    Dim sChar1 As String
+    Dim sChar2 As String
+
+    fnCharsAreEqual = False
+
+    sChar1 = Trim(pChar1)
+    sChar2 = Trim(pChar2)
+    
+    If sChar1 = sChar2 Then
+        fnCharsAreEqual = True
+    ElseIf (sChar1 = "" Or UCase(sChar1) = "NULL") And (sChar2 = "" Or UCase(sChar2) = "NULL") Then
+        fnCharsAreEqual = True
+    End If
     
 End Function
 
@@ -801,18 +836,55 @@ End Function
 '---------------------------------------------------------------------------------------
 '
 Private Function fnCheckNumb(pField As String, pOld As String, pNew As String, Optional pLength As Integer = 8, Optional pPrecision As Integer = 0, Optional pNull As String = "") As Boolean
+    Dim sCurrent As String
 
-    Dim sCurrent    As String
-
-    sCurrent = Trim(pNull)
-
-    If Not rsCurrent Is Nothing Then
-        If pNull = "" Or fnGetField(rsCurrent.Fields(pField)) <> "" Then
-            sCurrent = tfnRound(rsCurrent.Fields(pField), pPrecision)
+    strInsertName = ", " & pField
+    strInsertValue = ", " & pNew
+    
+    If Not fnNumbsAreEqual(pOld, pNew) Then
+        
+        sCurrent = Trim(pNull)
+        If Not rsCurrent Is Nothing Then
+            If pNull = "" Or fnGetField(rsCurrent.Fields(pField)) <> "" Then
+                sCurrent = tfnRound(rsCurrent.Fields(pField), pPrecision)
+            End If
         End If
+    
+        If Not fnNumbsAreEqual(pOld, sCurrent) Then
+            blnDataChanged = True
+            Debug.Print pField & "   " & pOld & "   " & sCurrent & "   " & pNew
+        Else
+            strUpdate = strUpdate & ", " & pField & " = " & pNew
+        End If
+        
     End If
     
-    fnCheckNumb = fnCheckForChange(pField, pOld, pNew, sCurrent)
+End Function
+
+Private Function fnNumbsAreEqual(pNumb1 As String, pNumb2 As String) As Boolean
+    Dim sNumb1 As String
+    Dim sNumb2 As String
+    Dim dNumb1 As Double
+    Dim dNumb2 As Double
+    
+    fnNumbsAreEqual = False
+
+    sNumb1 = fnRemoveQuotes(pNumb1)
+    sNumb2 = fnRemoveQuotes(pNumb2)
+    
+    If sNumb1 = sNumb2 Then
+        fnNumbsAreEqual = True
+    ElseIf (sNumb1 = "" Or UCase(sNumb1) = "NULL") And (sNumb2 = "" Or UCase(sNumb2) = "NULL") Then
+        fnNumbsAreEqual = True
+    Else
+        If IsNumeric(sNumb1) And IsNumeric(sNumb2) Then
+            dNumb1 = CDbl(sNumb1)
+            dNumb2 = CDbl(sNumb2)
+            If dNumb1 = dNumb2 Then
+                fnNumbsAreEqual = True
+            End If
+        End If
+    End If
     
 End Function
 
@@ -825,41 +897,64 @@ End Function
 '---------------------------------------------------------------------------------------
 '
 Private Function fnCheckDate(pField As String, pOld As String, pNew As String, Optional pNull As String = "") As Boolean
-
-    Dim sCurrent    As String
+    Dim sCurrent As String
     
-    sCurrent = Trim(pNull)
-    
-    If Not rsCurrent Is Nothing Then
-        If pNull = "" Or fnGetField(rsCurrent.Fields(pField)) <> "" Then
-            sCurrent = tfnFormatDate(rsCurrent.Fields(pField))
-            sCurrent = tfnDateString(sCurrent, True)
-        End If
-    End If
-    
-    fnCheckDate = fnCheckForChange(pField, pOld, pNew, sCurrent)
-        
-End Function
-
-'---------------------------------------------------------------------------------------
-' Procedure : fnCheckForChange
-' DateTime  : 5/13/2005 14:48
-' Author    : RSanders
-' Purpose   : This function will check to see if the data has changed.
-'---------------------------------------------------------------------------------------
-'
-Private Function fnCheckForChange(pField As String, pOld As String, pNew As String, pCurrent As String) As Boolean
     strInsertName = ", " & pField
     strInsertValue = ", " & pNew
-    If pOld <> pNew Then
-        If pOld <> pCurrent Then
+    
+    If Not fnDatesAreEqual(pOld, pNew) Then
+    
+        sCurrent = Trim(pNull)
+        If Not rsCurrent Is Nothing Then
+            If pNull = "" Or fnGetField(rsCurrent.Fields(pField)) <> "" Then
+                sCurrent = tfnFormatDate(rsCurrent.Fields(pField))
+                sCurrent = tfnDateString(sCurrent, True)
+            End If
+        End If
+    
+        If Not fnDatesAreEqual(pOld, sCurrent) Then
             blnDataChanged = True
-            Debug.Print pField & "   " & pOld & "   " & pCurrent & "   " & pNew
+            Debug.Print pField & "   " & pOld & "   " & sCurrent & "   " & pNew
         Else
             strUpdate = strUpdate & ", " & pField & " = " & pNew
         End If
+        
     End If
-    fnCheckForChange = blnDataChanged
+        
+End Function
+
+Private Function fnDatesAreEqual(pDate1 As String, pDate2 As String) As Boolean
+    Dim sDate1 As String
+    Dim sDate2 As String
+    Dim dDate1 As Date
+    Dim dDate2 As Date
+    
+    fnDatesAreEqual = False
+
+    sDate1 = fnRemoveQuotes(pDate1)
+    sDate2 = fnRemoveQuotes(pDate2)
+    
+    If (sDate1 = "" Or UCase(sDate1) = "NULL") And (sDate2 = "" Or UCase(sDate2) = "NULL") Then
+        fnDatesAreEqual = True
+    Else
+        If IsDate(sDate1) And IsDate(sDate2) Then
+            If DateDiff("d", sDate1, sDate2) = 0 Then
+                fnDatesAreEqual = True
+            End If
+        End If
+    End If
+    
+End Function
+
+Private Function fnRemoveQuotes(pString As String) As String
+    Dim sString As String
+    fnRemoveQuotes = ""
+    sString = Trim(pString)
+    If sString <> "'" Or sString <> "''" Then
+        If Len(sString) > 2 And Left(sString, 1) = "'" And Right(sString, 1) = "'" Then
+            fnRemoveQuotes = Mid(sString, 2, Len(sString) - 2)
+        End If
+    End If
 End Function
 
 '---------------------------------------------------------------------------------------
@@ -1166,6 +1261,7 @@ End Function
 Private Function fnSaveOldAndNew(pCurrent As Recordset) As Long
     
     Dim i As Integer
+    Dim sCurrent As String
     
     fnSaveOldAndNew = 0
     If Not pCurrent Is Nothing Then
@@ -1175,13 +1271,28 @@ Private Function fnSaveOldAndNew(pCurrent As Recordset) As Long
             pCurrent.MoveFirst
             
             For i = 0 To UBound(arrFieldName) - 1
-                If arrFieldType(i) = TypeUndefined Then
-                    Exit For
-                End If
-                If Not IsNull(pCurrent.Fields(arrFieldName(i))) Then
-                    arrFieldValueOld(i) = fnGetField(pCurrent.Fields(arrFieldName(i)))
-                    arrFieldValueNew(i) = arrFieldValueOld(i)
-                End If
+                sCurrent = Trim(arrFieldNull(i))
+                Select Case arrFieldType(i)
+                    Case TypeChar
+                        If arrFieldNull(i) = "" Or Trim(fnGetField(pCurrent.Fields(arrFieldName(i)))) <> "" Then
+                            sCurrent = fnGetField(pCurrent.Fields(arrFieldName(i)))
+                            sCurrent = fnSQLString(sCurrent)
+                            arrFieldValueOld(i) = sCurrent
+                        End If
+                    Case TypeDecimal, TypeInteger, TypeSmallInt
+                        If arrFieldNull(i) = "" Or fnGetField(pCurrent.Fields(arrFieldName(i))) <> "" Then
+                            sCurrent = tfnRound(pCurrent.Fields(arrFieldName(i)), arrFieldPrecision(i))
+                            arrFieldValueOld(i) = sCurrent
+                        End If
+                    Case TypeDate
+                        If arrFieldNull(i) = "" Or fnGetField(pCurrent.Fields(arrFieldName(i))) <> "" Then
+                            sCurrent = tfnFormatDate(pCurrent.Fields(arrFieldName(i)))
+                            sCurrent = tfnDateString(sCurrent, True)
+                            arrFieldValueOld(i) = sCurrent
+                        End If
+                    Case TypeUndefined
+                        Exit For
+                End Select
             Next
             
         End If
