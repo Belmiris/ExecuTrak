@@ -113,6 +113,18 @@ errHandler:
     GetSysParm = DEFAULT
     Err.Clear
 End Function
+Public Function IsFormLoaded(ByVal FormName As String) As Boolean
+    Dim Form As Form
+    
+    FormName = UCase$(FormName)
+    For Each Form In Forms
+        If UCase$(Form.Name) = FormName Then
+            IsFormLoaded = True
+            Exit For
+        End If
+    Next 'Form
+    Set Form = Nothing
+End Function
 '---------------------------------------------------------------------------------------
 ' Procedure : IsKeyPressed
 ' DateTime  : 6/20/2005 12:03
@@ -123,6 +135,13 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
+Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
+    If Not IsNull(value) Then
+        Nz = value
+    Else
+        Nz = ValueIfNull
+    End If
+End Function
 Public Function ReadEntireFile(ByVal Filename As String) As String
     Dim hFile As Integer
     
@@ -132,6 +151,35 @@ Public Function ReadEntireFile(ByVal Filename As String) As String
         ReadEntireFile = Input(LOF(hFile), hFile)
         Close #hFile
     End If
+End Function
+'---------------------------------------------------------------------------------------
+' Procedure : RecordArray
+' DateTime  : 7/15/2005 14:50
+' Author    : DenBorg
+' Purpose   : Returns records generated from SQL statement in a 2-dimensional array.
+'             First Index represents the Field; Second Index represents the Row.
+'
+'---------------------------------------------------------------------------------------
+'
+Public Function RecordArray(SQL As String) As Variant
+    Dim Data     As Variant
+    Dim rs       As DAO.Recordset
+    Dim RecCount As Long
+    
+    RecCount = fnRecordset(rs, SQL)
+    If RecCount >= 0 Then
+        With rs
+            If RecCount > 0 Then
+                Data = .GetRows()
+            Else
+                Data = Array() 'No records ... return empty array
+            End If
+            .Close
+        End With
+    End If
+    Set rs = Nothing
+    
+    RecordArray = Data
 End Function
 Public Sub SelectAllText()
     On Error GoTo errHandler
@@ -330,7 +378,7 @@ End Function
 Public Function fnDataExists(SQL As String) As Boolean
     Dim rsTemp As Recordset
     
-    fnDataExists = fnRecordset(rsTemp, SQL)
+    fnDataExists = fnRecordset(rsTemp, SQL) > 0
     
     Set rsTemp = Nothing
 End Function
@@ -342,24 +390,24 @@ Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 End Function
 
 Public Sub subDropTable(TableName As String)
-    Dim sSQL As String
+    Dim sSql As String
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
+    sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSQL, , , False
+    fnExecSQL sSql, , , False
     
 End Sub
 
 Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSQL As String
+    Dim sSql As String
     Dim rsTemp As Recordset
     
-    sSQL = SQLParm(SQL_TABLE_EXISTS, _
+    sSql = SQLParm(SQL_TABLE_EXISTS, _
                           "@table", TableName)
                           
-    If fnRecordset(rsTemp, sSQL) > 0 Then
+    If fnRecordset(rsTemp, sSql) > 0 Then
         fnTableExists = True
     End If
     
@@ -512,3 +560,6 @@ Public Function GetField(field As Variant) As String
     
 End Function
 
+Public Sub SendTab()
+    SendKeys "{TAB}"
+End Sub
