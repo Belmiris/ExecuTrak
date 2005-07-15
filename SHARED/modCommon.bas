@@ -158,7 +158,9 @@ End Function
 ' Author    : DenBorg
 ' Purpose   : Returns records generated from SQL statement in a 2-dimensional array.
 '             First Index represents the Field; Second Index represents the Row.
-'
+'             If there were no records, UBound() returns -1
+'             If there was an error accessing the database, EMPTY is returned instead
+'             of an array.
 '---------------------------------------------------------------------------------------
 '
 Public Function RecordArray(SQL As String) As Variant
