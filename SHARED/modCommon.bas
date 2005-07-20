@@ -41,16 +41,36 @@ Public Const VK_MBUTTON = &H4
 Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
 
+Function IsLeapYear(ByVal YearDate As Variant) As Boolean
+    Dim LeapYear As Boolean
+    
+    If IsDate(YearDate) Then
+        'Convert to just year
+        YearDate = Year(YearDate)
+    End If
+    
+    If YearDate Mod 4 = 0 Then
+        If YearDate Mod 100 = 0 Then
+            If YearDate Mod 400 = 0 Then
+                LeapYear = True
+            End If
+        Else
+            LeapYear = True
+        End If
+    End If
+    
+    IsLeapYear = LeapYear
+End Function
 Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Variant)
     Dim Index As Long
     
@@ -197,12 +217,12 @@ End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
     With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hwnd, GWL_STYLE, Style
+        SetWindowLong .hWnd, GWL_STYLE, Style
     End With
 End Sub
 Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArray AppendValues() As Variant)
