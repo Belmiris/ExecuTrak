@@ -192,7 +192,7 @@ Public Function RecordArray(SQL As String) As Variant
     If RecCount >= 0 Then
         With rs
             If RecCount > 0 Then
-                Data = .GetRows()
+                Data = .GetRows(RecCount)
             Else
                 Data = Array() 'No records ... return empty array
             End If
