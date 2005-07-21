@@ -102,12 +102,17 @@ End Function
 
 '// Computes the discount due date
 'david 04/28/2005  #479149
+'change Private to Public
 Public Function fnComputeDueDate(dInvDate As Date, strOperator As Variant, vDays As Variant) As Date
 
     Dim sMonth As String
     Dim sYear As String
     Dim nDays As Integer
     Dim dDueDate As Date
+    
+    'david 04/28/2005  #479149
+    Dim nMonthToAdd As Integer
+    ''''''''''''''''''''''''''
     
     dDueDate = dInvDate
     
@@ -118,21 +123,32 @@ Public Function fnComputeDueDate(dInvDate As Date, strOperator As Variant, vDays
         Exit Function
     End If
     
-    nDays = Val(vDays)
+    nDays = val(vDays)
 
     strOperator = Left(strOperator, 1)
     Select Case strOperator
-        
-        Case "+":
+        Case "+"
             dDueDate = DateAdd("d", nDays, dDueDate)
-        Case "=":
+        'david 04/28/2005  #479149
+        Case "=", "2"
             If nDays < 1 Then
                 nDays = 1
             End If
             If nDays > 31 Then
                 nDays = 31
             End If
-            dDueDate = DateAdd("m", 1, dDueDate)
+            
+            'david 04/28/2005  #479149
+            Select Case strOperator
+                Case "2"
+                    nMonthToAdd = 2
+                Case Else
+                    nMonthToAdd = 1
+            End Select
+            
+            dDueDate = DateAdd("m", nMonthToAdd, dDueDate)
+            ''''''''''''''''''''''''''
+            
             sMonth = CStr(Month(dDueDate)) & "/"
             sYear = "/" & CStr(Year(dDueDate))
             On Error GoTo errTooManyDays
