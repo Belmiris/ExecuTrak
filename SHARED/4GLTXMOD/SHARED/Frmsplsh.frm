@@ -674,7 +674,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As TextBox) As Boolean
+Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -683,7 +683,7 @@ Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As TextBox)
+Private Sub subSelectText(txtBox As Textbox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -871,7 +871,7 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub btnHelp_Click()
-    WinHelp Me.hWnd, szHelpFileName, HELP_CONTENTS, CLng(0)
+    WinHelp Me.hwnd, szHelpFileName, HELP_CONTENTS, CLng(0)
 End Sub
 
 Private Sub btnOK_Click()
@@ -1153,6 +1153,10 @@ Private Function fnConnectString(sDSN As String) As String
     Dim sTemp As String
     Dim sODBCKey As String
     Dim sDatabase As String
+    
+    '#429933 - DenBorg - 7/21/2005
+    'm_sODBC_INI_Path and m_lODBC_INI_Key was not being initialized
+    fnSetODBCINIPath sDSN
     
     sODBCKey = m_sODBC_INI_Path & sDSN
     m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
