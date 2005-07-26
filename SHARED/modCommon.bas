@@ -31,7 +31,7 @@ Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -118,7 +118,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
+                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
                 rs.MoveNext
             Loop
         End If
@@ -155,9 +155,9 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
-Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
-    If Not IsNull(value) Then
-        Nz = value
+Public Function Nz(ByVal Value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
+    If Not IsNull(Value) Then
+        Nz = Value
     Else
         Nz = ValueIfNull
     End If
@@ -225,6 +225,42 @@ Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Opt
         SetWindowLong .hWnd, GWL_STYLE, Style
     End With
 End Sub
+'---------------------------------------------------------------------------------------
+' Procedure : SQL_FieldValue
+' DateTime  : 7/26/2005 11:24
+' Author    : DenBorg
+'
+' Purpose   : This function is used when building Strings containing SQL Statements,
+'             such as in an UPDATE statement in which you set the value of various fields.
+'
+'             This function returns the Value with Quotes (if applicable) if Value is
+'             not Null. If the Value *is* Null, then it returns the string "NULL". It
+'             will optionally append a comma at the end.
+'---------------------------------------------------------------------------------------
+'
+Public Function SQL_FieldValue(Value As Variant, DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False) As String
+    Dim FV    As String
+    Dim Quote As String
+    
+    Select Case DataType
+        Case dbChar, dbGUID, dbText
+            Quote = "'"
+        Case dbDate, dbTime, dbTimeStamp
+            Quote = "'"
+    End Select
+
+    If Not IsNull(Value) Then
+        FV = Quote & Value & Quote
+    Else
+        FV = "NULL"
+    End If
+    
+    If AppendComma Then
+        FV = FV & ","
+    End If
+    
+    SQL_FieldValue = FV
+End Function
 Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArray AppendValues() As Variant)
     If LenB(Delimeter) = 0 Then
         Delimeter = ","
