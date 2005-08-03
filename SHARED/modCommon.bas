@@ -51,6 +51,35 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
+'------------------------------------------------------------------------------------------
+' Procedure : ArrayValueIndex
+' DateTime  : 7/29/2005 11:36
+' Author    : DenBorg
+'
+' Purpose   : This function looks up SearchValue in the column identified by SearchColumn
+'             of DataArray and returns the Row Index where that value was found. If the
+'             value is NOT found, then -1 is returned.
+'
+' **NOTE**  : This function works with zero-based arrays whose dimensions are (Column, Row),
+'             instead of the traditional (Row, Column).
+'------------------------------------------------------------------------------------------
+'
+Public Function ArrayValueIndex(DataArray As Variant, ByVal SearchColumn As Long, ByVal SearchValue As Variant) As Long
+    Dim SearchRow As Long 'Row Index where SearchValue is found; -1 if not found.
+    Dim Row       As Long
+    
+    SearchRow = -1 'Assume SearchValue is not found
+    Do While Row <= UBound(DataArray, 2)
+        If DataArray(SearchColumn, Row) = SearchValue Then
+            SearchRow = Row
+            Exit Do
+        End If
+        
+        Row = Row + 1
+    Loop
+    
+    ArrayValueIndex = Row
+End Function
 Function IsLeapYear(ByVal YearDate As Variant) As Boolean
     Dim LeapYear As Boolean
     
