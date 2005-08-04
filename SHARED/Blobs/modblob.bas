@@ -6,13 +6,13 @@ Attribute VB_Name = "modBlob"
 '# uses b64c.exe (from b64c.c)
 '#
 '# Requires table(s) in the following format:
-'#create table blob_dunning_hdr
+'#create table sys_b_ar_dun_hdr
 '#(
 '#id serial,
 '#Desc Char(20)
 '#);
 '#
-'#create table blob_dunning_det
+'#create table sys_b_ar_dun_det
 '#(
 '#ser_lnk integer,
 '#seq integer,
@@ -21,9 +21,9 @@ Attribute VB_Name = "modBlob"
 '#
 '# Per Howard, we need a uniform table prefix since field names will be
 '# the same (no unique field prefix).  The table prefix for blobs will be
-'# "blob", so all tables will be as the following for dunning letter templates:
-'# blob_dunning_hdr
-'# blob_dunning_det
+'# "sys_b_", so all tables will be as the following for dunning letter templates:
+'# sys_b_ar_dun_hdr
+'# sys_b_ar_dun_det
 '#
 '#The only table this library cares about is blob det.  ser_lnk links to a
 '# record somewhere used to describe the blob.  seq keeps the lines in sequence,
@@ -32,6 +32,23 @@ Attribute VB_Name = "modBlob"
 '# Also requires standard ExecuTrak Template environment (and DAO et al)
 '##############################################################################
 Option Explicit
+
+Const SYNCHRONIZE = &H100000
+Const INFINITE = &HFFFF 'Infinit wait time in WaitForSingleObject
+Const WAIT_OBJECT_0 = 0 'State to watch for
+Const WAIT_TIMEOUT = &H102 'The time-out interval
+
+'Used to get handle on process
+Private Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, _
+            ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
+'waits on handle
+Private Declare Function WaitForSingleObject Lib "kernel32" (ByVal hHandle As Long, _
+            ByVal dwMilliseconds As Long) As Long
+'closes handle
+Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
+
+
+         
 '##############################################################################
 '# Function: SaveBlob
 '# Author: Robert Atwood
@@ -50,7 +67,7 @@ Option Explicit
 '#  NOTE: There should be a unique index on ser_lnk and seq
 '##############################################################################
 Function SaveBlob(sFileName As String, sTableName As String, lID As Long, _
-                  bOverWrite As Boolean)
+                  bOverWrite As Boolean) As Boolean
     Dim sCommand As String
     Dim bSuccess As Boolean
     Dim sFileNameTarg As String
@@ -59,6 +76,8 @@ Function SaveBlob(sFileName As String, sTableName As String, lID As Long, _
     Dim strSQL As String
     Dim sTempLine As String
     Dim rsTemp As Recordset
+    Dim dB64taskID As Double
+    
     On Error GoTo ErrorOut
     
     bSuccess = False
@@ -69,16 +88,10 @@ Function SaveBlob(sFileName As String, sTableName As String, lID As Long, _
     
     If bSuccess = True Then
         sCommand = """" + App.Path + "\b64.exe"" -e """ + sFileName + """ """ + sFileNameTarg + """"
-        If Shell(sCommand) < 1 Then
-            '#Failed to execute
-            bSuccess = False
-        Else
-            bSuccess = True
-        End If
+        bSuccess = ShellExecAndWait(sCommand)
     End If
-
     If bSuccess Then
-        '#Delete existing entries, if any, if in overwrite mode
+        'Delete existing entries, if any, if in overwrite mode
         If bOverWrite Then
             strSQL = "delete from " & sTableName & " where ser_lnk=" & _
                               Str(lID)
@@ -118,11 +131,13 @@ Function SaveBlob(sFileName As String, sTableName As String, lID As Long, _
     End If
     SaveBlob = bSuccess
     Kill sFileNameTarg
-    CleanUp (rsTemp)
+    CleanUp rsTemp
 Exit Function
 ErrorOut:
-    bSuccess = False
-    Kill sFileNameTarg
+    SaveBlob = False
+    If Dir(sFileNameTarg) <> "" Then
+        Kill sFileNameTarg
+    End If
     CleanUp rsTemp
     On Error GoTo 0
 End Function
@@ -141,7 +156,7 @@ End Function
 '#  lID (double), ID number to store to
 '#  Returns: Boolean (True for success, false for failure)
 '##############################################################################
-Function GetBlob(sFileName As String, sTableName As String, lID As Long)
+Function GetBlob(sFileName As String, sTableName As String, lID As Long) As Boolean
     Dim sCommand As String
     Dim bSuccess As Boolean
     Dim sSourceFileName As String
@@ -149,6 +164,7 @@ Function GetBlob(sFileName As String, sTableName As String, lID As Long)
     Dim nFilePointer As Integer
     Dim lRowCount As Integer
     Dim strSQL As String
+    Dim dB64ProcID As Double
     
     bSuccess = False
 On Error GoTo ErrorOut
@@ -176,21 +192,18 @@ On Error GoTo ErrorOut
         '# Eyebrowse are for VB quote excape.
         sCommand = """" + App.Path + "\b64.exe"" -d """ + sSourceFileName + """ """ + sFileName + """"
         '# Run b64c.exe from appdir
-        If Shell(sCommand) < 1 Then
-            '#Failed to execute
-            bSuccess = False
-        Else
-            bSuccess = True
-        End If
-    '# Open file and start inserting...
+        bSuccess = ShellExecAndWait(sCommand)
     End If
     GetBlob = bSuccess
     Kill sSourceFileName
-    CleanUp (rsTemp)
+    CleanUp rsTemp
     Exit Function
 ErrorOut:
-    bSuccess = False
-    Kill sSourceFileName
+    GetBlob = False
+    If Dir(sSourceFileName) <> "" Then
+        Kill sSourceFileName
+    End If
+        
     CleanUp rsTemp
     On Error GoTo 0
 
@@ -204,7 +217,7 @@ End Function
 '#  lID (double), ID number of blob to delete
 '#  Returns: Boolean (True for success, false for failure)
 '##############################################################################
-Function DeleteBlob(sFileName As String, sTableName As String, lID As Long)
+Function DeleteBlob(sFileName As String, sTableName As String, lID As Long) As Boolean
     Dim strSQL As String
     Dim bSuccess As Boolean
     bSuccess = False
@@ -214,9 +227,35 @@ On Error GoTo ErrorOut
     DeleteBlob = bSuccess
     Exit Function
 ErrorOut:
-    bSuccess = False
+    DeleteBlob = False
 End Function
-
+'###############################################################################
+'# Function ShellExecAndWait- launches process through shell command
+'#                            and uses Kernel32 api calls to monitor
+'###############################################################################
+Private Function ShellExecAndWait(sCmd As String) As Boolean
+    Dim lPid As Long
+    Dim lHnd As Long
+    Dim lRet As Long
+    On Error GoTo ErrorOut
+    lPid = Shell(sCmd)
+    If lPid <> 0 Then
+        'Get a handle to the shelled process.
+        lHnd = OpenProcess(SYNCHRONIZE, 0, lPid)
+        'If successful, wait for the application to end and close the handle.
+        If lHnd <> 0 Then
+                lRet = WaitForSingleObject(lHnd, INFINITE)
+                CloseHandle (lHnd)
+                ShellExecAndWait = True
+        Else
+            'Lack of handle means there's a problem, return False
+            ShellExecAndWait = False
+        End If
+    End If
+    Exit Function
+ErrorOut:
+    ShellExecAndWait = False
+End Function
 '###############################################################################
 '# ModBlobExecuteSQL- included because we can't #$@! count on standard execution
 '#                  function in these @#!$ programs
@@ -261,7 +300,7 @@ SQLError:
         bShowErrow = True
     End If
     ModBlobGetRecordSet = -1
-    tfnErrHandler "GetRecordSet," & szCalledFrom, szSQL, bShowErrow
+    tfnErrHandler "ModBlobGetRecordSet," & szCalledFrom, szSQL, bShowErrow
     On Error GoTo 0
 End Function
 
