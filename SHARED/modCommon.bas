@@ -78,7 +78,7 @@ Public Function ArrayValueIndex(DataArray As Variant, ByVal SearchColumn As Long
         Row = Row + 1
     Loop
     
-    ArrayValueIndex = Row
+    ArrayValueIndex = SearchRow
 End Function
 Function IsLeapYear(ByVal YearDate As Variant) As Boolean
     Dim LeapYear As Boolean
