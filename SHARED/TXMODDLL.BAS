@@ -2239,7 +2239,7 @@ End Sub
 '#(2)Call this sub at the end of "Delivery and Lading OK click" code
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When field cTaxBasis (local
-'#   mtaxdetail) is in every user's PC, we can remove the "temp patch".
+'#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
 Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -2621,10 +2621,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         End If
     Next
     
-    'Adjusting Tax Amount in minvoice local table
+    'Adjusting Tax Amount in MInvoice local table
     'Vijaya on 12/06/04 Magic#465810
-    'Update the Field in minvoice.fTotalTax (Local)
-    strSQL = "SELECT lMovement,lDelivery,SUM(fTaxAmount) as dTxAmt FROM mtaxdetail"
+    'Update the Field in MInvoice.fTotalTax (Local)
+    strSQL = "SELECT lMovement,lDelivery,SUM(fTaxAmount) as dTxAmt FROM MTaxDetail"
     strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery"
@@ -2634,7 +2634,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     If rsTemp.RecordCount > 0 Then
         While Not rsTemp.EOF
-            strSQL = "UPDATE minvoice SET fTotalTax =" & tfnRound(rsTemp!dTxAmt, 2)
+            strSQL = "UPDATE MInvoice SET fTotalTax =" & tfnRound(rsTemp!dTxAmt, 2)
             strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
             txMod_ExeCuteSQL strSQL, , , m_local
@@ -2642,10 +2642,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         Wend
     End If
     
-    'Adjusting Tax Amount in minvoiceline local table
-    'Update the Field in minvoiceline.fSalesTax (Local)
+    'Adjusting Tax Amount in MInvoiceLine local table
+    'Update the Field in MInvoiceLine.fSalesTax (Local)
     strSQL = "SELECT lMovement,lDelivery,lLineNumber,SUM(fTaxAmount) as dTxAmt"
-    strSQL = strSQL & " FROM mtaxdetail"
+    strSQL = strSQL & " FROM MTaxDetail"
     strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery,lLineNumber"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery,lLineNumber"
@@ -2655,7 +2655,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     If rsTemp.RecordCount > 0 Then
         While Not rsTemp.EOF
-            strSQL = "UPDATE minvoiceline SET fSalesTax =" & tfnRound(rsTemp!dTxAmt, 2)
+            strSQL = "UPDATE MInvoiceLine SET fSalesTax =" & tfnRound(rsTemp!dTxAmt, 2)
             strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
             strSQL = strSQL & " AND lLineNumber =" & tfnRound(rsTemp!lLineNumber)
@@ -2797,6 +2797,13 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     Dim gal_wrk         As Double
     Dim x               As Integer
     Dim y               As Integer
+    'david 08/04/2005  #489634
+    Dim txlf1           As Double
+    Dim txlf2           As Double
+    Dim txlf3           As Double
+    Dim txlf4           As Double
+    Dim txlf_increment  As Double
+    ''''''''''''''''''''''''''
 
     '# New variables to loads of 10,000+
     Dim low_end         As Long
@@ -2850,6 +2857,36 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gas_gals = 0
     dsl_gals = 0
     x = -1
+    'david 08/04/2005  #489634
+    txlf1 = 0#
+    txlf2 = 0#
+    txlf3 = 0#
+    txlf4 = 0#
+    txlf_increment = 0#
+    
+    If t_tax_date < CDate("9/1/2005") Then
+        txlf1 = 10#
+        txlf2 = 20#
+        txlf3 = 30#
+        txlf4 = 40#
+        txlf_increment = 20#
+    ElseIf t_tax_date >= CDate("9/1/2005") And t_tax_date < CDate("9/1/2006") Then
+        txlf1 = 5#
+        txlf2 = 10#
+        txlf3 = 15#
+        txlf4 = 20#
+        txlf_increment = 10#
+    ElseIf t_tax_date >= CDate("9/1/2006") And t_tax_date < CDate("9/1/2007") Then
+        txlf1 = 2#
+        txlf2 = 4#
+        txlf3 = 6#
+        txlf4 = 8#
+        txlf_increment = 4#
+    Else  'if t_tax_date >= CDate("9/1/2007")
+        'set to zero
+    End If
+    ''''''''''''''''''''''''''
+    
     ReDim Preserve aryLDF(ldf_cnt + 10)
     
     Do While True
@@ -2870,22 +2907,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = 10#
+                atax_inv = txlf1
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = 20#
+                atax_inv = txlf2
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = 30#
+                atax_inv = txlf3
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = 40#
+                atax_inv = txlf4
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = 20#
-                atax_inv = 40#
+                incr_amt = txlf_increment
+                atax_inv = txlf4
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -2939,22 +2976,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = 10#
+                atax_inv = txlf1
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = 20#
+                atax_inv = txlf2
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = 30#
+                atax_inv = txlf3
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = 40#
+                atax_inv = txlf4
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = 20#
-                atax_inv = 40#
+                incr_amt = txlf_increment
+                atax_inv = txlf4
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -3132,7 +3169,10 @@ Private Sub subProrateBOLATax(ByVal lBOL As Long, _
                                 If .m_Taxes(i).m_cCharge <> vbKeyN Then
                                     If .m_Taxes(i).m_cBasis = vbKeyA Then
                                             If .m_Taxes(i).m_dAmount <> 0 Then
-                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                'david 08/08/2005  #489634
+                                                'fixed rounding problem
+                                                '.m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, DEFAULT_DECIMALS)
                                                 sTaxState = .m_Taxes(i).m_sWhere
                                             End If
                                     End If
