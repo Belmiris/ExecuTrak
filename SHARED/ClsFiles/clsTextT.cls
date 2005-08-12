@@ -1,9 +1,15 @@
 VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
 END
 Attribute VB_Name = "clsTextTip"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '***********************************************************'
 '
@@ -200,7 +206,7 @@ End Property
 Property Get GetStyleExt() As Integer
     GetStyleExt = STYLE_EXT_TEXT
 End Property
-Private Sub subGetLeftTop(nLeft As Single, nTop As Single, ByVal nParenthWnd As Integer, ByVal n_hWnd As Integer)
+Private Sub subGetLeftTop(nLeft As Single, nTop As Single, ByVal nParenthWnd As Long, ByVal n_hWnd As Long)
     
     Dim myRect As RECT
     Dim myPoint As POINTAPI
