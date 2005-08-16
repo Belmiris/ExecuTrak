@@ -2241,7 +2241,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When field cTaxBasis (local
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2798,13 +2798,6 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     Dim gal_wrk         As Double
     Dim x               As Integer
     Dim y               As Integer
-    'david 08/04/2005  #489634
-    Dim txlf1           As Double
-    Dim txlf2           As Double
-    Dim txlf3           As Double
-    Dim txlf4           As Double
-    Dim txlf_increment  As Double
-    ''''''''''''''''''''''''''
 
     '# New variables to loads of 10,000+
     Dim low_end         As Long
@@ -2858,36 +2851,6 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gas_gals = 0
     dsl_gals = 0
     x = -1
-    'david 08/04/2005  #489634
-    txlf1 = 0#
-    txlf2 = 0#
-    txlf3 = 0#
-    txlf4 = 0#
-    txlf_increment = 0#
-    
-    If t_tax_date < CDate("9/1/2005") Then
-        txlf1 = 10#
-        txlf2 = 20#
-        txlf3 = 30#
-        txlf4 = 40#
-        txlf_increment = 20#
-    ElseIf t_tax_date >= CDate("9/1/2005") And t_tax_date < CDate("9/1/2006") Then
-        txlf1 = 5#
-        txlf2 = 10#
-        txlf3 = 15#
-        txlf4 = 20#
-        txlf_increment = 10#
-    ElseIf t_tax_date >= CDate("9/1/2006") And t_tax_date < CDate("9/1/2007") Then
-        txlf1 = 2#
-        txlf2 = 4#
-        txlf3 = 6#
-        txlf4 = 8#
-        txlf_increment = 4#
-    Else  'if t_tax_date >= CDate("9/1/2007")
-        'set to zero
-    End If
-    ''''''''''''''''''''''''''
-    
     ReDim Preserve aryLDF(ldf_cnt + 10)
     
     Do While True
@@ -2908,22 +2871,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = txlf1
+                atax_inv = 10#
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = txlf2
+                atax_inv = 20#
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = txlf3
+                atax_inv = 30#
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = txlf4
+                atax_inv = 40#
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = txlf_increment
-                atax_inv = txlf4
+                incr_amt = 20#
+                atax_inv = 40#
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -2977,22 +2940,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = txlf1
+                atax_inv = 10#
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = txlf2
+                atax_inv = 20#
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = txlf3
+                atax_inv = 30#
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = txlf4
+                atax_inv = 40#
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = txlf_increment
-                atax_inv = txlf4
+                incr_amt = 20#
+                atax_inv = 40#
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -3524,7 +3487,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -3563,7 +3526,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
