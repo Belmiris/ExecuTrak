@@ -2208,7 +2208,8 @@ Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
         'old dll
         If Not bAlreadyShowMsg Then
             bAlreadyShowMsg = True
-            MsgBox "In order to use Single Article Taxes, the latest version of TXMOD32.DLL is required.", vbExclamation
+            'david 08/11/2005  per Tom, we don't need to show this message
+            'MsgBox "In order to use Single Article Taxes, the latest version of TXMOD32.DLL is required.", vbExclamation
         End If
     End If
     
@@ -2240,7 +2241,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When field cTaxBasis (local
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2756,13 +2757,13 @@ Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
                           ByVal dv_line As Long, _
                           ByVal bunits As Long, _
                           ByVal atax As Double, _
-                          ByVal prodlnk As Long, _
+                          ByVal ProdLnk As Long, _
                           ByVal sIE As String)
     Dim rsTemp As Recordset
     Dim sClass As String
     Dim strSQL As String
     
-    strSQL = "SELECT * FROM inv_header WHERE ivh_link = " & prodlnk
+    strSQL = "SELECT * FROM inv_header WHERE ivh_link = " & ProdLnk
     Set rsTemp = txMod_OpenRecord(strSQL)
     If rsTemp Is Nothing Then
         sClass = "*****"
@@ -2776,7 +2777,7 @@ Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
     
     aryLDF(ldf_cnt).dv_nbr = dv_nbr
     aryLDF(ldf_cnt).dv_line = dv_line
-    aryLDF(ldf_cnt).dv_prodlnk = prodlnk
+    aryLDF(ldf_cnt).dv_prodlnk = ProdLnk
     aryLDF(ldf_cnt).dv_prodtcl = sClass
     aryLDF(ldf_cnt).dv_vol = bunits
     aryLDF(ldf_cnt).dv_atax = atax
@@ -3523,7 +3524,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -3562,7 +3563,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
