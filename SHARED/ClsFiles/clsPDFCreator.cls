@@ -238,7 +238,7 @@ Private arrOBJECT() As ObjDescriptor
 Private arrFONT() As FontDescriptor
 
 Private m_strSourceFile As String
-Private m_strTargetFiler As String
+Private m_strTargetFile As String
 Private m_strFontname As String
 Private m_intRPP As Long
 Private m_intFontSize As Single
@@ -251,13 +251,20 @@ Private Sub Class_Initialize()
   
   mvarFileNumber = 0
   mvarEncodeASCII85 = False
-  Title = "(senza titolo)"
+  Title = ""
   ScaleMode = pdf72PxInch
   PaperSize = pdfA4
   Orientation = pdfPortrait
   Margin = 0
   mvarPages = 0
   intUsedFont = 0
+ 
+m_strSourceFile = ""
+m_strTargetFile = ""
+m_strFontname = "Courier New"
+m_intRPP = 66
+m_intFontSize = 6.5
+m_PageBreakBefore = ""
  
 End Sub
 
@@ -532,10 +539,10 @@ Public Sub DrawText(x As Single, y As Single, _
     Case pdfAlignLeft
     
     Case pdfAlignRight
-      l = Length(strTemp, FontName, FontSize)
+      l = length(strTemp, FontName, FontSize)
       x = x - l
     Case pdfCenter
-      l = Length(strTemp, FontName, FontSize)
+      l = length(strTemp, FontName, FontSize)
       x = x - l / 2
   End Select
   
@@ -559,33 +566,33 @@ End Sub
 
 '
 Public Sub SetColorStroke(rgb As Long)
-  Dim R As Byte
+  Dim r As Byte
   Dim G As Byte
-  Dim B As Byte
+  Dim b As Byte
   
   If (rgb <= 0) And (rgb >= -255) Then
     WriteObj ToStr(-rgb / 255) & " G"
   Else
-    R = (rgb Mod 256)
+    r = (rgb Mod 256)
     G = ((rgb \ 256) Mod 256)
-    B = ((rgb \ 65536) Mod 256)
-    WriteObj ToStr(R / 255) & " " & ToStr(G / 255) & " " & ToStr(B / 255) & " RG"
+    b = ((rgb \ 65536) Mod 256)
+    WriteObj ToStr(r / 255) & " " & ToStr(G / 255) & " " & ToStr(b / 255) & " RG"
   End If
 End Sub
 
 '
 Public Sub SetColorFill(rgb As Long)
-  Dim R As Byte
+  Dim r As Byte
   Dim G As Byte
-  Dim B As Byte
+  Dim b As Byte
   
   If (rgb <= 0) And (rgb >= -255) Then
     WriteObj ToStr(-rgb / 255) & " g"
   Else
-    R = (rgb Mod 256)
+    r = (rgb Mod 256)
     G = ((rgb \ 256) Mod 256)
-    B = ((rgb \ 65536) Mod 256)
-    WriteObj ToStr(R / 255) & " " & ToStr(G / 255) & " " & ToStr(B / 255) & " rg"
+    b = ((rgb \ 65536) Mod 256)
+    WriteObj ToStr(r / 255) & " " & ToStr(G / 255) & " " & ToStr(b / 255) & " rg"
   End If
 End Sub
 
@@ -671,12 +678,12 @@ Public Sub Rectangle(x As Single, y As Single, _
 End Sub
 
 '
-Public Sub Curve(x1 As Single, y1 As Single, _
+Public Sub Curve(X1 As Single, Y1 As Single, _
                  X2 As Single, Y2 As Single, _
                  X3 As Single, Y3 As Single, _
                  Optional Options As pdfPathOptions = pdfPathOptions.Stroked)
 
-  WriteObj ToStr(ToSpace(x1)) & " " & ToStr(ToSpace(y1)) & " " & _
+  WriteObj ToStr(ToSpace(X1)) & " " & ToStr(ToSpace(Y1)) & " " & _
            ToStr(ToSpace(X2)) & " " & ToStr(ToSpace(Y2)) & " " & _
            ToStr(ToSpace(X3)) & " " & ToStr(ToSpace(Y3)) & " c"
   Call Path(Options)
@@ -712,8 +719,8 @@ Public Sub Arc(x As Single, y As Single, _
   Dim sTeta As Single
   Dim cTeta As Single
   Dim C As Single
-  Dim x1, X2 As Single
-  Dim y1, Y2 As Single
+  Dim X1, X2 As Single
+  Dim Y1, Y2 As Single
   
   WriteObj "n"
   MoveTo x, y
@@ -728,10 +735,10 @@ Public Sub Arc(x As Single, y As Single, _
     X2 = Ray * Cos(rad)
     Y2 = (Ray * Ratio) * sIn(rad)
     
-    x1 = X2 * cTeta + Y2 * sTeta
-    y1 = -X2 * sTeta + Y2 * cTeta
-    If (i = StartAngle) And (Not Pie) Then MoveTo x + x1, y + y1
-    LineTo x + x1, y + y1, Nil
+    X1 = X2 * cTeta + Y2 * sTeta
+    Y1 = -X2 * sTeta + Y2 * cTeta
+    If (i = StartAngle) And (Not Pie) Then MoveTo x + X1, y + Y1
+    LineTo x + X1, y + Y1, Nil
   Next
     
   If Pie Then LineTo x, y, Nil
@@ -1033,7 +1040,7 @@ Private Function ToStr(Valore As Variant, Optional Dec As Integer = 3) As String
 End Function
 
 
-Public Function Length(Phrase As String, FontName As String, FontSize As Single) As Single
+Public Function length(Phrase As String, FontName As String, FontSize As Single) As Single
 
   Dim k As Single
   Dim i As Integer
@@ -1060,7 +1067,7 @@ Public Function Length(Phrase As String, FontName As String, FontSize As Single)
         If C = 32 Then j = j + 1 ' conta gli spazi
       Next
     End With
-    Length = ToUser(((k * FontSize / 1000) + _
+    length = ToUser(((k * FontSize / 1000) + _
                      (j * mvarWordSpacing) + _
                      (l * mvarCharSpacing)) * _
                      (mvarTextScaling / 100))
@@ -1596,11 +1603,11 @@ Public Property Let SourceFile(ByVal vNewValue As Variant)
 End Property
 
 Public Property Get TargetFile() As Variant
-    TargetFile = m_strTargetFiler
+    TargetFile = m_strTargetFile
 End Property
 
 Public Property Let TargetFile(ByVal vNewValue As Variant)
-    m_strTargetFiler = vNewValue
+    m_strTargetFile = vNewValue
 End Property
 
 Public Property Get RecordsPerPage() As Variant
@@ -1661,12 +1668,12 @@ Public Function CreatePDFFile() As String
     Dim sName As String
     Dim nPosi As Integer
     
-    nPosi = InStrRev(m_strSourceFile, "\")
+    nPosi = InStrRev(m_strTargetFile, "\")
     
     If nPosi > 0 Then
-        sName = Mid(m_strSourceFile, nPosi + 1)
+        sName = Mid(m_strTargetFile, nPosi + 1)
     Else
-        sName = m_strSourceFile
+        sName = m_strTargetFile
     End If
     
     Title = sName
@@ -1676,7 +1683,7 @@ Public Function CreatePDFFile() As String
     Orientation = pdfPortrait
     
     'open the pdf file
-    InitPDFFile m_strTargetFiler
+    InitPDFFile m_strTargetFile
     
     LoadFont "Fnt3", m_strFontname
     LoadFontStandard "Fnt4", m_strFontname, pdfBoldItalic
@@ -1714,7 +1721,9 @@ Public Function CreatePDFFile() As String
                     i = 1
                 End If
             End If
-        ElseIf i > m_intRPP Then
+        End If
+        
+        If i > m_intRPP Then
             bStartPage = True
             dLinePosition = dTop + dLineIncr
             i = 1
