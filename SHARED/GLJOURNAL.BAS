@@ -11,6 +11,10 @@ Option Explicit
 
 Public NewGLEntryNum As Long
 
+Public frmMain As Form
+Private Const LocalDB As Integer = 0
+Private Const RemoteDB As Integer = 1
+
 'Private iIndex As Integer                            'index used for everything
 Private lNewBatchNbr As Long                         'number determined to be the next batch number available
 Public iHoldRefPd As Integer
@@ -458,7 +462,7 @@ Private Function fnGetTransNumber() As Boolean
     
     Dim szSQLStmt As String
     Dim szSQLStmtStatic As String
-    Dim bcheck As Boolean
+    Dim bCheck As Boolean
     Dim bError As Boolean
     
     bError = False
@@ -474,7 +478,7 @@ Private Function fnGetTransNumber() As Boolean
         Exit Function
     End If
     
-    bcheck = True
+    bCheck = True
     szSQLStmtStatic = "SELECT count (*) nCount " _
               & "FROM sys_data_lock WHERE sdl_prog = 'glegjrnl'"
               
@@ -483,7 +487,7 @@ Private Function fnGetTransNumber() As Boolean
         szSQLStmt = szSQLStmtStatic & " and sdl_data = '" & Trim(Str(lNewBatchNbr)) & "'"
 
         If fnCheckTblForOneOrMoreRecords(szSQLStmt, "sys_data_lock", True, bError) Then
-           bcheck = True                            'Set value of flag to False.
+           bCheck = True                            'Set value of flag to False.
            lNewBatchNbr = lNewBatchNbr + 1          'up the new journal number by one each time through
         Else
             If bError Then         'there was a problem reading table
@@ -491,9 +495,9 @@ Private Function fnGetTransNumber() As Boolean
                 Exit Function
             End If
                     
-            bcheck = False      'good number found
+            bCheck = False      'good number found
         End If
-    Loop Until bcheck = False                'Exit loop immediately
+    Loop Until bCheck = False                'Exit loop immediately
     
     If fnWriteNewBatchNbr() Then
         fnGetTransNumber = True
@@ -778,7 +782,9 @@ SUBMIT_IT:
     If rsProc.Fields(0) = 0 Then    'record is locked by someone else
         If ncounter < 1000 Then
             ncounter = ncounter + 1
-            frmMain.tfnSetStatusBarMessage "Waiting for locked record. Please wait..."
+            If Not frmMain Is Nothing Then
+                frmMain.tfnSetStatusBarMessage "Waiting for locked record. Please wait..."
+            End If
             GoTo SUBMIT_IT
         Else
             tfnErrHandler SUB_NAME, szProcSQL, rsProc.Fields(rsProc.Fields.Count - 1), False
@@ -799,7 +805,9 @@ SUBMIT_IT:
             End If
         End If
     Else
-        frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+        If Not frmMain Is Nothing Then
+            frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+        End If
         fnUpdateGLMaster = True
     End If
     
@@ -942,7 +950,9 @@ Private Function fnAccumNPost() As Boolean
                 End If
                 
                 fnBuildTheAmount dEntryAccum           'load the period bucket being posted
-                frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+                If Not frmMain Is Nothing Then
+                    frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+                End If
 
                 If fnUpdateGLMaster(vPostingPC, vPostingAccount, szHoldSeries) Then
                    fnWriteBackoutEntry vPostingPC, vPostingAccount, szHoldSeries
@@ -982,7 +992,9 @@ Private Function fnAccumNPost() As Boolean
             End If
             
             fnBuildTheAmount dEntryAccum           'load the period bucket being posted
-            frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+            If Not frmMain Is Nothing Then
+                frmMain.tfnSetStatusBarMessage "Processing Journal Entries. Please wait..."
+            End If
 
             If fnUpdateGLMaster(vPostingPC, vPostingAccount, szHoldSeries) Then
                fnWriteBackoutEntry vPostingPC, vPostingAccount, szHoldSeries
@@ -1006,8 +1018,10 @@ ERROR_ROUTINE:
     MsgBox "Entries will now be backed out", vbCritical
     
     If fnReverseEntries Then
-       frmMain.tfnSetStatusBarError "Entries have been backed out. Advise you cancel and try again"
-       GoTo RETURN_HERE
+        If Not frmMain Is Nothing Then
+            frmMain.tfnSetStatusBarError "Entries have been backed out. Advise you cancel and try again"
+        End If
+        GoTo RETURN_HERE
     Else
        subCrashIt
        GoTo RETURN_HERE
@@ -1199,6 +1213,37 @@ Private Function fnValidateGLs() As Boolean
     End If
     
     fnValidateGLs = True
+End Function
+
+Private Function fnRecordset(rsTemp As Recordset, szSQL As String, _
+                   Optional nDB As Variant, Optional szCalledFrom As Variant, _
+                   Optional bShowErrow As Variant) As Long
+    On Error GoTo SQLError
+    If IsMissing(nDB) Then
+       nDB = RemoteDB
+    End If
+    Select Case nDB
+        Case LocalDB
+            Set rsTemp = dbLocal.OpenRecordset(szSQL, dbOpenSnapshot)
+        Case RemoteDB
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    End Select
+    If rsTemp.RecordCount > 0 Then
+       rsTemp.MoveLast
+       rsTemp.MoveFirst
+    End If
+    fnRecordset = rsTemp.RecordCount
+    Exit Function
+SQLError:
+    If IsMissing(szCalledFrom) Then
+        szCalledFrom = ""
+    End If
+    If IsMissing(bShowErrow) Then
+        bShowErrow = False
+    End If
+    fnRecordset = -1
+    tfnErrHandler "GetRecordSet," & szCalledFrom, szSQL, bShowErrow
+    On Error GoTo 0
 End Function
 
 
