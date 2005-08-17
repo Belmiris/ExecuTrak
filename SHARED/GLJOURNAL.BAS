@@ -264,7 +264,7 @@ Private Function fnProcessJournalEntries() As Boolean
     
     'set up sql and read the general ledger
     'journal entries on the local database
-    szSQLStmt = "SELECT * FROM GLJournal"
+    szSQLStmt = "SELECT * FROM GLJournal ORDER BY iEntryNumber"
     
     On Error GoTo READ_ERROR
     Set rsTempLocalJE = dbLocal.OpenRecordset(szSQLStmt, dbOpenDynaset)
