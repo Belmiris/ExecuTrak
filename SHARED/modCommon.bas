@@ -29,9 +29,16 @@ Public Const INTO_TEMP As String = " into temp "
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
+    
+Public Const SQL_COLUMN_EXISTS As String = _
+    " select tabname, colname " & _
+    " from systables, syscolumns " & _
+    " where systables.tabid = syscolumns.tabid " & _
+    " and tabname = '@table' " & _
+    " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -477,29 +484,35 @@ Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 End Function
 
 Public Sub subDropTable(TableName As String)
-    Dim sSql As String
+    Dim sSQL As String
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
+    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSql, , , False
+    fnExecSQL sSQL, , , False
     
 End Sub
 
 Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSql As String
-    Dim rsTemp As Recordset
+    Dim sSQL As String
     
-    sSql = SQLParm(SQL_TABLE_EXISTS, _
+    sSQL = SQLParm(SQL_TABLE_EXISTS, _
                           "@table", TableName)
-                          
-    If fnRecordset(rsTemp, sSql) > 0 Then
-        fnTableExists = True
-    End If
     
-    Set rsTemp = Nothing
+    fnTableExists = fnDataExists(sSQL)
+                              
+End Function
+
+Public Function fnColumnExists(TableName As String, ColumnName As String) As Boolean
+    Dim sSQL As String
     
+    sSQL = SQLParm(SQL_COLUMN_EXISTS, _
+                        "@table", TableName, _
+                        "@column", ColumnName)
+
+    fnColumnExists = fnDataExists(sSQL)
+
 End Function
 
 Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonStatus, _
