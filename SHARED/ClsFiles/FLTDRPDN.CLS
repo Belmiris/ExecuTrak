@@ -2666,6 +2666,14 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
             
             If nPosi1 > 0 And nPosi2 > 0 And nPosi1 < nPosi2 Then
                 sField = Trim(Mid(arySQL(i), nPosi1 + Len(szSELECT), nPosi2 - (Len(szSELECT) + nPosi1)))
+                
+                'remove the DISTINCT or UNIQUE keyword from the string (if any)
+                If UCase(Left(sField, 9)) = "DISTINCT " Then
+                    sField = Mid(sField, 10)
+                ElseIf UCase(Left(sField, 7)) = "UNIQUE " Then
+                    sField = Mid(sField, 8)
+                End If
+                
                 aryField() = Split(sField, ",")
             Else
                 sErrMsg = "select field error"
