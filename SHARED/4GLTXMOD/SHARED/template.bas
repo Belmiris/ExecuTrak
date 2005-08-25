@@ -19,7 +19,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -32,47 +32,48 @@ Public Const LOCAL_FACTOR_PATH = "C:\FACTOR\"
 '**************************************************
 'Constant for Help File name and Help Error message
 '**************************************************
-Global Const szHelpFileName As String = "FACTOR.HLP"
-Global Const szHelpAdvCStore As String = "ADVCSTOR.HLP"
-Global Const szHelpSysMgt As String = "SYSADMIN.HLP"
-Global Const szHelpWhlSale As String = "WHOLSALE.HLP"
-Global Const szHelpRetail As String = "RETAIL.HLP"
+Global Const szHelpFileName     As String = "FACTOR.HLP"
+Global Const szHelpAdvCStore    As String = "ADVCSTOR.HLP"
+Global Const szHelpSysMgt       As String = "SYSADMIN.HLP"
+Global Const szHelpWhlSale      As String = "WHOLSALE.HLP"
+Global Const szHelpRetail       As String = "RETAIL.HLP"
 Global Const szHelpAdvFinancial As String = "ADVFIN.HLP"
-Global Const szHelpAcctRec As String = "AR.HLP"
-Global Const szHelpFuelMgt As String = "FUELMGT.HLP"
-Global Const szHelpAcctPay As String = "AP.HLP"
-Global Const szHelpOrderEntry As String = "ORDERENT.HLP"
-Global Const szHelpGenLdgr As String = "GL.HLP"
-Global Const szHelpService As String = "SERVICE.HLP"
-Global Const szHelpPayroll As String = "PAYROLL.HLP"
-Global Const szHelpDispatch As String = "FD.HLP"
-Global Const szHelpFuelOil As String = "FO.HLP"
-Global Const szHelpTax As String = "TAX.HLP"
+Global Const szHelpAcctRec      As String = "AR.HLP"
+Global Const szHelpFuelMgt      As String = "FUELMGT.HLP"
+Global Const szHelpAcctPay      As String = "AP.HLP"
+Global Const szHelpOrderEntry   As String = "ORDERENT.HLP"
+Global Const szHelpGenLdgr      As String = "GL.HLP"
+Global Const szHelpService      As String = "SERVICE.HLP"
+Global Const szHelpPayroll      As String = "PAYROLL.HLP"
+Global Const szHelpDispatch     As String = "FD.HLP"
+Global Const szHelpFuelOil      As String = "FO.HLP"
+Global Const szHelpTax          As String = "TAX.HLP"
 Global Const szHelpEdiTaxFiling As String = "ET.HLP"
 Global Const szHelpElecCommerce As String = "EC.HLP"
-Global Const szHelpCMSystem As String = "CMS.HLP"
-Global Const szHelpPO As String = "PO.HLP" ' Wenstrong, For Purchase Order
-Global Const szHelpProfitTrak As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
-Global Const szHelpAPPALACH As String = "APPALACH.HLP" 'help file name for APPALACHIAN
-Global Const szHelpReadyMix As String = "RM.HLP" 'help file name for Ready Mix
-Global Const szHelp7_11 As String = "7-ELEVEN.HLP" 'help file name for 7-11 Commission Check custom
-Global Const szHelpICUSTINQ As String = "ICUSTINQ.HLP" 'Internet project Customer inquiry
-Global Const szHelpGasCheck As String = "ZZEFOGCK.HLP" 'Gas Check Data Entry
-Global Const szHelpDrakeOil As String = "ZZEDPCLU.HLP" 'Card Lock Processing
-Global Const szHelpSalesMark As String = "SaleMark.HLP" 'Sales and Marketing
-Global Const szHelpDrakeOilFile As String = "ZZFDPEDT.HLP"  'Card Lock File Maintenance     'Vijaya 12/06/01...
-Global Const szHelpZZFMURMT As String = "ZZFMURMT.HLP"  'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
-Global Const szHelpZZFPCAFM As String = "ZZFPCAFM.HLP"  'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
-Global Const szHelpTouchStar As String = "TCHSTAR.HLP"  'TocuhStar     'Vijaya 02/24/01...
-Global Const szHelpMgntRpt As String = "MRPT.HLP"  'Management Reports File Maintenance     'Vijaya on 07/12/02
-Public Const szHelpMANNATEC As String = "MANNATEC.HLP"
-Public Const szHelpFACTCALL As String = "FACTCALL.HLP"
-Public Const sHelpTABLECHG  As String = "SYFTBCHG.HLP"  'Junsong 02/24/03 call 373319-1
-Global Const szHelpTriGas As String = "TRIGAS.HLP"  ' Tri-Gas Vijaya 06/11/03 call 379860-5
-Global Const szHelpPapco As String = "PAPCO.HLP"  ' Papco Hedging Vijaya 09/18/03 call 359404-2
-Global Const szHelpBankRec As String = "BANKREC.HLP"  '387361-The Wills Group-Deposit Reconciliation
-Global Const szHelpCLSystem As String = "CL.HLP"  '435934/448855 - Wills - Track Collections/Auto-Dunning 'Chris Albrecht 02/17/2005
-Global Const szHelpAFMgt As String = "AF.HLP"  '419824-Campbell Oil- Citgo eletronic BOL  Auto Fuel Management Vijaya on 04/11/05
+Global Const szHelpCMSystem     As String = "CMS.HLP"
+Global Const szHelpPO           As String = "PO.HLP"         ' Wenstrong, For Purchase Order
+Global Const szHelpProfitTrak   As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
+Global Const szHelpAPPALACH     As String = "APPALACH.HLP"   'help file name for APPALACHIAN
+Global Const szHelpReadyMix     As String = "RM.HLP"         'help file name for Ready Mix
+Global Const szHelp7_11         As String = "7-ELEVEN.HLP"   'help file name for 7-11 Commission Check custom
+Global Const szHelpICUSTINQ     As String = "ICUSTINQ.HLP"   'Internet project Customer inquiry
+Global Const szHelpGasCheck     As String = "ZZEFOGCK.HLP"   'Gas Check Data Entry
+Global Const szHelpDrakeOil     As String = "ZZEDPCLU.HLP"   'Card Lock Processing
+Global Const szHelpSalesMark    As String = "SaleMark.HLP"   'Sales and Marketing
+Global Const szHelpDrakeOilFile As String = "ZZFDPEDT.HLP"   'Card Lock File Maintenance     'Vijaya 12/06/01...
+Global Const szHelpZZFMURMT     As String = "ZZFMURMT.HLP"   'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
+Global Const szHelpZZFPCAFM     As String = "ZZFPCAFM.HLP"   'Retail Sales Export File Maintenance     'Vijaya 12/12/01...
+Global Const szHelpTouchStar    As String = "TCHSTAR.HLP"    'TocuhStar     'Vijaya 02/24/01...
+Global Const szHelpMgntRpt      As String = "MRPT.HLP"       'Management Reports File Maintenance     'Vijaya on 07/12/02
+Public Const szHelpMANNATEC     As String = "MANNATEC.HLP"
+Public Const szHelpFACTCALL     As String = "FACTCALL.HLP"
+Public Const sHelpTABLECHG      As String = "SYFTBCHG.HLP"   'Junsong 02/24/03 call 373319-1
+Global Const szHelpTriGas       As String = "TRIGAS.HLP"     ' Tri-Gas Vijaya 06/11/03 call 379860-5
+Global Const szHelpPapco        As String = "PAPCO.HLP"      ' Papco Hedging Vijaya 09/18/03 call 359404-2
+Global Const szHelpBankRec      As String = "BANKREC.HLP"    '387361-The Wills Group-Deposit Reconciliation
+Global Const szHelpCLSystem     As String = "CL.HLP"         '435934/448855 - Wills - Track Collections/Auto-Dunning 'Chris Albrecht 02/17/2005
+Global Const szHelpAFMgt        As String = "AF.HLP"         '419824-Campbell Oil- Citgo eletronic BOL  Auto Fuel Management Vijaya on 04/11/05
+Global Const szHelpBR           As String = "BR.HLP"         '#468962 - DenBorg - 8/25/2005
 
 '#######################################################################################
 '# Logging constants
@@ -1332,7 +1333,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2499,7 +2500,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
