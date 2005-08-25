@@ -648,7 +648,7 @@ End Sub
 Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
-                                   ByVal Field As String, _
+                          Optional ByVal Field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -657,8 +657,10 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     
     On Error GoTo ErrorHandler
     
-    UserID = Trim$(UserID)
-    Field = Trim$(Field)
+    Filename = Trim$(UCase$(Filename))
+    UserID = Trim$(UCase$(UserID))
+    Section = Trim$(UCase$(Section))
+    Field = Trim$(UCase$(Field))
     
     SQL = "DELETE FROM SYS_INI" _
         & " WHERE (INI_File_Name='" & Filename & "')" _
