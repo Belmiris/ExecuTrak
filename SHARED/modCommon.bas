@@ -58,6 +58,92 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
+Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
+    Dim OldMode As Integer
+    Dim ChgMode As Boolean
+    
+    With Ctl
+        If (TypeOf .Container Is Form) Or (TypeOf .Container Is PictureBox) Then
+            ChgMode = True
+            With .Container
+                OldMode = .ScaleMode
+                .ScaleMode = vbTwips
+            End With
+        End If
+        
+        .Left = ContainerToForm(AlignWith, 0) - ContainerToForm(Ctl.Container, 0) - PicBoxBorderSize(Ctl.Container)
+        
+        If ChgMode Then
+            .Container.ScaleMode = OldMode
+        End If
+    End With
+End Sub
+Public Function ContainerToForm(Ctl As Control, ByVal CoordType As Integer) As Single
+    Dim PrevMode          As Integer
+    Dim Value             As Single
+    Dim BorderSize        As Single
+    Dim IsContainerForm   As Boolean
+    Dim IsContainerPicBox As Boolean
+    
+    With Ctl
+        If TypeOf .Container Is PictureBox Then
+            IsContainerPicBox = True
+        ElseIf TypeOf .Container Is Form Then
+            IsContainerForm = True
+        End If
+        
+        If IsContainerForm Or IsContainerPicBox Then
+            With .Container
+                PrevMode = .ScaleMode
+                .ScaleMode = vbTwips
+                If IsContainerPicBox Then
+                    BorderSize = PicBoxBorderSize(Ctl.Container)
+                End If
+            End With
+        End If
+        
+        If CoordType = 0 Then
+            Value = .Left + BorderSize
+        Else
+            Value = .Top + BorderSize
+        End If
+        
+        If IsContainerForm Or IsContainerPicBox Then
+            .Container.ScaleMode = PrevMode
+        End If
+        
+        If Not IsContainerForm Then
+            Value = Value + ContainerToForm(.Container, CoordType)
+        End If
+    End With
+    
+    ContainerToForm = Value
+End Function
+Public Function PicBoxBorderSize(PicBox As Object) As Single
+    Dim OldMode As Integer
+    Dim ChgMode As Boolean
+    Dim Size    As Single
+    
+    If TypeOf PicBox Is PictureBox Then
+        With PicBox
+            If (TypeOf .Container Is PictureBox) Or (TypeOf .Container Is Form) Then
+                ChgMode = True
+                With .Container
+                    OldMode = .ScaleMode
+                    .ScaleMode = vbTwips
+                End With
+            End If
+            
+            Size = (.Width - .ScaleWidth) / 2
+            
+            If ChgMode Then
+                .Container.ScaleMode = OldMode
+            End If
+        End With
+    End If
+    
+    PicBoxBorderSize = Size
+End Function
 '------------------------------------------------------------------------------------------
 ' Procedure : ArrayValueIndex
 ' DateTime  : 7/29/2005 11:36
