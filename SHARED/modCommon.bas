@@ -38,7 +38,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -78,44 +78,46 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
         End If
     End With
 End Sub
-Public Function ContainerToForm(Ctl As Control, ByVal CoordType As Integer) As Single
+Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
     Dim PrevMode          As Integer
     Dim Value             As Single
     Dim BorderSize        As Single
     Dim IsContainerForm   As Boolean
     Dim IsContainerPicBox As Boolean
     
-    With Ctl
-        If TypeOf .Container Is PictureBox Then
-            IsContainerPicBox = True
-        ElseIf TypeOf .Container Is Form Then
-            IsContainerForm = True
-        End If
-        
-        If IsContainerForm Or IsContainerPicBox Then
-            With .Container
-                PrevMode = .ScaleMode
-                .ScaleMode = vbTwips
-                If IsContainerPicBox Then
-                    BorderSize = PicBoxBorderSize(Ctl.Container)
-                End If
-            End With
-        End If
-        
-        If CoordType = 0 Then
-            Value = .Left + BorderSize
-        Else
-            Value = .Top + BorderSize
-        End If
-        
-        If IsContainerForm Or IsContainerPicBox Then
-            .Container.ScaleMode = PrevMode
-        End If
-        
-        If Not IsContainerForm Then
-            Value = Value + ContainerToForm(.Container, CoordType)
-        End If
-    End With
+    If Not (TypeOf Ctl Is Form) Then
+        With Ctl
+            If TypeOf .Container Is PictureBox Then
+                IsContainerPicBox = True
+            ElseIf TypeOf .Container Is Form Then
+                IsContainerForm = True
+            End If
+            
+            If IsContainerForm Or IsContainerPicBox Then
+                With .Container
+                    PrevMode = .ScaleMode
+                    .ScaleMode = vbTwips
+                    If IsContainerPicBox Then
+                        BorderSize = PicBoxBorderSize(Ctl.Container)
+                    End If
+                End With
+            End If
+            
+            If CoordType = 0 Then
+                Value = .Left + BorderSize
+            Else
+                Value = .Top + BorderSize
+            End If
+            
+            If IsContainerForm Or IsContainerPicBox Then
+                .Container.ScaleMode = PrevMode
+            End If
+            
+            If Not IsContainerForm Then
+                Value = Value + ContainerToForm(.Container, CoordType)
+            End If
+        End With
+    End If
     
     ContainerToForm = Value
 End Function
