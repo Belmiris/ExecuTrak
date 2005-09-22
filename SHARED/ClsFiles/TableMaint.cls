@@ -500,9 +500,9 @@ Public Function fnUpdateRecord _
 Exception:
     On Error Resume Next
     status_flag = intError
-    status_message = ExceptionMsg & vbCrLf & status_message
-    status_message = Replace(status_message, "@err_number", Err.Number)
-    status_message = Replace(status_message, "@err_description", Err.Description)
+    status_message = ExceptionMsg & " " & status_message
+    status_message = Replace(status_message, "@err_number", Err.Number, , , vbTextCompare)
+    status_message = Replace(status_message, "@err_description", Err.Description, , , vbTextCompare)
     Set pCurrent = Nothing
     Set pCurrent = fnSelectData(pDB)
     tfnErrHandler "fnUpdateRecord," & pCalledFrom, pSQL, pShowError
@@ -674,6 +674,9 @@ Private Function fnSelectData(pDB As Integer) As Recordset
     Dim i As Integer
     Dim strSelect As String
     
+    '429933 - Chris Albrecht - 07/20/2005
+    On Error GoTo errHandler
+    
     strSelect = ""
     For i = 0 To UBound(arrFieldName) - 1
         If arrFieldType(i) = TypeUndefined Then Exit For
@@ -702,6 +705,12 @@ Private Function fnSelectData(pDB As Integer) As Recordset
         Case 2  'local
             Set fnSelectData = dbDatabase.OpenRecordset(strSQL, dbOpenSnapshot)
     End Select
+    
+    Exit Function
+    
+errHandler:
+    tfnErrHandler "fnSelectData", strSQL, , True
+    Set fnSelectData = Nothing
 
 End Function
 
@@ -721,6 +730,8 @@ Private Function fnUpdateData(pDB As Integer, pUpdate As String) As Boolean
 
     Dim strSQL As String
     
+    On Error GoTo errHandler
+    
     fnUpdateData = False
     
     ' There is nothing to update if pUpdate is blank
@@ -739,6 +750,12 @@ Private Function fnUpdateData(pDB As Integer, pUpdate As String) As Boolean
         
     fnUpdateData = True
     
+    Exit Function
+    
+errHandler:
+    tfnErrHandler "fnUpdateData", strSQL, , True
+    fnUpdateData = False
+        
 End Function
 
 '---------------------------------------------------------------------------------------
@@ -754,6 +771,8 @@ Private Function fnInsertData(pDB As Integer, pInsertName As String, pInsertValu
         & "(@pInsertName) VALUES (@pInsertValue) "
 
     Dim strSQL As String
+    
+    On Error GoTo errHandler
     
     fnInsertData = False
     
@@ -773,6 +792,12 @@ Private Function fnInsertData(pDB As Integer, pInsertName As String, pInsertValu
         
     fnInsertData = True
     
+    Exit Function
+    
+errHandler:
+    tfnErrHandler "fnInsertData", strSQL, , True
+    fnInsertData = False
+            
 End Function
 
 '---------------------------------------------------------------------------------------
@@ -816,8 +841,8 @@ Private Function fnCharsAreEqual(pChar1 As String, pChar2 As String) As Boolean
 
     fnCharsAreEqual = False
 
-    sChar1 = Trim(pChar1)
-    sChar2 = Trim(pChar2)
+    sChar1 = fnRemoveQuotes(Trim(pChar1))
+    sChar2 = fnRemoveQuotes(Trim(pChar2))
     
     If sChar1 = sChar2 Then
         fnCharsAreEqual = True
@@ -946,17 +971,14 @@ Private Function fnDatesAreEqual(pDate1 As String, pDate2 As String) As Boolean
     
 End Function
 
-Private Function fnRemoveQuotes(pString As String) As String
-    Dim sString As String
-    fnRemoveQuotes = ""
-    sString = Trim(pString)
-    If sString <> "'" Or sString <> "''" Then
-        If Len(sString) > 2 And Left(sString, 1) = "'" And Right(sString, 1) = "'" Then
-            fnRemoveQuotes = Mid(sString, 2, Len(sString) - 2)
-        End If
+Private Function fnRemoveQuotes(ByVal pString As String) As String
+    pString = Trim(pString)
+    If pString Like "'*'" Then
+        pString = Mid$(pString, 2, Len(pString) - 2)
     End If
+    
+    fnRemoveQuotes = pString
 End Function
-
 '---------------------------------------------------------------------------------------
 ' Procedure : fnCheckForNull
 ' DateTime  : 5/13/2005 14:48
