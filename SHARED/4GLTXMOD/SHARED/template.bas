@@ -517,7 +517,7 @@ Public Const TRACK_COLLECTIONS_UP = 15470  'CLFTCFMT.EXE (Track Collections File
 '#451351
 Public Const DISP_REASON_CODE_UP = 15480  'no program (popup window)
 
-'#488172
+'#482177
 Public Const CUSTOMER_GROUP_UP = 15490  'ARFGROUP.EXE
 
 'generic buttons for toolbar button that requires new bitmap
