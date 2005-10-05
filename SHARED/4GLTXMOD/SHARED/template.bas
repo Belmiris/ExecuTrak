@@ -518,7 +518,7 @@ Public Const TRACK_COLLECTIONS_UP = 15470  'CLFTCFMT.EXE (Track Collections File
 Public Const DISP_REASON_CODE_UP = 15480  'no program (popup window)
 
 '#482177
-Public Const CUSTOMER_GROUP_UP = 15490  'ARFGROUP.EXE
+Public Const CREDIT_GROUP_UP = 15490  'ARFGROUP.EXE
 
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
@@ -3033,7 +3033,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3250,7 +3250,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
