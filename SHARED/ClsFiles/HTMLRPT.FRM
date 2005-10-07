@@ -3,14 +3,14 @@ Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "shdocvw.dll"
 Begin VB.Form clsHtmlReport 
    Caption         =   "Report Browser"
    ClientHeight    =   8355
-   ClientLeft      =   45
-   ClientTop       =   330
-   ClientWidth     =   11715
+   ClientLeft      =   165
+   ClientTop       =   450
+   ClientWidth     =   11400
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   8355
-   ScaleWidth      =   11715
+   ScaleWidth      =   11400
    StartUpPosition =   3  'Windows Default
    Visible         =   0   'False
    Begin SHDocVwCtl.WebBrowser WebBrowser1 
@@ -65,6 +65,7 @@ Private m_sRptTitle1 As String
 Private m_sRptTitle2 As String
 Private m_sColHeading1 As String
 Private m_sColHeading2 As String
+Private m_nPageNum As Integer
 '
 
 Public Function FormatRptCol(sData As String, nLength As Integer, Optional bRightAdjustment As Boolean = False) As String
@@ -79,6 +80,130 @@ Public Function FormatRptCol(sData As String, nLength As Integer, Optional bRigh
         
     End If
 End Function
+
+Public Sub BuildLineReport(frmMain As Form, _
+                           sReportTitle As String, _
+                           sColumnHeading As String, _
+                           aryBody() As String, _
+                           aryCriteria() As String, _
+                           Optional nPageWidth As Integer = 132, _
+                           Optional nLinesPerPage As Integer = 66, _
+                           Optional sReportID As String = "", _
+                           Optional bDoubleSpace As Boolean = False)
+    
+    Dim sHeaderLine As String
+    
+    Dim i As Long
+    Dim j As Long
+    Dim bFileOpen As Boolean
+    Dim sReportLine As String
+    Dim lLineNum As Long
+    
+    On Error GoTo EXITHERE
+
+    Screen.MousePointer = vbHourglass
+    
+    'initialize member variables
+    m_sURL = ""
+    
+    m_sReportID = sReportID
+    
+    If m_sReportID = "" Then
+        m_sReportID = UCase(App.Title)
+    End If
+    
+    m_sURL = LCase(App.Path & "\" & m_sReportID) & ".txt"
+    m_nFileNum = FreeFile
+
+    Open m_sURL For Output As #m_nFileNum
+    
+    bFileOpen = True
+    
+    subInitReportHeader sReportTitle, sColumnHeading
+    
+    'write report criteria page
+    If aryCriteria(0) <> "" Then
+        subReportHeader nPageWidth, False
+        lLineNum = 4
+
+        For i = 0 To UBound(aryCriteria)
+            Screen.MousePointer = vbHourglass
+            
+            If lLineNum >= nLinesPerPage Then
+                subReportHeader nPageWidth, False
+                lLineNum = 4
+            End If
+    
+            sHeaderLine = aryCriteria(i)
+            Print #m_nFileNum, sHeaderLine
+            lLineNum = lLineNum + 1
+            Screen.MousePointer = vbHourglass
+        Next
+        
+        'make sure all lines (nLinesPerPage) have been written for a page
+        If lLineNum < nLinesPerPage Then
+            For j = lLineNum + 1 To nLinesPerPage
+                sHeaderLine = ""
+                Print #m_nFileNum, sHeaderLine
+                lLineNum = lLineNum + 1
+            Next j
+            
+            lLineNum = nLinesPerPage
+        End If
+    End If
+    
+    'write report details
+    Screen.MousePointer = vbHourglass
+        
+    subReportHeader nPageWidth, False
+    subColumnHeader False
+    lLineNum = 7
+    
+    For i = 0 To UBound(aryBody)
+        Screen.MousePointer = vbHourglass
+        
+        If lLineNum >= nLinesPerPage Then
+            subReportHeader nPageWidth, False
+            subColumnHeader False
+            lLineNum = 7
+        End If
+
+        sHeaderLine = aryBody(i)
+        Print #m_nFileNum, sHeaderLine
+        lLineNum = lLineNum + 1
+        
+        'double spacing
+        If bDoubleSpace Then
+            'skip a blank line
+            sHeaderLine = ""
+            Print #m_nFileNum, sHeaderLine
+            lLineNum = lLineNum + 1
+        End If
+        
+        Screen.MousePointer = vbHourglass
+    Next
+        
+    'make sure all lines (nLinesPerPage) have been written for a page
+    If lLineNum < nLinesPerPage Then
+        For j = lLineNum + 1 To nLinesPerPage
+            sHeaderLine = ""
+            Print #m_nFileNum, sHeaderLine
+        Next j
+            
+        lLineNum = nLinesPerPage
+    End If
+    
+    Close #m_nFileNum
+    bFileOpen = False
+    
+EXITHERE:
+    
+    If bFileOpen Then
+        Close #m_nFileNum
+    End If
+
+    Screen.MousePointer = vbDefault
+End Sub
 
 'functions to build the html report
 Public Sub BuildInternetReport(frmMain As Form, _
@@ -300,6 +425,8 @@ End Function
 Private Sub subInitReportHeader(sReportTitle As String, sColumnHeading As String)
     Dim nPosi As Integer
     
+    m_nPageNum = 1
+    
     m_sRunDate = Format(Date, "MM/DD/YYYY")
     m_sRunTime = Format(Time, "HH:MM AMPM")
     m_sCompanyName = fnGetCompanyName()
@@ -323,37 +450,55 @@ Private Sub subInitReportHeader(sReportTitle As String, sColumnHeading As String
     End If
 End Sub
 
-Private Sub subReportHeader(nPageWidth As Integer)
+Private Sub subReportHeader(nPageWidth As Integer, Optional bHtmlReport As Boolean = True)
+    
     Dim nSpc As Integer
     Dim sHeaderLine As String
     
     On Error Resume Next
     nSpc = (nPageWidth - Len(m_sCompanyName)) / 2 - Len("Program ID: " & m_sReportID)
     sHeaderLine = "Program ID: " + m_sReportID + Space(nSpc) + m_sCompanyName
-    sHeaderLine = sHeaderLine & Space(nPageWidth - Len(sHeaderLine))
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    sHeaderLine = sHeaderLine & Space(nPageWidth - Len(sHeaderLine) - 11)
+    If bHtmlReport Then
+        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    Else
+        'Page: 1234
+        sHeaderLine = sHeaderLine & "Page " & Format(m_nPageNum, "@@@@")
+    End If
     Print #m_nFileNum, sHeaderLine
     
     nSpc = (nPageWidth - Len(m_sRptTitle1)) / 2 - Len(Trim(m_sRunDate & "Run Date: "))
     sHeaderLine = "Run Date: " + m_sRunDate + Space(nSpc) + m_sRptTitle1
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    If bHtmlReport Then
+        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    End If
     Print #m_nFileNum, sHeaderLine
 
     nSpc = (nPageWidth - Len(m_sRptTitle2)) / 2 - Len(Trim(m_sRunTime & "Run Time: "))
     sHeaderLine = "Run Time: " + m_sRunTime + Space(nSpc) + m_sRptTitle2
-    sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    If bHtmlReport Then
+        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    End If
     Print #m_nFileNum, sHeaderLine
 
     Print #m_nFileNum, ""
+
+    m_nPageNum = m_nPageNum + 1
 End Sub
 
-Private Sub subColumnHeader()
+Private Sub subColumnHeader(Optional bHtmlReport As Boolean = True)
     Dim sHeaderLine As String
     
-    sHeaderLine = "<B>" & m_sColHeading1 & "</B>"
+    sHeaderLine = m_sColHeading1
+    If bHtmlReport Then
+        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    End If
     Print #m_nFileNum, sHeaderLine
 
-    sHeaderLine = "<B>" & m_sColHeading2 & "</B>"
+    sHeaderLine = m_sColHeading2
+    If bHtmlReport Then
+        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    End If
     Print #m_nFileNum, sHeaderLine
     
     Print #m_nFileNum, ""
@@ -377,7 +522,7 @@ Private Function fnOpenRecord(strSQL As String, Optional vDB As Variant) As Reco
     Const SUB_NAME = "fnOpenRecord"
     
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
