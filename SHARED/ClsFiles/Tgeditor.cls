@@ -5361,16 +5361,16 @@ Private Function fnCompareSortKeysNeedToSwap2(nIndex, vData(), j As Long, vValue
     For n = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
         Select Case m_arySortCol(n, nIndex).nColType
         Case m_NUMERIC_TYPE
-            If IsNull(vData(m_arySortCol(n, nIndex).nColIndex, j)) Then
+            If Trim(vData(m_arySortCol(n, nIndex).nColIndex, j) & "") = "" Then
                 dfData1 = 0
             Else
-                dfData1 = Val(vData(m_arySortCol(n, nIndex).nColIndex, j))
+                dfData1 = CDbl(vData(m_arySortCol(n, nIndex).nColIndex, j))
             End If
         
-            If IsNull(vValue(m_arySortCol(n, nIndex).nColIndex)) Then
+            If Trim(vValue(m_arySortCol(n, nIndex).nColIndex) & "") = "" Then
                 dfData2 = 0
             Else
-                dfData2 = Val(vValue(m_arySortCol(n, nIndex).nColIndex))
+                dfData2 = CDbl(vValue(m_arySortCol(n, nIndex).nColIndex))
             End If
             
             If m_arySortCol(n, nIndex).nSortOrder = m_ASCENDING Then
