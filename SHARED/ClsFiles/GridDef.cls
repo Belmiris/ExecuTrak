@@ -279,6 +279,24 @@ errHandler:
     End With
     Exit Sub
 End Sub
+Public Sub ErrorTrapMessage(p_function As String, _
+                            p_error As ErrObject, _
+                   Optional p_Style As VbMsgBoxStyle = vbCritical, _
+                   Optional p_SQL As String = "")
+                    
+    Dim strReason As String
+    
+    strReason = App.EXEName & " has detected an error in function " & p_function & vbCrLf & vbCrLf _
+              & "Error Code: " & p_error.Number & vbCrLf _
+              & "Error Desc: " & p_error.Description & vbCrLf & vbCrLf
+    
+    If LenB(p_SQL) = 0 Then
+        MsgBox strReason, p_Style
+    Else
+        tfnErrHandler p_function, p_SQL, True
+    End If
+    
+End Sub
 Public Sub ClearData()
     If Not (m_TGS Is Nothing) Then
         m_TGS.Clear
