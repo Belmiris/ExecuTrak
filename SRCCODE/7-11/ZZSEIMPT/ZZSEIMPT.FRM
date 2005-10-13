@@ -1,9 +1,9 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FactFrm.ocx"
-Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
+Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "facttab.ocx"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
-Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "Sqaote32.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "sqaote32.ocx"
 Begin VB.Form frmZZSEIMPT 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Import Invoices"
@@ -13,7 +13,7 @@ Begin VB.Form frmZZSEIMPT
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            =   9.75
+      Size            = 9.75  
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -41,7 +41,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.01
+         Size        = 8.75   
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -53,7 +53,7 @@ Begin VB.Form frmZZSEIMPT
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   9.75
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -73,7 +73,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   68
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.74
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -96,7 +96,7 @@ Begin VB.Form frmZZSEIMPT
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -107,7 +107,7 @@ Begin VB.Form frmZZSEIMPT
             TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -129,7 +129,7 @@ Begin VB.Form frmZZSEIMPT
                BackColor       =   8388608
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -141,7 +141,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -162,7 +162,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -177,7 +177,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -198,7 +198,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -213,7 +213,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -234,7 +234,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -249,7 +249,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -270,7 +270,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -285,7 +285,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -306,7 +306,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -317,7 +317,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -337,7 +337,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -348,7 +348,7 @@ Begin VB.Form frmZZSEIMPT
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -389,7 +389,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -401,7 +401,7 @@ Begin VB.Form frmZZSEIMPT
                      TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -440,7 +440,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -451,7 +451,7 @@ Begin VB.Form frmZZSEIMPT
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -470,7 +470,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000.00"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -487,7 +487,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "000000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -512,7 +512,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -537,7 +537,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "WWWWWWWWWW"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -554,7 +554,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "0000000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -579,7 +579,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "01/01/00"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -596,7 +596,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "WWWWWWWW"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -613,7 +613,7 @@ Begin VB.Form frmZZSEIMPT
                      Caption         =   "00000"
                      BeginProperty Font 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   700
                         Underline       =   0   'False
@@ -651,7 +651,7 @@ Begin VB.Form frmZZSEIMPT
             BackColor       =   8388608
             BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "Arial"
-               Size            =   9.75
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -662,7 +662,7 @@ Begin VB.Form frmZZSEIMPT
             TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
-               Size            =   9.75
+               Size            = 9.75  
                Charset         =   0
                Weight          =   400
                Underline       =   0   'False
@@ -682,7 +682,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.73
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -693,7 +693,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -713,7 +713,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.77
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -724,7 +724,7 @@ Begin VB.Form frmZZSEIMPT
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -767,7 +767,7 @@ Begin VB.Form frmZZSEIMPT
                   _StockProps     =   77
                   BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "Arial"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -778,7 +778,7 @@ Begin VB.Form frmZZSEIMPT
                   TitleBarHeight  =   24
                   BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                      Name            =   "MS Sans Serif"
-                     Size            =   9.75
+                     Size            = 9.75  
                      Charset         =   0
                      Weight          =   400
                      Underline       =   0   'False
@@ -808,7 +808,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -820,7 +820,7 @@ Begin VB.Form frmZZSEIMPT
                      TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -842,7 +842,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -854,7 +854,7 @@ Begin VB.Form frmZZSEIMPT
                      TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -876,7 +876,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -889,7 +889,7 @@ Begin VB.Form frmZZSEIMPT
                      TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -911,7 +911,7 @@ Begin VB.Form frmZZSEIMPT
                      _StockProps     =   77
                      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "Arial"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -923,7 +923,7 @@ Begin VB.Form frmZZSEIMPT
                      TitleBarHeight  =   24
                      BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                         Name            =   "MS Sans Serif"
-                        Size            =   9.75
+                        Size            = 9.75  
                         Charset         =   0
                         Weight          =   400
                         Underline       =   0   'False
@@ -1026,7 +1026,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1041,7 +1041,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1062,7 +1062,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1077,7 +1077,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1098,7 +1098,7 @@ Begin VB.Form frmZZSEIMPT
                _StockProps     =   77
                BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "Arial"
-                  Size            =   9.89
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1113,7 +1113,7 @@ Begin VB.Form frmZZSEIMPT
                TitleBarHeight  =   24
                BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                   Name            =   "MS Sans Serif"
-                  Size            =   9.75
+                  Size            = 9.75  
                   Charset         =   0
                   Weight          =   400
                   Underline       =   0   'False
@@ -1136,7 +1136,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.75
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1152,7 +1152,7 @@ Begin VB.Form frmZZSEIMPT
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.75
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1173,7 +1173,7 @@ Begin VB.Form frmZZSEIMPT
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            =   9.75
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1189,7 +1189,7 @@ Begin VB.Form frmZZSEIMPT
          TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            =   9.75
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -1211,7 +1211,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1224,7 +1224,7 @@ Begin VB.Form frmZZSEIMPT
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.75
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1245,7 +1245,7 @@ Begin VB.Form frmZZSEIMPT
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -1259,7 +1259,7 @@ Begin VB.Form frmZZSEIMPT
       TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            =   9.81
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -2027,7 +2027,7 @@ Private Sub cmdExceptions_Click()
         subEnableDetailOKBtn False
     Else
         subEnableDetailDeleteBtn True
-        subEnableDetailOKBtn cmdOK.Enabled
+        subEnableDetailOKBtn cmdOk.Enabled
     End If
     
     subCheckButtonStatus
@@ -2962,7 +2962,7 @@ Private Sub subSetExitCancelBtn(sExitCancel As String)
 End Sub
 
 Private Sub subEnableDetailOKBtn(bOnOff As Boolean)
-    cmdOK.Enabled = bOnOff
+    cmdOk.Enabled = bOnOff
 End Sub
 
 Private Sub subEnableDetailCancelBtn(bOnOff As Boolean)
@@ -4648,7 +4648,7 @@ Private Function fnUpdateInvHeader() As Boolean
     lCurHeaderRow = tgmHeader.GetCurrentRowNumber
     
     lVendor = tfnRound(tgmHeader.CellValue(ColHeaderVendor, lCurHeaderRow))
-    lInvoice = tfnFormatDate(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
+    lInvoice = tfnRound(tgmHeader.CellValue(ColHeaderInvoice, lCurHeaderRow))
     
     strSQL = "UPDATE rs_p_hold_header SET rsphh_status = 'Y' WHERE "
     strSQL = strSQL & " rsphh_vendor = " & lVendor
