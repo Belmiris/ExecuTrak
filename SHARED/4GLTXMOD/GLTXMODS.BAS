@@ -180,9 +180,10 @@ Public Sub initialize_tax_buffers()
     'Vijaya on 12/09/04 Magic#465142
     'Don't Delete trn_max because some times it won't call setup_for_gl
     'It should be in Two Places
-    trn_max = 100
+    'Change from 100 to 500 by JQ, ticket 490248
+    trn_max = 500
     tul_max = 800
-    tt_max = 100
+    tt_max = 500
 
     freight_amount = 0
     ReDim pa_table(tt_max)
@@ -207,7 +208,7 @@ End Sub
 
 
 Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
-    trn_max = 100
+    trn_max = 500
     
     ReDim trn_arry(trn_max)
     trn_arry_cnt = 0
@@ -1952,11 +1953,12 @@ End Function
 Public Sub start_smmry()
     Dim i As Integer
 
-    ReDim smm_tax(5)
+    'Change array size from 5 to 50 t avoid runtime error 9. ticket 490248
+    ReDim smm_tax(50)
     
     smm_cnt = 0
 
-    ReDim grp_tax(5)
+    ReDim grp_tax(50)
     grp_cnt = 0
 
     sum_fuels = 0
