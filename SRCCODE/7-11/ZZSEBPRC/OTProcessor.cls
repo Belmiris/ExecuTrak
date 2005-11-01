@@ -772,14 +772,18 @@ Private Function subBuildMessage(lEmpNo As Long, nPrftCtr As Integer, bEmpTotal 
                     
                 End If
                         
+                'The employee total hours need to be rounded to 2, if not some value will like 0.99999999
+                'See ticket 453193
+                'JQ 12/10/2004
+                            
                 If .nWeek = 1 Then
-                    dEmployeeTotal1 = dEmployeeTotal1 + .OrigHours
-                    dEmployeeRegHours1 = dEmployeeRegHours1 + .RegHours
-                    dEmployeeOTHours1 = dEmployeeOTHours1 + .OTHOurs
+                    dEmployeeTotal1 = tfnRound(dEmployeeTotal1 + .OrigHours, 2)
+                    dEmployeeRegHours1 = tfnRound(dEmployeeRegHours1 + .RegHours, 2)
+                    dEmployeeOTHours1 = tfnRound(dEmployeeOTHours1 + .OTHOurs, 2)
                 Else
-                    dEmployeeTotal2 = dEmployeeTotal2 + .OrigHours
-                    dEmployeeRegHours2 = dEmployeeRegHours2 + .RegHours
-                    dEmployeeOTHours2 = dEmployeeOTHours2 + .OTHOurs
+                    dEmployeeTotal2 = tfnRound(dEmployeeTotal2 + .OrigHours, 2)
+                    dEmployeeRegHours2 = tfnRound(dEmployeeRegHours2 + .RegHours, 2)
+                    dEmployeeOTHours2 = tfnRound(dEmployeeOTHours2 + .OTHOurs, 2)
                 End If
                 
             End If
@@ -787,6 +791,7 @@ Private Function subBuildMessage(lEmpNo As Long, nPrftCtr As Integer, bEmpTotal 
         End With
         
     Next
+
     
     If Not bEmpTotal Then
         
@@ -1613,14 +1618,14 @@ End Sub
 Private Sub subWriteLog(sMsg As String)
     Static bAlreadyShow As Boolean
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     lstOTLog.AddItem sMsg
     lstOTLog.Refresh
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     If Not bAlreadyShow Then
         bAlreadyShow = True
         tfnErrHandler "subWriteLog", False
@@ -1640,7 +1645,7 @@ Private Sub subSetProgress(sngPercent As Single)
         pbStatus.Visible = False
     End If
     
-    pbStatus.value = sngPercent
+    pbStatus.Value = sngPercent
 End Sub
 
 Private Function fnInsertUpdate() As Boolean
@@ -1835,7 +1840,7 @@ Private Function fnValidOtPaycode(lEmpNo As Long, bError As Boolean) As String
     End If
     
     On Error GoTo 0
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     bError = False
     
@@ -1916,7 +1921,7 @@ Private Function fnValidOtPaycode(lEmpNo As Long, bError As Boolean) As String
     
     Exit Function
     
-ErrTrap:
+errTrap:
     If Not bAreadyShowError Then
         bAreadyShowError = True
         sErrMsg = Err.Number & " - " & Err.Description
