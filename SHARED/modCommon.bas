@@ -38,7 +38,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -48,12 +48,12 @@ Public Const VK_MBUTTON = &H4
 Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
@@ -341,12 +341,12 @@ End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
     With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hWnd, GWL_STYLE, Style
+        SetWindowLong .hwnd, GWL_STYLE, Style
     End With
 End Sub
 '---------------------------------------------------------------------------------------
@@ -572,34 +572,34 @@ Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
 End Function
 
 Public Sub subDropTable(TableName As String)
-    Dim sSQL As String
+    Dim sSql As String
     
     'In case the table doesn't exist, just continue
     On Error Resume Next
-    sSQL = SQLParm(SQL_DROP_TABLE, "@table", TableName)
+    sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
     
-    fnExecSQL sSQL, , , False
+    fnExecSQL sSql, , , False
     
 End Sub
 
 Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSQL As String
+    Dim sSql As String
     
-    sSQL = SQLParm(SQL_TABLE_EXISTS, _
+    sSql = SQLParm(SQL_TABLE_EXISTS, _
                           "@table", TableName)
     
-    fnTableExists = fnDataExists(sSQL)
+    fnTableExists = fnDataExists(sSql)
                               
 End Function
 
 Public Function fnColumnExists(TableName As String, ColumnName As String) As Boolean
-    Dim sSQL As String
+    Dim sSql As String
     
-    sSQL = SQLParm(SQL_COLUMN_EXISTS, _
+    sSql = SQLParm(SQL_COLUMN_EXISTS, _
                         "@table", TableName, _
                         "@column", ColumnName)
 
-    fnColumnExists = fnDataExists(sSQL)
+    fnColumnExists = fnDataExists(sSql)
 
 End Function
 
@@ -751,3 +751,15 @@ End Function
 Public Sub SendTab()
     SendKeys "{TAB}"
 End Sub
+
+Public Sub ClearText(ParamArray Parms())
+    Dim i As Integer
+    
+    For i = 0 To UBound(Parms)
+        If TypeOf Parms(i) Is Textbox Then
+            Parms(i).Text = vbNullString
+        End If
+    Next
+
+End Sub
+
