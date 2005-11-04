@@ -68,7 +68,7 @@ Private m_sColHeading2 As String
 Private m_nPageNum As Integer
 '
 
-Public Function FormatRptCol(sData As String, nLength As Integer, Optional bRightAdjustment As Boolean = False) As String
+Public Static Function FormatRptCol(sData As String, nLength As Integer, Optional bRightAdjustment As Boolean = False) As String
     If Len(Trim(sData)) >= nLength Then
         FormatRptCol = Mid(Trim(sData), 1, nLength)
     Else
@@ -445,7 +445,7 @@ Private Sub subInitReportHeader(sReportTitle As String, sColumnHeading As String
         m_sColHeading1 = Left(sColumnHeading, nPosi - 1)
         m_sColHeading2 = Mid(sColumnHeading, nPosi + 2)
     Else
-        m_sColHeading1 = sReportTitle
+        m_sColHeading1 = sColumnHeading
         m_sColHeading2 = ""
     End If
 End Sub
