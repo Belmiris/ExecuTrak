@@ -89,7 +89,10 @@ Public Sub BuildLineReport(frmMain As Form, _
                            Optional nPageWidth As Integer = 132, _
                            Optional nLinesPerPage As Integer = 66, _
                            Optional sReportID As String = "", _
-                           Optional bDoubleSpace As Boolean = False)
+                           Optional bDoubleSpace As Boolean = False, _
+                           Optional sRptFilePath As String = "", _
+                           Optional sRptFileName As String = "", _
+                           Optional sRptFileExt As String = ".txt")
     
     Dim sHeaderLine As String
     
@@ -98,6 +101,7 @@ Public Sub BuildLineReport(frmMain As Form, _
     Dim bFileOpen As Boolean
     Dim sReportLine As String
     Dim lLineNum As Long
+    Dim nColHeadLineCount As Integer
     
     On Error GoTo EXITHERE
 
@@ -112,7 +116,15 @@ Public Sub BuildLineReport(frmMain As Form, _
         m_sReportID = UCase(App.Title)
     End If
     
-    m_sURL = LCase(App.Path & "\" & m_sReportID) & ".txt"
+    If sRptFilePath = "" Then
+        sRptFilePath = App.Path
+    End If
+    If sRptFileName = "" Then
+        sRptFileName = m_sReportID
+    End If
+    
+    m_sURL = LCase(sRptFilePath + IIf(Right(sRptFilePath, 1) = "\", "", "\") _
+        + sRptFileName + IIf(Left(sRptFileExt, 1) = ".", "", ".") + sRptFileExt)
     m_nFileNum = FreeFile
 
     Open m_sURL For Output As #m_nFileNum
@@ -156,8 +168,8 @@ Public Sub BuildLineReport(frmMain As Form, _
     Screen.MousePointer = vbHourglass
         
     subReportHeader nPageWidth, False
-    subColumnHeader False
-    lLineNum = 7
+    nColHeadLineCount = subColumnHeader(False)
+    lLineNum = 4 + nColHeadLineCount
     
     For i = 0 To UBound(aryBody)
         Screen.MousePointer = vbHourglass
@@ -165,7 +177,7 @@ Public Sub BuildLineReport(frmMain As Form, _
         If lLineNum >= nLinesPerPage Then
             subReportHeader nPageWidth, False
             subColumnHeader False
-            lLineNum = 7
+            lLineNum = 4 + nColHeadLineCount
         End If
 
         sHeaderLine = aryBody(i)
@@ -216,7 +228,10 @@ Public Sub BuildInternetReport(frmMain As Form, _
                                     Optional sReportID As String = "", _
                                     Optional nOrientation As Integer = vbPRORPortrait, _
                                     Optional bCompressed As Boolean = False, _
-                                    Optional bDoubleSpace As Boolean = False)
+                                    Optional bDoubleSpace As Boolean = False, _
+                                    Optional sRptFilePath As String = "", _
+                                    Optional sRptFileName As String = "", _
+                                    Optional sRptFileExt As String = ".html")
     
     Dim sHeaderLine As String
     
@@ -264,7 +279,15 @@ Public Sub BuildInternetReport(frmMain As Form, _
         m_sReportID = UCase(App.Title)
     End If
     
-    m_sURL = LCase(App.Path & "\" & m_sReportID) & ".html"
+    If sRptFilePath = "" Then
+        sRptFilePath = App.Path
+    End If
+    If sRptFileName = "" Then
+        sRptFileName = m_sReportID
+    End If
+    
+    m_sURL = LCase(sRptFilePath + IIf(Right(sRptFilePath, 1) = "\", "", "\") _
+        + sRptFileName + IIf(Left(sRptFileExt, 1) = ".", "", ".") + sRptFileExt)
     m_nFileNum = FreeFile
 
     Open m_sURL For Output As #m_nFileNum
@@ -486,23 +509,31 @@ Private Sub subReportHeader(nPageWidth As Integer, Optional bHtmlReport As Boole
     m_nPageNum = m_nPageNum + 1
 End Sub
 
-Private Sub subColumnHeader(Optional bHtmlReport As Boolean = True)
+Private Function subColumnHeader(Optional bHtmlReport As Boolean = True) As Integer
     Dim sHeaderLine As String
+    Dim nLineCount As Integer
     
     sHeaderLine = m_sColHeading1
     If bHtmlReport Then
         sHeaderLine = "<B>" & sHeaderLine & "</B>"
     End If
     Print #m_nFileNum, sHeaderLine
+    nLineCount = nLineCount + 1
 
     sHeaderLine = m_sColHeading2
-    If bHtmlReport Then
-        sHeaderLine = "<B>" & sHeaderLine & "</B>"
+    If Trim(sHeaderLine) <> "" Then
+        If bHtmlReport Then
+            sHeaderLine = "<B>" & sHeaderLine & "</B>"
+        End If
+        Print #m_nFileNum, sHeaderLine
+        nLineCount = nLineCount + 1
     End If
-    Print #m_nFileNum, sHeaderLine
     
     Print #m_nFileNum, ""
-End Sub
+    nLineCount = nLineCount + 1
+    
+    subColumnHeader = nLineCount
+End Function
 
 Private Function fnGetCompanyName() As String
     Dim strSQL As String
