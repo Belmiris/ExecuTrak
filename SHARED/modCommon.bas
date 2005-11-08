@@ -758,6 +758,8 @@ Public Sub ClearText(ParamArray Parms())
     For i = 0 To UBound(Parms)
         If TypeOf Parms(i) Is Textbox Then
             Parms(i).Text = vbNullString
+        ElseIf TypeOf Parms(i) Is Label Then
+            Parms(i).Caption = vbNullString
         End If
     Next
 
