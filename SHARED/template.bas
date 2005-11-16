@@ -14,6 +14,12 @@ Option Explicit
 '=======================
 'Global System Variables
 '=======================
+Public Enum dbVersionSeverityLevels
+    dbvsl_Strict = 0
+    dbvsl_Warning
+    dbvsl_Open
+End Enum
+Public dbVersionSeverity As dbVersionSeverityLevels
 
 Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
@@ -587,6 +593,52 @@ Public t_tax_date As String     'pass the value into this variable if You have d
 
 Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 
+'---------------------------------------------------------------------------------------
+' Procedure : DBVersionToLong
+' DateTime  : 10/5/2005 08:40
+' Author    : DenBorg
+' Magic     : 496342
+' Purpose   : Takes a version in string format (e.g. "3.28.1204") and turns it into
+'             a Long Integer Value. In the above example, "3.28.12" is the database
+'             version, and the "04" is the Program Version. This is how Factor does
+'             the versioning.
+'
+'             This function optionally strips off the program version (parameter
+'             StripProgVer). **** finish comments ****
+'---------------------------------------------------------------------------------------
+'
+Public Function DBVersionToLong(ByVal Version As String, Optional ByVal StripProgVer As Boolean = True) As Long
+    Dim VerInfo() As String
+    Dim i         As Integer
+    Dim VerLong   As Long
+    Dim v         As Long
+    
+    VerInfo = Split(Version, ".")
+    Do While (i <= 2) And (i <= UBound(VerInfo))
+        VerInfo(i) = Trim$(VerInfo(i))
+'        If i = 2 Then
+'            If Len(VerInfo(2)) < 4 Then
+'                VerInfo(2) = VerInfo(2) & String(4 - Len(VerInfo(2)), 48)
+'            End If
+'        End If
+        v = CLng(VerInfo(i))
+        If i = 2 Then
+            v = v \ 100
+        End If
+        
+        VerLong = VerLong + (v * 2 ^ ((3 - i) * 8))
+        i = i + 1
+    Loop
+    
+    If UBound(VerInfo) >= 2 Then
+        If Not StripProgVer Then
+            VerLong = VerLong + (CLng(VerInfo(2)) Mod 100)
+        End If
+    End If
+    
+    DBVersionToLong = VerLong
+End Function
+
 ''''''''''''''''''''''''''''''''
 '# 2/26/04 Robert Atwood
 'Added compile-time flag NO_DST to turn off or on Date Sensitive Taxes.  If it
@@ -649,6 +701,60 @@ Public Sub checkMemory()
 
     End If
 End Sub
+Public Function ReqdDBaseVersionMet() As Boolean
+    Dim lAppVer As Long
+    Dim lDBVer  As Long
+    Dim sAppVer As String
+    Dim sDBVer  As String
+    Dim DB_OK   As Boolean
+    Dim Disable As Boolean
+    Dim SQL     As String
+    
+    If dbVersionSeverity < dbvsl_Open Then
+        SQL = "SELECT parm_field" _
+            & "  FROM Sys_Parm" _
+            & " WHERE (Parm_Nbr=5)"
+        With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+            If Not .EOF Then
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+            End If
+            .Close
+        End With
+        If Not Disable Then
+            SQL = "SELECT parm_field" _
+                & "  FROM Sys_Parm" _
+                & " WHERE (Parm_Nbr=3)"
+            With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+                sDBVer = Trim$(.Fields(0).value)
+                lDBVer = DBVersionToLong(sDBVer & "00", False)
+                .Close
+            End With
+            With App
+                sAppVer = .Major & "." & .Minor & "." & Format$(.Revision, "0000")
+                lAppVer = DBVersionToLong(sAppVer, True)
+            End With
+            
+            DB_OK = (lDBVer >= lAppVer)
+            
+            If Not DB_OK Then
+                If dbVersionSeverity = dbvsl_Warning Then
+                    SQL = UCase$(App.EXEName) & " Version " & sAppVer & " may not function properly on a " & sDBVer & " database." & vbCrLf & "Please contact Factor Support." & vbCrLf & vbCrLf & "Do you want to continue?"
+                    If MsgBox(SQL, vbYesNo + vbDefaultButton2 + vbExclamation) = vbYes Then
+                        DB_OK = True
+                    End If
+                Else
+                    MsgBox UCase$(App.EXEName) & " Version " & sAppVer & " cannot run on a " & sDBVer & " database." & vbCrLf & vbCrLf & "Please contact Factor Support.", vbCritical
+                End If
+            End If
+        Else
+            DB_OK = True
+        End If
+    Else
+        DB_OK = True
+    End If
+    
+    ReqdDBaseVersionMet = DB_OK
+End Function
 Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
@@ -1232,7 +1338,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
     
     
-    tfnOpenDatabase = True
+    tfnOpenDatabase = ReqdDBaseVersionMet() 'True
     '# Added 7-23-03 Robert Atwood for logging system
     If InStr(t_szConnect, "/factor/factor") Then
         '# 2/16/04 Robert Atwood
@@ -3035,7 +3141,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3252,7 +3358,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
