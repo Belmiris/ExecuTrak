@@ -243,6 +243,8 @@ Public Type Loading_Fees
 End Type
 Public aryLDF() As Loading_Fees
 Public ldf_cnt As Integer '#this is the Ubound of the Array
+Public sSysParm1085 As String
+'
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
     
@@ -2494,6 +2496,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lmovement As Long)
     End If
     
     '#(2) Build Loading Fees in Delivery Side --> put_ldfee_rec
+    sSysParm1085 = ""
+    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 1085"
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If Not rsTemp Is Nothing Then
+        If rsTemp.RecordCount > 0 Then
+            sSysParm1085 = Trim(rsTemp!parm_field & "")
+        End If
+    End If
     
     start_ldfee_rec
     Do While Not rsDelD.EOF
@@ -2779,6 +2789,7 @@ Private Sub start_ldfee_rec()
     ldf_cnt = -1
     ReDim aryLDF(0)
 End Sub
+
 Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
                           ByVal dv_line As Long, _
                           ByVal bunits As Long, _
@@ -2796,7 +2807,11 @@ Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
     ElseIf rsTemp.RecordCount = 0 Then
         sClass = "*****"
     Else
-        sClass = Trim(rsTemp!ivh_class & "")
+        If sSysParm1085 = "CLASS" Then
+            sClass = Trim(rsTemp!ivh_class & "")
+        Else
+            sClass = Trim(rsTemp!ivh_prodtcl & "")
+        End If
     End If
     ldf_cnt = ldf_cnt + 1
     ReDim Preserve aryLDF(ldf_cnt) As Loading_Fees
