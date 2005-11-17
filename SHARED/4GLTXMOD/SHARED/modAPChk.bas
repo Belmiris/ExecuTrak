@@ -38,7 +38,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
                                 ByRef lStart As Long, _
                                 Optional bSingleCheck As Boolean = False) As String
     Const QUERY_FAILED = "SQL query failed. Contact Factor"
-    Const TABLENAME = "p_checks"
+    Const TableName = "p_checks"
     Dim strSQL As String
     Dim sTemp As String
     Dim lEnd As Long
@@ -70,7 +70,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
         Exit Function
     End If
     
-    sChkAcct = tfnRound(rsTemp!pg_chk_acct)
+    sChkAcct = fnCStr(rsTemp!pg_chk_acct)
     
     '#Figure out how many checks to write
     'build SQL to verify number of check to be printed
@@ -120,7 +120,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
         
         '#Check if any chk # are reserved
         strSQL = "SELECT srl_criteria FROM sys_row_lock" _
-                & " WHERE srl_table = '" & TABLENAME & "'" _
+                & " WHERE srl_table = '" & TableName & "'" _
                 & " AND srl_criteria[1,17] = '" & Format(sChkAcct, String(17, "0")) & "'"
         strSQL = strSQL & " ORDER BY srl_criteria DESC"
         If apc_GetRecordSet(rsTemp, strSQL) > 0 Then
@@ -149,7 +149,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
     
         '#Check the if any of the check is locked
         strSQL = "SELECT srl_criteria FROM sys_row_lock" _
-                & " WHERE srl_table = '" & TABLENAME & "'" _
+                & " WHERE srl_table = '" & TableName & "'" _
                 & " AND srl_criteria[1,17] = '" & Format(sChkAcct, String(17, "0")) & "'"
         strSQL = strSQL & " AND srl_criteria BETWEEN '" & fnFormatPCheck(sChkAcct, lStart) & "'"
         strSQL = strSQL & " AND '" & fnFormatPCheck(sChkAcct, lEnd) & "'"
@@ -163,7 +163,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
     j = 0
     For i = lStart To lEnd
         j = j + 1
-        strSQL = strSQL & "INSERT INTO sys_row_lock VALUES('" & TABLENAME & "'," & tfnSQLString(LCase(App.EXEName)) & ",'" & tfnGetUserName & "','" & fnFormatPCheck(sChkAcct, i) & "',0);"
+        strSQL = strSQL & "INSERT INTO sys_row_lock VALUES('" & TableName & "'," & tfnSQLString(LCase(App.EXEName)) & ",'" & tfnGetUserName & "','" & fnFormatPCheck(sChkAcct, i) & "',0);"
         If i = lEnd Or j = 300 Then
             If Not apc_ExecuteSQL(strSQL) Then
                 m_FirstLockedCheck = fnFormatPCheck(sChkAcct, lStart)
@@ -187,18 +187,18 @@ End Function
 
 Public Sub subUnlockP_checks()
     Const SUB_NAME = "subUnlockP_checks"
-    Dim sSql As String
+    Dim sSQL As String
     Dim rsTemp As Recordset
     If m_FirstLockedCheck = "" Then
        Exit Sub
     End If
-    sSql = "DELETE FROM sys_row_lock" _
+    sSQL = "DELETE FROM sys_row_lock" _
          & " WHERE srl_table = 'p_checks'" _
          & " AND srl_prog_id = " & tfnSQLString(LCase(App.EXEName)) _
          & " AND srl_user_id = '" & tfnGetUserName & "'" _
          & " AND srl_criteria BETWEEN " & tfnSQLString(m_FirstLockedCheck) _
          & " AND " & tfnSQLString(m_LastLockedCheck)
-    apc_ExecuteSQL sSql
+    apc_ExecuteSQL sSQL
     m_FirstLockedCheck = ""
     m_LastLockedCheck = ""
     
@@ -243,4 +243,6 @@ SQLError:
       On Error GoTo 0
 End Function
 
-
+Private Function fnCStr(vIn) As String
+    fnCStr = Trim(vIn & "")
+End Function
