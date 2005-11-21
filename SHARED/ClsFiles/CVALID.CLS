@@ -189,10 +189,12 @@ Private Function fnGetFirstControl() As Object
     
     Set fnGetFirstControl = Nothing
     For i = 0 To nFirstControls
-        If ctrlFirstControls(i).Enabled Then
-            Set fnGetFirstControl = ctrlFirstControls(i)
-            Exit For
-        End If
+        With ctrlFirstControls(i)
+            If .Enabled And .Visible Then
+                Set fnGetFirstControl = ctrlFirstControls(i)
+                Exit For
+            End If
+        End With
     Next
 
 End Function
@@ -220,6 +222,36 @@ Property Get Locked() As Boolean
 End Property
 
 
+'---------------------------------------------------------------------------------------
+' Procedure : LostFocus
+' DateTime  :
+' Author    : DenBorg
+' Modified  : 11/21/2005 16:14
+'
+' Purpose   : This function's logic has been moved to LostFocus2(), and any required
+'             modifications needs to be done in LostFocus2(). It still does exactly
+'             the same thing, but uses a Collection object instead of a ParamArray.
+'
+'             This existing function was left in to allow existing code to work as
+'             designed. It simply builds a collection from the information in the
+'             ParamArray, and then calls LostFocus2().
+'
+'             This was done to make writing Factor Combo Box classes possible
+'             (a piece of code cannot dynamically change the number of parameters
+'              passes to a function call)
+'---------------------------------------------------------------------------------------
+'
+Public Function LostFocus(txtBox As Object, ParamArray arryControls()) As Boolean
+    Dim colControls As Collection
+    Dim Item        As Long
+    
+    Set colControls = New Collection
+    For Item = 0 To UBound(arryControls)
+        colControls.Add arryControls(Item)
+    Next 'Item
+    
+    LostFocus = LostFocus2(txtBox, colControls)
+End Function
 Property Let MinTabIndex(nTemp As Integer)
     nMinTabIndex = nTemp
 End Property
@@ -741,14 +773,35 @@ Public Sub Keypress(txtBox As Object, nKeyAscii As Integer, Optional bMsg As Var
     End If
 End Sub
 
-Public Function LostFocus(txtBox As Object, _
-                          ParamArray arryControls()) As Boolean
+'---------------------------------------------------------------------------------------
+' Procedure : LostFocus2
+' DateTime  : 11/21/2005 16:26
+' Author    : DenBorg
+'
+' Purpose   : This function is the LostFocus() function, except that it uses a
+'             Collection instead of a ParamArray. It still does exactly the same thing,
+'             but uses a Collection object instead of a ParamArray.
+'
+'             This existing LostFocus() function was left in to allow existing code to
+'             work as designed. It simply builds a collection from the information in
+'             the ParamArray, and then calls LostFocus2().
+'
+'             This was done to make writing Factor Combo Box classes possible
+'             (a piece of code cannot dynamically change the number of parameters
+'              passes to a function call)
+'---------------------------------------------------------------------------------------
+'
+Public Function LostFocus2(txtBox As Object, Optional colControls As Collection) As Boolean
     Dim nNum As Integer
     Dim bBack As Boolean
     Dim i As Integer
     Dim nEscapable As Integer
     
-    LostFocus = True
+    If colControls Is Nothing Then
+        Set colControls = New Collection
+    End If
+    
+    LostFocus2 = True
     If txtBox Is Nothing Or bLocked Then
         Exit Function
     End If
@@ -767,7 +820,7 @@ Public Function LostFocus(txtBox As Object, _
     End If
 
     If frmParent.ActiveControl.TabIndex = txtBox.TabIndex Then
-        LostFocus = False
+        LostFocus2 = False
         Exit Function
     End If
     
@@ -786,9 +839,9 @@ Public Function LostFocus(txtBox As Object, _
 '            End If
 '        End If
 '    End If
-    For i = 0 To UBound(arryControls)
-        If frmParent.ActiveControl.TabIndex = arryControls(i).TabIndex Then
-            LostFocus = False
+    For i = 1 To colControls.Count  'UBound(arryControls)
+        If frmParent.ActiveControl.TabIndex = colControls(i).TabIndex Then
+            LostFocus2 = False
             nFlagFocus = FOCUS_GOT
             Exit Function
         End If
@@ -796,7 +849,7 @@ Public Function LostFocus(txtBox As Object, _
             
     If frmParent.ActiveControl.TabIndex <= nMinTabIndex Or frmParent.ActiveControl.TabIndex > nMaxTabIndex Then
 '        If tpControls(nNum).m_nType <> TYPE_NO_ESCAPE Then
-            LostFocus = True
+            LostFocus2 = True
             nFlagFocus = FOCUS_LOST
             Exit Function
 '        End If
@@ -849,7 +902,7 @@ Public Function LostFocus(txtBox As Object, _
                         .m_txtEdit.SelLength = Len(.m_txtEdit.Text)
                         nLastFocus = nNum
                     End If
-                    LostFocus = False
+                    LostFocus2 = False
                 Else
                     bNeedBack = False
                     nLastFocus = -1
@@ -864,7 +917,6 @@ Public Function LostFocus(txtBox As Object, _
 rsmNext:
     Resume Next
 End Function
-
 Property Get BackAlways() As Integer
     BackAlways = TYPE_BACK_ALWAYS
 End Property
