@@ -767,4 +767,32 @@ Public Sub ClearText(ParamArray Parms())
     Next
 
 End Sub
-
+Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef FileName As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
+    Dim Pos As Long
+    
+    '------------------------------------------------------------------------------------
+    'Extract the Path
+    '------------------------------------------------------------------------------------
+    Pos = InStrRev(FullFileName, "\")
+    If Pos = 0 Then
+        Pos = InStr(FullFileName, ":")
+    End If
+    If Pos Then
+        FilePath = Left$(FullFileName, Pos)
+        FullFileName = Mid$(FullFileName, Pos + 1)
+    End If
+    
+    '------------------------------------------------------------------------------------
+    'Extract the File Extension
+    '------------------------------------------------------------------------------------
+    Pos = InStrRev(FullFileName, ".")
+    If Pos Then
+        FileExt = Mid$(FullFileName, Pos + 1)
+        FullFileName = Left$(FullFileName, Pos - 1)
+    End If
+    
+    '------------------------------------------------------------------------------------
+    'Extract the File Name
+    '------------------------------------------------------------------------------------
+    FileName = FullFileName 'Only thing left is the File NAME itself
+End Sub
