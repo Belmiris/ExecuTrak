@@ -58,6 +58,9 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
+Public Function QStr(ByVal Str As String, Optional ByVal Quote As String = """") As String
+    QStr = Quote & Str & Quote
+End Function
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     Dim OldMode As Integer
     Dim ChgMode As Boolean
