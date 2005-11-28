@@ -58,8 +58,64 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
-Public Function QStr(ByVal Str As String, Optional ByVal Quote As String = """") As String
-    QStr = Quote & Str & Quote
+Public Function QuoteString(ByVal Str As String, Optional ByVal Quote As String = """") As String
+    QuoteString = Quote & Str & Quote
+End Function
+'---------------------------------------------------------------------------------------
+' Procedure : BackupFilename
+' DateTime  : 11/23/2005 14:54
+' Author    : DenBorg
+' Magic     : 468962
+' Purpose   : This routine, given a file name and a backup directory, will return the
+'             name for a new backup file. Backup files are in the form of AAAA.###
+'             where AAA is the name of the file, and ### is a 3-digit counter. The
+'             3-digit counter replaces the file's original file extension.
+'
+'             For example, for filename CUSTOMER.DAT, this routine might return
+'             something like CUSTOMER.017 (if there were already 16 backup files in the
+'             specified backup path)
+'---------------------------------------------------------------------------------------
+'
+Public Function BackupFilename(ByVal FileName As String, ByVal BackupPath As String) As String
+    Dim FileExt As String
+    Dim FileNum As Integer
+    Dim CurFile As String
+    
+    '------------------------------------------------------------------------------------
+    'Strip off Path and Extension from FileName
+    '------------------------------------------------------------------------------------
+    FileNameParts FileName, , FileName
+    
+    '------------------------------------------------------------------------------------
+    'See if the file already has existing backup copies in BackupPath.
+    'If so, take note of the highest backup counter value.
+    '------------------------------------------------------------------------------------
+    BackupPath = FixPath(BackupPath)
+    CurFile = Dir(BackupPath & FileName & ".???")
+    Do While LenB(CurFile)
+        FileNameParts CurFile, , , FileExt
+        If FileExt Like "###" Then
+            If Val(FileExt) > FileNum Then
+                FileNum = Val(FileExt)
+            End If
+        End If
+        
+        CurFile = Dir() 'Get next filename
+    Loop
+    
+    '------------------------------------------------------------------------------------
+    'Increment counter
+    '------------------------------------------------------------------------------------
+    If FileNum < 999 Then
+        FileNum = FileNum + 1
+    Else
+        FileNum = 999
+    End If
+    
+    '------------------------------------------------------------------------------------
+    'Return the name for the new Backup File
+    '------------------------------------------------------------------------------------
+    BackupFilename = BackupPath & FileName & "." & Format$(FileNum, "000")
 End Function
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     Dim OldMode As Integer
@@ -289,12 +345,12 @@ Public Function Nz(ByVal Value As Variant, Optional ByVal ValueIfNull As Variant
         Nz = ValueIfNull
     End If
 End Function
-Public Function ReadEntireFile(ByVal Filename As String) As String
+Public Function ReadEntireFile(ByVal FileName As String) As String
     Dim hFile As Integer
     
-    If FileExists(Filename) Then
+    If FileExists(FileName) Then
         hFile = FreeFile()
-        Open Filename For Binary As #hFile
+        Open FileName For Binary As #hFile
         ReadEntireFile = Input(LOF(hFile), hFile)
         Close #hFile
     End If
@@ -678,22 +734,22 @@ Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Opt
     MsgBox = VBA.MsgBox(Prompt, Buttons, Title, HelpFile, Context)
 End Function
 
-Public Function AppFile(ByVal Filename As String) As String
-    AppFile = AppPath() & Filename
+Public Function AppFile(ByVal FileName As String) As String
+    AppFile = AppPath() & FileName
 End Function
  
 Public Function AppPath() As String
     AppPath = FixPath(App.Path)
 End Function
  
-Public Function FileExists(ByVal Filename As String) As Boolean
+Public Function FileExists(ByVal FileName As String) As Boolean
     Dim bExists As Boolean
     
     On Error Resume Next
-    FileLen Filename
+    FileLen FileName
     bExists = (Err.Number = 0)
     If bExists Then
-        bExists = ((GetAttr(Filename) And vbDirectory) = 0)
+        bExists = ((GetAttr(FileName) And vbDirectory) = 0)
     End If
     On Error GoTo 0 'Clear Err & disable error handler
     
@@ -769,6 +825,13 @@ Public Sub ClearText(ParamArray Parms())
 End Sub
 Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef FileName As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
     Dim Pos As Long
+    
+    '------------------------------------------------------------------------------------
+    'Init - Needed for Optional Params that had pre-existing values
+    '------------------------------------------------------------------------------------
+    FilePath = vbNullString
+    FileName = vbNullString
+    FileExt = vbNullString
     
     '------------------------------------------------------------------------------------
     'Extract the Path
