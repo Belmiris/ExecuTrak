@@ -58,8 +58,8 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
-Public Function QuoteString(ByVal Str As String, Optional ByVal Quote As String = """") As String
-    QuoteString = Quote & Str & Quote
+Public Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
+    Q_Str = Quote & Str & Quote
 End Function
 '---------------------------------------------------------------------------------------
 ' Procedure : BackupFilename
