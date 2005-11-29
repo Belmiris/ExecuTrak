@@ -2610,6 +2610,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Else
         dsl_fuel_group = "NONE"
     End If
+    
     monkey_the_numbers Trim(dsl_fuel_group), bTexasDiverted
     
     strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & lMovement & " AND cTaxBasis = 'A'"
@@ -3340,13 +3341,13 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                                  ByVal lDest As Long, _
                                  ByVal lInv As Long, _
                                  ByVal nLine As Integer, _
-                                 sProduct As String, _
-                                 sTaxUseGroup As String, _
-                                 fDollarBase As Double, _
-                                 fFreight As Double, _
-                                 fGross As Double, _
-                                 fNet As Double, _
-                                 sBillFlag As String, _
+                                 ByVal sProduct As String, _
+                                 ByVal sTaxUseGroup As String, _
+                                 ByVal fDollarBase As Double, _
+                                 ByVal fFreight As Double, _
+                                 ByVal fGross As Double, _
+                                 ByVal fNet As Double, _
+                                 ByVal sBillFlag As String, _
                                  Optional vLineType As Variant, _
                                  Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "", _
@@ -3364,12 +3365,21 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
     Dim nTries As Integer
     Dim nRecords As Long
     Dim k As Integer
+    Dim nSign As Integer
     
     fnATaxInfoItem = False
     If Not fnLoadTaxMods Then
         Exit Function
     End If
 
+    If fNet < 0 Then
+        nSign = -1
+        fNet = -(fNet)
+        fGross = -(fGross)
+    Else
+        nSign = 1
+    End If
+    
     With myStruct
         .m_sProduct = sProduct
         .m_sUseGroup = sTaxUseGroup
@@ -3420,7 +3430,13 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
-        
+    
+    If nRecords > 0 And nSign < 0 Then
+        For i = 0 To nRecords - 1
+            Taxes(i).m_dAmount = -(Taxes(i).m_dAmount)
+        Next i
+    End If
+    
     For nIdx = 0 To nInfoCount - 1
         If aryTaxInfo(nIdx).m_lInvoice = lInv Then
             If aryTaxInfo(nIdx).m_nLine = nLine Then
