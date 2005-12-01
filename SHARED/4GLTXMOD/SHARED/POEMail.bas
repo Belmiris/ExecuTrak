@@ -3,8 +3,13 @@ Option Explicit
 'Programmer : Rajneesh Aggarwal(20 April 00)
 'Created for Purchase Order Module only.
 '
-
-
+' Magic#435940 - Wills Group EDI Interface - RMS - 05/19/2005
+' Added the following constants
+Public Const iMultiAuth_NoError        As Integer = 0  ' No error has occurred
+Public Const iMultiAuth_DBError        As Integer = 1  ' Error accessing PO_Security
+Public Const iMultiAuth_NoSecurity     As Integer = 2  ' No security data available
+Public Const iMultiAuth_Denied         As Integer = 3  ' Not authorized error
+Public Const iMultiAuth_Ask            As Integer = 4  ' Ask manager to approve
 
 Public Function fnCheckApprovalAuthority(sProgramID As String, _
                                           vPurchaseNumber As Variant, _
@@ -222,7 +227,7 @@ Private Function tfnRun(szExeName As String, Optional vWindowStyle) As Boolean
     
     szCmd = gszBINROOT & szExeName
     
-    hTempInstance = shell(szCmd, vWindowStyle)
+    hTempInstance = Shell(szCmd, vWindowStyle)
     
     'if hInstance greater than 32 application is running
     If hTempInstance > SHELL_OK Or hTempInstance < 0 Then
@@ -241,3 +246,121 @@ ErrorRun:
     #End If
 End Function
 
+' Magic#435940 - Wills Group EDI Interface - RMS - 05/19/2005
+' Note:  This function is similar to fnCheckApprovalAuthority but does not
+' store any values into the Preview Grid and it returns an integer value and a message
+' to indicate success or failure.
+Public Function fnCheckApprovalAuthorityMulti _
+    (sProgramID As String, _
+     vPurchaseNumber As Variant, _
+     nPrftCtr As Integer, _
+     dPurchaseTotal As Double, _
+     ByRef sErrorMessage As String) As Integer
+                                          
+    Const SUB_NAME As String = "fnCheckApprovalAuthorityMulti"
+    
+    Dim i           As Long
+    Dim sUserName   As String
+    Dim strSQL      As String
+    Dim rsTemp      As Recordset
+    Dim sMsg        As String
+    Dim sName       As String 'Concatenated First and Last Names
+    Dim sSubject    As String
+    Dim sEMailMsg   As String
+    Dim sEMailAdd   As String
+    Dim sSuperID    As String
+    Dim sProgram    As String
+        
+    fnCheckApprovalAuthorityMulti = iMultiAuth_NoError
+    sErrorMessage = ""
+    
+    sUserName = Trim(tfnGetUserName())
+    
+    If Not fnGetName(sUserName, sName, sEMailAdd) Then
+        sName = sUserName
+    End If
+    
+    Select Case LCase(sProgramID)
+        Case "poerentr"
+            sProgram = " Request"
+        Case "poeoentr"
+            sProgram = " Order"
+        Case "pofbrspr"
+            sProgram = " Request"
+        Case "pofbrspo"
+            sProgram = " Order"
+        Case "poeselct"
+            sProgram = " Selection"
+    End Select
+
+    strSQL = "SELECT pos_prft_ctr, pos_user_id, pos_approv_level, pos_super_userid" _
+           & ", pos_pr_approv, pos_po_approv, polv_prft_ctr" _
+           & ", polv_level, polv_level_desc, polv_auth_amount, sum_user_id " _
+           & ", sum_first_name, sum_last_name" _
+           & " FROM po_security, po_levels, sys_user_master" _
+           & " WHERE pos_prft_ctr = " & nPrftCtr _
+           & " AND pos_user_id = sum_user_id" _
+           & " AND pos_prft_ctr = polv_prft_ctr" _
+           & " AND pos_approv_level = polv_level" _
+           & " AND pos_user_id = " & tfnSQLString(sUserName)
+    
+    If GetRecordSet(rsTemp, strSQL, , "SUB_NAME") < 0 Then
+        fnCheckApprovalAuthorityMulti = iMultiAuth_DBError
+        sErrorMessage = "An attempt to access the PO_Security Record has failed."
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        fnCheckApprovalAuthorityMulti = iMultiAuth_NoSecurity
+        sErrorMessage = "An authorization record was not found for the user."
+        Exit Function
+    End If
+    
+    'Check the approval flag in the PO Security table for the profit center.
+    Select Case sProgramID
+        Case "POFBRSPR", "POERENTR", "POESELCT"
+            If fnCstr(rsTemp!pos_pr_approv) <> "Y" Then
+                fnCheckApprovalAuthorityMulti = iMultiAuth_Denied
+            End If
+        Case "POFBRSPO", "POEOENTR"
+            If fnCstr(rsTemp!pos_po_approv) <> "Y" Then
+                fnCheckApprovalAuthorityMulti = iMultiAuth_Denied
+            End If
+    End Select
+    
+    If fnCheckApprovalAuthorityMulti = iMultiAuth_Denied Then
+        sErrorMessage = "You are not authorized to approve this Purchase " & sProgram
+        Exit Function
+    End If
+
+    If tfnRound(dPurchaseTotal, DEFAULT_DECIMALS) > tfnRound(rsTemp!polv_auth_amount, 6) Then
+        
+        sSuperID = fnCstr(rsTemp!pos_super_userid)
+        If sSuperID <> "" Then 'Get Supervisor Name and his EMail Address
+            If Not fnGetName(sSuperID, sName, sEMailAdd) Then 'Show Supervisor's UserID
+                sMsg = sSuperID
+            Else 'Show Supervisor's Name
+                sMsg = sName
+            End If
+        End If
+        
+        sMsg = "Authorization failed, Purchase" & sProgram & " value exceeds sanctioned limit of $" _
+             & tfnRound(rsTemp!polv_auth_amount, DEFAULT_DECIMALS) & "." _
+             & " Please ask '" & sMsg & "' to approve this Purchase" & sProgram & "."
+             
+        sSubject = "A Purchase" & sProgram & " requires your approval"
+        sEMailMsg = sName & " has attempted to approve Purchase" & sProgram & " number '" _
+                  & vPurchaseNumber & "', but lacked sufficient approval authority. " _
+                  & "Please review this Purchase" & sProgram & ", and approve or cancel it." _
+
+        'Send an E-Mail Message to user's supervisor...
+        If fnSendEmail(sProgramID, sEMailAdd, sSubject, sEMailMsg) Then
+            tfnWaitSeconds 4
+        End If
+        
+        fnCheckApprovalAuthorityMulti = iMultiAuth_Ask
+        sErrorMessage = sMsg
+        Exit Function
+    End If
+            
+End Function
