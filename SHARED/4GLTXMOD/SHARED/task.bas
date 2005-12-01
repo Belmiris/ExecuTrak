@@ -18,36 +18,41 @@ Private Type PROCESSENTRY32
     szExeFile As String * 512
 End Type
 
-Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
-Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
-Private Declare Function IsWindow Lib "user32" (ByVal hwnd As Long) As Long
+Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function IsWindow Lib "user32" (ByVal hWnd As Long) As Long
 Private Declare Function GetDesktopWindow Lib "user32" () As Long
-Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hwnd As Long, lpdwProcessId As Long) As Long
-Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
-Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hWnd As Long, lpdwProcessId As Long) As Long
+Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
     
 Private Declare Function CreateToolhelp32Snapshot Lib "kernel32.dll" _
             (ByVal dwFlags As Long, _
              ByVal th32ProcessID As Long) As Long
 
 Private Declare Function CloseHandle Lib "kernel32.dll" _
-        (ByVal hSnapshot As Long) As Boolean
+        (ByVal hSnapShot As Long) As Boolean
              
 Private Declare Function Process32First Lib "kernel32.dll" _
-            (ByVal hSnapshot As Long, _
+            (ByVal hSnapShot As Long, _
              lppe As PROCESSENTRY32) As Long
 
 Private Declare Function Process32Next Lib "kernel32.dll" _
-            (ByVal hSnapshot As Long, _
+            (ByVal hSnapShot As Long, _
              lppe As PROCESSENTRY32) As Long
 
 Global Const SHELL_OK As Integer = 32
 
-Private Function GetWindow(ByVal hwnd As Integer, _
+Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Long) As Long
+Private Declare Function GetExitCodeProcess Lib "kernel32.dll" (ByVal hProcess As Long, ByRef lpExitCode As Long) As Boolean
+Private Declare Function TerminateProcess Lib "kernel32.dll" (ByVal hProcess As Long, ByVal uExitCode As Long) As Boolean
+'
+
+Private Function GetWindow(ByVal hWnd As Integer, _
                     ByVal wCmd As Integer) As Integer
                     
-    GetWindow = fnUINT2INT(CLng(fnGetWindow(hwnd, wCmd)))
+    GetWindow = fnUINT2INT(CLng(fnGetWindow(hWnd, wCmd)))
     
 End Function
 '
@@ -63,7 +68,7 @@ Public Function EndTask(ByVal hTargetWnd As Long, _
     On Error Resume Next 'turn off error trapping for this function
 
     If Not IsMissing(frmCurrent) Then
-        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hwnd Then
+        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hWnd Then
             EndTask = False
             Exit Function
         End If
@@ -85,6 +90,148 @@ Public Function EndTask(ByVal hTargetWnd As Long, _
     EndTask = nReturnValue
 
 End Function
+
+Public Function KillProcess(sExe As String, Optional ByVal lProcID As Long = -1, _
+                            Optional bShowError As Boolean = True, _
+                            Optional sErrMsg As String) As Boolean
+    
+    Const SUB_NAME As String = "KillProcess"
+    
+    Const PROCESS_TERMINATE As Long = &H1
+    Const PROCESS_QUERY_INFORMATION As Long = &H400
+    
+    Dim P_ID As Long
+    Dim hProcess As Long
+    Dim lExitCode As Long
+
+    sErrMsg = ""
+    
+    P_ID = GetProcess(sExe, lProcID, bShowError, sErrMsg)
+    
+    'process id found
+    If P_ID <> -1 Then
+        hProcess = OpenProcess(PROCESS_QUERY_INFORMATION Or PROCESS_TERMINATE, False, P_ID)
+        
+        If hProcess = 0 Then
+            Call Err_Dll(Err.LastDllError, "OpenProcess failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        End If
+        
+        If GetExitCodeProcess(hProcess, lExitCode) = False Then
+            Call Err_Dll(Err.LastDllError, "GetExitCodeProcess failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        End If
+        
+        If TerminateProcess(hProcess, lExitCode) = False Then
+            Call Err_Dll(Err.LastDllError, "TerminateProcess failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        End If
+        
+        If CloseHandle(hProcess) = False Then
+            Call Err_Dll(Err.LastDllError, "CloseHandle failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        End If
+    End If
+End Function
+
+'return a process ID if the process is running
+'otherwise, return -1
+Public Function GetProcess(sExe As String, ByVal lProcID As Long, _
+                           Optional bShowError As Boolean = True, _
+                           Optional sErrMsg As String) As Long
+    
+    Const SUB_NAME As String = "GetProcess"
+    
+    Dim hSnap As Long
+    Dim proc As PROCESSENTRY32
+    Dim lProcess As Long
+    Dim sRunningExe As String
+    Dim nPosi As Integer
+    Dim sTemp As String
+    
+    sErrMsg = ""
+    sExe = UCase(fnExtractFileName(sExe))
+    
+    ' Windows 95 uses ToolHelp32 functions
+    ' Take a picture of current process list
+    hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    
+    If hSnap = -1 Then
+        Call Err_Dll(Err.LastDllError, "CreateToolHelp32Snapshoot failed ::: INVALID_HANDLE_VALUE", App.Title, SUB_NAME, bShowError, sErrMsg)
+        Exit Function
+    End If
+    
+    proc.dwSize = Len(proc)
+     ' Iterate through the processes
+    
+    If Process32First(hSnap, proc) = False Then
+        Call Err_Dll(Err.LastDllError, "Process32First failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        GetProcess = -1
+        
+        If CloseHandle(hSnap) = False Then
+            Call Err_Dll(Err.LastDllError, "CloseHandle failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+        End If
+        Exit Function
+    End If
+
+    Do
+        If Process32Next(hSnap, proc) = False Then
+            Exit Do
+        Else
+            'get the running exe before the zero characters
+            nPosi = InStr(proc.szExeFile, Chr(0))
+            If nPosi > 0 Then
+                sRunningExe = Left(proc.szExeFile, nPosi - 1)
+            Else
+                sRunningExe = proc.szExeFile
+            End If
+            sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
+            'Debug.Print sTemp
+            
+            If lProcID < 0 Then
+                '#Check EXE only - this is always the case before 06/23/05
+                If sTemp = sExe Then
+                    GetProcess = proc.th32ProcessID
+                    If CloseHandle(hSnap) = False Then
+                        Call Err_Dll(Err.LastDllError, "CloseHandle failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+                    End If
+                    Exit Function
+                End If
+            Else
+                '#Check EXE and Process ID
+                If sTemp = sExe And lProcID = proc.th32ProcessID Then
+                    GetProcess = proc.th32ProcessID
+                    If CloseHandle(hSnap) = False Then
+                        Call Err_Dll(Err.LastDllError, "CloseHandle failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+                    End If
+                    Exit Function
+                End If
+            End If
+        End If
+    Loop
+    
+    If CloseHandle(hSnap) = False Then
+        Call Err_Dll(Err.LastDllError, "CloseHandle failed", App.Title, SUB_NAME, bShowError, sErrMsg)
+    End If
+    
+    GetProcess = -1
+End Function
+
+Public Sub Err_Dll(ErrorNum As Long, ErrorDesc As String, _
+                   Source As String, SubOrFunction As String, _
+                   Optional bShowError As Boolean = True, _
+                   Optional sErrMsg As String)
+    
+    sErrMsg = "ERROR: " & ErrorNum & " at " & Source & "\" & SubOrFunction & " >>> " & ErrorDesc
+    
+    #If NO_ERRHANDLER Then
+        MsgBox sErrMsg
+    #Else
+        If objErrHandler Is Nothing Then
+            If bShowError Then
+                MsgBox sErrMsg
+            End If
+        Else
+            tfnErrHandler Source + "." + SubOrFunction, ErrorNum, ErrorDesc, bShowError
+        End If
+    #End If
+End Sub
 '
 'Function        : IsWndRunning - returns an hWnd for the hInstance handle passed in.
 'Passed Variables: sWindowTitle, the windows title.
@@ -178,8 +325,8 @@ Public Function fnExeIsRunning(ByVal sExe As String, _
         Else
             sRunningExe = proc.szExeFile
         End If
-        sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
-        Debug.Print sTemp
+        'sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
+        'Debug.Print sTemp
         
         If lProcID < 0 Then
             '#Check EXE only - this is always the case before 06/23/05
@@ -200,7 +347,6 @@ Public Function fnExeIsRunning(ByVal sExe As String, _
     Loop
     
     CloseHandle hSnap
-    
     fnExeIsRunning = False
 End Function
 
