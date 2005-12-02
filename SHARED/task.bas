@@ -42,6 +42,9 @@ Private Declare Function Process32Next Lib "kernel32.dll" _
             (ByVal hSnapShot As Long, _
              lppe As PROCESSENTRY32) As Long
 
+Private Declare Function fnSetFocusAPI Lib "user32" Alias "SetFocus" _
+    (ByVal hWnd As Long) As Long
+
 Global Const SHELL_OK As Integer = 32
 
 Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Long) As Long
@@ -235,8 +238,6 @@ End Sub
 '
 'Function        : IsWndRunning - returns an hWnd for the hInstance handle passed in.
 'Passed Variables: sWindowTitle, the windows title.
-'                : hInstance, instance handle returned from the Shell function (optional).
-'                : hInstance will be set if the program is running.
 'Returns         : hWnd, a window handle for the hInstance passed.
 'Comments        : The hWnd will be the current active window in the application, not only the main window handle.
 Public Function IsWndRunning(sWindowTitle As String) As Long
@@ -253,6 +254,7 @@ Public Function IsWndRunning(sWindowTitle As String) As Long
     Dim sWIN_NAME As String
     Dim sWIN_CLASS As String
     
+    'use the windows title to find the windows handler
     sName = UCase(Trim(sWindowTitle))
     
     IsWndRunning = 0
@@ -284,6 +286,7 @@ Public Function IsWndRunning(sWindowTitle As String) As Long
         
         hTempWnd = fnGetWindow(hTempWnd, GW_HWNDNEXT)
     Loop
+
 End Function
 
 Private Function fnUINT2INT(lValue As Long) As Integer
@@ -460,4 +463,31 @@ Public Function fnKillProgram(hProgram As Long) As Integer
     End If
 End Function
 
+Public Sub subBringWindowToFront(sWindowTitle As String)
+    Dim hWnd As Long
+    
+    hWnd = IsWndRunning(sWindowTitle)
+    
+    If hWnd = 0 Then
+        Exit Sub
+    End If
+    
+    SetFocusAPI hWnd      'set the focus to the application
+End Sub
+'
+'Function        : fnSetWindowPosition
+'Passed Variables: form window handle, position constant
+'Returns         : none
+'
+Public Sub fnSetWindowPosition(hWnd As Long, nFlag As Long)
+  'On Error Resume Next
+  SetWindowPos hWnd, nFlag, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+End Sub
+
+Function SetFocusAPI(ByVal hWnd As Long) As Long
+    ShowWindow hWnd, SW_SHOWNORMAL
+    
+    fnSetWindowPosition hWnd, HWND_TOP
+    SetFocusAPI = fnSetFocusAPI(hWnd)
+End Function
 
