@@ -37,7 +37,7 @@ End Enum
 'Events Raised
 '==================================
 Event SelectChange(Grid As GridDef)
-Event TableClick(Cancel As Boolean)
+Event TableClick(CANCEL As Boolean)
 Event TableGotFocus(Table As TDBGrid)
 
 '==================================
@@ -75,7 +75,8 @@ Public Function AddColumn(ByVal Key As String, _
                           ByVal Header As String, _
                           ByVal WidthPct As Single, _
                           Optional ByVal FieldName As String = vbNullString, _
-                          Optional ByVal Editable As Boolean = True) As GridColDef
+                          Optional ByVal Editable As Boolean = True, _
+                          Optional ByVal RegExp As String = vbNullString) As GridColDef
     Dim GCDef As GridColDef
     
     Set GCDef = New GridColDef
@@ -85,6 +86,7 @@ Public Function AddColumn(ByVal Key As String, _
         .WidthPct = WidthPct
         .FieldName = FieldName
         .Editable = Editable
+        .RegExp = RegExp
         .Index = m_GridColumns.Count
     End With
     
@@ -379,17 +381,17 @@ End Sub
 Private Sub m_Table_AfterColEdit(ByVal ColIndex As Integer)
     m_TGM.AfterColEdit ColIndex
 End Sub
-Private Sub m_Table_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    m_TGM.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub m_Table_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    m_TGM.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 Private Sub m_Table_Change()
     m_TGM.Change
 End Sub
 Private Sub m_Table_Click()
-    Dim Cancel As Boolean
+    Dim CANCEL As Boolean
     
-    RaiseEvent TableClick(Cancel)
-    If Not Cancel Then
+    RaiseEvent TableClick(CANCEL)
+    If Not CANCEL Then
         If Not (m_TGS Is Nothing) Then
             m_TGS.Click
         End If
@@ -503,19 +505,19 @@ Private Sub m_Table_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     RaiseEvent SelectChange(Me)
 End Sub
 
-Private Sub m_Table_Scroll(Cancel As Integer)
+Private Sub m_Table_Scroll(CANCEL As Integer)
     If Not (m_FDD Is Nothing) Then
         m_FDD.Scroll
     End If
 End Sub
-Private Sub m_Table_SelChange(Cancel As Integer)
-    m_TGM.SelChange Cancel
+Private Sub m_Table_SelChange(CANCEL As Integer)
+    m_TGM.SelChange CANCEL
     If Not (m_TGS Is Nothing) Then
-        m_TGS.SelChange Cancel
+        m_TGS.SelChange CANCEL
     End If
 '    Cancel = True
 End Sub
-Private Sub m_Table_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+Private Sub m_Table_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     m_TGM.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
