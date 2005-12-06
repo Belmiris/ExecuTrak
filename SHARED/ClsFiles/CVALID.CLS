@@ -674,6 +674,8 @@ Property Set Form(fForm As Object)
 End Property
 
 Public Sub GotFocus(txtBox As Object)
+    Dim Index As Integer
+    
     If bLocked Then
         If txtBox.TabIndex = ctrlForFocus.TabIndex Then
             SendKeys "{TAB}"
@@ -704,7 +706,19 @@ Public Sub GotFocus(txtBox As Object)
             
             If ctrlFirst Is Nothing Then
                 If nESCCount > 0 Then
-                    Set ctrlFirst = arryESCControls(0).m_objControl
+                    'DenBorg - 12/06/2005
+                    'Modified it to search for the first ESC Control
+                    'that is both Visible and Enabled, instead of just
+                    'simply setting it to the first ESC Control in the
+                    'array arryESCControls
+                    For Index = 0 To UBound(arryESCControls)
+                        With arryESCControls(0).m_objControl
+                            If .Visible And .Enabled Then
+                                Set ctrlFirst = arryESCControls(Index).m_objControl
+                                Exit For
+                            End If
+                        End With
+                    Next 'Index
                 End If
             End If
             
