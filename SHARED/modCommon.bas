@@ -38,7 +38,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -475,14 +475,12 @@ Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
         Do While Index <= MaxIndex
             sTemp = Trim$(Parms(Index + 1) & vbNullString)
             
-            If sTemp = "0" Or sTemp = vbNullString Then
+            If sTemp = vbNullString Then
                 'Check to if the default value should be string or
                 'numeric.  String values will be enclosed in single
                 'quotes, so check the SQL string for a preceding
                 'quote on the parm name e.g.
-                If InStrB(1, SQL, "'" & Parms(Index)) > 0 Then
-                    sTemp = vbNullString
-                Else
+                If InStrB(1, SQL, "'" & Parms(Index)) = 0 Then
                     sTemp = "0"
                 End If
             Else
