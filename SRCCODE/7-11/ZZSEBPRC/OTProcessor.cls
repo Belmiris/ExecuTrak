@@ -505,7 +505,17 @@ Public Sub cmdOTProcess_Click()
         GoTo EXITSUB
     End If
     
-    If Trim(txtOTWeek2BeginDate) <> "" And Trim(txtOTWeek2BeginDate) <= Trim(txtOTWeek1EndDate) Then
+    If Trim(txtOTWeek2BeginDate) = "" Or (Not IsDate(txtOTWeek2BeginDate)) Then
+        MsgBox "The Week 2 begin date is not valid!", vbExclamation
+        GoTo EXITSUB
+    End If
+    
+    If Not IsDate(txtOTWeek1EndDate) Then
+        MsgBox "The Week 1 end date is not valid!", vbExclamation
+        GoTo EXITSUB
+    End If
+    
+    If CDate(txtOTWeek2BeginDate) <= CDate(txtOTWeek1EndDate) Then
         MsgBox "The Week 2 begin date can't be earlier than Week 1 end date", vbExclamation
         GoTo EXITSUB
     End If
@@ -1645,7 +1655,7 @@ Private Sub subSetProgress(sngPercent As Single)
         pbStatus.Visible = False
     End If
     
-    pbStatus.Value = sngPercent
+    pbStatus.value = sngPercent
 End Sub
 
 Private Function fnInsertUpdate() As Boolean
