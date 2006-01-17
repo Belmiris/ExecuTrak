@@ -964,6 +964,12 @@ Public Sub txtEHDate_KeyPress(KeyAscii As Integer)
 End Sub
 
 Public Sub txtEHDate_LostFocus()
+    
+    'david 01/16/2006  #506653
+    If m_Form.ActiveControl Is cmdExitBtn Or m_Form.ActiveControl Is cmdExitCancelBtn Then
+        Exit Sub
+    End If
+    ''''''''''''''''''''''''''
 
     If cValidate.LostFocus(txtEHDate, cmdEHDate, tblComboDropdown) Then
         tgcDropdown.LostFocus txtEHDate
@@ -1296,10 +1302,6 @@ Private Function fnFillTimeCard() As Boolean
     Dim i As Long
     
     On Error GoTo ErrorHandler
-    
-    If m_Form.ActiveControl Is cmdExitBtn Or m_Form.ActiveControl Is cmdExitCancelBtn Then
-        Exit Function
-    End If
     
     If cValidate.FirstInvalidInput >= 0 Then
         MsgBox "Please select valid profit center and clock-in date", vbExclamation
