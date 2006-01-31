@@ -244,6 +244,22 @@ End Type
 Public aryLDF() As Loading_Fees
 Public ldf_cnt As Integer '#this is the Ubound of the Array
 Public sSysParm1085 As String
+
+'david 01/26/2006  #506839
+Private Type tpLimitTax
+    m_sCode As String
+    m_sDesc As String
+    m_lTrn As Long
+    m_lLimit As Double
+    m_cLimitType As Byte
+    m_cBasis As Byte
+    m_base_txble_amt As Double
+    m_fRate As Double
+    m_fAccumTaxAmt As Double
+End Type
+Private arryLimitTax() As tpLimitTax
+Private nLimitTaxCount As Integer
+''''''''''''''''''''''''''
 '
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
@@ -1090,6 +1106,8 @@ End Function
 '// Calculates and returns the taxes
 'david 08/29/2003  #393678-4
 'add two more optional parameters
+'david 01/26/2006  #506839
+'add bNewApplyLimit
 Public Function fnGetTaxAmount1(szProduct As String, _
                                ByVal lNet As Double, _
                                ByVal lGross As Double, _
@@ -1105,7 +1123,8 @@ Public Function fnGetTaxAmount1(szProduct As String, _
                                Optional hld_vessel As Integer = -1, _
                                Optional hld_gals As Double = 0#, _
                                Optional hld_miles As Double = 0#, _
-                               Optional hld_tot_gals As Double = 0#) As Double
+                               Optional hld_tot_gals As Double = 0#, _
+                               Optional bNewApplyLimit As Boolean = False) As Double
 
     Dim fQuantity As Double
     'Calculate taxes by calling the tax mods
@@ -1191,7 +1210,11 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
-        subApplyLimit Taxes, nRecords
+        If bNewApplyLimit Then
+            subApplyTaxLimit Taxes, nRecords
+        Else
+            subApplyLimit Taxes, nRecords
+        End If
     End If
     
     'Calculate the sum of the taxes
@@ -1307,6 +1330,11 @@ Public Sub subAddTaxItem1(szProduct As String, _
 
 End Sub
 
+'david 01/26/2006  #506839
+'THIS FUNCTION IS NOT WORKING !!!
+'IT ONLY WORKS FOR ONE INVOICE LINE
+'IN FMEMVMNT AND MFEMVMTE, CHANGED TO CALL subApplyTaxLimit()
+''''''''''''''''''''''''''
 Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
                           ByVal nCount As Integer)
 
@@ -1355,7 +1383,6 @@ Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
         End If
     Next i
 End Sub
-
 
 Public Sub subResetTaxes(Optional vTwoD As Variant, _
                          Optional vResetTypeATax As Variant)
@@ -1430,6 +1457,9 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
         fnLoadTaxMods = True
     End If
     subResetTaxes
+    'david 01/26/2006  #506839
+    subResetLimitTaxes
+    ''''''''''''''''''''''''''
     Exit Function
     
 errLoadTaxMods:
@@ -1444,6 +1474,8 @@ End Function
 
 'david 08/29/2003  #393678-4
 'add two more optional parameters
+'david 01/26/2006  #506839
+'add bNewApplyLimit
 Public Function fnTaxInformation(sProduct As String, _
                                  sTaxUseGroup As String, _
                                  fDollarBase As Double, _
@@ -1459,7 +1491,8 @@ Public Function fnTaxInformation(sProduct As String, _
                                  Optional hld_vessel As Integer = -1, _
                                  Optional hld_gals As Double = 0#, _
                                  Optional hld_miles As Double = 0#, _
-                                 Optional hld_tot_gals As Double = 0#) As Boolean
+                                 Optional hld_tot_gals As Double = 0#, _
+                                 Optional bNewApplyLimit As Boolean = False) As Boolean
     
     'Get the tax information array
     Dim myStruct As CMovementLineItem
@@ -1523,7 +1556,11 @@ Public Function fnTaxInformation(sProduct As String, _
     subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
-        subApplyLimit Taxes, nRecords
+        If bNewApplyLimit Then
+            subApplyTaxLimit Taxes, nRecords
+        Else
+            subApplyLimit Taxes, nRecords
+        End If
     End If
     fnTaxInformation = True
 End Function
@@ -1645,7 +1682,8 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
                                  Optional hld_vessel As Integer = -1, _
                                  Optional hld_gals As Double = 0#, _
                                  Optional hld_miles As Double = 0#, _
-                                 Optional hld_tot_gals As Double = 0#) As Boolean
+                                 Optional hld_tot_gals As Double = 0#, _
+                                 Optional bApplyLimit As Boolean = False) As Boolean
     
     'Ma, 3/1/99 Temporary patch for Taxes Loading Fee
     'Get the tax information array
@@ -1717,6 +1755,12 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         subTaxModErrors nRet, bShowMsgBox, sErrMsg
         Exit Function
     End If
+    
+    'david 01/26/2006  #506839
+    If bApplyLimit Then
+        subApplyTaxLimit Taxes, nRecords
+    End If
+    ''''''''''''''''''''''''''
     
     subDealWithATaxes Taxes, nRecords
     
@@ -3771,4 +3815,83 @@ End Function
 '#"End ATax Code Region" - 452155wj101304
 '#------------------------------------------------------------
 
+'david 01/26/2006  #506839
+''''''''''''''''''''''''''
+Public Sub subResetLimitTaxes()
+    nLimitTaxCount = 0
+    ReDim arryLimitTax(5)
+End Sub
+
+'This function only take care of I and L limit type
+Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
+                             ByVal nCount As Integer)
+
+    Dim i As Integer
+    Dim j As Integer
+    Dim bFind As Boolean
+
+    For i = 0 To nCount - 1
+        bFind = False
+        
+        If fnGetFieldValue(CurrTaxes(i).m_cCharge) = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
+            If fnGetFieldValue(CurrTaxes(i).m_cLimitType) = vbKeyL Then
+                If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
+                   tfnRound(CurrTaxes(i).m_lLimit, 2) Then
+                    CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit
+                End If
+            ElseIf fnGetFieldValue(CurrTaxes(i).m_cLimitType) = vbKeyI Then
+                For j = 0 To nLimitTaxCount - 1
+                    If CurrTaxes(i).m_lTrn = arryLimitTax(j).m_lTrn Then
+                        bFind = True
+                        Exit For
+                    End If
+                Next j
+                
+                If Not bFind Then
+                    If j > UBound(arryLimitTax) Then
+                        ReDim Preserve arryLimitTax(UBound(arryLimitTax) + 5)
+                    End If
+                    
+                    With arryLimitTax(j)
+                        .m_sCode = CurrTaxes(i).m_sCode
+                        .m_sDesc = CurrTaxes(i).m_sDescr
+                        .m_lTrn = CurrTaxes(i).m_lTrn
+                        .m_lLimit = CurrTaxes(i).m_lLimit
+                        .m_cLimitType = CurrTaxes(i).m_cLimitType
+                        .m_cBasis = CurrTaxes(i).m_cBasis
+                        .m_fRate = CurrTaxes(i).m_fRate
+                        .m_fAccumTaxAmt = tfnRound(CurrTaxes(i).m_dAmount, 2)
+                        
+                        If tfnRound(CurrTaxes(i).m_dAmount, 2) _
+                           > tfnRound(.m_lLimit, 2) Then
+                            'adj the tax amount
+                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit
+                        End If
+                    End With
+                    
+                    nLimitTaxCount = nLimitTaxCount + 1
+                Else
+                    With arryLimitTax(j)
+                        If .m_fAccumTaxAmt < tfnRound(.m_lLimit, 2) Then
+                            If .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2) _
+                               >= tfnRound(.m_lLimit, 2) Then
+                                'adj the tax amount
+                                CurrTaxes(i).m_dAmount = tfnRound(.m_lLimit, 2) _
+                                    - .m_fAccumTaxAmt
+                            End If
+                        Else
+                            'accum tax amt is already over or equal to the limit,
+                            'set the tax amount to 0
+                            CurrTaxes(i).m_dAmount = 0#
+                        End If
+                        
+                        .m_fAccumTaxAmt = .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2)
+                    End With
+                End If
+            End If
+        End If
+    Next i
+End Sub
+''''''''''''''''''''''''''
+'david 01/26/2006  #506839
 
