@@ -3833,13 +3833,13 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
     For i = 0 To nCount - 1
         bFind = False
         
-        If fnGetFieldValue(CurrTaxes(i).m_cCharge) = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
-            If fnGetFieldValue(CurrTaxes(i).m_cLimitType) = vbKeyL Then
+        If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
+            If CurrTaxes(i).m_cLimitType = vbKeyL Then
                 If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
                    tfnRound(CurrTaxes(i).m_lLimit, 2) Then
                     CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit
                 End If
-            ElseIf fnGetFieldValue(CurrTaxes(i).m_cLimitType) = vbKeyI Then
+            ElseIf CurrTaxes(i).m_cLimitType = vbKeyI Then
                 For j = 0 To nLimitTaxCount - 1
                     If CurrTaxes(i).m_lTrn = arryLimitTax(j).m_lTrn Then
                         bFind = True
