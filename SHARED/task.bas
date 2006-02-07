@@ -18,14 +18,14 @@ Private Type PROCESSENTRY32
     szExeFile As String * 512
 End Type
 
-Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
-Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
-Private Declare Function IsWindow Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function IsWindow Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function GetDesktopWindow Lib "user32" () As Long
-Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hWnd As Long, lpdwProcessId As Long) As Long
-Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
-Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hwnd As Long, lpdwProcessId As Long) As Long
+Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
     
 Private Declare Function CreateToolhelp32Snapshot Lib "kernel32.dll" _
             (ByVal dwFlags As Long, _
@@ -43,7 +43,7 @@ Private Declare Function Process32Next Lib "kernel32.dll" _
              lppe As PROCESSENTRY32) As Long
 
 Private Declare Function fnSetFocusAPI Lib "user32" Alias "SetFocus" _
-    (ByVal hWnd As Long) As Long
+    (ByVal hwnd As Long) As Long
 
 Global Const SHELL_OK As Integer = 32
 
@@ -52,10 +52,10 @@ Private Declare Function GetExitCodeProcess Lib "kernel32.dll" (ByVal hProcess A
 Private Declare Function TerminateProcess Lib "kernel32.dll" (ByVal hProcess As Long, ByVal uExitCode As Long) As Boolean
 '
 
-Private Function GetWindow(ByVal hWnd As Integer, _
+Private Function GetWindow(ByVal hwnd As Integer, _
                     ByVal wCmd As Integer) As Integer
                     
-    GetWindow = fnUINT2INT(CLng(fnGetWindow(hWnd, wCmd)))
+    GetWindow = fnUINT2INT(CLng(fnGetWindow(hwnd, wCmd)))
     
 End Function
 '
@@ -71,7 +71,7 @@ Public Function EndTask(ByVal hTargetWnd As Long, _
     On Error Resume Next 'turn off error trapping for this function
 
     If Not IsMissing(frmCurrent) Then
-        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hWnd Then
+        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hwnd Then
             EndTask = False
             Exit Function
         End If
@@ -328,7 +328,7 @@ Public Function fnExeIsRunning(ByVal sExe As String, _
         Else
             sRunningExe = proc.szExeFile
         End If
-        'sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
+        sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
         'Debug.Print sTemp
         
         If lProcID < 0 Then
@@ -464,30 +464,30 @@ Public Function fnKillProgram(hProgram As Long) As Integer
 End Function
 
 Public Sub subBringWindowToFront(sWindowTitle As String)
-    Dim hWnd As Long
+    Dim hwnd As Long
     
-    hWnd = IsWndRunning(sWindowTitle)
+    hwnd = IsWndRunning(sWindowTitle)
     
-    If hWnd = 0 Then
+    If hwnd = 0 Then
         Exit Sub
     End If
     
-    SetFocusAPI hWnd      'set the focus to the application
+    SetFocusAPI hwnd      'set the focus to the application
 End Sub
 '
 'Function        : fnSetWindowPosition
 'Passed Variables: form window handle, position constant
 'Returns         : none
 '
-Public Sub fnSetWindowPosition(hWnd As Long, nFlag As Long)
+Public Sub fnSetWindowPosition(hwnd As Long, nFlag As Long)
   'On Error Resume Next
-  SetWindowPos hWnd, nFlag, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+  SetWindowPos hwnd, nFlag, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
 End Sub
 
-Function SetFocusAPI(ByVal hWnd As Long) As Long
-    ShowWindow hWnd, SW_SHOWNORMAL
+Function SetFocusAPI(ByVal hwnd As Long) As Long
+    ShowWindow hwnd, SW_SHOWNORMAL
     
-    fnSetWindowPosition hWnd, HWND_TOP
-    SetFocusAPI = fnSetFocusAPI(hWnd)
+    fnSetWindowPosition hwnd, HWND_TOP
+    SetFocusAPI = fnSetFocusAPI(hwnd)
 End Function
 
