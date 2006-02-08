@@ -3851,15 +3851,31 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
     Dim i As Integer
     Dim j As Integer
     Dim bFind As Boolean
+    Dim nSignTax As Integer
+    Dim nSignExtn As Integer
 
+    If fExtension < 0 Then
+        nSignExtn = -1
+        fExtension = fExtension * -1
+    Else
+        nSignExtn = 1
+    End If
+    
     For i = 0 To nCount - 1
         bFind = False
+        'need to change the sign first
+        If tfnRound(CurrTaxes(i).m_dAmount, 2) < 0 Then
+            nSignTax = -1
+            CurrTaxes(i).m_dAmount = tfnRound(CurrTaxes(i).m_dAmount, 2) * -1
+        Else
+            nSignTax = 1
+        End If
         
         If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
             If CurrTaxes(i).m_cLimitType = vbKeyL Then
                 If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
                    tfnRound(CurrTaxes(i).m_lLimit, 2) Then
-                    CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit
+                    CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
                 End If
             ElseIf CurrTaxes(i).m_cLimitType = vbKeyI Then
                 For j = 0 To nLimitTaxCount - 1
@@ -3889,7 +3905,9 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                         If tfnRound(CurrTaxes(i).m_dAmount, 2) _
                            > tfnRound(.m_lLimit, 2) Then
                             'adj the tax amount
-                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit
+                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
+                        Else
+                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_dAmount * nSignTax
                         End If
                     End With
                     
@@ -3900,16 +3918,16 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                         If .m_base_txble_amt > 0.01 Then
                             If .m_fAccumTaxableAmt >= .m_base_txble_amt Then
                                 're-calc the tax, using line extension
-                                CurrTaxes(i).m_dAmount = _
-                                    tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) * fExtension, 2)
+                                CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                    * fExtension, 2) * nSignExtn
                             ElseIf .m_fAccumTaxableAmt + fExtension > .m_base_txble_amt Then
                                 're-calc the tax
                                 fExtension = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
-                                CurrTaxes(i).m_dAmount = _
-                                    tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) * fExtension, 2)
+                                CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                    * fExtension, 2) * nSignExtn
                             Else
                                 'check: the amount amount should be zero
-                                Debug.Print "CurrTaxes(i).m_dAmount = "; CurrTaxes(i).m_dAmount
+                                Debug.Print "CurrTaxes(i).m_dAmount = "; CurrTaxes(i).m_dAmount * nSignTax
                             End If
                             
                             .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + fExtension
@@ -3919,8 +3937,8 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                             If .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2) _
                                >= tfnRound(.m_lLimit, 2) Then
                                 'adj the tax amount
-                                CurrTaxes(i).m_dAmount = tfnRound(.m_lLimit, 2) _
-                                    - .m_fAccumTaxAmt
+                                CurrTaxes(i).m_dAmount = (tfnRound(.m_lLimit, 2) _
+                                    - .m_fAccumTaxAmt) * nSignTax
                             End If
                         Else
                             'accum tax amt is already over or equal to the limit,
