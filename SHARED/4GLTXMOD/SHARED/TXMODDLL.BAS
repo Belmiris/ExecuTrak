@@ -254,6 +254,7 @@ Private Type tpLimitTax
     m_cLimitType As Byte
     m_cBasis As Byte
     m_base_txble_amt As Double
+    m_fAccumTaxableAmt As Double
     m_fRate As Double
     m_fAccumTaxAmt As Double
 End Type
@@ -1177,6 +1178,16 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     'Vijaya on 02/10/04 Magic#395302
     subSet_tx_date t_tax_date
     ''''''''''''''''''''''''''''''''
+    'see fnCalculateTaxes(), in this function
+    'the subSet_AccmTxbleAmt() function is not called before
+    'calling the txmod dll function TXMOD_VB_CalculateLineTax()
+    'because:
+    '1. It is difficult to collect the line extension (taxable amount)
+    '2. Can only collect the line extension if the line has base taxable amount tax
+    '#411523wj042505
+    'If Abs(dAccmTxbleAmt) >= 0.01 Then
+    '    subSet_AccmTxbleAmt dAccmTxbleAmt
+    'End If
     
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -1211,7 +1222,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     
     If bApplyLimit Then
         If bNewApplyLimit Then
-            subApplyTaxLimit Taxes, nRecords
+            subApplyTaxLimit Taxes, nRecords, fDollarBase
         Else
             subApplyLimit Taxes, nRecords
         End If
@@ -1523,6 +1534,16 @@ Public Function fnTaxInformation(sProduct As String, _
     'Vijaya on 02/10/04 Magic#395302
     subSet_tx_date t_tax_date
     ''''''''''''''''''''''''''''''''
+    'see fnCalculateTaxes(), in this function
+    'the subSet_AccmTxbleAmt() function is not called before
+    'calling the txmod dll function TXMOD_VB_CalculateLineTax()
+    'because:
+    '1. It is difficult to collect the line extension (taxable amount)
+    '2. Can only collect the line extension if the line has base taxable amount tax
+    '#411523wj042505
+    'If Abs(dAccmTxbleAmt) >= 0.01 Then
+    '    subSet_AccmTxbleAmt dAccmTxbleAmt
+    'End If
     
     Do
         nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -1557,7 +1578,7 @@ Public Function fnTaxInformation(sProduct As String, _
     
     If bApplyLimit Then
         If bNewApplyLimit Then
-            subApplyTaxLimit Taxes, nRecords
+            subApplyTaxLimit Taxes, nRecords, fDollarBase
         Else
             subApplyLimit Taxes, nRecords
         End If
@@ -1758,7 +1779,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     
     'david 01/26/2006  #506839
     If bApplyLimit Then
-        subApplyTaxLimit Taxes, nRecords
+        subApplyTaxLimit Taxes, nRecords, fDollarBase
     End If
     ''''''''''''''''''''''''''
     
@@ -3824,7 +3845,8 @@ End Sub
 
 'This function only take care of I and L limit type
 Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
-                             ByVal nCount As Integer)
+                             ByVal nCount As Integer, _
+                             ByVal fExtension As Double)
 
     Dim i As Integer
     Dim j As Integer
@@ -3860,6 +3882,8 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                         .m_cLimitType = CurrTaxes(i).m_cLimitType
                         .m_cBasis = CurrTaxes(i).m_cBasis
                         .m_fRate = CurrTaxes(i).m_fRate
+                        .m_base_txble_amt = fnGetBaseTaxableAmt(.m_lTrn)
+                        .m_fAccumTaxableAmt = fExtension
                         .m_fAccumTaxAmt = tfnRound(CurrTaxes(i).m_dAmount, 2)
                         
                         If tfnRound(CurrTaxes(i).m_dAmount, 2) _
@@ -3872,6 +3896,25 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                     nLimitTaxCount = nLimitTaxCount + 1
                 Else
                     With arryLimitTax(j)
+                        'fix the tax amount first if the tax has base taxable amount
+                        If .m_base_txble_amt > 0.01 Then
+                            If .m_fAccumTaxableAmt >= .m_base_txble_amt Then
+                                're-calc the tax, using line extension
+                                CurrTaxes(i).m_dAmount = _
+                                    tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) * fExtension, 2)
+                            ElseIf .m_fAccumTaxableAmt + fExtension > .m_base_txble_amt Then
+                                're-calc the tax
+                                fExtension = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
+                                CurrTaxes(i).m_dAmount = _
+                                    tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) * fExtension, 2)
+                            Else
+                                'check: the amount amount should be zero
+                                Debug.Print "CurrTaxes(i).m_dAmount = "; CurrTaxes(i).m_dAmount
+                            End If
+                            
+                            .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + fExtension
+                        End If
+                    
                         If .m_fAccumTaxAmt < tfnRound(.m_lLimit, 2) Then
                             If .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2) _
                                >= tfnRound(.m_lLimit, 2) Then
@@ -3892,6 +3935,29 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
         End If
     Next i
 End Sub
+
+Private Function fnGetBaseTaxableAmt(lTrn As Long) As Double
+    
+    Const SUB_NAME = "fnGetBaseTaxableAmt"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT tt_base_txble_amt from tx_table"
+    strSQL = strSQL & " where tt_trn = " & lTrn
+    strSQL = tfnFix_tx_table(strSQL)
+    
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If rsTemp Is Nothing Then
+        fnGetBaseTaxableAmt = 0#
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        fnGetBaseTaxableAmt = tfnRound(rsTemp!tt_base_txble_amt, DEFAULT_DECIMALS)
+    End If
+
+End Function
 ''''''''''''''''''''''''''
 'david 01/26/2006  #506839
 
