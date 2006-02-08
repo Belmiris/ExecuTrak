@@ -3926,8 +3926,7 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                                 CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
                                     * fExtension, 2) * nSignExtn
                             Else
-                                'check: the amount amount should be zero
-                                Debug.Print "CurrTaxes(i).m_dAmount = "; CurrTaxes(i).m_dAmount * nSignTax
+                                CurrTaxes(i).m_dAmount = 0#
                             End If
                             
                             .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + fExtension
