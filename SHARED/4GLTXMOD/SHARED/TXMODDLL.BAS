@@ -3863,6 +3863,7 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
     
     For i = 0 To nCount - 1
         bFind = False
+        
         'need to change the sign first
         If tfnRound(CurrTaxes(i).m_dAmount, 2) < 0 Then
             nSignTax = -1
@@ -3949,6 +3950,8 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                     End With
                 End If
             End If
+        Else
+            CurrTaxes(i).m_dAmount = tfnRound(CurrTaxes(i).m_dAmount, 2) * nSignTax
         End If
     Next i
 End Sub
