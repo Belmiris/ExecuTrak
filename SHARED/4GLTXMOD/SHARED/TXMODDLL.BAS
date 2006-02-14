@@ -2318,6 +2318,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim sNGU As String
     Dim nLine As Integer
     Dim lATaxGal As Long
+    Dim fLadingATax As Double
     
     Dim aryATax() As BOL_AtAx
     Dim BOL_atx_ptr As Integer
@@ -2434,6 +2435,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
          Exit Sub
     End If
     
+    Screen.MousePointer = vbHourglass
     '#Build Lading side A-Taxes array --> aryATax
     BOL_atx_ptr = -1
     While Not rsLadHeader.EOF
@@ -2445,6 +2447,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                
         Set rsLadD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
         If rsLadD Is Nothing Then
+            Screen.MousePointer = vbDefault
             Exit Sub
         End If
         subResetTaxes True, True
@@ -2456,6 +2459,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         strSQL = strSQL & " AND lLading=" & tfnRound(rsLadHeader!lLading)
         Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
         If rsTemp Is Nothing Then
+            Screen.MousePointer = vbDefault
             Exit Sub
         End If
         If rsTemp.RecordCount > 0 Then
@@ -2465,21 +2469,34 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         End If
         With rsLadD
             If .RecordCount > 0 Then
+                .MoveFirst
                 While Not .EOF
+                    Screen.MousePointer = vbHourglass
                     
-                    strSQL = "SELECT SUM(MBalance.lGross) AS G_GAL, SUM(MBalance.lNet) AS N_GAL,MDelivery.lDestination"
-                    strSQL = strSQL & " FROM MBalance, MDelivery WHERE MBalance.lDelivery= MDelivery.lDelivery"
+                    strSQL = "SELECT SUM(MBalance.lGross) AS G_GAL, SUM(MBalance.lNet) AS N_GAL,"
+                    strSQL = strSQL & " MDelivery.lDestination, MDeliveryDetail.szTaxUseGroup,"
+                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross"
+                    strSQL = strSQL & " FROM MBalance, MDelivery, MDeliveryDetail"
+                    strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
+                    strSQL = strSQL & " and MDelivery.lDelivery = MDeliveryDetail.lDelivery"
+                    strSQL = strSQL & " and MBalance.lDeliveryLine = MDeliveryDetail.lLineNumber"
                     strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
                     strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
                     strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
-                    strSQL = strSQL & " GROUP BY MDelivery.lDestination"
+                    strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDeliveryDetail.szTaxUseGroup,"
+                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross"
                     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
                     If rsTemp Is Nothing Then
+                        Screen.MousePointer = vbDefault
                         Exit Sub
                     End If
                             
                     Do While Not rsTemp.EOF
-                        If !bGross Then
+                        Screen.MousePointer = vbHourglass
+                        
+                        'david 02/10/2006  #509841
+                        'change to use delivery detail's ngu flag
+                        If rsTemp!bGross Then
                             sNGU = "G"
                             fBase = rsTemp!G_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!G_GAL
@@ -2489,11 +2506,12 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                             lTotATaxGal = lTotATaxGal + rsTemp!N_GAL
                         End If
                         lDest = tfnRound(rsTemp!lDestination)
-                        If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, rsLadHeader!lLading, nLine, _
-                                !szProductCode, !szTaxUseGroup, _
-                                fBase, 0, _
-                                CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), _
-                                sNGU) Then
+                        'david 02/10/2006  #509841
+                        'change to use delivery detail's product and tax use group
+                        If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, _
+                           rsLadHeader!lLading, nLine, rsTemp!szProductCode, rsTemp!szTaxUseGroup, _
+                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNGU) Then
+                            Screen.MousePointer = vbDefault
                             Exit Sub
                         End If
                         nLine = nLine + 1
@@ -2512,11 +2530,23 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 fTaxes = fnGetTypeATax()
                 '''''''''''''''''''''''''''
                 
+                'david 02/10/2006  #509841
+                'get the texas loading fee for the lading
+                'adjust aryTaxInfo() array if it is less than the delivery A Tax
+                fLadingATax = fnGetLadingATax(rsLadD)
+                
+                If Abs(fTaxes) > Abs(fLadingATax) Then
+                    fTaxes = fLadingATax
+                End If
+                '''''''''''''''''''''''''''
+                
                 lStartPtr = BOL_atx_ptr + 1
                 '#end region 492710wj110405
                 
                 .MoveFirst
                 While Not .EOF
+                    Screen.MousePointer = vbHourglass
+                    
                     If !bGross Then
                         sNGU = "G"
                         lATaxGal = !lGross
@@ -2560,6 +2590,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         rsLadHeader.MoveNext
     Wend '#Lading
     If BOL_atx_ptr < 0 Then
+        Screen.MousePointer = vbDefault
         Exit Sub
     End If
     
@@ -2574,11 +2605,15 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     
     start_ldfee_rec
+    
     Do While Not rsDelD.EOF
+        Screen.MousePointer = vbHourglass
         'sum_bunits = 0
         sum_atax = 0
         rsMvBal.MoveFirst
         Do While Not rsMvBal.EOF
+            Screen.MousePointer = vbHourglass
+            
             this_tax = 0
             If rsMvBal!lDelivery = rsDelD!lDelivery And rsMvBal!lDeliveryLine = rsDelD!lLineNumber Then
                 bFound = False
@@ -2618,6 +2653,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                      bBOL_External = True
                      rsLadHeader.MoveFirst
                      Do While Not rsLadHeader.EOF
+                        Screen.MousePointer = vbHourglass
+                        
                         If rsLadHeader!lLading = rsMvBal!lLading Then
                             bBOL_External = rsLadHeader!bExternal
                             Exit Do
@@ -2655,11 +2692,13 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
             
             rsMvBal.MoveNext
         Loop
+        
         If rsDelD!bExternal Then
             sIEFlag = "E"
         Else
             sIEFlag = "I"
         End If
+        
         put_ldfee_rec rsDelD!lDelivery, _
                           rsDelD!lLineNumber, _
                           rsDelD!lNet, _
@@ -2711,6 +2750,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 If aryLDF(i).dv_vol * aryLDF(i).dv_atax < 0 Then
                     aryLDF(i).dv_atax = aryLDF(i).dv_atax * (-1)
                 End If
+                
                 strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
                          & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
                 strSQL = strSQL & lMovement & ","
@@ -2736,10 +2776,13 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     strSQL = strSQL & " ORDER BY lMovement,lDelivery"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsTemp Is Nothing Then
+        Screen.MousePointer = vbDefault
         Exit Sub
     End If
     If rsTemp.RecordCount > 0 Then
         While Not rsTemp.EOF
+            Screen.MousePointer = vbHourglass
+            
             strSQL = "UPDATE MInvoice SET fTotalTax =" & tfnRound(rsTemp!dTxAmt, 2)
             strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
@@ -2757,10 +2800,13 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     strSQL = strSQL & " ORDER BY lMovement,lDelivery,lLineNumber"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsTemp Is Nothing Then
+        Screen.MousePointer = vbDefault
         Exit Sub
     End If
     If rsTemp.RecordCount > 0 Then
         While Not rsTemp.EOF
+            Screen.MousePointer = vbHourglass
+            
             strSQL = "UPDATE MInvoiceLine SET fSalesTax =" & tfnRound(rsTemp!dTxAmt, 2)
             strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
@@ -2781,6 +2827,88 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     txMod_ExeCuteSQL strSQL, , , m_local
     ''''''''''''''''''''''''''
 End Sub
+
+Private Function fnGetLadingATax(rsLadD As Recordset) As Double
+    
+    Dim Taxes() As CApplicableTaxes
+    Dim lCount As Long
+    Dim i As Long
+    
+    Dim sNGU As String
+    Dim fBase As Double
+    Dim fATaxGGalGross As Double
+    Dim fATaxGalNet As Double
+    Dim szProduct As String
+    Dim szTaxUseG As String
+    Dim fATaxAmt As Double
+    
+    With rsLadD
+        sNGU = ""
+        szProduct = ""
+        szTaxUseG = ""
+        
+        .MoveFirst
+        While Not .EOF
+            If sNGU = "" Then
+                If !bGross Then
+                    sNGU = "G"
+                Else
+                    sNGU = "N"
+                End If
+            End If
+            
+            If sNGU = "G" Then
+                fBase = tfnRound(!lGross * !fCost, 2)
+            Else
+                fBase = tfnRound(!lNet * !fCost, 2)
+            End If
+            
+            If fnTaxInformation(!szProductCode & "", !szTaxUseGroup & "", fBase, 0, _
+               !lGross, !lNet, sNGU, Taxes(), lCount) Then
+                For i = 0 To lCount - 1
+                    'need to change the sign first
+                    If tfnRound(Taxes(i).m_dAmount, 2) <> 0 Then
+                        If Taxes(i).m_cCharge = vbKeyY And Taxes(i).m_cBasis = vbKeyA Then
+                            If szProduct = "" Then
+                                szProduct = Trim(!szProductCode & "")
+                            End If
+                            If szTaxUseG = "" Then
+                                szTaxUseG = Trim(!szTaxUseGroup & "")
+                            End If
+                            
+                            fATaxGGalGross = fATaxGGalGross + !lGross
+                            fATaxGalNet = fATaxGalNet + !lNet
+                            Exit For
+                        End If
+                    End If
+                Next i
+            End If
+            
+            .MoveNext
+        Wend '#Lading D
+    
+        .MoveFirst
+    End With
+
+    fATaxAmt = 0#
+    
+    If szProduct <> "" And szTaxUseG <> "" Then
+        If fnTaxInformation(szProduct, szTaxUseG, fBase, 0, fATaxGGalGross, _
+           fATaxGalNet, sNGU, Taxes(), lCount) Then
+            For i = 0 To lCount - 1
+                'need to change the sign first
+                If tfnRound(Taxes(i).m_dAmount, 2) <> 0 Then
+                    If Taxes(i).m_cCharge = vbKeyY And Taxes(i).m_cBasis = vbKeyA Then
+                        fATaxAmt = fATaxAmt + tfnRound(Taxes(i).m_dAmount, 2)
+                    End If
+                End If
+            Next i
+        End If
+    End If
+    
+    fnGetLadingATax = fATaxAmt
+    
+End Function
 
 Private Function fnGetATaxCodeDesc(ByVal rsDD As Recordset, _
                                ByVal lDelNbr As Long, _
@@ -2865,6 +2993,7 @@ Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
                           ByVal atax As Double, _
                           ByVal ProdLnk As Long, _
                           ByVal sIE As String)
+    
     Dim rsTemp As Recordset
     Dim sClass As String
     Dim strSQL As String
@@ -3259,7 +3388,6 @@ End Sub
 '''        Next nLadDIdx
 '''    End If
 '''End Sub
-
 
 '#492710wj110405-replace the function 'subProrateBOLATax' with the next
 '#one 'fnBOLTotalATax'. All we need is the Total A Tax for a BOL and two
