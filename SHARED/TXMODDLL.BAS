@@ -2841,6 +2841,7 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
     Dim szProduct As String
     Dim szTaxUseG As String
     Dim fATaxAmt As Double
+    Dim nSign As Integer
     
     With rsLadD
         sNGU = ""
@@ -2893,6 +2894,15 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
     fATaxAmt = 0#
     
     If szProduct <> "" And szTaxUseG <> "" Then
+        If fBase < 0 Then
+            nSign = -1
+            fBase = -fBase
+            fATaxGGalGross = -fATaxGGalGross
+            fATaxGalNet = -fATaxGalNet
+        Else
+            nSign = 1
+        End If
+        
         If fnTaxInformation(szProduct, szTaxUseG, fBase, 0, fATaxGGalGross, _
            fATaxGalNet, sNGU, Taxes(), lCount) Then
             For i = 0 To lCount - 1
@@ -2906,7 +2916,7 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
         End If
     End If
     
-    fnGetLadingATax = fATaxAmt
+    fnGetLadingATax = fATaxAmt * nSign
     
 End Function
 
