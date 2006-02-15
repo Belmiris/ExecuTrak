@@ -261,6 +261,19 @@ End Type
 Private arryLimitTax() As tpLimitTax
 Private nLimitTaxCount As Integer
 ''''''''''''''''''''''''''
+'david 02/10/2006  #509841
+Private Type tpProdTaxUseG
+    sProductCode As String
+    sProdTcl As String
+    sTaxUseG As String
+    fATaxGGalGross As Double
+    fATaxGalNet As Double
+    fTotal As Double
+    sNGU As String
+End Type
+Private arryProdTaxUseG() As tpProdTaxUseG
+Private nProdTaxUseGCount As Integer
+'''''''''''''''''''''''''''
 '
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
@@ -2833,56 +2846,55 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
     Dim i As Long
+    Dim j As Long
     
     Dim sNGU As String
     Dim fBase As Double
-    Dim fATaxGGalGross As Double
-    Dim fATaxGalNet As Double
-    Dim szProduct As String
-    Dim szTaxUseG As String
-    Dim fATaxAmt As Double
-    Dim nSign As Integer
+    Dim sProdTcl As String
     
+    ReDim arryProdTaxUseG(5)
+    nProdTaxUseGCount = -1
+    
+    'gather the tax use group and product tax class
     With rsLadD
-        sNGU = ""
-        szProduct = ""
-        szTaxUseG = ""
-        
         .MoveFirst
         While Not .EOF
-            If sNGU = "" Then
-                If !bGross Then
-                    sNGU = "G"
-                Else
-                    sNGU = "N"
-                End If
-            End If
+            sProdTcl = fnGetProdTcl(!szProductCode)
             
-            If sNGU = "G" Then
-                fBase = tfnRound(!lGross * !fCost, 2)
-            Else
-                fBase = tfnRound(!lNet * !fCost, 2)
-            End If
-            
-            If fnTaxInformation(!szProductCode & "", !szTaxUseGroup & "", fBase, 0, _
-               !lGross, !lNet, sNGU, Taxes(), lCount) Then
-                For i = 0 To lCount - 1
-                    'need to change the sign first
-                    If tfnRound(Taxes(i).m_dAmount, 2) <> 0 Then
-                        If Taxes(i).m_cCharge = vbKeyY And Taxes(i).m_cBasis = vbKeyA Then
-                            If szProduct = "" Then
-                                szProduct = Trim(!szProductCode & "")
-                            End If
-                            If szTaxUseG = "" Then
-                                szTaxUseG = Trim(!szTaxUseGroup & "")
-                            End If
-                            
-                            fATaxGGalGross = fATaxGGalGross + !lGross
-                            fATaxGalNet = fATaxGalNet + !lNet
-                            Exit For
-                        End If
+            For i = 0 To nProdTaxUseGCount
+                If arryProdTaxUseG(i).sTaxUseG = "" Then
+                    Exit For
+                ElseIf arryProdTaxUseG(i).sTaxUseG = !szTaxUseGroup Then
+                    If arryProdTaxUseG(i).sProdTcl = sProdTcl Then
+                        Exit For
                     End If
-                Next i
+                End If
+            Next i
+            
+            If i > UBound(arryProdTaxUseG) Then
+                ReDim Preserve arryProdTaxUseG(UBound(arryProdTaxUseG) + 5)
+            End If
+            
+            If arryProdTaxUseG(i).sTaxUseG = "" Then
+                If !bGross Then
+                    arryProdTaxUseG(i).sNGU = "G"
+                    fBase = tfnRound(!lGross * !fCost, 2)
+                Else
+                    arryProdTaxUseG(i).sNGU = "N"
+                    fBase = tfnRound(!lNet * !fCost, 2)
+                End If
+                
+                arryProdTaxUseG(i).sProductCode = !szProductCode
+                arryProdTaxUseG(i).sProdTcl = sProdTcl
+                arryProdTaxUseG(i).sTaxUseG = !szTaxUseGroup
+                arryProdTaxUseG(i).fATaxGGalGross = !lGross
+                arryProdTaxUseG(i).fATaxGalNet = !lNet
+                arryProdTaxUseG(i).fTotal = fBase
+                nProdTaxUseGCount = i
+            Else
+                arryProdTaxUseG(i).fATaxGGalGross = arryProdTaxUseG(i).fATaxGGalGross + !lGross
+                arryProdTaxUseG(i).fATaxGalNet = arryProdTaxUseG(i).fATaxGalNet + !lNet
+                arryProdTaxUseG(i).fTotal = arryProdTaxUseG(i).fTotal + fBase
             End If
             
             .MoveNext
@@ -2891,33 +2903,57 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
         .MoveFirst
     End With
 
+    Dim nSign As Integer
+    Dim fATaxAmt As Double
+
     fATaxAmt = 0#
     
-    If szProduct <> "" And szTaxUseG <> "" Then
-        If fBase < 0 Then
+    For i = 0 To nProdTaxUseGCount
+        If arryProdTaxUseG(i).fTotal < 0 Then
             nSign = -1
-            fBase = -fBase
-            fATaxGGalGross = -fATaxGGalGross
-            fATaxGalNet = -fATaxGalNet
+            arryProdTaxUseG(i).fTotal = -(arryProdTaxUseG(i).fTotal)
+            arryProdTaxUseG(i).fATaxGGalGross = -(arryProdTaxUseG(i).fATaxGGalGross)
+            arryProdTaxUseG(i).fATaxGalNet = -(arryProdTaxUseG(i).fATaxGalNet)
         Else
             nSign = 1
         End If
         
-        If fnTaxInformation(szProduct, szTaxUseG, fBase, 0, fATaxGGalGross, _
-           fATaxGalNet, sNGU, Taxes(), lCount) Then
-            For i = 0 To lCount - 1
+        If fnTaxInformation(arryProdTaxUseG(i).sProductCode, _
+           arryProdTaxUseG(i).sTaxUseG, arryProdTaxUseG(i).fTotal, 0, _
+           arryProdTaxUseG(i).fATaxGGalGross, arryProdTaxUseG(i).fATaxGalNet, _
+           arryProdTaxUseG(i).sNGU, Taxes(), lCount) Then
+            For j = 0 To lCount - 1
                 'need to change the sign first
-                If tfnRound(Taxes(i).m_dAmount, 2) <> 0 Then
-                    If Taxes(i).m_cCharge = vbKeyY And Taxes(i).m_cBasis = vbKeyA Then
-                        fATaxAmt = fATaxAmt + tfnRound(Taxes(i).m_dAmount, 2)
+                If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
+                    If Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cBasis = vbKeyA Then
+                        fATaxAmt = fATaxAmt + tfnRound(Taxes(j).m_dAmount, 2)
                     End If
                 End If
-            Next i
+            Next j
         End If
-    End If
+    Next i
     
     fnGetLadingATax = fATaxAmt * nSign
     
+End Function
+
+Private Function fnGetProdTcl(szProductCode As String) As String
+
+    Const SUB_NAME As String = "fnGetProdTcl"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT ivh_prodtcl FROM inv_header"
+    strSQL = strSQL & " WHERE ivh_product = " & tfnSQLString(szProductCode)
+    
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If Not rsTemp Is Nothing Then
+        If rsTemp.RecordCount > 0 Then
+            fnGetProdTcl = Trim(rsTemp!ivh_prodtcl & "")
+        End If
+    End If
+
 End Function
 
 Private Function fnGetATaxCodeDesc(ByVal rsDD As Recordset, _
