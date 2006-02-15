@@ -1,7 +1,7 @@
 Attribute VB_Name = "modUPCValidateConvert"
 Option Explicit
 
-Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUpcType As String) As String
+Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUPCType As String) As String
     Dim sUPCCode As String
     
     sUPC = Trim(sUPC)
@@ -13,36 +13,28 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUpcType As String
     End If
     
     fnExpandUPC = sUPC
-    
-    If Not IsMissing(sUpcType) Then
-        Select Case UCase(sUpcType)
-            Case "SINGLE"
-                sErrMsg = "Single: "
-            Case "CASE"
-                sErrMsg = "Case: "
-            Case "MULTI"
-                sErrMsg = "Multi: "
-            Case Else
-                sErrMsg = ""
-        End Select
+    If IsMissing(sUPCType) Then
+        sUPCType = ""
     End If
+    
+    sErrMsg = ""
         
     If Len(sUPC) > 0 And Not IsNumeric(sUPC) Then
-        sErrMsg = sErrMsg & "UPC come with invalid characters in it"
+        sErrMsg = sUPCType & "UPC come with invalid characters in it."
         Exit Function
     End If
     
     If Len(sUPC) = 15 Then
         sUPC = fnRmLZeros(sUPC)
         If Len(sUPC) < 6 Or Len(sUPC) > 14 Or Len(sUPC) = 9 Then
-            sErrMsg = sErrMsg & " Invalid UPC code"
+            sErrMsg = sUPCType & " Invalid UPC code."
             Exit Function
         End If
     End If
     
     If Len(sUPC) < 6 Or Len(sUPC) > 14 Or Len(sUPC) = 9 Then
         fnExpandUPC = sUPC
-        sErrMsg = sErrMsg & " Invalid UPC length"
+        sErrMsg = sUPCType & " Invalid UPC length."
         Exit Function
     End If
         
@@ -54,13 +46,13 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUpcType As String
             sUPCCode = "0" & fnDecompress6To10(Mid(sUPC, 1, 6)) & Right(sUPC, 1)
             If Right(sUPC, 1) <> fnUPCLastDigit(Left(sUPCCode, 11)) Then
                 sUPCCode = sUPC
-                sErrMsg = sErrMsg & " UPC/EAN can not be determined"
+                sErrMsg = sUPCType & " UPC/EAN can not be determined."
             End If
         Case 8
             sUPCCode = Left(sUPC, 7) & fnUPCLastDigit(Left(sUPC, 7))
             If sUPCCode <> sUPC Then
-                sUPCCode = sUPC
-                sErrMsg = sErrMsg & " Check digit is invalid for the UPC/EAN code"
+                'sUPCCode = sUPC
+                sErrMsg = sUPCType & " Check digit is invalid for the UPC/EAN code."
             End If
         Case 10
             sUPCCode = "0" & sUPC & fnUPCLastDigit("0" & sUPC)
@@ -83,19 +75,19 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUpcType As String
         Case 12 'Validate the UPC
             sUPCCode = Left(sUPC, 11) & fnUPCLastDigit(Left(sUPC, 11))
             If sUPCCode <> sUPC Then
-                sErrMsg = sErrMsg & " Invalid check digit for UPC-A code"
+                sErrMsg = sUPCType & " Invalid check digit for UPC-A code."
             End If
         Case 13
             sUPCCode = Left(sUPC, 12) & fnUPCLastDigit(Left(sUPC, 12))
             If sUPCCode <> sUPC Then
-                sUPCCode = sUPC
-                sErrMsg = sErrMsg & " Invalid check digit for the EAN-13 code"
+                'sUPCCode = sUPC
+                sErrMsg = sUPCType & " Invalid check digit for the EAN-13 code."
             End If
         Case 14
             sUPCCode = Left(sUPC, 13) & fnUPCLastDigit(Left(sUPC, 13))
             
             If sUPCCode <> sUPC Then
-                sErrMsg = sErrMsg & " Invalid check digit for UPC-A extended code"
+                sErrMsg = sUPCType & " Invalid check digit for UPC-A extended code."
             End If
             
     End Select
@@ -104,28 +96,48 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUpcType As String
     
 End Function
 
-Public Function fnUPCLastDigit(sUPC As String) As String
+Public Function fnUPCLastDigit(ByVal sUPCCode As String) As String
     Dim nSumEven As Integer
     Dim nSumOdd As Integer
-    Dim sUPCCode As String
+    Dim sUPCLastDigit As String
     Dim nMaxLen As Integer
-    Dim i As Integer
+    Dim I As Integer
+    Dim sUPCRightMost As String
     
-    nMaxLen = Len(sUPC)
+On Error GoTo errHandler
     
-    For i = 1 To nMaxLen
-        If i Mod 2 = 0 Then
-            nSumEven = nSumEven + Mid(sUPC, i, 1)
+    ' Actually the lenght all UPC code here must be 7, 11, 12 or 13.
+    ' Algorithm: Assign odd/even to each character moving from right to left
+    
+    nMaxLen = Len(sUPCCode)
+    
+    sUPCRightMost = ""
+    For I = nMaxLen To 1 Step -1
+        sUPCRightMost = sUPCRightMost & Mid(sUPCCode, I, 1)
+    Next I
+    
+    nSumEven = 0
+    nSumOdd = 0
+    For I = 1 To nMaxLen
+        If I Mod 2 = 0 Then
+            nSumEven = nSumEven + Mid(sUPCRightMost, I, 1)
         Else
-            nSumOdd = nSumOdd + Mid(sUPC, i, 1)
+            nSumOdd = nSumOdd + Mid(sUPCRightMost, I, 1)
         End If
-    Next i
+    Next I
     
-    sUPCCode = 10 - Right(CStr((nSumOdd * 3) + nSumEven), 1)
-    If sUPCCode = "10" Then sUPCCode = "0"
+    sUPCLastDigit = 10 - Right(CStr((nSumOdd * 3) + nSumEven), 1)
+    If sUPCLastDigit = "10" Then sUPCLastDigit = "0"
     
-    fnUPCLastDigit = sUPCCode
-
+    fnUPCLastDigit = sUPCLastDigit
+    Exit Function
+    
+errHandler:
+    MsgBox " modUPCValidateConvert.fnUPCLastDigit: " & vbCrLf _
+         & " This UPC code " & sUPCCode & " not correct." & vbCrLf _
+         & " Please contact FACTOR."
+    fnUPCLastDigit = "0"
+    
 End Function
 
 Public Function fnDecompress6To10(sUPC As String) As String
@@ -151,7 +163,7 @@ Public Function fnDecompress6To10(sUPC As String) As String
 
 End Function
 Public Function fnRmLZeros(sUPC As String) As String
-    Dim i As Integer
+    Dim I As Integer
     Dim retStr As String
     
     ' Whenever the length of sUPC or retStr is less than 6
@@ -164,8 +176,8 @@ Public Function fnRmLZeros(sUPC As String) As String
         Exit Function
     End If
     
-    For i = 1 To Len(sUPC)
-        If Mid(sUPC, i, 1) = "0" Then
+    For I = 1 To Len(sUPC)
+        If Mid(sUPC, I, 1) = "0" Then
             retStr = Right(retStr, Len(retStr) - 1)
         Else
             Exit For
