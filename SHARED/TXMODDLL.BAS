@@ -2933,6 +2933,7 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
         End If
     Next i
     
+    ReDim arryProdTaxUseG(0)
     fnGetLadingATax = fATaxAmt * nSign
     
 End Function
@@ -4027,6 +4028,7 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
     Dim bFind As Boolean
     Dim nSignTax As Integer
     Dim nSignExtn As Integer
+    Dim fRemain As Double
 
     If fExtension < 0 Then
         nSignExtn = -1
@@ -4097,9 +4099,9 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                                     * fExtension, 2) * nSignExtn
                             ElseIf .m_fAccumTaxableAmt + fExtension > .m_base_txble_amt Then
                                 're-calc the tax
-                                fExtension = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
+                                fRemain = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
                                 CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
-                                    * fExtension, 2) * nSignExtn
+                                    * fRemain, 2) * nSignExtn
                             Else
                                 CurrTaxes(i).m_dAmount = 0#
                             End If
