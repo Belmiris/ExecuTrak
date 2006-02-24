@@ -38,7 +38,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -58,6 +58,8 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal dwNewLong As Long _
 ) As Long
 
+Public debugCount As Integer
+
 Public Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
     Q_Str = Quote & Str & Quote
 End Function
@@ -76,7 +78,7 @@ End Function
 '             specified backup path)
 '---------------------------------------------------------------------------------------
 '
-Public Function BackupFilename(ByVal FileName As String, ByVal BackupPath As String) As String
+Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As String) As String
     Dim FileExt As String
     Dim FileNum As Integer
     Dim CurFile As String
@@ -84,14 +86,14 @@ Public Function BackupFilename(ByVal FileName As String, ByVal BackupPath As Str
     '------------------------------------------------------------------------------------
     'Strip off Path and Extension from FileName
     '------------------------------------------------------------------------------------
-    FileNameParts FileName, , FileName
+    FileNameParts Filename, , Filename
     
     '------------------------------------------------------------------------------------
     'See if the file already has existing backup copies in BackupPath.
     'If so, take note of the highest backup counter value.
     '------------------------------------------------------------------------------------
     BackupPath = FixPath(BackupPath)
-    CurFile = Dir(BackupPath & FileName & ".???")
+    CurFile = Dir(BackupPath & Filename & ".???")
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
@@ -115,7 +117,7 @@ Public Function BackupFilename(ByVal FileName As String, ByVal BackupPath As Str
     '------------------------------------------------------------------------------------
     'Return the name for the new Backup File
     '------------------------------------------------------------------------------------
-    BackupFilename = BackupPath & FileName & "." & Format$(FileNum, "000")
+    BackupFilename = BackupPath & Filename & "." & Format$(FileNum, "000")
 End Function
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     Dim OldMode As Integer
@@ -139,7 +141,7 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
 End Sub
 Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
     Dim PrevMode          As Integer
-    Dim Value             As Single
+    Dim value             As Single
     Dim BorderSize        As Single
     Dim IsContainerForm   As Boolean
     Dim IsContainerPicBox As Boolean
@@ -163,9 +165,9 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If CoordType = 0 Then
-                Value = .Left + BorderSize
+                value = .Left + BorderSize
             Else
-                Value = .Top + BorderSize
+                value = .Top + BorderSize
             End If
             
             If IsContainerForm Or IsContainerPicBox Then
@@ -173,12 +175,12 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If Not IsContainerForm Then
-                Value = Value + ContainerToForm(.Container, CoordType)
+                value = value + ContainerToForm(.Container, CoordType)
             End If
         End With
     End If
     
-    ContainerToForm = Value
+    ContainerToForm = value
 End Function
 Public Function PicBoxBorderSize(PicBox As Object) As Single
     Dim OldMode As Integer
@@ -220,16 +222,16 @@ End Function
 '
 Public Function ArrayValueIndex(DataArray As Variant, ByVal SearchColumn As Long, ByVal SearchValue As Variant) As Long
     Dim SearchRow As Long 'Row Index where SearchValue is found; -1 if not found.
-    Dim Row       As Long
+    Dim row       As Long
     
     SearchRow = -1 'Assume SearchValue is not found
-    Do While Row <= UBound(DataArray, 2)
-        If DataArray(SearchColumn, Row) = SearchValue Then
-            SearchRow = Row
+    Do While row <= UBound(DataArray, 2)
+        If DataArray(SearchColumn, row) = SearchValue Then
+            SearchRow = row
             Exit Do
         End If
         
-        Row = Row + 1
+        row = row + 1
     Loop
     
     ArrayValueIndex = SearchRow
@@ -301,7 +303,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
                 rs.MoveNext
             Loop
         End If
@@ -338,19 +340,19 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
-Public Function Nz(ByVal Value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
-    If Not IsNull(Value) Then
-        Nz = Value
+Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
+    If Not IsNull(value) Then
+        Nz = value
     Else
         Nz = ValueIfNull
     End If
 End Function
-Public Function ReadEntireFile(ByVal FileName As String) As String
+Public Function ReadEntireFile(ByVal Filename As String) As String
     Dim hFile As Integer
     
-    If FileExists(FileName) Then
+    If FileExists(Filename) Then
         hFile = FreeFile()
-        Open FileName For Binary As #hFile
+        Open Filename For Binary As #hFile
         ReadEntireFile = Input(LOF(hFile), hFile)
         Close #hFile
     End If
@@ -421,7 +423,7 @@ End Sub
 '             will optionally append a comma at the end.
 '---------------------------------------------------------------------------------------
 '
-Public Function SQL_FieldValue(Value As Variant, DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False) As String
+Public Function SQL_FieldValue(value As Variant, DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False) As String
     Dim FV    As String
     Dim Quote As String
     
@@ -432,8 +434,8 @@ Public Function SQL_FieldValue(Value As Variant, DataType As DAO.DataTypeEnum, O
             Quote = "'"
     End Select
 
-    If Not IsNull(Value) Then
-        FV = Quote & Value & Quote
+    If Not IsNull(value) Then
+        FV = Quote & value & Quote
     Else
         FV = "NULL"
     End If
@@ -732,22 +734,22 @@ Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Opt
     MsgBox = VBA.MsgBox(Prompt, Buttons, Title, HelpFile, Context)
 End Function
 
-Public Function AppFile(ByVal FileName As String) As String
-    AppFile = AppPath() & FileName
+Public Function AppFile(ByVal Filename As String) As String
+    AppFile = AppPath() & Filename
 End Function
  
 Public Function AppPath() As String
     AppPath = FixPath(App.Path)
 End Function
  
-Public Function FileExists(ByVal FileName As String) As Boolean
+Public Function FileExists(ByVal Filename As String) As Boolean
     Dim bExists As Boolean
     
     On Error Resume Next
-    FileLen FileName
+    FileLen Filename
     bExists = (Err.Number = 0)
     If bExists Then
-        bExists = ((GetAttr(FileName) And vbDirectory) = 0)
+        bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
     On Error GoTo 0 'Clear Err & disable error handler
     
@@ -795,12 +797,12 @@ Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     AsciiUCase = KeyAscii
 End Function
 
-Public Function GetField(field As Variant) As String
+Public Function GetField(Field As Variant) As String
 
-    If IsNull(field) Then
+    If IsNull(Field) Then
         GetField = vbNullString
     Else
-        GetField = Trim(CStr(field))
+        GetField = Trim(CStr(Field))
     End If
     
 End Function
@@ -821,14 +823,14 @@ Public Sub ClearText(ParamArray Parms())
     Next
 
 End Sub
-Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef FileName As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
+Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef Filename As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
     Dim Pos As Long
     
     '------------------------------------------------------------------------------------
     'Init - Needed for Optional Params that had pre-existing values
     '------------------------------------------------------------------------------------
     FilePath = vbNullString
-    FileName = vbNullString
+    Filename = vbNullString
     FileExt = vbNullString
     
     '------------------------------------------------------------------------------------
@@ -855,5 +857,55 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
     '------------------------------------------------------------------------------------
     'Extract the File Name
     '------------------------------------------------------------------------------------
-    FileName = FullFileName 'Only thing left is the File NAME itself
+    Filename = FullFileName 'Only thing left is the File NAME itself
 End Sub
+
+Public Function CaseInSensitiveString(ByVal S As String) As String
+    Dim i As Integer
+    Dim sRet As String
+    Dim sChar As String
+    Dim bStartInserted As Boolean
+    
+    S = Trim(S)
+    
+    If Trim(S) = "" Then
+        sRet = "*"
+    Else
+        For i = 1 To Len(S)
+            sChar = Mid(S, i, 1)
+            Select Case sChar
+            Case " "
+                sRet = sRet + " "
+                bStartInserted = False
+            Case "\", "?", "*"
+                sRet = sRet + "\" + sChar
+                bStartInserted = False
+            Case Else
+                If IsAlphabet(sChar) Then
+                    sRet = sRet + "[" + UCase(sChar) + LCase(sChar) + "]"
+                ElseIf sChar = "_" Then
+                    sRet = sRet + "?"
+                ElseIf sChar = "%" Then
+                    sRet = sRet + "*"
+                    bStartInserted = True
+                Else
+                    sRet = sRet + sChar
+                End If
+                
+                bStartInserted = False
+            End Select
+        Next i
+            
+        sRet = sRet + "*"
+    End If
+    
+    CaseInSensitiveString = sRet
+End Function
+
+Private Function IsAlphabet(ByVal sChar As String) As Boolean
+    sChar = UCase(sChar)
+    
+    If sChar >= "A" And sChar <= "Z" Then
+        IsAlphabet = True
+    End If
+End Function
