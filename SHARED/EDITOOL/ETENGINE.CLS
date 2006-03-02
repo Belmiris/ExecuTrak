@@ -208,6 +208,11 @@ Private m_nErrorNumber As Integer
 Private m_sLastVBError As String
 Private m_lHeaderPosition As Long
 
+'david 02/28/2006  #510885
+Private m_lTaxFreeSaleTrn(20) As Long
+Private m_nTFSTCount As Integer
+''''''''''''''''''''''''''
+
 Private m_lTaxPaidTrn(20) As Long
 Private m_nTPTCount As Integer
 
@@ -642,6 +647,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
         strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
         strSQL = strSQL + " fmmb_dv_vol namount"
+        strSQL = strSQL & ", fmd_invoice, fmmb_dv_line"
         strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
         strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
         strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
@@ -653,18 +659,17 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
 
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
-        m_nErrorNumber = EC_GET_RECORD_R
-    
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
         If rsTemp Is Nothing Then
+            m_nErrorNumber = EC_GET_RECORD_R
             Exit Function
         End If
         
         If fnCheckExitCancel Then
             Exit Function
         End If
-        
+            
         If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp, vExtractFrom) Then
             Exit Function
         End If
@@ -678,7 +683,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
-    
             strSQL = strSQL & " FROM fm_delivery,"
             strSQL = strSQL & " fm_delvr_d,"
             strSQL = strSQL & " fm_lad_tax,"
@@ -713,7 +717,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
-    
             strSQL = strSQL & " FROM fm_delivery, fm_delvr_d,"
             strSQL = strSQL & " fm_lad_tax, fm_lading,"
             strSQL = strSQL & " fm_lading_d, fm_movement,"
@@ -995,6 +998,15 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     If ciTemp.OriginState <> ciTemp.DestState Then
                         bOkToAdd = True
                     End If
+                'david 02/28/2006  #510885
+                ElseIf nTypeCode = "2" Then
+                    If m_nTFSTCount >= 0 Then
+                        bOkToAdd = Not fnIsTaxFreeSale(tfnRound(rsTemp!fmm_movement), _
+                            tfnRound(rsTemp!fmd_invoice), tfnRound(rsTemp!fmmb_dv_line))
+                    Else
+                        bOkToAdd = True
+                    End If
+                ''''''''''''''''''''''''''
                 Else
                     If m_sTaxPaidOriginState = "" Then
                         'david 07/19/2004  #453858
@@ -1041,6 +1053,39 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
     
     fnFillCollection = True
 End Function
+
+'david 02/28/2006  #510885
+''''''''''''''''''''''''''
+'david 02/28/2006  #510885
+Private Function fnIsTaxFreeSale(ByVal lMovement As Long, _
+                                 ByVal lDelivery As Long, _
+                                 ByVal lLine As Long) As Boolean
+    
+    Const SUB_NAME = "fnIsTaxFreeSale"
+
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT count(*) as cnt"
+    strSQL = strSQL + " FROM fm_lad_tax"
+    strSQL = strSQL + " WHERE fmldt_movement = " & lMovement
+    strSQL = strSQL + " AND fmldt_bl_nbr = " & lDelivery
+    strSQL = strSQL + " AND fmldt_line = " & lLine
+    strSQL = strSQL + " AND fmldt_type = 'I'"
+    strSQL = strSQL & " AND fmldt_trn IN " & fnTrnNumbers(m_lTaxFreeSaleTrn, m_nTFSTCount)
+    
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        fnIsTaxFreeSale = tfnRound(rsTemp!cnt) > 0
+    End If
+    
+End Function
+''''''''''''''''''''''''''
 
 Private Function fnDestState(sDest As String, _
                              sEI As String) As String
@@ -1823,6 +1868,38 @@ Property Let TaxPaidTaxCode(sCode As String)
         rsTemp.MoveNext
     Wend
 End Property
+
+'david 02/28/2006  #510885
+Property Let TaxFreeSaleTaxCode(sCode As String)
+    Const SUB_NAME = "TaxFreeSaleTaxCode"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    m_nTFSTCount = -1
+    
+    If sCode = "" Then
+        Exit Property
+    End If
+    'Vijaya on 02/19/04 Magic#395302
+    strSQL = "SELECT DISTINCT txh_trn FROM tx_header" _
+           & " WHERE txh_level = 'S'" _
+           & " AND (" & fnAppenCriteria("txh_code", sCode) & ")"
+
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    If rsTemp Is Nothing Then
+        Exit Property
+    End If
+    
+    While Not rsTemp.EOF
+        m_nTFSTCount = m_nTFSTCount + 1
+        If m_nTFSTCount <= 20 Then
+            m_lTaxFreeSaleTrn(m_nTFSTCount) = tfnRound(rsTemp!txh_trn)
+        End If
+        rsTemp.MoveNext
+    Wend
+End Property
+''''''''''''''''''''''''''
 
 Private Function fnTrnNumbers(lSource() As Long, _
                              ByVal nCount As Integer) As String
