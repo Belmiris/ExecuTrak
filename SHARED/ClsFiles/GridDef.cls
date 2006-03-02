@@ -110,6 +110,18 @@ End Property
 Public Property Get ColumnCount() As Long
     ColumnCount = m_GridColumns.Count
 End Property
+Public Function ColumnTotal(ByVal col As Integer) As Double
+    Dim Total As Double
+    Dim row   As Long
+    
+    With m_TGM
+        For row = 0 To .RowCount - 1
+            Total = Total + .CellValue(col, row)
+        Next 'Row
+    End With
+    
+    ColumnTotal = Total
+End Function
 Public Property Set Form(ByVal pForm As Form)
     Set m_Form = pForm
 End Property
@@ -345,8 +357,10 @@ Private Sub Class_Terminate()
 End Sub
 Private Sub m_DDButton_Click()
     m_FDD.ButtonClick
+    
     If m_FDD.ValidSelection Then
-        m_Table_AfterColEdit m_Table.Col
+        m_Table_AfterColEdit m_Table.col
+        m_FDD.ValidSelection = True
     End If
 End Sub
 Private Sub m_DDButton_GotFocus()
@@ -367,11 +381,9 @@ End Sub
 Private Sub m_DDTable_KeyPress(KeyAscii As Integer)
     m_FDD.Keypress m_DDTable, KeyAscii
 End Sub
-
 Private Sub m_DDTable_LostFocus()
     m_FDD.LostFocus m_DDTable
 End Sub
-
 Private Sub m_DDTable_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
     m_FDD.MouseUp y
 End Sub
@@ -402,9 +414,9 @@ Private Sub m_Table_Click()
     End If
 End Sub
 
-Private Sub m_Table_FetchCellStyle(ByVal Condition As Integer, ByVal Split As Integer, Bookmark As Variant, ByVal Col As Integer, ByVal CellStyle As Object)
+Private Sub m_Table_FetchCellStyle(ByVal Condition As Integer, ByVal Split As Integer, Bookmark As Variant, ByVal col As Integer, ByVal CellStyle As Object)
     If Not (m_TGS Is Nothing) Then
-        m_TGS.FetchCellStyle Condition, Split, Bookmark, Col, CellStyle
+        m_TGS.FetchCellStyle Condition, Split, Bookmark, col, CellStyle
     End If
 End Sub
 Private Sub m_Table_FirstRowChange()
@@ -423,10 +435,11 @@ Private Sub m_Table_GotFocus()
     m_TGM.GotFocus
     If Not (m_FDD Is Nothing) Then
         m_FDD.GotFocus
-        If m_FDD.ValidSelection Then
-            '
-        End If
+'        If m_FDD.ValidSelection Then
+'            '
+'        End If
     End If
+    DoEvents
     RaiseEvent TableGotFocus(m_Table)
 End Sub
 Private Sub m_Table_HeadClick(ByVal ColIndex As Integer)
@@ -447,9 +460,9 @@ Private Sub m_Table_KeyDown(KeyCode As Integer, Shift As Integer)
     If Not (m_FDD Is Nothing) Then
         If KeyCode = vbKeyReturn Then
             m_FDD.Keypress m_Table, KeyCode
-            If m_FDD.ValidSelection Then
-                '
-            End If
+'            If m_FDD.ValidSelection Then
+'                '
+'            End If
         End If
     End If
     If SelChange Then
@@ -486,6 +499,7 @@ Private Sub m_Table_MouseUp(Button As Integer, Shift As Integer, x As Single, y 
     End If
 '    m_FTX.MouseUp
 End Sub
+
 Private Sub m_Table_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     Dim RetVal As Boolean
 
@@ -531,3 +545,51 @@ Private Sub m_Timer_Timer()
         m_FTX_PicBox.Visible = False
     End If
 End Sub
+
+Public Property Get FloatingDropDown() As clsFloatingDropDown
+    Set FloatingDropDown = m_FDD
+End Property
+
+Public Function CurrentRowIsEmpty() As Boolean
+    Dim i As Integer
+    Dim row As Integer
+    Dim isEmpty As Boolean
+    
+    isEmpty = True
+    
+    With Me
+        row = .SpreadSheet.GetCurrentRowNumber
+        
+        For i = 0 To .ColumnCount
+            If .SpreadSheet.CellValue(i, row) <> vbNullString Then
+                isEmpty = False
+                Exit For
+            End If
+        Next
+    End With
+    
+    CurrentRowIsEmpty = isEmpty
+
+End Function
+
+Public Function ValueExists(value As String, col As Integer, Optional ignoreRow As Integer = -1) As Boolean
+    Dim i As Integer
+    
+    With Me
+        
+        If ignoreRow = -1 Then
+            ignoreRow = .SpreadSheet.GetCurrentRowNumber
+        End If
+        
+        For i = 0 To .ColumnCount - 1
+            If i <> ignoreRow Then
+                If .SpreadSheet.CellValue(col, i) = value Then
+                    ValueExists = True
+                    Exit Function
+                End If
+            End If
+        Next
+    
+    End With
+
+End Function
