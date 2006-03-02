@@ -17,7 +17,7 @@ End Enum
 
 Public Enum ButtonStatus
     Disable = 0
-    Enable = 1
+    enable = 1
 End Enum
 
 Public Enum HourglassStatus
@@ -141,7 +141,7 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
 End Sub
 Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
     Dim PrevMode          As Integer
-    Dim value             As Single
+    Dim Value             As Single
     Dim BorderSize        As Single
     Dim IsContainerForm   As Boolean
     Dim IsContainerPicBox As Boolean
@@ -165,9 +165,9 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If CoordType = 0 Then
-                value = .Left + BorderSize
+                Value = .Left + BorderSize
             Else
-                value = .Top + BorderSize
+                Value = .Top + BorderSize
             End If
             
             If IsContainerForm Or IsContainerPicBox Then
@@ -175,12 +175,12 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If Not IsContainerForm Then
-                value = value + ContainerToForm(.Container, CoordType)
+                Value = Value + ContainerToForm(.Container, CoordType)
             End If
         End With
     End If
     
-    ContainerToForm = value
+    ContainerToForm = Value
 End Function
 Public Function PicBoxBorderSize(PicBox As Object) As Single
     Dim OldMode As Integer
@@ -303,7 +303,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
+                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
                 rs.MoveNext
             Loop
         End If
@@ -340,9 +340,9 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
-Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
-    If Not IsNull(value) Then
-        Nz = value
+Public Function Nz(ByVal Value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
+    If Not IsNull(Value) Then
+        Nz = Value
     Else
         Nz = ValueIfNull
     End If
@@ -423,19 +423,27 @@ End Sub
 '             will optionally append a comma at the end.
 '---------------------------------------------------------------------------------------
 '
-Public Function SQL_FieldValue(value As Variant, DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False) As String
+Public Function SQL_FieldValue(ByVal Value As Variant, ByVal DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False, Optional ByVal EmptyStringAsNull As Boolean = False) As String
     Dim FV    As String
     Dim Quote As String
     
+    If EmptyStringAsNull Then
+        If (Not IsNull(Value)) And (LenB(Value & "") = 0) Then
+            Value = Null
+        End If
+    End If
     Select Case DataType
         Case dbChar, dbGUID, dbText
             Quote = "'"
+            If Not IsNull(Value) Then
+                Value = Replace(Value, "'", "''")
+            End If
         Case dbDate, dbTime, dbTimeStamp
             Quote = "'"
     End Select
 
-    If Not IsNull(value) Then
-        FV = Quote & value & Quote
+    If Not IsNull(Value) Then
+        FV = Quote & Value & Quote
     Else
         FV = "NULL"
     End If
@@ -669,7 +677,7 @@ Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonSt
     End If
     
     objButton.Enabled = Status
-    If Status = Enable Then
+    If Status = enable Then
         objButton.Picture = ContextForm.LoadPicture(SEARCH_UP)
     Else
         objButton.Picture = ContextForm.LoadPicture(SEARCH_DOWN)
