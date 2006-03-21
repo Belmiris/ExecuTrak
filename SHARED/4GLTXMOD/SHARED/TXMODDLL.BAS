@@ -379,7 +379,10 @@ Public Function fnCalculateTaxes(sProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         fnCalculateTaxes = False
         
         Exit Function
@@ -948,7 +951,8 @@ End Sub
 
 Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
                             Optional bShowMsgBox As Boolean = True, _
-                            Optional sErrMsg As String = "")
+                            Optional sErrMsg As String = "", _
+                            Optional sTaxusegProdtcl As String = "")
     
     Static nLastError As Integer
     Dim sMsg As String
@@ -968,7 +972,15 @@ Private Sub subTaxModErrors(ByVal nMsgNo As Long, _
         Case TXMOD_LINETAX_NODBASE       ' No database available
             sMsg = "No database availble for tax calculation"
         Case TXMOD_LINETAX_NOTAXRECS     ' No tax records in the dbase
-            sMsg = "No tax records for the customer/product"
+            'david 03/13/2006  #512697
+            'to make the error message more clear,
+            'include taxuseg and prodtcl in the error message
+            sMsg = "No tax records"
+            If sTaxusegProdtcl <> "" Then
+                sMsg = sMsg + "(" + sTaxusegProdtcl + ")"
+            End If
+            sMsg = sMsg + " for the customer/product"
+            ''''''''''''''''''''''''''
         Case TXMOD_LINETAX_NOINVHEAD     ' No inventory header record
             sMsg = "No inventory header record available"
         Case TXMOD_LINETAX_NOINVCLASS    ' No inventory class record
@@ -1080,7 +1092,10 @@ Public Function fnGetTaxAmount(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         Exit Function
     End If
 
@@ -1211,7 +1226,10 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         Exit Function
     End If
 
@@ -1566,7 +1584,10 @@ Public Function fnTaxInformation(sProduct As String, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         fnTaxInformation = False
         Exit Function
     End If
@@ -1670,7 +1691,10 @@ Public Function fnTaxInformation1(sProduct As String, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         fnTaxInformation1 = False
         Exit Function
     End If
@@ -1771,7 +1795,10 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         Exit Function
     End If
         
@@ -1906,7 +1933,10 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        'david 03/13/2006  #512697
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
+        ''''''''''''''''''''''''''
         Exit Function
     End If
         
@@ -2321,7 +2351,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2488,7 +2518,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     
                     strSQL = "SELECT SUM(MBalance.lGross) AS G_GAL, SUM(MBalance.lNet) AS N_GAL,"
                     strSQL = strSQL & " MDelivery.lDestination, MDeliveryDetail.szTaxUseGroup,"
-                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross"
+                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross, MDelivery.bExternal"
                     strSQL = strSQL & " FROM MBalance, MDelivery, MDeliveryDetail"
                     strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
                     strSQL = strSQL & " and MDelivery.lDelivery = MDeliveryDetail.lDelivery"
@@ -2497,8 +2527,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
                     strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
                     strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDeliveryDetail.szTaxUseGroup,"
-                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross"
-                    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+                    strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross, MDelivery.bExternal"
+                    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
                     If rsTemp Is Nothing Then
                         Screen.MousePointer = vbDefault
                         Exit Sub
@@ -2518,12 +2548,22 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                             fBase = rsTemp!N_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!N_GAL
                         End If
+                        
+                        Dim nLineType As Integer
+                        
+                        If rsTemp!bExternal Then
+                            nLineType = TXMOD_EXTDEL   ' External delivery
+                        Else
+                            nLineType = TXMOD_INTDEL   ' Internal delivery
+                        End If
+                        
                         lDest = tfnRound(rsTemp!lDestination)
+                        
                         'david 02/10/2006  #509841
                         'change to use delivery detail's product and tax use group
                         If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, _
                            rsLadHeader!lLading, nLine, rsTemp!szProductCode, rsTemp!szTaxUseGroup, _
-                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNGU) Then
+                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNGU, nLineType) Then
                             Screen.MousePointer = vbDefault
                             Exit Sub
                         End If
@@ -3652,7 +3692,8 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         nTries = nTries - 1
     Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
     If nRet <> TXMOD_OK Then
-        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+            myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
         Exit Function
     End If
         
@@ -3724,7 +3765,8 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                 nTries = nTries - 1
             Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
             If nRet <> TXMOD_OK Then
-                subTaxModErrors nRet, bShowMsgBox, sErrMsg
+                subTaxModErrors nRet, bShowMsgBox, sErrMsg, _
+                    myStruct.m_sUseGroup + ", " + fnGetProdTcl(myStruct.m_sProduct)
                 Exit Function
             End If
                 
@@ -3928,7 +3970,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -3967,7 +4009,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -4154,6 +4196,129 @@ Private Function fnGetBaseTaxableAmt(lTrn As Long) As Double
     End If
 
 End Function
-''''''''''''''''''''''''''
 'david 01/26/2006  #506839
+''''''''''''''''''''''''''
+
+'david 03/13/2006  #511222
+'If tax UOM (ivh_uom_sales) is not set, the parm will be used to determine
+'Tax is based on Billing unit or Stocking Unit.
+Public Function fnGetUOMConvertFactor(ByVal sProductCode As String) As Double
+    
+    Const SUB_NAME As String = "fnGetUOMConvertFactor"
+    
+    Static nMsgCount As Integer
+    Static bAlreadyShowErr As Boolean
+    Static bBadVersion As Boolean
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sSysParm6209 As String
+    Dim sStockUOM As String
+    Dim sUOM As String
+    
+    Dim sTxMod32 As String
+    Dim sVersion As String
+    
+    On Error GoTo errTrap
+    
+    fnGetUOMConvertFactor = 1
+    
+    strSQL = "SELECT * from inv_header WHERE ivh_product = " & tfnSQLString(sProductCode)
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , , False)
+    If rsTemp Is Nothing Then
+         Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        sStockUOM = Trim(rsTemp!ivh_uom_stock & "")
+        
+        If Trim(rsTemp!ivh_uom_sales & "") <> "" Then
+            sUOM = Trim(rsTemp!ivh_uom_sales & "")
+            
+            'old version txmod32.dll checking...
+            'and make it backward compatible
+            'check once only...
+            If nMsgCount < 1 Then
+                If Not it_is_a_fuel(sProductCode, t_dbMainDatabase) Then
+                    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+                    sVersion = frmContext.GetProductVersion(sTxMod32)
+                    
+                    If sVersion < "3.29.0.2" Then
+                        'don't show the error message
+                        'If MsgBox("The TXMOD32.DLL (version " & sVersion _
+                           & ") in this PC is out of date. " _
+                           & vbCrLf & vbCrLf & "Please report this message" _
+                           & " to Support.", vbExclamation + vbOKCancel) = vbCancel Then
+                            'user cancel the message, no more checking/showing message
+                        '    nMsgCount = 100
+                        'Else
+                            nMsgCount = nMsgCount + 1
+                        'End If
+                        
+                        'do just like the old version
+                        'return conversion factor 1
+                        tfnErrHandler SUB_NAME, 0, "NON-CRITICAL. The TXMOD32.DLL (version " & sVersion _
+                           & ") in this PC is out of date. Recommented 3.29.0.2 or later.", False
+                        bBadVersion = True
+                        Exit Function
+                    Else
+                        'version is good, no more checking
+                        nMsgCount = 100
+                    End If
+                End If
+            ElseIf bBadVersion Then
+                'do just like the old version
+                'return conversion factor 1
+                Exit Function
+            End If
+        Else
+            'default to sSysParm6209 = "B"
+            sSysParm6209 = "B"
+            sUOM = Trim(rsTemp!ivh_uom_pricing & "")
+            
+            strSQL = "SELECT parm_field from sys_parm WHERE parm_nbr = 6209"
+            Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , , False)
+            If rsTemp Is Nothing Then
+                 Exit Function
+            End If
+            
+            If rsTemp.RecordCount > 0 Then
+                sSysParm6209 = Trim(rsTemp!parm_field & "")
+            End If
+            
+            If sSysParm6209 = "S" Then
+                'If stocking unit, it is 1
+                Exit Function
+            End If
+        End If
+        
+        If sStockUOM = sUOM Then
+            'return conversion factor 1
+            Exit Function
+        End If
+        
+        strSQL = "SELECT trns_factor FROM sys_convert"
+        strSQL = strSQL & " WHERE trns_unit_1 = " & tfnSQLString(sStockUOM)
+        strSQL = strSQL & " AND trns_unit_2 = " & tfnSQLString(sUOM)
+        
+        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , , False)
+        If rsTemp Is Nothing Then
+             Exit Function
+        End If
+        
+        If rsTemp.RecordCount > 0 Then
+            fnGetUOMConvertFactor = tfnRound(rsTemp!trns_factor, DEFAULT_DECIMALS)
+        End If
+    End If
+
+    Exit Function
+    
+errTrap:
+    If Not bAlreadyShowErr Then
+        bAlreadyShowErr = True
+        tfnErrHandler SUB_NAME
+    End If
+
+End Function
+''''''''''''''''''''''''''
 
