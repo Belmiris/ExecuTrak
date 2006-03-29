@@ -1353,14 +1353,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + round(fGross)
+            lInternalFuel = lInternalFuel + Round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + round(fGross)
+            lInternalFuel = lInternalFuel + Round(fGross)
         End If
     End If
     
@@ -2008,7 +2008,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = val(lLimit)
+                .m_lLimit = Val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -2130,8 +2130,8 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
         'new dll
         Do
-            hld_miles = round(hld_miles)
-            hld_tot_gals = round(hld_tot_gals, 1)
+            hld_miles = Round(hld_miles)
+            hld_tot_gals = Round(hld_tot_gals, 1)
             nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2351,7 +2351,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3924,7 +3924,7 @@ Private Function interstate_use_groups(ByVal sIE As String, _
 End Function
 
 Private Function fnTaxOrigin_is_PhysicalDest(ByVal c_use_g As String, _
-                                     ByVal prodcode As String, _
+                                     ByVal ProdCode As String, _
                                      ByVal ds_state As String) As Integer
    Dim strSQL As String
    Dim rsTemp As Recordset
@@ -3935,7 +3935,7 @@ Private Function fnTaxOrigin_is_PhysicalDest(ByVal c_use_g As String, _
         & " WHERE txh_level = 'S' and txh_trn IN " _
         & "(SELECT tul_trn FROM tx_use_link, tx_use_g, inv_header" _
         & " WHERE tul_link = tu_link AND tu_use_g = " & tfnSQLString(c_use_g) _
-        & " AND tu_prodtcl = ivh_prodtcl AND ivh_product = " & tfnSQLString(prodcode) & ")"
+        & " AND tu_prodtcl = ivh_prodtcl AND ivh_product = " & tfnSQLString(ProdCode) & ")"
 
    tax_origin = szEMPTY
    Set rsTemp = txMod_OpenRecord(strSQL)
@@ -3970,7 +3970,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -4009,7 +4009,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -4320,5 +4320,46 @@ errTrap:
     End If
 
 End Function
+
+Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
+    
+    Const SUB_NAME As String = "it_is_a_fuel"
+    
+    Dim strSQL As String
+    Dim pr_inv_header As Recordset
+    Dim pr_co_inv_codes As Recordset
+    
+    it_is_a_fuel = False
+    
+    strSQL = "SELECT * FROM inv_header WHERE ivh_product = " & tfnSQLString(code)
+    Set pr_inv_header = txMod_OpenRecord(strSQL, SUB_NAME, , , False)
+    If pr_inv_header Is Nothing Then
+         Exit Function
+    End If
+    If pr_inv_header.RecordCount < 1 Then
+         Exit Function
+    End If
+        
+    strSQL = "SELECT * FROM co_inv_codes"
+    strSQL = strSQL & " WHERE coic_user_class = " & tfnSQLString(Trim(pr_inv_header!ivh_class & ""))
+    Set pr_co_inv_codes = txMod_OpenRecord(strSQL, SUB_NAME, , , False)
+    If pr_co_inv_codes Is Nothing Then
+        Exit Function
+    End If
+    If pr_co_inv_codes.RecordCount < 1 Then
+         Exit Function
+    End If
+    
+    If IsNull(pr_co_inv_codes!coic_prog_class) Then
+        Exit Function
+    End If
+    
+    'trim the pr_co_inv_codes!coic_prog_class david 11/11/99
+    If Trim(pr_co_inv_codes!coic_prog_class & "") = "fuel" Then
+        it_is_a_fuel = True
+        Exit Function
+    End If
+
+End Function    ''it_is_a_fuel
 ''''''''''''''''''''''''''
 
