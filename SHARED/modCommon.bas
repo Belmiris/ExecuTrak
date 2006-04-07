@@ -38,7 +38,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -57,6 +57,8 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
+
+Private Declare Sub SleepAPI Lib "kernel32" Alias "Sleep" (ByVal dwMilliseconds As Long)
 
 Public debugCount As Integer
 
@@ -93,16 +95,16 @@ Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As Str
     'If so, take note of the highest backup counter value.
     '------------------------------------------------------------------------------------
     BackupPath = FixPath(BackupPath)
-    CurFile = Dir(BackupPath & Filename & ".???")
+    CurFile = dir(BackupPath & Filename & ".???")
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
-            If Val(FileExt) > FileNum Then
-                FileNum = Val(FileExt)
+            If val(FileExt) > FileNum Then
+                FileNum = val(FileExt)
             End If
         End If
         
-        CurFile = Dir() 'Get next filename
+        CurFile = dir() 'Get next filename
     Loop
     
     '------------------------------------------------------------------------------------
@@ -140,7 +142,7 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     End With
 End Sub
 Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
-    Dim PrevMode          As Integer
+    Dim prevMode          As Integer
     Dim Value             As Single
     Dim BorderSize        As Single
     Dim IsContainerForm   As Boolean
@@ -156,7 +158,7 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             
             If IsContainerForm Or IsContainerPicBox Then
                 With .Container
-                    PrevMode = .ScaleMode
+                    prevMode = .ScaleMode
                     .ScaleMode = vbTwips
                     If IsContainerPicBox Then
                         BorderSize = PicBoxBorderSize(Ctl.Container)
@@ -171,7 +173,7 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If IsContainerForm Or IsContainerPicBox Then
-                .Container.ScaleMode = PrevMode
+                .Container.ScaleMode = prevMode
             End If
             
             If Not IsContainerForm Then
@@ -312,6 +314,11 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
     End If
     
     GetSysParm = SysParms("sp" & ParmNum)
+    
+    If LenB(Trim$(GetSysParm)) = 0 Then
+        GetSysParm = DEFAULT
+    End If
+    
     Exit Function
     
 errHandler:
@@ -323,7 +330,7 @@ Public Function IsFormLoaded(ByVal FormName As String) As Boolean
     
     FormName = UCase$(FormName)
     For Each Form In Forms
-        If UCase$(Form.Name) = FormName Then
+        If UCase$(Form.name) = FormName Then
             IsFormLoaded = True
             Exit For
         End If
@@ -392,7 +399,7 @@ Public Sub SelectAllText()
     On Error GoTo errHandler
     With Screen.ActiveControl
         .SelStart = 0
-        .SelLength = Len(.Text)
+        .SelLength = Len(.text)
     End With
     Exit Sub
     
@@ -528,12 +535,12 @@ Attribute fnRecordset.VB_Description = "Modifies the passed recordset with data 
             Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
     End Select
     
-    If rsTemp.RecordCount > 0 Then
+    If rsTemp.recordCount > 0 Then
        rsTemp.MoveLast
        rsTemp.MoveFirst
     End If
     
-    fnRecordset = rsTemp.RecordCount
+    fnRecordset = rsTemp.recordCount
     
     Exit Function
     
@@ -574,7 +581,7 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
             Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
     End Select
     
-    If rsTemp.RecordCount > 0 Then
+    If rsTemp.recordCount > 0 Then
         If Not IsMissing(FieldName) And FieldName <> vbNullString Then
             fnQueryForField = GetField(rsTemp(FieldName))
         Else
@@ -755,7 +762,7 @@ Public Function FileExists(ByVal Filename As String) As Boolean
     
     On Error Resume Next
     FileLen Filename
-    bExists = (Err.Number = 0)
+    bExists = (Err.number = 0)
     If bExists Then
         bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
@@ -772,7 +779,7 @@ Public Function DirExists(ByVal DirName As String) As Boolean
         DirName = Left$(DirName, Len(DirName) - 1)
     End If
     FileLen DirName
-    bExists = (Err.Number = 0)
+    bExists = (Err.number = 0)
     If bExists Then
         bExists = (GetAttr(DirName) And vbDirectory = vbDirectory)
     End If
@@ -824,7 +831,7 @@ Public Sub ClearText(ParamArray Parms())
     
     For i = 0 To UBound(Parms)
         If TypeOf Parms(i) Is Textbox Then
-            Parms(i).Text = vbNullString
+            Parms(i).text = vbNullString
         ElseIf TypeOf Parms(i) Is Label Then
             Parms(i).Caption = vbNullString
         End If
@@ -832,7 +839,7 @@ Public Sub ClearText(ParamArray Parms())
 
 End Sub
 Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef Filename As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
-    Dim Pos As Long
+    Dim pos As Long
     
     '------------------------------------------------------------------------------------
     'Init - Needed for Optional Params that had pre-existing values
@@ -844,22 +851,22 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
     '------------------------------------------------------------------------------------
     'Extract the Path
     '------------------------------------------------------------------------------------
-    Pos = InStrRev(FullFileName, "\")
-    If Pos = 0 Then
-        Pos = InStr(FullFileName, ":")
+    pos = InStrRev(FullFileName, "\")
+    If pos = 0 Then
+        pos = InStr(FullFileName, ":")
     End If
-    If Pos Then
-        FilePath = Left$(FullFileName, Pos)
-        FullFileName = Mid$(FullFileName, Pos + 1)
+    If pos Then
+        FilePath = Left$(FullFileName, pos)
+        FullFileName = Mid$(FullFileName, pos + 1)
     End If
     
     '------------------------------------------------------------------------------------
     'Extract the File Extension
     '------------------------------------------------------------------------------------
-    Pos = InStrRev(FullFileName, ".")
-    If Pos Then
-        FileExt = Mid$(FullFileName, Pos + 1)
-        FullFileName = Left$(FullFileName, Pos - 1)
+    pos = InStrRev(FullFileName, ".")
+    If pos Then
+        FileExt = Mid$(FullFileName, pos + 1)
+        FullFileName = Left$(FullFileName, pos - 1)
     End If
     
     '------------------------------------------------------------------------------------
@@ -868,7 +875,7 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
     Filename = FullFileName 'Only thing left is the File NAME itself
 End Sub
 
-Public Function CaseInSensitiveString(ByVal S As String) As String
+Public Function CaseInSensitiveString(ByVal S As String, Optional addAsterisk As Boolean = False) As String
     Dim i As Integer
     Dim sRet As String
     Dim sChar As String
@@ -876,9 +883,7 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
     
     S = Trim(S)
     
-    If Trim(S) = "" Then
-        sRet = "*"
-    Else
+    If Trim(S) <> "" Then
         For i = 1 To Len(S)
             sChar = Mid(S, i, 1)
             Select Case sChar
@@ -903,7 +908,9 @@ Public Function CaseInSensitiveString(ByVal S As String) As String
                 bStartInserted = False
             End Select
         Next i
-            
+    End If
+    
+    If addAsterisk Then
         sRet = sRet + "*"
     End If
     
@@ -917,3 +924,14 @@ Private Function IsAlphabet(ByVal sChar As String) As Boolean
         IsAlphabet = True
     End If
 End Function
+
+Public Function DPrint(text As String)
+    
+    debugCount = debugCount + 1
+    Debug.Print " " & Format(debugCount, "##0") & " " & text
+
+End Function
+
+Public Sub Sleep(milliseconds As Long)
+    SleepAPI milliseconds
+End Sub
