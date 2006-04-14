@@ -174,6 +174,10 @@ Public bExists_tx_header As Boolean
 ''''''''''''''''''''''''''''''''
 '
 
+Public bUseGLAdjust As Boolean
+Public lAdjGLAccount As Long
+Public sTaxUseGroup As String
+
 Public Sub initialize_tax_buffers()
     error_found = False
     
@@ -369,7 +373,32 @@ Public Sub setup_for_gl(prod As String, this_pc As Long, tax_acct As Long)
         Exit Sub
     End If
 
+    'Added by JQ 02/16/2006 for ticket 393360
+    If bUseGLAdjust Then
+         If pr_inv_classes!icl_fuel_tax = "N" Then
+            Set pr_use_g = ftx_use_g(sTaxUseGroup, pr_inv_header!ivh_prodtcl, t_dbMainDatabase)
+            
+            If Not pr_use_g Is Nothing And lAdjGLAccount > 0 Then
+                Set pr_gl_master = fgl_master(sSeries, lAdjGLAccount, this_pc, t_dbMainDatabase)
+                If pr_gl_master Is Nothing Then
+                    pr_gl_master_glm_account = lAdjGLAccount
+                    pr_gl_master_glm_prft_ctr = this_pc
+                    found_error = True: error_found = 10
+                    Exit Sub
+                End If
+                
+                td_buckt = lAdjGLAccount
+            End If
+         End If
+    End If
+    
     found_error = False: error_found = 0
+End Sub
+
+'This function is called in WSERCVER program only.
+Public Sub set_gl_adjust(bValue As Boolean, lGLAccount As Long)
+    bUseGLAdjust = bValue
+    lAdjGLAccount = lGLAccount
 End Sub
 
 Public Sub set_this_pc(pc As Long)
@@ -450,6 +479,7 @@ Public Sub extrn_bl_gl(this_pc As Long, _
     '# if the 'include taxes in cost layer' option is being used
     '# sysparm 1006 = Y, then tax_acct will be non-zero
     setup_for_gl product, this_pc, tax_acct
+    sTaxUseGroup = tax_use
     If found_error Then
         Exit Sub
     End If
@@ -544,6 +574,7 @@ Public Sub extrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
                             tdolrs As Double, cost As Double)
     
     setup_for_gl product, this_pc, 0
+    
     If found_error Then
         If product <> "" Then
             Exit Sub
@@ -567,6 +598,7 @@ Public Sub intrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
                             tdolrs As Double, cost As Double)
     
     setup_for_gl product, this_pc, 0
+    
     If found_error Then
         If product <> "" Then
             Exit Sub
@@ -596,9 +628,10 @@ Public Sub intrn_bl_gl(this_pc As Long, _
                        ByVal cost As Double, _
                        tax_acct As Long)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     setup_for_gl product, this_pc, tax_acct
+    
     If found_error Then
         Exit Sub
     End If
@@ -697,7 +730,7 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     
     Exit Sub
 
-ErrTrap:
+errTrap:
     #If PROCESSING Then
         tfnErrHandler "intrn_bl_gl", False
     #Else
@@ -814,9 +847,10 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
                         ByVal tdolrs As Double, ByVal cost As Double, _
                         cust As Long, ByVal Sale As Double)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     setup_for_gl product, this_pc, 0
+    sTaxUseGroup = tax_use
     If found_error Then
         Exit Sub
     End If
@@ -973,7 +1007,7 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     
     Exit Sub
 
-ErrTrap:
+errTrap:
     #If PROCESSING Then
         tfnErrHandler "extrn_del_gl", False
     #Else
@@ -1044,7 +1078,7 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
     Dim skeyi As String * 22, skeyj As String * 22
     Dim found_sw As Integer, sSql As String, pr_use_link As Recordset
 
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'Vijaya on 02/05/04 Magic#395302
     If fnCStr(t_tax_date) = "" Then
@@ -1220,7 +1254,7 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
 
 Exit Sub
 
-ErrTrap:
+errTrap:
     #If PROCESSING Then
         tfnErrHandler "load_trn_arry", False
     #Else
@@ -1701,7 +1735,7 @@ Public Sub detax(use_group As String, tclass As String, _
     Dim stx_charge As String
     ''''''''''''''''''''''''''''''''
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
 
     'Vijaya on 02/05/04 Magic#395302
     If fnCStr(t_tax_date) = "" Then
@@ -1828,7 +1862,7 @@ Public Sub detax(use_group As String, tclass As String, _
 
     Exit Sub
     
-ErrTrap:
+errTrap:
     #If PROCESSING Then
         tfnErrHandler "detax", False
     #Else
@@ -2261,14 +2295,14 @@ Private Function fnCStr(vTemp As Variant) As String
 End Function
 
 Private Function fnCheckNonStkMstr(rsIn As Recordset, _
-                                   lProdlnk As Long, _
+                                   lProdLnk As Long, _
                                    lPrftCtr As Long) As Boolean
     
     Const SUB_NAME As String = "fnCheckNonStkMstr"
     Dim sSql As String
     
     sSql = "SELECT ponsm_gl_cost AS invt_gl_cost, 0 AS invt_gl_sales, " _
-        + "0 AS invt_gl_invt FROM po_non_stock_mstr WHERE ponsm_link = " & lProdlnk _
+        + "0 AS invt_gl_invt FROM po_non_stock_mstr WHERE ponsm_link = " & lProdLnk _
         & " AND ponsm_prft_ctr = " & lPrftCtr
         
     fnCheckNonStkMstr = fnGetRecord(rsIn, sSql, nDBInformix, SUB_NAME, False) > 0
