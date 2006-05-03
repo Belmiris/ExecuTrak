@@ -29,6 +29,8 @@ Public Const INTO_TEMP As String = " into temp "
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
     "select tabname from systables where tabname = '@table'"
+Public Const SQL_TEMP_TABLE_EXISTS As String = _
+    "select * from @table where 1 = 2"
     
 Public Const SQL_COLUMN_EXISTS As String = _
     " select tabname, colname " & _
@@ -38,7 +40,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colname = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -61,6 +63,12 @@ Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
 Private Declare Sub SleepAPI Lib "kernel32" Alias "Sleep" (ByVal dwMilliseconds As Long)
 
 Public debugCount As Integer
+Private suppressMsgBox As Boolean
+Private printSQL As Boolean
+
+Public Property Let PrintSQLStatements(bPrint As Boolean)
+    printSQL = bPrint
+End Property
 
 Public Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
     Q_Str = Quote & Str & Quote
@@ -95,16 +103,16 @@ Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As Str
     'If so, take note of the highest backup counter value.
     '------------------------------------------------------------------------------------
     BackupPath = FixPath(BackupPath)
-    CurFile = dir(BackupPath & Filename & ".???")
+    CurFile = Dir(BackupPath & Filename & ".???")
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
-            If val(FileExt) > FileNum Then
-                FileNum = val(FileExt)
+            If Val(FileExt) > FileNum Then
+                FileNum = Val(FileExt)
             End If
         End If
         
-        CurFile = dir() 'Get next filename
+        CurFile = Dir() 'Get next filename
     Loop
     
     '------------------------------------------------------------------------------------
@@ -142,8 +150,8 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     End With
 End Sub
 Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
-    Dim prevMode          As Integer
-    Dim Value             As Single
+    Dim PrevMode          As Integer
+    Dim value             As Single
     Dim BorderSize        As Single
     Dim IsContainerForm   As Boolean
     Dim IsContainerPicBox As Boolean
@@ -158,7 +166,7 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             
             If IsContainerForm Or IsContainerPicBox Then
                 With .Container
-                    prevMode = .ScaleMode
+                    PrevMode = .ScaleMode
                     .ScaleMode = vbTwips
                     If IsContainerPicBox Then
                         BorderSize = PicBoxBorderSize(Ctl.Container)
@@ -167,22 +175,22 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
             End If
             
             If CoordType = 0 Then
-                Value = .Left + BorderSize
+                value = .Left + BorderSize
             Else
-                Value = .Top + BorderSize
+                value = .Top + BorderSize
             End If
             
             If IsContainerForm Or IsContainerPicBox Then
-                .Container.ScaleMode = prevMode
+                .Container.ScaleMode = PrevMode
             End If
             
             If Not IsContainerForm Then
-                Value = Value + ContainerToForm(.Container, CoordType)
+                value = value + ContainerToForm(.Container, CoordType)
             End If
         End With
     End If
     
-    ContainerToForm = Value
+    ContainerToForm = value
 End Function
 Public Function PicBoxBorderSize(PicBox As Object) As Single
     Dim OldMode As Integer
@@ -298,14 +306,14 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
     Dim SQL         As String
     Dim rs          As DAO.Recordset
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     
     If (SysParms Is Nothing) Or Reload Then
         Set SysParms = New Collection
         SQL = "SELECT Parm_Nbr,Parm_Field FROM Sys_Parm"
         If fnRecordset(rs, SQL) > 0 Then
             Do While Not rs.EOF
-                SysParms.Add Trim$(rs(1).Value & vbNullString), "sp" & rs(0).Value
+                SysParms.Add Trim$(rs(1).value & vbNullString), "sp" & rs(0).value
                 rs.MoveNext
             Loop
         End If
@@ -321,7 +329,7 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
     
     Exit Function
     
-errHandler:
+ErrHandler:
     GetSysParm = DEFAULT
     Err.Clear
 End Function
@@ -330,7 +338,7 @@ Public Function IsFormLoaded(ByVal FormName As String) As Boolean
     
     FormName = UCase$(FormName)
     For Each Form In Forms
-        If UCase$(Form.name) = FormName Then
+        If UCase$(Form.Name) = FormName Then
             IsFormLoaded = True
             Exit For
         End If
@@ -347,9 +355,9 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
-Public Function Nz(ByVal Value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
-    If Not IsNull(Value) Then
-        Nz = Value
+Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
+    If Not IsNull(value) Then
+        Nz = value
     Else
         Nz = ValueIfNull
     End If
@@ -396,14 +404,14 @@ Public Function RecordArray(SQL As String) As Variant
     RecordArray = Data
 End Function
 Public Sub SelectAllText()
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     With Screen.ActiveControl
         .SelStart = 0
         .SelLength = Len(.text)
     End With
     Exit Sub
     
-errHandler:
+ErrHandler:
     Err.Clear
 End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
@@ -430,27 +438,27 @@ End Sub
 '             will optionally append a comma at the end.
 '---------------------------------------------------------------------------------------
 '
-Public Function SQL_FieldValue(ByVal Value As Variant, ByVal DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False, Optional ByVal EmptyStringAsNull As Boolean = False) As String
+Public Function SQL_FieldValue(ByVal value As Variant, ByVal DataType As DAO.DataTypeEnum, Optional ByVal AppendComma As Boolean = False, Optional ByVal EmptyStringAsNull As Boolean = False) As String
     Dim FV    As String
     Dim Quote As String
     
     If EmptyStringAsNull Then
-        If (Not IsNull(Value)) And (LenB(Value & "") = 0) Then
-            Value = Null
+        If (Not IsNull(value)) And (LenB(value & "") = 0) Then
+            value = Null
         End If
     End If
     Select Case DataType
         Case dbChar, dbGUID, dbText
             Quote = "'"
-            If Not IsNull(Value) Then
-                Value = Replace(Value, "'", "''")
+            If Not IsNull(value) Then
+                value = Replace(value, "'", "''")
             End If
         Case dbDate, dbTime, dbTimeStamp
             Quote = "'"
     End Select
 
-    If Not IsNull(Value) Then
-        FV = Quote & Value & Quote
+    If Not IsNull(value) Then
+        FV = Quote & value & Quote
     Else
         FV = "NULL"
     End If
@@ -527,6 +535,10 @@ Public Function fnRecordset(rsTemp As Recordset, SQL As String, _
                    Optional bShowErrow As Boolean) As Long
 Attribute fnRecordset.VB_Description = "Modifies the passed recordset with data from the passed SQL and returns the recordcount of the recordset."
     On Error GoTo SQLError
+        
+    If printSQL Then
+        Debug.Print SQL & ";"
+    End If
     
     Select Case dbLocation
         Case DatabaseLocation.LocalDB
@@ -535,12 +547,12 @@ Attribute fnRecordset.VB_Description = "Modifies the passed recordset with data 
             Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
     End Select
     
-    If rsTemp.recordCount > 0 Then
+    If rsTemp.RecordCount > 0 Then
        rsTemp.MoveLast
        rsTemp.MoveFirst
     End If
     
-    fnRecordset = rsTemp.recordCount
+    fnRecordset = rsTemp.RecordCount
     
     Exit Function
     
@@ -574,6 +586,10 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
     
     On Error GoTo SQLError
     
+    If printSQL Then
+        Debug.Print SQL & ";"
+    End If
+    
     Select Case dbLocation
         Case DatabaseLocation.LocalDB
             Set rsTemp = dbLocal.OpenRecordset(SQL, dbOpenSnapshot)
@@ -581,7 +597,7 @@ Public Function fnQueryForField(SQL As String, Optional FieldName As String, _
             Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
     End Select
     
-    If rsTemp.recordCount > 0 Then
+    If rsTemp.RecordCount > 0 Then
         If Not IsMissing(FieldName) And FieldName <> vbNullString Then
             fnQueryForField = GetField(rsTemp(FieldName))
         Else
@@ -612,6 +628,10 @@ Public Function fnExecSQL(SQL As String, Optional dbLocation As DatabaseLocation
                 Optional sCalledFrom As Variant = vbNullString, Optional bShowError As Variant = True) As Boolean
 
 On Error GoTo SQLError
+    
+    If printSQL Then
+        Debug.Print SQL & ";"
+    End If
 
     Select Case dbLocation
         Case DatabaseLocation.LocalDB
@@ -639,30 +659,43 @@ Public Function fnDataExists(SQL As String) As Boolean
     Set rsTemp = Nothing
 End Function
 
-Public Function fnCreateTempTable(SQL As String, TableName As String) As Boolean
+Public Function CreateTempTable(SQL As String, TableName As String) As Boolean
 
-    fnCreateTempTable = fnExecSQL(SQL & INTO_TEMP & TableName)
+    CreateTempTable = fnExecSQL(SQL & INTO_TEMP & TableName)
     
 End Function
 
 Public Sub subDropTable(TableName As String)
     Dim sSql As String
-    
+            
     'In case the table doesn't exist, just continue
     On Error Resume Next
     sSql = SQLParm(SQL_DROP_TABLE, "@table", TableName)
-    
+            
     fnExecSQL sSql, , , False
     
 End Sub
 
-Public Function fnTableExists(TableName As String) As Boolean
-    Dim sSql As String
+Public Function fnTableExists(TableName As String, Optional bTemp As Boolean = False) As Boolean
+    Dim SQL As String
+    Dim rsTemp As Recordset
     
-    sSql = SQLParm(SQL_TABLE_EXISTS, _
-                          "@table", TableName)
+    If bTemp Then
+        SQL = SQL_TEMP_TABLE_EXISTS
+    Else
+        SQL = SQL_TABLE_EXISTS
+    End If
     
-    fnTableExists = fnDataExists(sSql)
+    SQL = SQLParm(SQL, "@table", TableName)
+            
+    If bTemp Then
+        fnRecordset rsTemp, SQL
+        If Not rsTemp Is Nothing Then
+            fnTableExists = True
+        End If
+    Else
+        fnTableExists = fnDataExists(SQL)
+    End If
                               
 End Function
 
@@ -677,14 +710,14 @@ Public Function fnColumnExists(TableName As String, ColumnName As String) As Boo
 
 End Function
 
-Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonStatus, _
+Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, status As ButtonStatus, _
                                                 Optional ByVal ContextForm As Form = Nothing)
     If ContextForm Is Nothing Then
         Set ContextForm = frmContext
     End If
     
-    objButton.Enabled = Status
-    If Status = enable Then
+    objButton.Enabled = status
+    If status = enable Then
         objButton.Picture = ContextForm.LoadPicture(SEARCH_UP)
     Else
         objButton.Picture = ContextForm.LoadPicture(SEARCH_DOWN)
@@ -739,6 +772,10 @@ End Function
 '-------------------------------------------------------------------
 Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional HelpFile, Optional Context) As VbMsgBoxResult
 
+    If SuppressMessageBox Then
+        Exit Function
+    End If
+    
     If IsMissing(Title) Then
         Title = App.Title
     Else
@@ -748,6 +785,14 @@ Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Opt
     End If
     MsgBox = VBA.MsgBox(Prompt, Buttons, Title, HelpFile, Context)
 End Function
+
+Public Property Let SuppressMessageBox(suppress As Boolean)
+    suppressMsgBox = suppress
+End Property
+
+Public Property Get SuppressMessageBox() As Boolean
+    SuppressMessageBox = suppressMsgBox
+End Property
 
 Public Function AppFile(ByVal Filename As String) As String
     AppFile = AppPath() & Filename
@@ -762,7 +807,7 @@ Public Function FileExists(ByVal Filename As String) As Boolean
     
     On Error Resume Next
     FileLen Filename
-    bExists = (Err.number = 0)
+    bExists = (Err.Number = 0)
     If bExists Then
         bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
@@ -779,7 +824,7 @@ Public Function DirExists(ByVal DirName As String) As Boolean
         DirName = Left$(DirName, Len(DirName) - 1)
     End If
     FileLen DirName
-    bExists = (Err.number = 0)
+    bExists = (Err.Number = 0)
     If bExists Then
         bExists = (GetAttr(DirName) And vbDirectory = vbDirectory)
     End If
