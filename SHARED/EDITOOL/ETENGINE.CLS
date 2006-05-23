@@ -355,7 +355,7 @@ Property Get ErrorFree() As Integer
     ErrorFree = EC_INITIAL
 End Property
 
-Property Let FileName(sTemp As String)
+Property Let Filename(sTemp As String)
     m_sFileName = sTemp
 End Property
 
@@ -643,20 +643,45 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
     
-        strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
-        strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
-        strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
-        strSQL = strSQL + " fmmb_dv_vol namount"
-        strSQL = strSQL & ", fmd_invoice, fmmb_dv_line"
-        strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
-        strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
-        strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
-        strSQL = strSQL + " AND fmm_movement = fmmb_movement"
-        strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
-        strSQL = strSQL + " AND fmd_movement = fmmb_movement"
-        strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
-        strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
-
+        'david 05/22/2006  #519078
+        If nTypeCode = "2" And m_nTFSTCount >= 0 Then
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
+            strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, t2.ivh_link, t2.ivh_prodtcl,"
+            strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
+            strSQL = strSQL + " fmmb_dv_vol namount"
+            strSQL = strSQL & ", fmd_invoice, fmmb_dv_line"
+            strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header t1, inv_header t2"
+            strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
+            strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
+            strSQL = strSQL + " AND fmm_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
+            strSQL = strSQL + " AND fmd_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmmb_bl_prodlnk = t1.ivh_link"
+            strSQL = strSQL + " AND fmmb_dv_prodlnk = t2.ivh_link"
+            strSQL = strSQL + " AND ((fml_int_ext = 'E'"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("t1.ivh_prodtcl", sTaxClass) & "))"
+            strSQL = strSQL + " OR"
+            strSQL = strSQL + " (fml_int_ext = 'I' AND fmd_dest_flag != 'I'"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("t2.ivh_prodtcl", sTaxClass) & "))"
+            strSQL = strSQL + ")"
+        Else
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
+            strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
+            strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
+            strSQL = strSQL + " fmmb_dv_vol namount"
+            strSQL = strSQL & ", fmd_invoice, fmmb_dv_line"
+            strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header"
+            strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
+            strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
+            strSQL = strSQL + " AND fmm_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
+            strSQL = strSQL + " AND fmd_movement = fmmb_movement"
+            
+            strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
+        End If
+        ''''''''''''''''''''''''''
+        
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
@@ -770,7 +795,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     End If
 
     'retrieve wholesale fuel taxes
-    If m_sEDIType = EDI_TYPE_D Then
+    'david 05/22/2006  #519078
+    If m_sEDIType = EDI_TYPE_D Or (nTypeCode = "2" And m_nTFSTCount >= 0) Then
+    ''''''''''''''''''''''''''
         strSQL = "DROP TABLE fm_temp1"
         fnExecuteSQL strSQL, SUB_NAME
         strSQL = "DROP TABLE fm_temp2"
