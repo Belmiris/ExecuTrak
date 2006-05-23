@@ -39,6 +39,7 @@ End Enum
 Event SelectChange(Grid As GridDef)
 Event TableClick(CANCEL As Boolean)
 Event TableGotFocus(Table As TDBGrid)
+Event CellChange(Col As Integer, row As Integer, oldValue As String, newValue As String)
 
 '==================================
 'Member Variables for Properties
@@ -110,13 +111,13 @@ End Property
 Public Property Get ColumnCount() As Long
     ColumnCount = m_GridColumns.Count
 End Property
-Public Function ColumnTotal(ByVal col As Integer) As Double
+Public Function ColumnTotal(ByVal Col As Integer) As Double
     Dim Total As Double
     Dim row   As Long
     
     With m_TGM
         For row = 0 To .RowCount - 1
-            Total = Total + .CellValue(col, row)
+            Total = Total + .CellValue(Col, row)
         Next 'Row
     End With
     
@@ -193,7 +194,7 @@ Public Sub SetupTable()
     Dim ColIndex   As Long
     Dim HasEditCol As Boolean    'True if there is one or more editable columns
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     
     With m_Table
         TableWidth = .Width - SCROLLBAR_WIDTH
@@ -277,7 +278,7 @@ Public Sub SetupTable()
     m_TGM.AllowAddNew = m_Table.AllowAddNew
     Exit Sub
     
-errHandler:
+ErrHandler:
     With Err
         Select Case .Number
             Case 730 'Control Not Found
@@ -359,7 +360,7 @@ Private Sub m_DDButton_Click()
     m_FDD.ButtonClick
     
     If m_FDD.ValidSelection Then
-        m_Table_AfterColEdit m_Table.col
+        m_Table_AfterColEdit m_Table.Col
         m_FDD.ValidSelection = True
     End If
 End Sub
@@ -391,7 +392,19 @@ Private Sub m_DDTable_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     m_FDD.RowColChange m_DDTable
 End Sub
 Private Sub m_Table_AfterColEdit(ByVal ColIndex As Integer)
+    Dim row As Long
+    Dim oldValue As String, newValue As String
+    
+    row = m_TGM.GetCurrentRowNumber
+    
+    oldValue = m_TGM.CellValue(ColIndex, row)
+    
     m_TGM.AfterColEdit ColIndex
+    
+    newValue = m_TGM.CellValue(ColIndex, row)
+        
+    RaiseEvent CellChange(ColIndex, m_TGM.GetCurrentRowNumber, oldValue, newValue)
+    
 End Sub
 Private Sub m_Table_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     m_TGM.BeforeColEdit ColIndex, KeyAscii, CANCEL
@@ -414,9 +427,9 @@ Private Sub m_Table_Click()
     End If
 End Sub
 
-Private Sub m_Table_FetchCellStyle(ByVal Condition As Integer, ByVal Split As Integer, Bookmark As Variant, ByVal col As Integer, ByVal CellStyle As Object)
+Private Sub m_Table_FetchCellStyle(ByVal Condition As Integer, ByVal Split As Integer, Bookmark As Variant, ByVal Col As Integer, ByVal CellStyle As Object)
     If Not (m_TGS Is Nothing) Then
-        m_TGS.FetchCellStyle Condition, Split, Bookmark, col, CellStyle
+        m_TGS.FetchCellStyle Condition, Split, Bookmark, Col, CellStyle
     End If
 End Sub
 Private Sub m_Table_FirstRowChange()
@@ -572,7 +585,7 @@ Public Function CurrentRowIsEmpty() As Boolean
 
 End Function
 
-Public Function ValueExists(value As String, col As Integer, Optional ignoreRow As Integer = -1) As Boolean
+Public Function ValueExists(value As String, Col As Integer, Optional ignoreRow As Integer = -1) As Boolean
     Dim i As Integer
     
     With Me
@@ -581,9 +594,9 @@ Public Function ValueExists(value As String, col As Integer, Optional ignoreRow 
             ignoreRow = .SpreadSheet.GetCurrentRowNumber
         End If
         
-        For i = 0 To .ColumnCount - 1
+        For i = 0 To .SpreadSheet.RowCount - 1
             If i <> ignoreRow Then
-                If .SpreadSheet.CellValue(col, i) = value Then
+                If .SpreadSheet.CellValue(Col, i) = value Then
                     ValueExists = True
                     Exit Function
                 End If
