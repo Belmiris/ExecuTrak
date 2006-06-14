@@ -655,11 +655,12 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
+
 Public Sub checkMemory()
 'this sub is called from a timer
 'it looks up a record from the sys_ini to see how frequently to check memory status
@@ -687,7 +688,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -702,6 +703,7 @@ Public Sub checkMemory()
 
     End If
 End Sub
+
 Public Function ReqdDBaseVersionMet() As Boolean
     Dim lAppVer As Long
     Dim lDBVer  As Long
@@ -717,7 +719,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
             End If
             .Close
         End With
@@ -726,7 +728,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).Value)
+                sDBVer = Trim$(.Fields(0).value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -756,6 +758,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     
     ReqdDBaseVersionMet = DB_OK
 End Function
+
 Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
@@ -792,6 +795,7 @@ ErrorHandler:
     tfnErrHandler ProcName, SQL, ShowErr
     #End If
 End Function
+
 Public Function tfnIs_ON_HOLD(ByVal vStatus) As Boolean
     Dim sCustStatus As String * 2
     
@@ -851,9 +855,15 @@ End Function
 ''''#464234wj110304 - Merge AR Budget into Latest Code-Change this to a function
 Public Function SYSTEM_AR_TRAN_CODES() As String
     If tfnIsARBudgetConverted Then
-        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        '#515556 - CBW - 06/14/2006 Removed BM codes
+        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        '#515556 - CBW - 06/14/2006
+'        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
     Else
-        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        '#515556 - CBW - 06/14/2006 Removed BM codes
+        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        '#515556 - CBW - 06/14/2006
+'        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
     End If
 End Function
 
@@ -989,7 +999,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1341,17 +1351,21 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     
     'Added IF BY JQ, Panic to reproduce problem
     #If FACTOR_MENU < 0 Then
-        tfnOpenDatabase = ReqdDBaseVersionMet() 'True
+        '#514395 - DenBorg - 4/7/2006
+        'Need to check the database name, because if database is /factor/factor (tfnGetDbName returns "")
+        'we don't want to check the database version because it is the security database and has
+        'faulty SysParms if any.
+        If LenB(tfnGetDbName()) Then
+            tfnOpenDatabase = ReqdDBaseVersionMet() 'True
+            fnGet_Log_Lvl '# Added 7-23-03 Robert Atwood for logging system
+        Else
+            'We're connecting to the security db, and therefore do not need to check database version.
+            tfnOpenDatabase = True
+        End If
     #Else
         tfnOpenDatabase = True
     #End If
-    '# Added 7-23-03 Robert Atwood for logging system
-    If InStr(t_szConnect, "/factor/factor") Then
-        '# 2/16/04 Robert Atwood
-        '#Do nothing- we must bypass logging here, we're connected to security db
-    Else
-        fnGet_Log_Lvl
-    End If
+    
     Exit Function
 
 ERROR_CONNECTING:
@@ -1435,12 +1449,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1571,7 +1585,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2044,12 +2058,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2430,6 +2444,7 @@ Public Function tfnGetHostName() As String
         If Trim(tfnGetHostName) = "" Then
             tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "SRVR")
         End If
+        
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
@@ -2453,6 +2468,7 @@ Public Function tfnGetPassword() As String
         If t_dbMainDatabase Is Nothing Then Exit Function
             
         tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
+        
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
@@ -3147,7 +3163,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3364,7 +3380,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
