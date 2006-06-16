@@ -719,7 +719,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
             End If
             .Close
         End With
@@ -728,7 +728,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).value)
+                sDBVer = Trim$(.Fields(0).Value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -853,17 +853,26 @@ Public Function tfnIsSysTranCode(ByVal sARTranCode As String) As Boolean 'WJ 4/1
 End Function
 
 ''''#464234wj110304 - Merge AR Budget into Latest Code-Change this to a function
-Public Function SYSTEM_AR_TRAN_CODES() As String
-    If tfnIsARBudgetConverted Then
-        '#515556 - CBW - 06/14/2006 Removed BM codes
-        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
-        '#515556 - CBW - 06/14/2006
-'        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+Public Function SYSTEM_AR_TRAN_CODES(Optional IsBudget As Boolean = False) As String
+
+    If IsBudget Then
+        If tfnIsARBudgetConverted Then
+            '#515556 - CBW - 06/14/2006 Removed BM codes
+            SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+            '#515556 - CBW - 06/14/2006
+    '        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        Else
+            '#515556 - CBW - 06/14/2006 Removed BM codes
+            SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+            '#515556 - CBW - 06/14/2006
+    '        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        End If
     Else
-        '#515556 - CBW - 06/14/2006 Removed BM codes
-        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
-        '#515556 - CBW - 06/14/2006
-'        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        If tfnIsARBudgetConverted Then
+            SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        Else
+            SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+        End If
     End If
 End Function
 
@@ -2058,12 +2067,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
