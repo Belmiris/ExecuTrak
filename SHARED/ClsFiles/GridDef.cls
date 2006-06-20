@@ -38,7 +38,7 @@ End Enum
 '==================================
 Event FirstRowChange()
 Event SelectChange(Grid As GridDef)
-Event TableClick(Cancel As Boolean)
+Event TableClick(CANCEL As Boolean)
 Event TableGotFocus(Table As TDBGrid)
 Event CellChange(Col As Integer, row As Integer, oldValue As String, newValue As String)
 
@@ -281,7 +281,7 @@ Public Sub SetupTable()
     
 ErrHandler:
     With Err
-        Select Case .Number
+        Select Case .number
             Case 730 'Control Not Found
                 With m_Form.Controls.Add("VB.Timer", TIMER_CTL_NAME)
                     .Tag = "Dynamically Created"
@@ -303,7 +303,7 @@ Public Sub ErrorTrapMessage(p_function As String, _
     Dim strReason As String
     
     strReason = App.EXEName & " has detected an error in function " & p_function & vbCrLf & vbCrLf _
-              & "Error Code: " & p_error.Number & vbCrLf _
+              & "Error Code: " & p_error.number & vbCrLf _
               & "Error Desc: " & p_error.Description & vbCrLf & vbCrLf
     
     If LenB(p_SQL) = 0 Then
@@ -407,17 +407,17 @@ Private Sub m_Table_AfterColEdit(ByVal ColIndex As Integer)
     RaiseEvent CellChange(ColIndex, m_TGM.GetCurrentRowNumber, oldValue, newValue)
     
 End Sub
-Private Sub m_Table_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
-    m_TGM.BeforeColEdit ColIndex, KeyAscii, Cancel
+Private Sub m_Table_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+    m_TGM.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 Private Sub m_Table_Change()
     m_TGM.Change
 End Sub
 Private Sub m_Table_Click()
-    Dim Cancel As Boolean
+    Dim CANCEL As Boolean
     
-    RaiseEvent TableClick(Cancel)
-    If Not Cancel Then
+    RaiseEvent TableClick(CANCEL)
+    If Not CANCEL Then
         If Not (m_TGS Is Nothing) Then
             m_TGS.Click
         End If
@@ -534,19 +534,19 @@ Private Sub m_Table_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     RaiseEvent SelectChange(Me)
 End Sub
 
-Private Sub m_Table_Scroll(Cancel As Integer)
+Private Sub m_Table_Scroll(CANCEL As Integer)
     If Not (m_FDD Is Nothing) Then
         m_FDD.Scroll
     End If
 End Sub
-Private Sub m_Table_SelChange(Cancel As Integer)
-    m_TGM.SelChange Cancel
+Private Sub m_Table_SelChange(CANCEL As Integer)
+    m_TGM.SelChange CANCEL
     If Not (m_TGS Is Nothing) Then
-        m_TGS.SelChange Cancel
+        m_TGS.SelChange CANCEL
     End If
 '    Cancel = True
 End Sub
-Private Sub m_Table_UnboundReadData(ByVal RowBuf As DBTRUEGRID.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
+Private Sub m_Table_UnboundReadData(ByVal RowBuf As DBTrueGrid.RowBuffer, StartLocation As Variant, ByVal ReadPriorRows As Boolean)
     m_TGM.ReadData RowBuf, StartLocation, ReadPriorRows
 End Sub
 
@@ -587,7 +587,7 @@ Public Function CurrentRowIsEmpty() As Boolean
 
 End Function
 
-Public Function ValueExists(value As String, Col As Integer, Optional ignoreRow As Integer = -1) As Boolean
+Public Function ValueExists(Value As String, Col As Integer, Optional ignoreRow As Integer = -1) As Boolean
     Dim i As Integer
     
     With Me
@@ -598,7 +598,7 @@ Public Function ValueExists(value As String, Col As Integer, Optional ignoreRow 
         
         For i = 0 To .SpreadSheet.RowCount - 1
             If i <> ignoreRow Then
-                If .SpreadSheet.CellValue(Col, i) = value Then
+                If .SpreadSheet.CellValue(Col, i) = Value Then
                     ValueExists = True
                     Exit Function
                 End If
