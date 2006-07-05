@@ -198,7 +198,7 @@ Public Sub SetupTable()
     On Error GoTo ErrHandler
     
     With m_Table
-        TableWidth = .Width - SCROLLBAR_WIDTH
+        TableWidth = .width - SCROLLBAR_WIDTH
         With .Columns
             Do While .Count
                 .Remove 0
@@ -211,7 +211,7 @@ Public Sub SetupTable()
                 End If
                 If Not ColDef.HiddenField Then
                     With .Add(ColIndex)
-                        .Width = ColDef.WidthPct * TableWidth
+                        .width = ColDef.WidthPct * TableWidth
                         .DataField = ColDef.FieldName
                         .Caption = ColDef.Header
                         .Visible = ColDef.Visible
