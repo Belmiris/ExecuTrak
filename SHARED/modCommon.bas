@@ -25,19 +25,25 @@ Public Enum HourglassStatus
     HideHourglass = vbNormal
 End Enum
 
+Public Enum Justify
+    LeftJustify = 0
+    CenterJustify = 1
+    RightJustify = 2
+End Enum
+
 Public Const INTO_TEMP As String = " into temp "
 Public Const SQL_DROP_TABLE As String = "drop table @table"
 Public Const SQL_TABLE_EXISTS As String = _
-    "select tabname from systables where tabname = '@table'"
+    "select tabName from systables where tabName = '@table'"
 Public Const SQL_TEMP_TABLE_EXISTS As String = _
     "select * from @table where 1 = 2"
     
 Public Const SQL_COLUMN_EXISTS As String = _
-    " select tabname, colname " & _
+    " select tabName, colName " & _
     " from systables, syscolumns " & _
     " where systables.tabid = syscolumns.tabid " & _
-    " and tabname = '@table' " & _
-    " and colname = '@column' "
+    " and tabName = '@table' " & _
+    " and colName = '@column' "
 
 #If Not dbLocalDef Then
 Public dbLocal As DAO.DataBase 'Local MS Access Database
@@ -50,12 +56,12 @@ Public Const VK_MBUTTON = &H4
 Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
@@ -74,21 +80,21 @@ Public Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """"
     Q_Str = Quote & Str & Quote
 End Function
 '---------------------------------------------------------------------------------------
-' Procedure : BackupFilename
+' Procedure : BackupFileName
 ' DateTime  : 11/23/2005 14:54
 ' Author    : DenBorg
 ' Magic     : 468962
-' Purpose   : This routine, given a file name and a backup directory, will return the
-'             name for a new backup file. Backup files are in the form of AAAA.###
-'             where AAA is the name of the file, and ### is a 3-digit counter. The
+' Purpose   : This routine, given a file Name and a backup directory, will return the
+'             Name for a new backup file. Backup files are in the form of AAAA.###
+'             where AAA is the Name of the file, and ### is a 3-digit counter. The
 '             3-digit counter replaces the file's original file extension.
 '
-'             For example, for filename CUSTOMER.DAT, this routine might return
+'             For example, for fileName CUSTOMER.DAT, this routine might return
 '             something like CUSTOMER.017 (if there were already 16 backup files in the
 '             specified backup path)
 '---------------------------------------------------------------------------------------
 '
-Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As String) As String
+Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As String) As String
     Dim FileExt As String
     Dim FileNum As Integer
     Dim CurFile As String
@@ -96,14 +102,14 @@ Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As Str
     '------------------------------------------------------------------------------------
     'Strip off Path and Extension from FileName
     '------------------------------------------------------------------------------------
-    FileNameParts Filename, , Filename
+    FileNameParts FileName, , FileName
     
     '------------------------------------------------------------------------------------
     'See if the file already has existing backup copies in BackupPath.
     'If so, take note of the highest backup counter value.
     '------------------------------------------------------------------------------------
     BackupPath = FixPath(BackupPath)
-    CurFile = Dir(BackupPath & Filename & ".???")
+    CurFile = Dir(BackupPath & FileName & ".???")
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
@@ -112,7 +118,7 @@ Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As Str
             End If
         End If
         
-        CurFile = Dir() 'Get next filename
+        CurFile = Dir() 'Get next fileName
     Loop
     
     '------------------------------------------------------------------------------------
@@ -125,9 +131,9 @@ Public Function BackupFilename(ByVal Filename As String, ByVal BackupPath As Str
     End If
     
     '------------------------------------------------------------------------------------
-    'Return the name for the new Backup File
+    'Return the Name for the new Backup File
     '------------------------------------------------------------------------------------
-    BackupFilename = BackupPath & Filename & "." & Format$(FileNum, "000")
+    BackupFileName = BackupPath & FileName & "." & Format$(FileNum, "000")
 End Function
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     Dim OldMode As Integer
@@ -269,7 +275,7 @@ End Function
 Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Variant)
     Dim Index As Long
     
-    On Error Resume Next 'Just in case parameter does not have a property named 'Enabled'
+    On Error Resume Next 'Just in case parameter does not have a property Named 'Enabled'
     For Index = LBound(Controls) To UBound(Controls)
         Controls(Index).Enabled = Enabled
     Next 'Index
@@ -362,12 +368,12 @@ Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant
         Nz = ValueIfNull
     End If
 End Function
-Public Function ReadEntireFile(ByVal Filename As String) As String
+Public Function ReadEntireFile(ByVal FileName As String) As String
     Dim hFile As Integer
     
-    If FileExists(Filename) Then
+    If FileExists(FileName) Then
         hFile = FreeFile()
-        Open Filename For Binary As #hFile
+        Open FileName For Binary As #hFile
         ReadEntireFile = Input(LOF(hFile), hFile)
         Close #hFile
     End If
@@ -407,7 +413,7 @@ Public Sub SelectAllText()
     On Error GoTo ErrHandler
     With Screen.ActiveControl
         .SelStart = 0
-        .SelLength = Len(.text)
+        .SelLength = Len(.Text)
     End With
     Exit Sub
     
@@ -417,12 +423,12 @@ End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
     With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hwnd, GWL_STYLE, Style
+        SetWindowLong .hWnd, GWL_STYLE, Style
     End With
 End Sub
 '---------------------------------------------------------------------------------------
@@ -504,12 +510,12 @@ Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
                 'Check to if the default value should be string or
                 'numeric.  String values will be enclosed in single
                 'quotes, so check the SQL string for a preceding
-                'quote on the parm name e.g.
+                'quote on the parm Name e.g.
                 If InStrB(1, SQL, "'" & Parms(Index)) = 0 Then
                     sTemp = "0"
                 End If
             Else
-                'If the second character in the Parameter name is a #,
+                'If the second character in the Parameter Name is a #,
                 'then we want to skip replacing single quotes with
                 'double quotes.  This would usually occur when the
                 'replacing value is an 'IN' clause of string values
@@ -794,22 +800,22 @@ Public Property Get SuppressMessageBox() As Boolean
     SuppressMessageBox = suppressMsgBox
 End Property
 
-Public Function AppFile(ByVal Filename As String) As String
-    AppFile = AppPath() & Filename
+Public Function AppFile(ByVal FileName As String) As String
+    AppFile = AppPath() & FileName
 End Function
  
 Public Function AppPath() As String
     AppPath = FixPath(App.Path)
 End Function
  
-Public Function FileExists(ByVal Filename As String) As Boolean
+Public Function FileExists(ByVal FileName As String) As Boolean
     Dim bExists As Boolean
     
     On Error Resume Next
-    FileLen Filename
+    FileLen FileName
     bExists = (Err.Number = 0)
     If bExists Then
-        bExists = ((GetAttr(Filename) And vbDirectory) = 0)
+        bExists = ((GetAttr(FileName) And vbDirectory) = 0)
     End If
     On Error GoTo 0 'Clear Err & disable error handler
     
@@ -876,21 +882,25 @@ Public Sub ClearText(ParamArray Parms())
     
     For i = 0 To UBound(Parms)
         If TypeOf Parms(i) Is Textbox Then
-            Parms(i).text = vbNullString
+            Parms(i).Text = vbNullString
         ElseIf TypeOf Parms(i) Is Label Then
             Parms(i).Caption = vbNullString
+        Else
+            'Try to reset the .text property...but ignore any error that may occur
+            On Error Resume Next
+            Parms(i).Text = vbNullString
         End If
     Next
 
 End Sub
-Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef Filename As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
+Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef FileName As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
     Dim pos As Long
     
     '------------------------------------------------------------------------------------
     'Init - Needed for Optional Params that had pre-existing values
     '------------------------------------------------------------------------------------
     FilePath = vbNullString
-    Filename = vbNullString
+    FileName = vbNullString
     FileExt = vbNullString
     
     '------------------------------------------------------------------------------------
@@ -917,7 +927,7 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
     '------------------------------------------------------------------------------------
     'Extract the File Name
     '------------------------------------------------------------------------------------
-    Filename = FullFileName 'Only thing left is the File NAME itself
+    FileName = FullFileName 'Only thing left is the File NAME itself
 End Sub
 
 Public Function CaseInSensitiveString(ByVal S As String, Optional addAsterisk As Boolean = False) As String
@@ -970,13 +980,55 @@ Private Function IsAlphabet(ByVal sChar As String) As Boolean
     End If
 End Function
 
-Public Function DPrint(text As String)
+Public Function DPrint(Text As String)
     
     debugCount = debugCount + 1
-    Debug.Print " " & Format(debugCount, "##0") & " " & text
+    Debug.Print " " & Format(debugCount, "##0") & " " & Text
 
 End Function
 
 Public Sub Sleep(milliseconds As Long)
     SleepAPI milliseconds
 End Sub
+
+Public Function Align(value As String, just As Justify, Optional length As Integer = 0) As String
+
+Dim wholeLen As Integer
+Dim valueLen As Integer
+Dim spaceCount As Integer
+Dim leftSpace As Integer
+Dim rightSpace As Integer
+
+If length > 0 Then
+    wholeLen = length
+Else
+    wholeLen = Len(value)
+End If
+
+valueLen = Len(Trim(value))
+spaceCount = wholeLen - valueLen
+
+If spaceCount > 0 Then
+    If just = LeftJustify Then
+        value = Trim(value) & Space(spaceCount)
+        
+    ElseIf just = RightJustify Then
+        value = Space(spaceCount) & Trim(value)
+        
+    ElseIf just = CenterJustify Then
+        
+        leftSpace = spaceCount / 2
+        
+        If spaceCount Mod 2 > 0 Then
+            rightSpace = spaceCount - leftSpace
+        Else
+            rightSpace = leftSpace
+        End If
+        
+        value = Space(leftSpace) & Trim(value) & Space(rightSpace)
+    End If
+End If
+
+Align = value
+
+End Function
