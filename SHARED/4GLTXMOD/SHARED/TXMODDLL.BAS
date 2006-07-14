@@ -1353,14 +1353,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     End If
     
@@ -1386,7 +1386,9 @@ Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
     
     For i = 0 To nCount - 1
         bFind = False
-        If Taxes(i).m_cLimitType = vbKeyI Then
+        'Added two more contions by JQ 06/01/2006, If it is gallons based tax, (the tax mod does handle correctly) the following routine is not correct
+        'Don't do anything here. ticket # 520717
+        If Taxes(i).m_cLimitType = vbKeyI And (Taxes(i).m_cBasis = Asc("$") Or Taxes(i).m_cBasis = vbKeyF) Then
             For j = 0 To nTaxItems - 1
                 If Taxes(i).m_lTrn = arryTaxSums(j).m_lTrn Then
                     bFind = True
@@ -2008,7 +2010,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = Val(lLimit)
+                .m_lLimit = val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -2130,8 +2132,8 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
         'new dll
         Do
-            hld_miles = Round(hld_miles)
-            hld_tot_gals = Round(hld_tot_gals, 1)
+            hld_miles = round(hld_miles)
+            hld_tot_gals = round(hld_tot_gals, 1)
             nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -4090,7 +4092,9 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
             nSignTax = 1
         End If
         
-        If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
+        'Added two more contions by JQ 06/01/2006, If it is gallons based tax, (the tax mod does handle correctly) the following routine is not correct
+        'Don't do anything here. ticket # 520717
+        If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 And (CurrTaxes(i).m_cBasis = Asc("$") Or CurrTaxes(i).m_cBasis = vbKeyF) Then
             If CurrTaxes(i).m_cLimitType = vbKeyL Then
                 If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
                    tfnRound(CurrTaxes(i).m_lLimit, 2) Then
