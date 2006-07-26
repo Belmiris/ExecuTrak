@@ -12,81 +12,81 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
 
 #If DEBUGGING Then
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
 
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
     
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #End If
 
@@ -371,7 +371,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         subSet_AccmTxbleAmt dAccmTxbleAmt
     End If
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -392,7 +392,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -407,7 +407,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
     subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
-        subApplyLimit Taxes, nRecords
+        subApplyLimit Taxes, nRecords, dQuantity
     End If
 
     'Calculate the sum of the taxes
@@ -936,7 +936,7 @@ Public Sub subUnloadTaxMods(Optional bShowMsgBox As Boolean = True, _
     If nTaxModLoaded = TAXMOD_LOADED Then
         Dim i As Integer
         Do
-            i = TXMOD_Detach(App.hInstance, Forms(0).hwnd)
+            i = TXMOD_Detach(App.hInstance, Forms(0).hWnd)
             DoEvents
         Loop Until i <> TXMOD_TASKBLOCKED
         If i <> TXMOD_OK Then
@@ -1036,7 +1036,8 @@ Public Function fnGetTaxAmount(szProduct As String, _
     Dim i As Integer
     Dim nLineType As Long
     Dim nTries As Integer
-
+    Dim dQty As Double
+    
     fnGetTaxAmount = 0
     'if the tax mods are not loaded, load them
     If Not fnLoadTaxMods Then
@@ -1045,9 +1046,12 @@ Public Function fnGetTaxAmount(szProduct As String, _
 
     If (szBillingFlag = "N") Then
         fDollarBase = fCurrentCost * lNet
+        dQty = lNet
     Else
         fDollarBase = fCurrentCost * lGross
+        dQty = lGross
     End If
+    
     If bLading Then
         If bExternal Then
             nLineType = TXMOD_EXTBOL   ' External bill of lading
@@ -1084,7 +1088,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
     ''''''''''''''''''''''''''''''''
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1103,7 +1107,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
     ReDim Taxes(nRecords - 1)
     
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1118,7 +1122,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
     subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
-        subApplyLimit Taxes, nRecords
+        subApplyLimit Taxes, nRecords, dQty
     End If
     
     'Calculate the sum of the taxes
@@ -1165,13 +1169,20 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     Dim i As Integer
     Dim nLineType As Long
     Dim nTries As Integer
-
+    Dim dQty As Double
+    
     fnGetTaxAmount1 = 0
     'if the tax mods are not loaded, load them
     If Not fnLoadTaxMods Then
         Exit Function
     End If
 
+    If szBillingFlag = "N" Then
+        dQty = lNet
+    Else
+        dQty = lGross
+    End If
+    
     If bLading Then
         If bExternal Then
             nLineType = TXMOD_EXTBOL   ' External bill of lading
@@ -1218,7 +1229,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     'End If
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1237,7 +1248,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     ReDim Taxes(nRecords - 1)
     
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1253,9 +1264,9 @@ Public Function fnGetTaxAmount1(szProduct As String, _
     
     If bApplyLimit Then
         If bNewApplyLimit Then
-            subApplyTaxLimit Taxes, nRecords, fDollarBase
+            subApplyTaxLimit Taxes, nRecords, fDollarBase, dQty
         Else
-            subApplyLimit Taxes, nRecords
+            subApplyLimit Taxes, nRecords, dQty
         End If
     End If
     
@@ -1378,7 +1389,7 @@ End Sub
 'IN FMEMVMNT AND MFEMVMTE, CHANGED TO CALL subApplyTaxLimit()
 ''''''''''''''''''''''''''
 Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
-                          ByVal nCount As Integer)
+                          ByVal nCount As Integer, ByVal dQty As Double)
 
     Dim i As Integer
     Dim j As Integer
@@ -1388,42 +1399,51 @@ Private Sub subApplyLimit(Taxes() As CApplicableTaxes, _
         bFind = False
         'Added two more contions by JQ 06/01/2006, If it is gallons based tax, (the tax mod does handle correctly) the following routine is not correct
         'Don't do anything here. ticket # 520717
-        If Taxes(i).m_cLimitType = vbKeyI And (Taxes(i).m_cBasis = Asc("$") Or Taxes(i).m_cBasis = vbKeyF) Then
-            For j = 0 To nTaxItems - 1
-                If Taxes(i).m_lTrn = arryTaxSums(j).m_lTrn Then
-                    bFind = True
-                    Exit For
+        If Taxes(i).m_cLimitType = vbKeyI Then
+            If (Taxes(i).m_cBasis = Asc("$") Or Taxes(i).m_cBasis = vbKeyF) Then
+                For j = 0 To nTaxItems - 1
+                    If Taxes(i).m_lTrn = arryTaxSums(j).m_lTrn Then
+                        bFind = True
+                        Exit For
+                    End If
+                Next j
+                If Not bFind Then
+                    If nTaxItems > nArraySize Then
+                        nArraySize = nArraySize + ARRAY_SIZE_INC
+                        ReDim Preserve arryTaxSums(nArraySize)
+                    End If
+                    With arryTaxSums(nTaxItems)
+                        .m_lTrn = Taxes(i).m_lTrn
+                        .m_lLimit = Taxes(i).m_lLimit
+                        .m_cLimitType = Taxes(i).m_cLimitType
+                        .m_cBasis = Taxes(i).m_cBasis
+                        .m_fAmount = .m_lLimit
+                    End With
+                    j = nTaxItems
+                    nTaxItems = nTaxItems + 1
                 End If
-            Next j
-            If Not bFind Then
-                If nTaxItems > nArraySize Then
-                    nArraySize = nArraySize + ARRAY_SIZE_INC
-                    ReDim Preserve arryTaxSums(nArraySize)
-                End If
-                With arryTaxSums(nTaxItems)
-                    .m_lTrn = Taxes(i).m_lTrn
-                    .m_lLimit = Taxes(i).m_lLimit
-                    .m_cLimitType = Taxes(i).m_cLimitType
-                    .m_cBasis = Taxes(i).m_cBasis
-                    .m_fAmount = .m_lLimit
-                End With
-                j = nTaxItems
-                nTaxItems = nTaxItems + 1
-            End If
-            
-            'Consider the total tax for the specific tran number
-            With arryTaxSums(j)
-                If .m_cBasis <> vbKeyA Then
-                    If .m_lLimit > 0 Then
-                        If Abs(tfnRound(Taxes(i).m_dAmount, 2)) > .m_fAmount Then
-                            Taxes(i).m_dAmount = tfnRound(Sgn(Taxes(i).m_dAmount) * .m_fAmount, 2)
-                            .m_fAmount = 0#
-                        Else
-                            .m_fAmount = .m_fAmount - tfnRound(Abs(Taxes(i).m_dAmount), 2)
+                
+                'Consider the total tax for the specific tran number
+                With arryTaxSums(j)
+                    If .m_cBasis <> vbKeyA Then
+                        If .m_lLimit > 0 Then
+                            If Abs(tfnRound(Taxes(i).m_dAmount, 2)) > .m_fAmount Then
+                                Taxes(i).m_dAmount = tfnRound(Sgn(Taxes(i).m_dAmount) * .m_fAmount, 2)
+                                .m_fAmount = 0#
+                            Else
+                                .m_fAmount = .m_fAmount - tfnRound(Abs(Taxes(i).m_dAmount), 2)
+                            End If
                         End If
                     End If
+                End With
+            'Gallon base limit
+            ElseIf dQty < 0 And Taxes(i).m_cBasis <> vbKeyA Then
+                If Taxes(i).m_lLimit > 0 Then
+                    If Abs(tfnRound(dQty, 2)) > Taxes(i).m_lLimit Then
+                        Taxes(i).m_dAmount = tfnRound(Sgn(dQty) * Taxes(i).m_lLimit * Taxes(i).m_fRate, 2)
+                    End If
                 End If
-            End With
+            End If
         End If
     Next i
 End Sub
@@ -1484,7 +1504,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
     End If
     
     Do
-        i = TXMOD_Attach(App.hInstance, Forms(0).hwnd, szConnect)
+        i = TXMOD_Attach(App.hInstance, Forms(0).hWnd, szConnect)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1543,12 +1563,19 @@ Public Function fnTaxInformation(sProduct As String, _
     Dim nRet As Long
     Dim i As Integer
     Dim nTries As Integer
-
+    Dim dQty As Double
+    
     fnTaxInformation = False
     If Not fnLoadTaxMods Then
         Exit Function
     End If
 
+    If sBillFlag = "N" Then
+        dQty = fNet
+    Else
+        dQty = fGross
+    End If
+    
     With myStruct
         .m_sProduct = sProduct
         .m_sUseGroup = sTaxUseGroup
@@ -1579,7 +1606,7 @@ Public Function fnTaxInformation(sProduct As String, _
     'End If
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1597,7 +1624,7 @@ Public Function fnTaxInformation(sProduct As String, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1614,9 +1641,9 @@ Public Function fnTaxInformation(sProduct As String, _
     
     If bApplyLimit Then
         If bNewApplyLimit Then
-            subApplyTaxLimit Taxes, nRecords, fDollarBase
+            subApplyTaxLimit Taxes, nRecords, fDollarBase, dQty
         Else
-            subApplyLimit Taxes, nRecords
+            subApplyLimit Taxes, nRecords, dQty
         End If
     End If
     fnTaxInformation = True
@@ -1648,10 +1675,17 @@ Public Function fnTaxInformation1(sProduct As String, _
     Dim nRet As Long
     Dim i As Integer
     Dim nTries As Integer
-
+    Dim dQty As Double
+    
     fnTaxInformation1 = False
     If Not fnLoadTaxMods Then
         Exit Function
+    End If
+
+    If sBillFlag = "N" Then
+        dQty = fNet
+    Else
+        dQty = fGross
     End If
 
     With myStruct
@@ -1686,7 +1720,7 @@ Public Function fnTaxInformation1(sProduct As String, _
     ''''''''''''''''''''''''''''''''
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1704,7 +1738,7 @@ Public Function fnTaxInformation1(sProduct As String, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1720,7 +1754,7 @@ Public Function fnTaxInformation1(sProduct As String, _
     subDealWithATaxes Taxes, nRecords
     
     If bApplyLimit Then
-        subApplyLimit Taxes, nRecords
+        subApplyLimit Taxes, nRecords, dQty
     End If
     fnTaxInformation1 = True
 End Function
@@ -1755,10 +1789,17 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     Dim nIdx As Integer
     Dim nTries As Integer
     Dim nRecords As Long
+    Dim dQty As Double
     
     fnAddTaxInfoItem = False
     If Not fnLoadTaxMods Then
         Exit Function
+    End If
+
+    If sBillFlag = "N" Then
+        dQty = fNet
+    Else
+        dQty = fGross
     End If
 
     With myStruct
@@ -1789,7 +1830,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     ''''''''''''''''''''''''''''''''
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
@@ -1807,7 +1848,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1821,7 +1862,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     
     'david 01/26/2006  #506839
     If bApplyLimit Then
-        subApplyTaxLimit Taxes, nRecords, fDollarBase
+        subApplyTaxLimit Taxes, nRecords, fDollarBase, dQty
     End If
     ''''''''''''''''''''''''''
     
@@ -1928,7 +1969,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     ''''''''''''''''''''''''''''''''
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1945,7 +1986,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -2134,7 +2175,7 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
         Do
             hld_miles = round(hld_miles)
             hld_tot_gals = round(hld_tot_gals, 1)
-            nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
+            nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hWnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2225,7 +2266,7 @@ Private Sub subSet_tx_date(ByVal sDate As String, _
     sDate = tfnFormatDate(sDate)
     If frmContext.GetProductVersion(sTxMod32) > "3.28.1.0" Then
         Do
-            nRet = TXMOD_tx_date(App.hInstance, Forms(0).hwnd, sDate)
+            nRet = TXMOD_tx_date(App.hInstance, Forms(0).hWnd, sDate)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2305,7 +2346,7 @@ Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
     
     If fnVersionOK(sTxMod32, "03.28.10.04") Then
         Do
-            nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hwnd, dAccmTxbleAmt)
+            nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hWnd, dAccmTxbleAmt)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2353,7 +2394,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lmovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2409,14 +2450,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     '#words, the new routine needes this field. This is why
     '#we did not remove the old "temp patch " codes -- does not
     '#hurt if new routine is used
-    strSQL = "SELECT cTaxBasis FROM MTaxDetail WHERE lMovement = " & lMovement 'Vijaya on 01/28/05 Magic#458098
+    strSQL = "SELECT cTaxBasis FROM MTaxDetail WHERE lMovement = " & lmovement 'Vijaya on 01/28/05 Magic#458098
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsTemp Is Nothing Then
          Exit Sub
     End If
     
     '#lLading May be -1. Skip this routine if -1 since it is not ready to do loading fee
-    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lMovement & " AND lLading <= 0 "
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lmovement & " AND lLading <= 0 "
     Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsMvBal Is Nothing Then
          Exit Sub
@@ -2425,7 +2466,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     
     '#If not balanced, do not need to do it
-    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MLading WHERE lMovement = " & lMovement
+    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MLading WHERE lMovement = " & lmovement
     Set rsTemp = txMod_OpenRecord(strSQL, , , m_local)
     If rsTemp Is Nothing Then
         Exit Sub
@@ -2433,7 +2474,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         Exit Sub
     End If
     lLadGal = tfnRound(rsTemp!gal)
-    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MDelivery WHERE lMovement = " & lMovement
+    strSQL = "SELECT SUM(lGrossGals) AS GAL FROM MDelivery WHERE lMovement = " & lmovement
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsTemp Is Nothing Then
         Exit Sub
@@ -2452,7 +2493,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     
     sTaxState = "TX" '#Defalt to Texas
     
-    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lMovement
+    strSQL = "SELECT * FROM MBalance WHERE lMovement = " & lmovement
     Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsMvBal Is Nothing Then
          Exit Sub
@@ -2460,7 +2501,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
          Exit Sub
     End If
 
-    strSQL = "SELECT * FROM MLading WHERE lMovement = " & lMovement
+    strSQL = "SELECT * FROM MLading WHERE lMovement = " & lmovement
     Set rsLadHeader = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsLadHeader Is Nothing Then
         Exit Sub
@@ -2471,7 +2512,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     strSQL = "SELECT MDeliveryDetail.*,MDelivery.lDestination,MDelivery.bExternal FROM MDelivery,MDeliveryDetail " _
              & " WHERE MDelivery.lMovement=MDeliveryDetail.lMovement " _
              & " AND MDelivery.lDelivery=MDeliveryDetail.lDelivery " _
-             & " AND MDelivery.lMovement = " & lMovement
+             & " AND MDelivery.lMovement = " & lmovement
              
     Set rsDelD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
     If rsDelD Is Nothing Then
@@ -2487,7 +2528,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         strSQL = "SELECT * " _
                & " FROM MLadingDetail " _
                & " WHERE lLading = " & CStr(rsLadHeader!lLading) _
-               & " AND lMovement = " & lMovement _
+               & " AND lMovement = " & lmovement _
                & " ORDER BY lLineNumber"
                
         Set rsLadD = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2500,7 +2541,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         nLine = 0
         
         strSQL = "SELECT dPickupDate FROM mLading"
-        strSQL = strSQL & " WHERE lMovement=" & lMovement
+        strSQL = strSQL & " WHERE lMovement=" & lmovement
         strSQL = strSQL & " AND lLading=" & tfnRound(rsLadHeader!lLading)
         Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
         If rsTemp Is Nothing Then
@@ -2527,7 +2568,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     strSQL = strSQL & " and MBalance.lDeliveryLine = MDeliveryDetail.lLineNumber"
                     strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
                     strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
-                    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
+                    strSQL = strSQL & " AND MBalance.lMovement =" & lmovement
                     strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDeliveryDetail.szTaxUseGroup,"
                     strSQL = strSQL & " MDeliveryDetail.szProductCode, MDeliveryDetail.bGross, MDelivery.bExternal"
                     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
@@ -2772,7 +2813,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     
     monkey_the_numbers Trim(dsl_fuel_group), bTexasDiverted
     
-    strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & lMovement & " AND cTaxBasis = 'A'"
+    strSQL = "DELETE FROM MTaxDetail WHERE lMovement = " & lmovement & " AND cTaxBasis = 'A'"
     txMod_ExeCuteSQL strSQL, , , m_local
     
     For i = 0 To ldf_cnt
@@ -2808,7 +2849,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 
                 strSQL = "INSERT INTO MTaxDetail (lMovement,lDelivery,lLineNumber,szTaxCode," _
                          & "szTaxDescription,fBaseAmount,fTaxRate,fTaxAmount,cTaxBasis) VALUES ("
-                strSQL = strSQL & lMovement & ","
+                strSQL = strSQL & lmovement & ","
                 strSQL = strSQL & CStr(aryLDF(i).dv_nbr) & ","
                 strSQL = strSQL & CStr(aryLDF(i).dv_line) & ","
                 strSQL = strSQL & tfnSQLString(sTaxCode) & ","
@@ -2826,7 +2867,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'Vijaya on 12/06/04 Magic#465810
     'Update the Field in MInvoice.fTotalTax (Local)
     strSQL = "SELECT lMovement,lDelivery,SUM(fTaxAmount) as dTxAmt FROM MTaxDetail"
-    strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
+    strSQL = strSQL & " WHERE lMovement =" & lmovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2839,7 +2880,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
             Screen.MousePointer = vbHourglass
             
             strSQL = "UPDATE MInvoice SET fTotalTax =" & tfnRound(rsTemp!dTxAmt, 2)
-            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
+            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lmovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
             txMod_ExeCuteSQL strSQL, , , m_local
             rsTemp.MoveNext
@@ -2850,7 +2891,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'Update the Field in MInvoiceLine.fSalesTax (Local)
     strSQL = "SELECT lMovement,lDelivery,lLineNumber,SUM(fTaxAmount) as dTxAmt"
     strSQL = strSQL & " FROM MTaxDetail"
-    strSQL = strSQL & " WHERE lMovement =" & lMovement 'Vijaya on 01/28/05 Magic#458098
+    strSQL = strSQL & " WHERE lMovement =" & lmovement 'Vijaya on 01/28/05 Magic#458098
     strSQL = strSQL & " GROUP BY lMovement,lDelivery,lLineNumber"
     strSQL = strSQL & " ORDER BY lMovement,lDelivery,lLineNumber"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
@@ -2863,7 +2904,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
             Screen.MousePointer = vbHourglass
             
             strSQL = "UPDATE MInvoiceLine SET fSalesTax =" & tfnRound(rsTemp!dTxAmt, 2)
-            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lMovement)
+            strSQL = strSQL & " WHERE lMovement =" & tfnRound(rsTemp!lmovement)
             strSQL = strSQL & " AND lDelivery =" & tfnRound(rsTemp!lDelivery)
             strSQL = strSQL & " AND lLineNumber =" & tfnRound(rsTemp!lLineNumber)
             txMod_ExeCuteSQL strSQL, , , m_local
@@ -2875,7 +2916,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'david 02/04/2005  #470421
     'delete the ZERO loading fee records
     strSQL = "DELETE FROM MTaxDetail"
-    strSQL = strSQL & " WHERE lMovement =" & lMovement
+    strSQL = strSQL & " WHERE lMovement =" & lmovement
     strSQL = strSQL & " AND fBaseAmount = 0"
     strSQL = strSQL & " AND fTaxAmount = 0"
     strSQL = strSQL & " AND cTaxBasis = 'A'"
@@ -3686,7 +3727,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
     subSet_tx_date t_tax_date
     
     Do
-        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+        nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
         
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
@@ -3702,7 +3743,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
     ReDim Taxes(nRecords - 1)
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+        nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -3759,7 +3800,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         For i = 0 To UBound(vTaxUseG)
             myStruct.m_sUseGroup = vTaxUseG(i)
             Do
-                nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+                nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
                 
                 If i = TXMOD_TASKBLOCKED Then
                     DoEvents
@@ -3775,7 +3816,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
             ReDim Taxes(nRecords - 1)
             nTries = TAXMOD_TRIES
             Do
-                nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+                nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
                 If i = TXMOD_TASKBLOCKED Then
                     DoEvents
                 End If
@@ -4065,7 +4106,8 @@ End Sub
 'This function only take care of I and L limit type
 Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
                              ByVal nCount As Integer, _
-                             ByVal fExtension As Double)
+                             ByVal fExtension As Double, _
+                             ByVal dQty As Double)
 
     Dim i As Integer
     Dim j As Integer
@@ -4094,83 +4136,93 @@ Private Sub subApplyTaxLimit(ByRef CurrTaxes() As CApplicableTaxes, _
         
         'Added two more contions by JQ 06/01/2006, If it is gallons based tax, (the tax mod does handle correctly) the following routine is not correct
         'Don't do anything here. ticket # 520717
-        If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 And (CurrTaxes(i).m_cBasis = Asc("$") Or CurrTaxes(i).m_cBasis = vbKeyF) Then
-            If CurrTaxes(i).m_cLimitType = vbKeyL Then
-                If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
-                   tfnRound(CurrTaxes(i).m_lLimit, 2) Then
-                    CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
-                End If
-            ElseIf CurrTaxes(i).m_cLimitType = vbKeyI Then
-                For j = 0 To nLimitTaxCount - 1
-                    If CurrTaxes(i).m_lTrn = arryLimitTax(j).m_lTrn Then
-                        bFind = True
-                        Exit For
+        If CurrTaxes(i).m_cCharge = vbKeyY And tfnRound(CurrTaxes(i).m_lLimit, 2) > 0 Then
+            If (CurrTaxes(i).m_cBasis = Asc("$") Or CurrTaxes(i).m_cBasis = vbKeyF) Then
+                If CurrTaxes(i).m_cLimitType = vbKeyL Then
+                    If tfnRound(CurrTaxes(i).m_dAmount, 2) > _
+                       tfnRound(CurrTaxes(i).m_lLimit, 2) Then
+                        CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
                     End If
-                Next j
-                
-                If Not bFind Then
-                    If j > UBound(arryLimitTax) Then
-                        ReDim Preserve arryLimitTax(UBound(arryLimitTax) + 5)
-                    End If
-                    
-                    With arryLimitTax(j)
-                        .m_sCode = CurrTaxes(i).m_sCode
-                        .m_sDesc = CurrTaxes(i).m_sDescr
-                        .m_lTrn = CurrTaxes(i).m_lTrn
-                        .m_lLimit = CurrTaxes(i).m_lLimit
-                        .m_cLimitType = CurrTaxes(i).m_cLimitType
-                        .m_cBasis = CurrTaxes(i).m_cBasis
-                        .m_fRate = CurrTaxes(i).m_fRate
-                        .m_base_txble_amt = fnGetBaseTaxableAmt(.m_lTrn)
-                        .m_fAccumTaxableAmt = fExtension
-                        .m_fAccumTaxAmt = tfnRound(CurrTaxes(i).m_dAmount, 2)
-                        
-                        If tfnRound(CurrTaxes(i).m_dAmount, 2) _
-                           > tfnRound(.m_lLimit, 2) Then
-                            'adj the tax amount
-                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
-                        Else
-                            CurrTaxes(i).m_dAmount = CurrTaxes(i).m_dAmount * nSignTax
+                ElseIf CurrTaxes(i).m_cLimitType = vbKeyI Then
+                    For j = 0 To nLimitTaxCount - 1
+                        If CurrTaxes(i).m_lTrn = arryLimitTax(j).m_lTrn Then
+                            bFind = True
+                            Exit For
                         End If
-                    End With
+                    Next j
                     
-                    nLimitTaxCount = nLimitTaxCount + 1
-                Else
-                    With arryLimitTax(j)
-                        'fix the tax amount first if the tax has base taxable amount
-                        If .m_base_txble_amt > 0.01 Then
-                            If .m_fAccumTaxableAmt >= .m_base_txble_amt Then
-                                're-calc the tax, using line extension
-                                CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
-                                    * fExtension, 2) * nSignExtn
-                            ElseIf .m_fAccumTaxableAmt + fExtension > .m_base_txble_amt Then
-                                're-calc the tax
-                                fRemain = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
-                                CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
-                                    * fRemain, 2) * nSignExtn
+                    If Not bFind Then
+                        If j > UBound(arryLimitTax) Then
+                            ReDim Preserve arryLimitTax(UBound(arryLimitTax) + 5)
+                        End If
+                        
+                        With arryLimitTax(j)
+                            .m_sCode = CurrTaxes(i).m_sCode
+                            .m_sDesc = CurrTaxes(i).m_sDescr
+                            .m_lTrn = CurrTaxes(i).m_lTrn
+                            .m_lLimit = CurrTaxes(i).m_lLimit
+                            .m_cLimitType = CurrTaxes(i).m_cLimitType
+                            .m_cBasis = CurrTaxes(i).m_cBasis
+                            .m_fRate = CurrTaxes(i).m_fRate
+                            .m_base_txble_amt = fnGetBaseTaxableAmt(.m_lTrn)
+                            .m_fAccumTaxableAmt = fExtension
+                            .m_fAccumTaxAmt = tfnRound(CurrTaxes(i).m_dAmount, 2)
+                            
+                            If tfnRound(CurrTaxes(i).m_dAmount, 2) _
+                               > tfnRound(.m_lLimit, 2) Then
+                                'adj the tax amount
+                                CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * nSignTax
                             Else
+                                CurrTaxes(i).m_dAmount = CurrTaxes(i).m_dAmount * nSignTax
+                            End If
+                        End With
+                        
+                        nLimitTaxCount = nLimitTaxCount + 1
+                    Else
+                        With arryLimitTax(j)
+                            'fix the tax amount first if the tax has base taxable amount
+                            If .m_base_txble_amt > 0.01 Then
+                                If .m_fAccumTaxableAmt >= .m_base_txble_amt Then
+                                    're-calc the tax, using line extension
+                                    CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                        * fExtension, 2) * nSignExtn
+                                ElseIf .m_fAccumTaxableAmt + fExtension > .m_base_txble_amt Then
+                                    're-calc the tax
+                                    fRemain = .m_fAccumTaxableAmt + fExtension - .m_base_txble_amt
+                                    CurrTaxes(i).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                        * fRemain, 2) * nSignExtn
+                                Else
+                                    CurrTaxes(i).m_dAmount = 0#
+                                End If
+                                
+                                .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + fExtension
+                            End If
+                        
+                            If .m_fAccumTaxAmt < tfnRound(.m_lLimit, 2) Then
+                                If .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2) _
+                                   >= tfnRound(.m_lLimit, 2) Then
+                                    'adj the tax amount
+                                    CurrTaxes(i).m_dAmount = (tfnRound(.m_lLimit, 2) _
+                                        - .m_fAccumTaxAmt) * nSignTax
+                                End If
+                            Else
+                                'accum tax amt is already over or equal to the limit,
+                                'set the tax amount to 0
                                 CurrTaxes(i).m_dAmount = 0#
                             End If
                             
-                            .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + fExtension
-                        End If
-                    
-                        If .m_fAccumTaxAmt < tfnRound(.m_lLimit, 2) Then
-                            If .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2) _
-                               >= tfnRound(.m_lLimit, 2) Then
-                                'adj the tax amount
-                                CurrTaxes(i).m_dAmount = (tfnRound(.m_lLimit, 2) _
-                                    - .m_fAccumTaxAmt) * nSignTax
-                            End If
-                        Else
-                            'accum tax amt is already over or equal to the limit,
-                            'set the tax amount to 0
-                            CurrTaxes(i).m_dAmount = 0#
-                        End If
-                        
-                        .m_fAccumTaxAmt = .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2)
-                    End With
+                            .m_fAccumTaxAmt = .m_fAccumTaxAmt + tfnRound(CurrTaxes(i).m_dAmount, 2)
+                        End With
+                    End If
                 End If
+
+            'Gallon based tax limit credit not correct.
+            ElseIf dQty < 0 And CurrTaxes(i).m_cBasis <> vbKeyA Then
+
+                If tfnRound(Abs(dQty), 2) > tfnRound(CurrTaxes(i).m_lLimit, 2) Then
+                    CurrTaxes(i).m_dAmount = CurrTaxes(i).m_lLimit * CurrTaxes(i).m_fRate * Sgn(dQty)
+                End If
+            
             End If
         Else
             CurrTaxes(i).m_dAmount = tfnRound(CurrTaxes(i).m_dAmount, 2) * nSignTax
@@ -4366,4 +4418,6 @@ Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
 
 End Function    ''it_is_a_fuel
 ''''''''''''''''''''''''''
+
+
 
