@@ -99,7 +99,8 @@ Private Const INTERNET_INVALID_PORT_NUMBER = 0
 Private Const FTP_TRANSFER_TYPE_ASCII = &H1
 Private Const FTP_TRANSFER_TYPE_BINARY = &H0
 Private Const INTERNET_FLAG_PASSIVE = &H8000000
-
+Private Const INTERNET_FLAG_EXISTING_CONNECT = &H20000000
+Private Const INTERNET_FLAG_NO_CACHE_WRITE = &H4000000
 ' Opens a HTTP session for a given site.
 Private Declare Function InternetConnect Lib "wininet.dll" Alias "InternetConnectA" _
 (ByVal hInternetSession As Long, ByVal sServerName As String, ByVal nServerPort As Integer, _
@@ -237,6 +238,13 @@ Private Const HTTP_ADDREQ_FLAG_ADD = &H20000000
 ' it is removed. If not empty, the header value is replaced
 Private Const HTTP_ADDREQ_FLAG_REPLACE = &H80000000
 '
+
+
+Private Declare Function FormatMessage Lib "kernel32" Alias "FormatMessageA" (ByVal dwFlags As Long, ByVal lpSource As Long, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As Long) As Long
+Private Declare Function GetModuleHandle Lib "kernel32" Alias "GetModuleHandleA" (ByVal lpLibFileName As String) As Long
+Private Const FORMAT_MESSAGE_FROM_HMODULE = &H800
+
+
 Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String, _
                                 sSourcePathAndFile As String, _
                                 Optional bFromUnixToLocal As Boolean = True, _
@@ -269,14 +277,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         End If
     End If
     
-    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
+    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, INTERNET_FLAG_NO_CACHE_WRITE)
     If hOpen = 0 Then
         fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
         GoTo CloseHandle
     End If
     
-    IIf bPassive, lActPassive = INTERNET_FLAG_PASSIVE, lActPassive = 0
-    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, lActPassive, 0)
+    'IIf bPassive, lActPassive = INTERNET_FLAG_PASSIVE, lActPassive = 0
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, INTERNET_FLAG_EXISTING_CONNECT Or INTERNET_FLAG_PASSIVE, 0)
     If hConnection = 0 Then
         fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
         GoTo CloseHandle
@@ -325,7 +333,8 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         subAddSlash sDestPath, "\"
         pData.cFileName = String(MAX_PATH, 0)
         'Get all the matching files...
-        hFind = FtpFindFirstFile(hConnection, sSourceFile, pData, 0, 0)
+        hFind = FtpFindFirstFile(hConnection, sSourceFile, pData, INTERNET_FLAG_RELOAD Or _
+                               INTERNET_FLAG_NO_CACHE_WRITE, 0)
         If hFind = 0 Then
             lLastDLLError = Err.LastDllError
             If lLastDLLError = ERROR_NO_MORE_FILES Then
@@ -471,17 +480,14 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         End If
     End If
     
-    InternetCloseHandle hConnection
-    InternetCloseHandle hOpen
-    InternetCloseHandle hFind
     
     fnTransferFile = True
-    Exit Function
     
 CloseHandle:
-    If hConnection > 0 Then InternetCloseHandle hConnection
-    If hOpen > 0 Then InternetCloseHandle hOpen
-    If hFind > 0 Then InternetCloseHandle hFind
+    On Error Resume Next
+    InternetCloseHandle hFind
+    InternetCloseHandle hConnection
+    InternetCloseHandle hOpen
     Exit Function
 errTrap:
     sRetErrMsg = Err.Number & ": " & Err.Description
@@ -532,8 +538,28 @@ Private Function fnErrorOut(dError As Long, szCallFunction As String, _
             sErrorMsg = "Failed to delete the source file"
     End Select
     
+    sErrorMsg = sErrorMsg & ". (" & fnGetErrorMessage(dError) & ")"
     subShowError bShowError, sErrorMsg, vbCritical
     fnErrorOut = False
+    
+End Function
+
+Private Function fnGetErrorMessage(ByVal dwError As Long, Optional sModuleName As String = "wininet.dll") As String
+    Dim dwLength As Long
+    Dim szString As String * 2048
+    
+    If (dwError < 12000) Then
+        fnGetErrorMessage = "Error code: " & dwError
+        Exit Function
+    End If
+        
+    dwLength = FormatMessage(FORMAT_MESSAGE_FROM_HMODULE, GetModuleHandle(sModuleName), dwError, 0, szString, 256, 0)
+    
+    If dwLength > 0 Then
+        fnGetErrorMessage = "Error code: " & dwError & " Message: " & Left(szString, dwLength - 2)
+    Else
+        fnGetErrorMessage = "Error code: " & dwError
+    End If
     
 End Function
 
@@ -614,11 +640,11 @@ Public Function fnValidUnixPath(sHost As String, sUser As String, sPWD As String
     End If
     
     fnValidUnixPath = True
-    Exit Function
 
 CloseHandle:
-    If hConnection > 0 Then InternetCloseHandle hConnection
-    If hOpen > 0 Then InternetCloseHandle hOpen
+    On Error Resume Next
+    InternetCloseHandle hConnection
+    InternetCloseHandle hOpen
     Exit Function
 End Function
 
