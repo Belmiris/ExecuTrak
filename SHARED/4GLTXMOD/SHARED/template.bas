@@ -3,7 +3,7 @@ Attribute VB_Name = "modTemplate"
 '
 ' Copyright (c) 1996 FACTOR, A Division of W.R.Hess Company
 '
-' Module name   : TEMPLATE.BAS
+' Module Name   : TEMPLATE.BAS
 '
 ' This module implements global template functions
 '
@@ -36,7 +36,7 @@ Public Const DEBUG_LOG_PATH = "C:\FACTOR\TEMP\"
 Public Const LOCAL_FACTOR_PATH = "C:\FACTOR\"
 
 '**************************************************
-'Constant for Help File name and Help Error message
+'Constant for Help File Name and Help Error message
 '**************************************************
 Global Const szHelpFileName     As String = "FACTOR.HLP"
 Global Const szHelpAdvCStore    As String = "ADVCSTOR.HLP"
@@ -59,9 +59,9 @@ Global Const szHelpElecCommerce As String = "EC.HLP"
 Global Const szHelpCMSystem     As String = "CMS.HLP"
 Global Const szHelpPO           As String = "PO.HLP"         ' Wenstrong, For Purchase Order
 Global Const szHelpProfitTrak   As String = "ProfitTrak.HLP" ' Wenstrong, For ProfitTrak
-Global Const szHelpAPPALACH     As String = "APPALACH.HLP"   'help file name for APPALACHIAN
-Global Const szHelpReadyMix     As String = "RM.HLP"         'help file name for Ready Mix
-Global Const szHelp7_11         As String = "7-ELEVEN.HLP"   'help file name for 7-11 Commission Check custom
+Global Const szHelpAPPALACH     As String = "APPALACH.HLP"   'help file Name for APPALACHIAN
+Global Const szHelpReadyMix     As String = "RM.HLP"         'help file Name for Ready Mix
+Global Const szHelp7_11         As String = "7-ELEVEN.HLP"   'help file Name for 7-11 Commission Check custom
 Global Const szHelpICUSTINQ     As String = "ICUSTINQ.HLP"   'Internet project Customer inquiry
 Global Const szHelpGasCheck     As String = "ZZEFOGCK.HLP"   'Gas Check Data Entry
 Global Const szHelpDrakeOil     As String = "ZZEDPCLU.HLP"   'Card Lock Processing
@@ -81,6 +81,7 @@ Global Const szHelpCLSystem     As String = "CL.HLP"         '435934/448855 - Wi
 Global Const szHelpAFMgt        As String = "AF.HLP"         '419824-Campbell Oil- Citgo eletronic BOL  Auto Fuel Management Vijaya on 04/11/05
 Global Const szHelpBR           As String = "BR.HLP"         '#468962 - DenBorg - 8/25/2005
 Global Const szHelpMAS200       As String = "MAS200.HLP"     '#496490 - Vijaya - 12/12/2005
+Global Const szHelpOracle       As String = "ORACLE.HLP"     '#518968 - CWood - 07/03/06
 
 '#######################################################################################
 '# Logging constants
@@ -132,7 +133,7 @@ Global Const szRUNEXE_ERROR As String = "Unable to Execute :" 'context menu mess
 Global Const szRUNEXE_TITLE As String = "Application Error"   'context menu error message box title
 Global Const szRUN_ERROR As String = "This Application Must Be Run From The FACTMENU Program." 'invalid handshake message
 Global Const szLOG_FILE_NAME As String = "FACTOR.LOG" 'log file for the application - used with tfnLog function
-Global Const szFACTOR_INI As String = "FACTOR.INI" 'application INI filename
+Global Const szFACTOR_INI As String = "FACTOR.INI" 'application INI fileName
 
 'resize event constants
 Global Const WINDOW_STATE_MINIMIZED As Integer = vbMinimized
@@ -403,7 +404,7 @@ Public Const PRAPPROV_UP = 12600
 Public Const PRPRINT_UP = 12650
 
 'The following bitmaps need to be loaded into the form
-'And define 2 public functions to supply the bitmaps and module names:
+'And define 2 public functions to supply the bitmaps and module Names:
 '1. Public Function GetPicture(ByVal nID As Integer) As Picture
 '2. Public Function GetModuleName(ByVal nID As Integer) As String
 Public Const IMPORT_UP = 12700
@@ -610,25 +611,25 @@ Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 '
 Public Function DBVersionToLong(ByVal Version As String, Optional ByVal StripProgVer As Boolean = True) As Long
     Dim VerInfo() As String
-    Dim i         As Integer
+    Dim I         As Integer
     Dim VerLong   As Long
     Dim v         As Long
     
     VerInfo = Split(Version, ".")
-    Do While (i <= 2) And (i <= UBound(VerInfo))
-        VerInfo(i) = Trim$(VerInfo(i))
+    Do While (I <= 2) And (I <= UBound(VerInfo))
+        VerInfo(I) = Trim$(VerInfo(I))
 '        If i = 2 Then
 '            If Len(VerInfo(2)) < 4 Then
 '                VerInfo(2) = VerInfo(2) & String(4 - Len(VerInfo(2)), 48)
 '            End If
 '        End If
-        v = CLng(VerInfo(i))
-        If i = 2 Then
+        v = CLng(VerInfo(I))
+        If I = 2 Then
             v = v \ 100
         End If
         
-        VerLong = VerLong + (v * 2 ^ ((3 - i) * 8))
-        i = i + 1
+        VerLong = VerLong + (v * 2 ^ ((3 - I) * 8))
+        I = I + 1
     Loop
     
     If UBound(VerInfo) >= 2 Then
@@ -719,7 +720,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
             End If
             .Close
         End With
@@ -728,7 +729,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).Value)
+                sDBVer = Trim$(.Fields(0).value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -857,15 +858,17 @@ Public Function SYSTEM_AR_TRAN_CODES(Optional IsBudget As Boolean = False) As St
 
     If IsBudget Then
         If tfnIsARBudgetConverted Then
+            'Added 'BE' for ticket 511551
             '#515556 - CBW - 06/14/2006 Removed BM codes
             SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
             '#515556 - CBW - 06/14/2006
     '        SYSTEM_AR_TRAN_CODES = " ('BP','BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
         Else
+            'This modification is not correct, should exclue 'BM' if not converted. JQ 07/19/2006
             '#515556 - CBW - 06/14/2006 Removed BM codes
-            SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+            'SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
             '#515556 - CBW - 06/14/2006
-    '        SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
+            SYSTEM_AR_TRAN_CODES = " ('BB','BC','BD','BM','CC','CF','CO','DD','FC','FD','HC','OB','OC','PR','PY','RP','SA','XC','XF') "
         End If
     Else
         If tfnIsARBudgetConverted Then
@@ -946,7 +949,7 @@ Public Function tfnGetNamedString(sSource As String, sName As String) As String
 End Function
 
 Public Function tfnGetUserName() As String
-    'return the current username as was logged into factmenu
+    'return the current userName as was logged into factmenu
     
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
         tfnGetUserName = "ssfactor"
@@ -1008,7 +1011,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altName WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1294,7 +1297,7 @@ End Sub
 
 '
 'Function : tfnExecuteProgram - wrapper around oleObject.RunExe function - displays consistant error message
-'Variables: pointer to the oleObject, program name to run from application context menu/toolbar
+'Variables: pointer to the oleObject, program Name to run from application context menu/toolbar
 'Return   : true if application launched, false if not
 '
 Public Function tfnExecuteProgram(oleObject As Object, szProgram As String) As Boolean
@@ -1329,7 +1332,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim i As Integer
+    Dim I As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1361,7 +1364,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     'Added IF BY JQ, Panic to reproduce problem
     #If FACTOR_MENU < 0 Then
         '#514395 - DenBorg - 4/7/2006
-        'Need to check the database name, because if database is /factor/factor (tfnGetDbName returns "")
+        'Need to check the database Name, because if database is /factor/factor (tfnGetDbName returns "")
         'we don't want to check the database version because it is the security database and has
         'faulty SysParms if any.
         If LenB(tfnGetDbName()) Then
@@ -1397,7 +1400,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim i As Integer
+    Dim I As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1405,8 +1408,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                For I = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1477,7 +1480,7 @@ Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
-'# (Must read factor.mdb from c:\factor\<datasourcename>\factor.mdb
+'# (Must read factor.mdb from c:\factor\<datasourceName>\factor.mdb
 '#####################################################################
     Dim sWinSysDir As String
 
@@ -1770,7 +1773,7 @@ Public Sub tfnWaitSeconds(nSecondsToWait As Integer)
 End Sub
 '
 'Function        : tfnLog - file log function
-'Passed Variables: string to save in file, optional name of file to save data
+'Passed Variables: string to save in file, optional Name of file to save data
 'Returns         : true for yes, false for no
 '
 Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
@@ -1794,7 +1797,7 @@ Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
 End Sub
 '
 'Function        : tfnIsFile - tests if file exists
-'Passed Variables: filename
+'Passed Variables: fileName
 'Returns         : true if exists, false if not
 '
 Public Function tfnIsFile(ByVal szFilename As String) As Boolean
@@ -1956,7 +1959,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
 End Function
 '
 'Function : tfnReadINI - reads a value from a windows INI file
-'Variables: [section], [key], and ini file name
+'Variables: [section], [key], and ini file Name
 'Return   : the [value] for the [section] and [key] sent
 '
 Public Function tfnReadINI(szSection As String, szKey As String, szINIFile As String) As String
@@ -1985,7 +1988,7 @@ Public Function tfnReadINI(szSection As String, szKey As String, szINIFile As St
 End Function
 '
 'Function : tfnWriteINI - writes a value to a windows INI file
-'Variables: [section], [key], [value], and ini file name
+'Variables: [section], [key], [value], and ini file Name
 'Return   : status of api call
 '
 Public Function tfnWriteINI(szSection As String, szKey As String, szValue As String, szINIFile As String) As Boolean
@@ -2067,12 +2070,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2209,7 +2212,7 @@ End Function
 '                       the "Syntax Error" given above or the following error:
 '                       Run-time error 3061 Too few parameters. Expected n.
 '                       The pipe symbol causes problems because Jet uses pipe symbols
-'                       to delimit field or parameter names embedded in a literal string.
+'                       to delimit field or parameter Names embedded in a literal string.
 '                       The solution is to replace the pipe symbol with a concatenated expression
 '                       For example 'A2|45' will become 'A2' & chr(124) & '45'
 '                       Microsoft Knowledge Base Article - 178070
@@ -2558,7 +2561,7 @@ End Sub
 Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
                                 Optional sErrMsg As String = "") As Boolean
 '##############################################################################
-'# Modified to use c:\factor\<datasourcename>\factor.mdb 10-30-01 Robert Atwood
+'# Modified to use c:\factor\<datasourceName>\factor.mdb 10-30-01 Robert Atwood
 '##############################################################################
 
     Dim sFactorDir As String
@@ -2778,6 +2781,12 @@ End Function
 '640 x 480
 '800 x 600
 '1024 x 768
+'#518692 PaulJ 7/12/2006
+'making new forms at 1024x768
+'Modified this function to handle 1024x768 as well as 800x600
+'Also fixed bug where by the user answered no, the screen still changed
+'created a default of 800 x 600
+'old code is commented out below
 Public Function fnScreenResolution(Optional nMinWidth As Integer = 0, _
                                    Optional nMinHeight As Integer = 0, _
                                    Optional bSetScreenResolution As Boolean = False, _
@@ -2786,10 +2795,26 @@ Public Function fnScreenResolution(Optional nMinWidth As Integer = 0, _
     Static nScreenWidth As Integer
     Static nScreenHeight As Integer
     
-    Static bChangeResolutionTo800x600 As Boolean
+    Static mChangeResolution As VbMsgBoxResult
+    
+    'in case any callers don't passs one of the three standard resolutions
+    'default it to 800x600 to maintain backward compatablity
+    If nMinWidth = 0 And nMinHeight = 0 Then
+        'do nothing
+    ElseIf nMinWidth = 640 And nMinHeight = 480 Then
+        'do nothing
+    ElseIf nMinWidth = 800 And nMinHeight = 600 Then
+        'do nothing
+    ElseIf nMinWidth = 1024 And nMinHeight = 768 Then
+        'do nothing
+    Else
+        nMinWidth = 800
+        nMinHeight = 600
+    End If
+    
     
     If Not bSetScreenResolution Then  'restore screen resolution
-        If bChangeResolutionTo800x600 Then
+        If mChangeResolution = vbYes Then
             If nScreenWidth > 0 And nScreenHeight > 0 Then
                 fnScreenResolution = fnSetScreenResolution(nScreenWidth, nScreenHeight)
             End If
@@ -2805,25 +2830,79 @@ Public Function fnScreenResolution(Optional nMinWidth As Integer = 0, _
         Exit Function
     End If
     
+    'test if already at minimum.
     If nScreenWidth >= nMinWidth And nScreenHeight >= nMinHeight Then
         fnScreenResolution = True
         Exit Function
     End If
     
     If bAskToChange Then
-        bChangeResolutionTo800x600 = MsgBox("This program is designed to run on the windows with screen resolution" _
-            + " of 800x600 or higher." + vbCrLf + vbCrLf + "Your screen resolution is " + CStr(nScreenWidth) + "x" _
+        mChangeResolution = MsgBox("This program is designed to run on the windows with screen resolution" _
+            + " of " + CStr(nMinWidth) + "x" + CStr(nMinHeight) _
+            + " or higher." + vbCrLf + vbCrLf + "Your screen resolution is " + CStr(nScreenWidth) + "x" _
             + CStr(nScreenHeight) + "." + vbCrLf + vbCrLf + "Do you want the program change the screen resolution" _
-            + " to 800x600?", vbQuestion + vbYesNo + vbDefaultButton2)
+            + " to " + CStr(nMinWidth) + "x" + CStr(nMinHeight) _
+            + "?", vbQuestion + vbYesNo + vbDefaultButton2)
     End If
     
-    If Not bChangeResolutionTo800x600 Then
+    If mChangeResolution = vbNo Then
         Exit Function
     End If
     
-    'change screen resolution to 800x600
-    fnScreenResolution = fnSetScreenResolution(800, 600)
+    'change screen resolution
+    If bSetScreenResolution Then
+        fnScreenResolution = fnSetScreenResolution(nMinWidth, nMinHeight)
+    End If
 End Function
+'
+'commented out old function
+'
+'Public Function fnScreenResolution(Optional nMinWidth As Integer = 0, _
+'                                   Optional nMinHeight As Integer = 0, _
+'                                   Optional bSetScreenResolution As Boolean = False, _
+'                                   Optional bAskToChange As Boolean = True) As Boolean
+'
+'    Static nScreenWidth As Integer
+'    Static nScreenHeight As Integer
+'
+'    Static bChangeResolutionTo800x600 As Boolean
+'
+'    If Not bSetScreenResolution Then  'restore screen resolution
+'        If bChangeResolutionTo800x600 Then
+'            If nScreenWidth > 0 And nScreenHeight > 0 Then
+'                fnScreenResolution = fnSetScreenResolution(nScreenWidth, nScreenHeight)
+'            End If
+'        End If
+'    End If
+'
+'    nScreenWidth = GetSystemMetrics(SM_CXSCREEN)
+'    nScreenHeight = GetSystemMetrics(SM_CYSCREEN)
+'
+'    'error ???
+'    If nScreenWidth = 0 Or nScreenHeight = 0 Then
+'        fnScreenResolution = True
+'        Exit Function
+'    End If
+'
+'    If nScreenWidth >= nMinWidth And nScreenHeight >= nMinHeight Then
+'        fnScreenResolution = True
+'        Exit Function
+'    End If
+'
+'    If bAskToChange Then
+'        bChangeResolutionTo800x600 = MsgBox("This program is designed to run on the windows with screen resolution" _
+'            + " of 800x600 or higher." + vbCrLf + vbCrLf + "Your screen resolution is " + CStr(nScreenWidth) + "x" _
+'            + CStr(nScreenHeight) + "." + vbCrLf + vbCrLf + "Do you want the program change the screen resolution" _
+'            + " to 800x600?", vbQuestion + vbYesNo + vbDefaultButton2)
+'    End If
+'
+'    If Not bChangeResolutionTo800x600 Then
+'        Exit Function
+'    End If
+'
+'    'change screen resolution to 800x600
+'    fnScreenResolution = fnSetScreenResolution(800, 600)
+'End Function
 
 Public Function fnSetScreenResolution(nScreenWidth As Integer, nScreenHeight As Integer) As Boolean
     'Code:
@@ -2870,7 +2949,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim i As Long
+    Dim I As Long
     
     sText = vText & ""
     
@@ -2878,13 +2957,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For i = 1 To Len(sText)
-                sChar = Mid(sText, i, 1)
+            For I = 1 To Len(sText)
+                sChar = Mid(sText, I, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next i
+            Next I
         
             sTemp = RTrim(sTemp)
         Else
@@ -3004,7 +3083,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim i As Integer
+    Dim I As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -3015,7 +3094,7 @@ Public Function tfnLockRow(sProgramID As String, _
     
     #If DEVELOP Then
         If Trim(sTable) = "" Then
-            MsgBox "You have to provide the table name in which you want to lock a row", , sErrID
+            MsgBox "You have to provide the table Name in which you want to lock a row", , sErrID
         End If
         If Trim(sProgramID) = "" Then
             MsgBox "You have to provide the program ID to lock a row", , sErrID
@@ -3051,19 +3130,19 @@ Public Function tfnLockRow(sProgramID As String, _
     
     #If DEVELOP Then
         If Len(sCriteria) > 80 Then
-            MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
+            MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field Names", vbOKOnly
             Exit Function
         End If
     #End If
     
     sTemp = LCase(Trim(sTable))
     
-    For i = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(i).m_sTable Then
+    For I = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(I).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next i
+    Next I
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -3101,7 +3180,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If i >= nHandleCount Then
+        If I >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -3112,8 +3191,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(i).m_sTable = sTemp
-        arryLockHandles(i).m_lHandle = t_lLockHandle
+        arryLockHandles(I).m_sTable = sTemp
+        arryLockHandles(I).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -3130,7 +3209,7 @@ errOpenRecord:
 
 errTableName:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table Name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
 End Function
@@ -3221,7 +3300,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
     sLockCriteria = sSql
     
     If Len(sLockCriteria) > 80 Then
-        MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field names", vbOKOnly
+        MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field Names", vbOKOnly
         Exit Function
     End If
     
@@ -3262,7 +3341,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
  
 errSQL:
     #If DEVELOP Then
-        MsgBox "Please make sure the table name for locking is correct", vbOKOnly, App.Title
+        MsgBox "Please make sure the table Name for locking is correct", vbOKOnly, App.Title
     #End If
     
     Err.Clear
@@ -3309,19 +3388,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim i As Long
+        Dim I As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For i = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(i).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
+        For I = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(I).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(i).m_sTable = ""
-                        arryLockHandles(i).m_lHandle = -1
+                        arryLockHandles(I).m_sTable = ""
+                        arryLockHandles(I).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -3334,10 +3413,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next i
+        Next I
         
-        If i < UBound(arryLockHandles) Then
-            For j = i + 1 To UBound(arryLockHandles)
+        If I < UBound(arryLockHandles) Then
+            For j = I + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -3457,7 +3536,7 @@ Public Function lock_row(ByVal in_table As String, _
     Const SUB_NAME As String = "lock_row"
 
     Dim unlock_status As String
-    Dim proc_name As String
+    Dim proc_Name As String
     Dim proc_version As String
     Dim proc_status As Long
     Dim proc_message As String
@@ -3550,8 +3629,8 @@ End Function
 ' Project Number:       373807
 ' Program Version:      N/A
 ' ARGS:                 none.
-' Returns:              Database name: String
-' Description:          get/extract the database name from the odbc connection
+' Returns:              Database Name: String
+' Description:          get/extract the database Name from the odbc connection
 '                       string
 'Intersolve Informix ODBC Driver:
 'ODBC;DSN=vbdev;UID=davidc;PWD=xxxxx;DB=/factor/vbdev/factor;HOST=ether;SERV=sqlexec;YLD=;CB=0;PRO=sesoctcp;SRVR=ether
@@ -3565,22 +3644,22 @@ Public Function tfnGetDbName() As String
     
     Dim sDBPath As String
     Dim sDBName As String
-    Dim i As Integer
+    Dim I As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    i = InStrRev(sDBPath, "/")
+    I = InStrRev(sDBPath, "/")
     
-    If i > 1 Then
-        sDBPath = Left(sDBPath, i - 1)
+    If I > 1 Then
+        sDBPath = Left(sDBPath, I - 1)
     
-        i = InStrRev(sDBPath, "/")
+        I = InStrRev(sDBPath, "/")
     
-        If i > 1 Then
-            sDBName = Mid(sDBPath, i + 1)
+        If I > 1 Then
+            sDBName = Mid(sDBPath, I + 1)
         End If
     End If
     
@@ -3610,12 +3689,12 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     
     strSQL = "SELECT ini_value FROM sys_ini WHERE"
     
-    'ini_file_name,ini_user_id may be null
+    'ini_file_Name,ini_user_id may be null
     
     If sFileName <> "" Then
-        strSQL = strSQL & " ini_file_name = " + tfnSQLString(UCase(sFileName))
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
     Else
-        strSQL = strSQL & " ini_file_name is Null"
+        strSQL = strSQL & " ini_file_Name is Null"
     End If
     
     If sUserID <> "" Then
@@ -3625,7 +3704,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
-    strSQL = strSQL & " AND ini_field_name = " + tfnSQLString(UCase(sField))
+    strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
     On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
@@ -3681,13 +3760,13 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     End If
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_name = " + tfnSQLString(UCase(sFileName))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
-        strSQL = strSQL + " AND ini_field_name = " + tfnSQLString(UCase(sField))
+        strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
-        strSQL = "INSERT INTO sys_ini (ini_file_name,ini_user_id,ini_section,"
-        strSQL = strSQL + "ini_field_name,ini_value) VALUES ("
+        strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
+        strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
         strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
@@ -3902,7 +3981,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Dim rsTemp As Recordset
     Dim strSQL1 As String
     Dim sAllFields As String
-    Dim i As Integer
+    Dim I As Integer
     Dim nPos As Integer
     Dim bAllFields As Boolean
     Dim bStar As Boolean
@@ -3964,16 +4043,16 @@ Public Function tfnFix_tx_table(sSql As String, _
     End If
     If bAllFields Then
         sAllFields = ""
-        For i = 0 To UBound(vColumArr()) - 1
-            sAllFields = sAllFields & vColumArr(i, 1) & " AS " & vColumArr(i, 0) & ","
+        For I = 0 To UBound(vColumArr()) - 1
+            sAllFields = sAllFields & vColumArr(I, 1) & " AS " & vColumArr(I, 0) & ","
             
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
-                    IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
+                    IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
             End If
-        Next i
+        Next I
         'We need to remove the last ,
         sAllFields = Left(sAllFields, Len(sAllFields) - 1)
         'Here i need to take care '*' and tx_table.*
@@ -3983,23 +4062,23 @@ Public Function tfnFix_tx_table(sSql As String, _
             strSQL = Replace(strSQL, "tx_table.*", sAllFields)
         End If
     Else
-        For i = 0 To UBound(vColumArr())
-            'Checking some of them already alias name
-            'if already alias name we don't need to put alias name
-            'just we need to change the column name
-            nPos = InStr(1, LCase(strSQL), vColumArr(i, 0) & " as ")
+        For I = 0 To UBound(vColumArr())
+            'Checking some of them already alias Name
+            'if already alias Name we don't need to put alias Name
+            'just we need to change the column Name
+            nPos = InStr(1, LCase(strSQL), vColumArr(I, 0) & " as ")
             If nPos > 0 Then
-                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1))
+                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1))
             Else
-                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1) & " AS " & vColumArr(i, 0))
+                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1) & " AS " & vColumArr(I, 0))
             End If
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
-                        IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
+                        IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
             End If
-        Next i
+        Next I
     End If
     
     'If we have don't have detail we don't need to link tx_detail table
@@ -4049,7 +4128,7 @@ End Function
 
 'Sam Zheng on 07/29/2004 #427047-453803
 'To avoid the conflict with the different db versions, I check the
-'ar_altname.an_active field first. Later we can delete the first part.
+'ar_altName.an_active field first. Later we can delete the first part.
 Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
                                     Optional szNumber As String = "", _
                                     Optional szInactiveFlag As String = "N")
@@ -4060,10 +4139,10 @@ Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
     
     'Part 1:
     If Not t_bUseActiveCustOnly Then
-        strSQL = " SELECT colname FROM systables,syscolumns " _
+        strSQL = " SELECT colName FROM systables,syscolumns " _
                 & " WHERE systables.tabid = syscolumns.tabid " _
-                & " AND tabname = 'ar_altname' " _
-                & " AND colname = 'an_active' "
+                & " AND tabName = 'ar_altName' " _
+                & " AND colName = 'an_active' "
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
         If rsTemp.RecordCount <= 0 Then
             rsTemp.Close
@@ -4079,7 +4158,7 @@ Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
     
     strSQL = " DELETE from " & szTable _
             & " WHERE " & szNumber & " IN " _
-            & " (SELECT an_customer FROM ar_altname "
+            & " (SELECT an_customer FROM ar_altName "
             
     Select Case szInactiveFlag
         Case "N"
