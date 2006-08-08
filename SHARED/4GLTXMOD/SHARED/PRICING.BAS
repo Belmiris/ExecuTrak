@@ -61,6 +61,11 @@ Private m_frmQueryTime As Form           '#Need to be set to frmQueryTime
 Private m_local As DataBase              '#Local Table. Used to query load date
                                          '#if not set, the feature is not available
 Private m_bQueryTime_Active As Boolean           '#If false, the popup feature is not
+
+'david 08/08/2006  #527819 NDR
+#Const DEBUG_LOG = False
+''''''''''''''''''''''''''''''
+'
                                          '#Available.
 '------------ #WJ 399465 03/01/04 -----------------
 
@@ -243,6 +248,14 @@ Private Function sp_price(ByVal sProductCode As String, _
         Dim nPos As Integer
         
         nPos = InStr(sOutPutstr, "syvprice~")
+        
+        'david 08/08/2006  #527819 NDR
+        #If DEBUG_LOG Then
+            tfnLog sRunCmd, DEBUG_LOG_PATH + "PRICING.LOG"
+            tfnLog sOutPutstr, DEBUG_LOG_PATH + "PRICING.LOG"
+        #End If
+        ''''''''''''''''''''''''''''''
+        
         If nPos > 0 Then
             If nPos > 1 Then 'should be ob 1st pos
                  sOutPutstr = Right(sOutPutstr, Len(sOutPutstr) - nPos + 1)
