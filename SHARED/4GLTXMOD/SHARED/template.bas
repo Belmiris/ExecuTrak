@@ -611,25 +611,25 @@ Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 '
 Public Function DBVersionToLong(ByVal Version As String, Optional ByVal StripProgVer As Boolean = True) As Long
     Dim VerInfo() As String
-    Dim I         As Integer
+    Dim i         As Integer
     Dim VerLong   As Long
     Dim v         As Long
     
     VerInfo = Split(Version, ".")
-    Do While (I <= 2) And (I <= UBound(VerInfo))
-        VerInfo(I) = Trim$(VerInfo(I))
+    Do While (i <= 2) And (i <= UBound(VerInfo))
+        VerInfo(i) = Trim$(VerInfo(i))
 '        If i = 2 Then
 '            If Len(VerInfo(2)) < 4 Then
 '                VerInfo(2) = VerInfo(2) & String(4 - Len(VerInfo(2)), 48)
 '            End If
 '        End If
-        v = CLng(VerInfo(I))
-        If I = 2 Then
+        v = CLng(VerInfo(i))
+        If i = 2 Then
             v = v \ 100
         End If
         
-        VerLong = VerLong + (v * 2 ^ ((3 - I) * 8))
-        I = I + 1
+        VerLong = VerLong + (v * 2 ^ ((3 - i) * 8))
+        i = i + 1
     Loop
     
     If UBound(VerInfo) >= 2 Then
@@ -1011,7 +1011,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altName WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1332,7 +1332,7 @@ End Function
 'return the error message to the calling function.
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "") As Boolean
-    Dim I As Integer
+    Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1400,7 +1400,7 @@ ERROR_CONNECTING:
 End Function
 
 Private Function fnShowODBCError() As String
-    Dim I As Integer
+    Dim i As Integer
     Dim sMsgs As String
     Dim sNumbers As String
     Dim sODBCErrors As String
@@ -1408,8 +1408,8 @@ Private Function fnShowODBCError() As String
     If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
-                For I = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(I).Number & Space(5) & .Item(I).Description & vbCrLf
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -2949,7 +2949,7 @@ Public Function fnRemoveChr0(vText) As String
     Dim sText As String
     Dim sTemp As String
     Dim sChar As String
-    Dim I As Long
+    Dim i As Long
     
     sText = vText & ""
     
@@ -2957,13 +2957,13 @@ Public Function fnRemoveChr0(vText) As String
     
     If sText <> "" Then
         If InStrB(sText, Chr(0)) > 0 Then
-            For I = 1 To Len(sText)
-                sChar = Mid(sText, I, 1)
+            For i = 1 To Len(sText)
+                sChar = Mid(sText, i, 1)
                 
                 If sChar <> Chr(0) Then
                     sTemp = sTemp + sChar
                 End If
-            Next I
+            Next i
         
             sTemp = RTrim(sTemp)
         Else
@@ -3083,7 +3083,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sUserID As String
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
-    Dim I As Integer
+    Dim i As Integer
 
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
@@ -3137,12 +3137,12 @@ Public Function tfnLockRow(sProgramID As String, _
     
     sTemp = LCase(Trim(sTable))
     
-    For I = 0 To nHandleCount - 1
-        If sTemp = arryLockHandles(I).m_sTable Then
+    For i = 0 To nHandleCount - 1
+        If sTemp = arryLockHandles(i).m_sTable Then
             tfnLockRow = True
             Exit Function
         End If
-    Next I
+    Next i
 
     On Error GoTo errOpenRecord
     strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
@@ -3180,7 +3180,7 @@ Public Function tfnLockRow(sProgramID As String, _
     Set rsTemp = Nothing
     
     If t_lLockHandle > 0 Then
-        If I >= nHandleCount Then
+        If i >= nHandleCount Then
             If nHandleCount = 0 Then
                 nHandleCount = 1
                 ReDim arryLockHandles(nHandleCount - 1)
@@ -3191,8 +3191,8 @@ Public Function tfnLockRow(sProgramID As String, _
         End If
         
         tfnLockRow = True
-        arryLockHandles(I).m_sTable = sTemp
-        arryLockHandles(I).m_lHandle = t_lLockHandle
+        arryLockHandles(i).m_sTable = sTemp
+        arryLockHandles(i).m_lHandle = t_lLockHandle
     End If
     Exit Function
  
@@ -3251,7 +3251,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3388,19 +3388,19 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
         rsTemp.Close
     Else
         Dim sTable As String
-        Dim I As Long
+        Dim i As Long
         Dim j As Long
         
         sTable = LCase(Trim(vTable))
         
-        For I = 0 To nHandleCount - 1
-            If sTable = arryLockHandles(I).m_sTable Then
-                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(I).m_lHandle) & ")"
+        For i = 0 To nHandleCount - 1
+            If sTable = arryLockHandles(i).m_sTable Then
+                strSQL = "EXECUTE PROCEDURE unlock_row(" & CStr(arryLockHandles(i).m_lHandle) & ")"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
                 If rsTemp.RecordCount > 0 Then
                     If rsTemp.Fields(0) > 0 Then
-                        arryLockHandles(I).m_sTable = ""
-                        arryLockHandles(I).m_lHandle = -1
+                        arryLockHandles(i).m_sTable = ""
+                        arryLockHandles(i).m_lHandle = -1
                         nHandleCount = nHandleCount - 1
                     Else
                         rsTemp.Close
@@ -3413,10 +3413,10 @@ Public Function tfnUnlockRow(Optional vTable As Variant) As Boolean
                 
                 Exit For
             End If
-        Next I
+        Next i
         
-        If I < UBound(arryLockHandles) Then
-            For j = I + 1 To UBound(arryLockHandles)
+        If i < UBound(arryLockHandles) Then
+            For j = i + 1 To UBound(arryLockHandles)
                 arryLockHandles(j - 1).m_sTable = arryLockHandles(j).m_sTable
                 arryLockHandles(j - 1).m_lHandle = arryLockHandles(j).m_lHandle
             Next j
@@ -3468,7 +3468,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3644,22 +3644,22 @@ Public Function tfnGetDbName() As String
     
     Dim sDBPath As String
     Dim sDBName As String
-    Dim I As Integer
+    Dim i As Integer
     
     sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    I = InStrRev(sDBPath, "/")
+    i = InStrRev(sDBPath, "/")
     
-    If I > 1 Then
-        sDBPath = Left(sDBPath, I - 1)
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
     
-        I = InStrRev(sDBPath, "/")
+        i = InStrRev(sDBPath, "/")
     
-        If I > 1 Then
-            sDBName = Mid(sDBPath, I + 1)
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
         End If
     End If
     
@@ -3981,7 +3981,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Dim rsTemp As Recordset
     Dim strSQL1 As String
     Dim sAllFields As String
-    Dim I As Integer
+    Dim i As Integer
     Dim nPos As Integer
     Dim bAllFields As Boolean
     Dim bStar As Boolean
@@ -4043,16 +4043,16 @@ Public Function tfnFix_tx_table(sSql As String, _
     End If
     If bAllFields Then
         sAllFields = ""
-        For I = 0 To UBound(vColumArr()) - 1
-            sAllFields = sAllFields & vColumArr(I, 1) & " AS " & vColumArr(I, 0) & ","
+        For i = 0 To UBound(vColumArr()) - 1
+            sAllFields = sAllFields & vColumArr(i, 1) & " AS " & vColumArr(i, 0) & ","
             
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
-                    IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
+                    IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
             End If
-        Next I
+        Next i
         'We need to remove the last ,
         sAllFields = Left(sAllFields, Len(sAllFields) - 1)
         'Here i need to take care '*' and tx_table.*
@@ -4062,23 +4062,23 @@ Public Function tfnFix_tx_table(sSql As String, _
             strSQL = Replace(strSQL, "tx_table.*", sAllFields)
         End If
     Else
-        For I = 0 To UBound(vColumArr())
+        For i = 0 To UBound(vColumArr())
             'Checking some of them already alias Name
             'if already alias Name we don't need to put alias Name
             'just we need to change the column Name
-            nPos = InStr(1, LCase(strSQL), vColumArr(I, 0) & " as ")
+            nPos = InStr(1, LCase(strSQL), vColumArr(i, 0) & " as ")
             If nPos > 0 Then
-                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1))
             Else
-                strSQL = Replace(strSQL, vColumArr(I, 0), vColumArr(I, 1) & " AS " & vColumArr(I, 0))
+                strSQL = Replace(strSQL, vColumArr(i, 0), vColumArr(i, 1) & " AS " & vColumArr(i, 0))
             End If
             'Here I am taking care about this situation tx_table.tt_basis
             If Trim(strSQL1 & "") <> "" Then
-                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(I, 0), _
-                        IIf(LCase(Mid(vColumArr(I, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(I, 1))
-                strSQL1 = Replace(strSQL1, vColumArr(I, 0), vColumArr(I, 1))
+                strSQL1 = Replace(strSQL1, soldTable & "." & vColumArr(i, 0), _
+                        IIf(LCase(Mid(vColumArr(i, 1), 1, 3)) = "txh", sNewTableHeader, sNewTableDet) & "." & vColumArr(i, 1))
+                strSQL1 = Replace(strSQL1, vColumArr(i, 0), vColumArr(i, 1))
             End If
-        Next I
+        Next i
     End If
     
     'If we have don't have detail we don't need to link tx_detail table
@@ -4128,7 +4128,7 @@ End Function
 
 'Sam Zheng on 07/29/2004 #427047-453803
 'To avoid the conflict with the different db versions, I check the
-'ar_altName.an_active field first. Later we can delete the first part.
+'ar_altname.an_active field first. Later we can delete the first part.
 Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
                                     Optional szNumber As String = "", _
                                     Optional szInactiveFlag As String = "N")
@@ -4139,10 +4139,10 @@ Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
     
     'Part 1:
     If Not t_bUseActiveCustOnly Then
-        strSQL = " SELECT colName FROM systables,syscolumns " _
+        strSQL = " SELECT colname FROM systables,syscolumns " _
                 & " WHERE systables.tabid = syscolumns.tabid " _
-                & " AND tabName = 'ar_altName' " _
-                & " AND colName = 'an_active' "
+                & " AND tabname = 'ar_altname' " _
+                & " AND colname = 'an_active' "
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
         If rsTemp.RecordCount <= 0 Then
             rsTemp.Close
@@ -4158,7 +4158,7 @@ Public Sub tfnGetActiveAltCustomers(Optional szTable As String = "", _
     
     strSQL = " DELETE from " & szTable _
             & " WHERE " & szNumber & " IN " _
-            & " (SELECT an_customer FROM ar_altName "
+            & " (SELECT an_customer FROM ar_altname "
             
     Select Case szInactiveFlag
         Case "N"
