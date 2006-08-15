@@ -16,7 +16,7 @@ Public Type TransferActivityRecord
     IP_Name         As Variant
     PathName        As Variant
     FileName        As Variant
-    Status          As Variant
+    status          As Variant
     Retries         As Variant
     FunctionName    As Variant
     ReturnCode      As Variant
@@ -42,15 +42,17 @@ Private Declare Function CloseHandle Lib "kernel32" ( _
 ) As Long
 Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As String, ProfileInfo As Collection)
     Const ProcName = "FTP_CreateBatchFile"
-    Dim IsPut     As Boolean
-    Dim hFile     As Integer
-    Dim LocalFile As String
-    Dim LocalPath As String
+    Dim IsPut        As Boolean
+    Dim hFile        As Integer
+    Dim LocalFile    As String
+    Dim LocalPath    As String
+    Dim BackUpFile   As String
+    Dim LocalFileExt As String
     
     '------------------------------------------------------------------------------------
     'Initialize
     '------------------------------------------------------------------------------------
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     IsPut = (ProfileInfo("tprf_getput_flag") = "P")
     LocalPath = FixPath(ProfileInfo("ptrn_int_path"))
     If LenB(Nz(ProfileInfo("ptrn_int_file"))) Then
@@ -76,7 +78,11 @@ Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As St
     'Backup File
     If Nz(ProfileInfo("ptrn_int_bkup_flg")) = "Y" Then
         Print #hFile, "copy "; Q_Str(LocalFile); " ";
-        Print #hFile, Q_Str(BackupFilename(LocalFile, ProfileInfo("ptrn_int_bkup_loc")))
+        FileNameParts LocalFile, , BackUpFile, LocalFileExt
+        '#472156 - DenBorg - 8/15/2006
+        'Backup File is to have the date added, so that there can be up to 999 backup copies per date.
+        BackUpFile = BackUpFile & "." & Format$(Date$, "mm-dd-yyyy") & "." & LocalFileExt
+        Print #hFile, Q_Str(BackupFileName(BackUpFile, ProfileInfo("ptrn_int_bkup_loc")))
     End If
     
     'Append File
@@ -106,7 +112,7 @@ Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As St
     Close #hFile
     Exit Sub
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
@@ -121,7 +127,7 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     '------------------------------------------------------------------------------------
     'Initialize
     '------------------------------------------------------------------------------------
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     IsPut = (ProfileInfo("tprf_getput_flag") = "P")
     If LenB(Nz(ProfileInfo("ptrn_ext_file"))) Then
         RemoteFile = Nz(ProfileInfo("ptrn_ext_file"))
@@ -186,7 +192,7 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     Close #hFile
     Exit Sub
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
@@ -198,7 +204,7 @@ Public Function FTP_GetTempBatchName(ByVal Path As String) As String
     Dim CurIndex As Long
     Dim NewIndex As Long
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     '------------------------------------------------------------------------------------
     'Get the next available 5-digit counter value
     '------------------------------------------------------------------------------------
@@ -222,7 +228,7 @@ Public Function FTP_GetTempBatchName(ByVal Path As String) As String
     FTP_GetTempBatchName = Path & "FTP" & Format$(NewIndex, "00000") & ".BAT"
     Exit Function
     
-errHandler:
+ErrHandler:
     FTP_GetTempBatchName = vbNullString
     tfnErrHandler ProcName, False
     Err.Clear
@@ -280,7 +286,7 @@ Public Function Encrypt(sSource As String) As String
     Dim nAsc As Integer
     Dim sEncrypt As String
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     sTemp = ""
     nLen = Len(sSource)
     If nLen < 2 Then
@@ -308,7 +314,7 @@ Public Function Encrypt(sSource As String) As String
     Encrypt = sEncrypt
     Exit Function
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Function
@@ -317,7 +323,7 @@ Public Sub FTP_LogActivity(XferRec As TransferActivityRecord)
     
     Dim SQL As String
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     With XferRec
         SQL = "INSERT INTO sys_trnsfr_acty VALUES(TODAY,CURRENT HOUR TO MINUTE," _
             & SQL_FieldValue(.TransferID, dbChar) & "," _
@@ -326,7 +332,7 @@ Public Sub FTP_LogActivity(XferRec As TransferActivityRecord)
             & SQL_FieldValue(.IP_Name, dbChar) & "," _
             & SQL_FieldValue(.PathName, dbChar) & "," _
             & SQL_FieldValue(.FileName, dbChar) & "," _
-            & SQL_FieldValue(.Status, dbChar) & "," _
+            & SQL_FieldValue(.status, dbChar) & "," _
             & SQL_FieldValue(.Retries, dbNumeric) & "," _
             & SQL_FieldValue(.FunctionName, dbChar) & "," _
             & SQL_FieldValue(.ReturnCode, dbChar) & "," _
@@ -335,7 +341,7 @@ Public Sub FTP_LogActivity(XferRec As TransferActivityRecord)
     End With
     Exit Sub
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, SQL, False
     Err.Clear
 End Sub
@@ -346,7 +352,7 @@ Public Sub FTP_ProcessRequest(ByVal TransferID As String, ByVal PartnerID As Str
     Dim ScriptFile  As String
     Dim XferLogRec  As TransferActivityRecord
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     '------------------------------------------------------------------------------------
     'Get Partner/Transfer Profile Information
     '------------------------------------------------------------------------------------
@@ -406,7 +412,7 @@ Public Sub FTP_ProcessRequest(ByVal TransferID As String, ByVal PartnerID As Str
             .IP_Name = Null
             .PathName = ProfileInfo("ptrn_int_path")
             .FileName = ProfileInfo("ptrn_ext_file")
-            .Status = "S"
+            .status = "S"
             .Retries = 0
             .FunctionName = IIf(ProfileInfo("tprf_getput_flag") = "P", "PUT", "GET")
             .ReturnCode = "OK"
@@ -426,7 +432,7 @@ Public Sub FTP_ProcessRequest(ByVal TransferID As String, ByVal PartnerID As Str
             .IP_Name = Null
             .PathName = Null
             .FileName = TransferID
-            .Status = "F"
+            .status = "F"
             .Retries = 0
             .FunctionName = Null
             .ReturnCode = "ZZZ"
@@ -442,22 +448,22 @@ Public Sub FTP_ProcessRequest(ByVal TransferID As String, ByVal PartnerID As Str
     Set ProfileInfo = Nothing
     Exit Sub
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
 Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal PartnerID As String) As Collection
     Const ProcName = "GetTransferProfileInfo"
-    Dim field  As DAO.field
+    Dim Field  As DAO.Field
     Dim Fields As Collection
     Dim rs     As DAO.Recordset
     Dim SQL    As String
-    Dim Value  As Variant
+    Dim value  As Variant
     
     '------------------------------------------------------------------------------------
     'Initialize
     '------------------------------------------------------------------------------------
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     Set Fields = New Collection
     
     '------------------------------------------------------------------------------------
@@ -467,16 +473,16 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
                                            "@PartnerID", PartnerID)
     If fnRecordset(rs, SQL) >= 0 Then
         If Not rs.EOF Then
-            For Each field In rs.Fields
-                With field
-                    Value = Nz(.Value)
-                    If VarType(Value) = vbString Then
-                        Value = Trim$(Value)
+            For Each Field In rs.Fields
+                With Field
+                    value = Nz(.value)
+                    If VarType(value) = vbString Then
+                        value = Trim$(value)
                     End If
-                    Fields.Add Value, .Name 'Add field's value with its name as the Key
+                    Fields.Add value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
-            Set field = Nothing
+            Set Field = Nothing
         End If
         rs.Close
     End If
@@ -488,16 +494,16 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
     SQL = SQLParm(SQL_SEL_TRANSFER_PROFILE, "@TransferID", TransferID)
     If fnRecordset(rs, SQL) >= 0 Then
         If Not rs.EOF Then
-            For Each field In rs.Fields
-                With field
-                    Value = Nz(.Value)
-                    If VarType(Value) = vbString Then
-                        Value = Trim$(Value)
+            For Each Field In rs.Fields
+                With Field
+                    value = Nz(.value)
+                    If VarType(value) = vbString Then
+                        value = Trim$(value)
                     End If
-                    Fields.Add Value, .Name 'Add field's value with its name as the Key
+                    Fields.Add value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
-            Set field = Nothing
+            Set Field = Nothing
         End If
         rs.Close
     End If
@@ -509,7 +515,7 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
     Set GetTransferProfileInfo = Fields
     Exit Function
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Set GetTransferProfileInfo = New Collection
     Err.Clear
@@ -520,7 +526,7 @@ Public Sub FTP_ExecuteOutsideProcess(ByVal ProgName As String)
     Dim ProcessID     As Long
     Dim ProcessHandle As Long
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     
     If InStr(UCase$(ProgName), ".4GE") Then
         nWhatToUse = USE_RCMD
@@ -535,7 +541,7 @@ Public Sub FTP_ExecuteOutsideProcess(ByVal ProgName As String)
     End If
     Exit Sub
     
-errHandler:
+ErrHandler:
     'This is a background process ... cannot display message box
     tfnErrHandler ProcName, False
     Err.Clear
@@ -544,7 +550,7 @@ Public Sub FTP_EMailNotify(ByVal SendTo As String, ByVal Subj As String, ByVal M
     Const ProcName = "FTP_EMailNotify"
     Dim objMail As clsSendMail
     
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     Set objMail = New clsSendMail
     With objMail
         .UserName = "abc" 'does not matter what this is set to
@@ -556,7 +562,7 @@ Public Sub FTP_EMailNotify(ByVal SendTo As String, ByVal Subj As String, ByVal M
     End With
     Exit Sub
     
-errHandler:
+ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
