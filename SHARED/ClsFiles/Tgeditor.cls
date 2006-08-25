@@ -543,19 +543,19 @@ Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
 
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -4528,10 +4528,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
             bAddingNewRow = False
             'Comment out the following row for problems happened when adding new row
             nLastColumn = tgTable.Col
-            'david 08/22/2006  #529111 NDR
-            'add - 1 so that the correct value of LastRow() will be returned
-            nLastTableRow = tgTable.Row - 1
-            ''''''''''''''''''''''''''''''
+            nLastTableRow = tgTable.Row
             fnShowStatus GetCurrentRowNumber, tgTable.Col
             Exit Function
         End If
@@ -4662,10 +4659,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         fnChangeToEditingCol nLastColumn
     Else
         nLastColumn = nCurrCol     'tgTable.col
-        'david 08/22/2006  #529111 NDR
-        'add - 1 so that the correct value of LastRow() will be returned
-        nLastTableRow = tgTable.Row - 1
-        ''''''''''''''''''''''''''''''
+        nLastTableRow = tgTable.Row
     End If
     
     nCol = fnColumnNumber(nLastColumn)
@@ -5610,11 +5604,11 @@ End Function
 'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(CANCEL As Integer)
+Public Sub SelChange(Cancel As Integer)
     If lCountHighlightedID = 0 Then
-        CANCEL = True
+        Cancel = True
     Else
-        CANCEL = False
+        Cancel = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
