@@ -4528,7 +4528,14 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
             bAddingNewRow = False
             'Comment out the following row for problems happened when adding new row
             nLastColumn = tgTable.Col
-            nLastTableRow = tgTable.Row
+            'david 08/22/2006  #529111 NDR
+            'add - 1 so that the correct value of LastRow() will be returned
+            If bCheckLastRow And GetCurrentRowNumber() >= RowCount() - 1 Then
+                nLastTableRow = tgTable.Row - 1
+            Else
+                nLastTableRow = tgTable.Row
+            End If
+            ''''''''''''''''''''''''''''''
             fnShowStatus GetCurrentRowNumber, tgTable.Col
             Exit Function
         End If
@@ -4659,7 +4666,14 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         fnChangeToEditingCol nLastColumn
     Else
         nLastColumn = nCurrCol     'tgTable.col
-        nLastTableRow = tgTable.Row
+        'david 08/22/2006  #529111 NDR
+        'add - 1 so that the correct value of LastRow() will be returned
+        If bCheckLastRow And GetCurrentRowNumber() >= RowCount() - 1 Then
+            nLastTableRow = tgTable.Row - 1
+        Else
+            nLastTableRow = tgTable.Row
+        End If
+        ''''''''''''''''''''''''''''''
     End If
     
     nCol = fnColumnNumber(nLastColumn)
