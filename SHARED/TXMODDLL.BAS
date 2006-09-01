@@ -16,81 +16,81 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
 
 #If DEBUGGING Then
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
 
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, _
+        (ByVal hInst As Long, ByVal hWnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
     
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #End If
 
@@ -383,7 +383,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         ''''''''''''''''''''''''''''''''
         
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -424,7 +424,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -983,7 +983,7 @@ Public Sub subUnloadTaxMods(Optional bShowMsgBox As Boolean = True, _
     If nTaxModLoaded = TAXMOD_LOADED Or bAlwaysUnload Then
         Dim i As Integer
         Do
-            i = TXMOD_Detach(App.hInstance, Forms(0).hwnd)
+            i = TXMOD_Detach(App.hInstance, Forms(0).hWnd)
             DoEvents
         Loop Until i <> TXMOD_TASKBLOCKED
         If i <> TXMOD_OK Then
@@ -1147,7 +1147,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1188,7 +1188,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1331,7 +1331,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
             
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1372,7 +1372,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1666,7 +1666,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
     End If
     
     Do
-        i = TXMOD_Attach(App.hInstance, Forms(0).hwnd, szConnect)
+        i = TXMOD_Attach(App.hInstance, Forms(0).hWnd, szConnect)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1687,7 +1687,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
             
             i = TXMOD_OK
             Do
-                i = TXMOD_Attach(App.hInstance, Forms(0).hwnd, szConnect)
+                i = TXMOD_Attach(App.hInstance, Forms(0).hWnd, szConnect)
                 If i = TXMOD_TASKBLOCKED Then
                     DoEvents
                 End If
@@ -1822,7 +1822,7 @@ Public Function fnTaxInformation(sProduct As String, _
             
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1862,7 +1862,7 @@ Public Function fnTaxInformation(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1979,7 +1979,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2019,7 +2019,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2132,7 +2132,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2172,7 +2172,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2316,7 +2316,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2355,7 +2355,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2540,7 +2540,6 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     Dim nRet As Long
     Dim nTries As Integer
     Dim i As Integer
-    Dim sTxMod32 As String
     
     If hld_vessel < 0 Then
         Exit Sub
@@ -2548,35 +2547,24 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
     
     On Error GoTo errTrap
     
-    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
-    
-    If frmContext.GetProductVersion(sTxMod32) > "3.27.1.0" Then
-        'new dll
-        If Not fnLoadTaxMods() Then
-            Exit Sub
-        End If
-            
-        nTries = TAXMOD_TRIES
-        Do
-            hld_miles = round(hld_miles)
-            hld_tot_gals = round(hld_tot_gals, 1)
-            nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
-            If i = TXMOD_TASKBLOCKED Then
-                DoEvents
-            End If
-            nTries = nTries - 1
-        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    If Not fnLoadTaxMods() Then
+        Exit Sub
+    End If
         
-        If nRet <> TXMOD_OK Then
-            subTaxModErrors nRet, bShowMsgBox, sErrMsg
-            Exit Sub
+    nTries = TAXMOD_TRIES
+    Do
+        hld_miles = round(hld_miles)
+        hld_tot_gals = round(hld_tot_gals, 1)
+        nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hWnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
         End If
-    Else
-        'old dll
-        If Not bAlreadyShowMsg Then
-            bAlreadyShowMsg = True
-            MsgBox "In order to use the Tax on Freight feature, the latest version of TXMOD32.DLL is required.", vbExclamation
-        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Sub
     End If
     
     Exit Sub
@@ -2637,44 +2625,36 @@ Private Sub subSet_tx_date(ByVal sDate As String, _
     Dim nRet As Long
     Dim nTries As Integer
     Dim i As Integer
-    Dim sTxMod32 As String
     
     Const SUB_NAME As String = "subSet_tx_date"
     Dim nErrRetries As Integer
     
     On Error GoTo errTrap
         
-    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
     'if the date is empty we don't need to initialize the date
     'Taxmod32.dll consider is todays date.
     If Trim(sDate & "") = "" Then
         Exit Sub
     End If
+    
     sDate = tfnFormatDate(sDate)
-    If frmContext.GetProductVersion(sTxMod32) > "3.28.1.0" Then
-        If Not fnLoadTaxMods() Then
-            Exit Sub
-        End If
-            
-        nTries = TAXMOD_TRIES
-        Do
-            nRet = TXMOD_tx_date(App.hInstance, Forms(0).hwnd, sDate)
-            If i = TXMOD_TASKBLOCKED Then
-                DoEvents
-            End If
-            nTries = nTries - 1
-        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If Not fnLoadTaxMods() Then
+        Exit Sub
+    End If
         
-        If nRet <> TXMOD_OK Then
-            subTaxModErrors nRet, bShowMsgBox, sErrMsg
-            Exit Sub
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_tx_date(App.hInstance, Forms(0).hWnd, sDate)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
         End If
-    Else
-        'old dll
-        If Not bAlreadyShowMsg Then
-            bAlreadyShowMsg = True
-            MsgBox "In order to use the Date Sensitive Taxes feature, the latest version of TXMOD32.DLL is required.", vbExclamation
-        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Sub
     End If
     
     Exit Sub
@@ -2697,26 +2677,6 @@ errTrap:
 End Sub
 
 '#411523wj042505
-Private Function fnVersionOK(ByVal sFileName As String, ByVal sVerToChk As String) As Boolean
-    Dim vVer As Variant
-    Dim i As Integer
-    Static sVersion As String
-    
-    On Error GoTo errExit
-    If sVersion = "" Then
-        sVersion = frmContext.GetProductVersion(sFileName)
-        vVer = Split(sVersion, ".")
-        For i = 0 To UBound(vVer)
-            sVersion = Format(vVer(i), "00") & "."
-        Next
-    End If
-    
-    fnVersionOK = (Mid(sVersion, 1, 11) > Mid(sVerToChk, 1, 11))
-    Exit Function
-errExit:
-    fnVersionOK = False
-End Function
-'#411523wj042505
 Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
                               Optional bShowMsgBox As Boolean = True, _
                               Optional sErrMsg As String = "")
@@ -2726,7 +2686,6 @@ Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
     Dim nRet As Long
     Dim nTries As Integer
     Dim i As Integer
-    Dim sTxMod32 As String
     
     Const SUB_NAME As String = "subSet_AccmTxbleAmt"
     Dim nErrRetries As Integer
@@ -2737,50 +2696,40 @@ Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
         '#Do not need to reset it. The variable get cleared
         Exit Sub
     End If
-    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
     
-    If fnVersionOK(sTxMod32, "03.28.10.04") Then
-        nTries = TAXMOD_TRIES
-        Do
-            nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hwnd, dAccmTxbleAmt)
-            If i = TXMOD_TASKBLOCKED Then
-                DoEvents
-            End If
-            nTries = nTries - 1
-            
-            'error has occurred in txmod32.dll, log the error
-            'reload the txmod32.dll and retry 3 times
-            If nRet <> TXMOD_TASKBLOCKED And nRet <> TXMOD_OK Then
-                If nErrRetries < 3 Then
-                    'get the error message only
-                    subTaxModErrors nRet, False, sErrMsg, , True
-                    tfnErrHandler SUB_NAME, ERROR_CALC_TAX, sErrMsg, False
-                    
-                    'silently unload and reload the txmod32.dll
-                    If Not fnLoadTaxMods(False, , , True) Then
-                        'error loading txmod32.dll, exit loop
-                        Exit Do
-                    Else
-                        'success loading txmod32.dll, retry
-                        nRet = TXMOD_TASKBLOCKED
-                    End If
-                    
-                    nErrRetries = nErrRetries + 1
-                End If
-            End If
-        Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hWnd, dAccmTxbleAmt)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
         
-        If nRet <> TXMOD_OK Then
-            subTaxModErrors nRet, bShowMsgBox, sErrMsg
-            Exit Sub
+        'error has occurred in txmod32.dll, log the error
+        'reload the txmod32.dll and retry 3 times
+        If nRet <> TXMOD_TASKBLOCKED And nRet <> TXMOD_OK Then
+            If nErrRetries < 3 Then
+                'get the error message only
+                subTaxModErrors nRet, False, sErrMsg, , True
+                tfnErrHandler SUB_NAME, ERROR_CALC_TAX, sErrMsg, False
+                
+                'silently unload and reload the txmod32.dll
+                If Not fnLoadTaxMods(False, , , True) Then
+                    'error loading txmod32.dll, exit loop
+                    Exit Do
+                Else
+                    'success loading txmod32.dll, retry
+                    nRet = TXMOD_TASKBLOCKED
+                End If
+                
+                nErrRetries = nErrRetries + 1
+            End If
         End If
-    Else
-        'old dll
-        If Not bAlreadyShowMsg Then
-            bAlreadyShowMsg = True
-            'david 08/11/2005  per Tom, we don't need to show this message
-            'MsgBox "In order to use Single Article Taxes, the latest version of TXMOD32.DLL is required.", vbExclamation
-        End If
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Sub
     End If
     
     Exit Sub
@@ -2811,7 +2760,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -4153,7 +4102,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
             
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -4191,7 +4140,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -4267,7 +4216,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                 
                 nTries = TAXMOD_TRIES
                 Do
-                    nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
+                    nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
                     
                     If i = TXMOD_TASKBLOCKED Then
                         DoEvents
@@ -4305,7 +4254,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                 ReDim Taxes(nRecords - 1)
                 nTries = TAXMOD_TRIES
                 Do
-                    nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
+                    nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
                     If i = TXMOD_TASKBLOCKED Then
                         DoEvents
                     End If
@@ -4514,7 +4463,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -4553,7 +4502,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -4797,7 +4746,10 @@ Public Function fnGetUOMConvertFactor(ByVal sProductCode As String) As Double
             'check once only...
             If nMsgCount < 1 Then
                 If Not it_is_a_fuel(sProductCode, t_dbMainDatabase) Then
-                    sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+                    'david 08/30/2006  #527304
+                    'remove the path, let the windows search for the txmod32.dll
+                    'sTxMod32 = fnGetSystemDir(True) + "txmod32.dll"
+                    sTxMod32 = "txmod32.dll"
                     sVersion = frmContext.GetProductVersion(sTxMod32)
                     
                     If sVersion < "3.29.0.2" Then
@@ -4878,7 +4830,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
+Private Function it_is_a_fuel(code As String, db As Database) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
