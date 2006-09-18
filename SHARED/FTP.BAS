@@ -103,7 +103,7 @@ Private Const INTERNET_FLAG_EXISTING_CONNECT = &H20000000
 Private Const INTERNET_FLAG_NO_CACHE_WRITE = &H4000000
 ' Opens a HTTP session for a given site.
 Private Declare Function InternetConnect Lib "wininet.dll" Alias "InternetConnectA" _
-(ByVal hInternetSession As Long, ByVal sServerName As String, ByVal nServerPort As Integer, _
+(ByVal hInternetSession As Long, ByVal sServerName As String, ByVal nServerPort As Long, _
 ByVal sUserName As String, ByVal sPassword As String, ByVal lService As Long, _
 ByVal lFlags As Long, ByVal lContext As Long) As Long
                 
@@ -284,7 +284,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     End If
     
     'IIf bPassive, lActPassive = INTERNET_FLAG_PASSIVE, lActPassive = 0
-    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, INTERNET_FLAG_EXISTING_CONNECT Or INTERNET_FLAG_PASSIVE, 0)
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_DEFAULT_FTP_PORT, sUser, sPWD, INTERNET_SERVICE_FTP, INTERNET_FLAG_EXISTING_CONNECT Or INTERNET_FLAG_PASSIVE, 0)
     If hConnection = 0 Then
         fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
         GoTo CloseHandle
@@ -376,13 +376,16 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             lBinAscii = 1
         End If
         sArrFile = Split(sItemName, ",")
-        sArrOldname = Split(sItemName, ",")
+        'sArrOldname = Split(sItemName, ",")
         
         'Transfer the file to the local path specified...
         Dim sDest As String
         Dim nNum As Integer, sNum As String
         For i = 0 To UBound(sArrFile)
-            sArrFile(i) = fnGenerateNewFile10()
+            'Commented out by Junsong 08/21/2006 ticket 529160
+            'I changed the parameter for FTPOPE, so there is no cache will be written, so we don't need to rename the file
+            'otherwise, some error occur, the program will generate some strange files.
+            'sArrFile(i) = fnGenerateNewFile10()
             
             If sDestFileName <> "" Then
                 nNum = InStr(1, sDestFileName, ".")
@@ -400,25 +403,25 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
                 sDest = sDestPath & sArrFile(i)
             End If
             
-            bFlag = FtpRenameFile(hConnection, sArrOldname(i), sArrFile(i))
-            If bFlag = False Then
-                fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
-                GoTo CloseHandle
-            End If
-            
+'            bFlag = FtpRenameFile(hConnection, sArrOldname(i), sArrFile(i))
+'            If bFlag = False Then
+'                fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
+'                GoTo CloseHandle
+'            End If
+'
             bFlag = FtpGetFile(hConnection, sArrFile(i), sDest, False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
             If bFlag = False Then
-                bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
+                'bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
                 fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
                 GoTo CloseHandle
             End If
-            On Error Resume Next
-            Name sDestPath & sArrFile(i) As sDestPath & sArrOldname(i)
-            On Error GoTo errTrap
+'            On Error Resume Next
+'            Name sDestPath & sArrFile(i) As sDestPath & sArrOldname(i)
+'            On Error GoTo errTrap
             If bDeleteSourceFile Then
                 bFlag = FtpDeleteFile(hConnection, sArrFile(i))
                 If bFlag = False Then
-                    bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
+'                    bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
                     fnErrorOut Err.LastDllError, "FtpDeleteFile", bShowError, sRetErrMsg
                     GoTo CloseHandle
                 End If
@@ -625,7 +628,7 @@ Public Function fnValidUnixPath(sHost As String, sUser As String, sPWD As String
         GoTo CloseHandle
     End If
     
-    hConnection = InternetConnect(hOpen, sHost, INTERNET_INVALID_PORT_NUMBER, sUser, sPWD, INTERNET_SERVICE_FTP, 0, 0)
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_DEFAULT_FTP_PORT, sUser, sPWD, INTERNET_SERVICE_FTP, INTERNET_FLAG_EXISTING_CONNECT Or INTERNET_FLAG_PASSIVE, 0)
     If hConnection = 0 Then
         fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
         GoTo CloseHandle
