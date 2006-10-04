@@ -167,8 +167,8 @@ End Function
 Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim X As Long
-    Dim Y As Long
+    Dim x As Long
+    Dim y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
@@ -204,21 +204,21 @@ Public Function GetNextAr(szLastname As String, Optional vLock As Variant) As Lo
     sold_bval = b
     
 cust_continue:
-    X = Let_Val(a, b)
-    Y = 100000000 '9_digit
+    x = Let_Val(a, b)
+    y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           Y = Let_Val(a, Letter(i + 1).ch)
+           y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAr(X, Y)
+    z = GetMaxAr(x, y)
 
 cust_cont2:
     subCheckTheNumber z, CHECK_AR
     If fncheck_cust_exits(z) Then
-        If z > Y Then
+        If z > y Then
             'Here checking if a,b are both reached zz
             'and one more time it will start aa when bfirst_time true
             'because if the first time a <> "a"
@@ -263,8 +263,8 @@ End Function
 Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Long
     Dim a As String
     Dim b As String
-    Dim X As Long
-    Dim Y As Long
+    Dim x As Long
+    Dim y As Long
     Dim z As Long
     Dim i As Long
     Dim LOCK_RECORD As Boolean
@@ -283,16 +283,16 @@ Public Function GetNextAp(szLastname As String, Optional vLock As Variant) As Lo
        a = Mid(szLastname, 1, 1)
        b = Mid(szLastname, 2, 1)
     End If
-    X = Let_Val(a, b)
-    Y = 100000000 '9_digit
+    x = Let_Val(a, b)
+    y = 100000000 '9_digit
     
     For i = 1 To 26
        If Letter(i).ch = b Then
-           Y = Let_Val(a, Letter(i + 1).ch)
+           y = Let_Val(a, Letter(i + 1).ch)
            Exit For
        End If
     Next i
-    z = GetMaxAp(X, Y)
+    z = GetMaxAp(x, y)
     subCheckTheNumber z, CHECK_AP
     If LOCK_RECORD Then
         While IsInDatabase(z, CHECK_AP)
@@ -329,15 +329,15 @@ Private Sub subCheckTheNumber(lNumber As Long, nApAr As Integer)
     Loop Until bOK
 End Sub
 
-Public Function UnlockAr(Optional nAR) As Boolean
+Public Function UnlockAr(Optional ByVal lAR As Long = 0) As Boolean
     Const SUB_NAME = "UnlockAr"
     
     Dim strSQL As String
     
     UnlockAr = True
     
-    If Not IsMissing(nAR) Then
-        lLockedAR_AP_NBR = tfnRound(nAR)
+    If lAR > 0 Then
+        lLockedAR_AP_NBR = lAR
     End If
     If lLockedAR_AP_NBR <= 0 Then
         Exit Function
@@ -355,6 +355,7 @@ Public Function UnlockAr(Optional nAR) As Boolean
     Exit Function
 errUnlockAr:
     ''tfnErrHandler strSQL, SUB_NAME
+    tfnErrHandler strSQL, SUB_NAME, False
     UnlockAr = False
 End Function
 
