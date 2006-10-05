@@ -343,9 +343,15 @@ Public Function UnlockAr(Optional ByVal lAR As Long = 0) As Boolean
         Exit Function
     End If
     
+    'david 10/05/2006  #530265b
+    'too manny null(s) in the where clause causes problem!!!
+    'changed to check only one null field (an_cust)
     'make sure all null but an_customer
-    strSQL = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
-    strSQL = strSQL & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
+    'strSQL = "DELETE FROM ar_altname WHERE an_cust IS Null AND an_name IS NULL AND an_customer = " & lLockedAR_AP_NBR
+    'strSQL = strSQL & " AND an_addr1 IS NULL AND an_name_addr IS NULL AND an_city IS NULL AND an_phone IS NULL "
+    strSQL = "DELETE FROM ar_altname WHERE an_customer = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND an_cust IS Null"
+    '''''''''''''''''''''''''''
     
     On Error GoTo errUnlockAr
     t_dbMainDatabase.ExecuteSQL strSQL
@@ -373,11 +379,17 @@ Public Function UnlockAp(Optional nAP) As Boolean
     If lLockedAR_AP_NBR <= 0 Then
         Exit Function
     End If
-    'make sure all null but pn_alt
     
-    strSQL = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
-    strSQL = strSQL & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
-    strSQL = strSQL & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
+    'david 10/05/2006  #530265b
+    'too manny null(s) in the where clauses cause problem!!!
+    'changed to check only one null field (pn_vendor)
+    'make sure all null but pn_alt
+    'strSQL = "DELETE FROM p_altname WHERE pn_vendor IS Null AND pn_alt = " & lLockedAR_AP_NBR
+    'strSQL = strSQL & " AND pn_name IS NULL AND pn_state IS NULL AND pn_phone IS NULL "
+    'strSQL = strSQL & " AND pn_name_addr IS NULL AND pn_city IS NULL AND pn_addr1 IS NULL"
+    strSQL = "DELETE FROM p_altname WHERE pn_alt = " & lLockedAR_AP_NBR
+    strSQL = strSQL & " AND pn_vendor IS Null"
+    '''''''''''''''''''''''''''
     
     On Error GoTo errUnlockAp
     t_dbMainDatabase.ExecuteSQL strSQL
