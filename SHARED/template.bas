@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -763,7 +763,7 @@ End Function
 Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
-                          Optional ByVal Field As String = vbNullString, _
+                          Optional ByVal field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -775,7 +775,7 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
-    Field = Trim$(UCase$(Field))
+    field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
         & " WHERE (INI_File_Name='" & Filename & "')" _
@@ -785,8 +785,8 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     Else
         SQL = SQL & "   AND ((INI_User_ID ='') OR (INI_User_ID IS NULL))"
     End If
-    If LenB(Field) Then
-        SQL = SQL & " AND (INI_Field_Name='" & Field & "')"
+    If LenB(field) Then
+        SQL = SQL & " AND (INI_Field_Name='" & field & "')"
     End If
     
     t_dbMainDatabase.ExecuteSQL SQL
@@ -915,10 +915,10 @@ errTrap:
     staSysParm901 = ""
 End Function
 
-Public Sub tfnClearLog(szFilename)
+Public Sub tfnClearLog(szFileName)
 
     On Error Resume Next
-    Kill szFilename
+    Kill szFileName
     
 End Sub
 
@@ -1480,7 +1480,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1746,7 +1746,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1754,7 +1754,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1780,19 +1780,19 @@ End Sub
 'Passed Variables: string to save in file, optional Name of file to save data
 'Returns         : true for yes, false for no
 '
-Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
+Public Sub tfnLog(szLogEntry As String, Optional szFileName As String = "")
 
     Dim nFileNumber As Integer
     
     On Error Resume Next
     
-    If szFilename = "" Then
-        szFilename = szLOG_FILE_NAME
+    If szFileName = "" Then
+        szFileName = szLOG_FILE_NAME
     End If
     
     nFileNumber = FreeFile
     
-    Open szFilename For Append As #nFileNumber
+    Open szFileName For Append As #nFileNumber
     
     Print #nFileNumber, szLogEntry
 
@@ -1804,13 +1804,13 @@ End Sub
 'Passed Variables: fileName
 'Returns         : true if exists, false if not
 '
-Public Function tfnIsFile(ByVal szFilename As String) As Boolean
+Public Function tfnIsFile(ByVal szFileName As String) As Boolean
     
     Dim nLength As Integer
     
     On Error Resume Next
 
-    nLength = Len(Dir(szFilename))
+    nLength = Len(Dir(szFileName))
     
     If Err Or nLength = 0 Then
         tfnIsFile = False
@@ -2289,7 +2289,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2550,14 +2550,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2649,7 +2649,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3255,7 +3255,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3472,7 +3472,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3680,7 +3680,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFileName As String, _
+Public Function tfn_Read_SYS_INI(sFilename As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3695,8 +3695,8 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     
     'ini_file_Name,ini_user_id may be null
     
-    If sFileName <> "" Then
-        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
+    If sFilename <> "" Then
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFilename))
     Else
         strSQL = strSQL & " ini_file_Name is Null"
     End If
@@ -3740,7 +3740,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFileName As String, _
+Public Function tfn_Write_SYS_INI(sFilename As String, _
                               ByVal sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3755,7 +3755,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
     
     On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
@@ -3764,14 +3764,14 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     End If
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
@@ -4181,4 +4181,243 @@ SQLError:
     On Error GoTo 0
 End Sub
 
+'david 10/02/2006  #527491
+'sets the value of lInvNo, return error message if any
+Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As String
+    
+    Const SUB_NAME As String = "fnInvoiceOK"
+    'number of re-tries if get_inv_nbr() stored procedure fails
+    Const nTRIAL = 15
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim bError As Boolean
+    Dim sRetMsg As String
+    Dim sErrMsg As String
+    Dim i As Integer
+    
+    fnInvoiceOK = ""
+    bError = False
+    i = 0
+    
+    On Error GoTo errTrap
+    
+TRY_AGAIN:
+    
+    Select Case sRequest
+        Case "N"  'generate a new invoice number
+            strSQL = "EXECUTE PROCEDURE get_inv_nbr ('0', NULL)"
+            sErrMsg = "Failed to " + strSQL
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+
+            If rsTemp Is Nothing Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            If rsTemp.RecordCount = 0 Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            
+            If rsTemp.Fields(0) = 1 Then
+                lInvNo = tfnRound(rsTemp.Fields(1))
+                
+                'if the invoice number is zero then try again
+                If lInvNo = 0 Then
+                    strSQL = "EXECUTE PROCEDURE get_inv_nbr ('0', NULL)"
+                    sErrMsg = "Failed to " + strSQL
+                    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+                    
+                    If rsTemp Is Nothing Then
+                        fnInvoiceOK = sErrMsg
+                        Exit Function
+                    End If
+                    If rsTemp.RecordCount = 0 Then
+                        fnInvoiceOK = sErrMsg
+                        Exit Function
+                    End If
+                
+                    If rsTemp.Fields(0) = 1 Then
+                        lInvNo = tfnRound(rsTemp.Fields(1))
+                    
+                        If lInvNo = 0 Then
+                            fnInvoiceOK = "EXECUTE PROCEDURE get_inv_nbr() returns a 0"
+                            Exit Function
+                        End If
+                    Else
+                        bError = True
+                    End If
+                End If
+                ''''''''''''''''''''''''''
+            Else  'storage procedure returns ERROR
+                bError = True
+            End If
+            
+            If bError Then
+                sRetMsg = Trim(rsTemp.Fields(2) & "")
+                
+                'error get_inv_nbr(), try again...
+                If Not (InStr(sRetMsg, "79999999") > 0 Or _
+                   InStr(sRetMsg, "80000000") > 0) Then
+                    i = i + 1
+                    
+                    If i < nTRIAL Then
+                        tfnWaitSeconds 1
+                        GoTo TRY_AGAIN
+                    End If
+                End If
+                
+                If InStr(sRetMsg, "Exception") > 0 Then
+                    #If Not NO_ERROR_HANDLER Then
+                        If Not objErrHandler Is Nothing Then
+                            tfnErrHandler SUB_NAME, strSQL, sRetMsg, False
+                        End If
+                    #End If
+                
+                    fnInvoiceOK = sRetMsg
+                Else
+                    If InStr(sRetMsg, "79999999") > 0 Or _
+                       InStr(sRetMsg, "80000000") > 0 Then
+                        fnInvoiceOK = sRetMsg
+                    Else
+                        fnInvoiceOK = "Invoice Number table is locked by other user"
+                    End If
+                End If
+            End If
+        Case "I"  'insert an invoice number
+            If lInvNo >= 80000000 Then
+                fnInvoiceOK = "Invoice Number exceeds 79999999."
+                Exit Function
+            End If
+            
+            strSQL = "EXECUTE PROCEDURE get_inv_nbr (" & tfnSQLString(lInvNo) & ", NULL)"
+            sErrMsg = "Failed to " + strSQL
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            
+            If rsTemp Is Nothing Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            If rsTemp.RecordCount = 0 Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            
+            If rsTemp.Fields(0) = 1 Then
+                'if the invoice number is zero then try again
+                If lInvNo = 0 Then
+                    strSQL = "EXECUTE PROCEDURE get_inv_nbr (" & tfnSQLString(lInvNo) & ", NULL)"
+                    sErrMsg = "Failed to " + strSQL
+                    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+                    
+                    If rsTemp Is Nothing Then
+                        fnInvoiceOK = sErrMsg
+                        Exit Function
+                    End If
+                    If rsTemp.RecordCount = 0 Then
+                        fnInvoiceOK = sErrMsg
+                        Exit Function
+                    End If
+                
+                    If rsTemp.Fields(0) = 1 Then
+                        lInvNo = tfnRound(rsTemp.Fields(1))
+                    
+                        If lInvNo = 0 Then
+                            fnInvoiceOK = "EXECUTE PROCEDURE get_inv_nbr() returns a 0"
+                            Exit Function
+                        End If
+                    Else
+                        bError = True
+                    End If
+                End If
+                ''''''''''''''''''''''''''
+            Else  'storage procedure returns ERROR
+                bError = True
+            End If
+            
+            If bError Then
+                sRetMsg = Trim(rsTemp.Fields(2) & "")
+                
+                'error get_inv_nbr(), try again...
+                If Not (InStr(sRetMsg, "79999999") > 0 Or _
+                   InStr(sRetMsg, "80000000") > 0 Or _
+                   InStr(sRetMsg, "-239") > 0) Then
+                    i = i + 1
+                    
+                    If i < nTRIAL Then
+                        tfnWaitSeconds 1
+                        GoTo TRY_AGAIN
+                    End If
+                End If
+                
+                If InStr(sRetMsg, "Exception") > 0 Then
+                    #If Not NO_ERROR_HANDLER Then
+                        If Not objErrHandler Is Nothing Then
+                            tfnErrHandler SUB_NAME, strSQL, sRetMsg, False
+                        End If
+                    #End If
+                
+                    fnInvoiceOK = sRetMsg
+                Else
+                    If InStr(sRetMsg, "79999999") > 0 Or _
+                       InStr(sRetMsg, "80000000") > 0 Then
+                        fnInvoiceOK = sRetMsg
+                    ElseIf InStr(sRetMsg, "-239") > 0 Then
+                        fnInvoiceOK = "Invoice Number has already been used"
+                    Else
+                        fnInvoiceOK = "Invoice Number table is locked by other user"
+                    End If
+                End If
+            End If
+        Case "D"
+            strSQL = "EXECUTE PROCEDURE get_inv_nbr (NULL," & tfnSQLString(lInvNo) & ")"
+            sErrMsg = "Failed to " + strSQL
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            
+            If rsTemp Is Nothing Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            If rsTemp.RecordCount = 0 Then
+                fnInvoiceOK = sErrMsg
+                Exit Function
+            End If
+            
+            If rsTemp.Fields(0) = 0 Then   'storage procedure returns ERROR
+                sRetMsg = Trim(rsTemp.Fields(2) & "")
+                
+                i = i + 1
+                
+                If i < nTRIAL Then
+                    tfnWaitSeconds 1
+                    GoTo TRY_AGAIN
+                End If
+                
+                If InStr(sRetMsg, "Exception") > 0 Then
+                    #If Not NO_ERROR_HANDLER Then
+                        If Not objErrHandler Is Nothing Then
+                            tfnErrHandler SUB_NAME, strSQL, sRetMsg, False
+                        End If
+                    #End If
+                    
+                    fnInvoiceOK = sRetMsg
+                Else
+                    fnInvoiceOK = "Invoice Number table is locked by other user"
+                End If
+            End If
+    End Select
+    
+    Exit Function
+    
+errTrap:
+    #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler SUB_NAME, strSQL
+        End If
+    #End If
+    
+    fnInvoiceOK = sErrMsg
+    
+End Function
+''''''''''''''''''''''''''
 
