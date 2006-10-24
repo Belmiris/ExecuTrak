@@ -355,7 +355,7 @@ Property Get ErrorFree() As Integer
     ErrorFree = EC_INITIAL
 End Property
 
-Property Let Filename(sTemp As String)
+Property Let FileName(sTemp As String)
     m_sFileName = sTemp
 End Property
 
@@ -731,7 +731,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL & " AND fmmb_bl_line = fmld_seq_nbr"
             strSQL = strSQL & " AND fmld_movement = fmldt_movement"
             strSQL = strSQL & " AND fmldt_trn = tul_trn"
-            strSQL = strSQL & " AND fmdd_prodlnk = ivh_link"
+            'david 10/24/2006  #535875
+            strSQL = strSQL & " AND fmld_prodlnk = ivh_link"
+            ''''''''''''''''''''''''''
             strSQL = strSQL & " AND fmldt_ulink = tul_link"
             strSQL = strSQL & " AND fml_bl_nbr = fmldt_bl_nbr"
             strSQL = strSQL & " AND fmld_seq_nbr = fmldt_line"
