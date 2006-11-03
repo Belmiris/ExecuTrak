@@ -4292,8 +4292,9 @@ TRY_AGAIN:
                 sErrMsg = "Failed to get sysparm #6132"
                 Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
                 
-                sSysParm6132 = Trim(rsTemp!parm_field & "")
-            
+                If rsTemp.RecordCount > 0 Then
+                    sSysParm6132 = Trim(rsTemp!parm_field & "")
+                End If
                 If sSysParm6132 <> "Y" Then
                     sSysParm6132 = "N"
                 End If
