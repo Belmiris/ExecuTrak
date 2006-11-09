@@ -98,7 +98,7 @@ Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As St
     ElseIf (ProfileInfo("ptrn_int_mv_flg") = "Y") Then
         'Move File
         Print #hFile, "move "; Q_Str(LocalFile); " ";
-        Print #hFile, Q_Str(ProfileInfo("ptrn_int_mov_loc"))
+        Print #hFile, Q_Str(ProfileInfo("ptrn_int_mv_loc"))     'Vijaya on 09/27/06 Column name is wrong #472156
     ElseIf (ProfileInfo("ptrn_int_ren_flg") = "Y") Then
         'Rename File - MOVE can move across drives, paths, and even rename the file
         Print #hFile, "move "; Q_Str(LocalFile); " ";
@@ -132,7 +132,11 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     If LenB(Nz(ProfileInfo("ptrn_ext_file"))) Then
         RemoteFile = Nz(ProfileInfo("ptrn_ext_file"))
     Else
-        RemoteFile = Nz(ProfileInfo("ptrn_int_file"))
+        'Vijaya on 09/22/06 #472156
+        'If the Destination File name is Empty means we need to Transfer Same name
+        'No Need to Mention Input File Name. For Exam: AR_*.* then destination filename
+        'also AR_*.* not Correct. Leave Empty it will Carry Same File Name
+        RemoteFile = ""                     'Nz(ProfileInfo("ptrn_int_file"))
     End If
     If LenB(Nz(ProfileInfo("ptrn_int_file"))) Then
         LocalFile = Nz(ProfileInfo("ptrn_int_file"))
@@ -163,6 +167,9 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     End If
     
     'Get/Put File
+    'Vijaya on 10/26/06 #472156
+    'Prompt turns off prompting for individual files when using mget or mput
+    Print #hFile, "prompt"
     If IsPut Then
         RemotePath = ProfileInfo("ptrn_ext_path")
         If Right$(RemotePath, 1) <> "/" Then
@@ -171,12 +178,16 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
         'Delete existing remote file (just let it fail if it doesn't exist)
         Print #hFile, "delete "; RemotePath; RemoteFile
         'Put remote file
-        Print #hFile, "put "; LocalFile; " "; RemoteFile
+        'Vijaya on 10/26/06 #472156
+        'mput can put Single File Or Multiple Files if user setup WildCard like *.*
+        Print #hFile, "mput "; LocalFile; " "; RemoteFile
         'Change file permissions
         'If not sending to a UNIX box, then this should simply fail, but no harm done
         Print #hFile, "literal site chmod 777 "; RemotePath; RemoteFile
     Else
-        Print #hFile, "get "; RemoteFile; " "; LocalFile
+        'Vijaya on 10/26/06 #472156
+        'mget can get Single File Or Multiple Files if user setup WildCard like *.*
+        Print #hFile, "mget "; RemoteFile; " "; LocalFile
     End If
     
     'Delete Remote File
@@ -458,7 +469,7 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
     Dim Fields As Collection
     Dim rs     As DAO.Recordset
     Dim SQL    As String
-    Dim value  As Variant
+    Dim Value  As Variant
     
     '------------------------------------------------------------------------------------
     'Initialize
@@ -475,11 +486,11 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
         If Not rs.EOF Then
             For Each Field In rs.Fields
                 With Field
-                    value = Nz(.value)
-                    If VarType(value) = vbString Then
-                        value = Trim$(value)
+                    Value = Nz(.Value)
+                    If VarType(Value) = vbString Then
+                        Value = Trim$(Value)
                     End If
-                    Fields.Add value, .Name 'Add field's value with its name as the Key
+                    Fields.Add Value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
             Set Field = Nothing
@@ -496,11 +507,11 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
         If Not rs.EOF Then
             For Each Field In rs.Fields
                 With Field
-                    value = Nz(.value)
-                    If VarType(value) = vbString Then
-                        value = Trim$(value)
+                    Value = Nz(.Value)
+                    If VarType(Value) = vbString Then
+                        Value = Trim$(Value)
                     End If
-                    Fields.Add value, .Name 'Add field's value with its name as the Key
+                    Fields.Add Value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
             Set Field = Nothing
