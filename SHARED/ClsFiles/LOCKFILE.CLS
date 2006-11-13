@@ -18,6 +18,8 @@ Private Declare Function GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (By
 
 Private m_sLockFilename As String
 Private m_bShowMsgBox As Boolean
+Private m_nMinutesPerSession As Integer
+Private m_nDeleteLockAfterMinutes As Integer
 '
 
 Property Let ShowMessageBox(bYesNo As Boolean)
@@ -26,6 +28,22 @@ End Property
 
 Property Get ShowMessageBox() As Boolean
     ShowMessageBox = m_bShowMsgBox
+End Property
+
+Property Let MinutesPerSession(nMinutes As Integer)
+    m_nMinutesPerSession = nMinutes
+End Property
+
+Property Get MinutesPerSession() As Integer
+    MinutesPerSession = m_nMinutesPerSession
+End Property
+
+Property Let DeleteLockAfterMinutes(nMinutes As Integer)
+    m_nDeleteLockAfterMinutes = nMinutes
+End Property
+
+Property Get DeleteLockAfterMinutes() As Integer
+    DeleteLockAfterMinutes = m_nDeleteLockAfterMinutes
 End Property
 
 Public Function Initialize(sID As String) As String
@@ -40,6 +58,8 @@ End Function
 
 Private Sub Class_Initialize()
     m_bShowMsgBox = True
+    m_nMinutesPerSession = 5
+    m_nDeleteLockAfterMinutes = 10
 End Sub
 
 Private Sub Class_Terminate()
@@ -49,8 +69,6 @@ End Sub
 'return error message if anay
 Public Function LockIt(Optional sLockFileID As String = "", _
                        Optional sErrMsg As String) As Boolean
-    
-    Dim i As Integer
     
     If sLockFileID = "" Then
         sLockFileID = m_sLockFilename
@@ -63,23 +81,17 @@ Public Function LockIt(Optional sLockFileID As String = "", _
     
     sErrMsg = ""
     
-    'let's try 5 times to obtain the lock,
-    'wait 2 second between tries.
-    For i = 1 To 5
-        If Not IsLocked(sLockFileID, sErrMsg) Then
+    If Not IsLocked(sLockFileID, sErrMsg) Then
+        If sErrMsg = "" Then
+            sErrMsg = fnWriteLockEntry(ComputerName(), UserName(), Now)
+            
             If sErrMsg = "" Then
-                sErrMsg = fnWriteLockEntry(ComputerName(), UserName(), Now)
-                
-                If sErrMsg = "" Then
-                    'got the lock
-                    LockIt = True
-                    Exit Function
-                End If
+                'got the lock
+                LockIt = True
+                Exit Function
             End If
         End If
-            
-        tfnWaitSeconds 2
-    Next i
+    End If
     
     LockIt = False
         
@@ -188,12 +200,12 @@ Private Function fnDeleteOldLocks() As String
         bDelete = True
         
         If sLockedTime <> "" Then
-            If DateDiff("n", CDate(sLockedTime), Now) < 5 Then
+            If DateDiff("n", CDate(sLockedTime), Now) < m_nMinutesPerSession Then
                 bDelete = False
             End If
         End If
     'delete lock file that is more than 30 minutes old
-    ElseIf DateDiff("n", CDate(sLockedTime), Now) > 30 Then
+    ElseIf DateDiff("n", CDate(sLockedTime), Now) > m_nDeleteLockAfterMinutes Then
         bDelete = True
     End If
     
