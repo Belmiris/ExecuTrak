@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -656,8 +656,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -689,7 +689,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -1015,7 +1015,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1465,12 +1465,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1480,7 +1480,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1601,7 +1601,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1746,7 +1746,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1754,7 +1754,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2289,7 +2289,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2550,14 +2550,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2649,7 +2649,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -4197,6 +4197,8 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     Dim i As Integer
     'david 11/03/2006  #537148
     Static sSysParm6132 As String
+    '537311 - Chris Albrecht - 11/7/2006
+    Static sSysParm7900 As String
     
     On Error GoTo errTrap
     
@@ -4378,25 +4380,48 @@ TRY_AGAIN:
                        InStr(sRetMsg, "80000000") > 0 Then
                         fnInvoiceOK = sRetMsg
                     ElseIf InStr(sRetMsg, "-239") > 0 Then
-'david 10/24/2006  #535909
-'''I put this codes here for historical purpose
-'''This fixes doesn't work because it will allow user to user
-'''the same invoice number over and over again.
-'''Also, the InvoiceCreated() can be found (commented out) in FO\FOEINVCE\FOEINVCE.BAS
-'''                    '#502947 - Chris Albrecht - 3/14/2006
-'''                    'Since the ticket number is now being stored in the si_nbr table,
-'''                    'we need to check the si_hold and si_invoice tables
-'''                    If InvoiceCreated(lInvNo) Then
-'''                        fnInvoiceOK = "Invoice Number has already been used"
-'''                    End If
-'''This fixes has to be re-work
-''''''''''''''''''''''''''
-                        fnInvoiceOK = "Invoice Number has already been used"
-                    Else
-                        fnInvoiceOK = "Invoice Number table is locked by other user"
+                    
+                        'david 10/24/2006  #535909
+                        '''I put this codes here for historical purpose
+                        '''This fixes doesn't work because it will allow user to user
+                        '''the same invoice number over and over again.
+                        '''Also, the InvoiceCreated() can be found (commented out) in FO\FOEINVCE\FOEINVCE.BAS
+                        '''                    '#502947 - Chris Albrecht - 3/14/2006
+                        '''                    'Since the ticket number is now being stored in the si_nbr table,
+                        '''                    'we need to check the si_hold and si_invoice tables
+                        
+                                 
+                        '''This fixes has to be re-work
+                        ''''''''''''''''''''''''''
+                        '#537311 - Chris Albrecht - 11/07/2006
+                        'Perform this check unless sysparm 7900 is set 'Y'
+                        '537311 - Chris Albrecht - 11/7/2006
+                    
+                        If sSysParm7900 = "" Then
+                            strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 7900"
+                            sErrMsg = "Failed to get sysparm #7900"
+                            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
+                            
+                            If rsTemp.RecordCount > 0 Then
+                                sSysParm7900 = Trim(rsTemp!parm_field & "")
+                            End If
+                            
+                            If sSysParm7900 <> "Y" Then
+                                sSysParm7900 = "N"
+                            End If
+                        End If
+                    
+                        If sSysParm7900 <> "Y" Then
+                            If InvoiceCreated(lInvNo) Then
+                                fnInvoiceOK = "Invoice Number has already been used"
+                            End If
+                        Else
+                            fnInvoiceOK = "Invoice Number table is locked by other user"
+                        End If
                     End If
                 End If
             End If
+            
         Case "D"
             strSQL = "EXECUTE PROCEDURE get_inv_nbr (NULL," & tfnSQLString(lInvNo) & ")"
             sErrMsg = "Failed to " + strSQL
@@ -4449,3 +4474,38 @@ errTrap:
 End Function
 ''''''''''''''''''''''''''
 
+'#502947 - Chris Albrecht - 3/14/2006
+'Check the invoice and invoice hold tables
+Private Function InvoiceCreated(invoiceNbr As Long)
+
+Const SQL_INVOICE_EXISTS_IN_HOLD As String = _
+    " select ihh_nbr from sih_invoice where ihh_nbr = @invoice_nbr "
+Const SQL_INVOICE_EXISTS As String = _
+    " select ih_nbr from si_invoice where ih_nbr = @invoice_nbr "
+    
+Dim SQL As String
+
+    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", invoiceNbr)
+    
+    InvoiceCreated = fnDataExists(SQL)
+    
+    If Not InvoiceCreated Then
+        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", invoiceNbr)
+        
+        InvoiceCreated = fnDataExists(SQL)
+    End If
+
+End Function
+
+Private Function fnDataExists(SQL As String) As Boolean
+    Dim rsTemp As Recordset
+    
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    rsTemp.MoveLast
+    rsTemp.MoveFirst
+    
+    fnDataExists = rsTemp.RecordCount > 0
+    
+    Set rsTemp = Nothing
+End Function
