@@ -720,7 +720,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
             End If
             .Close
         End With
@@ -729,7 +729,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).Value)
+                sDBVer = Trim$(.Fields(0).value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -1746,7 +1746,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1754,7 +1754,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2074,12 +2074,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2289,7 +2289,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2550,14 +2550,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -3072,7 +3072,7 @@ End Function
 
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
-                           sSql As String, _
+                           sSQL As String, _
                            Optional vShowMsg As Variant, _
                            Optional sLockedUser As String = "") As Boolean
 
@@ -3103,7 +3103,7 @@ Public Function tfnLockRow(sProgramID As String, _
         If Trim(sProgramID) = "" Then
             MsgBox "You have to provide the program ID to lock a row", , sErrID
         End If
-        If Trim(sSql) = "" Then
+        If Trim(sSQL) = "" Then
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
@@ -3120,16 +3120,16 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQL = UCase(sSql)
+    strSQL = UCase(sSQL)
     nPos2 = InStr(strSQL, " WHERE ")
     If nPos2 > 0 Then
         nPos1 = InStr(strSQL, " ORDER ")
         If nPos1 = 0 Then
-            nPos1 = Len(sSql) + 1
+            nPos1 = Len(sSQL) + 1
         End If
-        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
+        sCriteria = Mid(sSQL, nPos2 + 7, nPos1 - nPos2 - 7)
     Else
-        sCriteria = sSql
+        sCriteria = sSQL
     End If
     
     #If DEVELOP Then
@@ -3232,7 +3232,7 @@ End Function
 '##############################################################################
 Public Function tfnLockRow_EX(sProgramID As String, _
                               sTable As String, _
-                              sSql As String, _
+                              sSQL As String, _
                               Optional vShowMsg As Variant, _
                               Optional sLockedUser As String = "", _
                               Optional sUserID As String = "") As Boolean
@@ -3270,7 +3270,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    If Trim(sSql) = "" Then
+    If Trim(sSQL) = "" Then
         MsgBox "Locking Criteria is missing when try to lock a row.", , SUB_NAME
         Exit Function
     End If
@@ -3301,7 +3301,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    sLockCriteria = sSql
+    sLockCriteria = sSQL
     
     If Len(sLockCriteria) > 80 Then
         MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field Names", vbOKOnly
@@ -3977,7 +3977,7 @@ ErrorTrap:
 End Function
 
 'Vijaya on 02/05/04 Magic#395302
-Public Function tfnFix_tx_table(sSql As String, _
+Public Function tfnFix_tx_table(sSQL As String, _
                                     Optional bUseDate As Boolean = True) As String
     Const FUNC_NAME As String = "tfnFix_tx_table"
 #If Not NO_DST Then
@@ -3994,7 +3994,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Const sNewTableDet As String = "tx_detail"
     Static vColumArr(15, 1)
     
-    If sSql = "" Then Exit Function
+    If sSQL = "" Then Exit Function
     On Error GoTo SQLError
 
     If vColumArr(0, 0) = "" Then
@@ -4032,12 +4032,12 @@ Public Function tfnFix_tx_table(sSql As String, _
         vColumArr(15, 1) = "txd_base_txble_amt"
     End If
     
-    nPos = InStr(1, LCase(sSql), " where ")
+    nPos = InStr(1, LCase(sSQL), " where ")
     If nPos > 0 Then
-        strSQL = Mid(sSql, 1, nPos - 1)
-        strSQL1 = Mid(sSql, nPos + 7)
+        strSQL = Mid(sSQL, 1, nPos - 1)
+        strSQL1 = Mid(sSQL, nPos + 7)
     Else
-        strSQL = sSql
+        strSQL = sSQL
         strSQL1 = ""
     End If
     bAllFields = InStr(1, strSQL, " * ") > 0
@@ -4122,10 +4122,10 @@ SQLError:
             tfnErrHandler FUNC_NAME, strSQL, False
         End If
     #End If
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
     Resume quitfunc
 #Else
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
 #End If
 End Function
 ''''''''''''''''''''''''''''''''
@@ -4394,7 +4394,7 @@ TRY_AGAIN:
                         '''This fixes has to be re-work
                         ''''''''''''''''''''''''''
                         '#537311 - Chris Albrecht - 11/07/2006
-                        'Perform this check unless sysparm 7900 is set 'Y'
+                        'Perform this check if sysparm 7900 is set 'Y'
                         '537311 - Chris Albrecht - 11/7/2006
                     
                         If sSysParm7900 = "" Then
@@ -4411,12 +4411,12 @@ TRY_AGAIN:
                             End If
                         End If
                     
-                        If sSysParm7900 = "Y" Then
+                        If IsFOTicket(lInvNo) And sSysParm7900 = "Y" Then
                             If InvoiceCreated(lInvNo) Then
                                 fnInvoiceOK = "Invoice Number has already been used"
                             End If
                         Else
-                            fnInvoiceOK = "Invoice Number table is locked by other user"
+                            fnInvoiceOK = "Invoice Number has already been used"
                         End If
                     End If
                 End If
@@ -4474,9 +4474,22 @@ errTrap:
 End Function
 ''''''''''''''''''''''''''
 
+Private Function IsFOTicket(lInvNo As Long) As Boolean
+
+    Const SQL_TICKET_EXISTS As String = _
+        " select fot_ticket_nbr from fo_ticket_nbr where fot_ticket_nbr = @ticket_nbr "
+    
+    Dim SQL As String
+
+    SQL = Replace(SQL_TICKET_EXISTS, "@ticket_nbr", lInvNo)
+    
+    IsFOTicket = fnDataExists(SQL)
+
+End Function
+
 '#502947 - Chris Albrecht - 3/14/2006
 'Check the invoice and invoice hold tables
-Private Function InvoiceCreated(invoiceNbr As Long)
+Private Function InvoiceCreated(invoiceNbr As Long) As Boolean
 
 Const SQL_INVOICE_EXISTS_IN_HOLD As String = _
     " select ihh_nbr from sih_invoice where ihh_nbr = @invoice_nbr "
