@@ -961,7 +961,7 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 ciTemp.CarrierName = sInfo1
                 ciTemp.CarrierFedID = fnConvertFEDID(sInfo2)
                 ciTemp.TTTrnNumber = tfnRound(!fmldt_trn)
-                sTemp = fnTerminalCity(tfnRound(!fml_terminal), rsTemp!fml_int_ext)
+                sTemp = fnTerminalCity(tfnRound(!fml_terminal), !fml_int_ext)
                 subGetCityInfo sInfo1, sInfo2, sTemp
                 ciTemp.OriginCity = sInfo1
                 ciTemp.OriginState = sInfo2
@@ -1025,13 +1025,24 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 
                 If nTypeCode = "7" Then
                     If ciTemp.OriginState <> ciTemp.DestState Then
-                        bOkToAdd = True
+                        'david 12/04/2006  #539292
+                        'for schedule 3 & 7
+                        'don't pull I to I and profit centers are setup as terminal
+                        If fnCStr(!fml_int_ext) = "I" And fnCStr(!fmd_dest_flag) = "I" Then
+                            If Not (fnIsPCaTerminal(tfnRound(!fml_terminal)) _
+                               And fnIsPCaTerminal(tfnRound(!fmd_dest_code))) Then
+                                bOkToAdd = True
+                            End If
+                        Else
+                            bOkToAdd = True
+                        End If
+                        ''''''''''''''''''''''''''
                     End If
                 'david 02/28/2006  #510885
                 ElseIf nTypeCode = "2" Then
                     If m_nTFSTCount >= 0 Then
-                        bOkToAdd = Not fnIsTaxFreeSale(tfnRound(rsTemp!fmm_movement), _
-                            tfnRound(rsTemp!fmd_invoice), tfnRound(rsTemp!fmmb_dv_line))
+                        bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
+                            tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
                     Else
                         bOkToAdd = True
                     End If
@@ -1040,7 +1051,22 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     If m_sTaxPaidOriginState = "" Then
                         'david 07/19/2004  #453858
                         'colTemp.Add ciTemp
-                        bOkToAdd = True
+                        'david 12/04/2006  #539292
+                        'for schedule 3 & 7
+                        'don't pull I to I and profit centers are setup as terminal
+                        ''''''''''''''''''''''''''
+                        If nTypeCode = "1" Or nTypeCode = "3" Then
+                            If fnCStr(!fml_int_ext) = "I" And fnCStr(!fmd_dest_flag) = "I" Then
+                                If Not (fnIsPCaTerminal(tfnRound(!fml_terminal)) _
+                                   And fnIsPCaTerminal(tfnRound(!fmd_dest_code))) Then
+                                    bOkToAdd = True
+                                End If
+                            Else
+                                bOkToAdd = True
+                            End If
+                        Else
+                            bOkToAdd = True
+                        End If
                     Else
                         If nTypeCode = "1" Then
                             If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
@@ -1083,8 +1109,34 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
     fnFillCollection = True
 End Function
 
-'david 02/28/2006  #510885
+'david 12/04/2006  #539292
+Private Function fnIsPCaTerminal(lPC As Long) As Boolean
+
+    Const SUB_NAME = "fnIsPCaTerminal"
+
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT count(*) as cnt"
+    strSQL = strSQL + " FROM tx_term"
+    strSQL = strSQL + " WHERE txtm_type = 'P'"
+    strSQL = strSQL + " AND txtm_code = " & lPC
+    strSQL = strSQL + " AND txtm_term_code != ' '"
+    strSQL = strSQL + " AND txtm_term_code is not null"
+    
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        fnIsPCaTerminal = tfnRound(rsTemp!cnt) > 0
+    End If
+
+End Function
 ''''''''''''''''''''''''''
+
 'david 02/28/2006  #510885
 Private Function fnIsTaxFreeSale(ByVal lMovement As Long, _
                                  ByVal lDelivery As Long, _
