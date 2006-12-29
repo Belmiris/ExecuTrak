@@ -36,7 +36,7 @@ Private m_bAlwaysShowMessage As Boolean
 
 Private m_sErrScrnPath As String
 Private m_sLogFilePath As String
-Private m_dbLocal As Database
+Private m_dbLocal As DataBase
 Private m_nLogTo As Integer
 Private m_bCirCular As Boolean
 Private m_nMaxErrors As Integer
@@ -247,6 +247,10 @@ ErrorTrap:
     Resume Next
 End Function
 
+Public Property Get LastError() As String
+    LastError = Trim(m_vErrorCode & "")
+End Property
+
 'valid nWhere is 0 - NO_LOG, 1 - LOG_TO_FILE, 2 - LOG_TO_DB
 Public Property Let WriteLogTo(nWhere As Integer)
     m_nLogTo = nWhere
@@ -270,7 +274,7 @@ Public Property Set FormParent(frmForm As Object)
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
     
-    If val(App.Minor) >= 20 Then
+    If Val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")
         sMinor = Format(App.Minor, "00")
         sRevision = Format(App.Revision, "0000")
@@ -301,7 +305,7 @@ Public Sub ProgramInfo()
     m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
     
-    If val(App.Minor) >= 20 Then
+    If Val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")
         sMinor = Format(App.Minor, "00")
         sRevision = Format(App.Revision, "0000")
@@ -326,7 +330,7 @@ Public Property Set DatabaseEngine(dbEngTmp As DBEngine)
     Set m_engFactor = dbEngTmp
 End Property
 
-Public Property Set LocalDatabase(dbLocal As Database)
+Public Property Set LocalDatabase(dbLocal As DataBase)
     Set m_dbLocal = dbLocal
 End Property
 
