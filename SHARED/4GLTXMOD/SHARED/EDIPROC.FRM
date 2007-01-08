@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
    ClientHeight    =   1380
@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.Path))
+    m_AppPath = fnAddBkSlash(UCase(App.path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -185,7 +185,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.Path
+        m_ProgramPath = App.path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -294,7 +294,8 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     Do
         Screen.MousePointer = vbHourglass
         DoEvents
-        If Timer - dfTimer > 2100 Then
+        'change the program, so it takes more than 2 hours, considers it time out
+        If Timer - dfTimer > 12000 Then
             m_ErrorMessage = "EDI Translation Processor time out."
             tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
             LaunchEDIPROC = m_ErrorMessage
@@ -712,7 +713,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo errTrap
+            On Error GoTo ErrTrap
             MkDir sParentDir
         End If
         
@@ -726,7 +727,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
