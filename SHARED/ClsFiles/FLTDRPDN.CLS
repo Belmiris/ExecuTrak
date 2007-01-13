@@ -994,7 +994,12 @@ Private Sub subSetFlagSelection(ByVal lDropDown As Long, _
     m_nSeries = lDropDown
     If m_nSeries > 0 Then
 '        colDropDowns.Item(m_nSeries).Item(1).Status = bValidSelection
+        'david 12/14/2006  #538307
+        'try to fix the RTE 9
+        On Error Resume Next
         colDropDowns.Item(m_nSeries).Item(1).Status = bStatus
+        On Error GoTo 0
+        ''''''''''''''''''''''''''
     End If
 End Sub
 
@@ -1668,7 +1673,7 @@ Private Sub fnMoveButton()
     
     Exit Sub
 EXITHERE:
-    MsgBox ("Error occurred in function fnMoveButton: " & vbCrLf & Err.Number & ": " & Err.Description)
+    MsgBox "Error occurred in function fnMoveButton: " & vbCrLf & Err.Number & ": " & Err.Description
 End Sub
 
 Public Sub GotFocus(Optional vCtrl As Variant)
@@ -1703,7 +1708,6 @@ Public Sub GotFocus(Optional vCtrl As Variant)
         End If
     End If
 End Sub
-
 
 Public Sub LostFocus(objControl As Object)
     Dim nTab As Integer
@@ -1749,6 +1753,7 @@ Public Sub MouseUp(y As Single)
     End If
     nClickPointY = y
 End Sub
+
 Property Set Form(frmMain As Object)
     Set frmParent = frmMain
     fnLocateMainTable
@@ -1847,7 +1852,12 @@ Public Function RowColChange(tgTable As Object) As Boolean
             cmdSearch.Visible = False
             tgDropDown.Visible = False
             If m_nSeries > 0 Then
+                'david 12/14/2006  #538307
+                'try to fix the RTE 9
+                On Error Resume Next
                 colDropDowns.Item(m_nSeries).Item(1).Status = False
+                On Error GoTo 0
+                ''''''''''''''''''''''''''
             End If
         Else
             fnMoveButton
@@ -1861,7 +1871,12 @@ Public Function RowColChange(tgTable As Object) As Boolean
                                 m_clsEdit.GotoNextColumn nLastColumn
                                 DoEvents
                                 If lLastRow <> m_clsEdit.GetCurrentRowNumber Then
+                                    'david 12/14/2006  #538307
+                                    'try to fix the RTE 9
+                                    On Error Resume Next
                                     colDropDowns.Item(lDropDown).Item(1).Status = False
+                                    On Error GoTo 0
+                                    ''''''''''''''''''''''''''
                                 End If
                                 On Error Resume Next
                                 tgMain.SetFocus
@@ -2090,7 +2105,12 @@ Private Sub subInputSelected()
                             If colTemp.Item(i).ColumnIndex = m_clsEdit.ColumnForNewRow Then
                                 m_clsEdit.subAddNewRow m_clsEdit.ColumnForNewRow
                                 If m_nSeries > 0 Then
+                                    'david 12/14/2006  #538307
+                                    'try to fix the RTE 9
+                                    On Error Resume Next
                                     colDropDowns.Item(m_nSeries).Item(1).Status = False
+                                    On Error GoTo 0
+                                    ''''''''''''''''''''''''''
                                 End If
                                 Exit For
                             End If
