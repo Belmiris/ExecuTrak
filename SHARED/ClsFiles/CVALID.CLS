@@ -547,7 +547,7 @@ Public Function FirstInvalidInput() As Integer
     Next i
 End Function
 
-Public Sub ResetFlags(Optional txtBox, Optional vInputFlag)
+Public Sub ResetFlags(Optional txtBox, Optional vInputFlag, Optional bKeepErrMsg As Boolean = False)
     Dim i As Integer
     If IsMissing(txtBox) Then
         If frmParent.ActiveControl Is Nothing Then
@@ -592,7 +592,12 @@ Public Sub ResetFlags(Optional txtBox, Optional vInputFlag)
                         .m_nInputFlag = 0
                     End If
                 End If
-                .m_sErrorMsgs = ""
+                'david 01/24/2007
+                'work around to keep the error message set by the function called by fnValidate()
+                If Not bKeepErrMsg Then
+                    .m_sErrorMsgs = ""
+                End If
+                '''''''''''''''''
                 .m_nChangeFlag = FLAG_TEXT_NOCHANGE
             End With
         End If
