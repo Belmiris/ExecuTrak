@@ -40,6 +40,7 @@ Private Declare Function OpenProcess Lib "kernel32" ( _
 Private Declare Function CloseHandle Lib "kernel32" ( _
     ByVal hObject As Long _
 ) As Long
+
 Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As String, ProfileInfo As Collection)
     Const ProcName = "FTP_CreateBatchFile"
     Dim IsPut        As Boolean
@@ -48,6 +49,11 @@ Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As St
     Dim LocalPath    As String
     Dim BackUpFile   As String
     Dim LocalFileExt As String
+    
+    Dim aryFiles()  As String
+    Dim sErrMsg     As String
+    Dim numOfFiles  As Integer
+    Dim i           As Integer
     
     '------------------------------------------------------------------------------------
     'Initialize
@@ -77,12 +83,21 @@ Public Sub FTP_CreateBatchFile(ByVal BatchName As String, ByVal ScriptName As St
     
     'Backup File
     If Nz(ProfileInfo("ptrn_int_bkup_flg")) = "Y" Then
-        Print #hFile, "copy "; Q_Str(LocalFile); " ";
-        FileNameParts LocalFile, , BackUpFile, LocalFileExt
-        '#472156 - DenBorg - 8/15/2006
-        'Backup File is to have the date added, so that there can be up to 999 backup copies per date.
-        BackUpFile = BackUpFile & "." & Format$(Date$, "mm-dd-yyyy") & "." & LocalFileExt
-        Print #hFile, Q_Str(BackupFileName(BackUpFile, ProfileInfo("ptrn_int_bkup_loc")))
+        'Vijaya on 01/23/06 if local file has wild card
+        'it merging all files together
+        If IsPut Then
+            numOfFiles = FTP_BuildFileArray(LocalPath, LocalFile, aryFiles, sErrMsg)
+            If numOfFiles > 0 Then
+                For i = 0 To UBound(aryFiles)
+                    Print #hFile, "copy "; Q_Str(aryFiles(i)); " ";
+                    FileNameParts aryFiles(i), , BackUpFile, LocalFileExt
+                    '#472156 - DenBorg - 8/15/2006
+                    'Backup File is to have the date added, so that there can be up to 999 backup copies per date.
+                    BackUpFile = BackUpFile & "." & LocalFileExt & "." & Format$(Date$, "mm-dd-yyyy") '& "." & LocalFileExt
+                    Print #hFile, Q_Str(BackupFileName(BackUpFile, ProfileInfo("ptrn_int_bkup_loc"), True))
+                Next
+            End If
+        End If
     End If
     
     'Append File
@@ -116,13 +131,23 @@ ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
+
 Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Collection)
     Const ProcName = "FTP_CreateScriptFile"
-    Dim hFile      As Integer
-    Dim LocalFile  As String
-    Dim RemoteFile As String
-    Dim RemotePath As String
-    Dim IsPut      As Boolean
+    Dim hFile           As Integer
+    Dim LocalFile       As String
+    Dim RemoteFile      As String
+    Dim RemotePath      As String
+    Dim IsPut           As Boolean
+    
+    'Vijaya on 01/21/07 #544668
+    Dim bMvMultiFiles   As Boolean
+    Dim LocalPath       As String
+    Dim aryFiles()      As String
+    Dim sErrMsg         As String
+    Dim numOfFiles      As Integer
+    Dim i               As Integer
+    '''''''''''''''''''''''''''
     
     '------------------------------------------------------------------------------------
     'Initialize
@@ -132,17 +157,32 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     If LenB(Nz(ProfileInfo("ptrn_ext_file"))) Then
         RemoteFile = Nz(ProfileInfo("ptrn_ext_file"))
     Else
-        'Vijaya on 09/22/06 #472156
-        'If the Destination File name is Empty means we need to Transfer Same name
-        'No Need to Mention Input File Name. For Exam: AR_*.* then destination filename
-        'also AR_*.* not Correct. Leave Empty it will Carry Same File Name
-        RemoteFile = ""                     'Nz(ProfileInfo("ptrn_int_file"))
+        RemoteFile = Nz(ProfileInfo("ptrn_int_file"))
     End If
     If LenB(Nz(ProfileInfo("ptrn_int_file"))) Then
         LocalFile = Nz(ProfileInfo("ptrn_int_file"))
     Else
         LocalFile = Nz(ProfileInfo("ptrn_ext_file"))
     End If
+    
+    'Vijaya on 01/21/07 #544668
+    'Vijaya Changed Here is Logic
+    'if put command is using and user has wild card *.*
+    'then use Remote file same as local file
+    'and get command using same Local file as Remote file
+    bMvMultiFiles = False
+    If IsPut Then
+        If InStr(LocalFile, "*") > 0 Then
+            bMvMultiFiles = True
+            'RemoteFile = LocalFile
+        End If
+    Else    'get
+        If InStr(RemoteFile, "*") > 0 Then
+            bMvMultiFiles = True
+            LocalFile = RemoteFile
+        End If
+    End If
+    '''''''''''''''''''''''''''
     
     '------------------------------------------------------------------------------------
     'Open Script File
@@ -172,28 +212,49 @@ Public Sub FTP_CreateScriptFile(ByVal ScriptName As String, ProfileInfo As Colle
     Print #hFile, "prompt"
     If IsPut Then
         RemotePath = ProfileInfo("ptrn_ext_path")
-        If Right$(RemotePath, 1) <> "/" Then
+        If LenB(Nz(RemotePath)) And Right$(RemotePath, 1) <> "/" Then
             RemotePath = RemotePath & "/"
         End If
-        'Delete existing remote file (just let it fail if it doesn't exist)
-        Print #hFile, "delete "; RemotePath; RemoteFile
-        'Put remote file
-        'Vijaya on 10/26/06 #472156
-        'mput can put Single File Or Multiple Files if user setup WildCard like *.*
-        Print #hFile, "mput "; LocalFile; " "; RemoteFile
-        'Change file permissions
-        'If not sending to a UNIX box, then this should simply fail, but no harm done
-        Print #hFile, "literal site chmod 777 "; RemotePath; RemoteFile
+        'Permissions are not working multiple files so
+        'we send one by one
+        LocalPath = ProfileInfo("ptrn_int_path")
+        numOfFiles = FTP_BuildFileArray(LocalPath, LocalFile, aryFiles, sErrMsg)
+        If numOfFiles > 0 Then
+            For i = 0 To UBound(aryFiles)
+                'Spliting File name and Path
+                aryFiles(i) = Mid(aryFiles(i), Len(LocalPath) + 2)
+                
+                
+                If bMvMultiFiles Then
+                    RemoteFile = Q_Str(aryFiles(i))
+                End If
+                
+                'Delete existing remote file (just let it fail if it doesn't exist)
+                Print #hFile, "mdelete "; RemotePath; RemoteFile
+                
+                'Put remote file
+                Print #hFile, "put "; Q_Str(aryFiles(i)); " "; RemoteFile
+                
+                'Change file permissions
+                'If not sending to a UNIX box, then this should simply fail, but no harm done
+                Print #hFile, "literal site chmod 777 "; RemotePath; RemoteFile
+            Next
+        End If
     Else
-        'Vijaya on 10/26/06 #472156
-        'mget can get Single File Or Multiple Files if user setup WildCard like *.*
-        Print #hFile, "mget "; RemoteFile; " "; LocalFile
+        If bMvMultiFiles Then
+            'Vijaya on 10/26/06 #472156
+            'mget can get Multiple Files if user setup WildCard like *.*
+            Print #hFile, "mget "; RemoteFile
+        Else
+            'Getting Single File to Local
+            Print #hFile, "get "; RemoteFile; " "; LocalFile
+        End If
     End If
     
     'Delete Remote File
     If (Not IsPut) And (ProfileInfo("ptrn_delete_flg") = "Y") Then
         'Only applies if we are GETting file
-        Print #hFile, "delete "; RemoteFile
+        Print #hFile, "mdelete "; RemoteFile
     End If
     
     '------------------------------------------------------------------------------------
@@ -396,6 +457,10 @@ Public Sub FTP_ProcessRequest(ByVal TransferID As String, ByVal PartnerID As Str
         Kill BatchFile
         'Kill ScriptFile 'ScriptFile already being deleted from the Batch File
         
+        'Vijaya on 01/24/07 #544668
+        FTP_CreateAndExecuteBackupBatchFile BatchFile, ProfileInfo
+        '''''''''''''''''''''''''''
+        
         '------------------------------------------------------------------------------------
         'Follow-Up Activities for Success
         '------------------------------------------------------------------------------------
@@ -463,13 +528,14 @@ ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
 End Sub
+
 Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal PartnerID As String) As Collection
     Const ProcName = "GetTransferProfileInfo"
     Dim Field  As DAO.Field
     Dim Fields As Collection
     Dim rs     As DAO.Recordset
     Dim SQL    As String
-    Dim Value  As Variant
+    Dim value  As Variant
     
     '------------------------------------------------------------------------------------
     'Initialize
@@ -486,11 +552,11 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
         If Not rs.EOF Then
             For Each Field In rs.Fields
                 With Field
-                    Value = Nz(.Value)
-                    If VarType(Value) = vbString Then
-                        Value = Trim$(Value)
+                    value = Nz(.value)
+                    If VarType(value) = vbString Then
+                        value = Trim$(value)
                     End If
-                    Fields.Add Value, .Name 'Add field's value with its name as the Key
+                    Fields.Add value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
             Set Field = Nothing
@@ -507,11 +573,11 @@ Public Function GetTransferProfileInfo(ByVal TransferID As String, ByVal Partner
         If Not rs.EOF Then
             For Each Field In rs.Fields
                 With Field
-                    Value = Nz(.Value)
-                    If VarType(Value) = vbString Then
-                        Value = Trim$(Value)
+                    value = Nz(.value)
+                    If VarType(value) = vbString Then
+                        value = Trim$(value)
                     End If
-                    Fields.Add Value, .Name 'Add field's value with its name as the Key
+                    Fields.Add value, .Name 'Add field's value with its name as the Key
                 End With
             Next 'Field
             Set Field = Nothing
@@ -576,4 +642,102 @@ Public Sub FTP_EMailNotify(ByVal SendTo As String, ByVal Subj As String, ByVal M
 ErrHandler:
     tfnErrHandler ProcName, False
     Err.Clear
+End Sub
+
+'Return No of files found
+Public Function FTP_BuildFileArray(sPath As String, sFilename As String, _
+                                    aryFiles() As String, sErrMsg As String) As Integer
+    
+    Const SUB_NAME = "FTP_BuildFileArray"
+    
+    Dim nMaxArraySize   As Integer
+    Dim nNumOfFiles     As Integer
+    Dim sFileFound      As String
+    
+    sErrMsg = ""
+    nNumOfFiles = 0
+
+On Error GoTo ERROR_HANDLER
+    sFileFound = Dir(FTP_ConCat(sPath, sFilename))
+    If sFileFound <> "" Then
+        nMaxArraySize = 0
+        ReDim aryFiles(nMaxArraySize)
+        While sFileFound <> ""
+            If nNumOfFiles > nMaxArraySize Then
+                nMaxArraySize = nMaxArraySize + 1
+                ReDim Preserve aryFiles(nMaxArraySize)
+            End If
+            aryFiles(nNumOfFiles) = FTP_ConCat(sPath, sFileFound)
+            sFileFound = Dir()
+            nNumOfFiles = nNumOfFiles + 1
+        Wend
+    End If
+    
+    FTP_BuildFileArray = nNumOfFiles
+    Exit Function
+
+ERROR_HANDLER:
+    If Err.Number = 76 Then
+        sErrMsg = " Path (" & FTP_ConCat(sPath, sFilename) & ") not found in Function '" & SUB_NAME & "'"
+        FTP_BuildFileArray = -99
+    End If
+    FTP_BuildFileArray = -1
+End Function
+
+Private Function FTP_ConCat(MyPath As String, MyName As String) As String
+    FTP_ConCat = IIf(Right(MyPath, 1) = "\", MyPath, MyPath + "\") + MyName
+End Function
+
+'This Function Executes only when Files Copy from Remote to Local
+'and set up as Backup File Option otherwise it won't execute
+'Only it works Get Method not Put Method
+Private Sub FTP_CreateAndExecuteBackupBatchFile(ByVal BatchName As String, ProfileInfo As Collection)
+    Const SUB_NAME As String = "FTP_CreateAndExecuteBackupBatchFile"
+    
+    Dim hFile        As Integer
+    Dim LocalFile    As String
+    Dim LocalPath    As String
+    Dim BackUpFile   As String
+    Dim LocalFileExt As String
+    
+    Dim aryFiles()  As String
+    Dim sErrMsg     As String
+    Dim numOfFiles  As Integer
+    Dim i           As Integer
+    
+    If ProfileInfo.Count Then
+        If ProfileInfo("tprf_getput_flag") = "G" Then
+            If Nz(ProfileInfo("ptrn_int_bkup_flg")) = "Y" Then
+                LocalPath = FixPath(ProfileInfo("ptrn_int_path"))
+                If LenB(Nz(ProfileInfo("ptrn_int_file"))) Then
+                    LocalFile = ProfileInfo("ptrn_int_file")
+                Else
+                    LocalFile = ProfileInfo("ptrn_ext_file")
+                End If
+                
+                numOfFiles = FTP_BuildFileArray(LocalPath, LocalFile, aryFiles, sErrMsg)
+                If numOfFiles > 0 Then
+                    hFile = FreeFile()
+                    Open BatchName For Output As #hFile
+                    Print #hFile, "@Echo Off"
+                    
+                    For i = 0 To UBound(aryFiles)
+                        Print #hFile, "copy "; Q_Str(aryFiles(i)); " ";
+                        FileNameParts aryFiles(i), , BackUpFile, LocalFileExt
+                        '#472156 - DenBorg - 8/15/2006
+                        'Backup File is to have the date added, so that there can be up to 999 backup copies per date.
+                        BackUpFile = BackUpFile & "." & LocalFileExt & "." & Format$(Date$, "mm-dd-yyyy") '& "." & LocalFileExt
+                        Print #hFile, Q_Str(BackupFileName(BackUpFile, ProfileInfo("ptrn_int_bkup_loc"), True))
+                    Next
+                    Close #hFile
+                    
+                    'Execute Newly-Created Batch File
+                    FTP_ExecuteOutsideProcess BatchName 'Does not return until execution has completed
+                    
+                    'Delete Batch File and Script File
+                    Kill BatchName
+                End If
+            End If
+        End If
+    End If
 End Sub

@@ -46,7 +46,7 @@ Public Const SQL_COLUMN_EXISTS As String = _
     " and colName = '@column' "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.DataBase 'Local MS Access Database
+Public dbLocal As DAO.Database 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -56,12 +56,12 @@ Public Const VK_MBUTTON = &H4
 Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
@@ -94,15 +94,17 @@ End Function
 '             specified backup path)
 '---------------------------------------------------------------------------------------
 '
-Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As String) As String
+Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As String, Optional ByVal UseFileExt As Boolean = False) As String
     Dim FileExt As String
     Dim FileNum As Integer
     Dim CurFile As String
     
-    '------------------------------------------------------------------------------------
-    'Strip off Path and Extension from FileName
-    '------------------------------------------------------------------------------------
-    FileNameParts FileName, , FileName
+    If Not UseFileExt Then
+        '------------------------------------------------------------------------------------
+        'Strip off Path and Extension from FileName
+        '------------------------------------------------------------------------------------
+        FileNameParts FileName, , FileName
+    End If
     
     '------------------------------------------------------------------------------------
     'See if the file already has existing backup copies in BackupPath.
@@ -135,6 +137,7 @@ Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As Str
     '------------------------------------------------------------------------------------
     BackupFileName = BackupPath & FileName & "." & Format$(FileNum, "000")
 End Function
+
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
     Dim OldMode As Integer
     Dim ChgMode As Boolean
@@ -423,12 +426,12 @@ End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
     With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hWnd, GWL_STYLE, Style
+        SetWindowLong .hwnd, GWL_STYLE, Style
     End With
 End Sub
 '---------------------------------------------------------------------------------------
