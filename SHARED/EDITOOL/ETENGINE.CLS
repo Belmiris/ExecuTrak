@@ -911,6 +911,14 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                                 bOkToAdd = True
                             End If
                         End If
+                    
+                        'david 02/02/2007  #543260
+                        If nTypeCode = "2" And m_nTFSTCount >= 0 Then
+                            If ciTemp.DestState <> "AR" Then
+                                bOkToAdd = False
+                            End If
+                        End If
+                        ''''''''''''''''''''''''''
                     End If
                     
                     If bOkToAdd Then
@@ -1041,8 +1049,12 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 'david 02/28/2006  #510885
                 ElseIf nTypeCode = "2" Then
                     If m_nTFSTCount >= 0 Then
-                        bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
-                            tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
+                        'david 02/02/2007  #543260
+                        If ciTemp.DestState = "AR" Then
+                            bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
+                                tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
+                        End If
+                        ''''''''''''''''''''''''''
                     Else
                         bOkToAdd = True
                     End If
