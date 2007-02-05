@@ -643,8 +643,10 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
     
-        'david 05/22/2006  #519078
-        If nTypeCode = "2" And m_nTFSTCount >= 0 Then
+       'david 05/22/2006  #519078, 543260
+       'need to consider external terminal first and then
+       'consider internal terminal later
+        If nTypeCode = "2" Then
             strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
             strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, t2.ivh_link, t2.ivh_prodtcl,"
             strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
@@ -658,12 +660,8 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL + " AND fmd_movement = fmmb_movement"
             strSQL = strSQL + " AND fmmb_bl_prodlnk = t1.ivh_link"
             strSQL = strSQL + " AND fmmb_dv_prodlnk = t2.ivh_link"
-            strSQL = strSQL + " AND ((fml_int_ext = 'E'"
-            strSQL = strSQL + " AND (" & fnAppenCriteria("t1.ivh_prodtcl", sTaxClass) & "))"
-            strSQL = strSQL + " OR"
-            strSQL = strSQL + " (fml_int_ext = 'I' AND fmd_dest_flag != 'I'"
-            strSQL = strSQL + " AND (" & fnAppenCriteria("t2.ivh_prodtcl", sTaxClass) & "))"
-            strSQL = strSQL + ")"
+            strSQL = strSQL + " AND fml_int_ext = 'E'"
+            strSQL = strSQL + " AND (" & fnAppenCriteria("t1.ivh_prodtcl", sTaxClass) & ")"
         Else
             strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
             strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, ivh_link, ivh_prodtcl,"
@@ -676,11 +674,9 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL + " AND fmm_movement = fmmb_movement"
             strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
             strSQL = strSQL + " AND fmd_movement = fmmb_movement"
-            
             strSQL = strSQL + " AND fmmb_bl_prodlnk = ivh_link"
             strSQL = strSQL + " AND (" & fnAppenCriteria("ivh_prodtcl", sTaxClass) & ")"
         End If
-        ''''''''''''''''''''''''''
         
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
@@ -698,6 +694,52 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp, vExtractFrom) Then
             Exit Function
         End If
+        
+        'david 02/02/2007  #519078, 543260
+        'this will take care of the situation where the internal locations
+        'are considered to be terminals:
+        '   * When the origin is an internal location,
+        '     if the origin State is equal to dest. State = AR,
+        '     the product reported needs to be based on the product sold (not the product received).
+        '     Otherwise, report the product received.
+        '
+        '   * If the fuel movement is an I to I, do not report the gallons.
+        If nTypeCode = "2" Then
+            strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fml_int_ext, fml_vendor,"
+            strSQL = strSQL + " fml_terminal, fml_date, fmmb_bl_line, t2.ivh_link, t2.ivh_prodtcl sls_prodtcl,"
+            strSQL = strSQL + " fmldt_trn, fmd_dest_code, fmd_prft_ctr, fmd_dest_flag,"
+            strSQL = strSQL + " fmmb_dv_vol namount, fmd_invoice, fmmb_dv_line,"
+            strSQL = strSQL + " t1.ivh_prodtcl pur_prodtcl"
+            strSQL = strSQL + " FROM fm_temp2, fm_mv_bal, fm_delivery, inv_header t1, inv_header t2"
+            strSQL = strSQL + " WHERE fmldt_line = fmmb_bl_line"
+            strSQL = strSQL + " AND fmldt_bl_nbr = fmmb_bl_nbr"
+            strSQL = strSQL + " AND fmm_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmd_invoice= fmmb_dv_nbr"
+            strSQL = strSQL + " AND fmd_movement = fmmb_movement"
+            strSQL = strSQL + " AND fmmb_bl_prodlnk = t1.ivh_link"
+            strSQL = strSQL + " AND fmmb_dv_prodlnk = t2.ivh_link"
+            strSQL = strSQL + " AND fml_int_ext = 'I' AND fmd_dest_flag != 'I'"
+            strSQL = strSQL + " AND ((" & fnAppenCriteria("t2.ivh_prodtcl", sTaxClass) & ")"
+            strSQL = strSQL + " OR (" & fnAppenCriteria("t1.ivh_prodtcl", sTaxClass) & "))"
+            
+            strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+            
+            Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+            
+            If rsTemp Is Nothing Then
+                m_nErrorNumber = EC_GET_RECORD_R
+                Exit Function
+            End If
+            
+            If fnCheckExitCancel Then
+                Exit Function
+            End If
+                
+            If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp, vExtractFrom, True, sTaxClass) Then
+                Exit Function
+            End If
+        End If
+        ''''''''''''''''''''''''''''''''''
     Else
         If nTypeCode = "7" Then
             'david 04/02/00
@@ -911,14 +953,6 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                                 bOkToAdd = True
                             End If
                         End If
-                    
-                        'david 02/02/2007  #543260
-                        If nTypeCode = "2" And m_nTFSTCount >= 0 Then
-                            If ciTemp.DestState <> "AR" Then
-                                bOkToAdd = False
-                            End If
-                        End If
-                        ''''''''''''''''''''''''''
                     End If
                     
                     If bOkToAdd Then
@@ -939,9 +973,13 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Set fnOpenFMTaxRecord = colTemp
 End Function
 
+'david 02/02/2007  #519078, 543260
+'Add Optional bInternalTerminal
 Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                                   rsTemp As Recordset, colTemp As Collection, _
-                                  Optional vExtractFrom) As Boolean
+                                  Optional vExtractFrom, _
+                                  Optional bInternalTerminal As Boolean = False, _
+                                  Optional sTaxClass As String = "") As Boolean
     
     Dim strSQL As String
     Dim ciTemp As ETFMTaxRecord
@@ -1048,16 +1086,29 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     End If
                 'david 02/28/2006  #510885
                 ElseIf nTypeCode = "2" Then
-                    If m_nTFSTCount >= 0 Then
-                        'david 02/02/2007  #543260
-                        If ciTemp.DestState = "AR" Then
-                            bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
-                                tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
+                    'david 02/02/2007  #543260
+                    If bInternalTerminal Then
+                        'check sls_prodtcl, pur_prodtcl in recordset
+                        If ciTemp.OriginState = ciTemp.DestState Then
+                            If InStr(sTaxClass, fnCStr(!sls_prodtcl)) > 0 Then
+                                bOkToAdd = True
+                            End If
+                        Else
+                            If InStr(sTaxClass, fnCStr(!pur_prodtcl)) > 0 Then
+                                bOkToAdd = True
+                            End If
                         End If
-                        ''''''''''''''''''''''''''
                     Else
                         bOkToAdd = True
                     End If
+                    
+                    If bOkToAdd Then
+                        If m_nTFSTCount >= 0 Then
+                            bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
+                                tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
+                        End If
+                    End If
+                    ''''''''''''''''''''''''''
                 ''''''''''''''''''''''''''
                 Else
                     If m_sTaxPaidOriginState = "" Then
