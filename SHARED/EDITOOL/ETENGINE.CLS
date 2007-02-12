@@ -1090,11 +1090,15 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     If bInternalTerminal Then
                         'check sls_prodtcl, pur_prodtcl in recordset
                         If ciTemp.OriginState = ciTemp.DestState Then
-                            If InStr(sTaxClass, fnCStr(!sls_prodtcl)) > 0 Then
+                            'david 02/12/2007  #543260
+                            If InStr(fnAddQuotes(sTaxClass), tfnSQLString(CStr(!sls_prodtcl))) > 0 Then
+                            ''''''''''''''''''''''''''
                                 bOkToAdd = True
                             End If
                         Else
-                            If InStr(sTaxClass, fnCStr(!pur_prodtcl)) > 0 Then
+                            'david 02/12/2007  #543260
+                            If InStr(fnAddQuotes(sTaxClass), tfnSQLString(fnCStr(!pur_prodtcl))) > 0 Then
+                            ''''''''''''''''''''''''''
                                 bOkToAdd = True
                             End If
                         End If
@@ -2106,3 +2110,26 @@ Private Function fnBuildFileHeaderID(sOutgoingOurGsID As String) As String
         & m_sMode & fnFixLength(sOutgoingOurGsID, 15), m_nLineLength)
     ''''''''''''''''''''''''''
 End Function
+
+'david 02/12/2007  #543260
+Private Function fnAddQuotes(sIn As String) As String
+
+    Dim ary() As String
+    Dim i As Integer
+    Dim sTemp As String
+    
+    ary = Split(sIn, ",")
+    
+    For i = 0 To UBound(ary)
+        If sTemp <> "" Then
+            sTemp = sTemp + ","
+        End If
+        
+        sTemp = sTemp + tfnSQLString(fnCStr(ary(i)))
+    Next i
+
+    fnAddQuotes = sTemp
+    
+End Function
+''''''''''''''''''''''''''
+
