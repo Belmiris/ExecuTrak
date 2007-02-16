@@ -580,6 +580,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
     Dim sTemp As String
     Dim colTemp As Collection
     Dim sType As String
+    Dim sLogMsg As String
 
     strSQL = "DROP TABLE fm_temp1"
     fnExecuteSQL strSQL, SUB_NAME
@@ -680,6 +681,15 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
+        #If LOG_543260 Then
+            If nTypeCode = "2" Then
+                sLogMsg = "Schedule 2, first SQL:"
+                subLog543260 sLogMsg
+                subLog543260 strSQL
+            End If
+        #End If
+            
+        
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
         If rsTemp Is Nothing Then
@@ -723,6 +733,12 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             strSQL = strSQL + " OR (" & fnAppenCriteria("t1.ivh_prodtcl", sTaxClass) & "))"
             
             strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
+            
+            #If LOG_543260 Then
+                sLogMsg = "Schedule 2, second SQL:"
+                subLog543260 sLogMsg
+                subLog543260 strSQL
+            #End If
             
             Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
             
@@ -988,6 +1004,7 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
     Dim sInfo3 As String
     Dim sTemp As String
     Dim sType As String
+    Dim sLogMsg As String
     
     m_nErrorNumber = EC_INITIAL
     
@@ -1088,19 +1105,40 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                 ElseIf nTypeCode = "2" Then
                     'david 02/02/2007  #543260
                     If bInternalTerminal Then
-                        'check sls_prodtcl, pur_prodtcl in recordset
-                        If ciTemp.OriginState = ciTemp.DestState Then
-                            'david 02/12/2007  #543260
-                            If InStr(fnAddQuotes(sTaxClass), tfnSQLString(CStr(!sls_prodtcl))) > 0 Then
-                            ''''''''''''''''''''''''''
-                                bOkToAdd = True
+                        If ciTemp.OriginState = "AR" Then
+                            'check sls_prodtcl, pur_prodtcl in recordset
+                            If ciTemp.OriginState = ciTemp.DestState Then
+                                'david 02/12/2007  #543260
+                                If InStr(fnAddQuotes(sTaxClass), tfnSQLString(fnCStr(!sls_prodtcl))) > 0 Then
+                                ''''''''''''''''''''''''''
+                                    bOkToAdd = True
+                                End If
+                            Else
+                                'david 02/12/2007  #543260
+                                If InStr(fnAddQuotes(sTaxClass), tfnSQLString(fnCStr(!pur_prodtcl))) > 0 Then
+                                ''''''''''''''''''''''''''
+                                    bOkToAdd = True
+                                End If
                             End If
-                        Else
-                            'david 02/12/2007  #543260
-                            If InStr(fnAddQuotes(sTaxClass), tfnSQLString(fnCStr(!pur_prodtcl))) > 0 Then
-                            ''''''''''''''''''''''''''
-                                bOkToAdd = True
-                            End If
+                        
+                            #If LOG_543260 Then
+                                'log the tax record if not file
+                                If bOkToAdd Then
+                                    sLogMsg = "111-"
+                                Else
+                                    sLogMsg = "000-"
+                                End If
+                                
+                                sLogMsg = sLogMsg + "ItoE: mvmnt=" & tfnRound(ciTemp.Movement) & _
+                                    ",lading=" & tfnRound(ciTemp.LadingNumber) & ",terminal=" & _
+                                    tfnRound(!fml_terminal) & ",cust=" & tfnRound(!fmd_dest_code) & _
+                                    ",origin ST=" & ciTemp.OriginState & _
+                                    ",dest ST=" & ciTemp.DestState & _
+                                    ",pur_prodtcl=" & tfnSQLString(fnCStr(!pur_prodtcl)) & _
+                                    ",sls_prodtcl=" & tfnSQLString(fnCStr(!sls_prodtcl))
+                                
+                                subLog543260 sLogMsg
+                            #End If
                         End If
                     Else
                         bOkToAdd = True
@@ -1110,6 +1148,17 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                         If m_nTFSTCount >= 0 Then
                             bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
                                 tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
+                            
+                            #If LOG_543260 Then
+                                'log the tax record if not file
+                                If Not bOkToAdd Then
+                                    sLogMsg = "000-TaxFree: mvmnt=" & tfnRound(!fmm_movement) & _
+                                        ",lading=" & tfnRound(ciTemp.LadingNumber) & _
+                                        ",invoice=" & tfnRound(!fmd_invoice) & _
+                                        ",dv_line=" & tfnRound(!fmmb_dv_line)
+                                    subLog543260 sLogMsg
+                                End If
+                            #End If
                         End If
                     End If
                     ''''''''''''''''''''''''''
