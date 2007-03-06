@@ -23,7 +23,7 @@ Public Type TransferActivityRecord
     BytesTransfered As Variant
 End Type
 
-Private Const INFINITE = &HFFFF&
+Private Const INFINITE = &HFFFFF
 Private Const SYNCHRONIZE = &H100000
 
 Private Declare Function WaitForSingleObject Lib "kernel32" ( _
