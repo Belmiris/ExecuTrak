@@ -23,9 +23,14 @@ Private m_sFormID As String
 
 Private m_lLockedSerial As Long
 Private m_sLockedData As String
+
+Private m_bWriteToLogFile As Boolean
+Const szLogFileDir As String = "C:\FACTOR\LOG"
+Const szLogFilename As String = "C:\FACTOR\LOG\LOCKLOCALDB.LOG"
 '
 
-Public Sub Initialize(formMain As Form, sID As String)
+Public Sub Initialize(formMain As Form, sID As String, Optional bWriteToLogFile As Boolean = False)
+    
     Set m_frmFormMain = formMain
     
     If sID = "" Then
@@ -35,8 +40,25 @@ Public Sub Initialize(formMain As Form, sID As String)
     End If
     
     subDeleteOldLocks
-    
     m_lLockedSerial = 0
+
+    
+    m_bWriteToLogFile = bWriteToLogFile
+    
+    If fnCheckAndCreateDirectory(szLogFileDir, False) <> "" Then
+        m_bWriteToLogFile = False
+    End If
+    
+    If m_bWriteToLogFile Then
+        If Dir(szLogFilename) <> "" Then
+            'delete the log file if over 2 MB
+            If CDbl(FileLen(szLogFilename)) > 2# * 1024# * 1024# Then
+                On Error Resume Next
+                Kill szLogFilename
+            End If
+        End If
+    End If
+    
 End Sub
 
 Private Sub Class_Terminate()
@@ -126,15 +148,22 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                             Exit Do
                     End If
             Else
-                #If DEBUG_LOG Then
-                    If Not objDebugLog Is Nothing Then
-                        objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                If m_bWriteToLogFile Then
+                        tfnLog "User " + tfnGetUserName() + ": Local Database " _
+                            + tfnSQLString(tfnGetDataSourceName()) _
+                            + " is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                            fnCStr(rsTemp!srl_table) + "] - ABORTED.", szLogFilename
+                Else
+                    #If DEBUG_LOG Then
+                        If Not objDebugLog Is Nothing Then
+                            objDebugLog.LogMsg "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                                fnCStr(rsTemp!srl_table) + "] - ABORTED."
+                        End If
+                    #Else
+                        tfnLog_Event nEventLvl, "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
                             fnCStr(rsTemp!srl_table) + "] - ABORTED."
-                    End If
-                #Else
-                    tfnLog_Event nEventLvl, "Local Database is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
-                        fnCStr(rsTemp!srl_table) + "] - ABORTED."
-                #End If
+                    #End If
+                End If
                 
                 m_lLockedSerial = 0
                 sExtraData = ""
@@ -150,15 +179,22 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                 "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED.", False
         End If
         
-        #If DEBUG_LOG Then
-            If Not objDebugLog Is Nothing Then
-                objDebugLog.LogMsg "Local Database is currently in use by user " + _
+        If m_bWriteToLogFile Then
+                tfnLog "User " + tfnGetUserName() + ": Local Database " _
+                    + tfnSQLString(tfnGetDataSourceName()) _
+                    + " is currently in use by " + fnCStr(rsTemp!srl_user_id) + "[" + _
+                    fnCStr(rsTemp!srl_table) + "] - PROCEEDED.", szLogFilename
+        Else
+            #If DEBUG_LOG Then
+                If Not objDebugLog Is Nothing Then
+                    objDebugLog.LogMsg "Local Database is currently in use by user " + _
+                        "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
+                End If
+            #Else
+                tfnLog_Event nEventLvl, "Local Database is currently in use by user " + _
                     "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
-            End If
-        #Else
-            tfnLog_Event nEventLvl, "Local Database is currently in use by user " + _
-                "[" + fnCStr(rsTemp!srl_table) + "] - PROCEEDED."
-        #End If
+            #End If
+        End If
         
         strSQL = "UPDATE sys_row_lock SET srl_table = " + tfnSQLString(lHWnd)
         strSQL = strSQL + ", srl_prog_id = " + tfnSQLString(m_sFormID)
@@ -240,7 +276,7 @@ errTrap:
 End Function
 
 Public Sub UnlockLocalTable()
-    Const SUB_NAME As String = "LockLocalTable"
+    Const SUB_NAME As String = "UnlockLocalTable"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -310,6 +346,11 @@ Public Function CheckLockLocalTable(Optional bShowMsgBox As Boolean = True) As B
         If bShowMsgBox Then
             MsgBox "Local Database Lock is lost!", vbCritical
         End If
+            
+        If m_bWriteToLogFile Then
+            tfnLog "User " + tfnGetUserName() + ": Local Database Lock is lost!", szLogFilename
+        End If
+        
         m_lLockedSerial = 0
         Exit Function
     End If
@@ -321,6 +362,10 @@ Public Function CheckLockLocalTable(Optional bShowMsgBox As Boolean = True) As B
         If bShowMsgBox Then
             MsgBox "Local Database Lock is lost! " + vbCrLf + vbCrLf + "Local Database is now in use by " + _
                 fnCStr(rsTemp!srl_user_id) + "[" + fnCStr(rsTemp!srl_table) + "].", vbCritical
+            
+            If m_bWriteToLogFile Then
+                tfnLog "User " + tfnGetUserName() + ": Local Database Lock is lost!", szLogFilename
+            End If
         End If
         m_lLockedSerial = 0
         Exit Function
@@ -337,6 +382,10 @@ errTrap:
     'SOMETHING WRONG???!!!
     If bShowMsgBox Then
         MsgBox "Failed to check the lock." + vbCrLf + vbCrLf + "Please report this message to Support.", vbCritical
+    End If
+            
+    If m_bWriteToLogFile Then
+        tfnLog "User " + tfnGetUserName() + ": Failed to check the lock!", szLogFilename
     End If
 End Function
 
@@ -453,7 +502,7 @@ Public Function GetLockData(Optional sCriteria As String = "") As String
 End Function
 
 Private Sub subDeleteOldLocks()
-    Const SUB_NAME As String = "LockLocalTable"
+    Const SUB_NAME As String = "subDeleteOldLocks"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -587,3 +636,66 @@ End Function
 Private Function fnCStr(sIn) As String
     fnCStr = Trim(sIn & "")
 End Function
+
+Private Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
+    Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
+    
+    fnCheckAndCreateDirectory = ""
+    
+    On Error Resume Next
+    sTmpDir = Dir(sDir, vbDirectory)
+    
+    If sTmpDir <> "" Then
+        Exit Function
+    End If
+    
+    If bPromptForCreate Then
+        If MsgBox("Directory '" + sDir + "' does not exist.  Do you want to create it?", vbQuestion + vbYesNo) = vbNo Then
+            fnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
+            Exit Function
+        End If
+    End If
+    
+    If Right(sDir, 1) <> "\" Then sDir = sDir + "\"
+    
+    nPosi = InStr(sDir, ":\")
+    If nPosi > 0 Then
+        sDrive = Left(sDir, nPosi)
+        sDir = Mid(sDir, nPosi + 2)
+    End If
+    
+    sParentDir = sDrive
+    
+    On Error Resume Next
+    nPosi = InStr(sDir, "\")
+    
+    While nPosi > 0
+        sParentDir = sParentDir + "\" + Left(sDir, nPosi - 1)
+        
+        On Error Resume Next
+        sTmpDir = Dir(sParentDir, vbDirectory)
+        
+        If sTmpDir = "" Then  'directory does not exist, create it
+            On Error GoTo errTrap
+            MkDir sParentDir
+        End If
+        
+        sTmpDir = Mid(sDir, nPosi + 1)
+        
+        sDir = sTmpDir
+        
+        nPosi = 0
+        nPosi = InStr(sDir, "\")
+    Wend
+    
+    Exit Function
+
+errTrap:
+    If Not objErrHandler Is Nothing Then
+        tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
+    End If
+    
+    fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
+End Function
+
+
