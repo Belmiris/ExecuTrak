@@ -656,8 +656,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -689,7 +689,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -760,10 +760,10 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
+Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
-                          Optional ByVal Field As String = vbNullString, _
+                          Optional ByVal field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -772,21 +772,21 @@ Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
     
     On Error GoTo ErrorHandler
     
-    FileName = Trim$(UCase$(FileName))
+    Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
-    Field = Trim$(UCase$(Field))
+    field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & FileName & "')" _
+        & " WHERE (INI_File_Name='" & Filename & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
     Else
         SQL = SQL & "   AND ((INI_User_ID ='') OR (INI_User_ID IS NULL))"
     End If
-    If LenB(Field) Then
-        SQL = SQL & " AND (INI_Field_Name='" & Field & "')"
+    If LenB(field) Then
+        SQL = SQL & " AND (INI_Field_Name='" & field & "')"
     End If
     
     t_dbMainDatabase.ExecuteSQL SQL
@@ -977,9 +977,9 @@ End Function
 'Return   : (1)szEmpty --- no access at all
 '           (2)E       --- Editable
 '           (3)V       --- View Only
+'           (4)R       --- Restrict (Allow Invoice entry, but not change AR Master information)
 
-Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
-                                Optional vUser As Variant) As String
+Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As Variant, Optional bIsMasterCalled As Boolean = False) As String
         
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -1015,7 +1015,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1044,6 +1044,16 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, _
                      End If
                  End If
              End If
+             
+             If sAccess = "R" Then
+                If bIsMasterCalled Then
+                    sAccess = "V"
+                Else
+                    sAccess = "E"
+                End If
+                
+             End If
+             
         End If
     Else ' if this future is off, user has full access
         sAccess = "E"
@@ -1465,12 +1475,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1601,7 +1611,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1746,7 +1756,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1754,7 +1764,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2289,7 +2299,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2550,14 +2560,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -3072,7 +3082,7 @@ End Function
 
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
-                           sSQL As String, _
+                           sSql As String, _
                            Optional vShowMsg As Variant, _
                            Optional sLockedUser As String = "") As Boolean
 
@@ -3103,7 +3113,7 @@ Public Function tfnLockRow(sProgramID As String, _
         If Trim(sProgramID) = "" Then
             MsgBox "You have to provide the program ID to lock a row", , sErrID
         End If
-        If Trim(sSQL) = "" Then
+        If Trim(sSql) = "" Then
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
@@ -3120,16 +3130,16 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQL = UCase(sSQL)
+    strSQL = UCase(sSql)
     nPos2 = InStr(strSQL, " WHERE ")
     If nPos2 > 0 Then
         nPos1 = InStr(strSQL, " ORDER ")
         If nPos1 = 0 Then
-            nPos1 = Len(sSQL) + 1
+            nPos1 = Len(sSql) + 1
         End If
-        sCriteria = Mid(sSQL, nPos2 + 7, nPos1 - nPos2 - 7)
+        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
     Else
-        sCriteria = sSQL
+        sCriteria = sSql
     End If
     
     #If DEVELOP Then
@@ -3232,7 +3242,7 @@ End Function
 '##############################################################################
 Public Function tfnLockRow_EX(sProgramID As String, _
                               sTable As String, _
-                              sSQL As String, _
+                              sSql As String, _
                               Optional vShowMsg As Variant, _
                               Optional sLockedUser As String = "", _
                               Optional sUserID As String = "") As Boolean
@@ -3255,7 +3265,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3270,7 +3280,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    If Trim(sSQL) = "" Then
+    If Trim(sSql) = "" Then
         MsgBox "Locking Criteria is missing when try to lock a row.", , SUB_NAME
         Exit Function
     End If
@@ -3301,7 +3311,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    sLockCriteria = sSQL
+    sLockCriteria = sSql
     
     If Len(sLockCriteria) > 80 Then
         MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field Names", vbOKOnly
@@ -3472,7 +3482,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3977,7 +3987,7 @@ ErrorTrap:
 End Function
 
 'Vijaya on 02/05/04 Magic#395302
-Public Function tfnFix_tx_table(sSQL As String, _
+Public Function tfnFix_tx_table(sSql As String, _
                                     Optional bUseDate As Boolean = True) As String
     Const FUNC_NAME As String = "tfnFix_tx_table"
 #If Not NO_DST Then
@@ -3994,7 +4004,7 @@ Public Function tfnFix_tx_table(sSQL As String, _
     Const sNewTableDet As String = "tx_detail"
     Static vColumArr(15, 1)
     
-    If sSQL = "" Then Exit Function
+    If sSql = "" Then Exit Function
     On Error GoTo SQLError
 
     If vColumArr(0, 0) = "" Then
@@ -4032,12 +4042,12 @@ Public Function tfnFix_tx_table(sSQL As String, _
         vColumArr(15, 1) = "txd_base_txble_amt"
     End If
     
-    nPos = InStr(1, LCase(sSQL), " where ")
+    nPos = InStr(1, LCase(sSql), " where ")
     If nPos > 0 Then
-        strSQL = Mid(sSQL, 1, nPos - 1)
-        strSQL1 = Mid(sSQL, nPos + 7)
+        strSQL = Mid(sSql, 1, nPos - 1)
+        strSQL1 = Mid(sSql, nPos + 7)
     Else
-        strSQL = sSQL
+        strSQL = sSql
         strSQL1 = ""
     End If
     bAllFields = InStr(1, strSQL, " * ") > 0
@@ -4122,10 +4132,10 @@ SQLError:
             tfnErrHandler FUNC_NAME, strSQL, False
         End If
     #End If
-    tfnFix_tx_table = sSQL
+    tfnFix_tx_table = sSql
     Resume quitfunc
 #Else
-    tfnFix_tx_table = sSQL
+    tfnFix_tx_table = sSql
 #End If
 End Function
 ''''''''''''''''''''''''''''''''
