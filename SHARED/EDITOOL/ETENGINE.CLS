@@ -355,7 +355,7 @@ Property Get ErrorFree() As Integer
     ErrorFree = EC_INITIAL
 End Property
 
-Property Let FileName(sTemp As String)
+Property Let Filename(sTemp As String)
     m_sFileName = sTemp
 End Property
 
@@ -681,13 +681,13 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
-        #If LOG_543260 Then
-            If nTypeCode = "2" Then
-                sLogMsg = "Schedule 2, first SQL:"
-                subLog543260 sLogMsg
-                subLog543260 strSQL
-            End If
-        #End If
+'''        #If LOG_543260 Then
+'''            If nTypeCode = "2" Then
+'''                sLogMsg = "Schedule 2, first SQL:"
+'''                subLog543260 sLogMsg
+'''                subLog543260 strSQL
+'''            End If
+'''        #End If
             
         
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
@@ -734,11 +734,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             
             strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
             
-            #If LOG_543260 Then
-                sLogMsg = "Schedule 2, second SQL:"
-                subLog543260 sLogMsg
-                subLog543260 strSQL
-            #End If
+'''            #If LOG_543260 Then
+'''                sLogMsg = "Schedule 2, second SQL:"
+'''                subLog543260 sLogMsg
+'''                subLog543260 strSQL
+'''            #End If
             
             Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
             
@@ -838,6 +838,14 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         strSQL = strSQL & " ORDER BY fmldt_bl_nbr"
         
         m_nErrorNumber = EC_GET_RECORD_R
+
+        #If LOG_543260 Then
+            If nTypeCode = "7" Then
+                sLogMsg = "Schedule 7, SQL:"
+                subLog543260 sLogMsg
+                subLog543260 strSQL
+            End If
+        #End If
 
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         
@@ -1075,6 +1083,13 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!fmldt_trn), _
                         fnCStr(!fmd_dest_flag))
                     ciTemp.LadingDate = tfnFormatDate(!fmd_date)
+                
+                    #If LOG_543260 Then
+                        If nTypeCode = "7" Then
+                            sLogMsg = "BuySellCode = " & ciTemp.BuySellCode & ", ciTemp.BuySellName = " & ciTemp.BuySellName & ", ciTemp.BuySellFedID = " & ciTemp.BuySellFedID & ", " & fnCStr(!fmd_dest_flag)
+                            subLog543260 sLogMsg
+                        End If
+                    #End If
                 End If
                 
                 ciTemp.DetailType = m_sEDIType
@@ -1121,24 +1136,24 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                                 End If
                             End If
                         
-                            #If LOG_543260 Then
-                                'log the tax record if not file
-                                If bOkToAdd Then
-                                    sLogMsg = "111-"
-                                Else
-                                    sLogMsg = "000-"
-                                End If
-                                
-                                sLogMsg = sLogMsg + "ItoE: mvmnt=" & tfnRound(ciTemp.Movement) & _
-                                    ",lading=" & tfnRound(ciTemp.LadingNumber) & ",terminal=" & _
-                                    tfnRound(!fml_terminal) & ",cust=" & tfnRound(!fmd_dest_code) & _
-                                    ",origin ST=" & ciTemp.OriginState & _
-                                    ",dest ST=" & ciTemp.DestState & _
-                                    ",pur_prodtcl=" & tfnSQLString(fnCStr(!pur_prodtcl)) & _
-                                    ",sls_prodtcl=" & tfnSQLString(fnCStr(!sls_prodtcl))
-                                
-                                subLog543260 sLogMsg
-                            #End If
+'''                            #If LOG_543260 Then
+'''                                'log the tax record if not file
+'''                                If bOkToAdd Then
+'''                                    sLogMsg = "111-"
+'''                                Else
+'''                                    sLogMsg = "000-"
+'''                                End If
+'''
+'''                                sLogMsg = sLogMsg + "ItoE: mvmnt=" & tfnRound(ciTemp.Movement) & _
+'''                                    ",lading=" & tfnRound(ciTemp.LadingNumber) & ",terminal=" & _
+'''                                    tfnRound(!fml_terminal) & ",cust=" & tfnRound(!fmd_dest_code) & _
+'''                                    ",origin ST=" & ciTemp.OriginState & _
+'''                                    ",dest ST=" & ciTemp.DestState & _
+'''                                    ",pur_prodtcl=" & tfnSQLString(fnCStr(!pur_prodtcl)) & _
+'''                                    ",sls_prodtcl=" & tfnSQLString(fnCStr(!sls_prodtcl))
+'''
+'''                                subLog543260 sLogMsg
+'''                            #End If
                         End If
                     Else
                         bOkToAdd = True
@@ -1149,16 +1164,16 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                             bOkToAdd = Not fnIsTaxFreeSale(tfnRound(!fmm_movement), _
                                 tfnRound(!fmd_invoice), tfnRound(!fmmb_dv_line))
                             
-                            #If LOG_543260 Then
-                                'log the tax record if not file
-                                If Not bOkToAdd Then
-                                    sLogMsg = "000-TaxFree: mvmnt=" & tfnRound(!fmm_movement) & _
-                                        ",lading=" & tfnRound(ciTemp.LadingNumber) & _
-                                        ",invoice=" & tfnRound(!fmd_invoice) & _
-                                        ",dv_line=" & tfnRound(!fmmb_dv_line)
-                                    subLog543260 sLogMsg
-                                End If
-                            #End If
+'''                            #If LOG_543260 Then
+'''                                'log the tax record if not file
+'''                                If Not bOkToAdd Then
+'''                                    sLogMsg = "000-TaxFree: mvmnt=" & tfnRound(!fmm_movement) & _
+'''                                        ",lading=" & tfnRound(ciTemp.LadingNumber) & _
+'''                                        ",invoice=" & tfnRound(!fmd_invoice) & _
+'''                                        ",dv_line=" & tfnRound(!fmmb_dv_line)
+'''                                    subLog543260 sLogMsg
+'''                                End If
+'''                            #End If
                         End If
                     End If
                     ''''''''''''''''''''''''''
@@ -1800,6 +1815,73 @@ Private Function fnVendorTaxID(ByVal lVendor As Long, _
     
 End Function
 
+'david 07/10/2007  #562432
+'the cache didn't work!!!
+'''Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
+'''                                 ByVal lTrn As Long, _
+'''                                 sEI As String) As String
+'''
+'''    Const SUB_NAME = "fnCustomerTaxID"
+'''    Dim i As Integer
+'''
+'''    fnCustomerTaxID = ""
+'''    For i = 0 To nCTaxIDCount - 1
+'''        If lCustomer = aryCustomerTaxID(i).m_lCustomer Then
+'''            If lTrn = aryCustomerTaxID(i).m_lTrnLink Then
+'''                fnCustomerTaxID = aryCustomerTaxID(i).m_sTaxID
+'''                Exit Function
+'''            End If
+'''        End If
+'''    Next i
+'''
+'''    Dim strSQL As String
+'''    Dim rsTemp As Recordset
+'''
+'''    If nCTaxIDCount = 0 Then
+'''        ReDim aryCustomerTaxID(ARRAY_INC)
+'''    Else
+'''        If UBound(aryCustomerTaxID) < nCTaxIDCount Then
+'''            ReDim Preserve aryCustomerTaxID(nCTaxIDCount + ARRAY_INC)
+'''        End If
+'''    End If
+'''
+'''    aryCustomerTaxID(nCTaxIDCount).m_lCustomer = lCustomer
+'''    aryCustomerTaxID(nCTaxIDCount).m_lTrnLink = lTrn
+'''    aryCustomerTaxID(nCTaxIDCount).m_sTaxID = ""
+'''
+'''    If sEI = "E" Then
+'''        strSQL = "SELECT txcp_permit FROM tx_cust_prmt" _
+'''               & " WHERE txcp_customer = " & CStr(lCustomer) _
+'''               & " AND txcp_trn = " & CStr(lTrn)
+'''
+'''        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+'''        If Not rsTemp Is Nothing Then
+'''            If rsTemp.RecordCount > 0 Then
+'''                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnCStr(rsTemp!txcp_permit))
+'''            End If
+'''        End If
+'''    Else
+'''        'david 03/28/00
+'''        'get the fein from tx_term
+'''        strSQL = "SELECT txtm_fein FROM tx_term" _
+'''               & " WHERE txtm_code = " & CStr(lCustomer) _
+'''               & " AND txtm_type = 'P'"
+'''
+'''        Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+'''        If Not rsTemp Is Nothing Then
+'''            If rsTemp.RecordCount > 0 Then
+'''                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(rsTemp!txtm_fein)
+'''            Else
+'''                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnGetSysParm(9008))
+'''            End If
+'''        End If
+'''    End If
+'''
+'''    fnCustomerTaxID = aryCustomerTaxID(nCTaxIDCount).m_sTaxID
+'''    nCTaxIDCount = nCTaxIDCount + 1
+'''
+'''End Function
+
 Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
                                  ByVal lTrn As Long, _
                                  sEI As String) As String
@@ -1808,29 +1890,9 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
     Dim i As Integer
     
     fnCustomerTaxID = ""
-    For i = 0 To nCTaxIDCount - 1
-        If lCustomer = aryCustomerTaxID(i).m_lCustomer Then
-            If lTrn = aryCustomerTaxID(i).m_lTrnLink Then
-                fnCustomerTaxID = aryCustomerTaxID(i).m_sTaxID
-                Exit Function
-            End If
-        End If
-    Next i
 
     Dim strSQL As String
     Dim rsTemp As Recordset
-    
-    If nCTaxIDCount = 0 Then
-        ReDim aryCustomerTaxID(ARRAY_INC)
-    Else
-        If UBound(aryCustomerTaxID) < nCTaxIDCount Then
-            ReDim Preserve aryCustomerTaxID(nCTaxIDCount + ARRAY_INC)
-        End If
-    End If
-    
-    aryCustomerTaxID(nCTaxIDCount).m_lCustomer = lCustomer
-    aryCustomerTaxID(nCTaxIDCount).m_lTrnLink = lTrn
-    aryCustomerTaxID(nCTaxIDCount).m_sTaxID = ""
     
     If sEI = "E" Then
         strSQL = "SELECT txcp_permit FROM tx_cust_prmt" _
@@ -1840,7 +1902,7 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         If Not rsTemp Is Nothing Then
             If rsTemp.RecordCount > 0 Then
-                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnCStr(rsTemp!txcp_permit))
+                fnCustomerTaxID = fnConvertFEDID(fnCStr(rsTemp!txcp_permit))
             End If
         End If
     Else
@@ -1853,15 +1915,12 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
         Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
         If Not rsTemp Is Nothing Then
             If rsTemp.RecordCount > 0 Then
-                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(rsTemp!txtm_fein)
+                fnCustomerTaxID = fnConvertFEDID(rsTemp!txtm_fein)
             Else
-                aryCustomerTaxID(nCTaxIDCount).m_sTaxID = fnConvertFEDID(fnGetSysParm(9008))
+                fnCustomerTaxID = fnConvertFEDID(fnGetSysParm(9008))
             End If
         End If
     End If
-    
-    fnCustomerTaxID = aryCustomerTaxID(nCTaxIDCount).m_sTaxID
-    nCTaxIDCount = nCTaxIDCount + 1
     
 End Function
 
