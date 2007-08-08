@@ -2995,7 +2995,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3759,6 +3759,9 @@ End Sub
 '#T-Tax 4GL gives
 Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                                ByVal texas_diverted As Boolean)
+    'david 08/07/2007  #564691
+    Dim tax_date        As Date
+    ''''''''''''''''''''''''''
     Dim atax_tot        As Double
     Dim atax_new        As Double
     Dim atax_inv        As Double
@@ -3823,6 +3826,14 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     x = -1
     ReDim Preserve aryLDF(ldf_cnt + 10)
     
+    'david 08/07/2007  #564691
+    If Not IsDate(t_tax_date) Then
+        tax_date = Date
+    Else
+        tax_date = t_tax_date
+    End If
+    ''''''''''''''''''''''''''
+    
     Do While True
         If tfnRound(atax_tot, 2) = 0 And texas_diverted Then
             Exit Do
@@ -3841,22 +3852,53 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = 10#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 10#
+                Else
+                    atax_inv = 3.75
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = 20#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 20#
+                Else
+                    atax_inv = 7.5
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = 30#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 30#
+                Else
+                    atax_inv = 11.75
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = 40#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 40#
+                Else
+                    atax_inv = 15#
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = 20#
-                atax_inv = 40#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    incr_amt = 20#
+                    atax_inv = 40#
+                Else
+                    incr_amt = 7.5
+                    atax_inv = 15#
+                End If
+                ''''''''''''''''''''''''''
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -3910,22 +3952,53 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 gal_wrk = 8000
             End If
             If gal_wrk < 2500 Then
-                atax_inv = 10#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 10#
+                Else
+                    atax_inv = 3.75
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 2500 And gal_wrk < 5000 Then
-                atax_inv = 20#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 20#
+                Else
+                    atax_inv = 7.5
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 5000 And gal_wrk < 8000 Then
-                atax_inv = 30#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 30#
+                Else
+                    atax_inv = 11.75
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 8000 And gal_wrk < 10000 Then
-                atax_inv = 40#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    atax_inv = 40#
+                Else
+                    atax_inv = 15#
+                End If
+                ''''''''''''''''''''''''''
             End If
             If gal_wrk >= 10000 Then
                 low_end = 10000
                 incr_qty = 5000
-                incr_amt = 20#
-                atax_inv = 40#
+                'david 08/07/2007  #564691
+                If tax_date < #9/1/2007# Then
+                    incr_amt = 20#
+                    atax_inv = 40#
+                Else
+                    incr_amt = 7.5
+                    atax_inv = 15#
+                End If
+                ''''''''''''''''''''''''''
                 Do While True
                     high_end = low_end + incr_qty
                     atax_inv = atax_inv + incr_amt
@@ -3971,154 +4044,6 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
 Stop_Monkey_Around:
     MsgBox "An Error Occurred In Calculating Loading Fees. Error Description: " & Err.Description
 End Sub
-
-''''#based on the Total Gallons of the BOL, find the A Tax
-''''#Then prorate it
-'''Private Sub subProrateBOLATax(ByVal lBOL As Long, _
-'''                              ByVal nLadDCnt As Integer, _
-'''                              ByRef Texas_Tax As Boolean, _
-'''                              ByRef sTaxState As String)
-'''    Dim i As Integer
-'''    Dim j As Integer
-'''    Dim nLadDIdx As Integer
-'''    Dim lFuelAmount As Long
-'''    Dim lTaxableAmount As Long
-'''    Dim lGasAmount As Long
-'''    Dim sParm1055 As String
-'''    Dim fTaxes As Double
-'''    Dim fTaxRate As Double
-'''    Dim sTaxGroup As String
-'''    Dim nIdx As Integer
-'''    Dim lUnits() As Long
-'''    Dim fTypeATaxes() As Double
-'''
-'''    Dim nSign As Integer
-'''
-'''    If nInfoCount <= 0 Or nLadDCnt <= 0 Then
-'''        Exit Sub
-'''    End If
-'''    ReDim fTypeATaxes(nLadDCnt - 1) As Double
-'''    ReDim lUnits(nLadDCnt - 1) As Long
-'''
-'''    sParm1055 = "NONE"
-'''
-'''    For nLadDIdx = 0 To nLadDCnt - 1
-'''        nTaxItems = 0
-'''        lFuelAmount = 0
-'''        lGasAmount = 0
-'''        For nIdx = 0 To nInfoCount - 1
-'''            With aryTaxInfo(nIdx)
-'''                If .m_lInvoice = lBOL Then
-'''                    For i = 0 To .m_nRecord - 1
-'''                        If .m_Taxes(i).m_cCharge = vbKeyY Or .m_Taxes(i).m_cCharge = vbKeyC Then
-'''                            If .m_Taxes(i).m_cBasis = vbKeyA Then
-'''                                For j = 0 To nTaxItems - 1
-'''                                    If arryTaxSums(j).m_lTrn = .m_Taxes(i).m_lTrn Then
-'''                                        Exit For
-'''                                    End If
-'''                                Next j
-'''                                If j = nTaxItems Then
-'''                                    If UBound(arryTaxSums) < nTaxItems Then
-'''                                        ReDim Preserve arryTaxSums(UBound(arryTaxSums) + ARRAY_SIZE_INC)
-'''                                    End If
-'''                                    arryTaxSums(j).m_lTrn = .m_Taxes(i).m_lTrn
-'''                                    arryTaxSums(j).m_lLimit = .m_Taxes(i).m_lLimit
-'''                                    arryTaxSums(j).m_cBasis = .m_Taxes(i).m_cBasis
-'''                                    arryTaxSums(j).m_fAmount = .m_Taxes(i).m_dAmount
-'''                                    arryTaxSums(j).m_fRate = .m_Taxes(i).m_fRate
-'''                                    arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
-'''                                    nTaxItems = nTaxItems + 1
-'''                                Else
-'''                                    arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
-'''                                End If
-'''                                If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
-'''                                    sParm1055 = sSysParm1055
-'''                                End If
-'''                            End If
-'''                        End If
-'''                        If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS And .m_Taxes(i).m_cCharge <> vbKeyN Then
-'''                            Texas_Tax = True
-'''                        End If
-'''                    Next i
-'''
-'''                    sTaxGroup = fnGetTaxGroup(.m_InputParms.m_sProduct)
-'''
-'''                    If sTaxGroup <> sParm1055 Then
-'''                        lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
-'''                    End If
-'''
-'''                    lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
-'''                End If
-'''            End With
-'''        Next nIdx
-'''        If nTaxItems > 0 Then
-'''            nSign = 1
-'''            If lFuelAmount < 0 Then
-'''                nSign = -1
-'''                lFuelAmount = Abs(lFuelAmount)
-'''                lGasAmount = Abs(lGasAmount)
-'''            End If
-'''            lTaxableAmount = lFuelAmount
-'''
-'''            If Texas_Tax Then
-'''                If lGasAmount = lFuelAmount Then
-'''                    If lGasAmount >= 7000 And lGasAmount < 8000 Then
-'''                        lTaxableAmount = 8000
-'''                    End If
-'''                End If
-'''            End If
-'''            fTypeATaxes(nLadDIdx) = arryTaxSums(nTaxItems - 1).m_lLimit
-'''            For i = 0 To nTaxItems - 1
-'''                If lTaxableAmount < Abs(arryTaxSums(i).m_lLimit) Then
-'''                    fTypeATaxes(nLadDIdx) = arryTaxSums(i).m_fRate * nSign
-'''                    Exit For
-'''                End If
-'''            Next i
-'''
-'''            lUnits(nLadDIdx) = lFuelAmount * nSign
-'''        Else
-'''            fTypeATaxes(nLadDIdx) = 0
-'''        End If
-'''
-'''    Next nLadDIdx
-'''
-'''    fTaxes = 0
-'''    For nLadDIdx = 0 To UBound(fTypeATaxes)
-'''        fTaxes = fTaxes + tfnRound(fTypeATaxes(nLadDIdx), 2)
-'''    Next
-'''
-'''    If fTaxes <> 0 Then
-'''        'Now Need to redistribute to the individual line amount
-'''        For nLadDIdx = 0 To nLadDCnt - 1
-'''            If fTypeATaxes(nLadDIdx) <> 0 Then
-'''                If lUnits(nLadDIdx) = 0 Then
-'''                    fTaxRate = 0
-'''                Else
-'''                    fTaxRate = fTypeATaxes(nLadDIdx) / lUnits(nLadDIdx)
-'''                End If
-'''                For nIdx = 0 To nInfoCount - 1
-'''                    With aryTaxInfo(nIdx)
-'''                        If .m_lInvoice = lBOL Then
-'''                            For i = 0 To .m_nRecord - 1
-'''                                If .m_Taxes(i).m_cCharge <> vbKeyN Then
-'''                                    If .m_Taxes(i).m_cBasis = vbKeyA Then
-'''                                            If .m_Taxes(i).m_dAmount <> 0 Then
-'''                                                'david 08/08/2005  #489634
-'''                                                'fixed rounding problem
-'''                                                '.m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
-'''                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, DEFAULT_DECIMALS)
-'''                                                sTaxState = .m_Taxes(i).m_sWhere
-'''                                            End If
-'''                                    End If
-'''                                End If
-'''                            Next i
-'''                        End If
-'''                    End With
-'''                Next nIdx
-'''            End If
-'''        Next nLadDIdx
-'''    End If
-'''End Sub
 
 '#492710wj110405-replace the function 'subProrateBOLATax' with the next
 '#one 'fnBOLTotalATax'. All we need is the Total A Tax for a BOL and two
@@ -4723,7 +4648,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -4762,7 +4687,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -5090,7 +5015,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As Database) As Boolean
+Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
