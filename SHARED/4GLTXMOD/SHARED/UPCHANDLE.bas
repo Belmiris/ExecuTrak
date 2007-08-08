@@ -1,7 +1,7 @@
 Attribute VB_Name = "modUPCValidateConvert"
 Option Explicit
 
-Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUPCType As String) As String
+Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUPCType As String, Optional bExpanded As Boolean = False) As String
     Dim sUPCCode As String
     
     sUPC = Trim(sUPC)
@@ -49,10 +49,14 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUPCType As String
                 sErrMsg = sUPCType & " UPC/EAN can not be determined."
             End If
         Case 8
-            sUPCCode = Left(sUPC, 7) & fnUPCLastDigit(Left(sUPC, 7))
-            If sUPCCode <> sUPC Then
-                'sUPCCode = sUPC
-                sErrMsg = sUPCType & " Check digit is invalid for the UPC/EAN code."
+            If bExpanded Then
+                sUPCCode = sUPC
+            Else
+                sUPCCode = Left(sUPC, 7) & fnUPCLastDigit(Left(sUPC, 7))
+                If sUPCCode <> sUPC Then
+                    'sUPCCode = sUPC
+                    sErrMsg = sUPCType & " Check digit is invalid for the UPC/EAN code."
+                End If
             End If
         Case 10
             sUPCCode = "0" & sUPC & fnUPCLastDigit("0" & sUPC)
@@ -78,10 +82,14 @@ Public Function fnExpandUPC(sUPC As String, sErrMsg, Optional sUPCType As String
                 sErrMsg = sUPCType & " Invalid check digit for UPC-A code."
             End If
         Case 13
-            sUPCCode = Left(sUPC, 12) & fnUPCLastDigit(Left(sUPC, 12))
-            If sUPCCode <> sUPC Then
-                'sUPCCode = sUPC
-                sErrMsg = sUPCType & " Invalid check digit for the EAN-13 code."
+            If bExpanded Then
+                sUPCCode = sUPC
+            Else
+                sUPCCode = Left(sUPC, 12) & fnUPCLastDigit(Left(sUPC, 12))
+                If sUPCCode <> sUPC Then
+                    'sUPCCode = sUPC
+                    sErrMsg = sUPCType & " Invalid check digit for the EAN-13 code."
+                End If
             End If
         Case 14
             sUPCCode = Left(sUPC, 13) & fnUPCLastDigit(Left(sUPC, 13))
@@ -101,7 +109,7 @@ Public Function fnUPCLastDigit(ByVal sUPCCode As String) As String
     Dim nSumOdd As Integer
     Dim sUPCLastDigit As String
     Dim nMaxLen As Integer
-    Dim I As Integer
+    Dim i As Integer
     Dim sUPCRightMost As String
     
 On Error GoTo errHandler
@@ -112,19 +120,19 @@ On Error GoTo errHandler
     nMaxLen = Len(sUPCCode)
     
     sUPCRightMost = ""
-    For I = nMaxLen To 1 Step -1
-        sUPCRightMost = sUPCRightMost & Mid(sUPCCode, I, 1)
-    Next I
+    For i = nMaxLen To 1 Step -1
+        sUPCRightMost = sUPCRightMost & Mid(sUPCCode, i, 1)
+    Next i
     
     nSumEven = 0
     nSumOdd = 0
-    For I = 1 To nMaxLen
-        If I Mod 2 = 0 Then
-            nSumEven = nSumEven + Mid(sUPCRightMost, I, 1)
+    For i = 1 To nMaxLen
+        If i Mod 2 = 0 Then
+            nSumEven = nSumEven + Mid(sUPCRightMost, i, 1)
         Else
-            nSumOdd = nSumOdd + Mid(sUPCRightMost, I, 1)
+            nSumOdd = nSumOdd + Mid(sUPCRightMost, i, 1)
         End If
-    Next I
+    Next i
     
     sUPCLastDigit = 10 - Right(CStr((nSumOdd * 3) + nSumEven), 1)
     If sUPCLastDigit = "10" Then sUPCLastDigit = "0"
@@ -163,7 +171,7 @@ Public Function fnDecompress6To10(sUPC As String) As String
 
 End Function
 Public Function fnRmLZeros(sUPC As String) As String
-    Dim I As Integer
+    Dim i As Integer
     Dim retStr As String
     
     ' Whenever the length of sUPC or retStr is less than 6
@@ -176,8 +184,8 @@ Public Function fnRmLZeros(sUPC As String) As String
         Exit Function
     End If
     
-    For I = 1 To Len(sUPC)
-        If Mid(sUPC, I, 1) = "0" Then
+    For i = 1 To Len(sUPC)
+        If Mid(sUPC, i, 1) = "0" Then
             retStr = Right(retStr, Len(retStr) - 1)
         Else
             Exit For
