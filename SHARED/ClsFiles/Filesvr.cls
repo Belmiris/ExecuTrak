@@ -190,7 +190,10 @@ Public Function GetLine() As String
         GetLine = Mid(sInputBuffer, nInputPointer, nLen)
     End If
     nInputPointerOld = nInputPointer
-    If nPos + 1 <= Len(sInputBuffer) Then
+    
+    'Add by JQ to check the nPOS must not equl to 0
+    If nPos <> 0 And nPos + 1 <= Len(sInputBuffer) Then
+        
         If Asc(Mid(sInputBuffer, nPos, 1)) = &HD And Asc(Mid(sInputBuffer, nPos + 1, 1)) = &HA Then
             nInputPointer = nPos + 2
         Else
