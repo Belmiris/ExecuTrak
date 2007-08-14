@@ -216,8 +216,6 @@ Private m_nTFSTCount As Integer
 Private m_lTaxPaidTrn(20) As Long
 Private m_nTPTCount As Integer
 
-Private m_sTaxPaidOriginState As String
-
 Private sFMTaxLineBuffer As String * EDI_FMTAX_RECORD_LENGGH
 '
 
@@ -950,33 +948,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                             bOkToAdd = True
                         End If
                     Else
-                        If m_sTaxPaidOriginState = "" Then
-                            'david 07/19/2004  #453858
-                            'colTemp.Add ciTemp
-                            bOkToAdd = True
-                        Else
-                            If nTypeCode = "1" Then
-                                If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
-                                    If ciTemp.DestState = "AR" Then
-                                        'david 07/19/2004  #453858
-                                        'colTemp.Add ciTemp
-                                        bOkToAdd = True
-                                    End If
-                                End If
-                            ElseIf nTypeCode = "3" Then
-                                If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
-                                    If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                        'david 07/19/2004  #453858
-                                        'colTemp.Add ciTemp
-                                        bOkToAdd = True
-                                    End If
-                                End If
-                            Else
-                                'david 07/19/2004  #453858
-                                'colTemp.Add ciTemp
-                                bOkToAdd = True
-                            End If
-                        End If
+                        bOkToAdd = True
                     End If
                     
                     If bOkToAdd Then
@@ -1179,47 +1151,21 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     ''''''''''''''''''''''''''
                 ''''''''''''''''''''''''''
                 Else
-                    If m_sTaxPaidOriginState = "" Then
-                        'david 07/19/2004  #453858
-                        'colTemp.Add ciTemp
-                        'david 12/04/2006  #539292
-                        'for schedule 3 & 7
-                        'don't pull I to I and profit centers are setup as terminal
-                        ''''''''''''''''''''''''''
-                        If nTypeCode = "1" Or nTypeCode = "3" Then
-                            If fnCStr(!fml_int_ext) = "I" And fnCStr(!fmd_dest_flag) = "I" Then
-                                If Not (fnIsPCaTerminal(tfnRound(!fml_terminal)) _
-                                   And fnIsPCaTerminal(tfnRound(!fmd_dest_code))) Then
-                                    bOkToAdd = True
-                                End If
-                            Else
+                    'david 12/04/2006  #539292
+                    'for schedule 3 & 7
+                    'don't pull I to I and profit centers are setup as terminal
+                    ''''''''''''''''''''''''''
+                    If nTypeCode = "1" Or nTypeCode = "3" Then
+                        If fnCStr(!fml_int_ext) = "I" And fnCStr(!fmd_dest_flag) = "I" Then
+                            If Not (fnIsPCaTerminal(tfnRound(!fml_terminal)) _
+                               And fnIsPCaTerminal(tfnRound(!fmd_dest_code))) Then
                                 bOkToAdd = True
                             End If
                         Else
                             bOkToAdd = True
                         End If
                     Else
-                        If nTypeCode = "1" Then
-                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) > 0 Then
-                                If ciTemp.DestState = "AR" Then
-                                    'david 07/19/2004  #453858
-                                    'colTemp.Add ciTemp
-                                    bOkToAdd = True
-                                End If
-                            End If
-                        ElseIf nTypeCode = "3" Then
-                            If InStr(m_sTaxPaidOriginState, ciTemp.OriginState) <= 0 Then
-                                If ciTemp.OriginState <> "AR" And ciTemp.DestState = "AR" Then
-                                    'david 07/19/2004  #453858
-                                    'colTemp.Add ciTemp
-                                    bOkToAdd = True
-                                End If
-                            End If
-                        Else
-                            'david 07/19/2004  #453858
-                            'colTemp.Add ciTemp
-                            bOkToAdd = True
-                        End If
+                        bOkToAdd = True
                     End If
                 End If
                 
@@ -2169,10 +2115,6 @@ Private Function fnTrnNumbers(lSource() As Long, _
     Next i
     fnTrnNumbers = "(" & sTemp & ")"
 End Function
-
-Property Let TaxPaidOriginState(sCode As String)
-    m_sTaxPaidOriginState = Trim(sCode)
-End Property
 
 Public Sub FileHeaderID(sOutgoingOurGsID As String)
     Dim ciTemp As New ETFMTaxRecord
