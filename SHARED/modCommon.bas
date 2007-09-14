@@ -17,7 +17,7 @@ End Enum
 
 Public Enum ButtonStatus
     Disable = 0
-    enable = 1
+    Enable = 1
 End Enum
 
 Public Enum HourglassStatus
@@ -32,18 +32,32 @@ Public Enum Justify
 End Enum
 
 Public Const INTO_TEMP As String = " into temp "
-Public Const SQL_DROP_TABLE As String = "drop table @table"
+Public Const SQL_DROP_TABLE As String = _
+    "DROP table @table"
 Public Const SQL_TABLE_EXISTS As String = _
-    "select tabName from systables where tabName = '@table'"
+    "SELECT tabName FROM systables WHERE tabName = '@table'"
 Public Const SQL_TEMP_TABLE_EXISTS As String = _
-    "select * from @table where 1 = 2"
+    "SELECT * FROM @table WHERE 1 = 2"
     
 Public Const SQL_COLUMN_EXISTS As String = _
-    " select tabName, colName " & _
-    " from systables, syscolumns " & _
-    " where systables.tabid = syscolumns.tabid " & _
-    " and tabName = '@table' " & _
-    " and colName = '@column' "
+    " SELECT tabName, colName                   " & _
+    "   FROM systables, syscolumns              " & _
+    "  WHERE systables.tabid = syscolumns.tabid " & _
+    "    AND tabName         = '@table'         " & _
+    "    AND colName         = '@column'        "
+    
+Public Const SQL_SELECT_LOCK As String = _
+        " select sdl_user from sys_data_lock where sdl_prog = '@program' "
+
+Public Const SQL_INSERT_DATA_LOCK As String = _
+    " INSERT into sys_data_lock                 " & _
+    "        (sdl_user, sdl_prog, sdl_data)     " & _
+    " VALUES ('@user', '@program', today)       "
+
+Public Const SQL_DELETE_LOCK As String = _
+    " DELETE from sys_data_lock                 " & _
+    "  WHERE sdl_user = '@user'                 " & _
+    "    AND sdl_prog = '@program'              "
 
 #If Not dbLocalDef Then
 Public dbLocal As DAO.Database 'Local MS Access Database
@@ -56,12 +70,12 @@ Public Const VK_MBUTTON = &H4
 Private Declare Function GetKeyState Lib "user32" (ByVal nVirtKey As Long) As Integer
 
 Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long _
 ) As Long
 
 Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" ( _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     ByVal nIndex As Long, _
     ByVal dwNewLong As Long _
 ) As Long
@@ -79,6 +93,7 @@ End Property
 Public Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
     Q_Str = Quote & Str & Quote
 End Function
+
 '---------------------------------------------------------------------------------------
 ' Procedure : BackupFileName
 ' DateTime  : 11/23/2005 14:54
@@ -94,7 +109,7 @@ End Function
 '             specified backup path)
 '---------------------------------------------------------------------------------------
 '
-Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As String, Optional ByVal UseFileExt As Boolean = False) As String
+Public Function BackupFileName(ByVal Filename As String, ByVal BackupPath As String, Optional ByVal UseFileExt As Boolean = False) As String
     Dim FileExt As String
     Dim FileNum As Integer
     Dim CurFile As String
@@ -103,7 +118,7 @@ Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As Str
         '------------------------------------------------------------------------------------
         'Strip off Path and Extension from FileName
         '------------------------------------------------------------------------------------
-        FileNameParts FileName, , FileName
+        FileNameParts Filename, , Filename
     End If
     
     '------------------------------------------------------------------------------------
@@ -111,12 +126,12 @@ Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As Str
     'If so, take note of the highest backup counter value.
     '------------------------------------------------------------------------------------
     BackupPath = FixPath(BackupPath)
-    CurFile = Dir(BackupPath & FileName & ".???")
+    CurFile = Dir(BackupPath & Filename & ".???")
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
-            If Val(FileExt) > FileNum Then
-                FileNum = Val(FileExt)
+            If val(FileExt) > FileNum Then
+                FileNum = val(FileExt)
             End If
         End If
         
@@ -135,7 +150,7 @@ Public Function BackupFileName(ByVal FileName As String, ByVal BackupPath As Str
     '------------------------------------------------------------------------------------
     'Return the Name for the new Backup File
     '------------------------------------------------------------------------------------
-    BackupFileName = BackupPath & FileName & "." & Format$(FileNum, "000")
+    BackupFileName = BackupPath & Filename & "." & Format$(FileNum, "000")
 End Function
 
 Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
@@ -158,6 +173,7 @@ Public Sub AlignWithControl(Ctl As Control, AlignWith As Control)
         End If
     End With
 End Sub
+
 Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Single
     Dim PrevMode          As Integer
     Dim value             As Single
@@ -201,6 +217,7 @@ Public Function ContainerToForm(Ctl As Object, ByVal CoordType As Integer) As Si
     
     ContainerToForm = value
 End Function
+
 Public Function PicBoxBorderSize(PicBox As Object) As Single
     Dim OldMode As Integer
     Dim ChgMode As Boolean
@@ -255,6 +272,7 @@ Public Function ArrayValueIndex(DataArray As Variant, ByVal SearchColumn As Long
     
     ArrayValueIndex = SearchRow
 End Function
+
 Function IsLeapYear(ByVal YearDate As Variant) As Boolean
     Dim LeapYear As Boolean
     
@@ -275,6 +293,7 @@ Function IsLeapYear(ByVal YearDate As Variant) As Boolean
     
     IsLeapYear = LeapYear
 End Function
+
 Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Variant)
     Dim Index As Long
     
@@ -284,6 +303,7 @@ Public Sub EnableControls(ByVal Enabled As Boolean, ParamArray Controls() As Var
     Next 'Index
     On Error GoTo 0
 End Sub
+
 '---------------------------------------------------------------------------------------
 ' Procedure : EnableCtrlArray
 ' DateTime  : 6/15/2005 10:24
@@ -310,12 +330,13 @@ Public Sub EnableCtrlArray(CtrlArray As Object, ByVal Enabled As Boolean, ParamA
         Next 'ParmIndex
     End If
 End Sub
+
 Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As String = vbNullString, Optional ByVal Reload As Boolean = False) As String
     Static SysParms As Collection
     Dim SQL         As String
     Dim rs          As DAO.Recordset
     
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     
     If (SysParms Is Nothing) Or Reload Then
         Set SysParms = New Collection
@@ -338,10 +359,11 @@ Public Function GetSysParm(ByVal ParmNum As Long, Optional ByVal DEFAULT As Stri
     
     Exit Function
     
-ErrHandler:
+errHandler:
     GetSysParm = DEFAULT
     Err.Clear
 End Function
+
 Public Function IsFormLoaded(ByVal FormName As String) As Boolean
     Dim Form As Form
     
@@ -354,6 +376,7 @@ Public Function IsFormLoaded(ByVal FormName As String) As Boolean
     Next 'Form
     Set Form = Nothing
 End Function
+
 '---------------------------------------------------------------------------------------
 ' Procedure : IsKeyPressed
 ' DateTime  : 6/20/2005 12:03
@@ -364,6 +387,7 @@ End Function
 Public Function IsKeyPressed(VirtualKey As Long) As Boolean
     IsKeyPressed = CBool(GetKeyState(VirtualKey) And &H80)
 End Function
+
 Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant = vbNullString) As Variant
     If Not IsNull(value) Then
         Nz = value
@@ -371,16 +395,18 @@ Public Function Nz(ByVal value As Variant, Optional ByVal ValueIfNull As Variant
         Nz = ValueIfNull
     End If
 End Function
-Public Function ReadEntireFile(ByVal FileName As String) As String
+
+Public Function ReadEntireFile(ByVal Filename As String) As String
     Dim hFile As Integer
     
-    If FileExists(FileName) Then
+    If FileExists(Filename) Then
         hFile = FreeFile()
-        Open FileName For Binary As #hFile
+        Open Filename For Binary As #hFile
         ReadEntireFile = Input(LOF(hFile), hFile)
         Close #hFile
     End If
 End Function
+
 '---------------------------------------------------------------------------------------
 ' Procedure : RecordArray
 ' DateTime  : 7/15/2005 14:50
@@ -413,25 +439,25 @@ Public Function RecordArray(SQL As String) As Variant
     RecordArray = Data
 End Function
 Public Sub SelectAllText()
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     With Screen.ActiveControl
         .SelStart = 0
         .SelLength = Len(.Text)
     End With
     Exit Sub
     
-ErrHandler:
+errHandler:
     Err.Clear
 End Sub
 Public Sub SetTextBoxStyle(Textbox As Textbox, ByVal Style As TextBoxStyles, Optional ByVal EnableStyle As Boolean = True)
     With Textbox
         If EnableStyle Then
-            Style = GetWindowLong(.hwnd, GWL_STYLE) Or Style
+            Style = GetWindowLong(.hWnd, GWL_STYLE) Or Style
         Else
-            Style = GetWindowLong(.hwnd, GWL_STYLE) And (Not Style)
+            Style = GetWindowLong(.hWnd, GWL_STYLE) And (Not Style)
         End If
         
-        SetWindowLong .hwnd, GWL_STYLE, Style
+        SetWindowLong .hWnd, GWL_STYLE, Style
     End With
 End Sub
 '---------------------------------------------------------------------------------------
@@ -478,6 +504,7 @@ Public Function SQL_FieldValue(ByVal value As Variant, ByVal DataType As DAO.Dat
     
     SQL_FieldValue = FV
 End Function
+
 Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArray AppendValues() As Variant)
     If LenB(Delimeter) = 0 Then
         Delimeter = ","
@@ -489,6 +516,7 @@ Public Function StringAppend(ByRef StrValue, ByVal Delimeter As String, ParamArr
     
     StringAppend = StrValue & Join(AppendValues, Delimeter)
 End Function
+
 Function SQLParm(ByVal SQL As String, ParamArray Parms()) As String
     Dim MaxIndex As Integer
     Dim Index    As Integer
@@ -719,18 +747,42 @@ Public Function fnColumnExists(TableName As String, ColumnName As String) As Boo
 
 End Function
 
-Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, status As ButtonStatus, _
+Public Sub EnableButton(Status As ButtonStatus, ParamArray buttons() As Variant)
+    Dim Index As Integer
+    On Error Resume Next 'Just in case parameter does not have a property Named 'Picture'
+    
+    For Index = LBound(buttons) To UBound(buttons)
+    
+        If TypeOf buttons(Index) Is FactorFrame Then
+            If Status = Enable Then
+                buttons(Index).Picture = frmContext.LoadPicture(SEARCH_UP)
+            Else
+                buttons(Index).Picture = frmContext.LoadPicture(SEARCH_DOWN)
+            End If
+            
+            buttons(Index).Enabled = CBool(Status)
+        End If
+        
+    Next
+    
+    On Error GoTo 0
+
+End Sub
+
+
+Public Sub subSetButtonStatus(ByRef objButton As FactorFrame, Status As ButtonStatus, _
                                                 Optional ByVal ContextForm As Form = Nothing)
     If ContextForm Is Nothing Then
         Set ContextForm = frmContext
     End If
     
-    objButton.Enabled = status
-    If status = enable Then
+    objButton.Enabled = Status
+    If Status = Enable Then
         objButton.Picture = ContextForm.LoadPicture(SEARCH_UP)
     Else
         objButton.Picture = ContextForm.LoadPicture(SEARCH_DOWN)
     End If
+    
 End Sub
 
 '-------------------------------------------------------------------
@@ -750,22 +802,22 @@ End Sub
 '-------------------------------------------------------------------
 '
 Public Function IsUserSure(Prompt, Optional ByVal YesNoType As Boolean = True, Optional DefaultToNo As Boolean = True) As Boolean
-    Dim Buttons As VbMsgBoxStyle
+    Dim buttons As VbMsgBoxStyle
     Dim YesOK   As VbMsgBoxResult
     
     If YesNoType Then
-        Buttons = vbYesNo
+        buttons = vbYesNo
         YesOK = vbYes
     Else
-        Buttons = vbOKCancel
+        buttons = vbOKCancel
         YesOK = vbOK
     End If
     If DefaultToNo Then
-        Buttons = Buttons + vbDefaultButton2
+        buttons = buttons + vbDefaultButton2
     End If
-    Buttons = Buttons + vbQuestion
+    buttons = buttons + vbQuestion
     
-    IsUserSure = (MsgBox(Prompt, Buttons) = YesOK)
+    IsUserSure = (MsgBox(Prompt, buttons) = YesOK)
 End Function
 '-------------------------------------------------------------------
 '   Author.: DenBorg
@@ -779,7 +831,7 @@ End Function
 '   All MsgBox statements in the program passes through this
 '   function, which in turn calls the VBA.MsgBox function.
 '-------------------------------------------------------------------
-Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional HelpFile, Optional Context) As VbMsgBoxResult
+Public Function MsgBox(Prompt, Optional buttons As VbMsgBoxStyle = vbOKOnly, Optional ByVal Title, Optional HelpFile, Optional Context) As VbMsgBoxResult
 
     If SuppressMessageBox Then
         Exit Function
@@ -792,7 +844,7 @@ Public Function MsgBox(Prompt, Optional Buttons As VbMsgBoxStyle = vbOKOnly, Opt
             Title = App.Title & " - " & Title
         End If
     End If
-    MsgBox = VBA.MsgBox(Prompt, Buttons, Title, HelpFile, Context)
+    MsgBox = VBA.MsgBox(Prompt, buttons, Title, HelpFile, Context)
 End Function
 
 Public Property Let SuppressMessageBox(suppress As Boolean)
@@ -803,22 +855,22 @@ Public Property Get SuppressMessageBox() As Boolean
     SuppressMessageBox = suppressMsgBox
 End Property
 
-Public Function AppFile(ByVal FileName As String) As String
-    AppFile = AppPath() & FileName
+Public Function AppFile(ByVal Filename As String) As String
+    AppFile = AppPath() & Filename
 End Function
  
 Public Function AppPath() As String
     AppPath = FixPath(App.Path)
 End Function
  
-Public Function FileExists(ByVal FileName As String) As Boolean
+Public Function FileExists(ByVal Filename As String) As Boolean
     Dim bExists As Boolean
     
     On Error Resume Next
-    FileLen FileName
+    FileLen Filename
     bExists = (Err.Number = 0)
     If bExists Then
-        bExists = ((GetAttr(FileName) And vbDirectory) = 0)
+        bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
     On Error GoTo 0 'Clear Err & disable error handler
     
@@ -866,12 +918,12 @@ Public Function AsciiUCase(ByVal KeyAscii As Integer) As Integer
     AsciiUCase = KeyAscii
 End Function
 
-Public Function GetField(Field As Variant) As String
+Public Function GetField(field As Variant) As String
 
-    If IsNull(Field) Then
+    If IsNull(field) Then
         GetField = vbNullString
     Else
-        GetField = Trim(CStr(Field))
+        GetField = Trim(CStr(field))
     End If
     
 End Function
@@ -896,14 +948,14 @@ Public Sub ClearText(ParamArray Parms())
     Next
 
 End Sub
-Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath As Variant = vbNullString, Optional ByRef FileName As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
+Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef filePath As Variant = vbNullString, Optional ByRef Filename As Variant = vbNullString, Optional ByRef FileExt As Variant = vbNullString)
     Dim pos As Long
     
     '------------------------------------------------------------------------------------
     'Init - Needed for Optional Params that had pre-existing values
     '------------------------------------------------------------------------------------
-    FilePath = vbNullString
-    FileName = vbNullString
+    filePath = vbNullString
+    Filename = vbNullString
     FileExt = vbNullString
     
     '------------------------------------------------------------------------------------
@@ -914,7 +966,7 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
         pos = InStr(FullFileName, ":")
     End If
     If pos Then
-        FilePath = Left$(FullFileName, pos)
+        filePath = Left$(FullFileName, pos)
         FullFileName = Mid$(FullFileName, pos + 1)
     End If
     
@@ -930,7 +982,7 @@ Public Sub FileNameParts(ByVal FullFileName As String, Optional ByRef FilePath A
     '------------------------------------------------------------------------------------
     'Extract the File Name
     '------------------------------------------------------------------------------------
-    FileName = FullFileName 'Only thing left is the File NAME itself
+    Filename = FullFileName 'Only thing left is the File NAME itself
 End Sub
 
 Public Function CaseInSensitiveString(ByVal S As String, Optional addAsterisk As Boolean = False) As String
@@ -1033,5 +1085,53 @@ If spaceCount > 0 Then
 End If
 
 Align = value
+
+End Function
+
+Public Function LockProcess(PROGRAM As String) As Boolean
+    Dim SQL As String
+    Dim USER As String
+    Dim answer As VbMsgBoxResult
+    
+    SQL = SQLParm(SQL_SELECT_LOCK, "@program", PROGRAM)
+        
+    USER = fnQueryForField(SQL, "sdl_user")
+    
+    'If same user, then the process is already locked...give user option to OK bypassing this check.
+    If USER = tfnGetUserName() Then
+        answer = MsgBox("Process is already locked for this user id (" & USER & ").  Continue?", _
+                        vbYesNo + vbExclamation, "Process Locked")
+        
+        'Keep existing lock
+        If answer = vbYes Then
+            LockProcess = True
+            Exit Function
+        End If
+    End If
+    
+    If USER <> vbNullString Then
+        MsgBox "Process is being run by " & USER & "." & vbCrLf & _
+               "Unable to process at this time"
+        
+        Exit Function
+    Else
+        SQL = SQLParm(SQL_INSERT_DATA_LOCK, "@user", tfnGetUserName, "@program", PROGRAM)
+        
+        
+        If fnExecSQL(SQL) Then
+            LockProcess = True
+        Else
+            MsgBox "Unable to lock process, please try again."
+        End If
+    End If
+
+End Function
+
+Public Function UnlockProcess(PROGRAM) As Boolean
+    Dim SQL As String
+    
+    SQL = SQLParm(SQL_DELETE_LOCK, "@user", tfnGetUserName, "@program", PROGRAM)
+
+    UnlockProcess = fnExecSQL(SQL)
 
 End Function
