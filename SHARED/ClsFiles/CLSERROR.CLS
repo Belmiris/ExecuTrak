@@ -17,7 +17,7 @@ Private Const ODBC_CALL_FAIL As Integer = 3146
 Private Const DEFINED_ERROR As Integer = 0
 Private Const CHECK_EXEC_PROCEDURE As Integer = 1
 
-Private Const REPORT_TO As String = "Report this message to Support."
+Private Const REPORT_TO As String = "Contact Support."
 
 'member variables
 Private m_engFactor As DBEngine
