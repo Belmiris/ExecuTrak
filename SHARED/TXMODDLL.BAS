@@ -653,10 +653,22 @@ Public Sub subFixTypeATaxForInfo()
                                     arryTaxSums(j).m_cBasis = .m_Taxes(i).m_cBasis
                                     arryTaxSums(j).m_fAmount = .m_Taxes(i).m_dAmount
                                     arryTaxSums(j).m_fRate = .m_Taxes(i).m_fRate
-                                    arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
+                                    'david 09/25/2007  #559260
+                                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                        arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
+                                    Else
+                                        arryTaxSums(j).m_lGallons = .m_InputParms.m_dNetUnits
+                                    End If
+                                    ''''''''''''''''''''''''''
                                     nTaxItems = nTaxItems + 1
                                 Else
-                                    arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
+                                    'david 09/25/2007  #559260
+                                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                        arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
+                                    Else
+                                        arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dNetUnits
+                                    End If
+                                    ''''''''''''''''''''''''''
                                 End If
                                 If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
                                     sParm1055 = sSysParm1055
@@ -669,10 +681,22 @@ Public Sub subFixTypeATaxForInfo()
                     sTaxGroup = fnGetTaxGroup(.m_InputParms.m_sProduct)
                     
                     If sTaxGroup <> sParm1055 Then
-                        lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
+                        'david 09/25/2007  #559260
+                        If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                            lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
+                        Else
+                            lGasAmount = lGasAmount + .m_InputParms.m_dNetUnits
+                        End If
+                        ''''''''''''''''''''''''''
                     End If
                     
-                    lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
+                    'david 09/25/2007  #559260
+                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                        lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
+                    Else
+                        lFuelAmount = lFuelAmount + .m_InputParms.m_dNetUnits
+                    End If
+                    ''''''''''''''''''''''''''
                 End If
             End With
         Next nIdx
@@ -843,20 +867,38 @@ Public Sub subFixTypeATaxForInfo()
                                                 If bApplied Then
                                                   .m_Taxes(i).m_dAmount = 0
                                                 Else
-                                                  .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                    'david 09/25/2007  #559260
+                                                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                                        .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                    Else
+                                                        .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dNetUnits, 2)
+                                                    End If
+                                                    ''''''''''''''''''''''''''
                                                   '.m_Taxes(i).m_fRate = .m_Taxes(i).m_dAmount
                                                   bApplied = True
                                                 End If
                                             Else
                                                  If .m_Taxes(i).m_dAmount <> 0 Then
-                                                   .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                    'david 09/25/2007  #559260
+                                                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                                        .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                    Else
+                                                        .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dNetUnits, 2)
+                                                    End If
+                                                    ''''''''''''''''''''''''''
                                                  End If
                                             End If
                                         'The codes (below) commented out are the old ones
          '--------------------- End of Special Codes for texas loading fees WJ 10/08/01 ------------------
                                         #Else
                                             If .m_Taxes(i).m_dAmount <> 0 Then
-                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                'david 09/25/2007  #559260
+                                                If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                                    .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, 2)
+                                                Else
+                                                    .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dNetUnits, 2)
+                                                End If
+                                                ''''''''''''''''''''''''''
                                             End If
                                         #End If
                                     End If
@@ -3222,6 +3264,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
 '''                                   nLine, _
 '''                                   bTexasTax, sTaxState
 '''
+                'david 09/25/2007  #559260
+                subFixTypeATaxForInfo
+                ''''''''''''''''''''''''''
+                
                 'david 11/28/2005  #492710a
                 'UNCOMMENTED OUT 1 LINE
                 fTaxes = fnGetTypeATax()
@@ -3718,6 +3764,16 @@ Private Sub start_ldfee_rec()
     ReDim aryLDF(0)
 End Sub
 
+'david 09/25/2007  #559260
+'The products that can be grouped as diesel when in the monkey-the-numbers
+'routine can use either a specific product tax class or broaden to the
+'product group. Set 1085 = "GROUP" if you want the sales side and the b/l
+'side to group the diesel products the same. (The delivery side can group by
+'"product class" when 1085="CLASS", but this will not work on the b/l side.
+'The only way this has ever worked was if the product tax class and the
+'product group were the same, or the product class & the product group were
+'the same.)  Bottom line - use 1085="GROUP" and try to eliminate the use of
+'1085 = "CLASS".
 Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
                           ByVal dv_line As Long, _
                           ByVal bunits As Long, _
@@ -3739,7 +3795,20 @@ Private Sub put_ldfee_rec(ByVal dv_nbr As Long, _
         If sSysParm1085 = "CLASS" Then
             sClass = Trim(rsTemp!ivh_class & "")
         Else
-            sClass = Trim(rsTemp!ivh_prodtcl & "")
+            'david 09/19/2007  #559260
+            If sSysParm1085 = "GROUP" Then
+                sClass = Trim(rsTemp!ivh_prodtcl & "")
+                Set rsTemp = finv_classes(sClass, "T", t_dbMainDatabase)
+                
+                If Not rsTemp Is Nothing Then
+                    If Trim(rsTemp!icl_fuel_group & "") <> "" Then
+                        sClass = Trim(rsTemp!icl_fuel_group & "")
+                    End If
+                End If
+            Else
+                sClass = Trim(rsTemp!ivh_prodtcl & "")
+            End If
+            ''''''''''''''''''''''''''
         End If
     End If
     ldf_cnt = ldf_cnt + 1
@@ -3795,6 +3864,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gas_gals = 0
     
     For x = 0 To ldf_cnt
+        ' be careful, dv_prodtcl may hold the following values:
+        ' 'product tax class' if parm 1085 is not set up
+        ' 'product class' if parm 1085 = "CLASS"
+        ' 'product group' if parm 1085 = "GROUP"
         If Trim(aryLDF(x).dv_prodtcl) = dsl_fuel_group Then
             dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
@@ -3918,6 +3991,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             dsl_gals = 0
         End If
         gal_inv = gal_inv + aryLDF(x).dv_vol
+        ' be careful, dv_prodtcl may hold the following values:
+        ' 'product tax class' if parm 1085 is not set up
+        ' 'product class' if parm 1085 = "CLASS"
+        ' 'product group' if parm 1085 = "GROUP"
         If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
             dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
@@ -4034,6 +4111,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             dsl_gals = 0
         End If
         gal_inv = gal_inv + aryLDF(x).dv_vol
+        ' be careful, dv_prodtcl may hold the following values:
+        ' 'product tax class' if parm 1085 is not set up
+        ' 'product class' if parm 1085 = "CLASS"
+        ' 'product group' if parm 1085 = "GROUP"
         If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
             dsl_gals = dsl_gals + aryLDF(x).dv_vol
         Else
@@ -4045,6 +4126,9 @@ Stop_Monkey_Around:
     MsgBox "An Error Occurred In Calculating Loading Fees. Error Description: " & Err.Description
 End Sub
 
+'david 09/25/2007  #559260
+'THIS FUNCTION IS NOT USED ANYWHERE IN THE PROJECT
+''''''''''''''''''''''''''
 '#492710wj110405-replace the function 'subProrateBOLATax' with the next
 '#one 'fnBOLTotalATax'. All we need is the Total A Tax for a BOL and two
 '#flags indicating if state Texas is involved in the A tax.
@@ -4097,10 +4181,22 @@ Private Function fnBOLTotalATax(ByVal lBOL As Long, _
                                 arryTaxSums(j).m_cBasis = .m_Taxes(i).m_cBasis
                                 arryTaxSums(j).m_fAmount = .m_Taxes(i).m_dAmount
                                 arryTaxSums(j).m_fRate = .m_Taxes(i).m_fRate
-                                arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
+                                'david 09/25/2007  #559260
+                                If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                    arryTaxSums(j).m_lGallons = .m_InputParms.m_dGrossUnits
+                                Else
+                                    arryTaxSums(j).m_lGallons = .m_InputParms.m_dNetUnits
+                                End If
+                                ''''''''''''''''''''''''''
                                 nTaxItems = nTaxItems + 1
                             Else
-                                arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
+                                'david 09/25/2007  #559260
+                                If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                    arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dGrossUnits
+                                Else
+                                    arryTaxSums(j).m_lGallons = arryTaxSums(j).m_lGallons + .m_InputParms.m_dNetUnits
+                                End If
+                                ''''''''''''''''''''''''''
                             End If
                             If Trim(.m_Taxes(i).m_sWhere) = "TX" And .m_Taxes(i).m_cLevel = vbKeyS Then
                                 sParm1055 = sSysParm1055
@@ -4115,10 +4211,21 @@ Private Function fnBOLTotalATax(ByVal lBOL As Long, _
                 sTaxGroup = fnGetTaxGroup(.m_InputParms.m_sProduct)
                 
                 If sTaxGroup <> sParm1055 Then
-                    lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
+                    'david 09/25/2007  #559260
+                    If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                        lGasAmount = lGasAmount + .m_InputParms.m_dGrossUnits
+                    Else
+                        lGasAmount = lGasAmount + .m_InputParms.m_dNetUnits
+                    End If
+                    ''''''''''''''''''''''''''
                 End If
                 
-                lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
+                'david 09/25/2007  #559260
+                If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                    lFuelAmount = lFuelAmount + .m_InputParms.m_dGrossUnits
+                Else
+                    lFuelAmount = lFuelAmount + .m_InputParms.m_dNetUnits
+                End If
             End If
         End With
     Next nIdx
@@ -4169,7 +4276,13 @@ Private Function fnBOLTotalATax(ByVal lBOL As Long, _
                             If .m_Taxes(i).m_cCharge <> vbKeyN Then
                                 If .m_Taxes(i).m_cBasis = vbKeyA Then
                                         If .m_Taxes(i).m_dAmount <> 0 Then
-                                            .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, DEFAULT_DECIMALS)
+                                            'david 09/25/2007  #559260
+                                            If .m_InputParms.m_cBilledUnitsFlag = vbKeyG Then
+                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dGrossUnits, DEFAULT_DECIMALS)
+                                            Else
+                                                .m_Taxes(i).m_dAmount = tfnRound(fTaxRate * .m_InputParms.m_dNetUnits, DEFAULT_DECIMALS)
+                                            End If
+                                            ''''''''''''''''''''''''''
                                             sTaxState = .m_Taxes(i).m_sWhere
                                         End If
                                 End If
