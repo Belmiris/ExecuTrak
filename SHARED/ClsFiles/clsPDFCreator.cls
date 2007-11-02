@@ -129,9 +129,9 @@ Option Base 1
     'Symbol
 
 Private Const PDF_VERSION = "%PDF-1.3"
-Private Const AUTOR = "eLLeMMe"
-Private Const CREATOR = "clsPDFCreator LIGHT Version"
-Private Const COPYRIGHT = "© 2003-2005 eLLeMMe"
+Private Const AUTOR = "FACTOR, INC."
+Private Const CREATOR = "PDFCreator Version"
+Private Const COPYRIGHT = "© 2003-2005 FACTOR, INC."
 
 ' Enum
 Public Enum pdfPathOptions
@@ -332,7 +332,11 @@ End Property
 
 '
 Public Property Let Orientation(NewOrientation As pdfPrintOrientation)
-  mvarOrientation = NewOrientation
+    mvarOrientation = NewOrientation
+End Property
+
+Public Property Get Orientation() As pdfPrintOrientation
+    Orientation = mvarOrientation
 End Property
 
 '
@@ -1641,8 +1645,14 @@ Public Function CreatePDFFile() As String
     Dim j As Integer
     Dim nLeft As Integer
     Dim m As Integer
+    Dim nOrientation As Integer
     
     On Error GoTo errTrap
+    
+    If Orientation = pdfLandscape Then
+        CreatePDFFile = CreatePDFFileLandscape()
+        Exit Function
+    End If
     
     If Not isFileExist() Then
        CreatePDFFile = m_strSourceFile & " File does not exist!"
@@ -1681,6 +1691,7 @@ Public Function CreatePDFFile() As String
     PaperSize = pdfA4
     Margin = 0
     Orientation = pdfPortrait
+    mvarPages = 0
     
     'open the pdf file
     InitPDFFile m_strTargetFile
@@ -1757,6 +1768,135 @@ Public Function CreatePDFFile() As String
     
 errTrap:
     CreatePDFFile = "An error has occurred while creating the PDF file. Err Code: " _
+        & Err.Number & ", Err Desc: " & Err.Description
+End Function
+
+Public Function CreatePDFFileLandscape() As String
+    Dim objFile As FileServer
+    Dim strRow As String
+    Dim i As Long
+    Dim j As Integer
+    Dim nLeft As Integer
+    Dim m As Integer
+    Dim nOrientation As Integer
+    
+    On Error GoTo errTrap
+    
+    If Not isFileExist() Then
+       CreatePDFFileLandscape = m_strSourceFile & " File does not exist!"
+       Exit Function
+    End If
+    
+    Set objFile = New FileServer
+
+    If Not objFile.PrepareFile(m_strSourceFile) Then
+       CreatePDFFileLandscape = "Failed to open " & m_strSourceFile & "!"
+       Exit Function
+    End If
+    
+    Dim dblElapsed As Single
+    dblElapsed = Timer
+    
+    Const dLeft As Single = 2#
+    Const dTop As Single = 2#
+    Const dLineIncr As Single = 0.4
+    Dim bStartPage As Boolean
+    Dim bEndPage As Boolean
+    Dim dLinePosition As Single
+    Dim sName As String
+    Dim nPosi As Integer
+    
+    nPosi = InStrRev(m_strTargetFile, "\")
+    
+    If nPosi > 0 Then
+        sName = Mid(m_strTargetFile, nPosi + 1)
+    Else
+        sName = m_strTargetFile
+    End If
+    
+    Title = sName
+    ScaleMode = pdfCentimeter
+    PaperSize = pdfA4
+    Margin = 0
+    Orientation = pdfLandscape
+    mvarPages = 0
+    
+    'open the pdf file
+    InitPDFFile m_strTargetFile
+    
+    LoadFont "Fnt3", m_strFontname
+    LoadFontStandard "Fnt4", m_strFontname, pdfBoldItalic
+
+    bStartPage = True
+    bEndPage = False
+    dLinePosition = dLeft - dLineIncr
+
+    i = 0
+    
+    Do While Not objFile.EndOfFile
+        strRow = objFile.GetLine
+        i = i + 1
+        
+        '#Special code. Remove the first 3 empty lines
+        If m_PageBreakBefore <> "" And i = 1 Then
+            m = 0
+            Do While m <= 3
+                If Trim(strRow) = "" Then
+                    If Not objFile.EndOfFile Then
+                        strRow = objFile.GetLine
+                        i = i + 1
+                    End If
+                Else
+                    Exit Do
+                End If
+                m = m + 1
+            Loop
+        End If
+        
+        If m_PageBreakBefore <> "" Then
+            If i > 10 Then
+                If InStr(strRow, m_PageBreakBefore) > 0 Then
+                    bStartPage = True
+                    dLinePosition = dLeft - dLineIncr
+                    i = 1
+                End If
+            End If
+        End If
+        
+        If i > m_intRPP Then
+            bStartPage = True
+            dLinePosition = dLeft - dLineIncr
+            i = 1
+        End If
+        
+        If bStartPage Then
+            If bEndPage Then
+                EndPage
+            End If
+            
+            StartPage
+            bStartPage = False
+            bEndPage = True
+        End If
+        
+        'write to pdf
+        dLinePosition = dLinePosition + dLineIncr
+        DrawText dLinePosition, dTop, strRow, "Fnt3", m_intFontSize, pdfAlignLeft, 90
+    Loop
+    
+    If bEndPage Then
+        EndPage
+    End If
+    
+    ClosePDFFile
+    objFile.CloseFile
+    
+    dblElapsed = Timer - dblElapsed
+    CreatePDFFileLandscape = ""
+    Exit Function
+    
+errTrap:
+    CreatePDFFileLandscape = "An error has occurred while creating the PDF file. Err Code: " _
         & Err.Number & ", Err Desc: " & Err.Description
 End Function
 
