@@ -528,6 +528,9 @@ Public Const DISP_REASON_CODE_UP = 15480  'no program (popup window)
 '#482177
 Public Const CREDIT_GROUP_UP = 15490  'ARFGROUP.EXE
 
+'#569178
+Public Const TRACK_COLLECTION_ACTIVITY_UP = 15500  'CLETCCAM.EXE (Track Collection Activity)
+
 'generic buttons for toolbar button that requires new bitmap
 'note: these button does not launch EXE program
 'require callback when add button
@@ -656,8 +659,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -689,7 +692,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -720,7 +723,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
             End If
             .Close
         End With
@@ -729,7 +732,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).value)
+                sDBVer = Trim$(.Fields(0).Value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -760,10 +763,10 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
+Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
-                          Optional ByVal field As String = vbNullString, _
+                          Optional ByVal Field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -772,21 +775,21 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     
     On Error GoTo ErrorHandler
     
-    Filename = Trim$(UCase$(Filename))
+    FileName = Trim$(UCase$(FileName))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
-    field = Trim$(UCase$(field))
+    Field = Trim$(UCase$(Field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & Filename & "')" _
+        & " WHERE (INI_File_Name='" & FileName & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
     Else
         SQL = SQL & "   AND ((INI_User_ID ='') OR (INI_User_ID IS NULL))"
     End If
-    If LenB(field) Then
-        SQL = SQL & " AND (INI_Field_Name='" & field & "')"
+    If LenB(Field) Then
+        SQL = SQL & " AND (INI_Field_Name='" & Field & "')"
     End If
     
     t_dbMainDatabase.ExecuteSQL SQL
@@ -1015,7 +1018,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1423,7 +1426,7 @@ Private Function fnShowODBCError() As String
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .item(i).Number & Space(5) & .item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1475,12 +1478,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1611,7 +1614,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1756,7 +1759,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1764,7 +1767,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -1960,7 +1963,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.Path 'use the App object to retrieve the path
+    szTemp = App.path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2084,12 +2087,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2299,7 +2302,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2560,14 +2563,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
