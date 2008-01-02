@@ -608,7 +608,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Exit Function
         End If
         
-        strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn,"
+        strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, fmldt_ulink,"
         strSQL = strSQL + " fml_int_ext, fml_vendor, fml_terminal, fml_date"
         strSQL = strSQL + " FROM fm_lad_tax, tx_use_link, fm_temp1"
         strSQL = strSQL + " WHERE fmldt_movement = fmm_movement"
@@ -761,7 +761,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             sType = "B"
         
             strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
-            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
+            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmldt_ulink,"
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
             strSQL = strSQL & " FROM fm_delivery,"
@@ -797,7 +797,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             sType = "I"
         
             strSQL = "SELECT fmm_movement, fmldt_bl_nbr, fmm_carrier, fmd_dest_code,"
-            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn,"
+            strSQL = strSQL & " fmd_dest_flag, fmd_prft_ctr, fmd_date, fmldt_trn, fmldt_ulink,"
             strSQL = strSQL & " fmmb_dv_line, ivh_link, ivh_prodtcl, fml_int_ext,"
             strSQL = strSQL & " fml_vendor, fml_terminal, fmmb_dv_vol namount"
             strSQL = strSQL & " FROM fm_delivery, fm_delvr_d,"
@@ -1165,7 +1165,19 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                             bOkToAdd = True
                         End If
                     Else
-                        bOkToAdd = True
+                        'david 01/02/2008  #578289
+                        If m_sEDIType = EDI_TYPE_D Then
+                            If fnCStr(!fml_int_ext) = "I" And fnCStr(!fmd_dest_flag) = "I" Then
+                                If fnGetPcUseGrp(tfnRound(!fml_terminal)) <> fnGetUseGrpFromLnk(tfnRound(!fmldt_ulink)) Then
+                                    bOkToAdd = True
+                                End If
+                            Else
+                                bOkToAdd = True
+                            End If
+                        Else
+                            bOkToAdd = True
+                        End If
+                    ''''''''''''''''''''''''''
                     End If
                 End If
                 
@@ -2180,6 +2192,42 @@ Private Function fnAddQuotes(sIn As String) As String
 
     fnAddQuotes = sTemp
     
+End Function
+''''''''''''''''''''''''''
+
+'david 01/02/2008  #578289
+Private Function fnGetPcUseGrp(nPc As Integer) As String
+        
+    Const SUB_NAME As String = "fnGetPcUseGrp"
+        
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "select prft_use_g from sys_prft_ctr where prft_ctr = " & nPc
+    
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
+    If Not rsTemp Is Nothing Then
+        fnGetPcUseGrp = fnCStr(rsTemp!prft_use_g)
+    End If
+    
+End Function
+
+Private Function fnGetUseGrpFromLnk(lUlink As Long) As String
+
+    Const SUB_NAME As String = "fnGetPcUseGrp"
+        
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "select tu_use_g from tx_use_g where tu_link = " & lUlink
+    
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
+    If Not rsTemp Is Nothing Then
+        fnGetUseGrpFromLnk = fnCStr(rsTemp!tu_use_g)
+    End If
+
 End Function
 ''''''''''''''''''''''''''
 
