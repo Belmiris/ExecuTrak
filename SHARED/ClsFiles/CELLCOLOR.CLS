@@ -284,7 +284,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     On Error GoTo errTrap
     
-    lRow = Val(Bookmark)
+    lRow = val(Bookmark)
     
     If lRow < 0 Then
         Exit Sub
@@ -466,7 +466,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             Select Case UCase(sOP)
             Case "<>"  'numeric/date/string not equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) <> Val(sRightValue) Then
+                    If val(sLeftValue) <> val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -480,7 +480,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "==", "=" 'numeric/date/string equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) = Val(sRightValue) Then
+                    If val(sLeftValue) = val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -494,7 +494,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<="  'numeric/date/string less than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) <= Val(sRightValue) Then
+                    If val(sLeftValue) <= val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -508,7 +508,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">="  'numeric/date/string greater than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) >= Val(sRightValue) Then
+                    If val(sLeftValue) >= val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -522,7 +522,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<"  'numeric/date/string less than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) < Val(sRightValue) Then
+                    If val(sLeftValue) < val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -536,7 +536,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">"  'numeric/date/string greater than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If Val(sLeftValue) > Val(sRightValue) Then
+                    If val(sLeftValue) > val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -596,10 +596,10 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                     ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
                         CellStyle.Font.Bold = True
                     Else
-                        If lForeColor >= 0 Then
+                        If lForeColor <> 0 Then
                             CellStyle.ForeColor = lForeColor
                         End If
-                        If lBackColor >= 0 Then
+                        If lBackColor <> 0 Then
                             CellStyle.BackColor = lBackColor
                         End If
                     End If
