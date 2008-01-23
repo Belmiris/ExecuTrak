@@ -596,12 +596,14 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                     ElseIf UCase(sRightSide) = FONTBOLD Then     'is a caption for column heading
                         CellStyle.Font.Bold = True
                     Else
-                        If lForeColor <> 0 Then
+                        'david 01/23/2008
+                        '0 is the color code for BLACK color
+                        'If lForeColor <> 0 Then
                             CellStyle.ForeColor = lForeColor
-                        End If
-                        If lBackColor <> 0 Then
+                        'End If
+                        'If lBackColor <> 0 Then
                             CellStyle.BackColor = lBackColor
-                        End If
+                        'End If
                     End If
                 End If
                 
