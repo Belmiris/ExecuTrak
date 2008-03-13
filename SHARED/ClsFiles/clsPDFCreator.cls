@@ -244,28 +244,37 @@ Private m_intRPP As Long
 Private m_intFontSize As Single
 Private m_PageBreakBefore As String
 '
+'david 01/23/2008  #579102 NDR
+Private m_intFontSizePortrait As Single
+Private m_intFontSizeLandscape As Single
+Private m_intRPPPortrait As Long
+Private m_intRPPLandscape As Long
+Private m_bAutoAdjustOrientation As Boolean
+''''''''''''''''''''''''''''''
 
 Private Sub Class_Initialize()
-  Dim xTemp As pdfFontStyle
-  Dim i As Integer
   
-  mvarFileNumber = 0
-  mvarEncodeASCII85 = False
-  Title = ""
-  ScaleMode = pdf72PxInch
-  PaperSize = pdfA4
-  Orientation = pdfPortrait
-  Margin = 0
-  mvarPages = 0
-  intUsedFont = 0
- 
-m_strSourceFile = ""
-m_strTargetFile = ""
-m_strFontname = "Courier New"
-m_intRPP = 66
-m_intFontSize = 6.5
-m_PageBreakBefore = ""
- 
+    Dim xTemp As pdfFontStyle
+    Dim i As Integer
+    
+    mvarFileNumber = 0
+    mvarEncodeASCII85 = False
+    Title = ""
+    ScaleMode = pdf72PxInch
+    PaperSize = pdfA4
+    Orientation = pdfPortrait
+    Margin = 0
+    mvarPages = 0
+    intUsedFont = 0
+    
+    m_strSourceFile = ""
+    m_strTargetFile = ""
+    m_strFontname = "Courier New"
+    m_intRPP = 66
+    m_intFontSize = 6.5
+    m_PageBreakBefore = ""
+    m_bAutoAdjustOrientation = False
+
 End Sub
 
 '
@@ -1620,6 +1629,8 @@ End Property
 
 Public Property Let RecordsPerPage(ByVal vNewValue As Variant)
     m_intRPP = vNewValue
+    m_intRPPPortrait = vNewValue
+    m_intRPPLandscape = vNewValue
 End Property
 
 Public Property Get Font() As Variant
@@ -1636,6 +1647,48 @@ End Property
 
 Public Property Let FontSize(ByVal vNewValue As Variant)
     m_intFontSize = vNewValue
+    m_intFontSizePortrait = vNewValue
+    m_intFontSizeLandscape = vNewValue
+End Property
+
+Public Property Get FontSizePortrait() As Variant
+    FontSizePortrait = m_intFontSizePortrait
+End Property
+
+Public Property Let FontSizePortrait(ByVal vNewValue As Variant)
+    m_intFontSizePortrait = vNewValue
+End Property
+
+Public Property Get FontSizeLandscape() As Variant
+    FontSizeLandscape = m_intFontSizeLandscape
+End Property
+
+Public Property Let FontSizeLandscape(ByVal vNewValue As Variant)
+    m_intFontSizeLandscape = vNewValue
+End Property
+
+Public Property Get AutoAdjustOrientation() As Boolean
+    AutoAdjustOrientation = m_bAutoAdjustOrientation
+End Property
+
+Public Property Let AutoAdjustOrientation(ByVal vNewValue As Boolean)
+    m_bAutoAdjustOrientation = vNewValue
+End Property
+
+Public Property Get RecordsPerPagePortrait() As Variant
+    RecordsPerPagePortrait = m_intRPPPortrait
+End Property
+
+Public Property Let RecordsPerPagePortrait(ByVal vNewValue As Variant)
+    m_intRPPPortrait = vNewValue
+End Property
+
+Public Property Get RecordsPerPageLandscape() As Variant
+    RecordsPerPageLandscape = m_intRPPLandscape
+End Property
+
+Public Property Let RecordsPerPageLandscape(ByVal vNewValue As Variant)
+    m_intRPPLandscape = vNewValue
 End Property
 
 Public Function CreatePDFFile() As String
@@ -1648,6 +1701,14 @@ Public Function CreatePDFFile() As String
     Dim nOrientation As Integer
     
     On Error GoTo errTrap
+    
+    'david 01/23/2008  #579102 NDR
+    CreatePDFFile = fnCheckSetOrientation()
+    ''''''''''''''''''''''''''''''
+    
+    If CreatePDFFile <> "" Then
+        Exit Function
+    End If
     
     If Orientation = pdfLandscape Then
         CreatePDFFile = CreatePDFFileLandscape()
@@ -1771,14 +1832,11 @@ errTrap:
         & Err.Number & ", Err Desc: " & Err.Description
 End Function
 
-Public Function CreatePDFFileLandscape() As String
+Private Function CreatePDFFileLandscape() As String
     Dim objFile As FileServer
     Dim strRow As String
     Dim i As Long
-    Dim j As Integer
-    Dim nLeft As Integer
     Dim m As Integer
-    Dim nOrientation As Integer
     
     On Error GoTo errTrap
     
@@ -1902,4 +1960,94 @@ End Function
 
 Private Function isFileExist() As Boolean
    isFileExist = IIf(Len(Dir(m_strSourceFile)) > 0, 1, 0)
+End Function
+
+Private Function fnCheckSetOrientation() As String
+    Dim objFile As FileServer
+    Dim strRow As String
+    Dim i As Long
+    Dim m As Integer
+    
+    On Error GoTo errTrap
+    
+    If Not m_bAutoAdjustOrientation Then
+        'okay, don't need to check
+        Exit Function
+    End If
+    
+    'note: the portrait page length must be > than the landscape page length + 5
+    If Trim(m_PageBreakBefore) = "" Or m_intFontSizeLandscape = m_intFontSizePortrait Or m_intRPPPortrait <= m_intRPPLandscape + 5 Then
+        'okay, don't need to check
+        Exit Function
+    End If
+    
+    If Not isFileExist() Then
+       fnCheckSetOrientation = m_strSourceFile & " File does not exist!"
+       Exit Function
+    End If
+    
+    Set objFile = New FileServer
+
+    If Not objFile.PrepareFile(m_strSourceFile) Then
+       fnCheckSetOrientation = "Failed to open " & m_strSourceFile & "!"
+       Exit Function
+    End If
+    
+    i = 0
+    
+    Do While Not objFile.EndOfFile
+        strRow = objFile.GetLine
+        i = i + 1
+        
+        '#Special code. Remove the first 3 empty lines
+        If m_PageBreakBefore <> "" And i = 1 Then
+            m = 0
+            Do While m <= 3
+                If Trim(strRow) = "" Then
+                    If Not objFile.EndOfFile Then
+                        strRow = objFile.GetLine
+                        i = i + 1
+                    End If
+                Else
+                    Exit Do
+                End If
+                m = m + 1
+            Loop
+        End If
+        
+        If m_PageBreakBefore <> "" Then
+            If i > 10 Then
+                If InStr(strRow, m_PageBreakBefore) > 0 Then
+                    i = i - 1
+                    Exit Do
+                End If
+            End If
+        End If
+        
+        If i >= m_intRPPPortrait Then
+            Exit Do
+        End If
+    Loop
+    
+    If i + 5 >= m_intRPPPortrait Then
+        If Orientation <> pdfPortrait Then
+            FontSize = m_intFontSizePortrait
+            Orientation = pdfPortrait
+            m_intRPP = m_intRPPPortrait
+        End If
+    Else
+        If Orientation <> pdfLandscape Then
+            FontSize = m_intFontSizeLandscape
+            Orientation = pdfLandscape
+            m_intRPP = m_intRPPLandscape
+        End If
+    End If
+    
+    objFile.CloseFile
+    fnCheckSetOrientation = ""
+    Exit Function
+    
+errTrap:
+    fnCheckSetOrientation = "An error has occurred while checking the report file. Err Code: " _
+        & Err.Number & ", Err Desc: " & Err.Description
 End Function
