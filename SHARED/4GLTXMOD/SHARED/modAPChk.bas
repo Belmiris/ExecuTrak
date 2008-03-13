@@ -49,7 +49,10 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
     Dim lNumberChecks As Long
     Dim lRecCount As Long
     Dim bGenerateStartChk As Boolean
-    Dim sLockData As String * 20
+    'david 03/12/2008  #583727
+    'fixed duplicate check number (after entering 0)
+    'Dim sLockData As String * 20
+    Dim sLockData As String
     Dim lReservedNbr As Long
     
     On Error GoTo errTrap
@@ -187,18 +190,18 @@ End Function
 
 Public Sub subUnlockP_checks()
     Const SUB_NAME = "subUnlockP_checks"
-    Dim sSQL As String
+    Dim sSql As String
     Dim rsTemp As Recordset
     If m_FirstLockedCheck = "" Then
        Exit Sub
     End If
-    sSQL = "DELETE FROM sys_row_lock" _
+    sSql = "DELETE FROM sys_row_lock" _
          & " WHERE srl_table = 'p_checks'" _
          & " AND srl_prog_id = " & tfnSQLString(LCase(App.EXEName)) _
          & " AND srl_user_id = '" & tfnGetUserName & "'" _
          & " AND srl_criteria BETWEEN " & tfnSQLString(m_FirstLockedCheck) _
          & " AND " & tfnSQLString(m_LastLockedCheck)
-    apc_ExecuteSQL sSQL
+    apc_ExecuteSQL sSql
     m_FirstLockedCheck = ""
     m_LastLockedCheck = ""
     
