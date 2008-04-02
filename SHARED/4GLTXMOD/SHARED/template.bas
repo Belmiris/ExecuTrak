@@ -659,8 +659,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -692,7 +692,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -723,7 +723,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
             End If
             .Close
         End With
@@ -732,7 +732,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).Value)
+                sDBVer = Trim$(.Fields(0).value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -1018,7 +1018,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1426,7 +1426,7 @@ Private Function fnShowODBCError() As String
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .item(i).Number & Space(5) & .item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1478,12 +1478,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1614,7 +1614,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1759,7 +1759,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1767,7 +1767,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1963,7 +1963,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.path 'use the App object to retrieve the path
+    szTemp = App.Path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2087,12 +2087,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2302,7 +2302,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2563,14 +2563,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -3087,7 +3087,9 @@ Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
                            sSql As String, _
                            Optional vShowMsg As Variant, _
-                           Optional sLockedUser As String = "") As Boolean
+                           Optional ByRef sLockedUser As String = "", _
+                           Optional ByRef sLockError As String = "", _
+                           Optional ByVal bCalledFromFixLock As Boolean = False) As Boolean
 
     Const SUB_NAME = "tfnLockRow"
     Const sErrID = "Lock Row"
@@ -3101,13 +3103,17 @@ Public Function tfnLockRow(sProgramID As String, _
     Dim sTemp As String
     Dim t_lLockHandle As Long     'Handle for row lock routine
     Dim i As Integer
-
+    Dim bShowMsg As Boolean
+    Dim sErrMsg As String
+    
     #If FACTOR_MENU = 1 Then
         tfnLockRow = True
         Exit Function
     #End If
     
     tfnLockRow = False
+    sLockedUser = ""
+    sLockError = ""
     
     #If DEVELOP Then
         If Trim(sTable) = "" Then
@@ -3162,20 +3168,44 @@ Public Function tfnLockRow(sProgramID As String, _
     Next i
 
     On Error GoTo errOpenRecord
-    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
+    strSQL = "EXECUTE PROCEDURE lock_row(" & tfnSQLString(sTemp) & ", " & tfnSQLString(sProgramID) _
+        & ", " & tfnSQLString(sUserID) & ", " & tfnSQLString(sCriteria) & ")"
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
-        t_lLockHandle = rsTemp.Fields(0)
+        t_lLockHandle = tfnRound(rsTemp.Fields(0))
         
         If t_lLockHandle = 0 Then
-            If Trim(rsTemp.Fields(1)) = "" Then
+            If Trim(rsTemp.Fields(1) & "") = "" Then
                 #If DEVELOP Then
                     MsgBox "Make sure you logged on a database with locking procedures setup", vbOKOnly
                 #End If
-            Else
-                Dim bShowMsg As Boolean
                 
+                'david 04/01/2008  #588118
+                'default to not showing the exception error
+                If IsMissing(vShowMsg) Then
+                    bShowMsg = False
+                Else
+                    bShowMsg = True
+                End If
+                
+                If Not objErrHandler Is Nothing Then
+                    tfnErrHandler SUB_NAME, -1, Trim(rsTemp.Fields(2) & ""), bShowMsg
+                End If
+                
+                'handle the lock error
+                'e.g. rsTemp.Fields(2)=Exception Error: -696, Looking for matching lock record.
+                'try to fixed the exception error
+                'and lock again
+                If Not bCalledFromFixLock Then
+                    rsTemp.Close
+                    Set rsTemp = Nothing
+                    
+                    tfnLockRow = fnFixLockError(sProgramID, sTable, sSql, sLockedUser, sLockError)
+                    Exit Function
+                End If
+                ''''''''''''''''''''''''''
+            Else
                 If IsMissing(vShowMsg) Then
                     bShowMsg = True
                 Else
@@ -3184,10 +3214,11 @@ Public Function tfnLockRow(sProgramID As String, _
                 
                 'david 01/12/2001
                 'return the user id that locks the record(s)
-                sLockedUser = Trim(rsTemp.Fields(1))
+                sLockedUser = Trim(rsTemp.Fields(1) & "")
                 
                 If bShowMsg Then
-                    MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf & "Select another record for edit or try again later.", vbOKOnly
+                    MsgBox "The record you have selected is locked by " & sLockedUser & "." & vbCrLf _
+                        & "Select another record for edit or try again later.", vbOKOnly
                 End If
             End If
         End If
@@ -3215,7 +3246,7 @@ Public Function tfnLockRow(sProgramID As String, _
  
 errOpenRecord:
     #If NO_ERROR_HANDLER Then
-        MsgBox "Cannot lock table"
+        MsgBox "Cannot lock the record.", vbCritical
     #Else
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -3229,7 +3260,68 @@ errTableName:
         MsgBox "Please make sure the table Name for locking is correct", vbOKOnly, App.Title
     #End If
     Err.Clear
+
 End Function
+
+'david 04/01/2008  #588118
+Private Function fnFixLockError(sProgramID As String, _
+                                sTable As String, _
+                                sCriteria As String, _
+                                ByRef sLockedUser As String, _
+                                ByRef sLockError As String) As Boolean
+    
+    Const SUB_NAME As String = "fnFixLockError"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    fnFixLockError = False
+    sLockedUser = ""
+    sLockError = ""
+    
+    'try to fix the exception error
+    'by fixing the sys_row_lock records
+    strSQL = "select distinct srl_user_id"
+    strSQL = strSQL & " from sys_row_lock"
+    strSQL = strSQL & " where srl_table = " & tfnSQLString(sTable)
+    strSQL = strSQL & " and srl_prog_id = " & tfnSQLString(sProgramID)
+    strSQL = strSQL & " and srl_criteria = " & tfnSQLString(sCriteria)
+    strSQL = strSQL & " order by 1"
+
+    If tfnGetRecordSet(rsTemp, strSQL, SUB_NAME) > 0 Then
+        While Not rsTemp.EOF
+            If sLockedUser <> "" Then
+                sLockedUser = sLockedUser + ", "
+            End If
+            sLockedUser = sLockedUser + Trim(rsTemp!srl_user_id & "")
+            rsTemp.MoveNext
+        Wend
+        
+        If sLockedUser <> tfnGetUserName() Then
+            If MsgBox("The record you have selected is locked by " & sLockedUser _
+               & ". Do you want to delete the locks and try again?", vbQuestion + vbYesNo) = vbNo Then
+                Exit Function
+            End If
+        End If
+        
+        'delete the locks
+        strSQL = "delete from sys_row_lock"
+        strSQL = strSQL & " where srl_table = " & tfnSQLString(sTable)
+        strSQL = strSQL & " and srl_prog_id = " & tfnSQLString(sProgramID)
+        strSQL = strSQL & " and srl_criteria = " & tfnSQLString(sCriteria)
+        
+        If Not tfnExecuteSQL(strSQL, SUB_NAME) Then
+            'sLockedUser is set
+            'sLockError = "Failed to delete the locks"
+            Exit Function
+        End If
+    End If
+    
+    'try to lock the record again
+    'e.g. Exception Error: -696, Looking for matching lock record.
+    fnFixLockError = tfnLockRow(sProgramID, sTable, sCriteria, True, sLockedUser, sLockError, True)
+
+End Function
+''''''''''''''''''''''''''
 
 '##############################################################################
 ' Function/Subroutine: tfnLockRow_EX
@@ -3268,7 +3360,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3485,7 +3577,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -4537,3 +4629,66 @@ Private Function fnDataExists(SQL As String) As Boolean
     
     Set rsTemp = Nothing
 End Function
+
+'this function returns record count
+Public Function tfnGetRecordSet(rsTemp As Recordset, szSQL As String, _
+                                 Optional szCalledFrom As String = "", _
+                                 Optional bShowErrow As Boolean = True) As Long
+    
+    On Error GoTo SQLError
+    
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    If rsTemp.RecordCount > 0 Then
+        rsTemp.MoveLast
+        rsTemp.MoveFirst
+    End If
+    
+    tfnGetRecordSet = rsTemp.RecordCount
+    Exit Function
+
+SQLError:
+    
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Failed to execute the SQL: " & szSQL, vbCritical
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler "tfnGetRecordSet," & szCalledFrom, szSQL, bShowErrow
+        Else
+            MsgBox "Failed to execute the SQL: " & szSQL, vbCritical
+        End If
+    #End If
+    
+    tfnGetRecordSet = -1
+    On Error GoTo 0
+
+End Function
+
+Public Function tfnExecuteSQL(szSQL As String, _
+                              Optional szCalledFrom As String = "", _
+                              Optional bShowErrow As Boolean = True) As Boolean
+                
+    On Error GoTo SQLError
+    
+    t_dbMainDatabase.ExecuteSQL szSQL
+    
+    tfnExecuteSQL = True
+    Exit Function
+    
+SQLError:
+      
+    #If NO_ERROR_HANDLER Then
+        MsgBox "Failed to execute the SQL: " & szSQL, vbCritical
+    #Else
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler "tfnExecuteSQL," & szCalledFrom, szSQL, bShowErrow
+        Else
+            MsgBox "Failed to execute the SQL: " & szSQL, vbCritical
+        End If
+    #End If
+      
+    tfnExecuteSQL = False
+    On Error GoTo 0
+
+End Function
+
