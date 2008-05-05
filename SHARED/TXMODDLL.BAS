@@ -17,81 +17,81 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
 
 #If DEBUGGING Then
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
 
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByVal szConnect As String) As Long
     
     Declare Function TXMOD_Detach Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long) As Long
         
     Declare Function TXMOD_VB_CalculateLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpLineItem As CMovementLineItem, _
         ByRef nRecords As Long) As Long
     
     Declare Function TXMOD_GetLineTaxes Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpTaxRecord() As CApplicableTaxes) As Long
     
     Declare Function TXMOD_GetLineTax Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nIdx As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nIdx As Long, _
         ByRef bpTaxRecord As CApplicableTaxes) As Long
     
     Declare Function TXMOD_DetermineAccounts Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, _
+        (ByVal hInst As Long, ByVal hwnd As Long, _
         ByRef bpGlItem As CGLTaxEffectItem, ByRef lDebitAccount As Long, _
         ByRef lCreditAccount As Long) As Long
     
     'david 08/29/2003  #393678-4
     Declare Function TXMOD_gl_sd_gals Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal nVessel As Integer, _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal nVessel As Integer, _
         ByVal dGallons As Double, ByVal dMiles As Double, ByVal dTotGals As Double) As Long
     ''''''''''''''''''''''''''''
     'Vijaya 02/10/2004  #395302
     Declare Function TXMOD_tx_date Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal sDate As String) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sDate As String) As Long
     ''''''''''''''''''''''''''''
     '#411523wj042505 -- Set it after TXMOD_tx_date -- Used in Limit Type "I" tax calculations
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
-        (ByVal hInst As Long, ByVal hWnd As Long, ByVal dAccmTxbleAmt As Double) As Long
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
 #End If
 
@@ -412,7 +412,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         ''''''''''''''''''''''''''''''''
         
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -453,7 +453,7 @@ Public Function fnCalculateTaxes(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1054,7 +1054,7 @@ Public Sub subUnloadTaxMods(Optional bShowMsgBox As Boolean = True, _
     If nTaxModLoaded = TAXMOD_LOADED Or bAlwaysUnload Then
         Dim i As Integer
         Do
-            i = TXMOD_Detach(App.hInstance, Forms(0).hWnd)
+            i = TXMOD_Detach(App.hInstance, Forms(0).hwnd)
             DoEvents
         Loop Until i <> TXMOD_TASKBLOCKED
         If i <> TXMOD_OK Then
@@ -1242,7 +1242,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1283,7 +1283,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1450,7 +1450,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
             
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1491,7 +1491,7 @@ Public Function fnGetTaxAmount1(szProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes)
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -1619,14 +1619,14 @@ Public Sub subAddTaxItem1(szProduct As String, _
             nLineType = TXMOD_EXTBOL   ' External bill of lading
         Else
             nLineType = TXMOD_INTBOL  ' Internal bill of lading
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     Else
         If bExternal Then
             nLineType = TXMOD_EXTDEL   ' External delivery
         Else
             nLineType = TXMOD_INTDEL   ' Internal delivery
-            lInternalFuel = lInternalFuel + Round(fGross)
+            lInternalFuel = lInternalFuel + round(fGross)
         End If
     End If
     
@@ -1793,7 +1793,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
     End If
     
     Do
-        i = TXMOD_Attach(App.hInstance, Forms(0).hWnd, szConnect)
+        i = TXMOD_Attach(App.hInstance, Forms(0).hwnd, szConnect)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -1814,7 +1814,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
             
             i = TXMOD_OK
             Do
-                i = TXMOD_Attach(App.hInstance, Forms(0).hWnd, szConnect)
+                i = TXMOD_Attach(App.hInstance, Forms(0).hwnd, szConnect)
                 If i = TXMOD_TASKBLOCKED Then
                     DoEvents
                 End If
@@ -1974,7 +1974,7 @@ Public Function fnTaxInformation(sProduct As String, _
             
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2014,7 +2014,7 @@ Public Function fnTaxInformation(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2156,7 +2156,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2196,7 +2196,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2334,7 +2334,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
     
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -2374,7 +2374,7 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2543,7 +2543,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2582,7 +2582,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -2659,7 +2659,7 @@ Public Sub subAccumulateTax(ByVal lTrn As Long, _
             If IsMissing(lLimit) Then
                 .m_lLimit = 0
             Else
-                .m_lLimit = Val(lLimit)
+                .m_lLimit = val(lLimit)
             End If
             If IsMissing(lLimit) Then
                 .m_cBasis = vbKeySpace
@@ -2805,9 +2805,9 @@ Private Sub subSet_gl_sd_gals(ByVal hld_vessel As Integer, _
         
     nTries = TAXMOD_TRIES
     Do
-        hld_miles = Round(hld_miles)
-        hld_tot_gals = Round(hld_tot_gals, 1)
-        nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hWnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
+        hld_miles = round(hld_miles)
+        hld_tot_gals = round(hld_tot_gals, 1)
+        nRet = TXMOD_gl_sd_gals(App.hInstance, Forms(0).hwnd, hld_vessel, hld_gals, hld_miles, hld_tot_gals)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -2922,7 +2922,7 @@ Private Sub subSet_tx_date(ByVal sDate As String, _
     
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_tx_date(App.hInstance, Forms(0).hWnd, sDate)
+        nRet = TXMOD_tx_date(App.hInstance, Forms(0).hwnd, sDate)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -2976,7 +2976,7 @@ Private Sub subSet_AccmTxbleAmt(ByVal dAccmTxbleAmt As Double, _
     
     nTries = TAXMOD_TRIES
     Do
-        nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hWnd, dAccmTxbleAmt)
+        nRet = TXMOD_set_accm_txble_amt(App.hInstance, Forms(0).hwnd, dAccmTxbleAmt)
         If i = TXMOD_TASKBLOCKED Then
             DoEvents
         End If
@@ -3038,6 +3038,7 @@ End Sub
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
 Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+    
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3082,6 +3083,11 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim sIEFlag As String
     Dim bBOL_External As Boolean
     Dim lDest As Long
+    
+    'david 04/21/2008  #501475
+    Dim texas_term_origin As Boolean
+    Dim sum_all_atax As Double
+    ''''''''''''''''''''''''''
     
     '#Make sure it is FM or Its Editor
     If m_Disable_A_Taxes Then
@@ -3167,6 +3173,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Screen.MousePointer = vbHourglass
     '#Build Lading side A-Taxes array --> aryATax
     BOL_atx_ptr = -1
+    'david 04/21/2008  #501475
+    sum_all_atax = 0
+    ''''''''''''''''''''''''''
+    
     While Not rsLadHeader.EOF
         strSQL = "SELECT * " _
                & " FROM MLadingDetail " _
@@ -3182,6 +3192,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         subResetTaxes True, True
         lTotATaxGal = 0
         nLine = 0
+        bTexasTax = False
         
         strSQL = "SELECT dPickupDate FROM mLading"
         strSQL = strSQL & " WHERE lMovement=" & lMovement
@@ -3276,10 +3287,20 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 'david 02/10/2006  #509841
                 'get the texas loading fee for the lading
                 'adjust aryTaxInfo() array if it is less than the delivery A Tax
-                fLadingATax = fnGetLadingATax(rsLadD)
+                fLadingATax = fnGetLadingATax(rsLadHeader, rsLadD, m_local, lMovement)
                 
-                If Abs(fTaxes) > Abs(fLadingATax) Then
-                    fTaxes = fLadingATax
+                'david 04/21/2008  #501475
+                If Not bTexasTax Then
+                    bTexasTax = fTaxes > 0
+                End If
+                ''''''''''''''''''''''''''
+                
+                'david 04/21/2008  #501475
+                If fLadingATax <> 0 Or (fLadingATax = 0 And (Not fnIsTexasDiverted( _
+                   rsLadHeader, rsLadD, m_local, lMovement))) Then
+                    If Abs(fTaxes) > Abs(fLadingATax) Then
+                        fTaxes = fLadingATax
+                    End If
                 End If
                 '''''''''''''''''''''''''''
                 
@@ -3307,6 +3328,9 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         aryATax(BOL_atx_ptr).a_tax_tot = 0
                     Else
                         aryATax(BOL_atx_ptr).a_tax_tot = fTaxes * lATaxGal / lTotATaxGal
+                        'david 04/21/2008  #501475
+                        sum_all_atax = sum_all_atax + tfnRound(aryATax(BOL_atx_ptr).a_tax_tot, 2)
+                        ''''''''''''''''''''''''''
                     End If
                     aryATax(BOL_atx_ptr).a_tax_used = 0
                     .MoveNext
@@ -3348,6 +3372,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
     
     start_ldfee_rec
+    
+    'david 04/21/2008  #501475
+    If sum_all_atax = 0 Then
+        texas_term_origin = True
+    Else
+        texas_term_origin = False
+    End If
+    ''''''''''''''''''''''''''
     
     Do While Not rsDelD.EOF
         Screen.MousePointer = vbHourglass
@@ -3391,41 +3423,121 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     this_tax = Abs(aryATax(i).a_tax_tot) - Abs(aryATax(i).a_tax_used)
                 End If
                 
-                If Not bTexasTax Then
-                     '#determine if Internal or extLad
-                     bBOL_External = True
-                     rsLadHeader.MoveFirst
-                     Do While Not rsLadHeader.EOF
-                        Screen.MousePointer = vbHourglass
+                'david 04/21/2008  #501475
+                'The 1st "Do While True" loop will check for Texas diverted gals.
+                'See if these gallons were suppose to be delivered outside of
+                'Texas, but were diverted into Texas. The  origin on all bills of
+                'lading in the movement must be an external origin. The physical
+                'destination must be Texas. The tax origin must not be Texas
+                '(texas_tax flag) on any bill of lading within the movement.
+                Do While True
+                    If bTexasTax Then
+                        Exit Do
+                    End If
                         
-                        If rsLadHeader!lLading = rsMvBal!lLading Then
-                            bBOL_External = rsLadHeader!bExternal
+                    '#determine if Internal or extLad
+                    bBOL_External = True
+                    rsLadHeader.MoveFirst
+                    Do While Not rsLadHeader.EOF
+                       Screen.MousePointer = vbHourglass
+                       
+                       If rsLadHeader!lLading = rsMvBal!lLading Then
+                           bBOL_External = rsLadHeader!bExternal
+                           Exit Do
+                       End If
+                       rsLadHeader.MoveNext
+                    Loop
+                        
+                    If bBOL_External = False Then
+                        bTexasTax = True
+                        bTexasDiverted = False
+                        Exit Do
+                    ElseIf rsDelD!bExternal = True Then
+                        strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(rsDelD!lDestination)
+                        Set rsTemp = txMod_OpenRecord(strSQL)
+                        If Not rsTemp Is Nothing Then
+                           If rsTemp.RecordCount > 0 Then
+                               strSQL = "SELECT * FROM sys_city WHERE city_code = " & tfnSQLString(rsTemp!an_city)
+                               Set rsTemp = txMod_OpenRecord(strSQL)
+                               If Not rsTemp Is Nothing Then
+                                   If rsTemp.RecordCount > 0 Then
+                                       sTaxState = Trim(rsTemp!city_state & "")
+                                       If sTaxState = "TX" Then
+                                           bTexasDiverted = True
+                                       End If
+                                   End If
+                               End If
+                           End If
+                        End If
+                    End If
+                        
+                    Exit Do
+                Loop
+                
+                'This 2nd "Do While True" loop will check for gallons sold from an
+                'internal Terminal Operation. The origin on all bills of lading in the
+                'movement must be an internal origin with NO Texas Loading Fee
+                '(type Y or C) & identified as an internal terminal operation (found in
+                'tx_term as a type = 'P' and state = 'TO'). The physical destination must
+                'be external & Texas.
+                'the Texas Loading Fee should be treated
+                Do While True
+                    If Not texas_term_origin Then
+                        Exit Do
+                    End If
+                
+                    '#determine if Internal or extLad
+                    bBOL_External = False
+                    rsLadHeader.MoveFirst
+                    Do While Not rsLadHeader.EOF
+                       Screen.MousePointer = vbHourglass
+                       
+                       If rsLadHeader!lLading = rsMvBal!lLading Then
+                           bBOL_External = rsLadHeader!bExternal
+                           Exit Do
+                       End If
+                       rsLadHeader.MoveNext
+                    Loop
+                
+                    If bBOL_External Or rsDelD!bExternal = False Then
+                        texas_term_origin = False
+                        Exit Do
+                    End If
+                
+                    strSQL = "SELECT * FROM tx_term WHERE txtm_type = 'P'"
+                    strSQL = strSQL & " and txtm_code = " & tfnRound(rsLadHeader!lTerminal)
+                    strSQL = strSQL & " and txtm_state = 'TO'"
+                    Set rsTemp = txMod_OpenRecord(strSQL)
+                    If rsTemp Is Nothing Then
+                        texas_term_origin = False
+                        Exit Do
+                    Else
+                        If rsTemp.RecordCount <= 0 Then
+                            texas_term_origin = False
                             Exit Do
                         End If
-                        rsLadHeader.MoveNext
-                     Loop
-                     If bBOL_External = False Then
-                         bTexasTax = True
-                         bTexasDiverted = False
-                     ElseIf rsDelD!bExternal = True Then
-                         strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(rsDelD!lDestination)
-                         Set rsTemp = txMod_OpenRecord(strSQL)
-                         If Not rsTemp Is Nothing Then
-                            If rsTemp.RecordCount > 0 Then
-                                strSQL = "SELECT * FROM sys_city WHERE city_code = " & tfnSQLString(rsTemp!an_city)
-                                Set rsTemp = txMod_OpenRecord(strSQL)
-                                If Not rsTemp Is Nothing Then
-                                    If rsTemp.RecordCount > 0 Then
-                                        sTaxState = Trim(rsTemp!city_state & "")
-                                        If sTaxState = "TX" Then
-                                            bTexasDiverted = True
-                                        End If
+                    End If
+                
+                    strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(rsDelD!lDestination)
+                    Set rsTemp = txMod_OpenRecord(strSQL)
+                    If Not rsTemp Is Nothing Then
+                        If rsTemp.RecordCount > 0 Then
+                            strSQL = "SELECT * FROM sys_city WHERE city_code = " & tfnSQLString(rsTemp!an_city)
+                            Set rsTemp = txMod_OpenRecord(strSQL)
+                            If Not rsTemp Is Nothing Then
+                                If rsTemp.RecordCount > 0 Then
+                                    sTaxState = Trim(rsTemp!city_state & "")
+                                    If sTaxState = "TX" Then
+                                        bTexasDiverted = True
                                     End If
                                 End If
                             End If
-                         End If
+                       End If
                     End If
-               End If
+                    
+                    Exit Do
+                Loop
+                ''''''''''''''''''''''''''
                 
                 'david 03/23/2005  #478014
                 'fixed RTE 9 subscript out of range
@@ -3451,6 +3563,16 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                           
         rsDelD.MoveNext
     Loop
+    
+    'david 04/21/2008  #501475
+    'If this is recongnized as a sale from a Terminal Operations, the Texas
+    'Loading Fee should be treated exactly the same as though it were a Texas
+    'Diversion sale. So, set the texas_diverted flag to a 'True' value before
+    'sending to "monkey_the_numbers".
+    If texas_term_origin Then
+        bTexasDiverted = True
+    End If
+    ''''''''''''''''''''''''''
     
     If bTexasTax Or bTexasDiverted Then
         dsl_fuel_group = sSysParm1055
@@ -3569,9 +3691,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     strSQL = strSQL & " AND cTaxBasis = 'A'"
     txMod_ExeCuteSQL strSQL, , , m_local
     ''''''''''''''''''''''''''
+
 End Sub
 
-Private Function fnGetLadingATax(rsLadD As Recordset) As Double
+Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
@@ -3627,6 +3750,45 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
                 arryProdTaxUseG(i).fTotal = arryProdTaxUseG(i).fTotal + fBase
             End If
             
+            'take care of texas import (internal lading)
+            If fnIsImportToTexas(rsLadHeader, rsLadD, m_local, lMovement) Then
+                For i = 0 To nProdTaxUseGCount
+                    If arryProdTaxUseG(i).sTaxUseG = "" Then
+                        Exit For
+                    ElseIf arryProdTaxUseG(i).sTaxUseG = "SSSS  TX" Then
+                        If arryProdTaxUseG(i).sProdTcl = sProdTcl Then
+                            Exit For
+                        End If
+                    End If
+                Next i
+                
+                If i > UBound(arryProdTaxUseG) Then
+                    ReDim Preserve arryProdTaxUseG(UBound(arryProdTaxUseG) + 5)
+                End If
+                
+                If arryProdTaxUseG(i).sTaxUseG = "" Then
+                    If !bGross Then
+                        arryProdTaxUseG(i).sNGU = "G"
+                        fBase = tfnRound(!lGross * !fCost, 2)
+                    Else
+                        arryProdTaxUseG(i).sNGU = "N"
+                        fBase = tfnRound(!lNet * !fCost, 2)
+                    End If
+                    
+                    arryProdTaxUseG(i).sProductCode = !szProductCode
+                    arryProdTaxUseG(i).sProdTcl = sProdTcl
+                    arryProdTaxUseG(i).sTaxUseG = "SSSS  TX"
+                    arryProdTaxUseG(i).fATaxGGalGross = !lGross
+                    arryProdTaxUseG(i).fATaxGalNet = !lNet
+                    arryProdTaxUseG(i).fTotal = fBase
+                    nProdTaxUseGCount = i
+                Else
+                    arryProdTaxUseG(i).fATaxGGalGross = arryProdTaxUseG(i).fATaxGGalGross + !lGross
+                    arryProdTaxUseG(i).fATaxGalNet = arryProdTaxUseG(i).fATaxGalNet + !lNet
+                    arryProdTaxUseG(i).fTotal = arryProdTaxUseG(i).fTotal + fBase
+                End If
+            End If
+            
             .MoveNext
         Wend '#Lading D
     
@@ -3655,8 +3817,10 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
             For j = 0 To lCount - 1
                 'need to change the sign first
                 If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
-                    If Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cBasis = vbKeyA Then
-                        fATaxAmt = fATaxAmt + tfnRound(Taxes(j).m_dAmount, 2)
+                    If (Taxes(j).m_cCharge = vbKeyY Or Taxes(j).m_cCharge = vbKeyC) And Taxes(j).m_cBasis = vbKeyA Then
+                        'david 04/21/2008  #501475 NDR
+                        fATaxAmt = fATaxAmt + (tfnRound(Taxes(j).m_dAmount, 2) * nSign)
+                        ''''''''''''''''''''''''''''''
                     End If
                 End If
             Next j
@@ -3664,7 +3828,7 @@ Private Function fnGetLadingATax(rsLadD As Recordset) As Double
     Next i
     
     ReDim arryProdTaxUseG(0)
-    fnGetLadingATax = fATaxAmt * nSign
+    fnGetLadingATax = fATaxAmt
     
 End Function
 
@@ -3685,6 +3849,172 @@ Private Function fnGetProdTcl(szProductCode As String) As String
         End If
     End If
 
+End Function
+
+'david 04/21/2008  #501475
+'for internal lading only
+'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
+Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
+    
+    Const SUB_NAME = "fnIsImportToTexas"
+    Dim strSQL As String
+    Dim rsMvBal As Recordset
+    Dim rsTemp As Recordset
+    Dim sToState As String
+    
+    If rsLadHeader!bExternal Then
+        Exit Function
+    End If
+    
+    strSQL = "SELECT prft_ctr, prft_city, city_state"
+    strSQL = strSQL & " from sys_city, sys_prft_ctr"
+    strSQL = strSQL & " where prft_city = city_code"
+    strSQL = strSQL & " and prft_ctr = " & tfnRound(rsLadHeader!lTerminal)
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        Exit Function
+    End If
+    
+    'if from state is 'TX'...
+    If fnCStr(rsTemp!city_state) = "TX" Then
+        Exit Function
+    End If
+    
+    strSQL = "SELECT MDelivery.lDestination, MDelivery.bExternal"
+    strSQL = strSQL & " FROM MBalance, MDelivery, MDeliveryDetail"
+    strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
+    strSQL = strSQL & " and MDelivery.lDelivery = MDeliveryDetail.lDelivery"
+    strSQL = strSQL & " and MBalance.lDeliveryLine = MDeliveryDetail.lLineNumber"
+    strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
+    strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
+    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
+    strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDelivery.bExternal"
+    Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
+    If rsMvBal Is Nothing Then
+        Exit Function
+    End If
+
+    Do While Not rsMvBal.EOF
+        If Not rsMvBal!bExternal Then
+            Exit Function
+        End If
+        
+        strSQL = "SELECT an_customer, an_city, city_state"
+        strSQL = strSQL & " from ar_altname, sys_city"
+        strSQL = strSQL & " where an_city = city_code"
+        strSQL = strSQL & " AND an_customer = " & tfnRound(rsMvBal!lDestination)
+        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
+        If rsTemp Is Nothing Then
+            Exit Function
+        End If
+        
+        If rsTemp.RecordCount = 0 Then
+            Exit Function
+        End If
+        
+        If sToState = "" Then
+            'if to state is not 'TX'...
+            If fnCStr(rsTemp!city_state) <> "TX" Then
+                Exit Function
+            End If
+        Else
+            'if mixed delivery dest state...
+            If fnCStr(rsTemp!city_state) <> sToState Then
+                Exit Function
+            End If
+        End If
+        
+        rsMvBal.MoveNext
+    Loop
+    
+    fnIsImportToTexas = True
+End Function
+
+'david 04/21/2008  #501475
+'for internal lading only
+'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
+Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
+    
+    Const SUB_NAME = "fnIsTexasDiverted"
+    Dim strSQL As String
+    Dim rsMvBal As Recordset
+    Dim rsTemp As Recordset
+    Dim sToState As String
+    
+    If Not rsLadHeader!bExternal Then
+        Exit Function
+    End If
+    
+    strSQL = "SELECT city_state"
+    strSQL = strSQL & " from fm_terminal, sys_city"
+    strSQL = strSQL & " where fmt_city = city_code"
+    strSQL = strSQL & " and fmt_code= " & tfnRound(rsLadHeader!lTerminal)
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount = 0 Then
+        Exit Function
+    End If
+    
+    'if from state is 'TX'...
+    If fnCStr(rsTemp!city_state) <> "TX" Then
+        Exit Function
+    End If
+    
+    strSQL = "SELECT MDelivery.lDestination, MDelivery.bExternal"
+    strSQL = strSQL & " FROM MBalance, MDelivery, MDeliveryDetail"
+    strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
+    strSQL = strSQL & " and MDelivery.lDelivery = MDeliveryDetail.lDelivery"
+    strSQL = strSQL & " and MBalance.lDeliveryLine = MDeliveryDetail.lLineNumber"
+    strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
+    strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
+    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
+    strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDelivery.bExternal"
+    Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
+    If rsMvBal Is Nothing Then
+        Exit Function
+    End If
+
+    Do While Not rsMvBal.EOF
+        If Not rsMvBal!bExternal Then
+            Exit Function
+        End If
+        
+        strSQL = "SELECT an_customer, an_city, city_state"
+        strSQL = strSQL & " from ar_altname, sys_city"
+        strSQL = strSQL & " where an_city = city_code"
+        strSQL = strSQL & " AND an_customer = " & tfnRound(rsMvBal!lDestination)
+        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
+        If rsTemp Is Nothing Then
+            Exit Function
+        End If
+        
+        If rsTemp.RecordCount = 0 Then
+            Exit Function
+        End If
+        
+        If sToState = "" Then
+            'if to state is not 'TX'...
+            If fnCStr(rsTemp!city_state) <> "TX" Then
+                Exit Function
+            End If
+        Else
+            'if mixed delivery dest state...
+            If fnCStr(rsTemp!city_state) <> sToState Then
+                Exit Function
+            End If
+        End If
+        
+        rsMvBal.MoveNext
+    Loop
+    
+    fnIsTexasDiverted = True
 End Function
 
 Private Function fnGetATaxCodeDesc(ByVal rsDD As Recordset, _
@@ -4400,7 +4730,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+            nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
             
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
@@ -4438,7 +4768,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
         ReDim Taxes(nRecords - 1)
         nTries = TAXMOD_TRIES
         Do
-            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+            nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
             If i = TXMOD_TASKBLOCKED Then
                 DoEvents
             End If
@@ -4514,7 +4844,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                 
                 nTries = TAXMOD_TRIES
                 Do
-                    nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hWnd, myStruct, nRecords)
+                    nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
                     
                     If i = TXMOD_TASKBLOCKED Then
                         DoEvents
@@ -4552,7 +4882,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
                 ReDim Taxes(nRecords - 1)
                 nTries = TAXMOD_TRIES
                 Do
-                    nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hWnd, Taxes())
+                    nRet = TXMOD_GetLineTaxes(App.hInstance, Forms(0).hwnd, Taxes())
                     If i = TXMOD_TASKBLOCKED Then
                         DoEvents
                     End If
@@ -5193,7 +5523,7 @@ Private Function finv_classes( _
     
     'returning pr_inv_classes As Recordset
         
-    Dim sSql As String
+    Dim sSQL As String
     Dim iIndex As Integer
     Dim rs As Recordset
     Static rsArray() As Recordset
@@ -5210,9 +5540,9 @@ Private Function finv_classes( _
         If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
     Loop 'While
     
-    sSql = "SELECT * FROM inv_classes WHERE icl_code = " & tfnSQLString(sParm1) & _
+    sSQL = "SELECT * FROM inv_classes WHERE icl_code = " & tfnSQLString(sParm1) & _
             " AND icl_type = " & tfnSQLString(sParm2)
-    Set rs = txMod_OpenRecord(sSql, SUB_NAME, db)
+    Set rs = txMod_OpenRecord(sSQL, SUB_NAME, db)
     If rs Is Nothing Then
         Exit Function
     End If
@@ -5256,5 +5586,9 @@ finv_classesRedim:
     End If
     
 End Function    ''finv_classes
+
+Private Function fnCStr(v As Variant) As String
+    fnCStr = Trim(v & "")
+End Function
 
 
