@@ -3087,6 +3087,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'david 04/21/2008  #501475
     Dim texas_term_origin As Boolean
     Dim sum_all_atax As Double
+    Dim sDeliveryHasMixedIELading As String
     ''''''''''''''''''''''''''
     
     '#Make sure it is FM or Its Editor
@@ -3158,7 +3159,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         Exit Sub
     End If
     
-    strSQL = "SELECT MDeliveryDetail.*,MDelivery.lDestination,MDelivery.bExternal FROM MDelivery,MDeliveryDetail " _
+    strSQL = "SELECT MDeliveryDetail.*,MDelivery.lDestination,MDelivery.bExternal FROM MDelivery,MDeliveryDetail" _
              & " WHERE MDelivery.lMovement=MDeliveryDetail.lMovement " _
              & " AND MDelivery.lDelivery=MDeliveryDetail.lDelivery " _
              & " AND MDelivery.lMovement = " & lMovement
@@ -3169,6 +3170,77 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     ElseIf rsDelD.RecordCount = 0 Then
          Exit Sub
     End If
+    
+    'david 04/21/2008  #501475
+    'get the delivery that has mixed IE Lading
+    sDeliveryHasMixedIELading = ","
+    
+    strSQL = "SELECT lDestination, MLading.lLading, lTerminal, MLading.bExternal"
+    strSQL = strSQL & " FROM MBalance, MDelivery, MLading"
+    strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
+    strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
+    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
+    strSQL = strSQL & " GROUP BY lDestination, MLading.lLading, lTerminal, MLading.bExternal"
+    strSQL = strSQL & " order by lDestination, MLading.lLading, lTerminal, MLading.bExternal"
+
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+         Exit Sub
+    ElseIf rsTemp.RecordCount = 0 Then
+         Exit Sub
+    End If
+    
+    Dim lPrevDest As Long
+    Dim sIE As String
+    Dim sTo As String
+    Dim bImport As Boolean
+    
+    With rsTemp
+        While Not .EOF
+            If Not bImport Then
+                bImport = fnIsImportToTexas(lMovement, tfnRound(!lLading), !bExternal, _
+                    tfnRound(!lTerminal), 0, m_local)
+                
+                If bImport Then
+                    'remove the detination
+                    sDeliveryHasMixedIELading = Replace(sDeliveryHasMixedIELading, "," & !lDestination, "")
+                End If
+            End If
+            
+            If sIE = "" Then
+                lPrevDest = !lDestination
+                
+                If !bExternal Then
+                    sIE = "E"
+                Else
+                    sIE = "I"
+                    If fnIsTO(tfnRound(!lTerminal)) Then
+                        sTo = "Y"
+                    Else
+                        sTo = "N"
+                    End If
+
+                End If
+            ElseIf lPrevDest = !lDestination Then
+                If (sIE = "I" And !bExternal) _
+                   Or (sIE = "E" And (Not !bExternal)) _
+                   Or (sIE = "I" And (Not !bExternal) And (Not bImport) _
+                   And ((sTo = "N" And fnIsTO(tfnRound(!lTerminal))) _
+                   Or (sTo = "Y" And (Not fnIsTO(tfnRound(!lTerminal)))))) Then
+                        If InStr(sDeliveryHasMixedIELading, "," & !lDestination & ",") <= 0 Then
+                            sDeliveryHasMixedIELading = sDeliveryHasMixedIELading & !lDestination & ","
+                        End If
+                End If
+            Else
+                sIE = ""
+                sTo = ""
+                bImport = False
+            End If
+            
+            .MoveNext
+        Wend
+    End With
+    ''''''''''''''''''''''''''
     
     Screen.MousePointer = vbHourglass
     '#Build Lading side A-Taxes array --> aryATax
@@ -3234,6 +3306,12 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     Do While Not rsTemp.EOF
                         Screen.MousePointer = vbHourglass
                         
+                        'david 04/21/2008  #501475
+                        If InStr(sDeliveryHasMixedIELading, "," & rsTemp!lDestination & ",") > 0 Then
+                            Exit Do
+                        End If
+                        ''''''''''''''''''''''''''
+                        
                         'david 02/10/2006  #509841
                         'change to use delivery detail's ngu flag
                         If rsTemp!bGross Then
@@ -3298,7 +3376,9 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 'david 04/21/2008  #501475
                 If fLadingATax <> 0 Or (fLadingATax = 0 And (Not fnIsTexasDiverted( _
                    rsLadHeader, rsLadD, m_local, lMovement))) Then
-                    If Abs(fTaxes) > Abs(fLadingATax) Then
+                    If Abs(fTaxes) > Abs(fLadingATax) Or _
+                       (Abs(fTaxes) = 0 And fnIsImportToTexas(lMovement, tfnRound(rsLadHeader!lLading), _
+                       rsLadHeader!bExternal, tfnRound(rsLadHeader!lTerminal), rsLadD!lLineNumber, m_local)) Then
                         fTaxes = fLadingATax
                     End If
                 End If
@@ -3504,18 +3584,9 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         Exit Do
                     End If
                 
-                    strSQL = "SELECT * FROM tx_term WHERE txtm_type = 'P'"
-                    strSQL = strSQL & " and txtm_code = " & tfnRound(rsLadHeader!lTerminal)
-                    strSQL = strSQL & " and txtm_state = 'TO'"
-                    Set rsTemp = txMod_OpenRecord(strSQL)
-                    If rsTemp Is Nothing Then
+                    If Not fnIsTO(tfnRound(rsLadHeader!lTerminal)) Then
                         texas_term_origin = False
                         Exit Do
-                    Else
-                        If rsTemp.RecordCount <= 0 Then
-                            texas_term_origin = False
-                            Exit Do
-                        End If
                     End If
                 
                     strSQL = "SELECT * FROM ar_altname WHERE an_customer =" & tfnRound(rsDelD!lDestination)
@@ -3694,6 +3765,22 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
 
 End Sub
 
+Private Function fnIsTO(lTerminal As Long) As Boolean
+    
+    Const SUB_NAME = "fnIsTO"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    strSQL = "SELECT * FROM tx_term WHERE txtm_type = 'P'"
+    strSQL = strSQL & " and txtm_code = " & lTerminal
+    strSQL = strSQL & " and txtm_state = 'TO'"
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If Not rsTemp Is Nothing Then
+        fnIsTO = rsTemp.RecordCount > 0
+    End If
+
+End Function
+
 Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
@@ -3751,7 +3838,8 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
             End If
             
             'take care of texas import (internal lading)
-            If fnIsImportToTexas(rsLadHeader, rsLadD, m_local, lMovement) Then
+            If fnIsImportToTexas(lMovement, tfnRound(rsLadHeader!lLading), rsLadHeader!bExternal, _
+               tfnRound(rsLadHeader!lTerminal), tfnRound(rsLadD!lLineNumber), m_local) Then
                 For i = 0 To nProdTaxUseGCount
                     If arryProdTaxUseG(i).sTaxUseG = "" Then
                         Exit For
@@ -3854,7 +3942,9 @@ End Function
 'david 04/21/2008  #501475
 'for internal lading only
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
-Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
+'Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
+Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal As Boolean, _
+                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As DataBase) As Boolean
     
     Const SUB_NAME = "fnIsImportToTexas"
     Dim strSQL As String
@@ -3862,14 +3952,14 @@ Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset
     Dim rsTemp As Recordset
     Dim sToState As String
     
-    If rsLadHeader!bExternal Then
+    If bExternal Then
         Exit Function
     End If
     
     strSQL = "SELECT prft_ctr, prft_city, city_state"
     strSQL = strSQL & " from sys_city, sys_prft_ctr"
     strSQL = strSQL & " where prft_city = city_code"
-    strSQL = strSQL & " and prft_ctr = " & tfnRound(rsLadHeader!lTerminal)
+    strSQL = strSQL & " and prft_ctr = " & lTerminal
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
     If rsTemp Is Nothing Then
         Exit Function
@@ -3889,8 +3979,10 @@ Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset
     strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
     strSQL = strSQL & " and MDelivery.lDelivery = MDeliveryDetail.lDelivery"
     strSQL = strSQL & " and MBalance.lDeliveryLine = MDeliveryDetail.lLineNumber"
-    strSQL = strSQL & " AND MBalance.lLading =" & rsLadD!lLading
-    strSQL = strSQL & " AND MBalance.lLadingLine =" & rsLadD!lLineNumber
+    strSQL = strSQL & " AND MBalance.lLading =" & lLading
+    If lLineNumber > 0 Then
+        strSQL = strSQL & " AND MBalance.lLadingLine =" & lLineNumber
+    End If
     strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
     strSQL = strSQL & " GROUP BY MDelivery.lDestination, MDelivery.bExternal"
     Set rsMvBal = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
@@ -5523,7 +5615,7 @@ Private Function finv_classes( _
     
     'returning pr_inv_classes As Recordset
         
-    Dim sSQL As String
+    Dim sSql As String
     Dim iIndex As Integer
     Dim rs As Recordset
     Static rsArray() As Recordset
@@ -5540,9 +5632,9 @@ Private Function finv_classes( _
         If iIndex > conDimension Then Exit Do 'While  'Note: iIndex will be used below
     Loop 'While
     
-    sSQL = "SELECT * FROM inv_classes WHERE icl_code = " & tfnSQLString(sParm1) & _
+    sSql = "SELECT * FROM inv_classes WHERE icl_code = " & tfnSQLString(sParm1) & _
             " AND icl_type = " & tfnSQLString(sParm2)
-    Set rs = txMod_OpenRecord(sSQL, SUB_NAME, db)
+    Set rs = txMod_OpenRecord(sSql, SUB_NAME, db)
     If rs Is Nothing Then
         Exit Function
     End If
