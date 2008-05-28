@@ -597,6 +597,8 @@ Private m_Saved_GL_Batch As Long
 Public t_tax_date As String     'pass the value into this variable if You have date
 
 Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
+Private nDefaultQueryTimeout As Integer  'david 05/27/2008
+'
 
 '---------------------------------------------------------------------------------------
 ' Procedure : DBVersionToLong
@@ -659,8 +661,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -692,7 +694,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -723,7 +725,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
             End If
             .Close
         End With
@@ -732,7 +734,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).value)
+                sDBVer = Trim$(.Fields(0).Value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -1018,7 +1020,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1336,6 +1338,7 @@ Public Function tfnExecuteProgram(oleObject As Object, szProgram As String) As B
     End If
 
 End Function
+
 '
 'Function : tfnOpenDatabase() - opens the database
 'Variables: none
@@ -1347,8 +1350,18 @@ End Function
 'other for backgroud process, these two parameters are actually REQUIRED.
 'Pass a False to bShowMsgBox to suppress the error message box, in turn,
 'return the error message to the calling function.
+'david 05/27/2008
+'Normally, a SQL should take less than 1 minutes to execute. But, some SQL
+'(select * from ar_item where ...) in ARPBCCOV 'is taking several minutes to execute.
+'And the program gives -11094 Timeout expired, Statement interrupted by user error.
+
+'Optional paramter - nQueryTimeout to specify the max time (in second)
+'                    to wait for the execute SQL to return. E.g. 1800 = 30 minutes
+'           WARNING: If 0 the program will wait FOREVER!!!
+'Also, see the tsubSetQueryTimeout() below
 Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Boolean
+                                Optional sErrMsg As String = "", _
+                                Optional nQueryTimeout As Integer = -1) As Boolean
     Dim i As Integer
     
     #If FACTOR_MENU = 1 Then
@@ -1377,6 +1390,11 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
     
+    'david 05/27/2008
+    nDefaultQueryTimeout = t_dbMainDatabase.QueryTimeout
+    If nQueryTimeout >= 0 Then
+        t_dbMainDatabase.QueryTimeout = nQueryTimeout
+    End If
     
     'Added IF BY JQ, Panic to reproduce problem
     #If FACTOR_MENU < 0 Then
@@ -1415,6 +1433,19 @@ ERROR_CONNECTING:
     tfnOpenDatabase = False
 
 End Function
+
+'david 05/27/2008
+'pass in -1 to revert to default querytimeout
+Public Sub tsubSetQueryTimeout(nQueryTimeout As Integer)
+
+    If nQueryTimeout < 0 Then
+        If nDefaultQueryTimeout > 0 Then
+            t_dbMainDatabase.QueryTimeout = nDefaultQueryTimeout
+        End If
+    Else
+        t_dbMainDatabase.QueryTimeout = nQueryTimeout
+    End If
+End Sub
 
 Private Function fnShowODBCError() As String
     Dim i As Integer
@@ -1478,12 +1509,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1614,7 +1645,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2087,12 +2118,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
