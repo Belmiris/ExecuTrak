@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.path))
+    m_AppPath = fnAddBkSlash(UCase(App.Path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -168,8 +168,11 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     Dim dfBeginRun As Single, sParm As String
     Dim sFile As String, bDone As Boolean
 
+    'david 06/19/2008  #596302
+    CheckXlatorProgramPath
+    ''''''''''''''''''''''''''
+
     m_ProgramPath = ""
-    
     m_ErrorMessage = ""
     
     'get the EDIPROC program path from factor.ini
@@ -185,7 +188,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.path
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -217,12 +220,12 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
         cdlgOpen.Filter = "EDI Translator Program (" + sEDIPROC_EXE + ")|" + sEDIPROC_EXE
         On Error Resume Next
         cdlgOpen.InitDir = m_ProgramPath
-        cdlgOpen.FileName = ""
+        cdlgOpen.Filename = ""
         On Error GoTo 0
         
         Do
             If fnOpenFile() Then
-                sExeFile = UCase(cdlgOpen.FileName)
+                sExeFile = UCase(cdlgOpen.Filename)
                 On Error Resume Next
                 sFile = ""
                 sFile = Dir(sExeFile)
@@ -268,6 +271,13 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         m_ErrorMessage = "EDI Translation Processor INI file not found."
+        tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+        LaunchEDIPROC = m_ErrorMessage
+        Exit Function
+    End If
+    
+    If sMsg <> "" Then
+        m_ErrorMessage = sMsg
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
         Exit Function
@@ -606,7 +616,7 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
         If x > Val(m_lstLog.Tag) Then
             m_lstLog.Tag = x
             If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+            SendMessageByNum m_lstLog.hWnd, LB_SETHORIZONTALEXTENT, x, 0
         End If
     
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
@@ -625,7 +635,7 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
         If x > Val(m_lstLog.Tag) Then
             m_lstLog.Tag = x
             If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
+            SendMessageByNum m_lstLog.hWnd, LB_SETHORIZONTALEXTENT, x, 0
         End If
     
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
@@ -713,7 +723,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -727,9 +737,73 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
 
+'david 06/19/2008  #596302
+'return error message if any
+Public Sub CheckXlatorProgramPath()
+
+    Const sEDIPROC_EXE As String = "EDIPROC.EXE"
+    Const sEDIPROC_INI As String = "EDIPROC.INI"
+    Const sEDIPROC_MDB As String = "EDIXLATE.MDB"
+    Const sSECTION_EDIXLATOR As String = "EDI XLATOR"
+    Const sKEY_PROGRAM As String = "Program"
+    Const sLocalBin As String = "C:\FACTOR\EXECTRAK\BIN"
+    Const sRemoteBin As String = "J:\FACTOR\EXECTRAK\BIN"
+    
+    
+    Dim sExeFile As String, sMsg As String
+    Dim sFile As String, sFileCurr As String
+
+    'check current directory
+    m_ProgramPath = App.Path
+    sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+    On Error Resume Next
+    sFileCurr = Dir(sExeFile)
+    On Error GoTo 0
+
+    'get the EDIPROC program path from factor.ini
+    m_ProgramPath = Trim(tfnReadINI(sSECTION_EDIXLATOR, sKEY_PROGRAM, tfnGetWindowsDir + szFACTOR_INI))
+    
+    If m_ProgramPath <> "" Then
+        sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+        On Error Resume Next
+        sFile = Dir(sExeFile)
+        On Error GoTo 0
+    End If
+    
+    If sFile = "" Then
+        If sFile = "" Then
+            'search local bin
+            m_ProgramPath = sLocalBin
+            sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+            On Error Resume Next
+            sFile = Dir(sExeFile)
+            On Error GoTo 0
+            
+            If sFile = "" Then
+                'search remote bin
+                m_ProgramPath = sRemoteBin
+                sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+                On Error Resume Next
+                sFile = Dir(sExeFile)
+                On Error GoTo 0
+            End If
+        End If
+    End If
+
+    If sFileCurr <> "" And fnAddBkSlash(m_ProgramPath) <> fnAddBkSlash(App.Path) Then
+        MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
+            + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
+            + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _
+            + "Contact FACTOR Support if you have questions.", vbInformation
+    End If
+    
+    subAddLog "WARNING: FACTOR EDI Translator is launching from a directory different from the running program."
+    
+End Sub
+''''''''''''''''''''''''''
 
