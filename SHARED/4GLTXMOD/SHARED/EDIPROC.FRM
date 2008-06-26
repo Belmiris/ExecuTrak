@@ -220,12 +220,12 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
         cdlgOpen.Filter = "EDI Translator Program (" + sEDIPROC_EXE + ")|" + sEDIPROC_EXE
         On Error Resume Next
         cdlgOpen.InitDir = m_ProgramPath
-        cdlgOpen.Filename = ""
+        cdlgOpen.FileName = ""
         On Error GoTo 0
         
         Do
             If fnOpenFile() Then
-                sExeFile = UCase(cdlgOpen.Filename)
+                sExeFile = UCase(cdlgOpen.FileName)
                 On Error Resume Next
                 sFile = ""
                 sFile = Dir(sExeFile)
@@ -616,7 +616,7 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
         If x > Val(m_lstLog.Tag) Then
             m_lstLog.Tag = x
             If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-            SendMessageByNum m_lstLog.hWnd, LB_SETHORIZONTALEXTENT, x, 0
+            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
         End If
     
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
@@ -635,7 +635,7 @@ Private Sub subAddLog(sMsg As String, Optional vPipeAsCrLf)
         If x > Val(m_lstLog.Tag) Then
             m_lstLog.Tag = x
             If m_frmParent.ScaleMode = vbTwips Then x = x / Screen.TwipsPerPixelX
-            SendMessageByNum m_lstLog.hWnd, LB_SETHORIZONTALEXTENT, x, 0
+            SendMessageByNum m_lstLog.hwnd, LB_SETHORIZONTALEXTENT, x, 0
         End If
     
         m_lstLog.ListIndex = m_lstLog.ListCount - 1
@@ -776,33 +776,42 @@ Public Sub CheckXlatorProgramPath()
     End If
     
     If sFile = "" Then
+        'check current directory
+        m_ProgramPath = App.Path
+        sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+        On Error Resume Next
+        sFile = ""
+        sFile = Dir(sExeFile)
+        On Error GoTo 0
+    
         If sFile = "" Then
-            'search local bin
-            m_ProgramPath = sLocalBin
-            sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
-            On Error Resume Next
-            sFile = Dir(sExeFile)
-            On Error GoTo 0
-            
             If sFile = "" Then
-                'search remote bin
-                m_ProgramPath = sRemoteBin
+                'search local bin
+                m_ProgramPath = sLocalBin
                 sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
                 On Error Resume Next
                 sFile = Dir(sExeFile)
                 On Error GoTo 0
+                
+                If sFile = "" Then
+                    'search remote bin
+                    m_ProgramPath = sRemoteBin
+                    sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
+                    On Error Resume Next
+                    sFile = Dir(sExeFile)
+                    On Error GoTo 0
+                End If
             End If
         End If
     End If
-
-    If sFileCurr <> "" And fnAddBkSlash(m_ProgramPath) <> fnAddBkSlash(App.Path) Then
+    
+    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.Path)) Then
         MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
             + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
             + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _
             + "Contact FACTOR Support if you have questions.", vbInformation
+        subAddLog "WARNING: FACTOR EDI Translator is launching from a directory different from the running program."
     End If
-    
-    subAddLog "WARNING: FACTOR EDI Translator is launching from a directory different from the running program."
     
 End Sub
 ''''''''''''''''''''''''''
