@@ -3116,7 +3116,7 @@ End Function
 
 Public Function tfnLockRow(sProgramID As String, _
                            sTable As String, _
-                           sSql As String, _
+                           sSQL As String, _
                            Optional vShowMsg As Variant, _
                            Optional ByRef sLockedUser As String = "", _
                            Optional ByRef sLockError As String = "", _
@@ -3153,7 +3153,7 @@ Public Function tfnLockRow(sProgramID As String, _
         If Trim(sProgramID) = "" Then
             MsgBox "You have to provide the program ID to lock a row", , sErrID
         End If
-        If Trim(sSql) = "" Then
+        If Trim(sSQL) = "" Then
             MsgBox "You have to provide the criteria or the SQL to lock a row", , sErrID
         End If
         On Error GoTo errTableName
@@ -3170,16 +3170,16 @@ Public Function tfnLockRow(sProgramID As String, _
     #End If
 
     'Get the where clause
-    strSQL = UCase(sSql)
+    strSQL = UCase(sSQL)
     nPos2 = InStr(strSQL, " WHERE ")
     If nPos2 > 0 Then
         nPos1 = InStr(strSQL, " ORDER ")
         If nPos1 = 0 Then
-            nPos1 = Len(sSql) + 1
+            nPos1 = Len(sSQL) + 1
         End If
-        sCriteria = Mid(sSql, nPos2 + 7, nPos1 - nPos2 - 7)
+        sCriteria = Mid(sSQL, nPos2 + 7, nPos1 - nPos2 - 7)
     Else
-        sCriteria = sSql
+        sCriteria = sSQL
     End If
     
     #If DEVELOP Then
@@ -3232,7 +3232,7 @@ Public Function tfnLockRow(sProgramID As String, _
                     rsTemp.Close
                     Set rsTemp = Nothing
                     
-                    tfnLockRow = fnFixLockError(sProgramID, sTable, sSql, sLockedUser, sLockError)
+                    tfnLockRow = fnFixLockError(sProgramID, sTable, sSQL, sLockedUser, sLockError)
                     Exit Function
                 End If
                 ''''''''''''''''''''''''''
@@ -3368,7 +3368,7 @@ End Function
 '##############################################################################
 Public Function tfnLockRow_EX(sProgramID As String, _
                               sTable As String, _
-                              sSql As String, _
+                              sSQL As String, _
                               Optional vShowMsg As Variant, _
                               Optional sLockedUser As String = "", _
                               Optional sUserID As String = "") As Boolean
@@ -3406,7 +3406,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    If Trim(sSql) = "" Then
+    If Trim(sSQL) = "" Then
         MsgBox "Locking Criteria is missing when try to lock a row.", , SUB_NAME
         Exit Function
     End If
@@ -3437,7 +3437,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     End If
     
-    sLockCriteria = sSql
+    sLockCriteria = sSQL
     
     If Len(sLockCriteria) > 80 Then
         MsgBox "The criteria is too long." & vbKeyReturn & "Probably, you need to remove the field Names", vbOKOnly
@@ -4113,7 +4113,7 @@ ErrorTrap:
 End Function
 
 'Vijaya on 02/05/04 Magic#395302
-Public Function tfnFix_tx_table(sSql As String, _
+Public Function tfnFix_tx_table(sSQL As String, _
                                     Optional bUseDate As Boolean = True) As String
     Const FUNC_NAME As String = "tfnFix_tx_table"
 #If Not NO_DST Then
@@ -4130,7 +4130,7 @@ Public Function tfnFix_tx_table(sSql As String, _
     Const sNewTableDet As String = "tx_detail"
     Static vColumArr(15, 1)
     
-    If sSql = "" Then Exit Function
+    If sSQL = "" Then Exit Function
     On Error GoTo SQLError
 
     If vColumArr(0, 0) = "" Then
@@ -4168,12 +4168,12 @@ Public Function tfnFix_tx_table(sSql As String, _
         vColumArr(15, 1) = "txd_base_txble_amt"
     End If
     
-    nPos = InStr(1, LCase(sSql), " where ")
+    nPos = InStr(1, LCase(sSQL), " where ")
     If nPos > 0 Then
-        strSQL = Mid(sSql, 1, nPos - 1)
-        strSQL1 = Mid(sSql, nPos + 7)
+        strSQL = Mid(sSQL, 1, nPos - 1)
+        strSQL1 = Mid(sSQL, nPos + 7)
     Else
-        strSQL = sSql
+        strSQL = sSQL
         strSQL1 = ""
     End If
     bAllFields = InStr(1, strSQL, " * ") > 0
@@ -4258,10 +4258,10 @@ SQLError:
             tfnErrHandler FUNC_NAME, strSQL, False
         End If
     #End If
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
     Resume quitfunc
 #Else
-    tfnFix_tx_table = sSql
+    tfnFix_tx_table = sSQL
 #End If
 End Function
 ''''''''''''''''''''''''''''''''
@@ -4662,7 +4662,7 @@ Private Function fnDataExists(SQL As String) As Boolean
 End Function
 
 'this function returns record count
-Public Function tfnGetRecordSet(rsTemp As Recordset, szSQL As String, _
+Private Function tfnGetRecordSet(rsTemp As Recordset, szSQL As String, _
                                  Optional szCalledFrom As String = "", _
                                  Optional bShowErrow As Boolean = True) As Long
     
@@ -4695,7 +4695,7 @@ SQLError:
 
 End Function
 
-Public Function tfnExecuteSQL(szSQL As String, _
+Private Function tfnExecuteSQL(szSQL As String, _
                               Optional szCalledFrom As String = "", _
                               Optional bShowErrow As Boolean = True) As Boolean
                 
