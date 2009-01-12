@@ -283,6 +283,36 @@ End Type
 Private arryProdTaxUseG() As tpProdTaxUseG
 Private nProdTaxUseGCount As Integer
 '''''''''''''''''''''''''''
+
+#If dev_txmod Then
+    Public Type CTxTable
+        m_sCode As String
+        m_cLevel As String
+        m_sWhere As String
+        m_nOrder As Long
+        m_lGlAcct As Long
+        m_fRate As Single
+        m_cCharge As String
+        m_cBasis As String
+        m_lLimit As Double
+        m_cLimitType As String
+        m_sDate As String
+        m_lTrn As Long
+        m_sDescr As String
+        m_cFuelFlag As String
+        m_dAmount As Double
+        m_nChartNbr As Integer
+        m_base_txble_amt As Double
+    End Type
+    
+    Enum LineType
+        InternalBL = 0
+        ExternalBL = 1
+        InternalDel = 2
+        ExternalDel = 3
+        Inter_Or_IntraState = 4
+    End Enum
+#End If
 '
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
@@ -410,6 +440,12 @@ Public Function fnCalculateTaxes(sProduct As String, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
+        'david 01/06/2009  #614216 NDR
+        'call TXMOD_set_accm_txble_amt again, because it was reset to 0 by TXMOD_tx_date()
+        '#411523wj042505
+        If Abs(dAccmTxbleAmt) >= 0.01 Then
+            subSet_AccmTxbleAmt dAccmTxbleAmt
+        End If
         
         Do
             nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -3037,7 +3073,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
     
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -3781,7 +3817,7 @@ Private Function fnIsTO(lTerminal As Long) As Boolean
 
 End Function
 
-Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
+Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
@@ -3944,7 +3980,7 @@ End Function
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
 'Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
 Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal As Boolean, _
-                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As DataBase) As Boolean
+                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As Database) As Boolean
     
     Const SUB_NAME = "fnIsImportToTexas"
     Dim strSQL As String
@@ -4029,7 +4065,7 @@ End Function
 'david 04/21/2008  #501475
 'for internal lading only
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
-Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
+Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Boolean
     
     Const SUB_NAME = "fnIsTexasDiverted"
     Dim strSQL As String
@@ -5183,7 +5219,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -5222,7 +5258,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -5550,7 +5586,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
+Private Function it_is_a_fuel(code As String, db As Database) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
@@ -5608,7 +5644,7 @@ End Function
 Private Function finv_classes( _
                                 sParm1 As String, _
                                 sParm2 As String, _
-                                db As DataBase _
+                                db As Database _
                                 ) As Recordset
     Const SUB_NAME = "finv_classes"
     Const conDimension = 10
@@ -5682,5 +5718,754 @@ End Function    ''finv_classes
 Private Function fnCStr(v As Variant) As String
     fnCStr = Trim(v & "")
 End Function
+
+#If dev_txmod Then
+'david 01/07/2009  #614216
+'The following function is cloned from the txmod32.dll
+'It populates the Taxes() array, and
+'return the total number of tax lines
+Public Function CalculateLineTax(recLine As CMovementLineItem, _
+                                 sd_cargo_vesl As Integer, _
+                                 sd_delv_gals As Double, _
+                                 sd_furthest_miles As Double, _
+                                 sd_total_gals As Double, _
+                                 sDate As String, _
+                                 accm_txble_amt As Double, _
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional sErrMsg As String = "", _
+                                 Optional bDisableATax As Boolean = False) As Integer
+    
+    On Error GoTo errTrap
+    
+    Const SUB_NAME As String = "CalculateLineTax"
+    Dim strSQL As String
+    Dim rsTax As Recordset
+    Dim rsTemp As Recordset
+    
+'Public Type CMovementLineItem
+'    m_sProduct As String * 16
+'    m_sUseGroup As String * 8
+'    m_dDollarBase As Double
+'    m_dFreight As Double
+'    m_dNetUnits As Double
+'    m_dGrossUnits As Double
+'    m_tLineType As Long
+'    m_cBilledUnitsFlag As Byte
+'End Type
+    
+    Dim sProduct As String: sProduct = fnCStr(recLine.m_sProduct)
+    Dim sUseGroup As String: sUseGroup = fnCStr(recLine.m_sUseGroup)
+    Dim dDollarBase As Double: dDollarBase = recLine.m_dDollarBase
+    Dim dFreight As Double: dFreight = recLine.m_dFreight
+    Dim dNetUnits As Double: dNetUnits = recLine.m_dNetUnits
+    Dim dGrossUnits As Double: dGrossUnits = recLine.m_dGrossUnits
+    Dim cBilledUnitsFlag As Byte: cBilledUnitsFlag = fnCStr(recLine.m_cBilledUnitsFlag)
+    Dim tLineType As Long: tLineType = tfnRound(recLine.m_tLineType)
+    Dim m_cFuelTaxFlag As String
+    
+    CalculateLineTax = 0
+    Dim m_parryTxTable() As CTxTable
+    ReDim Taxes(0)
+    m_Disable_A_Taxes = bDisableATax
+    
+    If (Not it_is_a_fuel(sProduct, t_dbMainDatabase)) Then
+        m_cFuelTaxFlag = " "
+    Else
+        '// fetch the product's inventory header
+        Set rsTemp = finv_header(sProduct, t_dbMainDatabase)
+        If rsTemp Is Nothing Then
+            sErrMsg = "Failed to retrieve product info for product " + tfnSQLString(sProduct) + "."
+            Exit Function
+        End If
+        If rsTemp.RecordCount = 0 Then
+            sErrMsg = "Product " + tfnSQLString(sProduct) + " is not valid."
+            Exit Function
+        End If
+    
+        '// fetch the fuel tax flag for this product's tax class
+        Set rsTemp = finv_classes(rsTemp!ivh_prodtcl, "T", t_dbMainDatabase)
+        If rsTemp Is Nothing Then
+            sErrMsg = "Failed to retrieve tax class info for product " + tfnSQLString(sProduct) + "."
+            Exit Function
+        End If
+        If rsTemp.RecordCount = 0 Then
+            sErrMsg = "Tax class info for product " + tfnSQLString(sProduct) + " not found."
+            Exit Function
+        End If
+        m_cFuelTaxFlag = fnCStr(rsTemp!icl_fuel_tax)
+        'note: m_cFuelTaxFlag CANNOT be empty, need to have at least a space
+        If m_cFuelTaxFlag = "" Then
+            m_cFuelTaxFlag = " "
+        End If
+    End If
+    
+    '// first, fetch the tax records from the database for this product/group
+    strSQL = "SELECT txd_order, abs(txd_limit) abs_limit, txh_code,"
+    strSQL = strSQL + " txd_gl_acct, txd_rate, txh_level, txh_where,"
+    strSQL = strSQL + " txd_charge, txd_basis, txd_limit, txd_lmt_type,"
+    strSQL = strSQL + " txd_beg_date, txh_trn,txh_descr,txd_chart_nbr,"
+    strSQL = strSQL + " txd_base_txble_amt"
+    strSQL = strSQL + " FROM inv_header, tx_header,tx_detail, tx_use_g, tx_use_link"
+    strSQL = strSQL + " WHERE ivh_prodtcl = tu_prodtcl"
+    strSQL = strSQL + " AND tu_link = tul_link"
+    strSQL = strSQL + " AND tul_trn = txh_trn"
+    strSQL = strSQL + " AND txh_trn = txd_trn"
+    If IsDate(sDate) Then
+        strSQL = strSQL + " AND " + tfnDateString(sDate, True) + " BETWEEN txd_beg_date AND txd_end_date"
+    Else
+        strSQL = strSQL + " AND today BETWEEN txd_beg_date AND txd_end_date"
+    End If
+    strSQL = strSQL + " AND ivh_product = " + tfnSQLString(sProduct)
+    strSQL = strSQL + " AND tu_use_g = " + tfnSQLString(sUseGroup)
+    strSQL = strSQL + " ORDER BY 1, 2"
+    Set rsTax = txMod_OpenRecord(strSQL, SUB_NAME, "")
+    If rsTax Is Nothing Then
+        sErrMsg = "Failed to retrieve tax records for product " + tfnSQLString(sProduct) + ", tax use group " + tfnSQLString(sUseGroup) + "."
+        Exit Function
+    End If
+    
+    Dim m_nRecordCount As Long: m_nRecordCount = rsTax.RecordCount
+    If m_nRecordCount <= 0 Then
+        sErrMsg = "tax records not found for product " + tfnSQLString(sProduct) + ", tax use group " + tfnSQLString(sUseGroup) + "."
+        Exit Function
+    End If
+    
+    '// calculate taxes for each tax record
+    Dim nIdx As Integer: nIdx = 0
+    Dim nOrder As Long:  nOrder = 0
+    Dim dBasis As Double: dBasis = 0#
+    Dim dOrderTotal As Double: dOrderTotal = 0#
+    Dim bLimitCharged As Boolean: bLimitCharged = False
+    Dim lPrevLayerLimit As Double: lPrevLayerLimit = 0#
+    Dim dTaxAmount As Double: dTaxAmount = 0#
+    Dim sWhere As String
+
+    '//david 09/02/2003  #393678-6
+    Dim wrk_limit As Double: wrk_limit = 0#
+    Dim wrk_units As Double: wrk_units = 0#
+    Dim wrk_amount As Double: wrk_amount = 0#
+    Dim last_limit As Double: last_limit = 0#
+    Dim sd_accum_gal As Double: sd_accum_gal = 0#
+    Dim sd_accum_dol As Double: sd_accum_dol = 0#
+    
+    'fill the taxes
+    'note: DO NOT change the IIf(IsNull(...)) to fnCstr()
+    ReDim m_parryTxTable(m_nRecordCount - 1)
+    For nIdx = 0 To m_nRecordCount - 1
+        m_parryTxTable(nIdx).m_sCode = fnCStr(rsTax!txh_code)
+        m_parryTxTable(nIdx).m_cLevel = IIf(IsNull(rsTax!txh_level), " ", rsTax!txh_level)
+        m_parryTxTable(nIdx).m_sWhere = fnCStr(rsTax!txh_where)
+        m_parryTxTable(nIdx).m_nOrder = tfnRound(rsTax!txd_order)
+        m_parryTxTable(nIdx).m_lGlAcct = tfnRound(rsTax!txd_gl_acct)
+        m_parryTxTable(nIdx).m_fRate = tfnRound(rsTax!txd_rate, DEFAULT_DECIMALS)
+        m_parryTxTable(nIdx).m_cCharge = IIf(IsNull(rsTax!txd_charge), " ", rsTax!txd_charge)
+        m_parryTxTable(nIdx).m_cBasis = IIf(IsNull(rsTax!txd_basis), " ", rsTax!txd_basis)
+        m_parryTxTable(nIdx).m_lLimit = tfnRound(rsTax!txd_limit, DEFAULT_DECIMALS)
+        m_parryTxTable(nIdx).m_cLimitType = IIf(IsNull(rsTax!txd_lmt_type), " ", rsTax!txd_lmt_type)
+        m_parryTxTable(nIdx).m_sDate = tfnDateString(rsTax!txd_beg_date)
+        m_parryTxTable(nIdx).m_lTrn = tfnRound(rsTax!txh_trn)
+        m_parryTxTable(nIdx).m_sDescr = fnCStr(rsTax!txh_descr)
+        m_parryTxTable(nIdx).m_cFuelFlag = m_cFuelTaxFlag
+        m_parryTxTable(nIdx).m_dAmount = 0#
+        m_parryTxTable(nIdx).m_nChartNbr = tfnRound(rsTax!txd_chart_nbr)
+        m_parryTxTable(nIdx).m_base_txble_amt = tfnRound(rsTax!txd_base_txble_amt, DEFAULT_DECIMALS)
+        
+        rsTax.MoveNext
+    Next nIdx
+    CleanUp rsTax
+    
+    Dim cParm10013 As String: cParm10013 = "N"
+    strSQL = "SELECT parm_field from sys_parm where parm_nbr = 10013"
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "")
+    If rsTemp Is Nothing Then
+        sErrMsg = "Failed to get sysparm #10013"
+        Exit Function
+    End If
+    If rsTemp.RecordCount > 0 Then
+        If fnCStr(rsTemp!parm_field) = "Y" Then
+            cParm10013 = "Y"
+        End If
+    End If
+
+    '// loop through all tax records
+    nIdx = 0
+    
+continue_while_loop:
+    While (nIdx < m_nRecordCount)
+        If (cParm10013 = "Y" And m_parryTxTable(nIdx).m_cLimitType = "S" And _
+           m_parryTxTable(nIdx).m_lLimit > 0 And m_parryTxTable(nIdx).m_nOrder = 0 And _
+           m_parryTxTable(nIdx).m_cBasis = "$" And m_parryTxTable(nIdx).m_sWhere = "GA") Then
+            m_parryTxTable(nIdx).m_lLimit = m_parryTxTable(nIdx).m_lLimit / 10000#
+        End If
+
+        If (m_cFuelTaxFlag <> "Y") Then
+            Select Case tLineType
+                Case LineType.InternalBL, LineType.ExternalBL, LineType.InternalDel
+                    '// don't calculate ANY taxes at all
+                    sErrMsg = ""
+                    Exit Function
+                Case LineType.ExternalDel
+                    '// calculate taxes ONLY if the tax record's
+                    '// charge flag is "Y"
+                    If (m_parryTxTable(nIdx).m_cCharge <> "Y") Then
+                        nIdx = nIdx + 1
+                        GoTo continue_while_loop
+                    End If
+                Case Else
+                    sErrMsg = "Tax Line Type " & tLineType & " is not valid"
+                    Exit Function
+            End Select
+        End If
+
+        '// calc taxes for order nOrder
+        Do While (nIdx < m_nRecordCount And m_parryTxTable(nIdx).m_nOrder = nOrder)
+            If (cParm10013 = "Y" And m_parryTxTable(nIdx).m_cLimitType = "S" And _
+               m_parryTxTable(nIdx).m_lLimit > 0 And m_parryTxTable(nIdx).m_nOrder = 0 And _
+               m_parryTxTable(nIdx).m_cBasis = "$" And m_parryTxTable(nIdx).m_sWhere = "GA") Then
+                m_parryTxTable(nIdx).m_lLimit = m_parryTxTable(nIdx).m_lLimit / 10000#
+            End If
+            
+            Select Case fnCStr(m_parryTxTable(nIdx).m_cBasis)
+                Case "$"
+                    dBasis = dDollarBase
+                Case "F"
+                    dBasis = dDollarBase + dFreight
+                Case "B"
+                    Select Case Chr(cBilledUnitsFlag)
+                        Case "N"
+                            dBasis = dNetUnits
+                        Case "G"
+                            dBasis = dGrossUnits
+                        Case Else
+                            sErrMsg = "Billed Units Flag " & cBilledUnitsFlag & " is not valid"
+                            Exit Function
+                    End Select
+                Case "A", "N"
+                    dBasis = dNetUnits
+                Case "G"
+                    dBasis = dGrossUnits
+                Case "M"
+                    dBasis = 1#
+                    wrk_limit = Abs(m_parryTxTable(nIdx).m_lLimit)
+                Case Else
+                    sErrMsg = "Basis " & fnCStr(m_parryTxTable(nIdx).m_cBasis) & " is not valid"
+                    Exit Function
+            End Select
+            
+            '// if the limit is non-zero, adjust the basis
+            '//4GL Program Basis is "F" also treat as "$"
+            '//if the basis is "F" we don't need to look this routine
+            If (m_parryTxTable(nIdx).m_lLimit <> 0 And m_parryTxTable(nIdx).m_cBasis <> "$" And m_parryTxTable(nIdx).m_cBasis <> "F") Then
+                '// work with layered limits
+                If (m_parryTxTable(nIdx).m_lLimit > 0) Then
+                    If (Not bLimitCharged) Then
+                        If (Abs(dBasis) > Abs(m_parryTxTable(nIdx).m_lLimit)) Then
+                            If (dBasis < 0) Then
+                                dBasis = (Abs(m_parryTxTable(nIdx).m_lLimit) - lPrevLayerLimit) * -1
+                            Else
+                                dBasis = (Abs(m_parryTxTable(nIdx).m_lLimit) - lPrevLayerLimit)
+                            End If
+
+                            lPrevLayerLimit = m_parryTxTable(nIdx).m_lLimit
+                        Else
+                            If (dBasis >= 0) Then
+                                dBasis = dBasis - lPrevLayerLimit
+                            Else
+                                dBasis = dBasis + lPrevLayerLimit
+                            End If
+                            bLimitCharged = True
+                        End If
+                    Else
+                        dBasis = 0#
+                    End If
+                Else
+                    '// work with SD imputed tax
+                    If (m_parryTxTable(nIdx).m_cBasis = "M") Then
+                        If (m_parryTxTable(nIdx).m_nChartNbr = sd_cargo_vesl And _
+                           sd_furthest_miles >= last_limit And _
+                           sd_furthest_miles < wrk_limit) Then
+                            wrk_units = Abs(sd_delv_gals)
+                            wrk_amount = Abs(dDollarBase)
+                            last_limit = wrk_limit
+                        Else
+                            '//wrk_limit = 0.0
+                            wrk_units = 0#
+                            wrk_amount = 0#
+                        End If
+                    Else
+                        '//existing codes
+                        '// work with absolute limits
+                        '// check the basis against the current layer
+                        '// limit.  If it is <= this limit, set
+                        '// the charged flag and allow the basis
+                        '// to remain.  If not, set the basis to
+                        '// zero.  i.e. don't tax at the rate for this
+                        '// current record.
+                        If (Not bLimitCharged) Then
+                            If (dBasis <= Abs(m_parryTxTable(nIdx).m_lLimit)) Then
+                                bLimitCharged = True
+
+                                '// the "rate" in an absolute limit is only
+                                '// a rate if the basis flag is not an "A" which
+                                '// indicates a "loading fee".  So, if the
+                                '// basis is "A", set the dBasis to 1 so that
+                                '// the fee amount is added.  If the basis is
+                                '// not "A", allow the dBasis to remain the same
+                                '// so that the dBasis is multiplied by the
+                                '// rate.
+                                If (m_parryTxTable(nIdx).m_cBasis = "A") Then
+                                    dBasis = 1#
+                                End If
+                            Else
+                                dBasis = 0#
+                            End If
+                        Else
+                            dBasis = 0#
+                        End If
+                    End If
+                End If
+            End If
+
+            '//david 07/15/2002 354672
+            '//Florida Bracket Sales Tax
+            sWhere = fnCStr(m_parryTxTable(nIdx).m_sWhere)
+
+            '// record the amount of tax due to this tax record
+            '//////////////////////////////////
+            '//Robert Atwood 6-21-01
+            '//This has been changed to be
+            '//conditional.  If type is "F"
+            '//then we will handle it differently,
+            '//otherwise the same.
+            '//"F" needs to charge the limit as the
+            '//total tax, rather than charging tax on
+            '//the limit.
+            If ((m_parryTxTable(nIdx).m_cBasis = "F") And (Abs(dBasis) < Abs(dDollarBase + dFreight))) Then
+                '//david 07/15/2002 354672
+                '//Florida Bracket Sales Tax
+                '//david 01/03/2003  #389671
+                '//make changes for Florida taxes (including state, county, city...)
+                '//if (m_parryTxTable[nIdx].m_cLevel = "S" and sWhere = "FL")
+                If (sWhere = "FL") Then
+                    '//david 01/06/2003  #389671
+                    '//per Howard, round it up
+                    '//dTaxAmount = FloridaBracketSalesTax((dDollarBase + dFreight),
+                    '//  Float2Double(m_parryTxTable(nIdx).m_fRate))
+                    dTaxAmount = round_up_sls_tx((dDollarBase + dFreight) _
+                        * tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS))
+                Else
+                    dTaxAmount = (dDollarBase + dFreight) * tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS)
+                End If
+                
+                If (Abs(dTaxAmount) > Abs(dBasis)) Then
+                    m_parryTxTable(nIdx).m_dAmount = dBasis
+                Else
+                    m_parryTxTable(nIdx).m_dAmount = dTaxAmount
+                End If
+            Else
+                '//david 09/02/2003  #393678-6
+                '// work with SD imputed tax
+                If (m_parryTxTable(nIdx).m_cBasis = "M") Then
+                    If (m_parryTxTable(nIdx).m_nChartNbr = sd_cargo_vesl) Then
+                        If (wrk_units = 0# Or sd_total_gals = 0#) Then
+                            dTaxAmount = 0#
+                        Else
+                            If (wrk_units + sd_accum_gal = Abs(sd_total_gals)) Then
+                                dTaxAmount = tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS) - sd_accum_dol
+                                If (dTaxAmount < 0) Then
+                                    dTaxAmount = 0
+                                End If
+                            Else
+                                dTaxAmount = wrk_units / Abs(sd_total_gals) * tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS)
+                            End If
+                            sd_accum_gal = sd_accum_gal + wrk_units
+                            sd_accum_dol = sd_accum_dol + dTaxAmount
+                        End If
+
+                        m_parryTxTable(nIdx).m_dAmount = dTaxAmount
+                    End If
+                Else
+                    '//Previous code
+                    '//david 07/15/2002 354672
+                    '//Florida Bracket Sales Tax
+                    '//david 01/03/2003  #389671
+                    '//make changes for Florida taxes (including state, county, city...)
+                    '//if ((m_parryTxTable(nIdx).m_cBasis = "$" or m_parryTxTable(nIdx).m_cBasis = "F")
+                    '//   and m_parryTxTable[nIdx].m_cLevel = "S" and sWhere = "FL")
+                    If ((m_parryTxTable(nIdx).m_cBasis = "$" Or m_parryTxTable(nIdx).m_cBasis = "F") And sWhere = "FL") Then
+                        '//david 01/06/2003  #389671
+                        '//per Howard, round it up
+                        '//dTaxAmount = FloridaBracketSalesTax(dBasis, Float2Double(m_parryTxTable(nIdx).m_fRate))
+                        dTaxAmount = round_up_sls_tx(dBasis * tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS))
+                    Else
+                        dTaxAmount = dBasis * tfnRound(m_parryTxTable(nIdx).m_fRate, DEFAULT_DECIMALS)
+                    End If
+
+                    m_parryTxTable(nIdx).m_dAmount = dTaxAmount
+                End If
+            End If
+
+            If (m_parryTxTable(nIdx).m_lLimit > 0 And m_parryTxTable(nIdx).m_cBasis = "$") Then
+    '//          if (m_parryTxTable(nIdx).m_dAmount > m_parryTxTable(nIdx).m_llimit)
+    '//              m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_llimit
+    '//          else if (m_parryTxTable(nIdx).m_dAmount < -(m_parryTxTable(nIdx).m_llimit))
+    '//              m_parryTxTable(nIdx).m_dAmount = (-(m_parryTxTable(nIdx).m_llimit))
+    
+                
+                '//#411523wj042005-Comment out the routine above and replace it with the codes
+                '//below. We will take care of Limit Type I and S - Single Article Tax Routine
+                
+                '//accm_txble_amt -- Taxble Amount up to current Line
+                Dim hld_amt As Double: hld_amt = 0
+
+                wrk_amount = Abs(dDollarBase) '//Line Taxable Dollar Amount
+                If (m_parryTxTable(nIdx).m_cLimitType = "I") Then
+                    If (wrk_amount >= 0.001) Then
+                        accm_txble_amt = Abs(accm_txble_amt)
+                        If (accm_txble_amt >= 0.01) Then
+                            '//Cal total taxable amount and save it to hld_amt... since the DLL
+                            '//does not keep track the prvious Line Taxes
+                            If (Abs(recLine.m_dDollarBase) > 0) Then
+                                hld_amt = accm_txble_amt * (Abs(dDollarBase) / Abs(recLine.m_dDollarBase))
+                            Else
+                                hld_amt = wrk_amount
+                            End If
+                            
+                            If (hld_amt < m_parryTxTable(nIdx).m_base_txble_amt) Then
+                                wrk_amount = 0
+                            Else
+                                hld_amt = hld_amt - m_parryTxTable(nIdx).m_base_txble_amt
+                                
+                                If (wrk_amount > hld_amt) Then
+                                    wrk_amount = hld_amt
+                                End If
+                            End If
+                        Else
+                            wrk_amount = wrk_amount - m_parryTxTable(nIdx).m_base_txble_amt
+                        End If
+                    End If
+                Else
+                    If (m_parryTxTable(nIdx).m_cLimitType = "S") Then
+                        If (cBilledUnitsFlag = "G") Then
+                            wrk_units = Abs(dGrossUnits)
+                        Else
+                            wrk_units = Abs(dNetUnits)
+                        End If
+
+                        If (wrk_units > 0.001) Then
+                            wrk_amount = wrk_amount / wrk_units
+                        Else
+                            wrk_amount = 0
+                        End If
+                    End If
+                    wrk_amount = wrk_amount - m_parryTxTable(nIdx).m_base_txble_amt
+                End If
+                
+                If (wrk_amount < 0.001) Then
+                    m_parryTxTable(nIdx).m_dAmount = 0
+                Else
+                    m_parryTxTable(nIdx).m_dAmount = wrk_amount * m_parryTxTable(nIdx).m_fRate
+                End If
+
+                If (m_parryTxTable(nIdx).m_dAmount > m_parryTxTable(nIdx).m_lLimit) Then
+                    m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_lLimit
+                ElseIf (m_parryTxTable(nIdx).m_dAmount < -(m_parryTxTable(nIdx).m_lLimit)) Then
+                    m_parryTxTable(nIdx).m_dAmount = (-(m_parryTxTable(nIdx).m_lLimit))
+                End If
+                
+                If (m_parryTxTable(nIdx).m_cLimitType = "S") Then
+                    m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_dAmount * wrk_units
+                End If
+
+                'david 01/08/2009  #614216
+                'take care of tax limit on whole invoice,
+                'consider accumulated taxes from previous invoice line
+                If m_parryTxTable(nIdx).m_cCharge = "Y" And tfnRound(m_parryTxTable(nIdx).m_lLimit, 2) > 0 Then
+                    Dim j As Integer
+                    Dim fRemain As Double
+                    Dim bFind As Boolean
+                    
+                    If (m_parryTxTable(nIdx).m_cBasis = "$" Or m_parryTxTable(nIdx).m_cBasis = "F") Then
+                        If m_parryTxTable(nIdx).m_cLimitType = "L" Then
+                            If tfnRound(m_parryTxTable(nIdx).m_dAmount, 2) > _
+                               tfnRound(m_parryTxTable(nIdx).m_lLimit, 2) Then
+                                m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_lLimit
+                            End If
+                        ElseIf m_parryTxTable(nIdx).m_cLimitType = "I" Then
+                            For j = 0 To nLimitTaxCount - 1
+                                If m_parryTxTable(nIdx).m_lTrn = arryLimitTax(j).m_lTrn Then
+                                    bFind = True
+                                    Exit For
+                                End If
+                            Next j
+                            
+                            If Not bFind Then
+                                If j > UBound(arryLimitTax) Then
+                                    ReDim Preserve arryLimitTax(UBound(arryLimitTax) + 5)
+                                End If
+                                
+                                With arryLimitTax(j)
+                                    .m_sCode = m_parryTxTable(nIdx).m_sCode
+                                    .m_sDesc = m_parryTxTable(nIdx).m_sDescr
+                                    .m_lTrn = m_parryTxTable(nIdx).m_lTrn
+                                    .m_lLimit = m_parryTxTable(nIdx).m_lLimit
+                                    .m_cLimitType = Asc(m_parryTxTable(nIdx).m_cLimitType)
+                                    .m_cBasis = Asc(m_parryTxTable(nIdx).m_cBasis)
+                                    .m_fRate = m_parryTxTable(nIdx).m_fRate
+                                    .m_base_txble_amt = m_parryTxTable(nIdx).m_base_txble_amt  'fnGetBaseTaxableAmt(.m_lTrn)
+                                    .m_fAccumTaxableAmt = recLine.m_dDollarBase
+                                    .m_fAccumTaxAmt = tfnRound(m_parryTxTable(nIdx).m_dAmount, 2)
+                                    
+                                    If tfnRound(m_parryTxTable(nIdx).m_dAmount, 2) > tfnRound(.m_lLimit, 2) Then
+                                        'adj the tax amount
+                                        m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_lLimit
+                                    Else
+                                        m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_dAmount
+                                    End If
+                                End With
+                                
+                                nLimitTaxCount = nLimitTaxCount + 1
+                            Else
+                                With arryLimitTax(j)
+                                    'fix the tax amount first if the tax has base taxable amount
+                                    If .m_base_txble_amt > 0.01 Then
+                                        If .m_fAccumTaxableAmt >= .m_base_txble_amt Then
+                                            're-calc the tax, using line extension
+                                            m_parryTxTable(nIdx).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                                * recLine.m_dDollarBase, 2)
+                                        ElseIf .m_fAccumTaxableAmt + recLine.m_dDollarBase > .m_base_txble_amt Then
+                                            're-calc the tax
+                                            fRemain = .m_fAccumTaxableAmt + recLine.m_dDollarBase - .m_base_txble_amt
+                                            m_parryTxTable(nIdx).m_dAmount = tfnRound(tfnRound(.m_fRate, DEFAULT_DECIMALS) _
+                                                * fRemain, 2)
+                                        Else
+                                            m_parryTxTable(nIdx).m_dAmount = 0#
+                                        End If
+                                        
+                                        .m_fAccumTaxableAmt = .m_fAccumTaxableAmt + recLine.m_dDollarBase
+                                    End If
+                                
+                                    If .m_fAccumTaxAmt < tfnRound(.m_lLimit, 2) Then
+                                        If .m_fAccumTaxAmt + tfnRound(m_parryTxTable(nIdx).m_dAmount, 2) _
+                                           >= tfnRound(.m_lLimit, 2) Then
+                                            'adj the tax amount
+                                            m_parryTxTable(nIdx).m_dAmount = (tfnRound(.m_lLimit, 2) _
+                                                - .m_fAccumTaxAmt)
+                                        End If
+                                    Else
+                                        'accum tax amt is already over or equal to the limit,
+                                        'set the tax amount to 0
+                                        m_parryTxTable(nIdx).m_dAmount = 0#
+                                    End If
+                                    
+                                    .m_fAccumTaxAmt = .m_fAccumTaxAmt + tfnRound(m_parryTxTable(nIdx).m_dAmount, 2)
+                                End With
+                            End If
+                        End If
+                    'Gallon based tax limit credit not correct.
+                    ElseIf dBasis < 0 And m_parryTxTable(nIdx).m_cBasis <> "A" Then
+                        If tfnRound(Abs(dBasis), 2) > tfnRound(m_parryTxTable(nIdx).m_lLimit, 2) Then
+                            m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_lLimit * m_parryTxTable(nIdx).m_fRate * Sgn(dBasis)
+                        End If
+                    End If
+                Else
+                    m_parryTxTable(nIdx).m_dAmount = tfnRound(m_parryTxTable(nIdx).m_dAmount, 2)
+                End If
+    
+                '//make sure the tax amount and dDollarBase have the same sign
+                If (dDollarBase * m_parryTxTable(nIdx).m_dAmount <= -0.01) Then
+                    m_parryTxTable(nIdx).m_dAmount = m_parryTxTable(nIdx).m_dAmount * (-1)
+                End If
+            End If
+            
+            '// accumlate taxes for this order
+            '// (only look at tax records with the "Y" charge flag
+            '//  and a basis not equal to "A" (loading fee)
+            If ((m_parryTxTable(nIdx).m_cCharge = "Y") And (m_parryTxTable(nIdx).m_cBasis <> "A")) Then
+                dOrderTotal = dOrderTotal + m_parryTxTable(nIdx).m_dAmount
+            End If
+            
+            nIdx = nIdx + 1
+            If nIdx >= m_nRecordCount Then
+                Exit Do
+            End If
+        Loop
+        
+        '// do next order of taxes
+        If (nOrder <> 0) Then    '//For order 0, the tax will not be subject to any other taxes
+                                 '//per Howard. Ma 06/08/99
+            dDollarBase = dDollarBase + dOrderTotal
+        End If
+        If (nIdx < m_nRecordCount) Then
+            nOrder = m_parryTxTable(nIdx).m_nOrder
+        End If
+
+        dOrderTotal = 0#
+        bLimitCharged = False
+        lPrevLayerLimit = 0
+    Wend
+
+'Public Type CApplicableTaxes
+'    m_nOrder As Long
+'    m_lGlAcct As Long
+'    m_lLimit As Double
+'    m_lTrn As Long
+'    m_cLevel As Byte
+'    m_cCharge As Byte
+'    m_cBasis As Byte
+'    m_cFuelFlag As Byte
+'    m_fRate As Single
+'    m_dAmount As Double
+'    m_sCode As String * 5
+'    m_sWhere As String * 4
+'    m_sDate As String * 10
+'    m_sDescr As String * 30
+'    m_cLimitType As Byte
+'End Type
+
+    ' retrieve the calculated the taxes
+    ReDim Taxes(m_nRecordCount - 1)
+    For nIdx = 0 To m_nRecordCount - 1
+        Taxes(nIdx).m_nOrder = m_parryTxTable(nIdx).m_nOrder
+        Taxes(nIdx).m_lGlAcct = m_parryTxTable(nIdx).m_lGlAcct
+        Taxes(nIdx).m_lLimit = m_parryTxTable(nIdx).m_lLimit
+        Taxes(nIdx).m_lTrn = m_parryTxTable(nIdx).m_lTrn
+        Taxes(nIdx).m_cLevel = Asc(m_parryTxTable(nIdx).m_cLevel)
+        Taxes(nIdx).m_cCharge = Asc(m_parryTxTable(nIdx).m_cCharge)
+        Taxes(nIdx).m_cBasis = Asc(m_parryTxTable(nIdx).m_cBasis)
+        Taxes(nIdx).m_cFuelFlag = Asc(m_parryTxTable(nIdx).m_cFuelFlag)
+        Taxes(nIdx).m_fRate = m_parryTxTable(nIdx).m_fRate
+        Taxes(nIdx).m_dAmount = m_parryTxTable(nIdx).m_dAmount
+        Taxes(nIdx).m_sCode = m_parryTxTable(nIdx).m_sCode
+        Taxes(nIdx).m_sWhere = m_parryTxTable(nIdx).m_sWhere
+        Taxes(nIdx).m_sDate = m_parryTxTable(nIdx).m_sDate
+        Taxes(nIdx).m_sDescr = m_parryTxTable(nIdx).m_sDescr
+        Taxes(nIdx).m_cLimitType = Asc(m_parryTxTable(nIdx).m_cLimitType)
+    Next nIdx
+        
+    CalculateLineTax = m_nRecordCount
+    
+    Exit Function
+
+errTrap:
+    
+    tfnErrHandler SUB_NAME, bShowMsgBox
+    CleanUp rsTax
+    
+End Function
+
+'//#--------------------------------------------------
+'//# round_up_sls_tx
+'//#
+'//# PURPOSE:    For Florida State Tax only.
+'//#             Always round the tax amount up 1 penny
+'//#             if it has friction.
+'//#
+'//# INPUT:  wk_amt      - tax amount
+'//#
+'//# OUTPUT: dTaxAmount  - tax amount
+'//#
+'//# Author:     David Chai      01/06/2003
+Private Function round_up_sls_tx(wk_amt As Double) As Double
+
+    Dim work_amt As Double: work_amt = 0#
+    Dim frac_cents As Double: frac_cents = 0#
+    Dim tax_amt As Double: tax_amt = 0#
+    Dim sign_it As Integer: sign_it = 0
+    Dim str_amt As String: str_amt = ""
+    Dim str_whole_amt As String:  str_whole_amt = ""
+    Dim str_decimal_amt As String:  str_decimal_amt = ""
+    Dim nDecPosi As Integer:  nDecPosi = 0
+
+    '//#make the wk_amt non-negative and compute thetax
+    '//#apply the sign to tax amt after it is calculated
+    sign_it = 1
+    work_amt = wk_amt
+
+    If (wk_amt < 0) Then
+        work_amt = wk_amt * (-1)
+        sign_it = -1
+    End If
+
+    '//take care of the whole dollor
+    If (work_amt > 0#) Then
+        '//#format the amt using 10 whole #, 6 decimal
+        str_amt = fnCStr(work_amt)
+        nDecPosi = InStr(str_amt, ".")
+
+        If (nDecPosi > 0) Then
+            str_whole_amt = Left(str_amt, nDecPosi - 1)
+            str_decimal_amt = Mid(str_amt, nDecPosi + 1)
+
+            If (Len(str_decimal_amt) > 2) Then
+                frac_cents = tfnRound(Mid(str_decimal_amt, 3))
+                str_decimal_amt = Left(str_decimal_amt, 2)
+
+                If (frac_cents > 0#) Then
+                    tax_amt = tfnRound(str_whole_amt) + tfnRound(str_decimal_amt) / 100# + 0.01
+                Else
+                    tax_amt = tfnRound(str_whole_amt) + tfnRound(str_decimal_amt) / 100#
+                End If
+            Else
+                tax_amt = tfnRound(str_whole_amt) + tfnRound(str_decimal_amt) / 100#
+            End If
+        End If
+    End If
+
+    '//return the calculated tax amount
+    round_up_sls_tx = tax_amt * sign_it
+
+End Function
+
+Public Function fnCalculateTaxes2(sProduct As String, _
+                                  sTaxUseGroup As String, _
+                                  dGross As Double, _
+                                  dQuantity As Double, _
+                                  ByRef dTaxAmount As Double, _
+                                  Optional bShowMsgBox As Boolean = True, _
+                                  Optional sErrMsg As String = "", _
+                                  Optional bApplyLimit As Boolean = True, _
+                                  Optional hld_vessel As Integer = -1, _
+                                  Optional hld_gals As Double = 0#, _
+                                  Optional hld_miles As Double = 0#, _
+                                  Optional hld_tot_gals As Double = 0#, _
+                                  Optional dAccmTxbleAmt As Double = 0#) As Boolean
+
+    Const SUB_NAME As String = "fnCalculateTaxes2"
+
+    'Calculate taxes by calling the tax mods
+    Dim myStruct As CMovementLineItem
+    Dim nRecords As Long
+    Dim dSum As Double
+    Dim i As Integer
+
+    ' assign initial values to the input structure
+    With myStruct
+        .m_sProduct = sProduct
+        .m_sUseGroup = sTaxUseGroup
+        .m_dDollarBase = dGross
+        .m_dFreight = 0
+        .m_dNetUnits = dQuantity
+        .m_dGrossUnits = dQuantity
+        .m_cBilledUnitsFlag = Asc("N")
+        .m_tLineType = TXMOD_EXTDEL
+    End With
+
+    nRecords = CalculateLineTax(myStruct, hld_vessel, hld_gals, hld_miles, hld_tot_gals, t_tax_date, dAccmTxbleAmt, bShowMsgBox, sErrMsg, True)
+    subDealWithATaxes Taxes, nRecords
+
+    'Calculate the sum of the taxes
+    dSum = 0
+    For i = 0 To nRecords - 1
+        If Taxes(i).m_cCharge = vbKeyY Then
+            dSum = dSum + tfnRound(Taxes(i).m_dAmount, 2)
+        End If
+    Next i
+    
+    dTaxAmount = dSum
+    fnCalculateTaxes2 = True
+
+End Function
+#End If
 
 
