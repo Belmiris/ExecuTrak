@@ -2263,7 +2263,7 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
     End If
     
     'david 03/23/2006  #513569
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     ''''''''''''''''''''''''''
     
     GridArray(nCol, lRow) = vValue
@@ -2327,7 +2327,7 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
     
     Exit Property
     
-ErrTrap:
+errTrap:
     'david 03/23/2006  #513569
     'Occationally the assignment statement "tgTable.Row = "
     'will cause RTE 6148, Invalid row number. I don't know the exact causes.
@@ -4853,7 +4853,7 @@ End Function
 
 Public Function MakeBookmark(ByVal Index As Long) As Variant
     'Generate a bookmark
-    MakeBookmark = Str$(Index)
+    MakeBookmark = str$(Index)
 End Function
 
 Public Sub AddData(ByVal RowBuf As RowBuffer, NewRowBookmark As Variant)
@@ -5018,7 +5018,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     Dim j As Integer
     Dim nSortKeyCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     nMaxArg = UBound(argSortOnKeyList) + 1
     
     If nMaxArg Mod 4 <> 0 Then
@@ -5097,7 +5097,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
         Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
@@ -5153,7 +5153,7 @@ Public Function SortCol(nSortCol As Integer, Optional bUseInitSortOrder As Boole
     Dim nCol As Integer
     Dim nAscDesc As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     m_bColIsSorted = False
     
@@ -5271,7 +5271,7 @@ Public Function SortCol(nSortCol As Integer, Optional bUseInitSortOrder As Boole
         End If
     End If
     
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Function
@@ -5286,7 +5286,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
     Dim sKey2 As String
     Dim nSortCount As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     nSortCount = -1
     
@@ -5423,7 +5423,7 @@ Private Function fnCompareSortKeysNeedToSwap(nIndex, vData(), j As Long, k As Lo
 
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, no sort
 End Function
 
@@ -5438,7 +5438,7 @@ Private Function fnCompareSortKeysNeedToSwap2(nIndex, vData(), j As Long, vValue
     Dim nSortCount As Integer
     Dim nAscDesc As Integer
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     nSortCount = -1
     
@@ -5569,7 +5569,12 @@ Private Function fnCompareSortKeysNeedToSwap2(nIndex, vData(), j As Long, vValue
                         Exit Function
                     End If
                 End If
-            Else  'sData1 = "" Or sData2 = ""
+            ElseIf Not (sData1 = "" And sData2 = "") Then
+                'david 10/10/2008  #606557 NDR
+                'when sorting muti-columns...
+                'if the first column is date type and has a null value
+                'the remaining column(s) is not being sorted correctly
+                'sData1 = "" Or sData2 = ""
                 If bUseInitSortOrder Then
                     nAscDesc = m_arySortCol(n, nIndex).nInitSortOrder
                 Else
@@ -5599,7 +5604,7 @@ Private Function fnCompareSortKeysNeedToSwap2(nIndex, vData(), j As Long, vValue
 
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, no sort
 End Function
 
@@ -5730,7 +5735,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
         Exit Sub
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     'store the highlighted row id
     subGetSelected lSelected, lCountHighlightedID
@@ -5751,7 +5756,7 @@ Private Sub subSaveHighlightedRowID(Button As Integer, Shift As Integer, x As Si
     
     subClearSelBookmarks
     SetRowHighLighted True, True
-ErrTrap:
+errTrap:
     
     Screen.MousePointer = vbDefault
 End Sub
