@@ -6466,6 +6466,54 @@ Public Function fnCalculateTaxes2(sProduct As String, _
     fnCalculateTaxes2 = True
 
 End Function
+
+Public Sub subAccumulateInvoiceTax2(ByVal lTrn As Long, _
+                                    ByVal fAmount As Double, _
+                                    Optional rsTaxRecord As Recordset = Nothing)
+    Dim j As Integer
+    Dim bFind As Boolean
+    
+    bFind = False
+    
+    For j = 0 To nTaxItems - 1
+        With arryLimitTax(j)
+            If lTrn = .m_lTrn Then
+                bFind = True
+                Exit For
+            End If
+        End With
+    Next j
+    
+    If Not bFind Then
+        If nTaxItems > nArraySize Then
+            nArraySize = nArraySize + ARRAY_SIZE_INC
+            ReDim Preserve arryLimitTax(nArraySize)
+        End If
+        
+        With arryLimitTax(j)
+            If Not rsTaxRecord Is Nothing Then
+                .m_sCode = fnCStr(rsTaxRecord!tt_code)
+                .m_sDesc = fnCStr(rsTaxRecord!tt_descr)
+                .m_lTrn = lTrn
+                .m_lLimit = tfnRound(rsTaxRecord!tt_limit, 2)
+                .m_cLimitType = Asc(rsTaxRecord!tt_lmt_type)
+                .m_cBasis = Asc(rsTaxRecord!tt_basis)
+                .m_fRate = tfnRound(rsTaxRecord!tt_rate, DEFAULT_DECIMALS)
+                .m_base_txble_amt = tfnRound(rsTaxRecord!tt_base_txble_amt, 2)
+                .m_fAccumTaxableAmt = 0
+                .m_fAccumTaxAmt = .m_lLimit
+            End If
+        End With
+        
+        
+        j = nTaxItems
+        nTaxItems = nTaxItems + 1
+    End If
+    
+    With arryLimitTax(j)
+        .m_fAccumTaxAmt = .m_fAccumTaxAmt - tfnRound(fAmount, 2)
+    End With
+End Sub
 #End If
 
 
