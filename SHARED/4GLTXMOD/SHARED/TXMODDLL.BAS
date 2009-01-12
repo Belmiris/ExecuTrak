@@ -6496,8 +6496,16 @@ Public Sub subAccumulateInvoiceTax2(ByVal lTrn As Long, _
                 .m_sDesc = fnCStr(rsTaxRecord!tt_descr)
                 .m_lTrn = lTrn
                 .m_lLimit = tfnRound(rsTaxRecord!tt_limit, 2)
-                .m_cLimitType = Asc(rsTaxRecord!tt_lmt_type)
-                .m_cBasis = Asc(rsTaxRecord!tt_basis)
+                If IsNull(rsTaxRecord!tt_lmt_type) Then
+                    .m_cLimitType = Asc(" ")
+                Else
+                    .m_cLimitType = Asc(rsTaxRecord!tt_lmt_type)
+                End If
+                If IsNull(rsTaxRecord!tt_lmt_type) Then
+                    .m_cBasis = Asc(" ")
+                Else
+                    .m_cBasis = Asc(rsTaxRecord!tt_basis)
+                End If
                 .m_fRate = tfnRound(rsTaxRecord!tt_rate, DEFAULT_DECIMALS)
                 .m_base_txble_amt = tfnRound(rsTaxRecord!tt_base_txble_amt, 2)
                 .m_fAccumTaxableAmt = 0
