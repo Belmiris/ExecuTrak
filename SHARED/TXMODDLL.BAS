@@ -6501,7 +6501,7 @@ Public Sub subAccumulateInvoiceTax2(ByVal lTrn As Long, _
                 Else
                     .m_cLimitType = Asc(rsTaxRecord!tt_lmt_type)
                 End If
-                If IsNull(rsTaxRecord!tt_lmt_type) Then
+                If IsNull(rsTaxRecord!tt_basis) Then
                     .m_cBasis = Asc(" ")
                 Else
                     .m_cBasis = Asc(rsTaxRecord!tt_basis)
