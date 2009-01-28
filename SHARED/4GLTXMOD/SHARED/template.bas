@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -661,8 +661,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -694,7 +694,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -765,10 +765,10 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
+Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
-                          Optional ByVal Field As String = vbNullString, _
+                          Optional ByVal field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -777,21 +777,21 @@ Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
     
     On Error GoTo ErrorHandler
     
-    FileName = Trim$(UCase$(FileName))
+    Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
-    Field = Trim$(UCase$(Field))
+    field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & FileName & "')" _
+        & " WHERE (INI_File_Name='" & Filename & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
     Else
         SQL = SQL & "   AND ((INI_User_ID ='') OR (INI_User_ID IS NULL))"
     End If
-    If LenB(Field) Then
-        SQL = SQL & " AND (INI_Field_Name='" & Field & "')"
+    If LenB(field) Then
+        SQL = SQL & " AND (INI_Field_Name='" & field & "')"
     End If
     
     t_dbMainDatabase.ExecuteSQL SQL
@@ -1020,7 +1020,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1509,12 +1509,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1524,7 +1524,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1613,7 +1613,10 @@ End Function
 'Return   : none
 '
 Sub tfnCenterForm(frmCurrent As Form, Optional vParentForm As Variant)
-  
+    
+    'take care of RTE-384
+    On Error Resume Next
+    
     If IsMissing(vParentForm) Then
         frmCurrent.Left = (Screen.Width - frmCurrent.Width) \ 2
         frmCurrent.Top = (Screen.Height - frmCurrent.Height) \ 2
@@ -1645,7 +1648,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1790,7 +1793,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1798,7 +1801,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -1994,7 +1997,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.path 'use the App object to retrieve the path
+    szTemp = App.Path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2333,7 +2336,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2594,14 +2597,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2690,17 +2693,17 @@ End Function
 Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  lMinor As Long, _
                                  lRevision As Long, _
-                                 sDbPath As String)
+                                 sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
     
     On Error GoTo errOpenDB
     Set wsLocal = engLocal.Workspaces(0)
-    Set dbLocal = wsLocal.OpenDatabase(sDbPath, , True)
+    Set dbLocal = wsLocal.OpenDatabase(sDBPath, , True)
     strSQL = "SELECT nMajor, nMinor, nRevision FROM SysVersion"
     Set rsTemp = dbLocal.OpenRecordset(strSQL)
     
@@ -2733,7 +2736,7 @@ errExitHere:
 errOpenDB:
     If Err.Number = 3051 Then
         On Error GoTo errSetAttr
-        SetAttr sDbPath, vbNormal
+        SetAttr sDBPath, vbNormal
         Resume
     Else
         Resume errExitHere
@@ -3393,7 +3396,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3610,7 +3613,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3784,24 +3787,24 @@ Public Function tfnGetDbName() As String
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
-    Dim sDbPath As String
+    Dim sDBPath As String
     Dim sDBName As String
     Dim i As Integer
     
-    sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
-    If Trim(sDbPath) = "" Then
-        sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    If Trim(sDBPath) = "" Then
+        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    i = InStrRev(sDbPath, "/")
+    i = InStrRev(sDBPath, "/")
     
     If i > 1 Then
-        sDbPath = Left(sDbPath, i - 1)
+        sDBPath = Left(sDBPath, i - 1)
     
-        i = InStrRev(sDbPath, "/")
+        i = InStrRev(sDBPath, "/")
     
         If i > 1 Then
-            sDBName = Mid(sDbPath, i + 1)
+            sDBName = Mid(sDBPath, i + 1)
         End If
     End If
     
@@ -4630,7 +4633,7 @@ End Function
 
 '#502947 - Chris Albrecht - 3/14/2006
 'Check the invoice and invoice hold tables
-Private Function InvoiceCreated(InvoiceNbr As Long) As Boolean
+Private Function InvoiceCreated(invoiceNbr As Long) As Boolean
 
 Const SQL_INVOICE_EXISTS_IN_HOLD As String = _
     " select ihh_nbr from sih_invoice where ihh_nbr = @invoice_nbr "
@@ -4639,12 +4642,12 @@ Const SQL_INVOICE_EXISTS As String = _
     
 Dim SQL As String
 
-    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", InvoiceNbr)
+    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", invoiceNbr)
     
     InvoiceCreated = fnDataExists(SQL)
     
     If Not InvoiceCreated Then
-        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", InvoiceNbr)
+        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", invoiceNbr)
         
         InvoiceCreated = fnDataExists(SQL)
     End If
