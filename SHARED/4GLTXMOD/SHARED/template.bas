@@ -4733,7 +4733,7 @@ End Function
 
 
 'Paul Jeanquart 2/12/09 added new function
-Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
+Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
     
     Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
     Dim bUNC As Boolean
