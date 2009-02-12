@@ -823,7 +823,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -846,7 +846,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -894,7 +894,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -912,7 +912,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-ErrTrap:
+errTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -2801,7 +2801,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2823,7 +2823,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3749,7 +3749,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3851,7 +3851,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3859,7 +3859,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3898,7 +3898,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
@@ -3923,7 +3923,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     tfn_Write_SYS_INI = True
     Exit Function
 
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -4344,7 +4344,7 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     '537311 - Chris Albrecht - 11/7/2006
     Static sSysParm7900 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     fnInvoiceOK = ""
     bError = False
@@ -4606,7 +4606,7 @@ TRY_AGAIN:
     
     Exit Function
     
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -4738,7 +4738,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
     Dim bUNC As Boolean
     
-    fnCheckAndCreateDirectory = vbNullString
+    tfnCheckAndCreateDirectory = vbNullString
     
     On Error Resume Next
     sTmpDir = Dir(sDir, vbDirectory)
@@ -4749,7 +4749,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     
     If bPromptForCreate Then
         If MsgBox("Directory '" + sDir + "' does not exist.  Do you want to create it?", vbQuestion + vbYesNo) = vbNo Then
-            fnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
+            tfnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
             Exit Function
         End If
     End If
@@ -4780,7 +4780,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
         
         On Error Resume Next
         If Not DirExists(sParentDir) Then ' replace DIR with UNC compatible function
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -4793,7 +4793,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     Wend
     Exit Function
 
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
             tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
@@ -4803,7 +4803,7 @@ ErrTrap:
     #Else
         MsgBox "...", vbExclamation
     #End If
-    fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
+    tfnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
     
 End Function
 
