@@ -380,4 +380,8 @@ Private Function RegSetValue(ByVal lKey As Long, _
     End If
 End Function
 
+Private Sub subCriticalMsg(sMsg As String, _
+                          sCaption As String)
+    MsgBox sMsg, vbOKOnly + vbCritical, sCaption
+End Sub
 
