@@ -176,12 +176,26 @@ Property Let DataField(ByVal nCol As Integer, _
     Dim sOldDataField As String
     
     fnGetKeys lIndex, lColIndex, nCol
+    
     If lIndex > 0 Then
-        sOldDataField = colDropDowns.Item(lIndex).Item(lColIndex).DataField
-        colDropDowns.Item(lIndex).Item(lColIndex).DataField = sField
+        Dim nPosi As Integer
+        nPosi = InStrRev(sField, " ")
         
-        If sOldDataField = colDropDowns.Item(lIndex).Item(lColIndex).SourceDataField Then
+        If nPosi > 0 Then
+            'field alias found
+            colDropDowns.Item(lIndex).Item(lColIndex).DataField = Trim(Mid(sField, nPosi + 1))
+            sField = Trim(Left(sField, nPosi - 1))
+            nPosi = InStrRev(LCase(sField), " as")
+            If nPosi > 0 Then
+                sField = Trim(Left(sField, nPosi - 1))
+            End If
+            If Left(sField, 1) <> "(" Then
+                sField = "(" + sField + ")"
+            End If
             colDropDowns.Item(lIndex).Item(lColIndex).SourceDataField = sField
+        Else
+            colDropDowns.Item(lIndex).Item(lColIndex).SourceDataField = sField
+            colDropDowns.Item(lIndex).Item(lColIndex).DataField = sField
         End If
     End If
                         
@@ -485,7 +499,7 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
     If tgDropDown.Top + tgDropDown.Height > frmParent.ScaleHeight Then
         tgDropDown.Top = nMainTableTop + tgMain.RowTop(tgMain.Row) - tgDropDown.Height
     End If
-    tgDropDown.col = 0
+    tgDropDown.Col = 0
 End Function
 
 Private Sub fnLocateMainTable()
@@ -712,12 +726,12 @@ Private Sub fnGetKeys(lDropDown As Long, lColumn As Long, ByVal nCol As Integer)
     lDropDown = -1
 End Sub
 
-Private Function fnKeyExist(col As Collection, nKey As Integer) As Boolean
+Private Function fnKeyExist(Col As Collection, nKey As Integer) As Boolean
     Dim vTemp As Variant
 
     fnKeyExist = True
     On Error GoTo errfnKeyExist
-    Set vTemp = col.Item(Str$(nKey))
+    Set vTemp = Col.Item(Str$(nKey))
 extfnKeyExist:
     On Error GoTo 0
     Exit Function
@@ -983,7 +997,7 @@ Private Function fnEditorLocked() As Boolean
         If m_clsEdit.Locked Then
             fnEditorLocked = True
         Else
-            fnEditorLocked = tgMain.Columns(tgMain.col).Locked
+            fnEditorLocked = tgMain.Columns(tgMain.Col).Locked
         End If
     End If
 End Function
@@ -1094,7 +1108,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         Else
             If KeyAscii = vbKeyReturn Then
                 bShowList = False
-                fnGetText tgMain.col
+                fnGetText tgMain.Col
                 subInputSelected
             ElseIf KeyAscii = vbKeyEscape Then
                 bShowList = False
@@ -1107,7 +1121,7 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
                 If Not IsNull(tgMain.Row) Then
-                    If val(tgMain.Row) >= 0 Then
+                    If Val(tgMain.Row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1175,7 +1189,7 @@ Public Sub Resize()
     DoEvents
     fnLocateMainTable
     If tgDropDown.Visible Then
-        fnGetKeys lDropDown, lColIndex, tgMain.col
+        fnGetKeys lDropDown, lColIndex, tgMain.Col
         If lDropDown < 0 Then
             Exit Sub
         End If
@@ -1429,9 +1443,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(val(sPrefix))
+    sTrimedPrefix = CStr(Val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If val(sPrefix) > 0 Then
+    If Val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1453,12 +1467,12 @@ End Function
 
 Public Sub ButtonClick(ParamArray vMoreFields() As Variant)
     'david 03/05/2001
-    m_nColWhenSearchBtnClick = tgMain.col
+    m_nColWhenSearchBtnClick = tgMain.Col
     If Not m_clsEdit Is Nothing Then
         m_lRowWhenSearchBtnClick = m_clsEdit.GetCurrentRowNumber()
     End If
     
-    fnLoadTable tgMain.col
+    fnLoadTable tgMain.Col
     subInputSelected
 End Sub
 
@@ -1581,7 +1595,7 @@ Private Sub fnMoveButton()
         Exit Sub
     End If
 
-    fnGetKeys lDropDown, lCol, tgMain.col
+    fnGetKeys lDropDown, lCol, tgMain.Col
     
     If lDropDown <= 0 Then
         Exit Sub
@@ -1603,7 +1617,7 @@ Private Sub fnMoveButton()
             If IsNull(tgMain.Row) Then
                 lRow = 0
             Else
-                lRow = val(tgMain.Row)
+                lRow = Val(tgMain.Row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1639,7 +1653,7 @@ Private Sub fnMoveButton()
                     cmdSearch.Picture = frmContext.LoadPicture(SEARCH_UP)
             End Select
             On Error GoTo 0
-            If tgMain.col < tgMain.LeftCol Or (tgMain.col > tgMain.LeftCol And objCol.Left = 0) Or objCol.Left + objCol.Width >= tgMain.Width Then
+            If tgMain.Col < tgMain.LeftCol Or (tgMain.Col > tgMain.LeftCol And objCol.Left = 0) Or objCol.Left + objCol.Width >= tgMain.Width Then
                 cmdSearch.Visible = False
                 cmdSearch.ZOrder 1
             Else
@@ -1682,7 +1696,7 @@ Public Sub GotFocus(Optional vCtrl As Variant)
     End If
     If IsMissing(vCtrl) Then
         fnMoveButton
-        nLastColumn = tgMain.col
+        nLastColumn = tgMain.Col
         If Not m_clsEdit Is Nothing Then
             m_LastRow = m_clsEdit.GetCurrentRowNumber
         End If
@@ -1691,7 +1705,7 @@ Public Sub GotFocus(Optional vCtrl As Variant)
         Set objCtrl = vCtrl
         If objCtrl Is tgMain Then
             fnMoveButton
-            nLastColumn = tgMain.col
+            nLastColumn = tgMain.Col
             If Not m_clsEdit Is Nothing Then
                 m_LastRow = m_clsEdit.GetCurrentRowNumber
             End If
@@ -1826,7 +1840,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
         Exit Function
     End If
     
-    fnGetKeys lDropDown, lCol, tgMain.col
+    fnGetKeys lDropDown, lCol, tgMain.Col
     
     RowColChange = True
     If tgTable.TabIndex = tgDropDown.TabIndex Then
@@ -1834,7 +1848,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
             If lDropDown >= 0 Then
                 bShowList = False
                 lOldRow = tgMain.Row
-                fnGetText tgMain.col
+                fnGetText tgMain.Col
                 DoEvents
                 If lOldRow = tgMain.Row Then
                     subInputSelected
@@ -1863,7 +1877,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
             fnMoveButton
     
             If colDropDowns.Item(lDropDown).Item(1).CursorControl Then
-                If m_nSeries = lDropDown And nLastColumn <= tgMain.col Then
+                If m_nSeries = lDropDown And nLastColumn <= tgMain.Col Then
                     If colDropDowns.Item(lDropDown).Item(1).Status Then
                         If Not m_clsEdit Is Nothing Then
                             If m_LastRow = m_clsEdit.GetCurrentRowNumber Then
@@ -1902,7 +1916,7 @@ Public Function RowColChange(tgTable As Object) As Boolean
                 End If
             End If
         End If
-        nLastColumn = tgMain.col
+        nLastColumn = tgMain.Col
         If Not m_clsEdit Is Nothing Then
             m_LastRow = m_clsEdit.GetCurrentRowNumber
         End If
@@ -1940,7 +1954,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1957,7 +1971,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = val(vIndex)
+        nIndex = Val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1990,7 +2004,7 @@ Public Sub TableClick(tgTable As Object)
                         nRowTop = tgDropDown.RowTop(tgDropDown.Row)
                         nRowBtm = nRowTop + tgDropDown.RowHeight
                         If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
-                            fnGetText tgMain.col
+                            fnGetText tgMain.Col
                             On Error Resume Next
                             tgMain.SetFocus
                             subInputSelected
@@ -2009,7 +2023,7 @@ Public Sub TableClick(tgTable As Object)
                 nRowTop = tgDropDown.RowTop(tgDropDown.Row)
                 nRowBtm = nRowTop + tgDropDown.RowHeight
                 If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
-                    fnGetText tgMain.col
+                    fnGetText tgMain.Col
                     On Error Resume Next
                     tgMain.SetFocus
                     subInputSelected
@@ -2031,7 +2045,7 @@ Public Sub HeadClick(ByVal ColIndex As Integer)
         Exit Sub
     End If
     
-    fnLoadTable tgMain.col, True, ColIndex
+    fnLoadTable tgMain.Col, True, ColIndex
 End Sub
 
 Property Get ValidSelection() As Boolean
@@ -2064,7 +2078,7 @@ Public Sub SetVisible(nCol As Integer, bStatus As Boolean)
     fnGetKeys lIndex, lColIndex, nCol
     If lIndex > 0 Then
         colDropDowns.Item(lIndex).Item(1).Visible = bStatus
-        If tgMain.col = nCol Then
+        If tgMain.Col = nCol Then
             If bStatus Then
                 fnMoveButton
                 cmdSearch.Visible = True
@@ -2477,7 +2491,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = val(sYear)
+        tfnYear = Val(sYear)
     End If
 End Function
 
@@ -2625,7 +2639,7 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
     Dim vData() As Variant
     Dim lCount As Long
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     sErrMsg = ""
     
@@ -2944,7 +2958,7 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
     
     Exit Function
     
-ErrTrap:
+errTrap:
     'error, returns the original SQL
     fnAppendCriteria = strSQL
 End Function
