@@ -823,7 +823,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -846,7 +846,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -894,7 +894,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -912,7 +912,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-errTrap:
+ErrTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -1793,7 +1793,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1801,7 +1801,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2336,7 +2336,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2597,14 +2597,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2801,7 +2801,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2823,7 +2823,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3749,7 +3749,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-errTrap:
+ErrTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3851,7 +3851,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -3859,7 +3859,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     End If
     Exit Function
     
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -3898,7 +3898,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
@@ -3923,7 +3923,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     tfn_Write_SYS_INI = True
     Exit Function
 
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -4344,7 +4344,7 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     '537311 - Chris Albrecht - 11/7/2006
     Static sSysParm7900 As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     fnInvoiceOK = ""
     bError = False
@@ -4606,7 +4606,7 @@ TRY_AGAIN:
     
     Exit Function
     
-errTrap:
+ErrTrap:
     #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -4728,6 +4728,101 @@ SQLError:
       
     tfnExecuteSQL = False
     On Error GoTo 0
+
+End Function
+
+
+'Paul Jeanquart 2/12/09 added new function
+Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate As Boolean) As String
+    
+    Dim sTmpDir As String, sDrive, nPosi As String, sParentDir As String, sNewDir As String
+    Dim bUNC As Boolean
+    
+    fnCheckAndCreateDirectory = vbNullString
+    
+    On Error Resume Next
+    sTmpDir = Dir(sDir, vbDirectory)
+    
+    If sTmpDir <> vbNullString Then
+        Exit Function
+    End If
+    
+    If bPromptForCreate Then
+        If MsgBox("Directory '" + sDir + "' does not exist.  Do you want to create it?", vbQuestion + vbYesNo) = vbNo Then
+            fnCheckAndCreateDirectory = "Directory '" + sDir + "' does not exist"
+            Exit Function
+        End If
+    End If
+    
+    If Right(sDir, 1) <> "\" Then sDir = sDir + "\"
+    
+    nPosi = InStr(sDir, ":\")
+    If nPosi > 0 Then
+        sDrive = Left(sDir, nPosi)
+        sDir = Mid(sDir, nPosi + 2)
+    End If
+    
+    nPosi = InStr(sDir, "\\")
+    If nPosi > 0 Then
+        bUNC = True
+        nPosi = InStr(nPosi + 2, sDir, "\")
+        sDrive = Left(sDir, nPosi - 1)
+        sDir = Mid(sDir, nPosi + 1)
+    End If
+    
+    sParentDir = sDrive
+    
+    On Error Resume Next
+    nPosi = InStr(sDir, "\")
+    
+    While nPosi > 0
+        sParentDir = sParentDir + "\" + Left(sDir, nPosi - 1)
+        
+        On Error Resume Next
+        If Not DirExists(sParentDir) Then ' replace DIR with UNC compatible function
+            On Error GoTo ErrTrap
+            MkDir sParentDir
+        End If
+        
+        sTmpDir = Mid(sDir, nPosi + 1)
+        
+        sDir = sTmpDir
+        
+        nPosi = 0
+        nPosi = InStr(sDir, "\")
+    Wend
+    Exit Function
+
+ErrTrap:
+    #If Not NO_ERROR_HANDLER Then
+        If Not objErrHandler Is Nothing Then
+            tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
+        Else
+            MsgBox "...", vbExclamation
+        End If
+    #Else
+        MsgBox "...", vbExclamation
+    #End If
+    fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
+    
+End Function
+
+Private Function DirExists(ByVal DirName As String) As Boolean
+
+   'Returns True if the specified directory exists
+
+   On Error GoTo EH
+
+   'GetAttr will error if the file/directory can't be found
+   If (GetAttr(DirName) And vbDirectory) = vbDirectory Then
+       DirExists = True
+   End If
+
+   Exit Function
+
+EH:
+
+   DirExists = False
 
 End Function
 
