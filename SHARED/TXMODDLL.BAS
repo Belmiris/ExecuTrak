@@ -6409,6 +6409,9 @@ Private Function round_up_sls_tx(wk_amt As Double) As Double
             Else
                 tax_amt = tfnRound(str_whole_amt) + tfnRound(str_decimal_amt) / 100#
             End If
+        'david 03/17/2009  #622812
+        Else
+            tax_amt = work_amt
         End If
     End If
 
