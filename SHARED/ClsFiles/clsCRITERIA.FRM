@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Begin VB.Form clsCRITERIA 
    Caption         =   "Criteria"
@@ -25,14 +25,14 @@ Begin VB.Form clsCRITERIA
    StartUpPosition =   2  'CenterScreen
    Begin FACTFRMLib.FactorFrame efraFilterPopup 
       Height          =   3030
-      Left            =   1590
+      Left            =   1365
       TabIndex        =   20
       TabStop         =   0   'False
       Top             =   2295
       Visible         =   0   'False
-      Width           =   8280
+      Width           =   8640
       _Version        =   65536
-      _ExtentX        =   14605
+      _ExtentX        =   15240
       _ExtentY        =   5345
       _StockProps     =   77
       BackColor       =   8388608
@@ -63,9 +63,9 @@ Begin VB.Form clsCRITERIA
          Left            =   150
          TabIndex        =   10
          Top             =   195
-         Width           =   8010
+         Width           =   8355
          _Version        =   65536
-         _ExtentX        =   14129
+         _ExtentX        =   14737
          _ExtentY        =   3836
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
@@ -90,10 +90,10 @@ Begin VB.Form clsCRITERIA
          Begin VB.TextBox txtDesc 
             Height          =   360
             HelpContextID   =   1004
-            Left            =   3105
+            Left            =   3585
             TabIndex        =   8
             Top             =   1680
-            Width           =   4365
+            Width           =   4230
          End
          Begin VB.TextBox txtFilter 
             Height          =   360
@@ -102,7 +102,7 @@ Begin VB.Form clsCRITERIA
             Locked          =   -1  'True
             TabIndex        =   16
             Top             =   990
-            Width           =   7680
+            Width           =   8025
          End
          Begin VB.TextBox txtOp 
             Height          =   360
@@ -110,12 +110,12 @@ Begin VB.Form clsCRITERIA
             Left            =   180
             TabIndex        =   4
             Top             =   1680
-            Width           =   570
+            Width           =   1065
          End
          Begin VB.TextBox txtValue 
             Height          =   360
             HelpContextID   =   1002
-            Left            =   1260
+            Left            =   1710
             TabIndex        =   6
             Top             =   1680
             Width           =   1425
@@ -123,7 +123,7 @@ Begin VB.Form clsCRITERIA
          Begin FACTFRMLib.FactorFrame cmdOp 
             Height          =   360
             HelpContextID   =   1001
-            Left            =   765
+            Left            =   1260
             TabIndex        =   5
             TabStop         =   0   'False
             Top             =   1680
@@ -158,7 +158,7 @@ Begin VB.Form clsCRITERIA
          Begin FACTFRMLib.FactorFrame cmdValue 
             Height          =   360
             HelpContextID   =   1002
-            Left            =   2700
+            Left            =   3150
             TabIndex        =   7
             TabStop         =   0   'False
             Top             =   1680
@@ -193,7 +193,7 @@ Begin VB.Form clsCRITERIA
          Begin FACTFRMLib.FactorFrame cmdDesc 
             Height          =   360
             HelpContextID   =   1004
-            Left            =   7485
+            Left            =   7830
             TabIndex        =   9
             TabStop         =   0   'False
             Top             =   1680
@@ -231,7 +231,7 @@ Begin VB.Form clsCRITERIA
             Caption         =   "Description"
             ForeColor       =   &H00000000&
             Height          =   270
-            Left            =   3150
+            Left            =   3585
             TabIndex        =   26
             Top             =   1410
             UseMnemonic     =   0   'False
@@ -245,7 +245,7 @@ Begin VB.Form clsCRITERIA
             TabIndex        =   25
             Top             =   315
             UseMnemonic     =   0   'False
-            Width           =   7680
+            Width           =   8025
          End
          Begin VB.Label Label 
             BackColor       =   &H00C0C0C0&
@@ -280,7 +280,7 @@ Begin VB.Form clsCRITERIA
             ForeColor       =   &H00000000&
             Height          =   270
             Index           =   3
-            Left            =   1305
+            Left            =   1710
             TabIndex        =   22
             Top             =   1410
             UseMnemonic     =   0   'False
@@ -303,7 +303,7 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdFilterOK 
          Height          =   390
          HelpContextID   =   16
-         Left            =   5148
+         Left            =   5406
          TabIndex        =   12
          Top             =   2490
          Width           =   1305
@@ -340,7 +340,7 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdFilterCancel 
          Height          =   390
          HelpContextID   =   15
-         Left            =   6810
+         Left            =   7155
          TabIndex        =   14
          Top             =   2490
          Width           =   1305
@@ -413,7 +413,7 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdClear 
          Height          =   390
          HelpContextID   =   20
-         Left            =   1826
+         Left            =   1912
          TabIndex        =   15
          Top             =   2490
          Width           =   1305
@@ -449,7 +449,7 @@ Begin VB.Form clsCRITERIA
       Begin FACTFRMLib.FactorFrame cmdRefresh 
          Height          =   390
          HelpContextID   =   14
-         Left            =   3487
+         Left            =   3659
          TabIndex        =   13
          Top             =   2490
          Width           =   1305
@@ -804,7 +804,7 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
     sDropdownSQL = fnCStr(sDropdownSQL)
     
     If sColName = "" Or sFieldName = "" Or sFieldType = "" Or sDropdownSQL = "" Then
-        MsgBox "Column Name, Field Name, sFieldType and Dropdown SQL are required.", vbCritical
+        MsgBox "Column Name, Field Name, Field Type and Dropdown SQL are required.", vbCritical
         Exit Function
     End If
     
@@ -878,6 +878,9 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
                 Exit Function
             End Select
             
+            'get the alias
+            sFieldName = fnGetFieldName(sFieldName, "A")
+            
             .AddComboBox txtValue, cmdValue, sFieldName, nType, , sFieldName
         End With
     End If
@@ -919,7 +922,7 @@ Public Sub AddExtraColumn(ByVal sPrimaryFieldName As String, ByVal sColName As S
     End If
     
     If sColName = "" Or sFieldName = "" Or sFieldType = "" Then
-        MsgBox "Column Name, Field Name, sFieldType and Dropdown SQL are required.", vbCritical
+        MsgBox "Column Name, Field Name, and Field Type are required.", vbCritical
         Exit Sub
     End If
     
@@ -1553,6 +1556,12 @@ End Sub
 Private Sub cmdAdd_Click()
     Dim lRow As Long
     
+    If Not fnValidValue(txtValue) Then
+        subSetFocus txtValue
+        cmdAdd.Enabled = False
+        Exit Sub
+    End If
+    
     'make filter string
     lRow = tgmCriteria.GetCurrentRowNumber
     
@@ -1624,6 +1633,7 @@ Private Function fnRefreshFilterString() As Boolean
     Dim aryTemp() As String
     Dim i As Integer
     Dim sNewOp As String
+    Dim sTemp As String
     
     sOP = fnCStr(txtOp)
     
@@ -1638,16 +1648,24 @@ Private Function fnRefreshFilterString() As Boolean
     sValue = fnCStr(txtValue)
     
     If sValue <> "" Then
-        Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
-        Case TYPE_STRING
-            sValue = tfnSQLString(sValue)
-        Case TYPE_DATE
-            sValue = tfnDateString(sValue, True)
-        Case TYPE_DECIMAL, TYPE_LONG, TYPE_INT
-            sValue = sValue
-        Case TYPE_PHONE
-            sValue = tfnSQLString(sValue)
-        End Select
+        If sOP = "BETWEEN" Then
+            sValue = fnFixBetweenValue(sValue, Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1))
+        Else
+            Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
+            Case TYPE_STRING
+                If sOP = "IN" Then
+                    sValue = fnRemvMatchingBeginEndChar(sValue, "(", ")")
+                Else
+                    sValue = fnAddBeginEndQuotes(sValue)
+                End If
+            Case TYPE_DATE
+                sValue = tfnDateString(tfnFormatDate(sValue), True)
+            Case TYPE_DECIMAL, TYPE_LONG, TYPE_INT
+                sValue = sValue
+            Case TYPE_PHONE
+                sValue = fnAddBeginEndQuotes(sValue)
+            End Select
+        End If
     Else
         sValue = "NULL"
     End If
@@ -1655,7 +1673,11 @@ Private Function fnRefreshFilterString() As Boolean
     sNewOp = ""
 
     If fnCStr(txtFilter.Text) = "" Then
-        txtFilter.Text = sOP + sValue
+        If sOP = "IN" Then
+            txtFilter.Text = sOP + "(" + sValue + ")"
+        Else
+            txtFilter.Text = sOP + sValue
+        End If
     Else
         aryTemp = Split(txtFilter.Text, ";")
         
@@ -1666,11 +1688,24 @@ Private Function fnRefreshFilterString() As Boolean
         Next i
         
         If i > UBound(aryTemp) Then
-            sNewOp = sOP + sValue
+            If sOP = "IN" Then
+                sNewOp = sOP + "(" + sValue + ")"
+            Else
+                sNewOp = sOP + sValue
+            End If
         Else
-            'if not already exist in the filter, add it to the filter
-            If InStr("," + Mid(aryTemp(i), Len(sOP) + 1) + ",", "," + sValue + ",") <= 0 Then
-                aryTemp(i) = aryTemp(i) + "," + sValue
+            If sOP = "LIKE" Or sOP = "MATCHES" Or sOP = "BETWEEN" Then
+                aryTemp(i) = sOP + sValue
+            ElseIf sOP = "IN" Then
+                sTemp = Mid(aryTemp(i), 3)
+                sTemp = fnRemvMatchingBeginEndChar(sTemp, "(", ")")
+                sValue = sTemp + "," + sValue
+                aryTemp(i) = sOP + "(" + sValue + ")"
+            Else
+                'if not already exist in the filter, add it to the filter
+                If InStr("," + Mid(aryTemp(i), Len(sOP) + 1) + ",", "," + sValue + ",") <= 0 Then
+                    aryTemp(i) = aryTemp(i) + "," + sValue
+                End If
             End If
         End If
         
@@ -1692,6 +1727,40 @@ Private Function fnRefreshFilterString() As Boolean
     End If
     
     fnRefreshFilterString = True
+End Function
+
+Private Function fnFixBetweenValue(ByVal sValue As String, sDataType As String) As String
+    Dim aryTemp() As String
+    Dim sTemp As String
+    Dim i As Integer
+    Dim sRet As String
+    
+    sValue = fnRemvMatchingBeginEndChar(sValue, "(", ")")
+    sValue = Replace(sValue, " and ", ",")
+    
+    aryTemp = Split(sValue, ",")
+    sRet = ""
+    
+    If UBound(aryTemp) = 1 Then
+    For i = 0 To UBound(aryTemp)
+        Select Case sDataType
+        Case TYPE_STRING, TYPE_PHONE
+            sRet = sRet + fnAddBeginEndQuotes(aryTemp(i))
+        Case TYPE_DATE
+            sRet = sRet + tfnDateString(tfnFormatDate(aryTemp(i)), True)
+        Case TYPE_DECIMAL, TYPE_LONG, TYPE_INT
+            sRet = sRet + aryTemp(i)
+        End Select
+        
+        If i = 1 Then
+            Exit For
+        End If
+        
+        sRet = sRet + ","
+    Next i
+    End If
+
+    fnFixBetweenValue = "(" + sRet + ")"
 End Function
 
 Private Function fnFilterChanged() As Boolean
@@ -1796,14 +1865,31 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
         For i = 0 To .RowCount - 1
             If nRow < 0 Or (nRow >= 0 And nRow = i) Then
                 sColumnName = fnCStr(.CellValue(nCol_FieldName, i))
+                'get the real field
+                sColumnName = fnGetFieldName(sColumnName, "R")
+                
                 sTemp = ""
                 
                 If fnCStr(.CellValue(nCol_Filter, i)) <> "" And fnCStr(.CellValue(nCol_Filter, i)) <> "N/A" Then
                     aryTemp = Split(fnCStr(.CellValue(nCol_Filter, i)), ";")
                     
                     For j = 0 To UBound(aryTemp)
-                        sOperator = Left(fnCStr(aryTemp(j)), 1)
-                        sValue = Mid(fnCStr(aryTemp(j)), 2)
+                        If Left(fnCStr(aryTemp(j)), 7) = "BETWEEN" Then
+                            sOperator = "BETWEEN"
+                            sValue = fnCStr(Mid(fnCStr(aryTemp(j)), 8))
+                        ElseIf Left(fnCStr(aryTemp(j)), 7) = "MATCHES" Then
+                            sOperator = "MATCHES"
+                            sValue = Mid(fnCStr(aryTemp(j)), 8)
+                        ElseIf Left(fnCStr(aryTemp(j)), 4) = "LIKE" Then
+                            sOperator = "LIKE"
+                            sValue = Mid(fnCStr(aryTemp(j)), 5)
+                        ElseIf Left(fnCStr(aryTemp(j)), 2) = "IN" Then
+                            sOperator = "IN"
+                            sValue = Mid(fnCStr(aryTemp(j)), 3)
+                        Else
+                            sOperator = Left(fnCStr(aryTemp(j)), 1)
+                            sValue = Mid(fnCStr(aryTemp(j)), 2)
+                        End If
                         
                         'Here we are checking it is < or <>
                         If Left(sValue, 1) = ">" Or Left(sValue, 1) = "=" Then
@@ -1811,21 +1897,38 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
                             sValue = Mid(sValue, 2)
                         End If
                         
-                        aryTemp2 = Split(sValue, ",")
-                        
-                        For k = 0 To UBound(aryTemp2)
-                            If fnCStr(aryTemp2(k)) <> "" Then
-                                If sTemp <> "" Then
-                                    sTemp = sTemp & " OR "
-                                End If
-                                
-                                If UCase(aryTemp2(k)) = "NULL" Then
-                                    sTemp = sTemp & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
-                                Else
-                                    sTemp = sTemp & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
-                                End If
+                        If sOperator = "BETWEEN" Then
+                            sValue = fnRemvMatchingBeginEndChar(sValue, "(", ")")
+                            sValue = Replace(sValue, ",", " AND ")
+                            
+                            If sTemp <> "" Then
+                                sTemp = sTemp & " OR "
                             End If
-                        Next k
+                            
+                            sTemp = sTemp & sColumnName & " " & sOperator & " " & sValue
+                        ElseIf sOperator = "IN" Then
+                            If sTemp <> "" Then
+                                sTemp = sTemp & " OR "
+                            End If
+                            
+                            sTemp = sTemp & sColumnName & " " & sOperator & " " & sValue
+                        Else
+                            aryTemp2 = Split(sValue, ",")
+                            
+                            For k = 0 To UBound(aryTemp2)
+                                If fnCStr(aryTemp2(k)) <> "" Then
+                                    If sTemp <> "" Then
+                                        sTemp = sTemp & " OR "
+                                    End If
+                                    
+                                    If UCase(aryTemp2(k)) = "NULL" Then
+                                        sTemp = sTemp & sColumnName & " IS" & IIf(sOperator = "=", "", " NOT") & " NULL"
+                                    Else
+                                        sTemp = sTemp & sColumnName & " " & sOperator & " " & fnCStr(aryTemp2(k))
+                                    End If
+                                End If
+                            Next k
+                        End If
                     Next j
                 End If
                 
@@ -1867,7 +1970,7 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
     sRetCriteria = sCriteria
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     Set cValidate = Nothing
     Set tgmCriteria = Nothing
 End Sub
@@ -1877,25 +1980,25 @@ Private Sub tblCriteria_AfterColEdit(ByVal ColIndex As Integer)
     subSetGridButtonStatus
 End Sub
 
-Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
+Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
     Dim lRow As Long
     
     lRow = tgmCriteria.GetCurrentRowNumber
     
     If ColIndex = nCol_Sort Then
         If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, lRow) Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
         
         If Not tgmCriteria.CellValue(nCol_Enabled, lRow) Then
-            Cancel = True
+            CANCEL = True
             Exit Sub
         End If
     End If
 
     cmdOkBtn.Enabled = False
-    tgmCriteria.BeforeColEdit ColIndex, KeyAscii, Cancel
+    tgmCriteria.BeforeColEdit ColIndex, KeyAscii, CANCEL
 End Sub
 
 Private Sub tblCriteria_Change()
@@ -2020,8 +2123,8 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     End If
 End Sub
 
-Private Sub tblCriteria_SelChange(Cancel As Integer)
-    Cancel = True
+Private Sub tblCriteria_SelChange(CANCEL As Integer)
+    CANCEL = True
 End Sub
 
 Private Sub tblCriteria_UnboundDeleteRow(Bookmark As Variant)
@@ -2071,11 +2174,11 @@ Private Sub subShowFilterPopup()
         lblDesc.Visible = False
         txtDesc.Visible = False
         cmdDesc.Visible = False
-        'cmdValue.Left = cmdDesc.Left
-        'txtValue.Width = sngDefaultValueWidth + cmdValue.Width + txtDesc.Width + 70
+        cmdValue.Left = cmdDesc.Left
+        txtValue.Width = sngDefaultValueWidth + cmdValue.Width + txtDesc.Width + 70
     Else
-        'cmdValue.Left = sngDefaultValueLeft
-        'txtValue.Width = sngDefaultValueWidth
+        cmdValue.Left = sngDefaultValueLeft
+        txtValue.Width = sngDefaultValueWidth
         sRegExpDesc = tgmCriteria.CellValue(nCol_XtraRegExp, m_nCurrRow)
         
         lblDesc.Caption = sCaption
@@ -2150,7 +2253,7 @@ Private Sub subSetupCombos()
                 'Add the combos below
                 
                 .AddCombo "SELECT op FROM temp_operator", , tgcDropdown.DropUp
-                .AddComboBox txtOp, cmdOp, "op", .SQL_STRING_TYPE(2)
+                .AddComboBox txtOp, cmdOp, "op", .SQL_STRING_TYPE(10)
                 .SetOrderingNone txtOp
                 
                 'more will be added in AddColumn() function - ON THE FLY
@@ -2198,8 +2301,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     End If
 End Sub
 
-Private Sub tblComboDropDown_SelChange(Cancel As Integer)
-    tgcDropdown.SelChange Cancel
+Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
+    tgcDropdown.SelChange CANCEL
 End Sub
 
 Private Sub txtFilter_Change()
@@ -2240,8 +2343,12 @@ Private Sub txtFilter_KeyPress(KeyAscii As Integer)
             sErrMsg = fnValidFilter()
             
             If sErrMsg = "" Then
-                cmdFilterOK.Enabled = True
-                subSetFocus cmdFilterOK
+                If txtFilter.Text <> "" Then
+                    cmdFilterOK.Enabled = True
+                    subSetFocus cmdFilterOK
+                Else
+                    SendKeys "{TAB}", True
+                End If
             Else
                 If txtFilter.Tag = "Changed" Then
                     m_frmParent.tfnSetStatusBarError sErrMsg
@@ -2270,8 +2377,10 @@ Private Sub txtFilter_LostFocus()
         sErrMsg = fnValidFilter()
         
         If sErrMsg = "" Then
-            cmdFilterOK.Enabled = True
-            txtFilter.Locked = True
+            If txtFilter.Text <> "" Then
+                cmdFilterOK.Enabled = True
+                txtFilter.Locked = True
+            End If
         Else
             If txtFilter.Tag = "Changed" Then
                 m_frmParent.tfnSetStatusBarError sErrMsg
@@ -2304,6 +2413,7 @@ Private Sub txtOp_GotFocus()
     tgcDropdown.GotFocus txtOp
     If tgcDropdown.SingleRecordSelected Then
         subSetFocus txtValue
+        txtOp.Tag = "subSetFocus txtValue"
     End If
 End Sub
 
@@ -2311,6 +2421,8 @@ Private Sub txtOp_KeyPress(KeyAscii As Integer)
     #If ProtoType Then
         Exit Sub
     #End If
+    
+    KeyAscii = Asc(UCase(Chr(KeyAscii)))
     
     If Not tfnRegExpControlKeyPress(txtOp, KeyAscii, sRegExpOp) Then
         KeyAscii = 0
@@ -2322,6 +2434,7 @@ Private Sub txtOp_KeyPress(KeyAscii As Integer)
         If txtOp <> "" Then
             KeyAscii = 0
             subSetFocus txtValue
+            txtOp.Tag = "subSetFocus txtValue"
         End If
     End If
     If Not tgcDropdown.Keypress(txtOp, KeyAscii) Then
@@ -2329,6 +2442,7 @@ Private Sub txtOp_KeyPress(KeyAscii As Integer)
             If tgcDropdown.SingleRecordSelected Then
                 subSetButtonStatus
                 subSetFocus txtValue
+                txtOp.Tag = "subSetFocus txtValue"
             End If
         End If
         KeyAscii = 0
@@ -2341,8 +2455,30 @@ Private Sub txtOp_LostFocus()
     #If ProtoType Then
         Exit Sub
     #End If
-    If cValidate.LostFocus(txtOp, cmdOp) Then
+    If cValidate.LostFocus(txtOp, cmdOp, tblComboDropdown) Then
         subSetButtonStatus
+        
+        If fnCStr(tgmCriteria.CellValue(nCol_XtraColName, m_nCurrRow)) <> "" Then
+            If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+                lblDesc.Visible = False
+                txtDesc.Visible = False
+                cmdDesc.Visible = False
+                cmdValue.Left = cmdDesc.Left
+                txtValue.Width = sngDefaultValueWidth + cmdValue.Width + txtDesc.Width + 70
+            Else
+                cmdValue.Left = sngDefaultValueLeft
+                txtValue.Width = sngDefaultValueWidth
+                lblDesc.Visible = True
+                txtDesc.Visible = True
+                cmdDesc.Visible = True
+                
+                If txtOp.Tag = "subSetFocus txtValue" Then
+                    subSetFocus txtValue
+                End If
+                
+                txtOp.Tag = ""
+            End If
+        End If
     End If
 End Sub
 
@@ -2364,8 +2500,12 @@ Private Sub txtValue_Click()
 End Sub
 
 Private Sub txtValue_Change()
-    If sRegExp <> "" Then
-        tfnRegExpControlChange txtValue, sRegExp
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+        tfnRegExpControlChange txtValue, "^(P{0,500})$"
+    Else
+        If sRegExp <> "" Then
+            tfnRegExpControlChange txtValue, sRegExp
+        End If
     End If
     
     cValidate.Change txtValue
@@ -2376,17 +2516,24 @@ Private Sub txtValue_Change()
 End Sub
 
 Private Sub txtValue_GotFocus()
-    If sRegExp <> "" Then
-        tfnRegExpControlGotFocus txtValue, sRegExp
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+        tfnRegExpControlGotFocus txtValue, "^(P{0,500})$"
+    Else
+        If sRegExp <> "" Then
+            tfnRegExpControlGotFocus txtValue, sRegExp
+        End If
     End If
     
     cValidate.GotFocus txtValue
-    tgcDropdown.GotFocus txtValue
-    If tgcDropdown.SingleRecordSelected Then
-        subSetButtonStatus
-        
-        If cmdAdd.Enabled Then
-            subSetFocus cmdAdd
+    
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) <= 0 Then
+        tgcDropdown.GotFocus txtValue
+        If tgcDropdown.SingleRecordSelected Then
+            subSetButtonStatus
+            
+            If cmdAdd.Enabled Then
+                subSetFocus cmdAdd
+            End If
         End If
     End If
 End Sub
@@ -2401,6 +2548,29 @@ Private Sub txtValue_KeyPress(KeyAscii As Integer)
     #If ProtoType Then
         Exit Sub
     #End If
+    
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+        If Not tfnRegExpControlKeyPress(txtValue, KeyAscii, "^(P{0,500})$") Then
+            KeyAscii = 0
+            Exit Sub
+        End If
+        
+        If KeyAscii = vbKeyReturn Then
+            KeyAscii = 0
+            subSetButtonStatus
+            
+            If cmdAdd.Enabled Then
+                subSetFocus cmdAdd
+            Else
+                SendKeys "{TAB}", True
+            End If
+        Else
+            cValidate.Keypress txtValue, KeyAscii
+            txtDesc.Text = ""
+        End If
+        
+        Exit Sub
+    End If
     
     If sRegExp <> "" Then
         If Not tfnRegExpControlKeyPress(txtValue, KeyAscii, sRegExp) Then
@@ -2437,7 +2607,7 @@ Private Sub txtValue_LostFocus()
     #If ProtoType Then
         Exit Sub
     #End If
-    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc) Then
+    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc, tblComboDropdown) Then
         subSetButtonStatus
         
         If cmdAdd.Enabled Then
@@ -2452,6 +2622,10 @@ Private Sub cmdValue_Click()
     #If ProtoType Then
         Exit Sub
     #End If
+    
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+        Exit Sub
+    End If
     
     subFixComboSQL
     tgcDropdown.Click cmdValue
@@ -2502,21 +2676,25 @@ Private Sub txtDesc_KeyPress(KeyAscii As Integer)
         subFixComboSQL
     End If
     
-    If Not tgcDropdown.Keypress(txtDesc, KeyAscii) Then
-        If KeyAscii = vbKeyReturn Then
-            If tgcDropdown.SingleRecordSelected Then
-                subSetButtonStatus
-                
-                If cmdAdd.Enabled Then
-                    subSetFocus cmdAdd
-                End If
-            End If
-            
-            Screen.MousePointer = vbDefault
-        End If
-        KeyAscii = 0
-    Else
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
         cValidate.Keypress txtDesc, KeyAscii
+    Else
+        If Not tgcDropdown.Keypress(txtDesc, KeyAscii) Then
+            If KeyAscii = vbKeyReturn Then
+                If tgcDropdown.SingleRecordSelected Then
+                    subSetButtonStatus
+                    
+                    If cmdAdd.Enabled Then
+                        subSetFocus cmdAdd
+                    End If
+                End If
+                
+                Screen.MousePointer = vbDefault
+            End If
+            KeyAscii = 0
+        Else
+            cValidate.Keypress txtDesc, KeyAscii
+        End If
     End If
 End Sub
 
@@ -2524,7 +2702,7 @@ Private Sub txtDesc_LostFocus()
     #If ProtoType Then
         Exit Sub
     #End If
-    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc) Then
+    If cValidate.LostFocus(txtValue, cmdValue, txtDesc, cmdDesc, tblComboDropdown) Then
         subSetButtonStatus
         
         If cmdAdd.Enabled Then
@@ -2540,6 +2718,10 @@ Private Sub cmdDesc_Click()
         Exit Sub
     #End If
     
+    If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+        Exit Sub
+    End If
+    
     subFixComboSQL
     tgcDropdown.Click cmdDesc
 End Sub
@@ -2554,6 +2736,10 @@ Private Sub subFixComboSQL()
     
     i = tgmCriteria.GetCurrentRowNumber
     aryTemp = Split(tgmCriteria.CellValue(nCol_sPreReqFields, i), ",")
+    
+    If UBound(aryTemp) < 0 Then
+        Exit Sub
+    End If
     
     If fnCStr(aryTemp(0)) = "" Then
         Exit Sub
@@ -2581,16 +2767,19 @@ Private Sub subFixComboSQL()
     Next
     
     tgcDropdown.ComboSQL(txtValue) = strSQL
-    
+
     Exit Sub
     
 errTrap:
     'do nothing
 End Sub
 
-Private Function fnGetCriteriaByFieldName(sField As String) As String
+Private Function fnGetCriteriaByFieldName(ByVal sField As String) As String
     Dim i As Integer
     Dim sCriteria As String
+    
+    'get real field name
+    sField = fnGetFieldName(sField, "R")
     
     For i = 0 To tgmCriteria.RowCount - 1
         If tgmCriteria.CellValue(nCol_FieldName, i) = sField Then
@@ -2665,46 +2854,78 @@ Private Sub subSetButtonStatus()
 End Sub
 
 Private Function fnAddBeginEndQuotes(sIn As String) As String
-    Dim ary() As String
+    Dim aryTemp() As String
     Dim i As Integer
     Dim sTemp As String
     Dim sRet As String
     Dim bAdd As Boolean
     
-    ary = Split(sIn, ",")
     
-    For i = 0 To UBound(ary)
-        sTemp = fnCStr(ary(i))
+    aryTemp = Split(sIn, ",")
+    sRet = ""
+    
+    For i = 0 To UBound(aryTemp)
+        sTemp = Trim(aryTemp(i))
         bAdd = False
         
-        If Left(sTemp, 1) = "'" And Right(sTemp, 1) = "'" Then
-            bAdd = True
-        ElseIf sTemp <> "" Then
-            sTemp = tfnSQLString(sTemp)
-            bAdd = True
-        End If
-        
-        If bAdd Then
-            If sRet <> "" Then
-                sRet = sRet + ", "
+        If sTemp <> "" Then
+            If (Left(sTemp, 1) = "'" And Right(sTemp, 1) = "'") Then
+                'do nothing
+            ElseIf (Left(sTemp, 1) = """" And Right(sTemp, 1) = """") Then
+                If Len(sTemp) > 2 Then
+                    sTemp = "'" + Mid(sTemp, 2, Len(sTemp) - 2) + "'"
+                Else
+                    sTemp = "''"
+                End If
+            Else
+                sTemp = tfnSQLString(sTemp)
             End If
             
-            sRet = sRet + sTemp
+            If InStr(sRet, sTemp) <= 0 Then
+                bAdd = True
+            End If
+            
+            If bAdd Then
+                If sRet <> "" Then
+                    sRet = sRet + ","
+                End If
+                sRet = sRet + sTemp
+            End If
         End If
     Next i
     
     fnAddBeginEndQuotes = sRet
 End Function
+'''
+'''Private Function fnRemvBeginEndQuotes(ByVal sIn As String) As String
+'''    If Left(sIn, 1) = "'" And Right(sIn, 1) = "'" Then
+'''        If Len(sIn) > 2 Then
+'''            sIn = Mid(sIn, 2, Len(sIn) - 2)
+'''        Else
+'''            sIn = ""
+'''        End If
+'''    End If
+'''
+'''    fnRemvBeginEndQuotes = sIn
+'''End Function
 
-Private Function fnRemvBeginEndQuotes(ByVal sIn As String) As String
-    If Left(sIn, 1) = "'" Then
-        sIn = Mid(sIn, 2)
-    End If
-    If Right(sIn, 1) = "'" Then
-        sIn = Left(sIn, Len(sIn) - 1)
+Private Function fnRemvMatchingBeginEndChar(ByVal sIn As String, _
+                                            ByVal sChar1 As String, _
+                                            Optional ByVal sChar2 As String = "") As String
+    
+    If sChar2 = "" Then
+        sChar2 = sChar1
     End If
     
-    fnRemvBeginEndQuotes = sIn
+    If Left(sIn, 1) = sChar1 And Right(sIn, 1) = sChar2 Then
+        If Len(sIn) > 2 Then
+            sIn = Mid(sIn, 2, Len(sIn) - 2)
+        Else
+            sIn = ""
+        End If
+    End If
+    
+    fnRemvMatchingBeginEndChar = sIn
 End Function
 
 Private Function fnConvtToRegExp(sIn As String) As String
@@ -2746,7 +2967,7 @@ LetUsGo:
    
    On Error GoTo errCreateTable
    
-   strSQL = "CREATE TEMP TABLE temp_operator (op char(2), seq smallint)"
+   strSQL = "CREATE TEMP TABLE temp_operator (op char(10), seq smallint)"
    t_dbMainDatabase.ExecuteSQL strSQL
     
    strSQL = "INSERT INTO temp_operator VALUES ('=', 1)"
@@ -2765,6 +2986,18 @@ LetUsGo:
    t_dbMainDatabase.ExecuteSQL strSQL
    
    strSQL = "INSERT INTO temp_operator VALUES ('<>', 6)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('IN', 7)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('LIKE', 8)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('MATCHES', 9)"
+   t_dbMainDatabase.ExecuteSQL strSQL
+   
+   strSQL = "INSERT INTO temp_operator VALUES ('BETWEEN', 10)"
    t_dbMainDatabase.ExecuteSQL strSQL
    
    Exit Sub
@@ -2826,8 +3059,22 @@ Private Function fnValidFilter() As String
         sNewFilter = ""
         
         For j = 0 To UBound(aryTemp)
-            sOP = Left(fnCStr(aryTemp(j)), 1)
-            sValue = Mid(fnCStr(aryTemp(j)), 2)
+            If Left(fnCStr(aryTemp(j)), 7) = "BETWEEN" Then
+                sOP = "BETWEEN"
+                sValue = Mid(fnCStr(aryTemp(j)), 8)
+            ElseIf Left(fnCStr(aryTemp(j)), 7) = "MATCHES" Then
+                sOP = "MATCHES"
+                sValue = Mid(fnCStr(aryTemp(j)), 8)
+            ElseIf Left(fnCStr(aryTemp(j)), 4) = "LIKE" Then
+                sOP = "LIKE"
+                sValue = Mid(fnCStr(aryTemp(j)), 5)
+            ElseIf Left(fnCStr(aryTemp(j)), 2) = "IN" Then
+                sOP = "IN"
+                sValue = Mid(fnCStr(aryTemp(j)), 3)
+            Else
+                sOP = Left(fnCStr(aryTemp(j)), 1)
+                sValue = Mid(fnCStr(aryTemp(j)), 2)
+            End If
             
             If sOP = "" Then
                 fnValidFilter = "Operator is missing"
@@ -2835,21 +3082,23 @@ Private Function fnValidFilter() As String
             End If
             
             'Here we are checking it is < or <>
-            If Left(sValue, 1) = ">" Then
-                If sOP <> "<" Then
-                    fnValidFilter = "Invalid operator '" + sOP + Left(sValue, 1) + "' encountered"
-                    Exit Function
+            If InStr("IN|LIKE|MATCHES|BETWEEN", sOP) <= 0 Then
+                If Left(sValue, 1) = ">" Then
+                    If sOP <> "<" Then
+                        fnValidFilter = "Invalid operator '" + sOP + Left(sValue, 1) + "' encountered"
+                        Exit Function
+                    End If
+                    
+                    sOP = "<>"
+                    sValue = Mid(sValue, 2)
+                ElseIf Left(sValue, 1) = "=" Then
+                    sOP = sOP + "="
+                    sValue = Mid(sValue, 2)
                 End If
-                
-                sOP = "<>"
-                sValue = Mid(sValue, 2)
-            ElseIf Left(sValue, 1) = "=" Then
-                sOP = sOP + "="
-                sValue = Mid(sValue, 2)
             End If
             
             Select Case sOP
-            Case "<", ">", "=", "<>", ">=", "<="
+            Case "<", ">", "=", "<>", ">=", "<=", "IN", "LIKE", "MATCHES", "BETWEEN"
                 'good
             Case Else
                 fnValidFilter = "Invalid operator '" + sOP + "' encountered"
@@ -2862,7 +3111,11 @@ Private Function fnValidFilter() As String
                     Exit Function
                 End If
             End If
-                
+            
+            If sOP = "IN" Then
+                sValue = fnRemvMatchingBeginEndChar(sValue, "(", ")")
+            End If
+            
             'reuse variable
             sFilter = ""
             aryTemp2 = Split(sValue, ",")
@@ -2886,7 +3139,7 @@ Private Function fnValidFilter() As String
                     Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
                     Case TYPE_DATE
                         If sTemp <> "NULL" Then
-                            sTemp = tfnFormatDate(fnRemvBeginEndQuotes(sTemp))
+                            sTemp = tfnFormatDate(fnRemvMatchingBeginEndChar(sTemp, "'"))
                             
                             If Not IsValidDate(sTemp) Then
                                 fnValidFilter = "Value is not in date format"
@@ -2911,7 +3164,7 @@ Private Function fnValidFilter() As String
                     If sFilter <> "" Then
                         sFilter = sFilter + ","
                     End If
-                    
+                
                     sFilter = sFilter + sTemp
                 End If
             Next k
@@ -2920,7 +3173,11 @@ Private Function fnValidFilter() As String
                 sNewFilter = sNewFilter + ";"
             End If
         
-            sNewFilter = sNewFilter + sOP + sFilter
+            If sOP = "IN" Then
+                sNewFilter = sNewFilter + sOP + "(" + sFilter + ")"
+            Else
+                sNewFilter = sNewFilter + sOP + sFilter
+            End If
         Next j
         
         txtFilter.Text = sNewFilter
@@ -2940,7 +3197,7 @@ Private Function fnValidOperator(txtBox As Textbox) As Boolean
         subLoadOpSQL False
         
         strSQL = tgcDropdown.ComboSQL(txtBox)
-        strSQL = strSQL + " AND op = " + tfnSQLString(txtBox)
+        strSQL = strSQL + " AND op = " + tfnSQLString(UCase(txtBox.Text))
         
         If GetRecordSet(rsTemp, strSQL, , FUNC_NAME) < 1 Then
             cValidate.SetErrorMessage txtBox, "Invalid Operator"
@@ -2959,6 +3216,9 @@ Private Function fnValidValue(txtBox As Textbox) As Boolean
     Dim rsTemp As Recordset
     Dim sExtraCriteria As String
     Dim sField As String
+    Dim aryTemp() As String
+    Dim sTemp As String
+    Dim i As Integer
     
     fnValidValue = False
     
@@ -2967,6 +3227,14 @@ Private Function fnValidValue(txtBox As Textbox) As Boolean
             Exit Function
         End If
     Else
+        If txtOp.Text = "BETWEEN" Then
+            If fnFixBetweenValue(txtBox.Text, Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)) <> "()" Then
+                'format is valid
+                fnValidValue = True
+            End If
+            Exit Function
+        End If
+        
         Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
         Case TYPE_DATE
             If Not IsValidDate(txtBox.Text) Then
@@ -2976,7 +3244,23 @@ Private Function fnValidValue(txtBox As Textbox) As Boolean
                 txtBox = tfnFormatDate(txtBox)
             End If
         Case TYPE_STRING
+            If InStr("IN|LIKE|MATCHES|BETWEEN", txtOp.Text) > 0 Then
+                If txtOp.Text = "BETWEEN" Then
+                    If InStr(txtBox.Text, ",") <= 0 And InStr(LCase(txtBox.Text), " and ") <= 0 Then
+                        'format is not valid
+                        Exit Function
+                    End If
+                End If
+                
+                fnValidValue = True
+                Exit Function
+            End If
         Case TYPE_DECIMAL, TYPE_INT, TYPE_LONG
+            If InStr(txtBox.Text, ",") > 0 Then
+                cValidate.SetErrorMessage txtBox, "Only one Value is allowed"
+                Exit Function
+            End If
+            
             If Not IsNumeric(txtBox) Then
                 cValidate.SetErrorMessage txtBox, "Value entered is not in numeric format"
                 Exit Function
@@ -3017,9 +3301,10 @@ Private Function fnValidValue(txtBox As Textbox) As Boolean
     fnValidValue = True
 End Function
 
-Private Function fnGetCriteria(sFieldName As String, ByVal sValue As String) As String
+Private Function fnGetCriteria(ByVal sFieldName As String, ByVal sValue As String) As String
     Const FUNC_NAME As String = "fnGetCriteria"
     
+    sFieldName = fnGetFieldName(sFieldName, "R")
     sValue = fnCStr(sValue)
     
     fnGetCriteria = "(" & sFieldName
@@ -3029,13 +3314,13 @@ Private Function fnGetCriteria(sFieldName As String, ByVal sValue As String) As 
             If sValue = "" Then
                 fnGetCriteria = fnGetCriteria & " IS NULL" & " OR " & sFieldName & " = ''"
             Else
-                fnGetCriteria = fnGetCriteria & " = " & tfnSQLString(sValue)
+                fnGetCriteria = fnGetCriteria & " = " & fnAddBeginEndQuotes(sValue)
             End If
         Case TYPE_DATE
             If sValue = "" Then
                 fnGetCriteria = fnGetCriteria & " IS NULL"
             Else
-                fnGetCriteria = fnGetCriteria & " = " & tfnDateString(sValue, True)
+                fnGetCriteria = fnGetCriteria & " = " & tfnDateString(tfnFormatDate(sValue), True)
             End If
         Case TYPE_DECIMAL, TYPE_LONG, TYPE_INT
             If sValue = "" Then
@@ -3129,9 +3414,9 @@ Private Sub subLoadOpSQL(Optional bAddOrderBy As Boolean = True)
     Else
         Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
         Case TYPE_STRING, TYPE_PHONE
-            sOP = "'=','<>'"
+            sOP = "'=','<>','IN','LIKE','MATCHES','BETWEEN'"
         Case Else
-            sOP = "'=','<','>','<>'"
+            sOP = "'=','<=','>=','<','>','<>','BETWEEN'"
         End Select
     End If
     
@@ -3153,9 +3438,9 @@ Private Sub SubSetOpRegExp()
     Else
         Select Case Left(tgmCriteria.CellValue(nCol_FieldType, m_nCurrRow), 1)
         Case TYPE_STRING, TYPE_PHONE
-            sRegExpOp = "^((=)|(<>))$"
+            sRegExpOp = "^((=)|(<>)|(IN)|(LIKE)|(MATCHES)|(BETWEEN))$"
         Case Else
-            sRegExpOp = "^((=)|(<)|(>)|(<>))$"
+            sRegExpOp = "^((=)|(<=)|(>=)|(<)|(>)|(<>)|(BETWEEN))$"
         End Select
     End If
 End Sub
@@ -3193,3 +3478,19 @@ Private Sub subSetClearAllBtnStatus()
     cmdClearAll.Enabled = False
 End Sub
 
+Private Function fnGetFieldName(sFieldNameWithAlias As String, sRealOrAlias As String) As String
+    Dim nPosi As Integer
+    nPosi = InStr(sFieldNameWithAlias, " ")
+    
+    If nPosi > 0 Then
+        If sRealOrAlias = "R" Then
+            'real field name
+            fnGetFieldName = Left(sFieldNameWithAlias, nPosi - 1)
+        Else  'A
+            'alias field name
+            fnGetFieldName = Mid(sFieldNameWithAlias, nPosi + 1)
+        End If
+    Else
+        fnGetFieldName = sFieldNameWithAlias
+    End If
+End Function
