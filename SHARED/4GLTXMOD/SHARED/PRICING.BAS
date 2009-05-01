@@ -58,7 +58,7 @@ Private m_LoadTimeCnt As Long         '#Array counter
 Private m_frmQueryTime As Form           '#Need to be set to frmQueryTime
                                          '#If not set, the popup feature is not
                                          '#Available. FM entry only
-Private m_local As DataBase              '#Local Table. Used to query load date
+Private m_local As Database              '#Local Table. Used to query load date
                                          '#if not set, the feature is not available
 Private m_bQueryTime_Active As Boolean           '#If false, the popup feature is not
 
@@ -81,7 +81,7 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -106,7 +106,7 @@ Public Function Fuel_price( _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -149,7 +149,7 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As DataBase, _
+                                t_dbMainDatabase As Database, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -161,7 +161,7 @@ Public Function prod_price( _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 End Function ' prod_price
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
     wrk_date = dDate
 End Sub
 
@@ -178,7 +178,7 @@ Private Function sp_price(ByVal sProductCode As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As DataBase, _
+                            t_dbMainDatabase As Database, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
@@ -284,7 +284,7 @@ Handle_Error:
         m_rtn_msg = "Error in launaching 4GE"
         If sta_cnt < 10 Then
             sOutPutstr = "A message has been returned from the server:" & vbCrLf & sOutPutstr & vbCrLf & vbCrLf & "Command sent to server:" & vbCrLf & sRunCmd
-            tfnErrHandler "sp_price", "401", sOutPutstr
+            tfnErrHandler "sp_price", 401, sOutPutstr
         End If
         sp_price = 0
 End Function
@@ -315,7 +315,7 @@ End Function
 '#(2)Public Sub Pricing_AddToFuelLoadTimeAry
 '#Call this once in main form load of FM Program
 Public Sub Pricing_FuelCostSetQueryTimeForm(frm As Form, _
-                                       vLocalDB As DataBase, _
+                                       vLocalDB As Database, _
                                        bQueryTime As Boolean)
     '#if m_bQueryTime_Active=true, m_frmQueryTime
     '# and m_local must be set
@@ -580,7 +580,7 @@ Public Sub set_fuel_load_datetime(ByVal sFuelLoadDate As String, _
 End Sub
 
 Private Function Price_fnOpenRecord(ByRef rsTemp As Recordset, _
-                                    strSQL As String, objDB As DataBase) As Long
+                                    strSQL As String, objDB As Database) As Long
     On Error GoTo SQLError
     
     If objDB Is t_dbMainDatabase Then
