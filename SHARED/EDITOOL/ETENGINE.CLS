@@ -698,7 +698,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         If fnCheckExitCancel Then
             Exit Function
         End If
-            
+        
         If Not fnFillCollection(nTypeCode, sSchedule, rsTemp, colTemp, vExtractFrom) Then
             Exit Function
         End If
@@ -1771,6 +1771,11 @@ Private Function fnVendorTaxID(ByVal lVendor As Long, _
     fnVendorTaxID = aryVendorTaxID(nVTaxIDCount).m_sTaxID
     nVTaxIDCount = nVTaxIDCount + 1
     
+    'david 05/14/2009  #629738
+    If Trim(fnVendorTaxID) = "" Then
+        tfnLog "lVendor=" & lVendor & ", sState=" & sState & ", sTaxClass=" & sTaxClass, "C:\FACTOR\TEMP\ETEEPTF.LOG"
+    End If
+    
 End Function
 
 'david 07/10/2007  #562432
@@ -1878,6 +1883,11 @@ Private Function fnCustomerTaxID(ByVal lCustomer As Long, _
                 fnCustomerTaxID = fnConvertFEDID(fnGetSysParm(9008))
             End If
         End If
+    End If
+    
+    'david 05/14/2009  #629738
+    If Trim(fnCustomerTaxID) = "" Then
+        tfnLog "sEI=" & sEI & ", lCustomer=" & lCustomer & ", lTrn=" & lTrn, "C:\FACTOR\TEMP\ETEEPTF.LOG"
     End If
     
 End Function
@@ -1989,6 +1999,15 @@ End Property
 Private Sub Class_Initialize()
     subInitialParms
     m_nErrorNumber = EC_INITIAL
+
+    'david 05/14/2009  #629738
+    'clear the log
+    On Error Resume Next
+    Dim nFileNumber As Integer
+    Open "C:\FACTOR\TEMP\ETEEPTF.LOG" For Input As #nFileNumber
+    Print #nFileNumber, ""
+    Close nFileNumber
+    On Error GoTo 0
 End Sub
 
 Private Sub subCheckFEIN(colItems As Collection)
@@ -2000,10 +2019,10 @@ Private Sub subCheckFEIN(colItems As Collection)
     
     For Each ciTemp In colItems
         If Trim(ciTemp.CarrierFedID) = "" Then
-            subAddErrFEIN sErrMsg, ciTemp.CarrierName, ciTemp.CarrierCode
-            
             #If Not CHECK_FEIN Then
                 ciTemp.CarrierFedID = "9090909"
+            #Else
+                subAddErrFEIN sErrMsg, ciTemp.CarrierName, ciTemp.CarrierCode
             #End If
         End If
         If Trim(ciTemp.BuySellFedID) = "" Then
