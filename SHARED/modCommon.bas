@@ -86,6 +86,24 @@ Public debugCount As Integer
 Private suppressMsgBox As Boolean
 Private printSQL As Boolean
 
+Public Function Dec2Any(ByVal number As Variant, ByVal base As Integer) As String
+    Dim digits As String
+    Dim digitValue As Variant
+    
+    ' check base
+    If base < 2 Or base > 36 Or number < 0 Then Err.Raise 5
+    ' get the list of valid digits
+    digits = Left("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", base)
+    
+    ' convert to the other base
+    Do While number
+        digitValue = number - (Int(number / base) * base)
+        number = Int(number / base)
+        Dec2Any = Mid$(digits, digitValue + 1, 1) & Dec2Any
+        DoEvents
+    Loop
+
+End Function
 Public Property Let PrintSQLStatements(bPrint As Boolean)
     printSQL = bPrint
 End Property
@@ -868,7 +886,7 @@ Public Function FileExists(ByVal Filename As String) As Boolean
     
     On Error Resume Next
     FileLen Filename
-    bExists = (Err.Number = 0)
+    bExists = (Err.number = 0)
     If bExists Then
         bExists = ((GetAttr(Filename) And vbDirectory) = 0)
     End If
@@ -885,7 +903,7 @@ Public Function DirExists(ByVal DirName As String) As Boolean
         DirName = Left$(DirName, Len(DirName) - 1)
     End If
     FileLen DirName
-    bExists = (Err.Number = 0)
+    bExists = (Err.number = 0)
     If bExists Then
         bExists = (GetAttr(DirName) And vbDirectory = vbDirectory)
     End If
