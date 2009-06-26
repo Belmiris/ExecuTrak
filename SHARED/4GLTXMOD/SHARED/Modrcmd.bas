@@ -130,14 +130,14 @@ Public Function fnExecute4GE(sCmdLine As String, _
     Else
 'MsgBox "t_dbMainDatabase.Connect=" + tfnSQLString(t_dbMainDatabase.Connect)
         'sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
-        sHost = tfnGetHostName
-        sDBPath = fnDBPath
+        sHost = tfnGetHostName()
+        sDBPath = fnDBPath()
         
         'david 11/16/00
         'sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
         'sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
-        sUserID = tfnGetUserName
-        sPassWD = tfnGetPassword
+        sUserID = tfnGetUserName()
+        sPassWD = tfnGetPassword()
     End If
     
     'david 10/23/00
@@ -168,10 +168,9 @@ Public Function fnExecute4GE(sCmdLine As String, _
                 sEnviron = sEnviron & ";"
             End If
         End If
-        sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" _
-             & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+        sCmd = fnVariables(sHost, sDBPath) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
         
-        sTemp = fnRunRCmd(sHost, sUserID, sPassWD, sCmd)
+        sTemp = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd)
         If sTemp = "" Then
             fnExecute4GE = True
         Else
@@ -246,7 +245,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = Val(vTemp)
+            fnParmIndex = val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -361,14 +360,14 @@ End Function
 'david 03/17/2004
 'make doevents optional, and default to no doevents
 'because it will mess up the keystroke in the grid
-Private Function fnRunRCmd(sHost As String, _
+Public Function tfnRunRCmd(sHost As String, _
                            sLocalUID As String, _
                            sRemoteUID As String, _
                            sCmd As String, _
                            Optional rtn_ori_str As Boolean = False, _
                            Optional bDoEvents As Boolean = False) As String
     
-    Const SUB_NAME = "fnRunRCmd"
+    Const SUB_NAME = "tfnRunRCmd"
     
     'maximum time to execute a unix command
     Const MAX_CALL_TIME As Long = 1800  '3 hours
@@ -385,7 +384,7 @@ Private Function fnRunRCmd(sHost As String, _
         sConnect_Used = t_dbMainDatabase.Connect
     End If
     
-    fnRunRCmd = ""
+    tfnRunRCmd = ""
     nCode = ERR_LOGIN
     sErrMsg = Space(MAX_MSG_LEN + 1)
     
@@ -402,9 +401,9 @@ Private Function fnRunRCmd(sHost As String, _
         nMsgLen = InStr(sErrMsg, Chr(0))
               
         If nMsgLen > 0 Then
-            fnRunRCmd = tfnStripNULL(Left(sErrMsg, nMsgLen)) & vbCrLf & "Connection String: " & sConnect_Used
+            tfnRunRCmd = tfnStripNULL(Left(sErrMsg, nMsgLen)) & vbCrLf & "Connection String: " & sConnect_Used
         Else
-            fnRunRCmd = "Cannot logon to the server to execute server program" & vbCrLf & "Connection String: " & sConnect_Used
+            tfnRunRCmd = "Cannot logon to the server to execute server program" & vbCrLf & "Connection String: " & sConnect_Used
         End If
     Else
         'david 03/17/2004
@@ -428,7 +427,7 @@ Private Function fnRunRCmd(sHost As String, _
                    + " for the program to finished?", vbQuestion + vbYesNo) = vbYes Then
                     sngTimer = Timer
                 Else
-                    fnRunRCmd = "RCMD time out"
+                    tfnRunRCmd = "RCMD time out"
                     Exit Function
                 End If
             End If
@@ -441,14 +440,14 @@ Private Function fnRunRCmd(sHost As String, _
             If Not rtn_ori_str Then
                 sErrMsg = "A message has been returned from the server:" & vbCrLf & sErrMsg & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
             End If
-            fnRunRCmd = sErrMsg
+            tfnRunRCmd = sErrMsg
         End If
     End If
     
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If Err.number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
         tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
@@ -484,19 +483,38 @@ Public Function fnPRTestPrint(sPrinter As String, _
 End Function
 
 
-Private Function fnVariables(sHost As String) As String
+Private Function fnVariables(sHost As String, sDBPath As String) As String
     Dim sTemp As String
-    sTemp = "DBPRINT=/usr/factor/isqlflt; export DBPRINT;"
-    sTemp = sTemp & "DBTEMP=/usr/tmp; export DBTEMP;"
-    sTemp = sTemp & "INFORMIXDIR=/usr/informix; export INFORMIXDIR;"
-    sTemp = sTemp & "INFORMIXSERVER=" & sHost & "; export INFORMIXSERVER;"
     
-    sTemp = sTemp & "PROGPATH=" & fnGetProgPath & "; export PROGPATH;"
+    If InStr(sDBPath, "/") > 0 Then
+        'standard server
+        sTemp = "DBPRINT=/usr/factor/isqlflt; export DBPRINT;"
+        sTemp = sTemp + "DBTEMP=/usr/tmp; export DBTEMP;"
+        sTemp = sTemp + "INFORMIXDIR=/usr/informix; export INFORMIXDIR;"
+        sTemp = sTemp + "INFORMIXSERVER=" + sHost + "; export INFORMIXSERVER;"
+        sTemp = sTemp + "PROGPATH=" + fnGetProgPath + "; export PROGPATH;"
+        sTemp = sTemp + "SQLEXEC=/usr/informix/lib/sqlrm;export SQLEXEC;"
+        sTemp = sTemp + "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
+        sTemp = sTemp + "PATH=/bin:/usr/bin::/usr/informix/breakaway:/usr/informix/bin:/usr/factor; export PATH;"
+        sTemp = sTemp + "DBPATH=" + sDBPath + ":$PROGPATH; export DBPATH;"
+    Else
+        'ids - dynamic server
+        sTemp = ""
+        'sTemp = sTemp + "DBPRINT=/usr/factor/isqlflt; export DBPRINT;"
+        'sTemp = sTemp + "DBTEMP=/usr/tmp; export DBTEMP;"
+        sTemp = sTemp + "INFORMIXDIR=/usr/ids; export INFORMIXDIR;"
+        sTemp = sTemp + "ONCONFIG=onconfig; export ONCONFIG;"
+        sTemp = sTemp + "PATH=/bin:/usr/bin:$INFORMIXDIR/bin:/usr/cmds:/usr/factor; export PATH;"
+        sTemp = sTemp + "INFORMIXSERVER=" + sHost + "; export INFORMIXSERVER;"
+        sTemp = sTemp + "INFORMIXSQLHOSTS=$INFORMIXDIR/etc/sqlhosts; export INFORMIXSQLHOSTS;"
+        sTemp = sTemp + "LIBPATH=$INFORMIXDIR/lib:$LIBPATH; export LIBPATH;"
+        sTemp = sTemp + "PROGPATH=" + fnGetProgPath + "; export PROGPATH;"
+        sTemp = sTemp + "DATADIR=/factor; export DATADIR;"
+        sTemp = sTemp + "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
+        sTemp = sTemp + "DBPATH=$DATADIR:$PROGPATH; export DBPATH;"
+        sTemp = sTemp + "DBNAME=" + sDBPath + "; export DBNAME;"
+    End If
     
-    sTemp = sTemp & "SQLEXEC=/usr/informix/lib/sqlrm;export SQLEXEC;"
-    'Took out because these may cause problem on different systems. Ma. 2/5/99
-    sTemp = sTemp & "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
-    sTemp = sTemp & "PATH=/bin:/usr/bin::/usr/informix/breakaway:/usr/informix/bin:/usr/factor; export PATH;"
     fnVariables = sTemp
 End Function
 
@@ -542,7 +560,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = Val(vDefault)
+        nWhatToUse = val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
@@ -614,7 +632,7 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.Number = 48 Then
+    If Err.number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
         tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
@@ -670,12 +688,23 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
         End If
     End If
     
-    sCmd = fnVariables(sHost) & "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;" _
-             & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
-    staRtn = fnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
+    sCmd = fnVariables(sHost, sDBPath) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+    staRtn = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
     fnRun4GLPricing = staRtn
 End Function
 
-
-
-
+Public Function tfnRemoteFileExists(sFilename As String, ByRef sErrMsg As String) As Boolean
+    sErrMsg = tfnRunRCmd(tfnGetHostName(), tfnGetUserName(), tfnGetPassword(), "ls " + sFilename & " > /dev/null")
+    
+    If sErrMsg = "" Then
+        'file found
+        sErrMsg = ""
+        tfnRemoteFileExists = True
+    ElseIf InStr(sErrMsg, "ls:") > 0 Then
+        'file not found
+        sErrMsg = ""
+        tfnRemoteFileExists = False
+    Else
+        'error executing ls command
+    End If
+End Function
