@@ -661,8 +661,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -694,7 +694,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -765,7 +765,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
+Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
                           Optional ByVal field As String = vbNullString, _
@@ -777,13 +777,13 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     
     On Error GoTo ErrorHandler
     
-    Filename = Trim$(UCase$(Filename))
+    FileName = Trim$(UCase$(FileName))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
     field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & Filename & "')" _
+        & " WHERE (INI_File_Name='" & FileName & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -920,10 +920,10 @@ errTrap:
     staSysParm901 = ""
 End Function
 
-Public Sub tfnClearLog(szFileName)
+Public Sub tfnClearLog(szFilename)
 
     On Error Resume Next
-    Kill szFileName
+    Kill szFilename
     
 End Sub
 
@@ -1020,7 +1020,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1068,7 +1068,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1453,11 +1453,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.Number = 3146 Then
+    If Err.number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1509,12 +1509,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1648,7 +1648,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1827,19 +1827,19 @@ End Sub
 'Passed Variables: string to save in file, optional Name of file to save data
 'Returns         : true for yes, false for no
 '
-Public Sub tfnLog(szLogEntry As String, Optional szFileName As String = "")
+Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
 
     Dim nFileNumber As Integer
     
     On Error Resume Next
     
-    If szFileName = "" Then
-        szFileName = szLOG_FILE_NAME
+    If szFilename = "" Then
+        szFilename = szLOG_FILE_NAME
     End If
     
     nFileNumber = FreeFile
     
-    Open szFileName For Append As #nFileNumber
+    Open szFilename For Append As #nFileNumber
     
     Print #nFileNumber, szLogEntry
 
@@ -1851,13 +1851,13 @@ End Sub
 'Passed Variables: fileName
 'Returns         : true if exists, false if not
 '
-Public Function tfnIsFile(ByVal szFileName As String) As Boolean
+Public Function tfnIsFile(ByVal szFilename As String) As Boolean
     
     Dim nLength As Integer
     
     On Error Resume Next
 
-    nLength = Len(Dir(szFileName))
+    nLength = Len(Dir(szFilename))
     
     If Err Or nLength = 0 Then
         tfnIsFile = False
@@ -2132,7 +2132,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.Number = 94 Then
+    If Err.number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2734,7 +2734,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.Number = 3051 Then
+    If Err.number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3753,8 +3753,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.Number <> 0 Then
-        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
+    If Err.number <> 0 Then
+        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -3783,7 +3783,7 @@ End Function
 'ODBC;DSN=aaaavbdev;UID=davidc;PWD=xxxxx;DATABASE=/factor/vbdev/factor;HOST=ether;SRVR=ether;SERV=;PRO=;CLOC=en_US.CP1252;DLOC=en_US.CP1252;VMB=1;CURB=0;OPT=;DESC=informix 3.32;SCUR=0;ICUR=0;OAC=1;OPTOFC=0;RKC=0;ODTYP=0;DDFP=0;
 '-
 '##############################################################################
-Public Function tfnGetDbName() As String
+Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As String
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
@@ -3796,19 +3796,21 @@ Public Function tfnGetDbName() As String
         sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
-    i = InStrRev(sDBPath, "/")
-    
-    If i > 1 Then
-        sDBPath = Left(sDBPath, i - 1)
-    
+    If Not bKeepSlashFactor Then
         i = InStrRev(sDBPath, "/")
-    
+        
         If i > 1 Then
-            sDBName = Mid(sDBPath, i + 1)
+            sDBPath = Left(sDBPath, i - 1)
+        
+            i = InStrRev(sDBPath, "/")
+        
+            If i > 1 Then
+                sDBName = Mid(sDBPath, i + 1)
+            End If
         End If
     End If
     
-    tfnGetDbName = sDBName
+    tfnGetDbName = sDBPath
 End Function
 
 '*****************************************************************************************
@@ -3821,7 +3823,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFilename As String, _
+Public Function tfn_Read_SYS_INI(sFileName As String, _
                               sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3836,8 +3838,8 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     'ini_file_Name,ini_user_id may be null
     
-    If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFilename))
+    If sFileName <> "" Then
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
     Else
         strSQL = strSQL & " ini_file_Name is Null"
     End If
@@ -3881,7 +3883,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFilename As String, _
+Public Function tfn_Write_SYS_INI(sFileName As String, _
                               ByVal sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3896,7 +3898,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
+    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
     
     On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
@@ -3905,14 +3907,14 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     End If
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
