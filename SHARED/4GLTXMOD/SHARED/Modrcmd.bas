@@ -693,9 +693,8 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
     fnRun4GLPricing = staRtn
 End Function
 
-Public Function tfnRemoteFileExists(sFilename As String, ByRef sErrMsg As String) As Boolean
-    sErrMsg = tfnRunRCmd(tfnGetHostName(), tfnGetUserName(), tfnGetPassword(), "ls " + sFilename & " > /dev/null")
-    
+Public Function tfnRemoteFileExists(sFileName As String, ByRef sErrMsg As String) As Boolean
+    sErrMsg = tfnRunRCmd(tfnGetHostName(), tfnGetUserName(), tfnGetPassword(), "ls " + sFileName & " > /dev/null")
     If sErrMsg = "" Then
         'file found
         sErrMsg = ""
@@ -706,5 +705,7 @@ Public Function tfnRemoteFileExists(sFilename As String, ByRef sErrMsg As String
         tfnRemoteFileExists = False
     Else
         'error executing ls command
+        'replace the password with *'s
+        sErrMsg = Replace(sErrMsg, "PWD=" & tfnGetNamedString(sErrMsg, "PWD"), "PWD=" & String(Len(tfnGetNamedString(sErrMsg, "PWD")), "*"))
     End If
 End Function
