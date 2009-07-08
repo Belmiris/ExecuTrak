@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FactFrm.ocx"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
 Begin VB.Form clsCRITERIA 
    Caption         =   "Criteria"
@@ -78,6 +78,7 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -145,6 +146,7 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":0000
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -180,6 +182,7 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":00F2
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -215,6 +218,7 @@ Begin VB.Form clsCRITERIA
             Picture         =   "clsCRITERIA.frx":02F4
             Style           =   3
             BorderWidth     =   4
+            TitleBarHeight  =   24
             BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
                Name            =   "MS Sans Serif"
                Size            =   9.75
@@ -327,6 +331,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -363,6 +368,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -400,6 +406,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -436,6 +443,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -472,6 +480,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -505,6 +514,7 @@ Begin VB.Form clsCRITERIA
          Strikethrough   =   0   'False
       EndProperty
       BevelOuter      =   0
+      TitleBarHeight  =   24
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
          Size            =   9.75
@@ -541,6 +551,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
             Size            =   9.75
@@ -577,6 +588,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -614,6 +626,7 @@ Begin VB.Form clsCRITERIA
          ShowFocusRect   =   -1  'True
          Style           =   3
          BorderWidth     =   4
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
             Size            =   9.75
@@ -645,6 +658,7 @@ Begin VB.Form clsCRITERIA
             Strikethrough   =   0   'False
          EndProperty
          BevelOuter      =   5
+         TitleBarHeight  =   24
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "System"
             Size            =   9.75
@@ -864,7 +878,10 @@ Public Function AddColumn(ByVal sColName As String, ByVal sFieldName As String, 
                 If aryTemp(1) = "" Then
                     nType = .SQL_DECIMAL_TYPE
                 Else
-                    aryTemp = Split(sFieldType, ",")
+                    '631178, Chris M, 7/7/09: Add Surcharge in and surcharge out to criteria for freight tab.
+                    'Also found error in how this code executes. Was making maximum fieldlength 3.
+                    'aryTemp = Split(sFieldType, ",")
+                    aryTemp = Split(aryTemp(1), ",")
                     nType = .SQL_DECIMAL_TYPE(Val(aryTemp(0)), Val(aryTemp(1)))
                 End If
             Case TYPE_LONG
@@ -982,7 +999,10 @@ Public Sub AddExtraColumn(ByVal sPrimaryFieldName As String, ByVal sColName As S
                 If aryTemp(1) = "" Then
                     nType = .SQL_DECIMAL_TYPE
                 Else
-                    aryTemp = Split(sFieldType, ",")
+                    '631178, Chris M, 7/7/09: Add Surcharge in and surcharge out to criteria for freight tab.
+                    'Also found error in how this code executes. Was making maximum fieldlength 3.
+                    'aryTemp = Split(sFieldType, ",")
+                    aryTemp = Split(aryTemp(1), ",")
                     nType = .SQL_DECIMAL_TYPE(Val(aryTemp(0)), Val(aryTemp(1)))
                 End If
             Case TYPE_LONG
@@ -1970,7 +1990,7 @@ Private Sub subBuildCriteria(ByRef sRetCriteria As String, _
     sRetCriteria = sCriteria
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     Set cValidate = Nothing
     Set tgmCriteria = Nothing
 End Sub
@@ -1980,25 +2000,25 @@ Private Sub tblCriteria_AfterColEdit(ByVal ColIndex As Integer)
     subSetGridButtonStatus
 End Sub
 
-Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Private Sub tblCriteria_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     Dim lRow As Long
     
     lRow = tgmCriteria.GetCurrentRowNumber
     
     If ColIndex = nCol_Sort Then
         If Not tgmCriteria.CellValue(nCol_AllowEditSortCol, lRow) Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
         
         If Not tgmCriteria.CellValue(nCol_Enabled, lRow) Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
 
     cmdOkBtn.Enabled = False
-    tgmCriteria.BeforeColEdit ColIndex, KeyAscii, CANCEL
+    tgmCriteria.BeforeColEdit ColIndex, KeyAscii, Cancel
 End Sub
 
 Private Sub tblCriteria_Change()
@@ -2123,8 +2143,8 @@ Private Sub tblCriteria_RowColChange(LastRow As Variant, ByVal LastCol As Intege
     End If
 End Sub
 
-Private Sub tblCriteria_SelChange(CANCEL As Integer)
-    CANCEL = True
+Private Sub tblCriteria_SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Private Sub tblCriteria_UnboundDeleteRow(Bookmark As Variant)
@@ -2301,8 +2321,8 @@ Private Sub tblComboDropDown_RowColChange(LastRow As Variant, ByVal LastCol As I
     End If
 End Sub
 
-Private Sub tblComboDropDown_SelChange(CANCEL As Integer)
-    tgcDropdown.SelChange CANCEL
+Private Sub tblComboDropDown_SelChange(Cancel As Integer)
+    tgcDropdown.SelChange Cancel
 End Sub
 
 Private Sub txtFilter_Change()
