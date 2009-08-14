@@ -3073,7 +3073,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -3817,7 +3817,7 @@ Private Function fnIsTO(lTerminal As Long) As Boolean
 
 End Function
 
-Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Double
+Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
@@ -3898,7 +3898,6 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
                         arryProdTaxUseG(i).sNGU = "N"
                         fBase = tfnRound(!lNet * !fCost, 2)
                     End If
-                    
                     arryProdTaxUseG(i).sProductCode = !szProductCode
                     arryProdTaxUseG(i).sProdTcl = sProdTcl
                     arryProdTaxUseG(i).sTaxUseG = "SSSS  TX"
@@ -3980,7 +3979,7 @@ End Function
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
 'Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
 Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal As Boolean, _
-                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As Database) As Boolean
+                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As DataBase) As Boolean
     
     Const SUB_NAME = "fnIsImportToTexas"
     Dim strSQL As String
@@ -4026,6 +4025,12 @@ Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal
         Exit Function
     End If
 
+    'david 08/14/2009  #639277
+    If rsMvBal.EOF Then
+        Exit Function
+    End If
+    ''''''''''''''''''''''''''
+    
     Do While Not rsMvBal.EOF
         If Not rsMvBal!bExternal Then
             Exit Function
@@ -4065,7 +4070,7 @@ End Function
 'david 04/21/2008  #501475
 'for internal lading only
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
-Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Boolean
+Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
     
     Const SUB_NAME = "fnIsTexasDiverted"
     Dim strSQL As String
@@ -5219,7 +5224,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -5258,7 +5263,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -5586,7 +5591,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As Database) As Boolean
+Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
@@ -5644,7 +5649,7 @@ End Function
 Private Function finv_classes( _
                                 sParm1 As String, _
                                 sParm2 As String, _
-                                db As Database _
+                                db As DataBase _
                                 ) As Recordset
     Const SUB_NAME = "finv_classes"
     Const conDimension = 10
