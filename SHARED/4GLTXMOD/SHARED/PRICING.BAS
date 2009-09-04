@@ -73,6 +73,9 @@ Private m_bQueryTime_Active As Boolean           '#If false, the popup feature i
 ' Add status flag parameter.  When status flag = "1", the ceiling price
 ' and factor pricing functions will not be used when calculating the
 ' market price
+' 612568- Chris Miller - 6/23/2009
+' Add sOverrideOD so that we can call syvprice.4gl and pricing.4gl using
+' an override to Origin/Destination pricing as set in sys parm 6202
 Public Function product_price( _
                                 DEST_FLAG As String, _
                                 sProductCode As String, _
@@ -86,13 +89,15 @@ Public Function product_price( _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
                                 Optional zzerc_contract_nbr As String = "", _
-                                Optional sStatusFlag As String _
+                                Optional sStatusFlag As String, _
+                                Optional sOverrideOD As String = "" _
                              ) As Double
     ' dest_flag is I or E:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     product_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, sStatusFlag)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, _
+                                sStatusFlag, sOverrideOD)
     
 End Function ' product_price
 
@@ -169,6 +174,10 @@ End Sub
 ' Add status flag parameter.  When status flag = "1", the ceiling price
 ' and factor pricing functions will not be used when calculating the
 ' market price
+' 612568- Chris Miller - 6/23/2009
+' Add sOverrideOD so that we can call syvprice.4gl and pricing.4gl using
+' an override to Origin/Destination pricing as set in sys parm 6202
+
 Private Function sp_price(ByVal sProductCode As String, _
                             ByVal lProfitCenter As Long, _
                             ByVal lCustomer As Long, _
@@ -183,11 +192,12 @@ Private Function sp_price(ByVal sProductCode As String, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
                             Optional zzerc_contract_nbr As String = "", _
-                            Optional sStatusFlag As String = "" _
+                            Optional sStatusFlag As String = "", _
+                            Optional sOverrideOD As String = "" _
                             ) As Double
                             
         Dim i As Integer
-        Dim arg_val(16) As String   '#448713 - Increase from 15 to 16
+        Dim arg_val(17) As String   '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
         Dim sRunCmd As String
         Dim sOutPutstr As String
         Static sta_cnt As Long
@@ -231,14 +241,23 @@ Private Function sp_price(ByVal sProductCode As String, _
         ' and factor pricing functions will not be used when calculating the
         ' market price
         If IsMissing(sStatusFlag) Or Trim(sStatusFlag) = szEMPTY Then
-            arg_val(16) = ""
+            arg_val(16) = "' '"
         Else
             arg_val(16) = tfnSQLString(Trim(sStatusFlag))
         End If
         
+        ' 612568- Chris Miller - 6/23/2009
+        ' Add sOverrideOD so that we can call syvprice.4gl and pricing.4gl using
+        ' an override to Origin/Destination pricing as set in sys parm 6202
+        If IsMissing(sOverrideOD) Or Trim(sOverrideOD) = szEMPTY Then
+            arg_val(17) = "' '"
+        Else
+            arg_val(17) = tfnSQLString(Trim(sOverrideOD))
+        End If
+        
         sRunCmd = arg_val(0)
         
-        For i = 1 To 16 '#448713 - Increase from 15 to 16
+        For i = 1 To 17 '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
            sRunCmd = sRunCmd & Space(1) & arg_val(i)
         Next
         
