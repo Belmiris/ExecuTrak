@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -1068,7 +1068,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1453,11 +1453,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.number = 3146 Then
+    If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1524,7 +1524,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1793,7 +1793,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1801,7 +1801,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -1997,7 +1997,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.Path 'use the App object to retrieve the path
+    szTemp = App.path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2132,7 +2132,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.number = 94 Then
+    If Err.Number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2336,7 +2336,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2597,14 +2597,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2696,7 +2696,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2734,7 +2734,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.number = 3051 Then
+    If Err.Number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3753,8 +3753,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.number <> 0 Then
-        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -3890,7 +3890,8 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
                               sSECTION As String, _
                               sField As String, _
                               sValue As String, _
-                              Optional bShowError As Boolean = True) As Boolean
+                              Optional bShowError As Boolean = True, _
+                              Optional bAlwaysInsert As Boolean = False) As Boolean
 
     Const SUB_NAME As String = "tfn_Write_SYS_INI"
     
@@ -3900,13 +3901,16 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
-    sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
-    
+    If Not bAlwaysInsert Then
+        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField)
+    End If
+        
     On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
     End If
+    
     If sRetrunValue <> "" Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
         strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
@@ -4637,7 +4641,7 @@ End Function
 
 '#502947 - Chris Albrecht - 3/14/2006
 'Check the invoice and invoice hold tables
-Private Function InvoiceCreated(invoiceNbr As Long) As Boolean
+Private Function InvoiceCreated(InvoiceNbr As Long) As Boolean
 
 Const SQL_INVOICE_EXISTS_IN_HOLD As String = _
     " select ihh_nbr from sih_invoice where ihh_nbr = @invoice_nbr "
@@ -4646,12 +4650,12 @@ Const SQL_INVOICE_EXISTS As String = _
     
 Dim SQL As String
 
-    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", invoiceNbr)
+    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", InvoiceNbr)
     
     InvoiceCreated = fnDataExists(SQL)
     
     If Not InvoiceCreated Then
-        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", invoiceNbr)
+        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", InvoiceNbr)
         
         InvoiceCreated = fnDataExists(SQL)
     End If
