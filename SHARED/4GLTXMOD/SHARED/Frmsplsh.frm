@@ -19,6 +19,7 @@ Begin VB.Form frmSplash
    EndProperty
    ForeColor       =   &H00800000&
    Icon            =   "Frmsplsh.frx":0000
+   KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
@@ -884,7 +885,7 @@ Private Sub btnOK_Click()
         sPWD = "fakePPP"
     End If
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     m_sDSN = cmbDataSet.Text
     m_sDriver = colDrivers(m_sDSN)
@@ -909,7 +910,7 @@ Private Sub btnOK_Click()
     
     Exit Sub
     
-ErrTrap:
+errTrap:
     Screen.MousePointer = vbDefault
     
     If Err.Number = 5 Then
@@ -960,6 +961,16 @@ End Sub
 Private Sub Form_Activate()
     On Error Resume Next
     cmbDataSet.SetFocus
+End Sub
+
+Private Sub Form_KeyPress(KeyAscii As Integer)
+    Static nCount As Integer
+    If KeyAscii = vbKeyEscape Then
+        nCount = nCount + 1
+        If nCount >= 3 Then
+            btnCancel_Click
+        End If
+    End If
 End Sub
 
 Private Sub Form_Load()
