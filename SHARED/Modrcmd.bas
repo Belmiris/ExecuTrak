@@ -168,7 +168,9 @@ Public Function fnExecute4GE(sCmdLine As String, _
                 sEnviron = sEnviron & ";"
             End If
         End If
-        sCmd = fnVariables(sHost, sDBPath) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+        
+        
+        sCmd = fnVariables(sHost, sDBPath, sUserID, sPassWD) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
         
         sTemp = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd)
         If sTemp = "" Then
@@ -245,7 +247,7 @@ Private Function fnParmIndex(vTemp As Variant) As Integer
         ElseIf VarType(vTemp) = vbString Then
             sTemp = UCase(fnCStr(vTemp))
         Else 'Assume integer
-            fnParmIndex = val(vTemp)
+            fnParmIndex = Val(vTemp)
             Exit Function
         End If
         Select Case sTemp
@@ -447,7 +449,7 @@ Public Function tfnRunRCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
         tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
@@ -482,8 +484,45 @@ Public Function fnPRTestPrint(sPrinter As String, _
 
 End Function
 
+Private Function fnVariables(sHost As String, sDBPath As String, sUserID As String, sPassWD As String) As String
+    Static bTestServerScript As Boolean
+    Static bUseServerScript As Boolean
+    Dim sCmd As String
+    Dim sTemp As String
+    
+        If Not bTestServerScript Then
+            sCmd = fnVariables_UseScript(sHost, sDBPath)
+            sTemp = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd)
+            If Trim$(sTemp) = "" Then
+                bUseServerScript = True
+            End If
+            bTestServerScript = True
+        End If
+        
+    
+    If bUseServerScript Then
+        fnVariables = fnVariables_UseScript(sHost, sDBPath)
+    Else
+        fnVariables = fnVariables_UseCommands(sHost, sDBPath)
+    End If
+End Function
 
-Private Function fnVariables(sHost As String, sDBPath As String) As String
+Private Function fnVariables_UseScript(sHost As String, sDBPath As String) As String
+    Dim sTemp As String
+    
+    If InStr(sDBPath, "/") > 0 Then
+        'standard server
+        sTemp = ". " & fnGetProgPath & "/syesevar.sh " & sDBPath & " " & fnGetProgPath & ";"
+    Else
+        'ids - dynamic server
+        sTemp = ". " & fnGetProgPath & "/syedsvar.sh " & sDBPath & " " & fnGetProgPath & ";"
+    End If
+    
+    fnVariables_UseScript = sTemp
+End Function
+
+
+Private Function fnVariables_UseCommands(sHost As String, sDBPath As String) As String
     Dim sTemp As String
     
     If InStr(sDBPath, "/") > 0 Then
@@ -497,6 +536,8 @@ Private Function fnVariables(sHost As String, sDBPath As String) As String
         sTemp = sTemp + "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
         sTemp = sTemp + "PATH=/bin:/usr/bin::/usr/informix/breakaway:/usr/informix/bin:/usr/factor; export PATH;"
         sTemp = sTemp + "DBPATH=" + sDBPath + ":$PROGPATH; export DBPATH;"
+        sTemp = sTemp + "LD_LIBRARY_PATH='/usr/informix/lib:/usr/informix/lib/esql:/usr/informix/lib/tools'; export LD_LIBRARY_PATH;"
+    
     Else
         'ids - dynamic server
         sTemp = ""
@@ -513,11 +554,11 @@ Private Function fnVariables(sHost As String, sDBPath As String) As String
         sTemp = sTemp + "TERMCAP=/usr/informix/etc/Termcap;export TERMCAP;"
         sTemp = sTemp + "DBPATH=$DATADIR:$PROGPATH; export DBPATH;"
         sTemp = sTemp + "DBNAME=" + sDBPath + "; export DBNAME;"
+        sTemp = sTemp + "DBNAME=" + sDBPath + "; export DBNAME;"
     End If
     
-    fnVariables = sTemp
+    fnVariables_UseCommands = sTemp
 End Function
-
 Private Function fnDefaultParm(sSECTION As String, _
                               sKey As String, _
                               sDefault As String) As String
@@ -560,7 +601,7 @@ Public Function fnSetParmForUnixCmd(vFlag As Variant, _
     If IsMissing(vDefault) Then
         nWhatToUse = USE_STORED_PROC
     Else
-        nWhatToUse = val(vDefault)
+        nWhatToUse = Val(vDefault)
     End If
     nParmIdx = fnParmIndex(vFlag)
     If nParmIdx > 0 And nParmIdx <= FLAG_COUNT Then
@@ -632,7 +673,7 @@ Public Function ExecUnixCmd(sHost As String, _
     Exit Function
     
 errRunShell:
-    If Err.number = 48 Then
+    If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
     Else
         tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
@@ -688,7 +729,7 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
         End If
     End If
     
-    sCmd = fnVariables(sHost, sDBPath) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+    sCmd = fnVariables(sHost, sDBPath, sUserID, sPassWD) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
     staRtn = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
     fnRun4GLPricing = staRtn
 End Function

@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -725,7 +725,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
             End If
             .Close
         End With
@@ -734,7 +734,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).value)
+                sDBVer = Trim$(.Fields(0).Value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -765,7 +765,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
+Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
                           Optional ByVal field As String = vbNullString, _
@@ -777,13 +777,13 @@ Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
     
     On Error GoTo ErrorHandler
     
-    FileName = Trim$(UCase$(FileName))
+    Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
     field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & FileName & "')" _
+        & " WHERE (INI_File_Name='" & Filename & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -1524,7 +1524,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1997,7 +1997,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.path 'use the App object to retrieve the path
+    szTemp = App.Path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2121,12 +2121,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2537,6 +2537,9 @@ Public Function tfnGetPassword() As String
             If Not t_dbMainDatabase Is Nothing Then
                 tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
             End If
+            If Trim(tfnGetPassword) = "" Then
+                tfnGetPassword = tfnGetNamedString(t_szConnect, "PWD")
+            End If
 '        Else
             'may be not implemented yet
 '            tfnGetPassword = t_oleObject.Password
@@ -2696,7 +2699,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3396,7 +3399,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3613,7 +3616,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
