@@ -88,6 +88,22 @@ Private Sub cmdOK_Click()
     Me.Hide
 End Sub
 
+Public Sub SetFormTitleCaption(sFormTitle As String, sTitle1 As String, sTitle2 As String)
+    Me.Caption = sFormTitle
+    lblErr(0).Caption = sTitle1
+    lblErr(1).Caption = sTitle2
+End Sub
+
+Private Sub Form_Activate()
+    On Error Resume Next
+    txtPassword_Change
+    If cmdOK.Enabled Then
+        cmdOK.SetFocus
+    Else
+        txtPassword.SetFocus
+    End If
+End Sub
+
 Private Sub Form_Load()
     On Error Resume Next
     Me.Caption = App.EXEName & " - Error Alert!"
