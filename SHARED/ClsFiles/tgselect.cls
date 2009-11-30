@@ -368,7 +368,7 @@ Public Sub Click()
                 If m_nClickPointY < m_tgTable.RowTop(0) Then
                     'header click, do nothing
                 Else
-                    If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
+                    If m_tgTable.row = m_tgTable.RowContaining(m_nClickPointY) Then
                         If m_tgcEditor.RowCount > 0 Then
                             Dim sColRow As String
                             
@@ -406,7 +406,7 @@ Public Sub Click()
             End If
             '''''''''''
             
-            If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
+            If m_tgTable.row = m_tgTable.RowContaining(m_nClickPointY) Then
                 subMarkSelected m_vLastRow
                 subSetCurrentRow
                 If Not m_tgTable.EditActive Then
@@ -928,8 +928,8 @@ Property Let RowIsSelected(ByVal lRow As Long, bSelect As Boolean)
     
 End Property
 
-Public Sub SelChange(CANCEL As Integer)
-    CANCEL = True
+Public Sub SelChange(Cancel As Integer)
+    Cancel = True
 End Sub
 
 Public Sub SelectAll()
@@ -1000,7 +1000,8 @@ Public Sub UnSelectRow(ByVal lRow As Long)
     
     If Not m_tgcEditor Is Nothing Then
         With m_tgTable.SelBookmarks
-            For i = 0 To .Count
+            'david 10/22/2009  #613533 NDR
+            For i = 0 To .Count - 1
                 If Not IsNull(m_tgTable.SelBookmarks(i)) Then
                     If m_tgTable.SelBookmarks(i) = lRow Then
                         .Remove i
@@ -1103,7 +1104,7 @@ Private Sub subMarkSelected(vBkMark As Variant)
         nStart = m_nLastClickedRow
         
         If m_tgcEditor Is Nothing Then
-            nEnd = m_tgTable.Row
+            nEnd = m_tgTable.row
         Else
             nEnd = m_tgcEditor.GetCurrentRowNumber
         End If
@@ -1189,7 +1190,7 @@ End Sub
 
 Private Sub subSetCurrentRow()
     If m_tgcEditor Is Nothing Then
-        m_nLastClickedRow = m_tgTable.Row
+        m_nLastClickedRow = m_tgTable.row
     Else
         m_nLastClickedRow = m_tgcEditor.GetCurrentRowNumber
     End If
@@ -1645,7 +1646,7 @@ Private Sub subSetLastClickedCell(Optional sColRow As String = "")
     
     If sColRow = "" Then
         If m_tgcEditor Is Nothing Then
-            If m_tgTable.Row >= 0 Then
+            If m_tgTable.row >= 0 Then
                 sColRow = fnMakeKey(m_nClickCol, m_tgTable.Bookmark)
             End If
         Else
