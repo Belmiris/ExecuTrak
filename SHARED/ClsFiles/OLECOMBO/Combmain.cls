@@ -1057,6 +1057,23 @@ Property Let ShowNoDataMessage(objControl As Object, bStatus As Boolean)
 
 End Property
 
+Property Let TreatNoRecordAsSingleRecordSelected(objControl As Object, bStatus As Boolean)
+    'Set the SQL of the specific combo
+
+    Dim lDropDown As Integer
+    Dim nctrlType As Integer
+    Dim lCombo As Integer
+    
+    'Get the index of the current combo
+    fnGetKeys lDropDown, lCombo, nctrlType, objControl
+    If lDropDown < 0 Then
+        Exit Property
+    End If
+    
+    colComboControls.Item(lDropDown).TreatNoRecordAsSingleRecordSelected = bStatus
+
+End Property
+
 Public Sub SetDebug(bStatus As Boolean)
     m_bDebug = bStatus
 End Sub
@@ -2020,6 +2037,7 @@ Public Function AddCombo(Optional sSql As Variant, _
     With clsDD
         .HeadLines = 0
         .ShowNoDataMessage = True
+        .TreatNoRecordAsSingleRecordSelected = False
         .ComboOn = True
         .Active = True
         .SearchOnReturn = True
@@ -2712,7 +2730,7 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
         If rsTemp.RecordCount = 1 Then
             If tgDropDown.DataMode = dbgUnbound Then
                 tgDropDown.FirstRow = 0
-                tgDropDown.Row = 0
+                tgDropDown.row = 0
             Else
                 Set datLink.Recordset = rsTemp
             End If
@@ -2849,6 +2867,10 @@ Private Function fnLoadTable(ByVal lDropDown As Integer, _
                 sMsg = clsCurrentDropdown.ErrorMessage
             End If
             MsgBox sMsg, vbOKOnly + vbInformation
+        Else
+            If clsCurrentDropdown.TreatNoRecordAsSingleRecordSelected Then
+                bValidSelection = True
+            End If
         End If
         fnSetFocus colCombo.Item(lComboIndex).Textbox
         fnLoadTable = False
@@ -3022,7 +3044,7 @@ extKeyPress:
     On Error GoTo 0
     Exit Function
 errKeyPress:
-    If Err.Number = 53 Then
+    If Err.number = 53 Then
         Keypress = True
         Err.Clear
         Resume extKeyPress
@@ -3137,12 +3159,12 @@ extAddComboBox:
 errAddComboBox:
     AddComboBox = False
     If nErrorNumber = 0 Then
-        If Err.Number = nERROR_DLLFILE Then
+        If Err.number = nERROR_DLLFILE Then
             'File not found (DLL file for the regexp)
             MsgBox "Regular expression library is not found.", vbExclamation + vbOKOnly
             nErrorNumber = nERROR_DLLFILE
         Else
-            MsgBox "Can not add text box to drop down combo." & vbCrLf & vbCrLf & "Error number :  " & CStr(Err.Number) & vbCrLf & "Error Details:  " & Err.Description, vbOKOnly + vbExclamation
+            MsgBox "Can not add text box to drop down combo." & vbCrLf & vbCrLf & "Error number :  " & CStr(Err.number) & vbCrLf & "Error Details:  " & Err.Description, vbOKOnly + vbExclamation
         End If
     End If
     Err.Clear
@@ -3227,12 +3249,12 @@ extAddComboBox:
 errAddComboBox:
     AddCriteriaField = False
     If nErrorNumber = 0 Then
-        If Err.Number = nERROR_DLLFILE Then
+        If Err.number = nERROR_DLLFILE Then
             'File not found (DLL file for the regexp)
             MsgBox "Regular expression library is not found.", vbExclamation + vbOKOnly
             nErrorNumber = nERROR_DLLFILE
         Else
-            MsgBox "Can not add text box to drop down combo." & vbCrLf & vbCrLf & "Error number :  " & CStr(Err.Number) & vbCrLf & "Error Details:  " & Err.Description, vbOKOnly + vbExclamation
+            MsgBox "Can not add text box to drop down combo." & vbCrLf & vbCrLf & "Error number :  " & CStr(Err.number) & vbCrLf & "Error Details:  " & Err.Description, vbOKOnly + vbExclamation
         End If
     End If
     Err.Clear
@@ -3428,13 +3450,13 @@ Public Sub Click(objControl As Object)
             'david 02/05/2002
             Dim nRowTop As Integer
     
-            If tgDropDown.Row >= 0 Then
+            If tgDropDown.row >= 0 Then
                 nRowTop = tgDropDown.RowTop(0)
     
                 If nClickPointY < nRowTop Then
                     bTableClicked = True
                 Else
-                    If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+                    If tgDropDown.row = tgDropDown.RowContaining(nClickPointY) Then
                         bTableClicked = True
                         RowColChange
                     Else
@@ -3447,7 +3469,7 @@ Public Sub Click(objControl As Object)
                 bTableClicked = True
             End If
         Else
-            If tgDropDown.Row = tgDropDown.RowContaining(nClickPointY) Then
+            If tgDropDown.row = tgDropDown.RowContaining(nClickPointY) Then
                 bTableClicked = True
                 RowColChange
             Else
@@ -3528,7 +3550,7 @@ Public Function fnGetRecord(rsTemp As Object, strSQL As String, nDB As Integer)
         'AND (an_phone LIKE '%000%%') ORDER BY an_phone
         'Added 'Or rsTemp.RecordCount = 0'
         'to try again use dbSQLPassThrough and it works...
-        If Err.Number <> 0 Or rsTemp.RecordCount = 0 Then
+        If Err.number <> 0 Or rsTemp.RecordCount = 0 Then
             'subShowDebugInfo "OpenRecordset WITHOUT dbSQLPassThrough failed. Try next..."
             On Error GoTo SQLError
             Set rsTemp = dbRemote.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
@@ -3599,11 +3621,11 @@ Private Sub subShowODBCError(Optional vSQL As Variant)
         End If
     End If
     
-    If Err.Number = 3146 Then
+    If Err.number = 3146 Then
         With engDatabase.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -3924,9 +3946,9 @@ End Sub
 
 Private Function fnCurrentRow() As Long
     If IsNull(tgDropDown.FirstRow) Then
-        fnCurrentRow = tgDropDown.Row
+        fnCurrentRow = tgDropDown.row
     Else
-        fnCurrentRow = Val(tgDropDown.FirstRow) + tgDropDown.Row
+        fnCurrentRow = Val(tgDropDown.FirstRow) + tgDropDown.row
     End If
 End Function
 
@@ -3948,10 +3970,10 @@ Public Sub RowColChange()
         tgDropDown.ZOrder 1
         bTableClicked = False
     Else
-        If tgDropDown.Row < 0 Then
-            tgDropDown.Row = nLastRow
+        If tgDropDown.row < 0 Then
+            tgDropDown.row = nLastRow
         End If
-        nLastRow = tgDropDown.Row
+        nLastRow = tgDropDown.row
     End If
 End Sub
 Property Let SQL(SQL As String)

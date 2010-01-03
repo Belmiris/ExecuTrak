@@ -27,6 +27,7 @@ Private Const MASK_MESSAGE = 1
 Private Const MASK_ON_OFF = 2
 Private Const MASK_CLEARED = 4
 Private Const MASK_ACTIVE = 8
+Private Const MASK_NO_REC_SINGLE_SELECTED = 16
 Private Const MASK_SEARCH_ON_RETURN = &H10
 Private Const MASK_EXTEND_RESET = &H20
 Private Const MASK_HOR_SCROLL = &H40
@@ -187,6 +188,22 @@ Property Get ShowNoDataMessage() As Boolean
         ShowNoDataMessage = True
     Else
         ShowNoDataMessage = False
+    End If
+End Property
+
+Property Let TreatNoRecordAsSingleRecordSelected(bStatus As Boolean)
+    If bStatus Then
+        nFlags = nFlags Or MASK_NO_REC_SINGLE_SELECTED
+    Else
+        nFlags = nFlags And Not MASK_NO_REC_SINGLE_SELECTED
+    End If
+End Property
+
+Property Get TreatNoRecordAsSingleRecordSelected() As Boolean
+    If (nFlags And MASK_NO_REC_SINGLE_SELECTED) = MASK_NO_REC_SINGLE_SELECTED Then
+        TreatNoRecordAsSingleRecordSelected = True
+    Else
+        TreatNoRecordAsSingleRecordSelected = False
     End If
 End Property
 
