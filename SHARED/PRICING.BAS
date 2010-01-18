@@ -58,7 +58,7 @@ Private m_LoadTimeCnt As Long         '#Array counter
 Private m_frmQueryTime As Form           '#Need to be set to frmQueryTime
                                          '#If not set, the popup feature is not
                                          '#Available. FM entry only
-Private m_local As Database              '#Local Table. Used to query load date
+Private m_local As DataBase              '#Local Table. Used to query load date
                                          '#if not set, the feature is not available
 Private m_bQueryTime_Active As Boolean           '#If false, the popup feature is not
 
@@ -84,7 +84,7 @@ Public Function product_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -102,16 +102,20 @@ Public Function product_price( _
 End Function ' product_price
 
 'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
+'david 01/13/2010  #654066, #638753-NDR
+'change DEST_FLAG to ORIGIN_DEST_FLAG
+'The value pass into ORIGIN_DEST_FLAG will be LadingIEflag and DeliveryIEflag combine.
+'i.e. II, IE, EI, and EE, if only one flag is passing in then both flag will be set to the same flag
 Public Function Fuel_price( _
-                                DEST_FLAG As String, _
-                                sProductCode As String, _
+                                ByVal ORIGIN_DEST_FLAG As String, _
+                                ByVal sProductCode As String, _
                                 ByVal lProfitCenter As Long, _
                                 ByVal lCustomer As Long, _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 dfDiscountedCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -121,6 +125,16 @@ Public Function Fuel_price( _
                              ) As Double
     Dim sLoadingDate As String
     Dim lMaxLading As Long
+    Dim ORIGIN_FLAG As String
+    Dim DEST_FLAG As String
+    
+    If Len(ORIGIN_DEST_FLAG) = 2 Then
+        ORIGIN_FLAG = Left(ORIGIN_DEST_FLAG, 1)
+        DEST_FLAG = Right(ORIGIN_DEST_FLAG, 1)
+    Else
+        ORIGIN_FLAG = ORIGIN_DEST_FLAG
+        DEST_FLAG = ORIGIN_DEST_FLAG
+    End If
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
         '#If Fuel Loading date/time has been entered, use it to cal price
@@ -128,8 +142,8 @@ Public Function Fuel_price( _
     End If
     ' dest_flag is I or E:
     Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
-                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                          dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
+                          t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
         If fnNeed_ReCal_Price_With_Loading_Time(sProductCode, lMvNbr, lMaxLading, sLoadingDate, lCustomer) Then
@@ -138,8 +152,8 @@ Public Function Fuel_price( _
            '#(2)Loading Time is NOT provided
            '#(3)We need time to do the calculation. The previous 4GE call will tell us this
             Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
-                                dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, DEST_FLAG, _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                                  dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
+                                  t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
         End If
         '#Clear m_fuel_load_datetime
         set_fuel_load_datetime szEMPTY, szEMPTY, False
@@ -154,7 +168,7 @@ Public Function prod_price( _
                                 dfQuantity As Double, _
                                 dfCost As Double, _
                                 lOrigin As Long, _
-                                t_dbMainDatabase As Database, _
+                                t_dbMainDatabase As DataBase, _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
@@ -166,7 +180,7 @@ Public Function prod_price( _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
                                 t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
 End Function ' prod_price
-Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As Database)
+Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     wrk_date = dDate
 End Sub
 
@@ -187,7 +201,7 @@ Private Function sp_price(ByVal sProductCode As String, _
                             ByVal vLevel As Variant, _
                             ByVal lOrigin As Long, _
                             ByVal DEST_FLAG As String, _
-                            t_dbMainDatabase As Database, _
+                            t_dbMainDatabase As DataBase, _
                             Optional lSite As Long = -1, _
                             Optional sInvoiceDate As String = "", _
                             Optional sErrMsg As String = "", _
@@ -334,7 +348,7 @@ End Function
 '#(2)Public Sub Pricing_AddToFuelLoadTimeAry
 '#Call this once in main form load of FM Program
 Public Sub Pricing_FuelCostSetQueryTimeForm(frm As Form, _
-                                       vLocalDB As Database, _
+                                       vLocalDB As DataBase, _
                                        bQueryTime As Boolean)
     '#if m_bQueryTime_Active=true, m_frmQueryTime
     '# and m_local must be set
@@ -599,7 +613,7 @@ Public Sub set_fuel_load_datetime(ByVal sFuelLoadDate As String, _
 End Sub
 
 Private Function Price_fnOpenRecord(ByRef rsTemp As Recordset, _
-                                    strSQL As String, objDB As Database) As Long
+                                    strSQL As String, objDB As DataBase) As Long
     On Error GoTo SQLError
     
     If objDB Is t_dbMainDatabase Then
