@@ -54,6 +54,9 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
+    'Vijaya 11/03/2009  #647512
+    Declare Function TXMOD_origin_state Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sOriginState As String) As Long
 #Else
     Declare Function TXMOD_Attach Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, _
@@ -93,6 +96,9 @@ Private Const MOD_DLL_NAME = "TxMod32.dll"
     Declare Function TXMOD_set_accm_txble_amt Lib "TxMod32.dll" _
         (ByVal hInst As Long, ByVal hwnd As Long, ByVal dAccmTxbleAmt As Double) As Long
     
+    'Vijaya 11/03/2009  #647512
+    Declare Function TXMOD_origin_state Lib "TxMod32.dll" _
+        (ByVal hInst As Long, ByVal hwnd As Long, ByVal sOriginState As String) As Long
 #End If
 
 ' Error codes
@@ -313,6 +319,8 @@ Private nProdTaxUseGCount As Integer
         Inter_Or_IntraState = 4
     End Enum
 #End If
+
+Public sTXMODOriginState As String
 '
 
 Private Sub subDealWithATaxes(Taxes() As CApplicableTaxes, ByRef lRecords As Long)
@@ -446,6 +454,8 @@ Public Function fnCalculateTaxes(sProduct As String, _
         If Abs(dAccmTxbleAmt) >= 0.01 Then
             subSet_AccmTxbleAmt dAccmTxbleAmt
         End If
+        
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
         
         Do
             nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -1275,6 +1285,7 @@ Public Function fnGetTaxAmount(szProduct As String, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
         
         nTries = TAXMOD_TRIES
         Do
@@ -1483,7 +1494,8 @@ Public Function fnGetTaxAmount1(szProduct As String, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
-            
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
+        
         nTries = TAXMOD_TRIES
         Do
             nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -1895,7 +1907,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
     Exit Function
     
 errLoadTaxMods:
-    If Err.Number = 53 Then
+    If Err.number = 53 Then
         tfnErrHandler SUB_NAME, ERROR_LOADING1, MOD_DLL_NAME & " is not found in Windows System directory"
     Else
         tfnErrHandler SUB_NAME, ERROR_LOADING2, Err.Description
@@ -2007,7 +2019,8 @@ Public Function fnTaxInformation(sProduct As String, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
-            
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
+        
         nTries = TAXMOD_TRIES
         Do
             nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -2189,6 +2202,7 @@ Public Function fnTaxInformation1(sProduct As String, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
         
         nTries = TAXMOD_TRIES
         Do
@@ -2367,7 +2381,8 @@ Public Function fnAddTaxInfoItem(ByVal lInv As Long, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
-    
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
+        
         nTries = TAXMOD_TRIES
         Do
             nRet = TXMOD_VB_CalculateLineTax(App.hInstance, Forms(0).hwnd, myStruct, nRecords)
@@ -2576,6 +2591,7 @@ Public Function fnChangeTaxInfoItem(ByVal lInv As Long, _
         'Vijaya on 02/10/04 Magic#395302
         subSet_tx_date t_tax_date
         ''''''''''''''''''''''''''''''''
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
         
         nTries = TAXMOD_TRIES
         Do
@@ -2863,7 +2879,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL"
         End If
@@ -2978,7 +2994,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL"
         End If
@@ -3053,7 +3069,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL"
         End If
@@ -3073,7 +3089,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -3817,7 +3833,7 @@ Private Function fnIsTO(lTerminal As Long) As Boolean
 
 End Function
 
-Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Double
+Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
@@ -3979,7 +3995,7 @@ End Function
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
 'Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
 Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal As Boolean, _
-                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As Database) As Boolean
+                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As DataBase) As Boolean
     
     Const SUB_NAME = "fnIsImportToTexas"
     Dim strSQL As String
@@ -4070,7 +4086,7 @@ End Function
 'david 04/21/2008  #501475
 'for internal lading only
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
-Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Boolean
+Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
     
     Const SUB_NAME = "fnIsTexasDiverted"
     Dim strSQL As String
@@ -4860,6 +4876,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
     Do
         subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
         subSet_tx_date t_tax_date
+        subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
         
         nTries = TAXMOD_TRIES
         Do
@@ -4974,6 +4991,7 @@ Private Function fnATaxInfoItem(ByVal bExt As Boolean, _
             Do
                 subSet_gl_sd_gals hld_vessel, hld_gals, hld_miles, hld_tot_gals
                 subSet_tx_date t_tax_date
+                subSet_origin_st sTXMODOriginState           'Vijaya on 10/06/09 #647512
                 
                 nTries = TAXMOD_TRIES
                 Do
@@ -5224,7 +5242,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -5263,7 +5281,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -5591,7 +5609,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As Database) As Boolean
+Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
@@ -5649,7 +5667,7 @@ End Function
 Private Function finv_classes( _
                                 sParm1 As String, _
                                 sParm2 As String, _
-                                db As Database _
+                                db As DataBase _
                                 ) As Recordset
     Const SUB_NAME = "finv_classes"
     Const conDimension = 10
@@ -5707,7 +5725,7 @@ Private Function finv_classes( _
     Exit Function
     
 finv_classesRedim:
-    If Err.Number = 9 Then 'Subscript out of range
+    If Err.number = 9 Then 'Subscript out of range
         ' this is the expected error on the FIRST call to this function; we
         ' must dimension the static array and retry the first reference to it.
         Err.Clear
@@ -5715,7 +5733,7 @@ finv_classesRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.Number
+        Err.Raise Err.number
     End If
     
 End Function    ''finv_classes
@@ -5804,6 +5822,10 @@ Public Function CalculateLineTax(recLine As CMovementLineItem, _
         End If
     End If
     
+    If Trim(sTXMODOriginState & "") = "" Then
+        sTXMODOriginState = "^^"
+    End If
+    
     '// first, fetch the tax records from the database for this product/group
     strSQL = "SELECT txd_order, abs(txd_limit) abs_limit, txh_code,"
     strSQL = strSQL + " txd_gl_acct, txd_rate, txh_level, txh_where,"
@@ -5820,6 +5842,13 @@ Public Function CalculateLineTax(recLine As CMovementLineItem, _
     Else
         strSQL = strSQL + " AND today BETWEEN txd_beg_date AND txd_end_date"
     End If
+    
+    'Vijaya on 1/10/09 #647512
+    If fnCheck_txh_origin_st Then
+        strSQL = strSQL + " AND (txh_origin_st IS NULL OR txh_origin_st = " & tfnSQLString(sTXMODOriginState) & " )"
+    End If
+    ''''''''''''''''''''''''''
+    
     strSQL = strSQL + " AND ivh_product = " + tfnSQLString(sProduct)
     strSQL = strSQL + " AND tu_use_g = " + tfnSQLString(sUseGroup)
     strSQL = strSQL + " ORDER BY 1, 2"
@@ -6396,7 +6425,8 @@ Private Function round_up_sls_tx(wk_amt As Double) As Double
     '//take care of the whole dollor
     If (work_amt > 0#) Then
         '//#format the amt using 10 whole #, 6 decimal
-        str_amt = fnCStr(work_amt)
+        'david 12/29/2009  #652871
+        str_amt = Format(work_amt, "0.00####")
         nDecPosi = InStr(str_amt, ".")
 
         If (nDecPosi > 0) Then
@@ -6533,4 +6563,135 @@ Public Sub subAccumulateInvoiceTax2(ByVal lTrn As Long, _
 End Sub
 #End If
 
+'##############################################################################
+'   subSet_origin_st:
+'   Author: Vijaya Alla
+'   Date: 11/05/09
+'   Project Number: 647512-Lewis & Raulerson, Inc. Friendly Express-
+'   Description: if Origin State is empty then Don't Include Origin State
+'   INPUT: t_origin_st
+'   OUTPUT: None.
+'##############################################################################
+Private Sub subSet_origin_st(ByVal sOriginState As String, _
+                              Optional bShowMsgBox As Boolean = True, _
+                              Optional sErrMsg As String = "")
+    Static bAlreadyShowMsg As Boolean
+    Static bAlreadyShowErr As Boolean
+    
+    Dim nRet        As Long
+    Dim nTries      As Integer
+    Dim i           As Integer
+    Dim sTxMod32    As String
+    Dim sVersion    As String
+    
+    Const SUB_NAME As String = "subSet_origin_st"
+    Dim nErrRetries As Integer
+    
+    On Error GoTo errTrap
+        
+    'david 01/15/2007  #539399
+    'THIS CAUSES BIG PROBLEM IN WHOLESALE AND HEATING SYSTEM INVOICE ENTRY
+    'WITHOUT SETTING bDisableATax TO True,
+    'TYPE 'A' TAX (TEXAS LOADINGFEE) WILL BE PULLED.
+    'TYPE 'A' TAX (TEXAS LOADINGFEE) WILL BE PULL IN FUEL MOVEMENT ONLY
+    
+    'IMPORTANT NOTES!!!
+    'THE fnLoadTaxMods() MUST BE CALLED IN THE Form_Load() FIRST!!!
+    'IMPORTANT NOTES!!!
+    
+    If Not m_bIsTaxModDllCalled Then
+        If VB_IDE() Then
+            MsgBox "Error!!!" + vbCrLf + vbCrLf + "fnLoadTaxMods() was NOT called in Form_Load() of the MAIN FORM." _
+                + "Tax calculation may not be correct!" + vbCrLf + "You must call fnLoadTaxMods" _
+                + "(, , bDisableATax) in Form_Load." + vbCrLf + vbCrLf + "For Fuel Movement," _
+                + " set bDisableATax to False." + vbCrLf + "For other programs, set bDisableATax to True.", vbCritical
+        Else
+            tfnErrHandler SUB_NAME, ERROR_TAXMOD_DLL, "fnLoadTaxMods() was NOT called in Form_Load() of the MAIN FORM. Calling fnLoadTaxMods(, , True)", False
+        End If
+        
+        'if the tax mods are not loaded, load them
+        'for the safe side, don't pull Texas Loading fee
+        'set bDisableATax TO True
+        If Not fnLoadTaxMods(, , True) Then
+            Exit Sub
+        End If
+    End If
+    ''''''''''''''''''''''''''
+        
+    'if the Origin is empty we don't need to initialize the Origin State
+    'Taxmod32.dll consider is State = "^^"
+    If Trim(sOriginState & "") = "" Then
+        Exit Sub
+    End If
+    
+    sTxMod32 = "txmod32.dll"
+    sVersion = frmContext.GetProductVersion(sTxMod32)
+    
+    If sVersion < "3.30.6.3" Then
+        'do just like the old version
+        'return conversion factor 1
+        tfnErrHandler SUB_NAME, 0, "NON-CRITICAL. The TXMOD32.DLL (version " & sVersion _
+           & ") in this PC is out of date. Recommented 3.30.6.3 or later.", False
+        Exit Sub
+    End If
+    
+    sOriginState = Trim(sOriginState & "")
+    
+    nTries = TAXMOD_TRIES
+    Do
+        nRet = TXMOD_origin_state(App.hInstance, Forms(0).hwnd, sOriginState)
+        If i = TXMOD_TASKBLOCKED Then
+            DoEvents
+        End If
+        nTries = nTries - 1
+    Loop Until nRet <> TXMOD_TASKBLOCKED Or nTries <= 0
+    
+    If nRet <> TXMOD_OK Then
+        subTaxModErrors nRet, bShowMsgBox, sErrMsg
+        Exit Sub
+    End If
+    
+    Exit Sub
+    
+errTrap:
+    If Not bAlreadyShowErr Then
+        bAlreadyShowErr = True
+        
+        If bShowMsgBox Then
+            MsgBox "An error has occurred while calling TXMOD_origin_state() function in TXMOD32.DLL." _
+                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
+        Else
+            sErrMsg = "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL"
+        End If
+    End If
+End Sub
 
+Public Sub subSetOriginState(ByVal iPrftCtr As Integer, Optional ByVal sIEFlag As String = "I")
+    Const SUB_NAME As String = "subSetOriginState"
+    
+    Dim rsTemp  As Recordset
+    Dim strSQL  As String
+    
+    If iPrftCtr < 0 Then
+        sTXMODOriginState = ""
+        Exit Sub
+    End If
+    
+    If sIEFlag = "I" Then
+        strSQL = "SELECT city_state FROM sys_prft_ctr,sys_city "
+        strSQL = strSQL & "  WHERE prft_city = city_code "
+        strSQL = strSQL & "    AND prft_ctr  = " & tfnRound(iPrftCtr)
+    Else
+        strSQL = "SELECT city_state FROM fm_terminal,sys_city "
+        strSQL = strSQL & " WHERE fmt_city = city_code "
+        strSQL = strSQL & "   AND fmt_code =" & tfnRound(iPrftCtr)
+    End If
+    Set rsTemp = txMod_OpenRecord(strSQL)
+    If rsTemp Is Nothing Then
+        Exit Sub
+    ElseIf rsTemp.RecordCount < 1 Then
+        Exit Sub
+    End If
+    sTXMODOriginState = Trim(rsTemp!city_state & "")
+End Sub
+'''''''''''''''''''''''''''
