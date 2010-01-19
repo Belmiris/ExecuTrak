@@ -1,4 +1,12 @@
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version 3.30.0502 davidc
+Date: 01/19/2010
+#652495-Colvin Oil Company-WA MFT
+
+Description:
+	Add a new column to MTaxDetail.
+		ADD cLimitType TEXT(1) at the end of existing fields.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version: 3.29.0403 VJ
 Date: 05/12/2005
 #518984
