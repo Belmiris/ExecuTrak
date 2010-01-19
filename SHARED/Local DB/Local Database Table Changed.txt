@@ -7,6 +7,13 @@ Description:
 	Add a new column to MTaxDetail.
 		ADD cLimitType TEXT(1) at the end of existing fields.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+version: 3.30.0501
+Date: 10/28/2009
+#610596
+Description: 
+	alter add mlading.ldriver Number, mlading.sztime Text(5)
+	add mdelivery.ldriver Number, mdelivery.szTime Text(5)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 version: 3.29.0403 VJ
 Date: 05/12/2005
 #518984
