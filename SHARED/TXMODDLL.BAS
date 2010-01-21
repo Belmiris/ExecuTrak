@@ -4327,8 +4327,8 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     Dim wrk_nbr         As Long
     Dim gal_inv         As Double
     Dim gal_wrk         As Double
-    Dim x               As Integer
-    Dim y               As Integer
+    Dim X               As Integer
+    Dim Y               As Integer
 
     '# New variables to loads of 10,000+
     Dim low_end         As Long
@@ -4352,15 +4352,15 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     dsl_gals = 0
     gas_gals = 0
     
-    For x = 0 To ldf_cnt
+    For X = 0 To ldf_cnt
         ' be careful, dv_prodtcl may hold the following values:
         ' 'product tax class' if parm 1085 is not set up
         ' 'product class' if parm 1085 = "CLASS"
         ' 'product group' if parm 1085 = "GROUP"
-        If Trim(aryLDF(x).dv_prodtcl) = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        If Trim(aryLDF(X).dv_prodtcl) = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(X).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(x).dv_vol
+            gas_gals = gas_gals + aryLDF(X).dv_vol
         End If
     Next
     '# Return if LPG only
@@ -4370,8 +4370,8 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
 
     '# Add all of the 'A' tax amounts
     atax_tot = 0
-    For x = 0 To ldf_cnt
-        atax_tot = atax_tot + tfnRound(aryLDF(x).dv_atax, 2)
+    For X = 0 To ldf_cnt
+        atax_tot = atax_tot + tfnRound(aryLDF(X).dv_atax, 2)
     Next
     
     If tfnRound(atax_tot, 2) = 0 And texas_diverted = False Then
@@ -4385,7 +4385,7 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gal_inv = 0
     gas_gals = 0
     dsl_gals = 0
-    x = -1
+    X = -1
     ReDim Preserve aryLDF(ldf_cnt + 10)
     
     'david 08/07/2007  #564691
@@ -4401,14 +4401,14 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             Exit Do
         End If
 
-        x = x + 1
-        If x > ldf_cnt Then
-            aryLDF(x).dv_nbr = 0
+        X = X + 1
+        If X > ldf_cnt Then
+            aryLDF(X).dv_nbr = 0
         End If
         If wrk_nbr = 0 Then
-            wrk_nbr = aryLDF(x).dv_nbr
+            wrk_nbr = aryLDF(X).dv_nbr
         End If
-        If wrk_nbr <> aryLDF(x).dv_nbr Then
+        If wrk_nbr <> aryLDF(X).dv_nbr Then
             gal_wrk = Abs(gal_inv)
             If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
                 gal_wrk = 8000
@@ -4471,7 +4471,7 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 Loop
             End If
             atax_new = atax_new + atax_inv
-            wrk_nbr = aryLDF(x).dv_nbr
+            wrk_nbr = aryLDF(X).dv_nbr
             If wrk_nbr = 0 Then
                 Exit Do
             End If
@@ -4479,15 +4479,15 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             gas_gals = 0
             dsl_gals = 0
         End If
-        gal_inv = gal_inv + aryLDF(x).dv_vol
+        gal_inv = gal_inv + aryLDF(X).dv_vol
         ' be careful, dv_prodtcl may hold the following values:
         ' 'product tax class' if parm 1085 is not set up
         ' 'product class' if parm 1085 = "CLASS"
         ' 'product group' if parm 1085 = "GROUP"
-        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        If aryLDF(X).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(X).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(x).dv_vol
+            gas_gals = gas_gals + aryLDF(X).dv_vol
         End If
     Loop
 
@@ -4502,17 +4502,17 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
     gal_inv = 0
     gas_gals = 0
     dsl_gals = 0
-    x = -1
+    X = -1
 
     Do While True
-        x = x + 1
-        If x > ldf_cnt Then
-            aryLDF(x).dv_nbr = 0
+        X = X + 1
+        If X > ldf_cnt Then
+            aryLDF(X).dv_nbr = 0
         End If
         If wrk_nbr = 0 Then
-            wrk_nbr = aryLDF(x).dv_nbr
+            wrk_nbr = aryLDF(X).dv_nbr
         End If
-        If wrk_nbr <> aryLDF(x).dv_nbr Then
+        If wrk_nbr <> aryLDF(X).dv_nbr Then
             gal_wrk = Abs(gal_inv)
             If Abs(gas_gals) >= 7000 And Abs(gas_gals) < 8000 And Abs(gal_inv) < 10000 Then
                 gal_wrk = 8000
@@ -4576,22 +4576,22 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             End If
             atax_new = 0
             If ldf_cnt > 0 Then
-                For y = 0 To ldf_cnt - 1
-                    If aryLDF(y).dv_nbr = wrk_nbr Then
+                For Y = 0 To ldf_cnt - 1
+                    If aryLDF(Y).dv_nbr = wrk_nbr Then
                         If gal_inv <> 0 Then
-                            atax_wrk = (aryLDF(y).dv_vol / gal_inv) * atax_inv
+                            atax_wrk = (aryLDF(Y).dv_vol / gal_inv) * atax_inv
                         Else
                             atax_wrk = 0
                         End If
                         atax_wrk = tfnRound(atax_wrk, 2)
-                        aryLDF(y).dv_atax = atax_wrk
+                        aryLDF(Y).dv_atax = atax_wrk
                         atax_new = atax_new + atax_wrk
                     End If
                 Next
             End If
             atax_wrk = atax_inv - atax_new
             aryLDF(ldf_cnt).dv_atax = tfnRound(atax_wrk, 2)
-            wrk_nbr = aryLDF(x).dv_nbr
+            wrk_nbr = aryLDF(X).dv_nbr
             If wrk_nbr = 0 Then
                 Exit Do
             End If
@@ -4599,15 +4599,15 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
             gas_gals = 0
             dsl_gals = 0
         End If
-        gal_inv = gal_inv + aryLDF(x).dv_vol
+        gal_inv = gal_inv + aryLDF(X).dv_vol
         ' be careful, dv_prodtcl may hold the following values:
         ' 'product tax class' if parm 1085 is not set up
         ' 'product class' if parm 1085 = "CLASS"
         ' 'product group' if parm 1085 = "GROUP"
-        If aryLDF(x).dv_prodtcl = dsl_fuel_group Then
-            dsl_gals = dsl_gals + aryLDF(x).dv_vol
+        If aryLDF(X).dv_prodtcl = dsl_fuel_group Then
+            dsl_gals = dsl_gals + aryLDF(X).dv_vol
         Else
-            gas_gals = gas_gals + aryLDF(x).dv_vol
+            gas_gals = gas_gals + aryLDF(X).dv_vol
         End If
     Loop
     Exit Sub
@@ -6802,7 +6802,7 @@ Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local 
         fTaxAmt = 0#
         
         While Not .EOF
-            If fnGetFieldValue(!szTaxUseGroup) <> "" Then
+            If fnCStr(!szTaxUseGroup) <> "" Then
                 lGross = !lGross
                 lNet = !lNet
                 
@@ -6823,12 +6823,12 @@ Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local 
                     nSign = 1
                 End If
             
-                If fnTaxInformation(fnGetFieldValue(!szProductCode), _
-                   fnGetFieldValue(!szTaxUseGroup), fBase, 0, _
+                If fnTaxInformation(fnCStr(!szProductCode), _
+                   fnCStr(!szTaxUseGroup), fBase, 0, _
                    lGross, lNet, sNgu, Taxes(), lCount) Then
                     For j = 0 To lCount - 1
                         If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
-                            If Taxes(j).m_sCode = fnGetFieldValue(rsDelvPassThruTax!szTaxCode) And Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cLimitType = vbKeyP Then
+                            If Taxes(j).m_sCode = fnCStr(rsDelvPassThruTax!szTaxCode) And Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cLimitType = vbKeyP Then
                                 fTaxAmt = fTaxAmt + (tfnRound(Taxes(j).m_dAmount, 2) * nSign)
                             End If
                         End If
