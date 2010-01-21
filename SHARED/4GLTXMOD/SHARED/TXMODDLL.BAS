@@ -284,7 +284,7 @@ Private Type tpProdTaxUseG
     fATaxGGalGross As Double
     fATaxGalNet As Double
     fTotal As Double
-    sNGU As String
+    sNgu As String
 End Type
 Private arryProdTaxUseG() As tpProdTaxUseG
 Private nProdTaxUseGCount As Integer
@@ -1907,7 +1907,7 @@ Public Function fnLoadTaxMods(Optional bShowMsgBox As Boolean = True, _
     Exit Function
     
 errLoadTaxMods:
-    If Err.number = 53 Then
+    If Err.Number = 53 Then
         tfnErrHandler SUB_NAME, ERROR_LOADING1, MOD_DLL_NAME & " is not found in Windows System directory"
     Else
         tfnErrHandler SUB_NAME, ERROR_LOADING2, Err.Description
@@ -2879,7 +2879,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling TXMOD_gl_sd_gals() function in TXMOD32.DLL"
         End If
@@ -2994,7 +2994,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL"
         End If
@@ -3069,7 +3069,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling subSet_AccmTxbleAmt() function in TXMOD32.DLL"
         End If
@@ -3097,7 +3097,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim rsLadHeader As Recordset
     Dim fTaxes As Double
     Dim fBase As Double
-    Dim sNGU As String
+    Dim sNgu As String
     Dim nLine As Integer
     Dim lATaxGal As Long
     Dim fLadingATax As Double
@@ -3367,11 +3367,11 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         'david 02/10/2006  #509841
                         'change to use delivery detail's ngu flag
                         If rsTemp!bGross Then
-                            sNGU = "G"
+                            sNgu = "G"
                             fBase = rsTemp!G_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!G_GAL
                         Else
-                            sNGU = "N"
+                            sNgu = "N"
                             fBase = rsTemp!N_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!N_GAL
                         End If
@@ -3390,7 +3390,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         'change to use delivery detail's product and tax use group
                         If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, _
                            rsLadHeader!lLading, nLine, rsTemp!szProductCode, rsTemp!szTaxUseGroup, _
-                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNGU, nLineType) Then
+                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNgu, nLineType) Then
                             Screen.MousePointer = vbDefault
                             Exit Sub
                         End If
@@ -3444,10 +3444,10 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     Screen.MousePointer = vbHourglass
                     
                     If !bGross Then
-                        sNGU = "G"
+                        sNgu = "G"
                         lATaxGal = !lGross
                     Else
-                        sNGU = "N"
+                        sNgu = "N"
                         lATaxGal = !lNet
                     End If
                     BOL_atx_ptr = BOL_atx_ptr + 1
@@ -3455,7 +3455,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     aryATax(BOL_atx_ptr).fmld_bl_nbr = !lLading
                     aryATax(BOL_atx_ptr).fmld_seq_nbr = !lLineNumber
                     aryATax(BOL_atx_ptr).sum_bunits = lATaxGal
-                    aryATax(BOL_atx_ptr).bl_ngu = sNGU
+                    aryATax(BOL_atx_ptr).bl_ngu = sNgu
                     If lTotATaxGal = 0 Then
                         aryATax(BOL_atx_ptr).a_tax_tot = 0
                     Else
@@ -3488,9 +3488,13 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         End With
         rsLadHeader.MoveNext
     Wend '#Lading
+    
     If BOL_atx_ptr < 0 Then
         Screen.MousePointer = vbDefault
-        Exit Sub
+        'david 01/18/2010  #652495
+        'Exit Sub
+        GoTo lblDoPassThruTax
+        ''''''''''''''''''''''''''
     End If
     
     '#(2) Build Loading Fees in Delivery Side --> put_ldfee_rec
@@ -3533,8 +3537,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 this_tax = 0
                 this_units = 0
                 If bFound Then
-                    sNGU = aryATax(i).bl_ngu
-                    If (sNGU = "N") Then
+                    sNgu = aryATax(i).bl_ngu
+                    If (sNgu = "N") Then
                         this_units = rsMvBal!lNet
                     Else
                         this_units = rsMvBal!lGross
@@ -3755,6 +3759,12 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         End If
     Next
     
+    'david 01/18/2010  #652495
+lblDoPassThruTax:
+    
+    txMod_ProcessPassThruTax m_local, lMovement
+    ''''''''''''''''''''''''''
+    
     'Adjusting Tax Amount in MInvoice local table
     'Vijaya on 12/06/04 Magic#465810
     'Update the Field in MInvoice.fTotalTax (Local)
@@ -3840,7 +3850,7 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
     Dim i As Long
     Dim j As Long
     
-    Dim sNGU As String
+    Dim sNgu As String
     Dim fBase As Double
     Dim sProdTcl As String
     
@@ -3869,10 +3879,10 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
             
             If arryProdTaxUseG(i).sTaxUseG = "" Then
                 If !bGross Then
-                    arryProdTaxUseG(i).sNGU = "G"
+                    arryProdTaxUseG(i).sNgu = "G"
                     fBase = tfnRound(!lGross * !fCost, 2)
                 Else
-                    arryProdTaxUseG(i).sNGU = "N"
+                    arryProdTaxUseG(i).sNgu = "N"
                     fBase = tfnRound(!lNet * !fCost, 2)
                 End If
                 
@@ -3908,10 +3918,10 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
                 
                 If arryProdTaxUseG(i).sTaxUseG = "" Then
                     If !bGross Then
-                        arryProdTaxUseG(i).sNGU = "G"
+                        arryProdTaxUseG(i).sNgu = "G"
                         fBase = tfnRound(!lGross * !fCost, 2)
                     Else
-                        arryProdTaxUseG(i).sNGU = "N"
+                        arryProdTaxUseG(i).sNgu = "N"
                         fBase = tfnRound(!lNet * !fCost, 2)
                     End If
                     arryProdTaxUseG(i).sProductCode = !szProductCode
@@ -3952,7 +3962,7 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
         If fnTaxInformation(arryProdTaxUseG(i).sProductCode, _
            arryProdTaxUseG(i).sTaxUseG, arryProdTaxUseG(i).fTotal, 0, _
            arryProdTaxUseG(i).fATaxGGalGross, arryProdTaxUseG(i).fATaxGalNet, _
-           arryProdTaxUseG(i).sNGU, Taxes(), lCount) Then
+           arryProdTaxUseG(i).sNgu, Taxes(), lCount) Then
             For j = 0 To lCount - 1
                 'need to change the sign first
                 If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
@@ -5725,7 +5735,7 @@ Private Function finv_classes( _
     Exit Function
     
 finv_classesRedim:
-    If Err.number = 9 Then 'Subscript out of range
+    If Err.Number = 9 Then 'Subscript out of range
         ' this is the expected error on the FIRST call to this function; we
         ' must dimension the static array and retry the first reference to it.
         Err.Clear
@@ -5733,7 +5743,7 @@ finv_classesRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.number
+        Err.Raise Err.Number
     End If
     
 End Function    ''finv_classes
@@ -6659,7 +6669,7 @@ errTrap:
         
         If bShowMsgBox Then
             MsgBox "An error has occurred while calling TXMOD_origin_state() function in TXMOD32.DLL." _
-                + vbCrLf + vbCrLf + "Err Code:" & Err.number & ", Err Desc:" & Err.Description & "."
+                + vbCrLf + vbCrLf + "Err Code:" & Err.Number & ", Err Desc:" & Err.Description & "."
         Else
             sErrMsg = "An error has occurred while calling TXMOD_tx_date() function in TXMOD32.DLL"
         End If
@@ -6695,3 +6705,141 @@ Public Sub subSetOriginState(ByVal iPrftCtr As Integer, Optional ByVal sIEFlag A
     sTXMODOriginState = Trim(rsTemp!city_state & "")
 End Sub
 '''''''''''''''''''''''''''
+
+
+'david 01/18/2010  #652495
+Public Sub txMod_ProcessPassThruTax(m_local As DataBase, lMovement As Long)
+    Const SUB_NAME = "txMod_ProcessPassThruTax"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    Dim fTaxAmt As Double
+
+    '#Test if "cLimitType" is a column in local table
+    '#MTaxDetail. If not, this routine will exist. In other
+    '#words, the new routine needes this field.
+    strSQL = "SELECT cLimitType FROM MTaxDetail WHERE lMovement = " & lMovement
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+         Exit Sub
+    End If
+    
+    strSQL = "SELECT lDelivery, lLineNumber, szTaxCode"
+    strSQL = strSQL + " FROM MTaxDetail"
+    strSQL = strSQL + " WHERE lMovement = " & lMovement
+    strSQL = strSQL + " and cLimitType = 'P'"
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+         Exit Sub
+    End If
+    
+    With rsTemp
+        While Not .EOF
+            fTaxAmt = fnGetLadingPassThruTax(rsTemp, m_local, lMovement)
+            
+            If fTaxAmt <> -99999.99999 Then
+                strSQL = "update MTaxDetail"
+                strSQL = strSQL + " set fTaxAmount = " & tfnRound(fTaxAmt, 2)
+                strSQL = strSQL + " where lMovement = " & lMovement
+                strSQL = strSQL + " and lDelivery = " & tfnRound(!lDelivery)
+                strSQL = strSQL + " and lLineNumber = " & tfnRound(!lLineNumber)
+                strSQL = strSQL + " and szTaxCode = " + tfnSQLString(!szTaxCode)
+                txMod_ExeCuteSQL strSQL, , , m_local
+            End If
+            
+            .MoveNext
+        Wend
+    End With
+End Sub
+
+Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local As DataBase, lMovement As Long) As Double
+    Const SUB_NAME = "fnGetLadingPassThruTax"
+    
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    Dim Taxes() As CApplicableTaxes
+    Dim lCount As Long
+    Dim i As Long
+    Dim j As Long
+    
+    Dim nSign As Integer
+    Dim sNgu As String
+    Dim lGross As Double
+    Dim lNet As Double
+    Dim fBase As Double
+    Dim fTaxAmt As Double
+    
+    fnGetLadingPassThruTax = -99999.99999
+
+    With rsDelvPassThruTax
+        strSQL = "select MBalance.lGross, MBalance.lNet, MLadingDetail.fCost,"
+        strSQL = strSQL & " MLadingDetail.szTaxUseGroup, MLadingDetail.bGross,"
+        strSQL = strSQL & " MLadingDetail.szProductCode, MBalance.fExtendedCost"
+        strSQL = strSQL & " from MBalance, MDelivery, MLading, MLadingDetail"
+        strSQL = strSQL & " where MBalance.lMovement= MLading.lMovement"
+        strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
+        strSQL = strSQL & " and MLading.lMovement= MLadingDetail.lMovement"
+        strSQL = strSQL & " and MLading.lLading = MLadingDetail.lLading"
+        strSQL = strSQL & " and MBalance.lLadingLine = MLadingDetail.lLineNumber"
+        strSQL = strSQL & " and MBalance.lMovement= MDelivery.lMovement"
+        strSQL = strSQL & " and MBalance.lDelivery= MDelivery.lDelivery"
+        strSQL = strSQL & " and MBalance.lDelivery = " & !lDelivery
+        strSQL = strSQL & " and MBalance.lDeliveryLine = " & !lLineNumber
+        strSQL = strSQL & " and MBalance.lMovement = " & lMovement
+        strSQL = strSQL & " and MLading.bExternal = TRUE"
+        strSQL = strSQL & " and MDelivery.bExternal = TRUE"
+    End With
+    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
+    If rsTemp Is Nothing Then
+         Exit Function
+    ElseIf rsTemp.RecordCount = 0 Then
+         Exit Function
+    End If
+    
+    With rsTemp
+        fTaxAmt = 0#
+        
+        While Not .EOF
+            If fnGetFieldValue(!szTaxUseGroup) <> "" Then
+                lGross = !lGross
+                lNet = !lNet
+                
+                If !bGross Then
+                    sNgu = "G"
+                    fBase = tfnRound(!lGross * !fCost, 2)
+                Else
+                    sNgu = "N"
+                    fBase = tfnRound(!lNet * !fCost, 2)
+                End If
+                
+                If fBase < 0 Then
+                    nSign = -1
+                    lGross = -lGross
+                    lNet = -lNet
+                    fBase = -fBase
+                Else
+                    nSign = 1
+                End If
+            
+                If fnTaxInformation(fnGetFieldValue(!szProductCode), _
+                   fnGetFieldValue(!szTaxUseGroup), fBase, 0, _
+                   lGross, lNet, sNgu, Taxes(), lCount) Then
+                    For j = 0 To lCount - 1
+                        If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
+                            If Taxes(j).m_sCode = fnGetFieldValue(rsDelvPassThruTax!szTaxCode) And Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cLimitType = vbKeyP Then
+                                fTaxAmt = fTaxAmt + (tfnRound(Taxes(j).m_dAmount, 2) * nSign)
+                            End If
+                        End If
+                    Next j
+                End If
+            End If
+            .MoveNext
+        Wend
+    End With
+    
+    fnGetLadingPassThruTax = fTaxAmt
+End Function
+''''''''''''''''''''''''''
+
