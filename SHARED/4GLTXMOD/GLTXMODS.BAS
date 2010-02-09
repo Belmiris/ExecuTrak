@@ -178,6 +178,9 @@ Public bUseGLAdjust As Boolean
 Public lAdjGLAccount As Long
 Public sTaxUseGroup As String
 
+Private origin_state As String      'Vijaya on 11/13/09 #647512
+'
+
 Public Sub initialize_tax_buffers()
     error_found = False
     
@@ -208,6 +211,7 @@ Public Sub initialize_tax_buffers()
     
     start_ldfee
 
+    origin_state = "^^"     'Vijaya on 11/13/09 #647512
 End Sub
 
 
@@ -467,7 +471,7 @@ End Sub
             
 
 Public Sub extrn_bl_gl(this_pc As Long, _
-                     product As String, _
+                     Product As String, _
                      tax_use As String, _
                      ByVal tunits As Double, _
                      ByVal nunits As Double, _
@@ -478,7 +482,7 @@ Public Sub extrn_bl_gl(this_pc As Long, _
     
     '# if the 'include taxes in cost layer' option is being used
     '# sysparm 1006 = Y, then tax_acct will be non-zero
-    setup_for_gl product, this_pc, tax_acct
+    setup_for_gl Product, this_pc, tax_acct
     sTaxUseGroup = tax_use
     If found_error Then
         Exit Sub
@@ -515,8 +519,8 @@ Public Sub extrn_bl_gl(this_pc As Long, _
         End If
 
         init_tax_amt tdolrs
-        fnd_smmry product
-        fnd_grp_tax product
+        fnd_smmry Product
+        fnd_grp_tax Product
 
         For i = 1 To trn_arry_cnt
             Select Case trn_arry(i).ttype
@@ -570,13 +574,13 @@ Public Sub extrn_bl_gl(this_pc As Long, _
 
 End Sub
 
-Public Sub extrn_ap_gl(this_pc As Long, product As String, tax_use As String, tunits As Double, _
+Public Sub extrn_ap_gl(this_pc As Long, Product As String, tax_use As String, tunits As Double, _
                             tdolrs As Double, cost As Double)
     
-    setup_for_gl product, this_pc, 0
+    setup_for_gl Product, this_pc, 0
     
     If found_error Then
-        If product <> "" Then
+        If Product <> "" Then
             Exit Sub
         End If
     End If
@@ -594,13 +598,13 @@ Public Sub extrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
 
 End Sub
 
-Public Sub intrn_ap_gl(this_pc As Long, product As String, tax_use As String, tunits As Double, _
+Public Sub intrn_ap_gl(this_pc As Long, Product As String, tax_use As String, tunits As Double, _
                             tdolrs As Double, cost As Double)
     
-    setup_for_gl product, this_pc, 0
+    setup_for_gl Product, this_pc, 0
     
     If found_error Then
-        If product <> "" Then
+        If Product <> "" Then
             Exit Sub
         End If
     End If
@@ -619,7 +623,7 @@ Public Sub intrn_ap_gl(this_pc As Long, product As String, tax_use As String, tu
 End Sub
 
 Public Sub intrn_bl_gl(this_pc As Long, _
-                       product As String, _
+                       Product As String, _
                        tax_use As String, _
                        ByVal tunits As Double, _
                        ByVal nunits As Double, _
@@ -630,7 +634,7 @@ Public Sub intrn_bl_gl(this_pc As Long, _
     
     On Error GoTo errTrap
     
-    setup_for_gl product, this_pc, tax_acct
+    setup_for_gl Product, this_pc, tax_acct
     
     If found_error Then
         Exit Sub
@@ -666,8 +670,8 @@ Public Sub intrn_bl_gl(this_pc As Long, _
         End If
 
         init_tax_amt tdolrs
-        fnd_smmry product
-        fnd_grp_tax product
+        fnd_smmry Product
+        fnd_grp_tax Product
 
         For i = 1 To trn_arry_cnt
             Select Case trn_arry(i).ttype
@@ -739,7 +743,7 @@ errTrap:
 End Sub
 
 Public Sub intrn_del_gl(this_pc As Long, _
-                        product As String, _
+                        Product As String, _
                         tax_use As String, _
                         ByVal tunits As Double, _
                         ByVal nunits As Double, _
@@ -747,7 +751,7 @@ Public Sub intrn_del_gl(this_pc As Long, _
                         ByVal tdolrs As Double, _
                         ByVal cost As Double)
     
-    setup_for_gl product, this_pc, 0
+    setup_for_gl Product, this_pc, 0
     If found_error Then
         Exit Sub
     End If
@@ -783,8 +787,8 @@ Public Sub intrn_del_gl(this_pc As Long, _
         End If
 
         init_tax_amt tdolrs
-        fnd_smmry product
-        fnd_grp_tax product
+        fnd_smmry Product
+        fnd_grp_tax Product
 
         For i = 1 To trn_arry_cnt
             Select Case trn_arry(i).ttype
@@ -841,7 +845,7 @@ Public Sub intrn_del_gl(this_pc As Long, _
 
 End Sub
 
-Public Sub extrn_del_gl(this_pc As Long, product As String, _
+Public Sub extrn_del_gl(this_pc As Long, Product As String, _
                         tax_use As String, ByVal tunits As Double, _
                         ByVal nunits As Double, ByVal gunits As Double, _
                         ByVal tdolrs As Double, ByVal cost As Double, _
@@ -849,7 +853,7 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
     
     On Error GoTo errTrap
     
-    setup_for_gl product, this_pc, 0
+    setup_for_gl Product, this_pc, 0
     sTaxUseGroup = tax_use
     If found_error Then
         Exit Sub
@@ -902,6 +906,11 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
             Exit Sub
         End If
 
+        'Set Origin State if necessary
+        If origin_state = "^^" Then
+            set_dflt_origin this_pc
+        End If
+        
         trn_arry_cnt = 0
         load_trn_arry found_error, error_found
         If found_error Then
@@ -909,8 +918,8 @@ Public Sub extrn_del_gl(this_pc As Long, product As String, _
         End If
 
         init_tax_amt tdolrs
-        fnd_smmry product
-        fnd_grp_tax product
+        fnd_smmry Product
+        fnd_grp_tax Product
 
         For i = 1 To trn_arry_cnt
             Select Case trn_arry(i).ttype
@@ -1074,9 +1083,11 @@ Public Sub post_tax(bod As String, tax_gl As Long, charge_flag As String, post_a
 End Sub
 
 Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
-    Dim si As Integer, sj As Integer, changed As Integer
+    Dim si As Integer, sj As Integer, Changed As Integer
     Dim skeyi As String * 22, skeyj As String * 22
     Dim found_sw As Integer, sSql As String, pr_use_link As Recordset
+    Dim buseTax As Boolean
+    
 
     On Error GoTo errTrap
     
@@ -1096,27 +1107,38 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
         pr_use_link.MoveLast
         pr_use_link.MoveFirst
         While Not pr_use_link.EOF
-            trn_arry_cnt = trn_arry_cnt + 1
-            ReDim Preserve trn_arry(trn_arry_cnt)
-            j = trn_arry_cnt
-            If j <= trn_max Then
-                trn_arry(j).trn = pr_use_link.tul_trn
-                trn_arry(j).ulink = pr_use_link.tul_link
-                trn_arry(j).ttype = pr_use_link.txd_basis
-                trn_arry(j).amount = pr_use_link.txd_rate
-                trn_arry(j).charge = pr_use_link.txd_charge
-                trn_arry(j).tt_gl_acct = pr_use_link.txd_gl_acct
-                trn_arry(j).limit = pr_use_link.txd_limit
-                'we don't use limit_type
-                trn_arry(j).order_group = pr_use_link.txd_order
-                Set pr_gl_master = fgl_master(sSeries, trn_arry(j).tt_gl_acct, gpc_num, t_dbMainDatabase)
-                
-                If pr_gl_master Is Nothing Then
-                    pr_gl_master_glm_account = trn_arry(j).tt_gl_acct
-                    pr_gl_master_glm_prft_ctr = gpc_num
-                    bParam1 = True
-                    nParam2 = 10
-                    Exit Sub
+            'Check Origin State if tax is restricted on the Origin
+            buseTax = True
+            If fnCheck_txh_origin_st Then
+                If fnCStr(pr_use_link.txh_origin_st) <> "" Then
+                    If fnCStr(pr_use_link.txh_origin_st) <> origin_state Then
+                        buseTax = False
+                    End If
+                End If
+            End If
+            If buseTax Then
+                trn_arry_cnt = trn_arry_cnt + 1
+                ReDim Preserve trn_arry(trn_arry_cnt)
+                j = trn_arry_cnt
+                If j <= trn_max Then
+                    trn_arry(j).trn = pr_use_link.tul_trn
+                    trn_arry(j).ulink = pr_use_link.tul_link
+                    trn_arry(j).ttype = pr_use_link.txd_basis
+                    trn_arry(j).amount = pr_use_link.txd_rate
+                    trn_arry(j).charge = pr_use_link.txd_charge
+                    trn_arry(j).tt_gl_acct = pr_use_link.txd_gl_acct
+                    trn_arry(j).limit = pr_use_link.txd_limit
+                    'we don't use limit_type
+                    trn_arry(j).order_group = pr_use_link.txd_order
+                    Set pr_gl_master = fgl_master(sSeries, trn_arry(j).tt_gl_acct, gpc_num, t_dbMainDatabase)
+                    
+                    If pr_gl_master Is Nothing Then
+                        pr_gl_master_glm_account = trn_arry(j).tt_gl_acct
+                        pr_gl_master_glm_prft_ctr = gpc_num
+                        bParam1 = True
+                        nParam2 = 10
+                        Exit Sub
+                    End If
                 End If
             End If
             pr_use_link.MoveNext
@@ -1234,9 +1256,9 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
 '!!!!!!
 'NOTE: 01/15/99 DAVID CHAI --- USE THE ELEMENT 0 AS A TEMPORARY STORAGE
 
-    changed = trn_arry_cnt
-    While changed > 1
-        changed = 0
+    Changed = trn_arry_cnt
+    While Changed > 1
+        Changed = 0
         For si = 2 To trn_arry_cnt
             sj = si - 1
             skeyi = Format(trn_arry(si).order_group, "######") & Format(trn_arry(si).limit, "###########")
@@ -1245,7 +1267,7 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
                 trn_arry(0) = trn_arry(si)
                 trn_arry(si) = trn_arry(sj)
                 trn_arry(sj) = trn_arry(0)
-                changed = si
+                Changed = si
             End If
         Next
     Wend
@@ -1408,7 +1430,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
     Dim freight_tmp As Double
     Dim hold_basis As String * 1
     Dim delta As Double
-    Dim sWHERE As String
+    Dim sWhere As String
     
     'Vijaya on 02/05/04 Magic#395302
     Dim stx_charge As String
@@ -1466,7 +1488,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         If Not pr_header_detail Is Nothing Then
             If pr_header_detail.RecordCount > 0 Then
                If Not IsNull(pr_header_detail!txh_where) Then
-                    sWHERE = Trim(pr_header_detail!txh_where)
+                    sWhere = Trim(pr_header_detail!txh_where)
                End If
                stx_charge = pr_header_detail!txd_charge
             End If
@@ -1476,7 +1498,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         If Not pr_table Is Nothing Then
             If pr_table.RecordCount > 0 Then
                If Not IsNull(pr_table!tt_where) Then
-                    sWHERE = Trim(pr_table!tt_where)
+                    sWhere = Trim(pr_table!tt_where)
                End If
                stx_charge = pr_table!tt_charge
             End If
@@ -1550,7 +1572,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         '#This was wrong. Should use trn. WJ, 4/01/2003,Magic 404131
         
         '#If it is Florida State Taxes
-        If sWHERE = "FL" Then
+        If sWhere = "FL" Then
             'tax_amount = florida_bracket_tax(wrk_amount, rate)
             tax_amount = round_up_sls_tx(wrk_amount * rate)
         Else
@@ -2295,14 +2317,14 @@ Private Function fnCStr(vTemp As Variant) As String
 End Function
 
 Private Function fnCheckNonStkMstr(rsIn As Recordset, _
-                                   lProdLnk As Long, _
+                                   lProdlnk As Long, _
                                    lPrftCtr As Long) As Boolean
     
     Const SUB_NAME As String = "fnCheckNonStkMstr"
     Dim sSql As String
     
     sSql = "SELECT ponsm_gl_cost AS invt_gl_cost, 0 AS invt_gl_sales, " _
-        + "0 AS invt_gl_invt FROM po_non_stock_mstr WHERE ponsm_link = " & lProdLnk _
+        + "0 AS invt_gl_invt FROM po_non_stock_mstr WHERE ponsm_link = " & lProdlnk _
         & " AND ponsm_prft_ctr = " & lPrftCtr
         
     fnCheckNonStkMstr = fnGetRecord(rsIn, sSql, nDBInformix, SUB_NAME, False) > 0
@@ -2459,7 +2481,7 @@ End Function
     Exit Function
     
 ftx_tableRedim:
-    If Err.Number = 9 Then 'Subscript out of range
+    If Err.number = 9 Then 'Subscript out of range
         ' this is the expected error on the FIRST call to this function; we
         ' must dimension the static array and retry the first reference to it.
         Err.Clear
@@ -2467,8 +2489,29 @@ ftx_tableRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.Number
+        Err.Raise Err.number
     End If
     
 End Function    ''ftx_table
 ''''''''''''''''''''''''''''''''
+
+'Vijaya on 11/13/09 #647512
+Private Sub set_dflt_origin(ByVal iPrftCtr As Integer)
+    Const SUB_NAME As String = "set_dflt_origin"
+    
+    Dim rsTemp  As Recordset
+    Dim strSQL  As String
+    
+    If iPrftCtr < 0 Then
+        Exit Sub
+    End If
+    
+    strSQL = "SELECT city_state FROM sys_prft_ctr,sys_city "
+    strSQL = strSQL & "  WHERE prft_city = city_code "
+    strSQL = strSQL & "    AND prft_ctr  = " & tfnRound(iPrftCtr)
+    If fnGetRecord(rsTemp, strSQL, nDBInformix, SUB_NAME) < 1 Then
+        Exit Sub
+    End If
+    origin_state = Trim(rsTemp!city_state & "")
+End Sub
+'''''''''''''''''''''''''''
