@@ -27,6 +27,7 @@ Private m_sAppName As String
 Private m_sProcName As String
 Private m_vErrorCode As Variant
 Private m_sErrorDesc As String
+Private m_lErrorLine As Long
 Private m_sOdbcErrorDesc As String
 Private m_sSqlStatement As String
 Private m_sOccurDateTime As String
@@ -36,7 +37,7 @@ Private m_bAlwaysShowMessage As Boolean
 
 Private m_sErrScrnPath As String
 Private m_sLogFilePath As String
-Private m_dbLocal As DataBase
+Private m_dbLocal As Database
 Private m_nLogTo As Integer
 Private m_bCirCular As Boolean
 Private m_nMaxErrors As Integer
@@ -112,6 +113,7 @@ Public Function ErrorHandler(sProcName As String, _
     m_sProcName = sProcName
     m_vErrorCode = Err.Number
     m_sErrorDesc = Err.Description
+    m_lErrorLine = Erl()
     
     If Not IsMissing(vExecProcMessage) Then
         If VarType(vExecProcMessage) = vbString Then
@@ -239,6 +241,7 @@ Public Function ErrorHandler(sProcName As String, _
             End If
     End Select
     Err.Clear
+    m_lErrorLine = 0
 
     Exit Function
 
@@ -330,7 +333,7 @@ Public Property Set DatabaseEngine(dbEngTmp As DBEngine)
     Set m_engFactor = dbEngTmp
 End Property
 
-Public Property Set LocalDatabase(dbLocal As DataBase)
+Public Property Set LocalDatabase(dbLocal As Database)
     Set m_dbLocal = dbLocal
 End Property
 
@@ -404,6 +407,9 @@ Private Function fnGetErrorMessage(Optional nErrorType As Variant) As String
     On Error GoTo 0
     
     sMsg = "An error has occurred in Module '" & m_sAppName & "', function '" & sProcName(0) & "'."
+    If m_lErrorLine <> 0 Then
+        sMsg = sMsg & " Erl = " & m_lErrorLine & "."
+    End If
     If sProcName(1) <> "" Then
         sMsg = sMsg & "  Called From '" & sProcName(1) & "'." & vbCrLf
     End If
@@ -672,7 +678,7 @@ End Function
 
 Private Function WriteToDB(sMsg As String) As Boolean
     Dim rsTemp As Recordset, sErrMsg As String, i As Integer, sSql As String
-    Dim iFileNumber As Integer, fdObject As Field
+    Dim iFileNumber As Integer, fdObject As field
     
     If m_dbLocal Is Nothing Then
         Exit Function

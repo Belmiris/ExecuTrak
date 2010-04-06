@@ -17,10 +17,19 @@ Private Const m_COLHEADING As String = "C-H"
 Private Const m_ALIGNLEFT As String = "A-L"
 Private Const m_FONTBOLD As String = "F-B"
 
+Private m_bEnabled As Boolean
 Private m_tgTable As TDBGrid
 Private m_tgcEditor As clsTGSpreadSheet
 Private colColorCondition As New Collection
 '
+
+Property Let Enabled(bOnOff As Boolean)
+    m_bEnabled = bOnOff
+End Property
+
+Property Get Enabled() As Boolean
+    Enabled = m_bEnabled
+End Property
 
 Property Set Table(tbl As TDBGrid)
     Set m_tgTable = tbl
@@ -284,7 +293,11 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
     
     On Error GoTo errTrap
     
-    lRow = val(Bookmark)
+    If Not m_bEnabled Then
+        Exit Sub
+    End If
+    
+    lRow = Val(Bookmark)
     
     If lRow < 0 Then
         Exit Sub
@@ -466,7 +479,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             Select Case UCase(sOP)
             Case "<>"  'numeric/date/string not equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) <> val(sRightValue) Then
+                    If Val(sLeftValue) <> Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -480,7 +493,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "==", "=" 'numeric/date/string equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) = val(sRightValue) Then
+                    If Val(sLeftValue) = Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -494,7 +507,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<="  'numeric/date/string less than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) <= val(sRightValue) Then
+                    If Val(sLeftValue) <= Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -508,7 +521,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">="  'numeric/date/string greater than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) >= val(sRightValue) Then
+                    If Val(sLeftValue) >= Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -522,7 +535,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<"  'numeric/date/string less than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) < val(sRightValue) Then
+                    If Val(sLeftValue) < Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -536,7 +549,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">"  'numeric/date/string greater than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) > val(sRightValue) Then
+                    If Val(sLeftValue) > Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
