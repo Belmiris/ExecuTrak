@@ -544,19 +544,19 @@ Property Get BackOnce() As Integer
     BackOnce = BACK_ONCE
 End Property
 
-Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, CANCEL As Integer)
+Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, Cancel As Integer)
     
     DataEdited = False
     If bLocked Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     End If
     If IsNull(tgTable.Row) Then
-        CANCEL = True
+        Cancel = True
         Exit Sub
     Else
         If Val(tgTable.Row) < 0 Then
-            CANCEL = True
+            Cancel = True
             Exit Sub
         End If
     End If
@@ -2339,7 +2339,7 @@ errTrap:
     If Not m_bIgnoreCellValueError Then
         Dim sErrMsg As String
         sErrMsg = "An error has occurred in CellValue()." & vbCrLf & vbCrLf
-        sErrMsg = sErrMsg & "Err Code: " & Err.Number & vbCrLf & "Err Desc: " & Err.Description
+        sErrMsg = sErrMsg & "Err Code: " & err.Number & vbCrLf & "Err Desc: " & err.Description
         MsgBox sErrMsg, vbExclamation
     End If
     
@@ -3147,8 +3147,8 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         End If
     #End If
     
-    sODBCErrors = Err.Description
-    If Err.Number = 3146 Then
+    sODBCErrors = err.Description
+    If err.Number = 3146 Then
         If Not engDBEngine Is Nothing Then
             With engDBEngine.Errors
                 If .Count > 0 Then
@@ -3170,7 +3170,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
-            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
+            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(err.Number) & vbCrLf & err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -3196,7 +3196,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     If sMsg <> "" Then
         MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
-    Err.Clear
+    err.Clear
 
 End Sub
 
@@ -3547,8 +3547,8 @@ extFill:
 errHandler:
     'david 05/06/2003  #408907
     'to trap the out of memory RTE
-    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
-        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
+        & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
     ClearData
     Resume extFill
 End Sub
@@ -3700,15 +3700,15 @@ extFill:
     Exit Sub
 
 errFill:
-    MsgBox Err.Description, nCRITICAL   ', App.Caption
-    Err.Clear
+    MsgBox err.Description, nCRITICAL   ', App.Caption
+    err.Clear
     Resume extFill
 
 errHandler:
     'david 05/06/2003  #408907
     'to trap the out of memory RTE
-    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
-        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
+        & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
     ClearData
     Resume extFill
 End Sub
@@ -3867,14 +3867,14 @@ retTrue:
     On Error GoTo 0
     Exit Function
 retFalse:
-    If Err.Number = 13 Then
+    If err.Number = 13 Then
         lRow = tgTable.Row
         Resume Next
-    ElseIf Err.Number = 6148 Then
+    ElseIf err.Number = 6148 Then
         SendKeys "{DOWN}", True
     Else
         fnGotoNextRow = False
-        Err.Clear
+        err.Clear
         Resume retTrue
     End If
 End Function
@@ -3900,7 +3900,7 @@ retTrue1:
     On Error GoTo 0
     Exit Function
 retFalse1:
-    Err.Clear
+    err.Clear
     Resume retTrue1
 End Function
 
@@ -4288,11 +4288,11 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
     Exit Function
     
 errKeyDown:
-    If Err.Number <> 28 Then
+    If err.Number <> 28 Then
         On Error GoTo 0
         Resume
     End If
-    Err.Clear
+    err.Clear
     nKeyProcessing = KEY_P_FINISHED
 
 End Function
@@ -4695,7 +4695,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
     Exit Function
 
 errRowChanging:
-    Err.Clear
+    err.Clear
     bRowChanging = False
 End Function
 
@@ -5099,7 +5099,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
 errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
-        Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
+        err.Number & vbCrLf & "Error Desc: " & err.Description, vbExclamation
 End Sub
 
 'david 05/26/2002
@@ -5162,12 +5162,12 @@ Public Function SortCol(nSortCol As Integer, Optional bUseInitSortOrder As Boole
     End If
     
     For j = 0 To m_arySortKeysCount(nCOL_KEYS_COUNT, nIndex)
-        sSortCols = sSortCols + "Col " & m_arySortCol(j, nIndex).nColIndex & " "
+        sSortCols = sSortCols + "Col " & m_arySortCol(j, nIndex).nColIndex + 1 & " "
         
         If bUseInitSortOrder Then
             nAscDesc = m_arySortCol(j, nIndex).nInitSortOrder
         Else
-            nAscDesc = m_arySortCol(j, nIndex).nInitSortOrder
+            nAscDesc = m_arySortCol(j, nIndex).nSortOrder
         End If
         
         If nAscDesc = ASCENDING Then
@@ -5670,11 +5670,11 @@ End Function
 'TO SET/RESTORE THE HIGHLIGHTED ROW PROPERLY
 
 'SHOULD BE CALLED ALSO IF THE SELECTOR (ROW HIGHLIGHTING) FEATURE IS USED
-Public Sub SelChange(CANCEL As Integer)
+Public Sub SelChange(Cancel As Integer)
     If lCountHighlightedID = 0 Then
-        CANCEL = True
+        Cancel = True
     Else
-        CANCEL = False
+        Cancel = False
         tgTable.SelStartCol = -1
         tgTable.SelEndCol = -1
         subReHighlightRows
@@ -6032,15 +6032,15 @@ extFill:
         Exit Sub
 
 errFill:
-        MsgBox Err.Description, nCRITICAL   ', App.Caption
-        Err.Clear
+        MsgBox err.Description, nCRITICAL   ', App.Caption
+        err.Clear
         Resume extFill
     
 errHandler:
         'david 05/06/2003  #408907
         'to trap the out of memory RTE
-        MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
-            & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+        MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
+            & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
         ClearData
         Resume extFill
     End Sub
