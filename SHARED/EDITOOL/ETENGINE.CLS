@@ -492,7 +492,7 @@ Private Function fnFormatDate(sDate As String) As String
 End Function
 
 Private Function fnGetVBError() As String
-    fnGetVBError = "VB run-time error# " & Err.Number & ": " & Err.Description
+    fnGetVBError = "VB run-time error# " & Err.number & ": " & Err.Description
 End Function
 
 Private Function fnWriteLine(sTemp As String, _
@@ -506,7 +506,7 @@ Private Function fnWriteLine(sTemp As String, _
     fnWriteLine = True
     Exit Function
 errWirte:
-    m_nErrorNumber = Err.Number
+    m_nErrorNumber = Err.number
     m_sLastVBError = fnGetVBError
     fnWriteLine = False
 End Function
@@ -862,8 +862,11 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
 
     'retrieve wholesale fuel taxes
     'david 05/22/2006  #519078
-    If m_sEDIType = EDI_TYPE_D Or (nTypeCode = "2" And m_nTFSTCount >= 0) Then
+    'david 04/07/2010  #663236-1920
+    'pull taxes in wholesale invoices into schedule 3
+    If m_sEDIType = EDI_TYPE_D Or (nTypeCode = "2" And m_nTFSTCount >= 0) Or nTypeCode = "3" Then
     ''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''
         strSQL = "DROP TABLE fm_temp1"
         fnExecuteSQL strSQL, SUB_NAME
         strSQL = "DROP TABLE fm_temp2"
@@ -2176,7 +2179,7 @@ Public Sub FileHeaderID(sOutgoingOurGsID As String)
     
     Exit Sub
 errOpenFile:
-    m_nErrorNumber = Err.Number
+    m_nErrorNumber = Err.number
     m_sLastVBError = fnGetVBError
 End Sub
 
