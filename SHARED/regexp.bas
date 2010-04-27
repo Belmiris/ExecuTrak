@@ -345,7 +345,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             #Else
                 'Keep 4-digit-year only if the centuries are different
                 nPos1 = Year(Date) \ 100     'This century
-                nPos2 = val(sYear) \ 100     'Input century
+                nPos2 = Val(sYear) \ 100     'Input century
                 If nPos1 <> nPos2 Then
                     sFmt = FMT_DATE_LONG
                 End If
@@ -365,7 +365,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             'Keep the century if it is against 50 years rule, otherwise, drop it
             'Check whether it is against 50 years rule.
             nPos1 = Year(Date)      'This year
-            nPos2 = val(sYear)     'Input year
+            nPos2 = Val(sYear)     'Input year
             If Abs(nPos1 - nPos2) >= 50 Then
                 sFmt = FMT_DATE_LONG
             Else
@@ -462,7 +462,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = val(sYear)
+        tfnYear = Val(sYear)
     End If
 End Function
 
@@ -805,7 +805,7 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
+    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
         Exit Function
     Else
         fnFormatTime = sHH + ":" & sMM
@@ -815,6 +815,93 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End If
     End If
 End Function
+
+'sTime is in the format of (hh:mm[:ss])
+'S - to second
+'M - to minute
+Public Function tfnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String) As String
+    Dim nPosi As Integer
+    Dim sTemp As String
+    Dim sHH As String
+    Dim sMM As String
+    Dim sSS As String
+    
+    sToMinuteOrSecond = UCase(sToMinuteOrSecond)
+    
+    tfnFormatTime = ""
+    
+    sTime = Trim(sTime)
+    
+    If sTime = "" Then Exit Function
+    
+    If Len(sTime) < 2 Or Len(sTime) > 8 Then
+        If Len(sTime) > 8 And (UCase(Right(sTime, 2)) = "AM" Or UCase(Right(sTime, 2)) = "PM") Then
+            sTime = Format(sTime, "hh:mm:ss")
+        Else
+            Exit Function
+        End If
+    End If
+    
+    nPosi = InStr(sTime, ":")
+    
+    If nPosi > 0 Then
+        'parse hh:mm:ss
+        sHH = Left(sTime, nPosi - 1)
+        If Len(sHH) > 2 Then
+            sMM = Format(Right(sHH, 2), "00")
+            sHH = Format(Left(sHH, 2), "00")
+        Else  '= 2
+            sHH = Format(Left(sTime, nPosi - 1), "00")
+        End If
+        
+        sTemp = Mid(sTime, nPosi + 1)
+        
+        nPosi = InStr(sTemp, ":")
+        
+        If nPosi > 0 Then
+            sMM = Format(Left(sTemp, nPosi - 1), "00")
+            sSS = Format(Mid(sTemp, nPosi + 1), "00")
+        Else
+            If Len(sTemp) > 2 Then
+                sMM = Format(Left(sTemp, 2), "00")
+                sSS = Format(Right(sTemp, 2), "00")
+            Else  '= 2
+                sMM = Format(sTemp, "00")
+                sSS = "00"
+            End If
+        End If
+    Else
+        If Len(sTime) Mod 2 <> 0 Then
+            Exit Function
+        End If
+        
+        Select Case Len(sTime)
+            Case 2
+                sHH = Format(sTime, "00")
+                sMM = "00"
+                sSS = "00"
+            Case 4
+                sHH = Format(Left(sTime, 2), "00")
+                sMM = Format(Right(sTime, 2), "00")
+                sSS = "00"
+            Case 6
+                sHH = Format(Left(sTime, 2), "00")
+                sMM = Format(Mid(sTime, 3, 2), "00")
+                sSS = Format(Right(sTime, 2), "00")
+        End Select
+    End If
+
+    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
+        Exit Function
+    Else
+        tfnFormatTime = sHH + ":" & sMM
+        
+        If sToMinuteOrSecond = "S" Then
+            tfnFormatTime = tfnFormatTime + ":" & sSS
+        End If
+    End If
+End Function
+
 
 'sYearTo argument required only when bUsedInWhereClause = True
 'Y-year to year
@@ -903,7 +990,7 @@ Public Function fnParseDateTime(ByVal sDateTime As String, _
         Exit Function
     End If
 
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     
     nPosi = InStr(sDateTime, " ")
     
@@ -940,7 +1027,7 @@ Public Function fnParseDateTime(ByVal sDateTime As String, _
     
     Exit Function
     
-errHandler:
+ErrHandler:
     
 End Function
 
