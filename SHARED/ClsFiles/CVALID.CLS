@@ -90,6 +90,8 @@ Option Explicit
     Private nFlagFocus As Integer
 
     Private nValidating As Integer
+    '
+    
 Public Function BoxInList(txtBox As Object) As Boolean
     Dim nNum As Integer
     nNum = fnBoxNumber(txtBox.TabIndex)
@@ -936,6 +938,7 @@ Public Function LostFocus2(txtBox As Object, Optional colControls As Collection)
 rsmNext:
     Resume Next
 End Function
+
 Property Get BackAlways() As Integer
     BackAlways = TYPE_BACK_ALWAYS
 End Property
@@ -943,6 +946,7 @@ End Property
 Property Get BackOnce() As Integer
     BackOnce = TYPE_BACK_ONCE
 End Property
+
 Public Sub SetErrorMessage(oBox As Object, Msg As String)
     Dim nBox As Integer
     nBox = fnBoxNumber(oBox.TabIndex)
@@ -1086,4 +1090,14 @@ Private Function fnGetErrorMessage(nControlNumber As Integer, Optional bJustGive
     
     fnGetErrorMessage = sAddMessage
 End Function
+
+'valid type is
+'BackOnce, BackAlways, NotEscapable
+Public Sub SetType(oBox As Object, nType As Integer)
+    Dim nBox As Integer
+    nBox = fnBoxNumber(oBox.TabIndex)
+    If nBox >= 0 Then
+        tpControls(nBox).m_nType = nType
+    End If
+End Sub
 
