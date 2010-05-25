@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmContext 
    Caption         =   "Toolbar Kit"
    ClientHeight    =   1485
@@ -289,7 +289,7 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
     
     Exit Sub
 errSetup:
-    If Err.Number Then
+    If Err.number Then
         If bInitSet Then
             If frmMainForm.RegisterDll(TbkitDllPath, False) Then
                 bInitSet = False
@@ -352,13 +352,13 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
     subCheckError
     Exit Sub
 errSetup1:
-    If Err.Number = 429 Then
+    If Err.number = 429 Then
         MsgBox "Toolbar OLE is not registered properly. Please contact Factor."
     End If
 End Sub
 
 
-Public Sub ButtonClick(Button As Button)
+Public Sub ButtonClick(Button As MSComctlLib.Button)
     If Not objToolbar Is Nothing Then
         subShowBusyState True, Button.Key
         objToolbar.ButtonClick Button.Key
@@ -507,7 +507,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
                 Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
             mnuContextItems(i + 1).Tag = sTag
@@ -605,7 +605,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If val(App.Minor) < 20 Then
+    If Val(App.Minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
@@ -639,7 +639,7 @@ Private Function fnGetFactorPath() As String
     Dim sTemp As String
     Dim nPosi As Integer
     
-    sTemp = UCase(App.Path)
+    sTemp = UCase(App.path)
     
     nPosi = InStrRev(sTemp, "\")
     
