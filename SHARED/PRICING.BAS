@@ -515,20 +515,28 @@ Private Sub sub_Check_and_Set_DateTime(ByVal lMv As Long, _
         Next
         sTemp = sTemp & ")"
         
-        strSQL = "SELECT MLading.dPickupDate AS dt,MLading.lLading AS lad"
+        'david 06/03/2010  #662437-1838
+        strSQL = "SELECT MLading.dPickupDate AS dt,MLading.lLading AS lad, szTime"
+        '''''''''''''''''''''''''''''''
         strSQL = strSQL & " FROM MLading, MLadingDetail"
         strSQL = strSQL & " WHERE MLading.lMovement = MLadingDetail.lMovement"
         strSQL = strSQL & " AND MLading.lLading = MLadingDetail.lLading"
         strSQL = strSQL & " AND MLading.lMovement=" & lMv
         strSQL = strSQL & " AND szProductCode IN " & sTemp
-        strSQL = strSQL & " ORDER BY MLading.dPickupDate DESC"
+        'david 06/03/2010  #662437-1838
+        strSQL = strSQL & " ORDER BY MLading.dPickupDate DESC, szTime DESC"
+        '''''''''''''''''''''''''''''''
         If Price_fnOpenRecord(rsTemp, strSQL, m_local) > 0 Then
             sLoadingDate = Format(rsTemp!dt & szEMPTY, "mm/dd/yyyy")
             If Not IsDate(sLoadingDate) Then
                 sLoadingDate = szEMPTY
+            'david 06/03/2010  #662437-1838
+            Else
+                sTm = Trim(rsTemp!szTime & "")
+            '''''''''''''''''''''''''''''''
             End If
             lMaxLading = tfnRound(rsTemp!lad)
-            set_fuel_load_datetime sLoadingDate, szEMPTY
+            set_fuel_load_datetime sLoadingDate, sTm
         End If
     End If
 End Sub
