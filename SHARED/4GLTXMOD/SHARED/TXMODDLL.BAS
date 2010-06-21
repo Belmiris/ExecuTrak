@@ -285,7 +285,7 @@ Private Type tpProdTaxUseG
     fATaxGalGross As Double
     fATaxGalNet As Double
     fTotal As Double
-    sNGU As String
+    sNgu As String
     fATaxAmt As Double
 End Type
 Private arryProdTaxUseG() As tpProdTaxUseG
@@ -639,10 +639,10 @@ Public Sub subAddInternalAmount(ByVal lAmount As Long)
     lInternalFuel = lInternalFuel + lAmount
 End Sub
 
-Public Sub subFixTypeATax(m_local As DataBase)
+Public Sub subFixTypeATax(m_local As DataBase, lMovement As Long)
     'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
     'david 06/15/2010  #665238-2023
-    subSetProPetroFlag m_local
+    subSetProPetroFlag m_local, lMovement
     '''''''''''''''''''''''''''''''
     subFixTypeATaxForInfo
 End Sub
@@ -3181,7 +3181,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     Dim rsLadHeader As Recordset
     Dim fTaxes As Double
     Dim fBase As Double
-    Dim sNGU As String
+    Dim sNgu As String
     Dim nLine As Integer
     Dim lATaxGal As Long
     Dim fLadingATax As Double
@@ -3223,7 +3223,6 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     'david 04/21/2008  #501475
     Dim texas_term_origin As Boolean
     Dim sum_all_atax As Double
-'''    Dim sDeliveryHasMixedIELading As String
     ''''''''''''''''''''''''''
 
     '#Make sure it is FM or Its Editor
@@ -3308,79 +3307,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     End If
 
     'david 06/15/2010  #665238-2023
-    subSetProPetroFlag m_local
+    subSetProPetroFlag m_local, lMovement
     '''''''''''''''''''''''''''''''
-
-'''    'david 04/21/2008  #501475
-'''    'get the delivery that has mixed IE Lading
-'''    sDeliveryHasMixedIELading = ","
-'''
-'''    strSQL = "SELECT lDestination, MLading.lLading, lTerminal, MLading.bExternal"
-'''    strSQL = strSQL & " FROM MBalance, MDelivery, MLading"
-'''    strSQL = strSQL & " WHERE MBalance.lDelivery= MDelivery.lDelivery"
-'''    strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
-'''    strSQL = strSQL & " AND MBalance.lMovement =" & lMovement
-'''    strSQL = strSQL & " GROUP BY lDestination, MLading.lLading, lTerminal, MLading.bExternal"
-'''    strSQL = strSQL & " order by lDestination, MLading.lLading, lTerminal, MLading.bExternal"
-'''
-'''    Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
-'''    If rsTemp Is Nothing Then
-'''         Exit Sub
-'''    ElseIf rsTemp.RecordCount = 0 Then
-'''         Exit Sub
-'''    End If
-'''
-'''    Dim lPrevDest As Long
-'''    Dim sIE As String
-'''    Dim sTo As String
-'''    Dim bImport As Boolean
-'''
-'''    With rsTemp
-'''        While Not .EOF
-'''            If Not bImport Then
-'''                bImport = fnIsImportToTexas(lMovement, tfnRound(!lLading), !bExternal, _
-'''                    tfnRound(!lTerminal), 0, m_local)
-'''
-'''                If bImport Then
-'''                    'remove the detination
-'''                    sDeliveryHasMixedIELading = Replace(sDeliveryHasMixedIELading, "," & !lDestination, "")
-'''                End If
-'''            End If
-'''
-'''            If sIE = "" Then
-'''                lPrevDest = !lDestination
-'''
-'''                If !bExternal Then
-'''                    sIE = "E"
-'''                Else
-'''                    sIE = "I"
-'''                    If fnIsTO(tfnRound(!lTerminal)) Then
-'''                        sTo = "Y"
-'''                    Else
-'''                        sTo = "N"
-'''                    End If
-'''
-'''                End If
-'''            ElseIf lPrevDest = !lDestination Then
-'''                If (sIE = "I" And !bExternal) _
-'''                   Or (sIE = "E" And (Not !bExternal)) _
-'''                   Or (sIE = "I" And (Not !bExternal) And (Not bImport) _
-'''                   And ((sTo = "N" And fnIsTO(tfnRound(!lTerminal))) _
-'''                   Or (sTo = "Y" And (Not fnIsTO(tfnRound(!lTerminal)))))) Then
-'''                        If InStr(sDeliveryHasMixedIELading, "," & !lDestination & ",") <= 0 Then
-'''                            sDeliveryHasMixedIELading = sDeliveryHasMixedIELading & !lDestination & ","
-'''                        End If
-'''                End If
-'''            Else
-'''                sIE = ""
-'''                sTo = ""
-'''                bImport = False
-'''            End If
-'''
-'''            .MoveNext
-'''        Wend
-'''    End With
-'''    ''''''''''''''''''''''''''
 
     Screen.MousePointer = vbHourglass
     '#Build Lading side A-Taxes array --> aryATax
@@ -3406,19 +3334,6 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
         nLine = 0
         bTexasTax = False
 
-'''        strSQL = "SELECT dPickupDate FROM mLading"
-'''        strSQL = strSQL & " WHERE lMovement=" & lMovement
-'''        strSQL = strSQL & " AND lLading=" & tfnRound(rsLadHeader!lLading)
-'''        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, , m_local)
-'''        If rsTemp Is Nothing Then
-'''            Screen.MousePointer = vbDefault
-'''            Exit Sub
-'''        End If
-'''        If rsTemp.RecordCount > 0 Then
-'''            t_tax_date = rsTemp!dPickupDate & ""
-'''        Else
-'''            t_tax_date = Date
-'''        End If
         If IsDate(rsLadHeader!dPickupDate & "") Then
             t_tax_date = rsLadHeader!dPickupDate
         Else
@@ -3456,20 +3371,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     Do While Not rsTemp.EOF
                         Screen.MousePointer = vbHourglass
 
-'''                        'david 04/21/2008  #501475
-'''                        If InStr(sDeliveryHasMixedIELading, "," & rsTemp!lDestination & ",") > 0 Then
-'''                            Exit Do
-'''                        End If
-'''                        ''''''''''''''''''''''''''
-
                         'david 02/10/2006  #509841
                         'change to use delivery detail's ngu flag
                         If rsTemp!bGross Then
-                            sNGU = "G"
+                            sNgu = "G"
                             fBase = rsTemp!G_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!G_GAL
                         Else
-                            sNGU = "N"
+                            sNgu = "N"
                             fBase = rsTemp!N_GAL * !fCost
                             lTotATaxGal = lTotATaxGal + rsTemp!N_GAL
                         End If
@@ -3488,7 +3397,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                         'change to use delivery detail's product and tax use group
                         If Not fnATaxInfoItem(rsLadHeader!bExternal, rsLadHeader!lTerminal, lDest, _
                            rsLadHeader!lLading, nLine, rsTemp!szProductCode, rsTemp!szTaxUseGroup, _
-                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNGU, nLineType) Then
+                           fBase, 0, CDbl(rsTemp!G_GAL), CDbl(rsTemp!N_GAL), sNgu, nLineType) Then
                             Screen.MousePointer = vbDefault
                             Exit Sub
                         End If
@@ -3498,11 +3407,6 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     .MoveNext
                 Wend '#Lading D
 
-                '#region 492710wj110405
-'''                subProrateBOLATax rsLadHeader!lLading, _
-'''                                   nLine, _
-'''                                   bTexasTax, sTaxState
-'''
                 'david 09/25/2007  #559260
                 subFixTypeATaxForInfo
                 ''''''''''''''''''''''''''
@@ -3535,17 +3439,16 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 '''''''''''''''''''''''''''
 
                 lStartPtr = BOL_atx_ptr + 1
-                '#end region 492710wj110405
 
                 .MoveFirst
                 While Not .EOF
                     Screen.MousePointer = vbHourglass
 
                     If !bGross Then
-                        sNGU = "G"
+                        sNgu = "G"
                         lATaxGal = !lGross
                     Else
-                        sNGU = "N"
+                        sNgu = "N"
                         lATaxGal = !lNet
                     End If
                     BOL_atx_ptr = BOL_atx_ptr + 1
@@ -3553,7 +3456,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                     aryATax(BOL_atx_ptr).fmld_bl_nbr = !lLading
                     aryATax(BOL_atx_ptr).fmld_seq_nbr = !lLineNumber
                     aryATax(BOL_atx_ptr).sum_bunits = lATaxGal
-                    aryATax(BOL_atx_ptr).bl_ngu = sNGU
+                    aryATax(BOL_atx_ptr).bl_ngu = sNgu
                     If lTotATaxGal = 0 Then
                         aryATax(BOL_atx_ptr).a_tax_tot = 0
                     Else
@@ -3635,8 +3538,8 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
                 this_tax = 0
                 this_units = 0
                 If bFound Then
-                    sNGU = aryATax(i).bl_ngu
-                    If (sNGU = "N") Then
+                    sNgu = aryATax(i).bl_ngu
+                    If (sNgu = "N") Then
                         this_units = rsMvBal!lNet
                     Else
                         this_units = rsMvBal!lGross
@@ -3965,7 +3868,7 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
     Dim strSQL As String
     Dim rsTemp As Recordset
     
-    Dim sNGU As String
+    Dim sNgu As String
     Dim fBase As Double
     Dim sProdTcl As String
     'david 06/15/2010  #665238-2023
@@ -4023,10 +3926,10 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
             
             If arryProdTaxUseG(i).sTaxUseG = "" Then
                 If !bGross Then
-                    arryProdTaxUseG(i).sNGU = "G"
+                    arryProdTaxUseG(i).sNgu = "G"
                     fBase = tfnRound(!lGross * !fCost, 2)
                 Else
-                    arryProdTaxUseG(i).sNGU = "N"
+                    arryProdTaxUseG(i).sNgu = "N"
                     fBase = tfnRound(!lNet * !fCost, 2)
                 End If
                 
@@ -4063,10 +3966,10 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
                 
                 If arryProdTaxUseG(i).sTaxUseG = "" Then
                     If !bGross Then
-                        arryProdTaxUseG(i).sNGU = "G"
+                        arryProdTaxUseG(i).sNgu = "G"
                         fBase = tfnRound(!lGross * !fCost, 2)
                     Else
-                        arryProdTaxUseG(i).sNGU = "N"
+                        arryProdTaxUseG(i).sNgu = "N"
                         fBase = tfnRound(!lNet * !fCost, 2)
                     End If
                     arryProdTaxUseG(i).sProductCode = !szProductCode
@@ -4107,7 +4010,7 @@ Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, 
         If fnTaxInformation(arryProdTaxUseG(i).sProductCode, _
            arryProdTaxUseG(i).sTaxUseG, arryProdTaxUseG(i).fTotal, 0, _
            arryProdTaxUseG(i).fATaxGalGross, arryProdTaxUseG(i).fATaxGalNet, _
-           arryProdTaxUseG(i).sNGU, Taxes(), lCount) Then
+           arryProdTaxUseG(i).sNgu, Taxes(), lCount) Then
             For j = 0 To lCount - 1
                 'need to change the sign first
                 If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
@@ -6994,7 +6897,7 @@ Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local 
     Dim j As Long
     
     Dim nSign As Integer
-    Dim sNGU As String
+    Dim sNgu As String
     Dim lGross As Double
     Dim lNet As Double
     Dim fBase As Double
@@ -7036,10 +6939,10 @@ Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local 
                 lNet = !lNet
                 
                 If !bGross Then
-                    sNGU = "G"
+                    sNgu = "G"
                     fBase = tfnRound(!lGross * !fCost, 2)
                 Else
-                    sNGU = "N"
+                    sNgu = "N"
                     fBase = tfnRound(!lNet * !fCost, 2)
                 End If
                 
@@ -7054,7 +6957,7 @@ Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local 
             
                 If fnTaxInformation(fnCStr(!szProductCode), _
                    fnCStr(!szTaxUseGroup), fBase, 0, _
-                   lGross, lNet, sNGU, Taxes(), lCount) Then
+                   lGross, lNet, sNgu, Taxes(), lCount) Then
                     For j = 0 To lCount - 1
                         If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
                             If Taxes(j).m_sCode = fnCStr(rsDelvPassThruTax!szTaxCode) And Taxes(j).m_cCharge = vbKeyY And Taxes(j).m_cLimitType = vbKeyP Then
@@ -7114,7 +7017,7 @@ Private Sub Monkey_Lading_ATax_Gallons()
         ' 'product tax class' if parm 1085 is not set up
         ' 'product class' if parm 1085 = "CLASS"
         ' 'product group' if parm 1085 = "GROUP"
-        If arryProdTaxUseG(x).sNGU = "G" Then
+        If arryProdTaxUseG(x).sNgu = "G" Then
             dv_vol = arryProdTaxUseG(x).fATaxGalGross
         Else
             dv_vol = arryProdTaxUseG(x).fATaxGalNet
@@ -7170,7 +7073,7 @@ Private Sub Monkey_Lading_ATax_Gallons()
         If wrk_nbr = 0 Then
             wrk_nbr = arryProdTaxUseG(x).lLading
         End If
-        If arryProdTaxUseG(x).sNGU = "G" Then
+        If arryProdTaxUseG(x).sNgu = "G" Then
             dv_vol = arryProdTaxUseG(x).fATaxGalGross
         Else
             dv_vol = arryProdTaxUseG(x).fATaxGalNet
@@ -7278,7 +7181,7 @@ Private Sub Monkey_Lading_ATax_Gallons()
         If wrk_nbr = 0 Then
             wrk_nbr = arryProdTaxUseG(x).lLading
         End If
-        If arryProdTaxUseG(x).sNGU = "G" Then
+        If arryProdTaxUseG(x).sNgu = "G" Then
             dv_vol = arryProdTaxUseG(x).fATaxGalGross
         Else
             dv_vol = arryProdTaxUseG(x).fATaxGalNet
@@ -7351,7 +7254,7 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     If arryProdTaxUseG(y).lLading = wrk_nbr Then
                         If gal_inv <> 0 Then
                             'atax_wrk = (aryLDF(y).dv_vol / gal_inv) * atax_inv
-                            If arryProdTaxUseG(y).sNGU = "G" Then
+                            If arryProdTaxUseG(y).sNgu = "G" Then
                                 atax_wrk = (arryProdTaxUseG(y).fATaxGalGross / gal_inv) * atax_inv
                             Else
                                 atax_wrk = (arryProdTaxUseG(y).fATaxGalNet / gal_inv) * atax_inv
@@ -7390,7 +7293,7 @@ Stop_Monkey_Around:
     MsgBox "An Error Occurred In Calculating Loading Fees. Error Description: " & Err.Description
 End Sub
 
-Public Sub subSetProPetroFlag(m_local As DataBase)
+Public Sub subSetProPetroFlag(m_local As DataBase, lMovement As Long)
     Const SUB_NAME As String = "subSetProPetroFlag"
     
     Dim strSQL As String
