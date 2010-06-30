@@ -82,6 +82,14 @@ Private Declare Function FtpSetCurrentDirectory Lib "wininet.dll" Alias "FtpSetC
 Private Declare Function FtpGetCurrentDirectory Lib "wininet.dll" Alias "FtpGetCurrentDirectoryA" _
    (ByVal hFtpSession As Long, ByVal lpszCurrentDirectory As String, lpdwCurrentDirectory As Long) As Boolean
     
+'paul - added a few more useful features
+Private Declare Function FtpCreateDirectory Lib "wininet.dll" Alias "FtpCreateDirectoryA" _
+    (ByVal hFtpSession As Long, ByVal lpszDirectory As String) As Boolean
+
+Private Declare Function FtpRemoveDirectory Lib "wininet.dll" Alias "FtpRemoveDirectoryA" _
+    (ByVal hFtpSession As Long, ByVal lpszDirectory As String) As Boolean
+
+    
 ' Initializes an application's use of the Win32 Internet functions
 Private Declare Function InternetOpen Lib "wininet.dll" Alias "InternetOpenA" _
 (ByVal sAgent As String, ByVal lAccessType As Long, ByVal sProxyName As String, _
@@ -493,7 +501,7 @@ CloseHandle:
     InternetCloseHandle hOpen
     Exit Function
 errTrap:
-    sRetErrMsg = Err.Number & ": " & Err.Description
+    sRetErrMsg = Err.number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
 End Function
@@ -694,7 +702,7 @@ Private Function fnBuildFileArray(sPath As String, sFileName As String, _
     Exit Function
 
 errBuildList:
-    If Err.Number = 76 Then
+    If Err.number = 76 Then
         MsgBox " Path (" & fnConCat(sPath, sFileName) & ") not found in Function '" & SUB_NAME & "'"
     End If
     fnBuildFileArray = -1
@@ -748,10 +756,68 @@ Private Function fnGenerateNewFile10() As String
     
     sTemp = ""
     For i = 1 To 10
-        sChar = Chr((Int(Rnd() * 25)) + 97)
+        sChar = Chr((Int(rnd() * 25)) + 97)
         sTemp = sTemp + sChar
     Next i
     
     fnGenerateNewFile10 = sTemp & ".eml"
 End Function
 
+
+Public Function fnCreateUnixDirectory(sHost As String, sUser As String, sPWD As String, _
+                                sPath As String, sRetErrMsg As String, _
+                                Optional bShowError As Boolean = False) As Boolean
+    
+    Dim hOpen As Long, hConnection As Long, hFind As Long
+    Dim bFlag As Boolean
+    
+    fnCreateUnixDirectory = False
+    
+    If Trim(sPath) = "" Then Exit Function
+    
+    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
+    If hOpen = 0 Then
+        fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    hConnection = InternetConnect(hOpen, sHost, INTERNET_DEFAULT_FTP_PORT, sUser, sPWD, INTERNET_SERVICE_FTP, INTERNET_FLAG_EXISTING_CONNECT Or INTERNET_FLAG_PASSIVE, 0)
+    If hConnection = 0 Then
+        fnErrorOut Err.LastDllError, "InternetConnect", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    'Validate the unix server path...
+    sPath = Trim(sPath)
+    bFlag = FtpCreateDirectory(hConnection, sPath)
+    If bFlag = False Then
+        fnErrorOut Err.LastDllError, "FtpCreateDirectory", bShowError, sRetErrMsg
+        GoTo CloseHandle
+    End If
+    
+    fnCreateUnixDirectory = True
+
+CloseHandle:
+    On Error Resume Next
+    InternetCloseHandle hConnection
+    InternetCloseHandle hOpen
+    Exit Function
+End Function
+
+
+Public Function fnConCatUnixPath(MyPath As String, MyName As String) As String
+    fnConCatUnixPath = IIf(Right(MyPath, 1) = "/", MyPath, MyPath + "/") + MyName
+End Function
+
+Public Function fnRemoveInvalidUnixCharacters(MyName As String) As String
+    'removes these characters as they will cause problems on unix
+    ' ' " ( ) < > \ / ? * | :
+    Const strip As String = "'""()<>/\?*|"
+    Dim i As Integer
+    
+    fnRemoveInvalidUnixCharacters = MyName
+    For i = 1 To Len(strip)
+        fnRemoveInvalidUnixCharacters = Replace(fnRemoveInvalidUnixCharacters, Mid$(strip, i, 1), "")
+    Next i
+
+End Function
