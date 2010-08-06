@@ -584,6 +584,9 @@ Public Const t_lBigFormHeight As Long = 8760
 '#Section and key for default settings to display closed customers or not
 '#Weigong   08/06/2002
 Private Const sSEC_SHOW_CL_CUST = "Do Not Show Closed Customers"
+'david 07/02/2010  #2138
+Private Const sSEC_SHOW_CL_SITE = "Do Not Show Closed Sites"
+''''''''''''''''''''''''
 Private Const sKEY_SHOW_CL_CUST As String = "All Programs"
 '#Section and key for default settings to exclude inactive alternate customers
 '#Sam Zheng on 08/11/2004
@@ -662,8 +665,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -695,7 +698,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -766,7 +769,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
+Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal Section As String, _
                           Optional ByVal field As String = vbNullString, _
@@ -778,13 +781,13 @@ Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
     
     On Error GoTo ErrorHandler
     
-    FileName = Trim$(UCase$(FileName))
+    Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     Section = Trim$(UCase$(Section))
     field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & FileName & "')" _
+        & " WHERE (INI_File_Name='" & Filename & "')" _
         & "   AND (INI_Section='" & Section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -1021,7 +1024,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1069,7 +1072,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1460,11 +1463,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.Number = 3146 Then
+    If Err.number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1516,12 +1519,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1657,7 +1660,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2141,7 +2144,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.Number = 94 Then
+    If Err.number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2746,7 +2749,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.Number = 3051 Then
+    If Err.number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3059,6 +3062,21 @@ Public Function tfnSaveDoNotShowClosedCustSettings(ByVal nChkBoxValue As Integer
     tfnSaveDoNotShowClosedCustSettings = tfnWriteINI(sSEC_SHOW_CL_CUST, sKEY_SHOW_CL_CUST, _
           IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
 End Function
+
+'david 07/02/2010  #2138
+Public Function tfnGetDoNotShowClosedSiteSettings() As Integer
+    Dim sValue As String
+    '#Read Factor.ini
+    sValue = tfnReadINI(sSEC_SHOW_CL_SITE, sKEY_SHOW_CL_CUST, tfnGetWindowsDir(True) & szFACTOR_INI)
+    tfnGetDoNotShowClosedSiteSettings = IIf(sValue = "YES", vbChecked, vbUnchecked)
+End Function
+
+Public Function tfnSaveDoNotShowClosedSiteSettings(ByVal nChkBoxValue As Integer) As Boolean
+    '#Save to factor.ini
+    tfnSaveDoNotShowClosedSiteSettings = tfnWriteINI(sSEC_SHOW_CL_SITE, sKEY_SHOW_CL_CUST, _
+          IIf(nChkBoxValue = vbChecked, "YES", "NO"), tfnGetWindowsDir(True) & szFACTOR_INI)
+End Function
+''''''''''''''''''''''''
 
 Public Function tfnGetExcludeInactiveOrderCustSettings() As Integer  'sam zheng
     Dim sValue As String
@@ -3765,8 +3783,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.Number <> 0 Then
-        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
+    If Err.number <> 0 Then
+        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
