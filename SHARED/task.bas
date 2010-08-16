@@ -358,7 +358,9 @@ Public Function fnRunExe(sExe As String, _
                          Optional bForcedRun As Boolean = False, _
                          Optional bCheckRun As Boolean = True, _
                          Optional bShowMsg As Boolean = True, _
-                         Optional szErrorMessage As String = "") As Boolean
+                         Optional szErrorMessage As String = "", _
+                         Optional bFromFactorMenu As Boolean = False, _
+                         Optional sModuleID As String = "") As Boolean
     
     If Not bForcedRun Then
         If fnExeIsRunning(sExe) Then
@@ -369,29 +371,33 @@ Public Function fnRunExe(sExe As String, _
     
     fnRunExe = False
     
-    On Error GoTo errLaunching
-    'LockWin frmCall  'trap user unput during application load
-     
-    Dim lTempInstance As Long 'store the instnace handle in a long first
-    
-    lTempInstance = Shell(sExe, nMode) 'launch the application
-    szErrorMessage = sExe & " " & Err.Description
-             
-    If (lTempInstance < 0) Or (lTempInstance > SHELL_OK) Then
-        If bCheckRun Then
-            If fnExeIsRunning(sExe) Then
-                fnRunExe = True
-            Else
-                If bShowMsg Then
-                    MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+    If bFromFactorMenu Then
+        fnRunExe = frmContext.RunProgram(sExe, sModuleID)
+    Else
+        On Error GoTo errLaunching
+        'LockWin frmCall  'trap user unput during application load
+         
+        Dim lTempInstance As Long 'store the instnace handle in a long first
+        
+        lTempInstance = Shell(sExe, nMode) 'launch the application
+        szErrorMessage = sExe & " " & Err.Description
+                 
+        If (lTempInstance < 0) Or (lTempInstance > SHELL_OK) Then
+            If bCheckRun Then
+                If fnExeIsRunning(sExe) Then
+                    fnRunExe = True
+                Else
+                    If bShowMsg Then
+                        MsgBox "Unable to launch program " & sExe, vbOKOnly + vbCritical, "Error"
+                    End If
                 End If
+            Else
+                fnRunExe = True
             End If
-        Else
-            fnRunExe = True
-        End If
-    Else 'error occured clear handles and display error message
-        If bShowMsg Then
-            MsgBox szErrorMessage, vbOKOnly + vbCritical, "Error"
+        Else 'error occured clear handles and display error message
+            If bShowMsg Then
+                MsgBox szErrorMessage, vbOKOnly + vbCritical, "Error"
+            End If
         End If
     End If
     
