@@ -133,9 +133,9 @@ Private m_nColWhenSearchBtnClick As Integer
 Private m_lRowWhenSearchBtnClick As Long
 
 #If Win32 Then
-    Private Declare Function ScreenToClient Lib "user32" (ByVal hwnd As Long, lpPoint As POINTAPI) As Long
+    Private Declare Function ScreenToClient Lib "user32" (ByVal hWnd As Long, lpPoint As POINTAPI) As Long
 #Else
-    Private Declare Function ScreenToClient Lib "USER" (ByVal hwnd As Integer, lpPoint As POINTAPI) As Boolean
+    Private Declare Function ScreenToClient Lib "USER" (ByVal hWnd As Integer, lpPoint As POINTAPI) As Boolean
 #End If
 
 'david 10/25/2001
@@ -495,9 +495,9 @@ Private Function fnLocateDropDownTable(colTemp As Collection)
         Next
     End If
     tgDropDown.Width = nTWidth
-    tgDropDown.Top = nMainTableTop + tgMain.RowTop(tgMain.Row) + tgMain.RowHeight + Screen.TwipsPerPixelY
+    tgDropDown.Top = nMainTableTop + tgMain.RowTop(tgMain.row) + tgMain.RowHeight + Screen.TwipsPerPixelY
     If tgDropDown.Top + tgDropDown.Height > frmParent.ScaleHeight Then
-        tgDropDown.Top = nMainTableTop + tgMain.RowTop(tgMain.Row) - tgDropDown.Height
+        tgDropDown.Top = nMainTableTop + tgMain.RowTop(tgMain.row) - tgDropDown.Height
     End If
     tgDropDown.Col = 0
 End Function
@@ -522,14 +522,14 @@ Private Sub fnLocateMainTable()
     Dim nClientLeft As Single
     Dim nClientTop As Single
 
-    nMain_hWnd = tgMain.hwnd
+    nMain_hWnd = tgMain.hWnd
     n_ParenthWnd = GetParent(nMain_hWnd)
-    nDrpDn_hWnd = GetParent(tgDropDown.hwnd)
+    nDrpDn_hWnd = GetParent(tgDropDown.hWnd)
     nTopBoundary = frmParent.Top          'objTemp.Top
     nBottomBoundary = nTopBoundary + frmParent.ScaleHeight
     nLeft = 0   'tgMain.Left
     nTop = 0    'tgMain.Top
-    While nMain_hWnd <> frmParent.hwnd And n_ParenthWnd > 0
+    While nMain_hWnd <> frmParent.hWnd And n_ParenthWnd > 0
         fnGetLeftTop nClientLeft, nClientTop, n_ParenthWnd, nMain_hWnd
         nLeft = nLeft + nClientLeft
         nTop = nTop + nClientTop
@@ -736,7 +736,7 @@ extfnKeyExist:
     On Error GoTo 0
     Exit Function
 errfnKeyExist:
-    If Err.Number = 357 Or Err.Number = 5 Then
+    If Err.number = 357 Or Err.number = 5 Then
         fnKeyExist = False
         Resume extfnKeyExist
     Else
@@ -782,7 +782,7 @@ Private Function fnLoadTable(nColumn As Integer, _
         Exit Function
     End If
     
-    If tgMain.Row < 0 Then
+    If tgMain.row < 0 Then
         On Error Resume Next
         tgMain.SetFocus
         fnMoveButton
@@ -1120,8 +1120,8 @@ Public Sub KeyDown(tgTable As Object, KeyAscii As Integer)
     ElseIf tgTable.TabIndex = tgMain.TabIndex Then
         If bSearchOnReturn Then
             If KeyAscii = vbKeyReturn Then
-                If Not IsNull(tgMain.Row) Then
-                    If Val(tgMain.Row) >= 0 Then
+                If Not IsNull(tgMain.row) Then
+                    If val(tgMain.row) >= 0 Then
                         If fnLoadTable(nLastColumn) Then
                             KeyAscii = 0
                         End If
@@ -1443,9 +1443,9 @@ Private Function fnGenetateSearchString(sField As String, sPrefix As String) As 
     Dim nloop As Integer
     Dim nxloop As Integer
     
-    sTrimedPrefix = CStr(Val(sPrefix))
+    sTrimedPrefix = CStr(val(sPrefix))
     sTemp = "(" & sField & " = " & sTrimedPrefix & ")"
-    If Val(sPrefix) > 0 Then
+    If val(sPrefix) > 0 Then
         nLenNumber = Len(sTrimedPrefix)
         For nloop = 1 To 9 - nLenNumber
             sTemp = sTemp & " OR (" & sField & " >= " & sTrimedPrefix
@@ -1614,10 +1614,10 @@ Private Sub fnMoveButton()
             If tgMain.Caption <> "" Then
                 nVisibleRows = nVisibleRows - 1
             End If
-            If IsNull(tgMain.Row) Then
+            If IsNull(tgMain.row) Then
                 lRow = 0
             Else
-                lRow = Val(tgMain.Row)
+                lRow = val(tgMain.row)
             End If
             If lRow >= nVisibleRows Or lRow < 0 Then
                 cmdSearch.Visible = False
@@ -1630,7 +1630,7 @@ Private Sub fnMoveButton()
         nVisibleColumns = fnVisibleColumns(tgMain.Columns.Count - 1)
     End If
     
-    If tgMain.Row >= 0 Then
+    If tgMain.row >= 0 Then
         Dim objCol As DBTrueGrid.Column
         Dim colTemp As Collection
         Set colTemp = colDropDowns.Item(lDropDown)
@@ -1657,7 +1657,7 @@ Private Sub fnMoveButton()
                 cmdSearch.Visible = False
                 cmdSearch.ZOrder 1
             Else
-                cmdSearch.Top = tgMain.Top + tgMain.RowTop(tgMain.Row) + Screen.TwipsPerPixelY
+                cmdSearch.Top = tgMain.Top + tgMain.RowTop(tgMain.row) + Screen.TwipsPerPixelY
                 If fnVisibleColumns(colTemp.Item(lCol).ColumnIndex) >= nVisibleColumns Then
                     If tgMain.ExtendRightColumn Then
                         nLeft = tgMain.Left + tgMain.Width - cmdSearch.Width
@@ -1687,7 +1687,7 @@ Private Sub fnMoveButton()
     
     Exit Sub
 EXITHERE:
-    MsgBox "Error occurred in function fnMoveButton: " & vbCrLf & Err.Number & ": " & Err.Description
+    MsgBox "Error occurred in function fnMoveButton: " & vbCrLf & Err.number & ": " & Err.Description
 End Sub
 
 Public Sub GotFocus(Optional vCtrl As Variant)
@@ -1847,10 +1847,10 @@ Public Function RowColChange(tgTable As Object) As Boolean
         If bTableClicked Then
             If lDropDown >= 0 Then
                 bShowList = False
-                lOldRow = tgMain.Row
+                lOldRow = tgMain.row
                 fnGetText tgMain.Col
                 DoEvents
-                If lOldRow = tgMain.Row Then
+                If lOldRow = tgMain.row Then
                     subInputSelected
                 End If
             End If
@@ -1954,7 +1954,7 @@ Public Sub SetExtendRight(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1971,7 +1971,7 @@ Public Sub SetExtendLeft(Optional vIndex As Variant)
     If IsMissing(vIndex) Then
         nIndex = nCurrentDropDown
     Else
-        nIndex = Val(vIndex)
+        nIndex = val(vIndex)
     End If
 
     If nIndex > 0 And nIndex <= colDropDowns.Count Then
@@ -1992,7 +1992,7 @@ Public Sub TableClick(tgTable As Object)
     If tgTable.TabIndex = tgDropDown.TabIndex Then
         'david 02/05/2002
         If m_bSortOnColumnClick Then
-            If tgDropDown.Row >= 0 Then
+            If tgDropDown.row >= 0 Then
                 nRowTop = tgDropDown.RowTop(0)
     
                 If nClickPointY < nRowTop Then
@@ -2000,8 +2000,8 @@ Public Sub TableClick(tgTable As Object)
                 Else
                     bShowList = False
                     
-                    If tgDropDown.Row >= 0 Then
-                        nRowTop = tgDropDown.RowTop(tgDropDown.Row)
+                    If tgDropDown.row >= 0 Then
+                        nRowTop = tgDropDown.RowTop(tgDropDown.row)
                         nRowBtm = nRowTop + tgDropDown.RowHeight
                         If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
                             fnGetText tgMain.Col
@@ -2019,8 +2019,8 @@ Public Sub TableClick(tgTable As Object)
         Else
             bShowList = False
             
-            If tgDropDown.Row >= 0 Then
-                nRowTop = tgDropDown.RowTop(tgDropDown.Row)
+            If tgDropDown.row >= 0 Then
+                nRowTop = tgDropDown.RowTop(tgDropDown.row)
                 nRowBtm = nRowTop + tgDropDown.RowHeight
                 If nClickPointY >= nRowTop And nClickPointY <= nRowBtm Then
                     fnGetText tgMain.Col
@@ -2162,11 +2162,11 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         End If
     #End If
     
-    If Err.Number = 3146 Then
+    If Err.number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -2184,7 +2184,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
-            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
+            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.number) & vbCrLf & Err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -2491,7 +2491,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
 End Function
 
@@ -2646,7 +2646,7 @@ Private Function fnAppendCriteria(ByVal bCalledByHeaderClick As Boolean, ByVal C
     'default: returns the original SQL
     fnAppendCriteria = strSQL
     
-    arySQL() = Split(strSQL, szUNION)
+    arySQL() = Split(strSQL, szUNION, , vbDatabaseCompare)
     
     bUnionFound = UBound(arySQL) > 0
     
