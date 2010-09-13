@@ -665,8 +665,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -698,7 +698,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -1024,7 +1024,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1465,12 +1465,12 @@ Private Function fnShowODBCError() As String
     
     If Err.number = 3146 Then
         With t_engFactor.Errors
-            If .Count > 0 Then
-                For i = 0 To .Count - 2
+            If .count > 0 Then
+                For i = 0 To .count - 2
                     sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .Count <= 2 Then
+            If .count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -1519,12 +1519,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1660,7 +1660,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1731,21 +1731,21 @@ Public Function tfnBuildMultiLines(sParam() As String, _
     tfnBuildMultiLines = UBound(sParam) + 1
 End Function
 
-Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Variant, Optional bRightTrim As Boolean = True) As String
+Public Function tfnGetMultiLines(rsTemp As Recordset, Optional FieldNum As Variant, Optional bRightTrim As Boolean = True) As String
     Dim sTemp As String
     
     If rsTemp.RecordCount > 0 Then
-        If IsMissing(fieldNum) Then
-            fieldNum = 0
+        If IsMissing(FieldNum) Then
+            FieldNum = 0
         End If
         'first line
-        If Not IsNull(rsTemp.Fields(fieldNum)) Then
+        If Not IsNull(rsTemp.Fields(FieldNum)) Then
             '#This test is added by Weigong on 07/24/02. It was always RTRIM before
             If bRightTrim Then
                 'david 04/30/2002
-                sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+                sTemp = RTrim$(fnRemoveChr0(rsTemp.Fields(FieldNum)))
             Else
-                sTemp = fnRemoveChr0(rsTemp.Fields(fieldNum))
+                sTemp = fnRemoveChr0(rsTemp.Fields(FieldNum))
             End If
             '''''''''''''''''
         Else
@@ -1756,13 +1756,13 @@ Public Function tfnGetMultiLines(rsTemp As Recordset, Optional fieldNum As Varia
         
         'the rest
         While Not rsTemp.EOF
-            If Not IsNull(rsTemp.Fields(fieldNum)) Then
+            If Not IsNull(rsTemp.Fields(FieldNum)) Then
                 '#This test is added by Weigong on 07/24/02. It was always RTRIM before
                 If bRightTrim Then
                     'david 04/30/2002
-                    sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(fieldNum)))
+                    sTemp = sTemp + vbCrLf + RTrim$(fnRemoveChr0(rsTemp.Fields(FieldNum)))
                 Else
-                    sTemp = sTemp & vbCrLf & fnRemoveChr0(rsTemp.Fields(fieldNum))
+                    sTemp = sTemp & vbCrLf & fnRemoveChr0(rsTemp.Fields(FieldNum))
                 End If
                 '''''''''''''''''
             Else
@@ -2182,7 +2182,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     On Error Resume Next
     
-    For nIndex = 0 To frmWindow.Controls.Count
+    For nIndex = 0 To frmWindow.Controls.count
         
         If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
@@ -3856,15 +3856,18 @@ End Function
 '*****************************************************************************************
 
 Public Function tfn_Read_SYS_INI(sFilename As String, _
-                              sUserID As String, _
-                              sSECTION As String, _
-                              sField As String, _
-                              Optional bShowError As Boolean = True) As String
+                                 sUserID As String, _
+                                 sSECTION As String, _
+                                 sField As String, _
+                                 Optional bShowError As Boolean = True, _
+                                 Optional ByRef bRecordFound As Boolean) As String
                               
     Const SUB_NAME As String = "tfn_Read_SYS_INI"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
+    
+    bRecordFound = False
     
     strSQL = "SELECT ini_value FROM sys_ini WHERE"
     
@@ -3889,6 +3892,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
+        bRecordFound = True
         tfn_Read_SYS_INI = CStr(Trim(rsTemp!ini_value) & "")
     End If
     Exit Function
@@ -3927,12 +3931,14 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     Dim strSQL As String
     Dim sRetrunValue As String
+    Dim bRecordFound As Boolean
+
     
     'if any value is it will return other wise null
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField)
+        sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField, , bRecordFound)
     End If
         
     On Error GoTo errTrap
@@ -3941,7 +3947,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
         sUserID = tfnSQLString(sUserID)
     End If
     
-    If sRetrunValue <> "" Then
+    If sRetrunValue <> "" Or bRecordFound Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
         strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
