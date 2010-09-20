@@ -19,8 +19,29 @@ Private Declare Function GetUserName Lib "advapi32.dll" Alias "GetUserNameA" (By
 Private m_frmFormMain As Form
 Private m_sFormID As String
 '
+Private Declare Sub PokeLong Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, Optional ByVal length As Long = 4)
 
-Public Sub Initialize(formMain As Form, sID As String)
+Private colPrograms As New Collection
+
+Public Function ProgramAdd(sProg As String, sDesc As String)
+    colPrograms.Add sDesc, sProg
+End Function
+
+Public Function ProgramCount() As Long
+   ProgramCount = colPrograms.Count
+End Function
+
+Public Sub ProgramDelete(sProg As String)
+   colPrograms.Remove sProg
+End Sub
+
+Public Function ProgramDesc(sProg As String) As String
+   ProgramDesc = colPrograms.Item(sProg)
+End Function
+
+
+Public Sub Initialize(formMain As Form, sID As String, _
+                      Optional bUseFactMenuUserID As Boolean = False)
     Set m_frmFormMain = formMain
     
     If sID = "" Then
@@ -29,15 +50,27 @@ Public Sub Initialize(formMain As Form, sID As String)
         m_sFormID = sID
     End If
     
-    subDeleteOldLocks
+    subDeleteOldLocks bUseFactMenuUserID
 End Sub
 
 Private Sub Class_Terminate()
+    Dim num As Long
+    
     m_sFormID = ""
     Set m_frmFormMain = Nothing
+    
+   If Not colPrograms Is Nothing Then
+        For num = 1 To colPrograms.Count
+            colPrograms.Remove 1
+        Next
+        
+        Set colPrograms = Nothing
+    End If
 End Sub
 
-Public Function LockProgram(Optional sProgramID As String = "") As Boolean
+Public Function LockProgram(Optional sProgramID As String = "", _
+                            Optional bIgnoreComputerName As Boolean = False, _
+                            Optional bUseFactMenuUserID As Boolean = False) As Boolean
     Const SUB_NAME As String = "LockProgram"
     
     Dim strSQL As String
@@ -68,14 +101,23 @@ Public Function LockProgram(Optional sProgramID As String = "") As Boolean
     
     sErrMsg = "N/A"
     
-    lHWnd = m_frmFormMain.hwnd
-    sUser = UserName()
+    lHWnd = m_frmFormMain.hWnd
+    
+    If bUseFactMenuUserID Then
+        sUser = tfnGetUserName()
+    Else
+        sUser = UserName()
+    End If
     
     If Len(sUser) > 12 Then
         sUser = Left(sUser, 12)
     End If
     
-    sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+    If bIgnoreComputerName Then
+        sCriteria = "LOCKPROG-" + UCase(sProgramID)
+    Else
+        sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+    End If
     
     'get/check the lock
     strSQL = "SELECT * FROM sys_row_lock"
@@ -159,7 +201,9 @@ errTrap:
         + "Please report this message to Support.", vbCritical
 End Function
 
-Public Sub UnLockProgram(Optional sProgramID As String = "")
+Public Sub UnLockProgram(Optional sProgramID As String = "", _
+                         Optional bIgnoreComputerName As Boolean = False, _
+                         Optional bUseFactMenuUserID As Boolean = False)
     Const SUB_NAME As String = "UnLockProgram"
     
     Dim strSQL As String
@@ -179,13 +223,22 @@ Public Sub UnLockProgram(Optional sProgramID As String = "")
         Exit Sub
     End If
     
-    sUser = UserName()
+    
+    If bUseFactMenuUserID Then
+        sUser = tfnGetUserName()
+    Else
+        sUser = UserName()
+    End If
     
     If Len(sUser) > 12 Then
         sUser = Left(sUser, 12)
     End If
     
-    sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+    If bIgnoreComputerName Then
+        sCriteria = "LOCKPROG-" + UCase(sProgramID)
+    Else
+        sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+    End If
     
     'delete the program lock
     strSQL = "DELETE FROM sys_row_lock"
@@ -205,7 +258,11 @@ End Sub
 
 'return True if the program is locked/running
 Public Function IsProgramLocked(sProgramID As String, _
-                                 Optional bShowMsgBox As Boolean = True) As Boolean
+                                 Optional bShowMsgBox As Boolean = True, _
+                                 Optional bIgnoreComputerName As Boolean = False, _
+                                 Optional bIgnoreUserName As Boolean = False, _
+                                 Optional ByRef sOtherUser As String, _
+                                 Optional bUseFactMenuUserID As Boolean = False) As Boolean
     Const SUB_NAME As String = "IsProgramLocked"
     
     Dim strSQL As String
@@ -225,24 +282,34 @@ Public Function IsProgramLocked(sProgramID As String, _
         Exit Function
     End If
     
-    sUser = UserName()
+    If bUseFactMenuUserID Then
+        sUser = tfnGetUserName()
+    Else
+        sUser = UserName()
+    End If
     
     If Len(sUser) > 12 Then
         sUser = Left(sUser, 12)
     End If
     
-    sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
-
+    If bIgnoreComputerName Then
+        sCriteria = "LOCKPROG-" + UCase(sProgramID)
+    Else
+        sCriteria = "LOCKPROG-" + UCase(sProgramID) + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
+    End If
     'get/check the program lock
     strSQL = "SELECT * FROM sys_row_lock"
     strSQL = strSQL + " WHERE srl_criteria = " + tfnSQLString(sCriteria)
-    strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
+    If Not bIgnoreUserName Then
+        strSQL = strSQL + " and srl_user_id = " + tfnSQLString(sUser)
+    End If
     
     If fnGetRecord(rsTemp, strSQL, SUB_NAME, False) < 0 Then
         GoTo errTrap
     End If
     
     If rsTemp.RecordCount > 0 Then
+        sOtherUser = GetField(rsTemp!srl_user_id)
         IsProgramLocked = True
     End If
     
@@ -255,7 +322,7 @@ errTrap:
     End If
 End Function
 
-Private Sub subDeleteOldLocks()
+Private Sub subDeleteOldLocks(Optional bUseFactMenuUserID As Boolean = False)
     Const SUB_NAME As String = "LockProgram"
     
     Dim strSQL As String
@@ -270,7 +337,11 @@ Private Sub subDeleteOldLocks()
         Exit Sub
     End If
     
-    sUser = UserName()
+    If bUseFactMenuUserID Then
+        sUser = tfnGetUserName()
+    Else
+        sUser = UserName()
+    End If
     
     If Len(sUser) > 12 Then
         sUser = Left(sUser, 12)
@@ -357,3 +428,110 @@ End Function
 Private Function fnCStr(sIn) As String
     fnCStr = Trim(sIn & "")
 End Function
+
+Public Function ExclusiveProgram(Optional vProgramIsRunning) As Boolean
+    
+    Const SUB_NAME = "Program"
+    
+    Dim nRet As Integer
+    Dim i As Integer
+    Dim sProg As String
+    Dim sUser As String
+        
+    nRet = vbNo
+    
+
+    For i = 1 To ProgramCount()
+        sProg = ItemKey(i, colPrograms)
+        If IsProgramLocked(sProg, , True, True, sUser, True) Then
+            MsgBox "The " & colPrograms(i) & " (" & sProg & ") program is being run by " & sUser & "." _
+                + " Cannot run at the same time.", vbInformation + vbOKOnly
+            nRet = vbAbort
+        End If
+    Next
+    
+    If nRet = vbAbort Then
+        If IsMissing(vProgramIsRunning) Then
+            Exit Function
+        Else
+            vProgramIsRunning = True
+            ExclusiveProgram = True
+            Exit Function
+        End If
+    End If
+    'end check program running
+    
+    If Not LockProgram(, True, True) Then
+        Exit Function
+    End If
+    
+    ExclusiveProgram = True
+
+End Function
+
+
+Private Function ItemKey(ByVal Index As Long, Coll As Collection) As String
+  'optimized get collection sKey by index
+  'Private Declare Sub PokeLong Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, Optional ByVal Length As Long = 4)
+  Dim i     As Long
+  Dim Ptr   As Long
+  Dim sKey  As String
+
+   If Coll Is Nothing Then                             'oops!
+       Err.Raise 91                                    'No object
+     Else 'NOT COLL...
+       Select Case Index
+         Case Is < 1, Is > Coll.Count                  'oops!
+           Err.Raise 9                                 'Index out of range
+         Case Is <= Coll.Count / 2                     'walk items upwards from first
+           PokeLong Ptr, ByVal ObjPtr(Coll) + 24       'first Ptr
+           For i = 2 To Index
+               PokeLong Ptr, ByVal Ptr + 24            'next Ptr
+           Next i
+         Case Else                                     'walk items downwards from last
+           PokeLong Ptr, ByVal ObjPtr(Coll) + 28       'last Ptr
+           For i = Coll.Count - 1 To Index Step -1
+               PokeLong Ptr, ByVal Ptr + 20            'prev Ptr
+           Next i
+        End Select
+       i = StrPtr(sKey)                                'save StrPtr
+       PokeLong ByVal VarPtr(sKey), ByVal Ptr + 16     'replace StrPtr by that from collection sKey (which is null if there ain't no sKey)
+       ItemKey = sKey                                  'now copy it to function value
+       PokeLong ByVal VarPtr(sKey), i                  'and finally restore original StrPtr
+   End If
+
+End Function
+
+
+Private Function ItemIndex(ByVal Key As String, Coll As Collection, Optional ByVal Compare As VbCompareMethod = vbTextCompare) As Long
+ 'get collection index by key
+ 'Private Declare Sub PokeLong Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, Optional ByVal Length As Long = 4)
+ Dim Ptr   As Long
+ Dim sKey  As String
+ Dim aKey  As Long
+   
+   If Coll Is Nothing Then                             'oops!
+       Err.Raise 91                                    'No object
+     Else 'NOT COLL...
+       If Coll.Count Then
+           aKey = StrPtr(sKey)                         'save StrPtr
+           PokeLong Ptr, ByVal ObjPtr(Coll) + 24       'first Ptr
+           ItemIndex = 1                               'walk items upwards from first
+           Do
+               PokeLong ByVal VarPtr(sKey), ByVal Ptr + 16
+               If StrComp(Key, sKey, Compare) = 0 Then 'equal
+                   Exit Do                             'found
+               End If
+               ItemIndex = ItemIndex + 1               'next Index
+               PokeLong Ptr, ByVal Ptr + 24            'next Ptr
+           Loop Until Ptr = 0                          'end of chain
+           PokeLong ByVal VarPtr(sKey), aKey           'restore original StrPtr
+       End If
+       If Ptr = 0 Then
+           ItemIndex = -1                              'key not found
+       End If
+   End If
+
+End Function
+
+

@@ -15,7 +15,7 @@ Option Explicit
 
     #Const UPDATE_RIGHT_AWAY = False
     
-    Private Const BUFFER_SIZE As Long = 16384   '32768        '&H8000
+    Private Const BUFFER_SIZE As Long = 111 '16384   '32768        '&H8000
     
     Private sFileBuffer As String * BUFFER_SIZE
     Private nInputFile As Integer
@@ -143,18 +143,26 @@ Private Function fnTrim(sSrc As String) As String
     fnTrim = (Left(sSrc, i))
 End Function
 
-Public Function GetLine() As String
-
+Public Function GetLine(Optional fixed As Long) As String
+    ' Added optional fixed to get fixed length lines
     Dim nPos As Integer
     Dim nLen As Integer
     
     GetLine = ""
-    nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
-    If nPos = 0 Then
-        nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
-    End If
-    If nPos = 0 Then
-        nPos = InStr(nInputPointer, sInputBuffer, Chr(12))  'Page break
+    If fixed > 0 Then
+        If (Len(sInputBuffer) - nInputPointer) + 1 >= fixed Then
+            nPos = nInputPointer + fixed
+        End If
+    Else
+        If nPos = 0 Then
+            nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
+        End If
+        If nPos = 0 Then
+            nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
+        End If
+        If nPos = 0 Then
+            nPos = InStr(nInputPointer, sInputBuffer, Chr(12))  'Page break
+        End If
     End If
     If nPos = 0 Then
         nLen = Len(sInputBuffer)
@@ -171,15 +179,27 @@ Public Function GetLine() As String
                 lResidualLength = Len(sInputBuffer) - nInputPointer + 1
                 subGetFromFile
                 If Len(sInputBuffer) > 0 Then
-                    If Asc(Left(sInputBuffer, 1)) = &HA Then
+                    If Asc(Left(sInputBuffer, 1)) = &HA And fixed = 0 Then
                         nInputPointer = 2
                     Else
                         nInputPointer = 1
                     End If
                     nInputPointerOld = nInputPointer
-                    nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
-                    If nPos = 0 Then
-                        nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
+                    '
+                    If fixed > 0 Then
+                        If (Len(sInputBuffer) - nInputPointer) + 1 >= fixed Then
+                            nPos = nInputPointer + fixed
+                        End If
+                    Else
+                        If nPos = 0 Then
+                            nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
+                        End If
+                        If nPos = 0 Then
+                            nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
+                        End If
+                        If nPos = 0 Then
+                            nPos = InStr(nInputPointer, sInputBuffer, Chr(12))
+                        End If
                     End If
                 End If
             Wend
@@ -191,18 +211,82 @@ Public Function GetLine() As String
     End If
     nInputPointerOld = nInputPointer
     
-    'Add by JQ to check the nPOS must not equl to 0
-    If nPos <> 0 And nPos + 1 <= Len(sInputBuffer) Then
-        
-        If Asc(Mid(sInputBuffer, nPos, 1)) = &HD And Asc(Mid(sInputBuffer, nPos + 1, 1)) = &HA Then
-            nInputPointer = nPos + 2
+    If fixed > 0 Then
+        nInputPointer = nPos
+    Else
+        'Add by JQ to check the nPOS must not equl to 0
+        If nPos <> 0 And nPos + 1 <= Len(sInputBuffer) Then
+            
+            If Asc(Mid(sInputBuffer, nPos, 1)) = &HD And Asc(Mid(sInputBuffer, nPos + 1, 1)) = &HA Then
+                nInputPointer = nPos + 2
+            Else
+                nInputPointer = nPos + 1
+            End If
         Else
             nInputPointer = nPos + 1
         End If
-    Else
-        nInputPointer = nPos + 1
     End If
 End Function
+
+'Public Function GetLine() As String
+'    Dim nPos As Integer
+'    Dim nLen As Integer
+'
+'    GetLine = ""
+'    nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
+'    If nPos = 0 Then
+'        nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
+'    End If
+'    If nPos = 0 Then
+'        nPos = InStr(nInputPointer, sInputBuffer, Chr(12))  'Page break
+'    End If
+'    If nPos = 0 Then
+'        nLen = Len(sInputBuffer)
+'        If EOF(nInputFile) Then
+'            nPos = nLen - nInputPointer
+'            If nPos > 0 Then
+'                GetLine = Right(sInputBuffer, nPos)
+'                nInputPointerOld = nInputPointer
+'                nInputPointer = nLen
+'            End If
+'            Exit Function
+'        Else
+'            While nPos = 0 And Not EOF(nInputFile)
+'                lResidualLength = Len(sInputBuffer) - nInputPointer + 1
+'                subGetFromFile
+'                If Len(sInputBuffer) > 0 Then
+'                    If Asc(Left(sInputBuffer, 1)) = &HA Then
+'                        nInputPointer = 2
+'                    Else
+'                        nInputPointer = 1
+'                    End If
+'                    nInputPointerOld = nInputPointer
+'                    nPos = InStr(nInputPointer, sInputBuffer, Chr(13))
+'                    If nPos = 0 Then
+'                        nPos = InStr(nInputPointer, sInputBuffer, Chr(10))
+'                    End If
+'                End If
+'            Wend
+'        End If
+'    End If
+'    nLen = nPos - nInputPointer
+'    If nLen > 0 Then
+'        GetLine = Mid(sInputBuffer, nInputPointer, nLen)
+'    End If
+'    nInputPointerOld = nInputPointer
+'
+'    'Add by JQ to check the nPOS must not equl to 0
+'    If nPos <> 0 And nPos + 1 <= Len(sInputBuffer) Then
+'
+'        If Asc(Mid(sInputBuffer, nPos, 1)) = &HD And Asc(Mid(sInputBuffer, nPos + 1, 1)) = &HA Then
+'            nInputPointer = nPos + 2
+'        Else
+'            nInputPointer = nPos + 1
+'        End If
+'    Else
+'        nInputPointer = nPos + 1
+'    End If
+'End Function
 
 Public Function PrepareFile(sName As String) As Boolean
 
