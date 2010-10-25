@@ -610,7 +610,7 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
         
         strSQL = "SELECT fmm_movement, fmm_carrier, fmldt_bl_nbr, fmldt_line, fmldt_trn, fmldt_ulink,"
         strSQL = strSQL + " fml_int_ext, fml_vendor, fml_terminal, fml_date"
-        strSQL = strSQL + " FROM fm_lad_tax, tx_use_link, fm_temp1"
+        strSQL = strSQL + " FROM fm_lad_tax t1, tx_use_link, fm_temp1"
         strSQL = strSQL + " WHERE fmldt_movement = fmm_movement"
         strSQL = strSQL + " AND fmldt_bl_nbr = fml_bl_nbr"
         strSQL = strSQL + " AND fmldt_trn = tul_trn"
@@ -622,12 +622,30 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
             Select Case nTypeCode
             Case "1"
                 If Not IsMissing(vExtractFrom) Then
-                    strSQL = strSQL & " AND (fmldt_trn IN " & _
-                        fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+                    'strSQL = strSQL & " AND (fmldt_trn IN " & _
+                    '    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+                    strSQL = strSQL & " AND exists "
+                    strSQL = strSQL & " (select 1 from fm_lad_tax t2"
+                    strSQL = strSQL & " where t2.fmldt_movement = t1.fmldt_movement"
+                    strSQL = strSQL & " and t2.fmldt_bl_nbr = t1.fmldt_bl_nbr"
+                    strSQL = strSQL & " and t2.fmldt_line = t1.fmldt_line"
+                    strSQL = strSQL & " and t2.fmldt_type = 'B'"
+                    strSQL = strSQL & " and t2.fmldt_trn in "
+                    strSQL = strSQL & fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount)
+                    strSQL = strSQL & ")"
                 End If
             Case "3"
-                strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
-                    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+                'strSQL = strSQL & " AND (fmldt_trn NOT IN " & _
+                '    fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount) & ")"
+                strSQL = strSQL & " AND not exists "
+                strSQL = strSQL & " (select 1 from fm_lad_tax t2"
+                strSQL = strSQL & " where t2.fmldt_movement = t1.fmldt_movement"
+                strSQL = strSQL & " and t2.fmldt_bl_nbr = t1.fmldt_bl_nbr"
+                strSQL = strSQL & " and t2.fmldt_line = t1.fmldt_line"
+                strSQL = strSQL & " and t2.fmldt_type = 'B'"
+                strSQL = strSQL & " and t2.fmldt_trn in "
+                strSQL = strSQL & fnTrnNumbers(m_lTaxPaidTrn, m_nTPTCount)
+                strSQL = strSQL & ")"
             End Select
         End If
         
