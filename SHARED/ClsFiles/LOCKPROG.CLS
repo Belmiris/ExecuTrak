@@ -101,7 +101,7 @@ Public Function LockProgram(Optional sProgramID As String = "", _
     
     sErrMsg = "N/A"
     
-    lHWnd = m_frmFormMain.hWnd
+    lHWnd = m_frmFormMain.hwnd
     
     If bUseFactMenuUserID Then
         sUser = tfnGetUserName()
@@ -309,7 +309,7 @@ Public Function IsProgramLocked(sProgramID As String, _
     End If
     
     If rsTemp.RecordCount > 0 Then
-        sOtherUser = GetField(rsTemp!srl_user_id)
+        sOtherUser = Trim(rsTemp!srl_user_id & "")
         IsProgramLocked = True
     End If
     
