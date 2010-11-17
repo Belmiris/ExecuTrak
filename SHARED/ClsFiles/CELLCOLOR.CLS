@@ -21,6 +21,7 @@ Private m_bEnabled As Boolean
 Private m_tgTable As TDBGrid
 Private m_tgcEditor As clsTGSpreadSheet
 Private colColorCondition As New Collection
+Private m_bHighlightCurrRow As Boolean
 '
 
 Property Let Enabled(bOnOff As Boolean)
@@ -29,6 +30,14 @@ End Property
 
 Property Get Enabled() As Boolean
     Enabled = m_bEnabled
+End Property
+
+Property Let AllowHighlightCurrentRow(bOnOff As Boolean)
+    m_bHighlightCurrRow = bOnOff
+End Property
+
+Property Get AllowHighlightCurrentRow() As Boolean
+    AllowHighlightCurrentRow = m_bHighlightCurrRow
 End Property
 
 Property Set Table(tbl As TDBGrid)
@@ -297,10 +306,16 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
         Exit Sub
     End If
     
-    lRow = val(Bookmark)
+    lRow = Val(Bookmark)
     
     If lRow < 0 Then
         Exit Sub
+    End If
+    
+    If m_bHighlightCurrRow Then
+        If lRow = m_tgcEditor.GetCurrentRowNumber Then
+            Exit Sub
+        End If
     End If
     
     Dim objColorCondition As clsColorCondition
@@ -479,7 +494,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
             Select Case UCase(sOP)
             Case "<>"  'numeric/date/string not equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) <> val(sRightValue) Then
+                    If Val(sLeftValue) <> Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -493,7 +508,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "==", "=" 'numeric/date/string equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) = val(sRightValue) Then
+                    If Val(sLeftValue) = Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -507,7 +522,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<="  'numeric/date/string less than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) <= val(sRightValue) Then
+                    If Val(sLeftValue) <= Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -521,7 +536,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">="  'numeric/date/string greater than and equal to
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) >= val(sRightValue) Then
+                    If Val(sLeftValue) >= Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -535,7 +550,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case "<"  'numeric/date/string less than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) < val(sRightValue) Then
+                    If Val(sLeftValue) < Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
@@ -549,7 +564,7 @@ Public Sub FetchCellStyle(ByVal Condition As Integer, _
                 End If
             Case ">"  'numeric/date/string greater than
                 If IsNumeric(sLeftValue) And IsNumeric(sRightValue) Then
-                    If val(sLeftValue) > val(sRightValue) Then
+                    If Val(sLeftValue) > Val(sRightValue) Then
                         bSetCellColor = True
                     End If
                 ElseIf IsDate(sLeftValue) And IsDate(sRightValue) Then
