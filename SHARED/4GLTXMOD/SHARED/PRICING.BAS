@@ -172,14 +172,17 @@ Public Function prod_price( _
                                 Optional lSite As Long = -1, _
                                 Optional sInvoiceDate As String = "", _
                                 Optional sErrMsg As String = "", _
-                                Optional zzerc_contract_nbr As String = "" _
+                                Optional zzerc_contract_nbr As String = "", _
+                                Optional bTieredPricing As Boolean = False _
                             ) As Double
     ' dest_flag is always I:
     'Modification for Schmitt Sales Net Pricing. Ma, 11/3/99
     prod_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                                 dfQuantity, dfCost, dfCost, Null, lOrigin, "I", _
-                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                                t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, _
+                                zzerc_contract_nbr, "", "", bTieredPricing)
 End Function ' prod_price
+
 Public Sub set_wrk_date(dDate As Date, t_dbMainDatabase As DataBase)
     wrk_date = dDate
 End Sub
@@ -207,11 +210,15 @@ Private Function sp_price(ByVal sProductCode As String, _
                             Optional sErrMsg As String = "", _
                             Optional zzerc_contract_nbr As String = "", _
                             Optional sStatusFlag As String = "", _
-                            Optional sOverrideOD As String = "" _
+                            Optional sOverrideOD As String = "", _
+                            Optional bTieredPricing As Boolean = False _
                             ) As Double
                             
         Dim i As Integer
-        Dim arg_val(17) As String   '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
+        'david 10/20/2010  #2478
+        '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
+        Dim arg_val(18) As String
+        ''''''''''''''''''''''''
         Dim sRunCmd As String
         Dim sOutPutstr As String
         Static sta_cnt As Long
@@ -254,7 +261,7 @@ Private Function sp_price(ByVal sProductCode As String, _
         ' Add status flag parameter.  When status flag = "1", the ceiling price
         ' and factor pricing functions will not be used when calculating the
         ' market price
-        If IsMissing(sStatusFlag) Or Trim(sStatusFlag) = szEMPTY Then
+        If Trim(sStatusFlag) = szEMPTY Then
             arg_val(16) = "' '"
         Else
             arg_val(16) = tfnSQLString(Trim(sStatusFlag))
@@ -263,15 +270,26 @@ Private Function sp_price(ByVal sProductCode As String, _
         ' 612568- Chris Miller - 6/23/2009
         ' Add sOverrideOD so that we can call syvprice.4gl and pricing.4gl using
         ' an override to Origin/Destination pricing as set in sys parm 6202
-        If IsMissing(sOverrideOD) Or Trim(sOverrideOD) = szEMPTY Then
+        If Trim(sOverrideOD) = szEMPTY Then
             arg_val(17) = "' '"
         Else
             arg_val(17) = tfnSQLString(Trim(sOverrideOD))
         End If
         
+        'david 10/20/2010  #2478
+        If bTieredPricing Then
+            arg_val(18) = "'Y'"
+        Else
+            arg_val(18) = "'N'"
+        End If
+        ''''''''''''''''''''''''
+        
         sRunCmd = arg_val(0)
         
-        For i = 1 To 17 '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
+        'david 10/20/2010  #2478
+        'For i = 1 To 17 '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
+        For i = 1 To 18
+        ''''''''''''''''''''''''
            sRunCmd = sRunCmd & Space(1) & arg_val(i)
         Next
         
@@ -325,9 +343,9 @@ End Function
 Public Function fnGetOverRideFlag() As String
     fnGetOverRideFlag = m_OverRideFlag_YN
 End Function
-Public Function fnGetPricingStatus(Optional sMsg As String) As Integer
-    If Not IsMissing(sMsg) Then
-        sMsg = m_rtn_msg
+Public Function fnGetPricingStatus(Optional sMSG As String) As Integer
+    If Not IsMissing(sMSG) Then
+        sMSG = m_rtn_msg
     End If
     fnGetPricingStatus = m_status
     

@@ -618,13 +618,13 @@ Private nDefaultQueryTimeout As Integer  'david 05/27/2008
 '             StripProgVer). **** finish comments ****
 '---------------------------------------------------------------------------------------
 '
-Public Function DBVersionToLong(ByVal Version As String, Optional ByVal StripProgVer As Boolean = True) As Long
+Public Function DBVersionToLong(ByVal version As String, Optional ByVal StripProgVer As Boolean = True) As Long
     Dim VerInfo() As String
     Dim i         As Integer
     Dim VerLong   As Long
     Dim v         As Long
     
-    VerInfo = Split(Version, ".")
+    VerInfo = Split(version, ".")
     Do While (i <= 2) And (i <= UBound(VerInfo))
         VerInfo(i) = Trim$(VerInfo(i))
 '        If i = 2 Then
@@ -665,8 +665,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -698,7 +698,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -743,7 +743,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 .Close
             End With
             With App
-                sAppVer = .Major & "." & .Minor & "." & Format$(.Revision, "0000")
+                sAppVer = .major & "." & .minor & "." & Format$(.Revision, "0000")
                 lAppVer = DBVersionToLong(sAppVer, True)
             End With
             
@@ -1024,7 +1024,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1465,12 +1465,12 @@ Private Function fnShowODBCError() As String
     
     If Err.number = 3146 Then
         With t_engFactor.Errors
-            If .count > 0 Then
-                For i = 0 To .count - 2
+            If .Count > 0 Then
+                For i = 0 To .Count - 2
                     sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .count <= 2 Then
+            If .Count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -1519,12 +1519,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1660,7 +1660,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1805,7 +1805,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1813,7 +1813,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2182,7 +2182,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     On Error Resume Next
     
-    For nIndex = 0 To frmWindow.Controls.count
+    For nIndex = 0 To frmWindow.Controls.Count
         
         If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
@@ -2348,7 +2348,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2612,14 +2612,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -3855,7 +3855,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFilename As String, _
+Public Function tfn_Read_SYS_INI(sFileName As String, _
                                  sUserID As String, _
                                  sSECTION As String, _
                                  sField As String, _
@@ -3873,8 +3873,8 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     'ini_file_Name,ini_user_id may be null
     
-    If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFilename))
+    If sFileName <> "" Then
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
     Else
         strSQL = strSQL & " ini_file_Name is Null"
     End If
@@ -3893,7 +3893,7 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     If rsTemp.RecordCount > 0 Then
         bRecordFound = True
-        tfn_Read_SYS_INI = CStr(Trim(rsTemp!ini_value) & "")
+        tfn_Read_SYS_INI = Trim(rsTemp!ini_value & "")
     End If
     Exit Function
     
@@ -3919,7 +3919,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFilename As String, _
+Public Function tfn_Write_SYS_INI(sFileName As String, _
                               ByVal sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -3938,7 +3938,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField, , bRecordFound)
+        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField, , bRecordFound)
     End If
         
     On Error GoTo errTrap
@@ -3949,14 +3949,14 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     If sRetrunValue <> "" Or bRecordFound Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
@@ -4685,7 +4685,7 @@ End Function
 
 '#502947 - Chris Albrecht - 3/14/2006
 'Check the invoice and invoice hold tables
-Private Function InvoiceCreated(InvoiceNbr As Long) As Boolean
+Private Function InvoiceCreated(invoiceNbr As Long) As Boolean
 
 Const SQL_INVOICE_EXISTS_IN_HOLD As String = _
     " select ihh_nbr from sih_invoice where ihh_nbr = @invoice_nbr "
@@ -4694,12 +4694,12 @@ Const SQL_INVOICE_EXISTS As String = _
     
 Dim SQL As String
 
-    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", InvoiceNbr)
+    SQL = Replace(SQL_INVOICE_EXISTS, "@invoice_nbr", invoiceNbr)
     
     InvoiceCreated = fnDataExists(SQL)
     
     If Not InvoiceCreated Then
-        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", InvoiceNbr)
+        SQL = Replace(SQL_INVOICE_EXISTS_IN_HOLD, "@invoice_nbr", invoiceNbr)
         
         InvoiceCreated = fnDataExists(SQL)
     End If
@@ -4907,4 +4907,102 @@ Public Function fnCheck_txh_origin_st()
     fnCheck_txh_origin_st = bExists_txh_origin_st
 End Function
 '''''''''''''''''''''''''''''
+
+'david 10/20/2010  #2478
+''''''''''''''''''''''''
+'sFlag:
+'ALT-check alternate custoemr only
+'MST-check alternate's master custoemr only
+'A&M-check both alternate and its master custoemr
+'ALL-check master and its alternate customers
+Public Function tfnExistsTieredPricing(sFlag As String, ByVal sCust As String, _
+                                       Optional ByVal lSite As Long = 0, _
+                                       Optional ByVal lProdLnk As Long = 0) As Boolean
+    Const SUB_NAME As String = "tfnExistsTieredPricing"
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim lMstrCust As Long
+    
+    'check field exists
+    strSQL = "SELECT colname FROM systables,syscolumns"
+    strSQL = strSQL & " WHERE systables.tabid=syscolumns.tabid"
+    strSQL = strSQL & " AND tabname=" & tfnSQLString("fo_site")
+    strSQL = strSQL & " AND colname=" & tfnSQLString("fosi_tiered_price")
+    
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    If rsTemp.RecordCount = 0 Then
+        Exit Function
+    End If
+    
+    If InStr("ALT,MST,A&M,ALL", sFlag) < 1 Then
+        'okay
+        MsgBox "Flag is not valid when calling fnExistsTieredPricing().", vbExclamation
+        Exit Function
+    End If
+    
+    On Error GoTo errExit
+    
+    If sFlag = "ALL" Then
+        strSQL = "SELECT fosi_customer"
+        strSQL = strSQL & " FROM fo_site"
+        strSQL = strSQL & " where fosi_customer in ("
+        strSQL = strSQL & "select an_customer"
+        strSQL = strSQL & " from ar_altname"
+        strSQL = strSQL & " where an_cust = ("
+        strSQL = strSQL & "select an_cust"
+        strSQL = strSQL & " from ar_altname"
+        strSQL = strSQL & " where an_customer = " & tfnRound(sCust)
+        strSQL = strSQL & "))"
+    
+    Else  'ALT, MST, A&M
+        If sFlag = "ALT" Then
+            lMstrCust = tfnRound(sCust)
+        Else
+            strSQL = "SELECT an_cust"
+            strSQL = strSQL & " FROM ar_altname"
+            strSQL = strSQL & " WHERE an_customer = " & tfnRound(sCust)
+            
+            Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            
+            If rsTemp.RecordCount < 1 Then
+                Exit Function
+            End If
+            
+            lMstrCust = tfnRound(rsTemp!an_cust)
+        End If
+    
+        strSQL = "SELECT fosi_customer"
+        strSQL = strSQL & " FROM fo_site"
+        
+        If sFlag = "A&M" Then
+            strSQL = strSQL & " WHERE fosi_customer in (" & tfnRound(sCust) & ", " & lMstrCust & ")"
+        Else
+            strSQL = strSQL & " WHERE fosi_customer = " & lMstrCust
+            
+            If sFlag = "ALT" And lSite > 0 Then
+                strSQL = strSQL & " and fosi_tank = " & lSite
+            End If
+        End If
+    End If
+    
+    strSQL = strSQL & " and fosi_tiered_price = 'Y'"
+    
+    If lProdLnk > 0 Then
+        strSQL = strSQL & " and fosi_prodlnk = " & lProdLnk
+    End If
+    
+    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+    
+    tfnExistsTieredPricing = rsTemp.RecordCount > 0
+    
+    Exit Function
+
+errExit:
+    #If Not NO_ERRHANDLER Then
+        tfnErrHandler SUB_NAME, strSQL
+    #End If
+End Function
+'david 10/20/2010  #2478
+''''''''''''''''''''''''
 
