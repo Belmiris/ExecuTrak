@@ -143,7 +143,8 @@ Public Function Fuel_price( _
     ' dest_flag is I or E:
     Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                           dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
-                          t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                          t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, _
+                          , , , ORIGIN_FLAG)
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
         If fnNeed_ReCal_Price_With_Loading_Time(sProductCode, lMvNbr, lMaxLading, sLoadingDate, lCustomer) Then
@@ -153,7 +154,8 @@ Public Function Fuel_price( _
            '#(3)We need time to do the calculation. The previous 4GE call will tell us this
             Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                                   dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
-                                  t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr)
+                                  t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, _
+                                  , , , ORIGIN_FLAG)
         End If
         '#Clear m_fuel_load_datetime
         set_fuel_load_datetime szEMPTY, szEMPTY, False
@@ -194,7 +196,8 @@ End Sub
 ' 612568- Chris Miller - 6/23/2009
 ' Add sOverrideOD so that we can call syvprice.4gl and pricing.4gl using
 ' an override to Origin/Destination pricing as set in sys parm 6202
-
+' david 11/30/2010  #3000
+' Add sQuotePriceOriginFlag so that the quote pricing can handle E-Terminal and I-Profit Center
 Private Function sp_price(ByVal sProductCode As String, _
                             ByVal lProfitCenter As Long, _
                             ByVal lCustomer As Long, _
@@ -211,13 +214,14 @@ Private Function sp_price(ByVal sProductCode As String, _
                             Optional zzerc_contract_nbr As String = "", _
                             Optional sStatusFlag As String = "", _
                             Optional sOverrideOD As String = "", _
-                            Optional bTieredPricing As Boolean = False _
+                            Optional bTieredPricing As Boolean = False, _
+                            Optional sQuotePriceOriginFlag As String = "" _
                             ) As Double
                             
         Dim i As Integer
         'david 10/20/2010  #2478
         '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
-        Dim arg_val(18) As String
+        Dim arg_val(19) As String
         ''''''''''''''''''''''''
         Dim sRunCmd As String
         Dim sOutPutstr As String
@@ -284,11 +288,21 @@ Private Function sp_price(ByVal sProductCode As String, _
         End If
         ''''''''''''''''''''''''
         
+        'david 11/30/2010  #3000
+        If Trim(sQuotePriceOriginFlag) = szEMPTY Then
+            arg_val(19) = "' '"
+        Else
+            arg_val(19) = tfnSQLString(Trim(sQuotePriceOriginFlag))
+        End If
+        ''''''''''''''''''''''''
+        
         sRunCmd = arg_val(0)
         
+        'david 11/30/2010  #3000
         'david 10/20/2010  #2478
         'For i = 1 To 17 '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
-        For i = 1 To 18
+        For i = 1 To 19
+        ''''''''''''''''''''''''
         ''''''''''''''''''''''''
            sRunCmd = sRunCmd & Space(1) & arg_val(i)
         Next
@@ -343,9 +357,9 @@ End Function
 Public Function fnGetOverRideFlag() As String
     fnGetOverRideFlag = m_OverRideFlag_YN
 End Function
-Public Function fnGetPricingStatus(Optional sMSG As String) As Integer
-    If Not IsMissing(sMSG) Then
-        sMSG = m_rtn_msg
+Public Function fnGetPricingStatus(Optional sMsg As String) As Integer
+    If Not IsMissing(sMsg) Then
+        sMsg = m_rtn_msg
     End If
     fnGetPricingStatus = m_status
     
