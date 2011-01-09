@@ -129,6 +129,7 @@ Private bCheckRegExp() As Boolean
 
 Private sDefaultValue() As String
 Private sDisplayFormat() As String
+Private bValidMessage() As Boolean
 
 Private nESCColumns() As tpESCapable
 
@@ -251,6 +252,8 @@ Private m_tgsSelector As Object
 'david 03/23/2006  #513569
 Private m_bIgnoreCellValueError As Boolean
 ''''''''''''''''''''''''''
+
+Private bDefaultValidMessage As Boolean
 '
 
 Public Sub AddEditColumn(ByVal nIndex As Integer, _
@@ -258,7 +261,8 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
                          Optional vPtn As Variant, _
                          Optional vFormat As Variant, _
                          Optional vRequired As Variant, _
-                         Optional nColType As Variant)
+                         Optional nColType As Variant, _
+                         Optional bAlwaysGreenMessage As Boolean = True)
     If nIndex >= nMaxCol Or nColumnCount >= nMaxCol Then
         Exit Sub
     End If
@@ -308,6 +312,7 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
         nColumnType(j) = nColumnType(j - 1)
         bFieldRequired(j) = bFieldRequired(j - 1)
         bCheckRegExp(j) = bCheckRegExp(j - 1)
+        bValidMessage(j) = bValidMessage(j - 1)
     Next
 
     nEditColumns(i) = nIndex
@@ -343,6 +348,8 @@ Public Sub AddEditColumn(ByVal nIndex As Integer, _
     End If
     
     bCheckRegExp(i) = True
+    bValidMessage(i) = bAlwaysGreenMessage
+    
     nColumnCount = nColumnCount + 1
     
     If Not m_bKeepData Then
@@ -1589,6 +1596,7 @@ Property Let ColumnCount(nCol As Integer)
         ReDim bCheckRegExp(nMaxCol - 1)
         ReDim sDisplayFormat(nMaxCol - 1)
         ReDim sErrMessage(nMaxCol - 1)
+        ReDim bValidMessage(nMaxCol - 1)
         
         ReDim GridArray(nMaxCol + 1, 0)
             
@@ -1785,6 +1793,7 @@ Public Sub RemoveEditColumn(ByVal nIndex As Integer)
                 sDefaultValue(i) = sDefaultValue(i + 1)
                 bFieldRequired(i) = bFieldRequired(i + 1)
                 bCheckRegExp(i) = bCheckRegExp(i + 1)
+                bValidMessage(i) = bValidMessage(i + 1)
                 i = i + 1
             Wend
         End If
@@ -2185,6 +2194,7 @@ Public Sub ResetSetup()
     ReDim nEditColumns(0)
     ReDim nColumnType(0)
     ReDim sDefaultValue(0)
+    ReDim bValidMessage(0)
     
     nColumnCount = 0
     nFlagColumn = 0
@@ -2339,7 +2349,7 @@ errTrap:
     If Not m_bIgnoreCellValueError Then
         Dim sErrMsg As String
         sErrMsg = "An error has occurred in CellValue()." & vbCrLf & vbCrLf
-        sErrMsg = sErrMsg & "Err Code: " & err.Number & vbCrLf & "Err Desc: " & err.Description
+        sErrMsg = sErrMsg & "Err Code: " & Err.Number & vbCrLf & "Err Desc: " & Err.Description
         MsgBox sErrMsg, vbExclamation
     End If
     
@@ -3147,8 +3157,8 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         End If
     #End If
     
-    sODBCErrors = err.Description
-    If err.Number = 3146 Then
+    sODBCErrors = Err.Description
+    If Err.Number = 3146 Then
         If Not engDBEngine Is Nothing Then
             With engDBEngine.Errors
                 If .Count > 0 Then
@@ -3170,7 +3180,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     Dim sMsg As String
     If IsMissing(vMsg) Then
         #If DEVELOP Then
-            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(err.Number) & vbCrLf & err.Description
+            sMsg = "An error occurred while doing a SQL query" & vbCrLf & vbCrLf & "Error# " & CStr(Err.Number) & vbCrLf & Err.Description
             sMsg = sMsg & vbCrLf & vbCrLf & strSQL & vbCrLf & vbCrLf & sODBCErrors
             Clipboard.SetText strSQL
         #Else
@@ -3196,7 +3206,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
     If sMsg <> "" Then
         MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
-    err.Clear
+    Err.Clear
 
 End Sub
 
@@ -3289,9 +3299,15 @@ Private Sub fnShowStatus(lRow As Long, nCol As Integer, Optional vAddRow As Vari
 
     If bValidCell(nECol, lRow) Then
         If (nCellChanged(nECol, lRow) And STATUS_CHANGED) = STATUS_CHANGED Then
-            lblStatusbar.ForeColor = &H8000&  'Green text
-            lblStatusbar.Caption = "Data is valid"
-            lblStatusbar.Font.Bold = False
+            If bDefaultValidMessage And bValidMessage(nECol) Then
+                lblStatusbar.ForeColor = &H8000&  'Green text
+                lblStatusbar.Caption = "Data is valid"
+                lblStatusbar.Font.Bold = False
+            Else
+                lblStatusbar.Caption = sPrompt(nECol)
+                lblStatusbar.ForeColor = &H80000012
+                lblStatusbar.Font.Bold = False
+            End If
         Else
             lblStatusbar.Caption = sPrompt(nECol)
             lblStatusbar.ForeColor = &H80000012
@@ -3547,8 +3563,8 @@ extFill:
 errHandler:
     'david 05/06/2003  #408907
     'to trap the out of memory RTE
-    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
-        & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
     ClearData
     Resume extFill
 End Sub
@@ -3700,15 +3716,15 @@ extFill:
     Exit Sub
 
 errFill:
-    MsgBox err.Description, nCRITICAL   ', App.Caption
-    err.Clear
+    MsgBox Err.Description, nCRITICAL   ', App.Caption
+    Err.Clear
     Resume extFill
 
 errHandler:
     'david 05/06/2003  #408907
     'to trap the out of memory RTE
-    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
-        & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+    MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+        & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
     ClearData
     Resume extFill
 End Sub
@@ -3867,14 +3883,14 @@ retTrue:
     On Error GoTo 0
     Exit Function
 retFalse:
-    If err.Number = 13 Then
+    If Err.Number = 13 Then
         lRow = tgTable.Row
         Resume Next
-    ElseIf err.Number = 6148 Then
+    ElseIf Err.Number = 6148 Then
         SendKeys "{DOWN}", True
     Else
         fnGotoNextRow = False
-        err.Clear
+        Err.Clear
         Resume retTrue
     End If
 End Function
@@ -3900,7 +3916,7 @@ retTrue1:
     On Error GoTo 0
     Exit Function
 retFalse1:
-    err.Clear
+    Err.Clear
     Resume retTrue1
 End Function
 
@@ -4288,11 +4304,11 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
     Exit Function
     
 errKeyDown:
-    If err.Number <> 28 Then
+    If Err.Number <> 28 Then
         On Error GoTo 0
         Resume
     End If
-    err.Clear
+    Err.Clear
     nKeyProcessing = KEY_P_FINISHED
 
 End Function
@@ -4695,7 +4711,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
     Exit Function
 
 errRowChanging:
-    err.Clear
+    Err.Clear
     bRowChanging = False
 End Function
 
@@ -4888,6 +4904,7 @@ Private Sub Class_Initialize()
     'default to not showing error message
     m_bIgnoreCellValueError = True
     ''''''''''''''''''''''''''
+    bDefaultValidMessage = True
 
 End Sub
 
@@ -5099,7 +5116,7 @@ Public Sub AddSortColumn(nColIndex As Integer, ParamArray argSortOnKeyList())
     
 errTrap:
     MsgBox "Error has occurred while setting up Sort Column." + vbCrLf + vbCrLf + "Error Code: " & _
-        err.Number & vbCrLf & "Error Desc: " & err.Description, vbExclamation
+        Err.Number & vbCrLf & "Error Desc: " & Err.Description, vbExclamation
 End Sub
 
 'david 05/26/2002
@@ -6032,17 +6049,47 @@ extFill:
         Exit Sub
 
 errFill:
-        MsgBox err.Description, nCRITICAL   ', App.Caption
-        err.Clear
+        MsgBox Err.Description, nCRITICAL   ', App.Caption
+        Err.Clear
         Resume extFill
     
 errHandler:
         'david 05/06/2003  #408907
         'to trap the out of memory RTE
-        MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & err.Number _
-            & vbCrLf & "Error Desc:" & err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
+        MsgBox "An error has occurred in function FillWithArray()." + vbCrLf + vbCrLf + "Error Code: " & Err.Number _
+            & vbCrLf & "Error Desc:" & Err.Description & vbCrLf + vbCrLf + "Ppopulating grid data failed.", vbCritical
         ClearData
         Resume extFill
     End Sub
 #End If
+
+Property Let GreenMessageDefault(bTemp As Boolean)
+    bDefaultValidMessage = bTemp
+End Property
+
+Property Let GreenMessage(ByVal nIndex As Integer, bTemp As Boolean)
+    If nIndex >= tgTable.Columns.Count Then
+        Exit Property
+    End If
+    Dim nCol As Integer
+    nCol = fnColumnNumber(nIndex)
+    If nCol < 0 Then
+        Exit Property
+    End If
+        
+    bValidMessage(nCol) = bTemp
+End Property
+
+Property Get GreenMessage(ByVal nIndex As Integer) As Boolean
+    If nIndex >= tgTable.Columns.Count Then
+        Exit Property
+    End If
+    Dim nCol As Integer
+    nCol = fnColumnNumber(nIndex)
+    If nCol < 0 Then
+        Exit Property
+    End If
+        
+    GreenMessage = bValidMessage(nCol)
+End Property
 
