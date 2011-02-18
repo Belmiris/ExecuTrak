@@ -372,7 +372,11 @@ Public Function fnRunExe(sExe As String, _
     fnRunExe = False
     
     If bFromFactorMenu Then
-        fnRunExe = frmContext.RunProgram(sExe, sModuleID)
+        #If NO_CONTEXT_FRM Then
+            MsgBox "This project does not have context.frm. Need to set the variable bFromFactorMenu to False when calling fnRunExe().", vbCritical
+        #Else
+            fnRunExe = frmContext.RunProgram(sExe, sModuleID)
+        #End If
     Else
         On Error GoTo errLaunching
         'LockWin frmCall  'trap user unput during application load
