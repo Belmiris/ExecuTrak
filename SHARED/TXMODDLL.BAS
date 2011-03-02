@@ -5902,7 +5902,8 @@ Public Function CalculateLineTax(recLine As CMovementLineItem, _
                                  accm_txble_amt As Double, _
                                  Optional bShowMsgBox As Boolean = True, _
                                  Optional sErrMsg As String = "", _
-                                 Optional bDisableATax As Boolean = False) As Integer
+                                 Optional bDisableATax As Boolean = False, _
+                                 Optional bApplyLimit As Boolean = True) As Integer
     
     On Error GoTo errTrap
     
@@ -6085,12 +6086,15 @@ continue_while_loop:
                     sErrMsg = ""
                     Exit Function
                 Case LineType.ExternalDel
-                    '// calculate taxes ONLY if the tax record's
-                    '// charge flag is "Y"
-                    If (m_parryTxTable(nIdx).m_cCharge <> "Y") Then
-                        nIdx = nIdx + 1
-                        GoTo continue_while_loop
-                    End If
+                    'david 02/21/2011  #3223
+                    'need to calculate the taxes regardless the charge flag
+                    'commneted out
+                    ''// calculate taxes ONLY if the tax record's
+                    ''// charge flag is "Y"
+                    'If (m_parryTxTable(nIdx).m_cCharge <> "Y") Then
+                    '    nIdx = nIdx + 1
+                    '    GoTo continue_while_loop
+                    'End If
                 Case Else
                     sErrMsg = "Tax Line Type " & tLineType & " is not valid"
                     Exit Function
@@ -6434,9 +6438,15 @@ continue_while_loop:
                                                 - .m_fAccumTaxAmt)
                                         End If
                                     Else
-                                        'accum tax amt is already over or equal to the limit,
-                                        'set the tax amount to 0
-                                        m_parryTxTable(nIdx).m_dAmount = 0#
+                                        'david 02/22/2011  #3223-688851
+                                        'added the bApplyLimit checking, ignore the limits on invoice
+                                        'when calculate the line taxes
+                                        If bApplyLimit Then
+                                            'accum tax amt is already over or equal to the limit,
+                                            'set the tax amount to 0
+                                            m_parryTxTable(nIdx).m_dAmount = 0#
+                                        End If
+                                        '''''''''''''''''''''''''''''''
                                     End If
                                     
                                     .m_fAccumTaxAmt = .m_fAccumTaxAmt + tfnRound(m_parryTxTable(nIdx).m_dAmount, 2)
@@ -6636,7 +6646,8 @@ Public Function fnCalculateTaxes2(sProduct As String, _
         .m_tLineType = TXMOD_EXTDEL
     End With
 
-    nRecords = CalculateLineTax(myStruct, hld_vessel, hld_gals, hld_miles, hld_tot_gals, t_tax_date, dAccmTxbleAmt, bShowMsgBox, sErrMsg, True)
+    nRecords = CalculateLineTax(myStruct, hld_vessel, hld_gals, hld_miles, hld_tot_gals, t_tax_date, _
+        dAccmTxbleAmt, bShowMsgBox, sErrMsg, True, bApplyLimit)
     subDealWithATaxes Taxes, nRecords
 
     'Calculate the sum of the taxes
