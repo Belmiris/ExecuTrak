@@ -61,6 +61,7 @@ Private m_frmQueryTime As Form           '#Need to be set to frmQueryTime
 Private m_local As DataBase              '#Local Table. Used to query load date
                                          '#if not set, the feature is not available
 Private m_bQueryTime_Active As Boolean           '#If false, the popup feature is not
+'
 
 'david 08/08/2006  #527819 NDR
 #Const DEBUG_LOG = False
@@ -106,22 +107,30 @@ End Function ' product_price
 'change DEST_FLAG to ORIGIN_DEST_FLAG
 'The value pass into ORIGIN_DEST_FLAG will be LadingIEflag and DeliveryIEflag combine.
 'i.e. II, IE, EI, and EE, if only one flag is passing in then both flag will be set to the same flag
+'david 03/22/2011  #3276
+'Added DeliveryDate and DeliveryTime
+'david 03/22/2011  #3375-696170
+'Added Vendor for Quote Pricing
 Public Function Fuel_price( _
                                 ByVal ORIGIN_DEST_FLAG As String, _
                                 ByVal sProductCode As String, _
                                 ByVal lProfitCenter As Long, _
                                 ByVal lCustomer As Long, _
-                                dfQuantity As Double, _
-                                dfCost As Double, _
-                                dfDiscountedCost As Double, _
-                                lOrigin As Long, _
+                                ByVal dfQuantity As Double, _
+                                ByVal dfCost As Double, _
+                                ByVal dfDiscountedCost As Double, _
+                                ByVal lOrigin As Long, _
                                 t_dbMainDatabase As DataBase, _
-                                Optional lSite As Long = -1, _
-                                Optional sInvoiceDate As String = "", _
-                                Optional sErrMsg As String = "", _
-                                Optional zzerc_contract_nbr As String = "", _
-                                Optional lMvNbr As Long = 0, _
-                                Optional sLadingProducts As String = "" _
+                                Optional ByVal lSite As Long = -1, _
+                                Optional ByVal sInvoiceDate As String = "", _
+                                Optional ByRef sErrMsg As String = "", _
+                                Optional ByVal zzerc_contract_nbr As String = "", _
+                                Optional ByVal lMvNbr As Long = 0, _
+                                Optional ByVal sLadingProducts As String = "", _
+                                Optional ByVal sDeliveryDate As String = "", _
+                                Optional ByVal sDeliveryTime As String = "", _
+                                Optional ByVal lVendor As Long = -1, _
+                                Optional ByVal lDelivery As Long = 0 _
                              ) As Double
     Dim sLoadingDate As String
     Dim lMaxLading As Long
@@ -137,17 +146,41 @@ Public Function Fuel_price( _
     End If
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
-        '#If Fuel Loading date/time has been entered, use it to cal price
-        sub_Check_and_Set_DateTime lMvNbr, sLadingProducts, sProductCode, lMaxLading, sLoadingDate
+        'david 03/22/2011  #3276
+        Dim strSQL As String
+        Dim rsTemp As Recordset
+        Dim bUseDeliveryTimeForPricing As Boolean
+        
+        strSQL = "select parm_field from sys_parm where parm_nbr = 1545"
+        
+        If Price_fnOpenRecord(rsTemp, strSQL, t_dbMainDatabase) > 0 Then
+            If Trim(rsTemp!parm_field & "") = "Y" Then
+                bUseDeliveryTimeForPricing = True
+            End If
+        End If
+        
+        If bUseDeliveryTimeForPricing And sDeliveryDate <> "" And sDeliveryTime <> "" Then
+            set_fuel_load_datetime sDeliveryDate, sDeliveryTime
+        Else
+            '#If Fuel Loading date/time has been entered, use it to cal price
+            sub_Check_and_Set_DateTime lMvNbr, sLadingProducts, sProductCode, lMaxLading, sLoadingDate
+        End If
+        ''''''''''''''''''''''''
     End If
+    
+    If Not bUseDeliveryTimeForPricing Then
+        lDelivery = 0
+    End If
+    
     ' dest_flag is I or E:
     Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                           dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
                           t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, _
-                          , , , ORIGIN_FLAG)
+                          , , , ORIGIN_FLAG, lVendor)
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
-        If fnNeed_ReCal_Price_With_Loading_Time(sProductCode, lMvNbr, lMaxLading, sLoadingDate, lCustomer) Then
+        If fnNeed_ReCal_Price_With_Loading_Time(sProductCode, lMvNbr, lMaxLading, _
+           sLoadingDate, lCustomer, lDelivery, sDeliveryTime) Then
            '#The following conditions must be satisfied in order to recalcualte price:
            '#(1)We want to do this recalcualtion. ie m_bQueryTime_Active must be true
            '#(2)Loading Time is NOT provided
@@ -155,7 +188,7 @@ Public Function Fuel_price( _
             Fuel_price = sp_price(sProductCode, lProfitCenter, lCustomer, _
                                   dfQuantity, dfCost, dfDiscountedCost, Null, lOrigin, ORIGIN_FLAG, _
                                   t_dbMainDatabase, lSite, sInvoiceDate, sErrMsg, zzerc_contract_nbr, _
-                                  , , , ORIGIN_FLAG)
+                                  , , , ORIGIN_FLAG, lVendor)
         End If
         '#Clear m_fuel_load_datetime
         set_fuel_load_datetime szEMPTY, szEMPTY, False
@@ -198,6 +231,8 @@ End Sub
 ' an override to Origin/Destination pricing as set in sys parm 6202
 ' david 11/30/2010  #3000
 ' Add sQuotePriceOriginFlag so that the quote pricing can handle E-Terminal and I-Profit Center
+'david 03/22/2011  #3375-696170
+'Added Vendor for Quote Pricing
 Private Function sp_price(ByVal sProductCode As String, _
                             ByVal lProfitCenter As Long, _
                             ByVal lCustomer As Long, _
@@ -215,13 +250,17 @@ Private Function sp_price(ByVal sProductCode As String, _
                             Optional sStatusFlag As String = "", _
                             Optional sOverrideOD As String = "", _
                             Optional bTieredPricing As Boolean = False, _
-                            Optional sQuotePriceOriginFlag As String = "" _
+                            Optional sQuotePriceOriginFlag As String = "", _
+                            Optional lVendor As Long = -1 _
                             ) As Double
                             
         Dim i As Integer
         'david 10/20/2010  #2478
         '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
-        Dim arg_val(19) As String
+        'david 03/22/2011  #3375-696170
+        Const MAX_ARGS As Integer = 20
+        Dim arg_val(MAX_ARGS) As String
+        '''''''''''''''''''''''''''''''
         ''''''''''''''''''''''''
         Dim sRunCmd As String
         Dim sOutPutstr As String
@@ -296,12 +335,16 @@ Private Function sp_price(ByVal sProductCode As String, _
         End If
         ''''''''''''''''''''''''
         
+        'david 03/22/2011  #3375-696170
+        arg_val(20) = lVendor
+        '''''''''''''''''''''''''''''''
+        
         sRunCmd = arg_val(0)
         
         'david 11/30/2010  #3000
         'david 10/20/2010  #2478
         'For i = 1 To 17 '#448713 - Increase from 15 to 16  '612568- increase from 16 to 17
-        For i = 1 To 19
+        For i = 1 To MAX_ARGS
         ''''''''''''''''''''''''
         ''''''''''''''''''''''''
            sRunCmd = sRunCmd & Space(1) & arg_val(i)
@@ -395,6 +438,12 @@ Public Sub Pricing_FuelCostSetQueryTimeForm(frm As Form, _
     End If
 End Sub
 
+'david 03/22/2011  #3276
+Public Sub Pricing_ResetFuelLoadTimeAry()
+    m_LoadTimeCnt = 0
+    ReDim m_aryLoadTime(0)
+End Sub
+
 '#Call this function when you know the loading time. It is typically
 '#after Query Time
 Public Sub Pricing_AddToFuelLoadTimeAry(ByVal lMv As Long, _
@@ -439,15 +488,15 @@ Public Sub Pricing_RemoveFromFuelLoadTimeAry(ByVal lMv As Long, _
     For i = 0 To m_LoadTimeCnt - 1
         With m_aryLoadTime(i)
             If .mv_nbr = lMv And .L_D = sLDflag Then
-                 If sLDflag = "L" Then
-                      If .lad_nbr = lLad Then
-                          .mv_nbr = -1
-                      End If
-                 Else
-                      If .cust = lCustomer Then
-                          .mv_nbr = -1
-                      End If
-                 End If
+                If sLDflag = "L" Then
+                    If .lad_nbr = lLad Then
+                        .mv_nbr = -1
+                    End If
+                Else
+                    If .cust = lCustomer Then
+                        .mv_nbr = -1
+                    End If
+                End If
             End If
         End With
     Next
@@ -574,14 +623,15 @@ Private Sub sub_Check_and_Set_DateTime(ByVal lMv As Long, _
 End Sub
 
 Private Function fnNeed_ReCal_Price_With_Loading_Time(ByVal sDelvProd As String, _
-                                                     ByVal lMv As Long, _
-                                                     ByVal lLad As Long, _
-                                                     ByVal sLoadingDate As String, _
-                                                     ByVal lCustomer As Long) As Boolean
+                                                      ByVal lMv As Long, _
+                                                      ByVal lLad As Long, _
+                                                      ByVal sLoadingDate As String, _
+                                                      ByVal lCustomer As Long, _
+                                                      ByVal lDelivery As Long, _
+                                                      ByRef sTime As String) As Boolean
      Dim strSQL As String
      Dim rsTemp As Recordset
      Dim sPDesc As String
-     Dim sTime As String
      
      fnNeed_ReCal_Price_With_Loading_Time = False
      
@@ -593,7 +643,7 @@ Private Function fnNeed_ReCal_Price_With_Loading_Time(ByVal sDelvProd As String,
         strSQL = "SELECT ivh_desc FROM inv_header WHERE ivh_product = " & tfnSQLString(sDelvProd)
         If Price_fnOpenRecord(rsTemp, strSQL, t_dbMainDatabase) > 0 Then
             sPDesc = Trim(rsTemp!ivh_desc & szEMPTY)
-            sTime = fnFMQueryTime(sDelvProd, sPDesc, sLoadingDate, lMv, lLad, lCustomer)
+            sTime = fnFMQueryTime(sDelvProd, sPDesc, sLoadingDate, lMv, lLad, lCustomer, lDelivery)
             set_fuel_load_datetime sLoadingDate, sTime
             
             fnNeed_ReCal_Price_With_Loading_Time = True
@@ -606,14 +656,23 @@ Private Function fnFMQueryTime(sPCode As String, _
                              sDate As String, _
                              ByVal lMv As Long, _
                              ByVal lLad As Long, _
-                             ByVal lCustomer As Long) As String
+                             ByVal lCustomer As Long, _
+                             ByVal lDelivery As Long) As String
     If m_frmQueryTime Is Nothing Then
         Exit Function
     End If
     
     With m_frmQueryTime
+        'set the form and labels caption
+        If lDelivery > 0 Then
+            .LadingOrDelivery = "D"
+            .lblLading = lDelivery
+        Else
+            .LadingOrDelivery = "L"
+            .lblLading = lLad
+        End If
+        
         .lblMovement = lMv
-        .lblLading = lLad
         .lblProductCode = sPCode
         .lblProductDesc = sPDesc
         .lblDate = sDate
