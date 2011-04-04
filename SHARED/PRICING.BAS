@@ -136,6 +136,7 @@ Public Function Fuel_price( _
     Dim lMaxLading As Long
     Dim ORIGIN_FLAG As String
     Dim DEST_FLAG As String
+    Dim bUseDeliveryTimeForPricing As Boolean
     
     If Len(ORIGIN_DEST_FLAG) = 2 Then
         ORIGIN_FLAG = Left(ORIGIN_DEST_FLAG, 1)
@@ -146,24 +147,23 @@ Public Function Fuel_price( _
     End If
     
     If DEST_FLAG = "E" And lMvNbr > 0 And m_bQueryTime_Active Then
+        '#If Fuel Loading date/time has been entered, use it to cal price
+        sub_Check_and_Set_DateTime lMvNbr, sLadingProducts, sProductCode, lMaxLading, sLoadingDate
+        
         'david 03/22/2011  #3276
-        Dim strSQL As String
-        Dim rsTemp As Recordset
-        Dim bUseDeliveryTimeForPricing As Boolean
-        
-        strSQL = "select parm_field from sys_parm where parm_nbr = 1545"
-        
-        If Price_fnOpenRecord(rsTemp, strSQL, t_dbMainDatabase) > 0 Then
-            If Trim(rsTemp!parm_field & "") = "Y" Then
-                bUseDeliveryTimeForPricing = True
+        If sDeliveryDate <> "" And sDeliveryTime <> "" Then
+            Dim strSQL As String
+            Dim rsTemp As Recordset
+            
+            strSQL = "select parm_field from sys_parm where parm_nbr = 1545"
+            
+            If Price_fnOpenRecord(rsTemp, strSQL, t_dbMainDatabase) > 0 Then
+                If Trim(rsTemp!parm_field & "") = "Y" Then
+                    bUseDeliveryTimeForPricing = True
+                    sLoadingDate = sDeliveryDate
+                    set_fuel_load_datetime sDeliveryDate, sDeliveryTime
+                End If
             End If
-        End If
-        
-        If bUseDeliveryTimeForPricing And sDeliveryDate <> "" And sDeliveryTime <> "" Then
-            set_fuel_load_datetime sDeliveryDate, sDeliveryTime
-        Else
-            '#If Fuel Loading date/time has been entered, use it to cal price
-            sub_Check_and_Set_DateTime lMvNbr, sLadingProducts, sProductCode, lMaxLading, sLoadingDate
         End If
         ''''''''''''''''''''''''
     End If
