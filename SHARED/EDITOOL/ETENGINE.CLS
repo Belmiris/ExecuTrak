@@ -1202,6 +1202,13 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                     End If
                 End If
                 
+                'david 04/08/2011  #3489-701427
+                '# 'Freight FM' should not report in the tax schedule
+                If bOkToAdd Then
+                    bOkToAdd = Not fnIsFreightFM(tfnRound(!fmm_movement))
+                End If
+                '''''''''''''''''''''''''''''''
+                
                 If bOkToAdd Then
                     colTemp.Add ciTemp
                 End If
@@ -2270,4 +2277,44 @@ Private Function fnGetUseGrpFromLnk(lUlink As Long) As String
 
 End Function
 ''''''''''''''''''''''''''
+
+'david 04/08/2011  #3489-701427
+Private Function fnIsFreightFM(ByVal lMovement As Long) As Boolean
+    
+    Const SUB_NAME = "fnIsFreightFM"
+    Static sParm10015 As String
+
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    If sParm10015 = "" Then
+        sParm10015 = fnGetSysParm(10015)
+        
+        If sParm10015 = "" Then
+            sParm10015 = "not_setup"
+        End If
+    End If
+    
+    If sParm10015 = "not_setup" Then
+        Exit Function
+    End If
+    
+    strSQL = "SELECT count(*) as cnt"
+    strSQL = strSQL + " FROM tx_use_g, fm_lad_tax"
+    strSQL = strSQL + " WHERE fmldt_movement = " & lMovement
+    strSQL = strSQL + " AND tu_link = fmldt_ulink"
+    strSQL = strSQL + " AND tu_use_g matches '*" & sParm10015 & "*'"
+    
+    Set rsTemp = fnOpenRecord(strSQL, SUB_NAME, "", , False)
+    
+    If rsTemp Is Nothing Then
+        Exit Function
+    End If
+    
+    If rsTemp.RecordCount > 0 Then
+        fnIsFreightFM = tfnRound(rsTemp!cnt) > 0
+    End If
+    
+End Function
+'''''''''''''''''''''''''''''''
 
