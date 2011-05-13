@@ -1083,37 +1083,27 @@ End Function
 '#Parm Passed : None
 '#Return: the batch number if success; -1 if fail;
 '#
-'#WJ 01/27/2003
 '#NOTE: You need to call tfn_Unlock_GL_Batch_Nbr
-'#      After you finish processing or cancel the
-'#      GL processing.
+'#      After you finish processing or cancel the GL processing.
 '#      Try to avoid unnecessary function call tfn_Get_GL_Batch_Nbr
 '#      since this will waste Batch numbers
+'#3581-702947
 Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
+    Const SUB_NAME As String = "tfn_Get_GL_Batch_Nbr"
+    Const DATA_LOCK_ID As String = "GLERJRNL"
+    
     Dim strSQL As String
     Dim rsTemp As Recordset
     Dim lValue As Long
     
     On Error GoTo Err_Exit
     
-'#4GL use parm 2225, however, in windows Bob wanted to use Max(glj_batch).
-'#While max will work, but parm should be faster? If we decide to use 2225
-'#later, it may slow the program down ...
-
-'
-'    strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 2225 "
-'
-'    Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
-'    If rsTemp.RecordCount > 0 Then
-'        lValue = tfnRound(rsTemp!parm_field)
-'    Else
-'        lValue = 0
-'        strSQL = "INSERT INTO sys_parm VALUES (2225,'0','Last G/L Batch Number Used')"
-'        t_dbMainDatabase.ExecuteSQL strSQL
-'    End If
     If lBatch = 0 Then 'Generate Batch Number
         tfn_Unlock_GL_Batch_Nbr
         
+        'NOTE:
+        'we are not getting the "Last G/L Batch Number Used" from sysparm #2225
+        'instead, use the max(glj_batch) from gl_journal
         strSQL = "SELECT Max(glj_batch) HighBatch FROM gl_journal"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount > 0 Then
@@ -1124,15 +1114,24 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
         
         Do While True
             lValue = lValue + 1
-            strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
+            
+            'read the sys_data_lock table for a match, upping the number each time
+            'until no record is found
+            strSQL = "select sdl_data from sys_data_lock" _
+                + " where sdl_prog = " & tfnSQLString(DATA_LOCK_ID) _
+                + " and sdl_data = " & lValue
+    
             Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
             If rsTemp.RecordCount = 0 Then
-                strSQL = "UPDATE sys_parm SET parm_field = '" & CStr(lValue) & "' WHERE parm_nbr = 2225"
+                strSQL = "INSERT INTO sys_data_lock VALUES (" _
+                    + tfnSQLString(tfnGetUserName()) + "," _
+                    + tfnSQLString(DATA_LOCK_ID) + "," _
+                    & lValue & ")"
                 t_dbMainDatabase.ExecuteSQL strSQL
                 
-                strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
-                strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
+                strSQL = "UPDATE sys_parm SET parm_field = '" & CStr(lValue) & "' WHERE parm_nbr = 2225"
                 t_dbMainDatabase.ExecuteSQL strSQL
+
                 m_Saved_GL_Batch = lValue
                 tfn_Get_GL_Batch_Nbr = lValue
                 Exit Function
@@ -1146,15 +1145,23 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
             tfn_Get_GL_Batch_Nbr = lBatch
             Exit Function
         End If
+        
         tfn_Unlock_GL_Batch_Nbr
         
         lValue = lBatch
-        strSQL = "SELECT glj_batch FROM gl_journal WHERE glj_batch =" & lValue
+        
+        strSQL = "select sdl_data from sys_data_lock" _
+            + " where sdl_prog = " & tfnSQLString(DATA_LOCK_ID) _
+            + " and sdl_data = " & lValue
+
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount = 0 Then
-            strSQL = "INSERT INTO gl_journal (glj_entry_nbr,glj_account,glj_amount,glj_batch)"
-            strSQL = strSQL & " VALUES (0,0,0," & lValue & ")"
+            strSQL = "INSERT INTO sys_data_lock VALUES (" _
+                + tfnSQLString(tfnGetUserName()) + "," _
+                + tfnSQLString(DATA_LOCK_ID) + "," _
+                & lValue & ")"
             t_dbMainDatabase.ExecuteSQL strSQL
+            
             m_Saved_GL_Batch = lValue
             tfn_Get_GL_Batch_Nbr = lValue
             Exit Function
@@ -1162,30 +1169,50 @@ Public Function tfn_Get_GL_Batch_Nbr(ByVal lBatch As Long) As Long
             tfn_Get_GL_Batch_Nbr = -1
         End If
     End If
+    
     Exit Function
+
 Err_Exit:
+    m_Saved_GL_Batch = 0
     tfn_Get_GL_Batch_Nbr = -1
 End Function
 
 '#Function Name: tfn_Unlock_GL_Batch_Nbr
 '#Parm Passed : None
 '#Return: true/false
-'#
-'#WJ 01/27/2003
+'#3581-702947
 Public Function tfn_Unlock_GL_Batch_Nbr() As Boolean
-    Dim strSQL As String
+    Const SUB_NAME As String = "tfn_Unlock_GL_Batch_Nbr"
+    Const DATA_LOCK_ID As String = "GLERJRNL"
     
-    On Error GoTo Err_Exit
-    
-    If m_Saved_GL_Batch > 0 Then
-        strSQL = "DELETE FROM gl_journal WHERE glj_account = 0 AND glj_amount = 0 AND glj_batch=" & m_Saved_GL_Batch
-        t_dbMainDatabase.ExecuteSQL strSQL
+    If m_Saved_GL_Batch <= 0 Then
+        tfn_Unlock_GL_Batch_Nbr = True
+        Exit Function
     End If
+    
+    'deletes the record written to sys data lock with the
+    'current batch number being created.
+    Dim strSQL As String
+    Screen.MousePointer = vbHourglass
+    
+    strSQL = "DELETE FROM sys_data_lock WHERE " _
+        & "sdl_prog = " & tfnSQLString(DATA_LOCK_ID) _
+        & " AND sdl_data = " & m_Saved_GL_Batch
+    
+    On Error GoTo DELETE_ERROR
+    t_dbMainDatabase.ExecuteSQL strSQL
+    On Error GoTo 0
+    
     m_Saved_GL_Batch = 0
     tfn_Unlock_GL_Batch_Nbr = True
+
+RETURN_HERE:
+    Screen.MousePointer = vbDefault
     Exit Function
-Err_Exit:
-    tfn_Unlock_GL_Batch_Nbr = False
+
+DELETE_ERROR:                       'Error occurred during the delete
+    tfnErrHandler SUB_NAME, strSQL
+    Resume RETURN_HERE
 End Function
 
 '
@@ -2453,7 +2480,7 @@ Public Function tfnRun(szExeName As String, _
                        Optional vWindowStyle As Integer = SW_SHOWNORMAL, _
                        Optional bHandShake As Boolean = True, _
                        Optional sParms As String = "", _
-                       Optional lProcID As Long = 0) As Boolean
+                       Optional ByRef lProcID As Long = 0) As Boolean
                        '#lProcID added by wj on 06/23/2005
     Dim szCmd As String
     Dim hTempInstance As Long
@@ -3435,7 +3462,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3652,7 +3679,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
