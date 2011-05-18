@@ -5042,3 +5042,71 @@ End Function
 'david 10/20/2010  #2478
 ''''''''''''''''''''''''
 
+'david 05/13/2011  #3338
+''''''''''''''''''''''''
+'called this function inside the tmrKeyboard_Timer() event
+Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String)
+    Static lastTime As Single
+    Static lastPosition As String
+    Dim coordinates As String
+    
+    If frm.WindowState <> vbNormal Then
+        Exit Sub
+    End If
+    
+    If lastTime = 0# Then
+        lastTime = Timer
+        Exit Sub
+    End If
+    
+    'save the coordinates every 2.5 seconds (if needed)
+    If Timer - lastTime < 2.5 Then
+        Exit Sub
+    End If
+    
+    lastTime = Timer
+    
+    coordinates = frm.Left & "," & _
+                  frm.Top & "," & _
+                  frm.Width & "," & _
+                  frm.Height & "," & _
+                  frm.WindowState
+
+    If lastPosition <> coordinates Then
+        lastPosition = coordinates
+        tfn_Write_SYS_INI sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES", coordinates
+Debug.Print "Saving coordinates = " + coordinates
+    End If
+End Sub
+
+'called this function inside the Form_Load() event
+'return true if the form postion is set
+Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
+                                       Optional bSetWindowState As Boolean = False) As Boolean
+                                  
+    Dim coordinates As String
+    Dim coords() As String
+    
+    coordinates = tfn_Read_SYS_INI(sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES")
+    
+    coords = Split(coordinates, ",")
+    
+    If UBound(coords) >= 3 Then
+        frm.Left = Val(coords(0))
+        frm.Top = Val(coords(1))
+        frm.Width = Val(coords(2))
+        frm.Height = Val(coords(3))
+        
+        If bSetWindowState And UBound(coords) > 3 Then
+            frm.WindowState = Val(coords(4))
+        End If
+        
+        tfnSetFormPositionSize = True
+    End If
+
+End Function
+'david 05/13/2011  #3338
+''''''''''''''''''''''''
+
+
+
