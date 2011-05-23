@@ -5045,10 +5045,23 @@ End Function
 'david 05/13/2011  #3338
 ''''''''''''''''''''''''
 'called this function inside the tmrKeyboard_Timer() event
-Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String)
+Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, Optional nWindowState As Integer = 0)
     Static lastTime As Single
     Static lastPosition As String
     Dim coordinates As String
+    
+    If nWindowState <> 0 Then
+        coordinates = frm.Left & "," & _
+                      frm.Top & "," & _
+                      frm.Width & "," & _
+                      frm.Height & "," & _
+                      nWindowState
+
+        lastPosition = coordinates
+        tfn_Write_SYS_INI sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES", coordinates
+Debug.Print "Saving coordinates = " + coordinates
+        Exit Sub
+    End If
     
     If frm.WindowState <> vbNormal Then
         Exit Sub
