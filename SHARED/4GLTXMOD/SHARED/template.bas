@@ -5045,7 +5045,9 @@ End Function
 'david 05/13/2011  #3338
 ''''''''''''''''''''''''
 'called this function inside the tmrKeyboard_Timer() event
-Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, Optional nWindowState As Integer = 0)
+Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
+                                   Optional nWindowState As Integer = 0, _
+                                   Optional bAlwaysSave As Boolean = False)
     Static lastTime As Single
     Static lastPosition As String
     Dim coordinates As String
@@ -5072,9 +5074,11 @@ Debug.Print "Saving coordinates = " + coordinates
         Exit Sub
     End If
     
-    'save the coordinates every 2.5 seconds (if needed)
-    If Timer - lastTime < 2.5 Then
-        Exit Sub
+    If Not bAlwaysSave Then
+        'save the coordinates every 2.5 seconds (if needed)
+        If Timer - lastTime < 2.5 Then
+            Exit Sub
+        End If
     End If
     
     lastTime = Timer
@@ -5095,23 +5099,43 @@ End Sub
 'called this function inside the Form_Load() event
 'return true if the form postion is set
 Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
-                                       Optional bSetWindowState As Boolean = False) As Boolean
+                                       Optional bSetWindowState As Boolean = False, _
+                                       Optional bReSizable As Boolean = True, _
+                                       Optional sngMinWidth As Single = 0#, _
+                                       Optional sngMinHeight As Single = 0#) As Boolean
                                   
     Dim coordinates As String
     Dim coords() As String
+    Dim sngLeft As Single
+    Dim sngTop As Single
+    Dim sngWidth As Single
+    Dim sngHeight As Single
     
     coordinates = tfn_Read_SYS_INI(sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES")
     
     coords = Split(coordinates, ",")
     
     If UBound(coords) >= 3 Then
-        frm.Left = Val(coords(0))
-        frm.Top = Val(coords(1))
-        frm.Width = Val(coords(2))
-        frm.Height = Val(coords(3))
+        sngLeft = Val(coords(0))
+        sngTop = Val(coords(1))
+        sngWidth = Val(coords(2))
+        sngHeight = Val(coords(3))
+        
+        If sngLeft >= 0 Then frm.Left = sngLeft
+        If sngTop >= 0 Then frm.Top = sngTop
+        
+        If sngWidth > 0 And bReSizable Then
+            If sngMinWidth > 0 And sngWidth < sngMinWidth Then sngWidth = sngMinWidth
+            frm.Width = sngWidth
+        End If
+        
+        If sngHeight > 0 And bReSizable Then
+            If sngMinHeight > 0 And sngHeight < sngMinHeight Then sngHeight = sngMinHeight
+            frm.Height = sngHeight
+        End If
         
         If bSetWindowState And UBound(coords) > 3 Then
-            frm.WindowState = Val(coords(4))
+            If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))
         End If
         
         tfnSetFormPositionSize = True
