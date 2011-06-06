@@ -116,6 +116,7 @@ Public Function RunApp(sProgramPath As String, sProgramName As String, sArgs As 
                        Optional bHandShake As Boolean = True, _
                        Optional bUseFactMenu As Boolean = True, _
                        Optional vWindowStyle As Integer = SW_SHOWNORMAL, _
+                       Optional ByVal lProcID As Long = 0, _
                        Optional ByVal bShowError As Boolean = True, _
                        Optional ByRef sErrMsg As String) As Long
     Dim bCreatePipeline As Boolean
@@ -185,23 +186,42 @@ Public Function RunApp(sProgramPath As String, sProgramName As String, sArgs As 
     
     'lunch app that does not need factor menu
     Dim sProgram As String
-    sProgram = Trim(sProgramPath)
-    If sProgram <> "" Then
-        If Right(sProgram, 1) <> "\" Then
-            sProgram = sProgram + "\"
-        End If
-    End If
-    sProgram = sProgram + Trim(sProgramName)
     
-    If Not tfnRun(sProgram, vWindowStyle, bHandShake, sArgs, lExeHandler) Then
-        sErrMsg = "Unable to run '" + sProgram + "' in " + m_sPipelineName + "!"
+    If bHandShake Then
+        sProgram = App.Path + "\" + Trim(sProgramName) + ".EXE"
         
-        If bShowError Then
-            MsgBox sErrMsg, vbCritical
+        If Not fnExeIsRunning(sProgram, lProcID) Then
+            If Not tfnRun(sProgramName, vWindowStyle, bHandShake, sArgs, lExeHandler, False) Then
+                sErrMsg = "Unable to run '" + sProgram + "' in " + m_sPipelineName + "!"
+                
+                If bShowError Then
+                    MsgBox sErrMsg, vbCritical
+                End If
+                
+                Screen.MousePointer = nMousePointer
+                Exit Function
+            End If
         End If
-        
-        Screen.MousePointer = nMousePointer
-        Exit Function
+    Else
+        sProgram = Trim(sProgramPath)
+        If sProgram <> "" Then
+            If Right(sProgram, 1) <> "\" Then
+                sProgram = sProgram + "\"
+            End If
+        End If
+    
+        sProgram = sProgram + Trim(sProgramName)
+    
+        If Not fnRunExe(sProgram, vWindowStyle, , , bShowError) Then
+            sErrMsg = "Unable to run '" + sProgram + "' in " + m_sPipelineName + "!"
+            
+            If bShowError Then
+                MsgBox sErrMsg, vbCritical
+            End If
+            
+            Screen.MousePointer = nMousePointer
+            Exit Function
+        End If
     End If
     
     RunApp = lExeHandler
@@ -313,6 +333,6 @@ Private Sub Form_Initialize()
     m_sPipelineName = "Pipeline Object"
 End Sub
 
-Private Sub Form_Unload(Cancel As Integer)
+Private Sub Form_Unload(CANCEL As Integer)
     Reset
 End Sub

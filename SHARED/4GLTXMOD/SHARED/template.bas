@@ -2480,7 +2480,8 @@ Public Function tfnRun(szExeName As String, _
                        Optional vWindowStyle As Integer = SW_SHOWNORMAL, _
                        Optional bHandShake As Boolean = True, _
                        Optional sParms As String = "", _
-                       Optional ByRef lProcID As Long = 0) As Boolean
+                       Optional ByRef lProcID As Long = 0, _
+                       Optional bShowErrMsg As Boolean = True) As Boolean
                        '#lProcID added by wj on 06/23/2005
     Dim szCmd As String
     Dim hTempInstance As Long
@@ -2525,10 +2526,14 @@ Public Function tfnRun(szExeName As String, _
         End If
     Else
         #If NO_ERROR_HANDLER Then
-            MsgBox "Cannot execute program"
+            If bShowErrMsg Then
+                MsgBox "Cannot execute program"
+            End If
         #Else
-            tfnErrHandler "tfnRun", 60007, " - " & gszBINROOT & szExeName
+            tfnErrHandler "tfnRun", 60007, " - " & gszBINROOT & szExeName _
+                + IIf(InStr(szExeName, ".") = 0, ".exe", ""), bShowErrMsg
         #End If
+        
         tfnRun = False 'application failed to launch
         Exit Function
     End If
@@ -2537,9 +2542,11 @@ Public Function tfnRun(szExeName As String, _
 
 ErrorRun:
     #If NO_ERROR_HANDLER Then
-        MsgBox "Cannot execute program" & vbCrLf & Err.Description
+        If bShowErrMsg Then
+            MsgBox "Cannot execute program - " & vbCrLf & Err.Description
+        End If
     #Else
-        tfnErrHandler "tfnRun"
+        tfnErrHandler "tfnRun", , , bShowErrMsg
     #End If
 End Function
 
@@ -5047,52 +5054,84 @@ End Function
 'called this function inside the tmrKeyboard_Timer() event
 Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
                                    Optional nWindowState As Integer = 0, _
-                                   Optional bAlwaysSave As Boolean = False)
+                                   Optional bAlwaysSave As Boolean = False, _
+                                   Optional bUpdateWinStateOnly As Boolean = False)
     Static lastTime As Single
     Static lastPosition As String
-    Dim coordinates As String
+    Static lastAppName As String
     
-    If nWindowState <> 0 Then
+    Dim coordinates As String
+    Dim coords() As String
+    Dim sngLeft As Single
+    Dim sngTop As Single
+    Dim sngWidth As Single
+    Dim sngHeight As Single
+    
+    If bUpdateWinStateOnly Then
+        coordinates = tfn_Read_SYS_INI(sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES")
+        
+        coords = Split(coordinates, ",")
+        
+        'form position record does not exist
+        If UBound(coords) >= 3 Then
+            sngLeft = Val(coords(0))
+            sngTop = Val(coords(1))
+            sngWidth = Val(coords(2))
+            sngHeight = Val(coords(3))
+            
+            coordinates = sngLeft & "," & _
+                          sngTop & "," & _
+                          sngWidth & "," & _
+                          sngHeight & "," & _
+                          nWindowState
+        Else
+            coordinates = "0,0,0,0" & nWindowState
+        End If
+    Else
+        If nWindowState <> 0 Then
+            coordinates = frm.Left & "," & _
+                          frm.Top & "," & _
+                          frm.Width & "," & _
+                          frm.Height & "," & _
+                          nWindowState
+    
+            lastAppName = sAppName
+            lastPosition = coordinates
+            tfn_Write_SYS_INI sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES", coordinates
+Debug.Print "Saving coordinates = " + sAppName + ":" + coordinates
+            Exit Sub
+        End If
+        
+        If frm.WindowState <> vbNormal Then
+            Exit Sub
+        End If
+        
+        If lastTime = 0# Then
+            lastTime = Timer
+            Exit Sub
+        End If
+        
+        If Not bAlwaysSave Then
+            'save the coordinates every 2.5 seconds (if needed)
+            If Timer - lastTime < 2.5 Then
+                Exit Sub
+            End If
+        End If
+        
+        lastTime = Timer
+        
         coordinates = frm.Left & "," & _
                       frm.Top & "," & _
                       frm.Width & "," & _
                       frm.Height & "," & _
-                      nWindowState
+                      frm.WindowState
+    End If
 
+    If lastPosition <> coordinates Or lastAppName <> sAppName Then
+        lastAppName = sAppName
         lastPosition = coordinates
         tfn_Write_SYS_INI sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES", coordinates
-Debug.Print "Saving coordinates = " + coordinates
-        Exit Sub
-    End If
-    
-    If frm.WindowState <> vbNormal Then
-        Exit Sub
-    End If
-    
-    If lastTime = 0# Then
-        lastTime = Timer
-        Exit Sub
-    End If
-    
-    If Not bAlwaysSave Then
-        'save the coordinates every 2.5 seconds (if needed)
-        If Timer - lastTime < 2.5 Then
-            Exit Sub
-        End If
-    End If
-    
-    lastTime = Timer
-    
-    coordinates = frm.Left & "," & _
-                  frm.Top & "," & _
-                  frm.Width & "," & _
-                  frm.Height & "," & _
-                  frm.WindowState
-
-    If lastPosition <> coordinates Then
-        lastPosition = coordinates
-        tfn_Write_SYS_INI sAppName, tfnGetUserName(), "MAIN_FORM", "COORDINATES", coordinates
-Debug.Print "Saving coordinates = " + coordinates
+Debug.Print "Saving coordinates = " + sAppName + ":" + coordinates
     End If
 End Sub
 
@@ -5121,18 +5160,22 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         sngWidth = Val(coords(2))
         sngHeight = Val(coords(3))
         
-        If sngLeft >= 0 Then frm.Left = sngLeft
-        If sngTop >= 0 Then frm.Top = sngTop
+        If sngLeft < 0 Then sngLeft = frm.Left
+        If sngTop < 0 Then sngTop = frm.Top
         
-        If sngWidth > 0 And bReSizable Then
-            If sngMinWidth > 0 And sngWidth < sngMinWidth Then sngWidth = sngMinWidth
-            frm.Width = sngWidth
+        If sngWidth > 0 And sngMinWidth > 0 And bReSizable Then
+            If sngWidth < sngMinWidth Then
+                sngWidth = sngMinWidth
+            End If
         End If
         
-        If sngHeight > 0 And bReSizable Then
-            If sngMinHeight > 0 And sngHeight < sngMinHeight Then sngHeight = sngMinHeight
-            frm.Height = sngHeight
+        If sngHeight > 0 And sngMinHeight > 0 And bReSizable Then
+            If sngHeight < sngMinHeight Then
+                sngHeight = sngMinHeight
+            End If
         End If
+        
+        frm.Move sngLeft, sngTop, sngWidth, sngHeight
         
         If bSetWindowState And UBound(coords) > 3 Then
             If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))

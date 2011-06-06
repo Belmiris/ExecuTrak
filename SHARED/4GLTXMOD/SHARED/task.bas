@@ -300,7 +300,7 @@ Private Function fnUINT2INT(lValue As Long) As Integer
 End Function
 
 Public Function fnExeIsRunning(ByVal sExe As String, _
-                               Optional ByVal lProcID As Long = -1) As Boolean
+                               Optional ByVal lProcID As Long = 0) As Boolean
                                '#lProcID added by wj 06/23/05
     Dim lRet As Long
     Dim hSnap As Long
@@ -331,7 +331,7 @@ Public Function fnExeIsRunning(ByVal sExe As String, _
         sTemp = fnExtractFileName(UCase(Trim(sRunningExe)))
         'Debug.Print sTemp
         
-        If lProcID < 0 Then
+        If lProcID = 0 Then
             '#Check EXE only - this is always the case before 06/23/05
             If sTemp = sExe Then
                 fnExeIsRunning = True
@@ -360,16 +360,18 @@ Public Function fnRunExe(sExe As String, _
                          Optional bShowMsg As Boolean = True, _
                          Optional szErrorMessage As String = "", _
                          Optional bFromFactorMenu As Boolean = False, _
-                         Optional sModuleID As String = "") As Boolean
+                         Optional sModuleID As String = "", _
+                         Optional ByRef lProcID As Long = 0) As Boolean
     
     If Not bForcedRun Then
-        If fnExeIsRunning(sExe) Then
+        If fnExeIsRunning(sExe, lProcID) Then
             fnRunExe = True
             Exit Function
         End If
     End If
     
     fnRunExe = False
+    lProcID = 0
     
     If bFromFactorMenu Then
         #If NO_CONTEXT_FRM Then
@@ -380,15 +382,12 @@ Public Function fnRunExe(sExe As String, _
     Else
         On Error GoTo errLaunching
         'LockWin frmCall  'trap user unput during application load
-         
-        Dim lTempInstance As Long 'store the instnace handle in a long first
-        
-        lTempInstance = Shell(sExe, nMode) 'launch the application
+        lProcID = Shell(sExe, nMode) 'launch the application
         szErrorMessage = sExe & " " & Err.Description
                  
-        If (lTempInstance < 0) Or (lTempInstance > SHELL_OK) Then
+        If (lProcID < 0) Or (lProcID > SHELL_OK) Then
             If bCheckRun Then
-                If fnExeIsRunning(sExe) Then
+                If fnExeIsRunning(sExe, lProcID) Then
                     fnRunExe = True
                 Else
                     If bShowMsg Then
@@ -413,6 +412,8 @@ errLaunching:
     If bShowMsg Then
         MsgBox szErrorMessage, vbOKOnly + vbCritical
     End If
+
+    lProcID = 0
 End Function
 
 Private Function fnExtractFileName(ByVal sPath As String) As String
