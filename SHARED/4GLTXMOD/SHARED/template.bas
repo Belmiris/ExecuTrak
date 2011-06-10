@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -1211,7 +1211,9 @@ RETURN_HERE:
     Exit Function
 
 DELETE_ERROR:                       'Error occurred during the delete
-    tfnErrHandler SUB_NAME, strSQL
+    #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
+        tfnErrHandler SUB_NAME, strSQL
+    #End If
     Resume RETURN_HERE
 End Function
 
@@ -1570,7 +1572,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2751,17 +2753,17 @@ End Function
 Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  lMinor As Long, _
                                  lRevision As Long, _
-                                 sDBPath As String)
+                                 sDbPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
     
     On Error GoTo errOpenDB
     Set wsLocal = engLocal.Workspaces(0)
-    Set dbLocal = wsLocal.OpenDatabase(sDBPath, , True)
+    Set dbLocal = wsLocal.OpenDatabase(sDbPath, , True)
     strSQL = "SELECT nMajor, nMinor, nRevision FROM SysVersion"
     Set rsTemp = dbLocal.OpenRecordset(strSQL)
     
@@ -2794,7 +2796,7 @@ errExitHere:
 errOpenDB:
     If Err.Number = 3051 Then
         On Error GoTo errSetAttr
-        SetAttr sDBPath, vbNormal
+        SetAttr sDbPath, vbNormal
         Resume
     Else
         Resume errExitHere
@@ -3860,27 +3862,27 @@ Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As St
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
-    Dim sDBPath As String
+    Dim sDbPath As String
     Dim sDBName As String
     Dim i As Integer
     
-    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
-    If Trim(sDBPath) = "" Then
-        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+    sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    If Trim(sDbPath) = "" Then
+        sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
     If bKeepSlashFactor Then
-        tfnGetDbName = sDBPath
+        tfnGetDbName = sDbPath
     Else
-        i = InStrRev(sDBPath, "/")
+        i = InStrRev(sDbPath, "/")
         
         If i > 1 Then
-            sDBPath = Left(sDBPath, i - 1)
+            sDbPath = Left(sDbPath, i - 1)
         
-            i = InStrRev(sDBPath, "/")
+            i = InStrRev(sDbPath, "/")
         
             If i > 1 Then
-                sDBName = Mid(sDBPath, i + 1)
+                sDBName = Mid(sDbPath, i + 1)
             End If
         End If
     
@@ -5042,7 +5044,7 @@ Public Function tfnExistsTieredPricing(sFlag As String, ByVal sCust As String, _
     Exit Function
 
 errExit:
-    #If Not NO_ERRHANDLER Then
+    #If Not NO_ERROR_HANDLER Then
         tfnErrHandler SUB_NAME, strSQL
     #End If
 End Function
@@ -5163,16 +5165,25 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         If sngLeft < 0 Then sngLeft = frm.Left
         If sngTop < 0 Then sngTop = frm.Top
         
-        If sngWidth > 0 And sngMinWidth > 0 And bReSizable Then
-            If sngWidth < sngMinWidth Then
-                sngWidth = sngMinWidth
+        If bReSizable Then
+            If sngWidth > 0 Then
+                If sngMinWidth > 0 And sngWidth < sngMinWidth Then
+                    sngWidth = sngMinWidth
+                End If
+            Else
+                sngWidth = frm.Width
             End If
-        End If
-        
-        If sngHeight > 0 And sngMinHeight > 0 And bReSizable Then
-            If sngHeight < sngMinHeight Then
-                sngHeight = sngMinHeight
+            
+            If sngHeight > 0 Then
+                If sngMinHeight > 0 And sngHeight < sngMinHeight Then
+                    sngHeight = sngMinHeight
+                End If
+            Else
+                sngHeight = frm.Height
             End If
+        Else
+            sngWidth = frm.Width
+            sngHeight = frm.Height
         End If
         
         frm.Move sngLeft, sngTop, sngWidth, sngHeight
