@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -987,6 +987,7 @@ End Function
 '           (2)E       --- Editable
 '           (3)V       --- View Only
 '           (4)R       --- Restrict (Allow Invoice entry, but not change AR Master information)
+'           (5)I       --- Allow Edit Cust Info and Allow Invoice entry
 
 Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As Variant, Optional bIsMasterCalled As Boolean = False) As String
         
@@ -1572,7 +1573,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2756,7 +2757,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDbPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
