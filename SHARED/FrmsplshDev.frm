@@ -877,7 +877,7 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub btnHelp_Click()
-    WinHelp Me.hwnd, szHelpFileName, HELP_CONTENTS, CLng(0)
+    WinHelp Me.hWnd, szHelpFileName, HELP_CONTENTS, CLng(0)
 End Sub
 
 Private Sub btnOK_Click()
@@ -969,22 +969,34 @@ End Sub
 
 Private Sub Form_Activate()
     Dim sDsn As String
+    Dim sUser As String
     Dim i As Long
+    Dim ary() As String
     
     On Error Resume Next
+    Screen.MousePointer = vbHourglass
     
-    sDsn = fnGetDefaultExeDsn()
+    ary = Split(fnGetDefaultExeDsnUser(), ",")
+    sDsn = Trim(ary(0))
+    sUser = Trim(ary(1))
     
     If sDsn <> "" Then
         For i = 0 To cmbDataSet.ListCount - 1
             If cmbDataSet.List(i) = sDsn Then
                 cmbDataSet.ListIndex = i
+                
+                If sUser <> "" Then
+                    txtUserName.Text = sUser
+                    txtPassword.Text = fnGetPasswd(txtHost.Text, txtUserName.Text)
+                End If
+                
                 Exit For
             End If
         Next i
     End If
     
     cmbDataSet.SetFocus
+    Screen.MousePointer = vbDefault
 End Sub
 
 Private Sub Form_KeyPress(KeyAscii As Integer)
@@ -1291,8 +1303,8 @@ Private Function fnEncrypt(sSource As String) As String
     fnEncrypt = sTemp
 End Function
 
-Private Function fnGetDefaultExeDsn() As String
-    fnGetDefaultExeDsn = tfnReadINI("DefaultExeDsn", App.EXEName, "c:\factor\devpwd.ini")
+Private Function fnGetDefaultExeDsnUser() As String
+    fnGetDefaultExeDsnUser = tfnReadINI("DefaultExeDsn", App.EXEName, "c:\factor\devpwd.ini")
 End Function
 
 Private Function fnGetPasswd(sServer As String, sUserID As String) As String
@@ -1307,8 +1319,8 @@ Private Function fnGetPasswd(sServer As String, sUserID As String) As String
     fnGetPasswd = sPassword
 End Function
 
-Public Function PutDefaultExeDsn() As String
-    tfnWriteINI "DefaultExeDsn", App.EXEName, cmbDataSet.Text, "c:\factor\devpwd.ini"
+Public Function PutDefaultExeDsnUser(sUserID As String) As String
+    tfnWriteINI "DefaultExeDsn", App.EXEName, cmbDataSet.Text + "," + sUserID, "c:\factor\devpwd.ini"
 End Function
 
 Public Sub PutPasswd(sServer As String, sUserID As String, ByVal sPassword As String)
@@ -1401,3 +1413,11 @@ Public Function DBConnect(sDsn As String, sUID As String, sPWD As String, Option
     
     DBConnect = fnConnectString(sDsn)
 End Function
+
+Private Sub txtUserName_LostFocus()
+    Dim sPWD As String
+    sPWD = fnGetPasswd(txtHost.Text, txtUserName.Text)
+    If sPWD <> "" Then
+        txtPassword.Text = sPWD
+    End If
+End Sub

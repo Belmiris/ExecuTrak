@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -743,7 +743,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 .Close
             End With
             With App
-                sAppVer = .Major & "." & .Minor & "." & Format$(.Revision, "0000")
+                sAppVer = .major & "." & .minor & "." & Format$(.Revision, "0000")
                 lAppVer = DBVersionToLong(sAppVer, True)
             End With
             
@@ -1459,7 +1459,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
             tfnOpenDatabase = True
         End If
     #Else
-        frmSplashDev.PutDefaultExeDsn
+        frmSplashDev.PutDefaultExeDsnUser tfnGetUserName()
         frmSplashDev.PutPasswd tfnGetHostName(), tfnGetUserName(), tfnGetPassword()
         tfnOpenDatabase = True
     #End If
@@ -1575,7 +1575,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1846,7 +1846,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1854,7 +1854,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2389,7 +2389,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2660,14 +2660,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2756,17 +2756,17 @@ End Function
 Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  lMinor As Long, _
                                  lRevision As Long, _
-                                 sDbPath As String)
+                                 sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
     
     On Error GoTo errOpenDB
     Set wsLocal = engLocal.Workspaces(0)
-    Set dbLocal = wsLocal.OpenDatabase(sDbPath, , True)
+    Set dbLocal = wsLocal.OpenDatabase(sDBPath, , True)
     strSQL = "SELECT nMajor, nMinor, nRevision FROM SysVersion"
     Set rsTemp = dbLocal.OpenRecordset(strSQL)
     
@@ -2799,7 +2799,7 @@ errExitHere:
 errOpenDB:
     If Err.number = 3051 Then
         On Error GoTo errSetAttr
-        SetAttr sDbPath, vbNormal
+        SetAttr sDBPath, vbNormal
         Resume
     Else
         Resume errExitHere
@@ -3474,7 +3474,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3691,7 +3691,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3865,27 +3865,27 @@ Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As St
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
-    Dim sDbPath As String
+    Dim sDBPath As String
     Dim sDBName As String
     Dim i As Integer
     
-    sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
-    If Trim(sDbPath) = "" Then
-        sDbPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    If Trim(sDBPath) = "" Then
+        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
     If bKeepSlashFactor Then
-        tfnGetDbName = sDbPath
+        tfnGetDbName = sDBPath
     Else
-        i = InStrRev(sDbPath, "/")
+        i = InStrRev(sDBPath, "/")
         
         If i > 1 Then
-            sDbPath = Left(sDbPath, i - 1)
+            sDBPath = Left(sDBPath, i - 1)
         
-            i = InStrRev(sDbPath, "/")
+            i = InStrRev(sDBPath, "/")
         
             If i > 1 Then
-                sDBName = Mid(sDbPath, i + 1)
+                sDBName = Mid(sDBPath, i + 1)
             End If
         End If
     
@@ -4212,7 +4212,7 @@ End Function
 'Vijaya on 02/05/04 Magic#395302
 Public Function tfnFix_tx_table(sSql As String, _
                                     Optional bUseDate As Boolean = True) As String
-    Const FUNC_NAME As String = "tfnFix_tx_table"
+    Const Func_Name As String = "tfnFix_tx_table"
 #If Not NO_DST Then
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -4363,7 +4363,7 @@ quitfunc:
 SQLError:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler FUNC_NAME, strSQL, False
+            tfnErrHandler Func_Name, strSQL, False
         End If
     #End If
     tfnFix_tx_table = sSql
