@@ -248,6 +248,8 @@ Private m_sAddEditMode As String 'ADD or EDIT
 Private m_bViewOnly As Boolean
 Private m_sSysParm4086 As String
 Private m_sSysParm4087 As String
+
+Private m_sAuthType As String  'sta_auth_type - (M)anager Code, (P)osting Code
 '''''''''''''''''''''''''''''''
 '
 
@@ -355,12 +357,21 @@ Private Function fnValidCode() As Boolean
 '    If Trim(txtAuthCode.Text) = sAuthCode Or (m_sSysParm4086 = "Y" And Trim(txtAuthCode.Text) = m_sSysParm4087) Then
 '        fnValidCode = True
 '    End If
-    If m_sSysParm4086 = "Y" And m_sSysParm4087 <> "" Then
-        If Trim(txtAuthCode.Text) = m_sSysParm4087 Then
-            fnValidCode = True
+    If m_sAddEditMode = "E" Then
+        If m_sSysParm4086 = "Y" And m_sSysParm4087 <> "" Then
+            If Trim(txtAuthCode.Text) = m_sSysParm4087 Then
+                m_sAuthType = "P"
+                fnValidCode = True
+            End If
+        Else
+            If Trim(txtAuthCode.Text) = sAuthCode Then
+                m_sAuthType = "M"
+                fnValidCode = True
+            End If
         End If
     Else
         If Trim(txtAuthCode.Text) = sAuthCode Then
+            m_sAuthType = "M"
             fnValidCode = True
         End If
     End If
@@ -369,7 +380,7 @@ End Function
 
 Private Sub subEnableOK(bFlag As Boolean)
 '    cmdOK.Enabled = bFlag
-    cmdOK.Enabled = True  'Always enabled
+    cmdOk.Enabled = True  'Always enabled
     
 End Sub
 
@@ -397,7 +408,7 @@ Private Sub subSetMyState()
         End If
         '''''''''''''''''''''''''''''''
         
-        cmdOK.Caption = "O&K"
+        cmdOk.Caption = "O&K"
         cmdCancel.Caption = "&Cancel"
         picCustomerInfo.Top = 156
         picMessage.Visible = False
@@ -412,7 +423,7 @@ Private Sub subSetMyState()
         cmdCancel.Left = 2076
         '''''''''''''''''''''''''''''''
         
-        cmdOK.Caption = "&Yes"
+        cmdOk.Caption = "&Yes"
         cmdCancel.Caption = "&No"
         picCustomerInfo.Top = 384
         picMessage.Visible = True
@@ -510,6 +521,8 @@ Public Sub Reset()
     m_lTicketWoNbr = 0
     m_sAddEditMode = ""
     m_bViewOnly = False
+    'Important!!!
+    'DO NOT clear m_sAuthType
 End Sub
 
 Public Sub InsertAuthCodeTracking(lCustomer As Long, sUserID As String, sProgramID As String, lTicketWoNbr As Long, bShowError As Boolean)
@@ -528,12 +541,13 @@ Public Sub InsertAuthCodeTracking(lCustomer As Long, sUserID As String, sProgram
     
     strSQL = "insert into sys_track_auth" _
         & " (sta_date, sta_customer, sta_user," _
-        & " sta_program, sta_ticket_wo) values ("
+        & " sta_program, sta_ticket_wo, sta_auth_type) values ("
     strSQL = strSQL + tfnDateString(Date, True) + ", "
     strSQL = strSQL & lCustomer & ", "
     strSQL = strSQL + tfnSQLString(sUserID) + ", "
     strSQL = strSQL + tfnSQLString(sProgramID) + ", "
-    strSQL = strSQL & IIf(lTicketWoNbr > 0, lTicketWoNbr, "null") & ");"
+    strSQL = strSQL & IIf(lTicketWoNbr > 0, lTicketWoNbr, "null") & ","
+    strSQL = strSQL & tfnSQLString(m_sAuthType) & ");"
     
     fnExecuteSQL strSQL, SUB_NAME, bShowError
 End Sub
