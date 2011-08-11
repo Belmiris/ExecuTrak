@@ -368,7 +368,7 @@ Public Sub Click()
                 If m_nClickPointY < m_tgTable.RowTop(0) Then
                     'header click, do nothing
                 Else
-                    If m_tgTable.row = m_tgTable.RowContaining(m_nClickPointY) Then
+                    If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
                         If m_tgcEditor.RowCount > 0 Then
                             Dim sColRow As String
                             
@@ -406,7 +406,7 @@ Public Sub Click()
             End If
             '''''''''''
             
-            If m_tgTable.row = m_tgTable.RowContaining(m_nClickPointY) Then
+            If m_tgTable.Row = m_tgTable.RowContaining(m_nClickPointY) Then
                 subMarkSelected m_vLastRow
                 subSetCurrentRow
                 If Not m_tgTable.EditActive Then
@@ -697,6 +697,15 @@ Public Sub KeyDown(KeyCode As Integer, ByVal Shift As Integer)
            KeyCode = vbKeyUp Or KeyCode = vbKeyDown Or _
            KeyCode = vbKeyBack Or KeyCode = vbKeyReturn _
         Then
+            'david 08/11/2011  #3426 NDR
+            'fixed the issue of the backspace key, left/right arrow key
+            'not functioning issue (the editing mode is being canceled)
+            'when clicking or double clicking to edit a cell
+            If m_tgTable.EditActive Then
+                Exit Sub
+            End If
+            ''''''''''''''''''''''''''''
+            
             ClearSelectedCells True
         End If
     End If
@@ -1104,7 +1113,7 @@ Private Sub subMarkSelected(vBkMark As Variant)
         nStart = m_nLastClickedRow
         
         If m_tgcEditor Is Nothing Then
-            nEnd = m_tgTable.row
+            nEnd = m_tgTable.Row
         Else
             nEnd = m_tgcEditor.GetCurrentRowNumber
         End If
@@ -1190,7 +1199,7 @@ End Sub
 
 Private Sub subSetCurrentRow()
     If m_tgcEditor Is Nothing Then
-        m_nLastClickedRow = m_tgTable.row
+        m_nLastClickedRow = m_tgTable.Row
     Else
         m_nLastClickedRow = m_tgcEditor.GetCurrentRowNumber
     End If
@@ -1646,7 +1655,7 @@ Private Sub subSetLastClickedCell(Optional sColRow As String = "")
     
     If sColRow = "" Then
         If m_tgcEditor Is Nothing Then
-            If m_tgTable.row >= 0 Then
+            If m_tgTable.Row >= 0 Then
                 sColRow = fnMakeKey(m_nClickCol, m_tgTable.Bookmark)
             End If
         Else
