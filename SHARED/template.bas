@@ -743,7 +743,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 .Close
             End With
             With App
-                sAppVer = .major & "." & .minor & "." & Format$(.Revision, "0000")
+                sAppVer = .Major & "." & .Minor & "." & Format$(.Revision, "0000")
                 lAppVer = DBVersionToLong(sAppVer, True)
             End With
             
@@ -1073,7 +1073,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1504,11 +1504,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.number = 3146 Then
+    If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1637,22 +1637,25 @@ End Function
 '
 Public Function tfnAuthorizeExecute(szHandShake As String, Optional bShowMsgBox As Boolean = True) As Boolean
  
-#If FACTOR_MENU >= 0 Then             'during development bypass handshake requirement
+    #If FACTOR_MENU >= 0 Then             'during development bypass handshake requirement
         tfnAuthorizeExecute = True   'return ok to run application
-#ElseIf FACTOR_MENU < 0 Then 'released application can only be run from FACTOR Main Menu
-    If szHandShake = t_szHandShake Then 'and only if you know the secret hand shake
-        tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
-    Else  'you don't know squat!
-        If Trim(t_szConnect) = "" Then
-            If bShowMsgBox Then
-                MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+    #ElseIf FACTOR_MENU < 0 Then 'released application can only be run from FACTOR Main Menu
+        'david 10/05/2011  #3884
+        'If szHandShake = t_szHandShake Then 'and only if you know the secret hand shake
+        If Left(szHandShake, Len(t_szHandShake)) = t_szHandShake Then 'and only if you know the secret hand shake
+        ''''''''''''''''''''''''
+            tfnAuthorizeExecute = True      'handshake ok, return ok to run application to caller
+        Else  'you don't know squat!
+            If Trim(t_szConnect) = "" Then
+                If bShowMsgBox Then
+                    MsgBox szRUN_ERROR, vbOKOnly + vbCritical, App.Title 'display error message to the user
+                End If
+                tfnAuthorizeExecute = False 'return error flag
+            Else
+                tfnAuthorizeExecute = True
             End If
-            tfnAuthorizeExecute = False 'return error flag
-        Else
-            tfnAuthorizeExecute = True
         End If
-    End If
-#End If
+    #End If
 
 End Function
 
@@ -1846,7 +1849,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1854,7 +1857,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2185,7 +2188,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.number = 94 Then
+    If Err.Number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2389,7 +2392,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2660,14 +2663,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2797,7 +2800,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.number = 3051 Then
+    If Err.Number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3831,8 +3834,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.number <> 0 Then
-        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -4212,7 +4215,7 @@ End Function
 'Vijaya on 02/05/04 Magic#395302
 Public Function tfnFix_tx_table(sSql As String, _
                                     Optional bUseDate As Boolean = True) As String
-    Const Func_Name As String = "tfnFix_tx_table"
+    Const FUNC_NAME As String = "tfnFix_tx_table"
 #If Not NO_DST Then
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -4363,7 +4366,7 @@ quitfunc:
 SQLError:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
-            tfnErrHandler Func_Name, strSQL, False
+            tfnErrHandler FUNC_NAME, strSQL, False
         End If
     #End If
     tfnFix_tx_table = sSql
