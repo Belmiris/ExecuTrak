@@ -911,6 +911,10 @@ Private Sub btnOK_Click()
     
     Me.Hide
     
+    #If DEV_SHOW_MAIN_FORM Then
+        subShowMainForm
+    #End If
+    
     Exit Sub
     
 errTrap:
