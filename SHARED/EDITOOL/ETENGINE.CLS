@@ -945,11 +945,21 @@ Private Function fnOpenFMTaxRecord(sSchedule As String, _
                     ciTemp.DestState = sInfo2
                     
                     'wholesale, get customer info
-                    sTemp = fnCStr(!ih_cust)
-                    subCustomerInfo sInfo1, sInfo2, sInfo3, sTemp, "E"
+                    'david 10/26/2011  #4180
+                    'according to Dena, the Acquired From will always be profit center
+                    If m_sEDIType = EDI_TYPE_D Then
+                        sTemp = fnCStr(!ih_cust)
+                        subCustomerInfo sInfo1, sInfo2, sInfo3, sTemp, "E"
+                        ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!ilt_trn), "E")
+                    Else 'EDI_TYPE_R:
+                        sTemp = fnCStr(!ih_prft_ctr)
+                        subCustomerInfo sInfo1, sInfo2, sInfo3, sTemp, "I"
+                        ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!ilt_trn), "I")
+                    End If
+                    
                     ciTemp.BuySellCode = sTemp
                     ciTemp.BuySellName = sInfo1
-                    ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!ilt_trn), "E")
+                    
                     If ciTemp.BuySellFedID = "" Then
                         ciTemp.BuySellFedID = m_sCarrier_FEIN  '"000000000"
                     End If
@@ -1047,7 +1057,9 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                         ciTemp.BuySellFedID = fnConvertFEDID(sInfo3)
                     
                         'subGetCityInfo sInfo1, sInfo3, sInfo2
+                        'fmd_dest_code=cust# or pft ctr#  || fmd_dest_flag="E" or "I":
                         sInfo2 = fnDestState(fnCStr(!fmd_dest_code), fnCStr(!fmd_dest_flag))
+                        
                         sInfo3 = fnCStr(!ivh_prodtcl)
                         sTemp = fnVendorTaxID(tfnRound(!fml_vendor), sInfo2, sInfo3)
                         If sTemp <> "" Then
@@ -1055,12 +1067,16 @@ Private Function fnFillCollection(nTypeCode As String, sSchedule As String, _
                         End If
                     Else
                         'get customer info
-                        sTemp = fnCStr(!fmd_prft_ctr)
+                        'modified 10/25/11 ejo #4180:
+                        'sTemp = fnCStr(!fmd_prft_ctr)
+                        sTemp = fnCStr(!fml_terminal)
+                        
                         subCustomerInfo sInfo1, sInfo2, sInfo3, sTemp, "I"
                         ciTemp.BuySellCode = sTemp
                         ciTemp.BuySellName = sInfo1
-                        ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!fmldt_trn), _
+                        'ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!fmldt_trn), _
                             fnCStr(!fmd_dest_flag))
+                        ciTemp.BuySellFedID = fnCustomerTaxID(Val(sTemp), tfnRound(!fmldt_trn), "I")
                         If ciTemp.BuySellFedID = "" Then
                             ciTemp.BuySellFedID = m_sCarrier_FEIN  '"000000000"
                         End If
