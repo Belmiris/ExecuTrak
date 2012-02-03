@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
 Begin VB.Form objDrivePath 
    BorderStyle     =   3  'Fixed Dialog
    ClientHeight    =   4680
@@ -150,6 +150,7 @@ Private Sub Form_Activate()
 End Sub
 
 Private Sub Drive1_Change()
+    On Error Resume Next
     Dir1.Path = Drive1.Drive
 End Sub
 
@@ -183,10 +184,12 @@ Property Let InitDir(sInitDir As String)
 End Property
 
 Property Get InitDir() As String
+    On Error Resume Next
     InitDir = Dir1.Path
 End Property
 
 Property Get Drive() As String
+    On Error Resume Next
     Drive = Drive1.Drive
 End Property
 
