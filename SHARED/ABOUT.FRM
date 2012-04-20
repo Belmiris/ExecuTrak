@@ -1,19 +1,19 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
 Begin VB.Form frmAbout 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "About"
-   ClientHeight    =   1428
-   ClientLeft      =   4536
+   ClientHeight    =   1425
+   ClientLeft      =   4530
    ClientTop       =   3000
-   ClientWidth     =   5664
+   ClientWidth     =   5670
    LinkTopic       =   "Form1"
    LockControls    =   -1  'True
    MaxButton       =   0   'False
    MinButton       =   0   'False
    PaletteMode     =   1  'UseZOrder
-   ScaleHeight     =   1428
-   ScaleWidth      =   5664
+   ScaleHeight     =   1425
+   ScaleWidth      =   5670
    ShowInTaskbar   =   0   'False
    Begin FACTFRMLib.FactorFrame cmdOK 
       Height          =   396
@@ -27,7 +27,7 @@ Begin VB.Form frmAbout
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            =   7.8
+         Size            =   8.25
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -72,11 +72,11 @@ Begin VB.Form frmAbout
       Width           =   4740
    End
    Begin VB.Image imgFactor 
-      Height          =   672
-      Left            =   96
-      Picture         =   "About.frx":0000
+      Height          =   840
+      Left            =   90
+      Picture         =   "ABOUT.frx":0000
       Top             =   60
-      Width           =   504
+      Width           =   630
    End
 End
 Attribute VB_Name = "frmAbout"
@@ -107,16 +107,11 @@ End Sub
 
 Private Sub Form_Load()
 
-'    lblCompany.Caption = App.CompanyName
-    lblCompany.Caption = App.LegalCopyright  ' Change to copy right for VB6. Ma 07/30/99
+    lblCompany.Caption = App.LegalCopyright
     lblModuleName.Caption = "Module Name: " & App.FileDescription
-    'david 10/09/00
-    If Val(App.Minor) >= 20 Then
-        lblProduct.Caption = "Version: " & Format(App.Major, "#0") & "." _
-            & Format(App.Minor, "00") & "." & Format(App.Revision, "0000")
-    Else
-        lblProduct.Caption = "Version: " & CStr(App.Major) & "." & CStr(App.Minor) & "." & CStr(App.Revision)
-    End If
+    lblProduct.Caption = "Version: " & Format(App.Major, "#0") & "." _
+        & Format(App.Minor, "00") & "." & Format(App.Revision, "0000")
     Screen.MousePointer = vbDefault
+    
 End Sub
 
