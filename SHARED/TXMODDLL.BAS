@@ -639,7 +639,7 @@ Public Sub subAddInternalAmount(ByVal lAmount As Long)
     lInternalFuel = lInternalFuel + lAmount
 End Sub
 
-Public Sub subFixTypeATax(m_local As Database, lMovement As Long)
+Public Sub subFixTypeATax(m_local As DataBase, lMovement As Long)
     'Ma, 2/26/99 Temporary patch for Taxes Loading Fee
     'david 06/15/2010  #665238-2023
     subSetProPetroFlag m_local, lMovement
@@ -3177,7 +3177,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As Database, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
 
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -3862,7 +3862,7 @@ Private Function fnIsTO(lTerminal As Long) As Boolean
 
 End Function
 
-Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Double
+Private Function fnGetLadingATax(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Double
     
     Dim Taxes() As CApplicableTaxes
     Dim lCount As Long
@@ -4083,7 +4083,7 @@ End Function
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
 'Private Function fnIsImportToTexas(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
 Private Function fnIsImportToTexas(lMovement As Long, lLading As Long, bExternal As Boolean, _
-                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As Database) As Boolean
+                                   ByVal lTerminal As Long, ByVal lLineNumber As Long, m_local As DataBase) As Boolean
     
     Const SUB_NAME = "fnIsImportToTexas"
     Dim strSQL As String
@@ -4183,7 +4183,7 @@ End Function
 'david 04/21/2008  #501475
 'for internal lading only
 'return True if the lading (profit center) State <> TX and delivery (customer) State = TX
-Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As Database, lMovement As Long) As Boolean
+Private Function fnIsTexasDiverted(rsLadHeader As Recordset, rsLadD As Recordset, m_local As DataBase, lMovement As Long) As Boolean
     
     Const SUB_NAME = "fnIsTexasDiverted"
     Dim strSQL As String
@@ -4512,8 +4512,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 10#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
+                Else
+                    atax_inv = 2.75
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4521,8 +4523,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 20#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
+                Else
+                    atax_inv = 5.5
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4530,8 +4534,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 30#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
+                Else
+                    atax_inv = 8.65
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4539,8 +4545,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
+                Else
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4551,9 +4559,12 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 If tax_date < #9/1/2007# Then
                     incr_amt = 20#
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
+                Else
+                    incr_amt = 5.5
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -4616,8 +4627,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 10#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
+                Else
+                    atax_inv = 2.75
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4625,8 +4638,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 20#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
+                Else
+                    atax_inv = 5.5
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4634,8 +4649,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 30#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
+                Else
+                    atax_inv = 8.65
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4643,8 +4660,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
+                Else
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4655,9 +4674,12 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 If tax_date < #9/1/2007# Then
                     incr_amt = 20#
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
+                Else
+                    incr_amt = 5.5
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -5388,7 +5410,7 @@ Private Function txMod_ExeCuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
 
-    Dim objDB As Database
+    Dim objDB As DataBase
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -5427,7 +5449,7 @@ Private Function txMod_OpenRecord(strSQL As String, _
                               Optional vDB As Variant, _
                               Optional bMoveLast As Boolean = True) As Recordset
     ' Get records from the given SQL statement
-    Dim objDB As Database
+    Dim objDB As DataBase
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -5755,7 +5777,7 @@ errTrap:
 
 End Function
 
-Private Function it_is_a_fuel(code As String, db As Database) As Boolean
+Private Function it_is_a_fuel(code As String, db As DataBase) As Boolean
     
     Const SUB_NAME As String = "it_is_a_fuel"
     
@@ -5813,7 +5835,7 @@ End Function
 Private Function finv_classes( _
                                 sParm1 As String, _
                                 sParm2 As String, _
-                                db As Database _
+                                db As DataBase _
                                 ) As Recordset
     Const SUB_NAME = "finv_classes"
     Const conDimension = 10
@@ -6855,7 +6877,7 @@ End Sub
 
 
 'david 01/18/2010  #652495
-Public Sub txMod_ProcessPassThruTax(m_local As Database, lMovement As Long)
+Public Sub txMod_ProcessPassThruTax(m_local As DataBase, lMovement As Long)
     Const SUB_NAME = "txMod_ProcessPassThruTax"
     
     Dim strSQL As String
@@ -6900,7 +6922,7 @@ Public Sub txMod_ProcessPassThruTax(m_local As Database, lMovement As Long)
     End With
 End Sub
 
-Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local As Database, lMovement As Long) As Double
+Private Function fnGetLadingPassThruTax(rsDelvPassThruTax As Recordset, m_local As DataBase, lMovement As Long) As Double
     Const SUB_NAME = "fnGetLadingPassThruTax"
     
     Dim strSQL As String
@@ -7102,8 +7124,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 10#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
+                Else
+                    atax_inv = 2.75
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7111,8 +7135,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 20#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
+                Else
+                    atax_inv = 5.5
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7120,8 +7146,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 30#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
+                Else
+                    atax_inv = 8.65
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7129,8 +7157,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
+                Else
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7141,9 +7171,12 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 If tax_date < #9/1/2007# Then
                     incr_amt = 20#
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
+                Else
+                    incr_amt = 5.5
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -7210,8 +7243,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 10#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
+                Else
+                    atax_inv = 2.75
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7219,8 +7254,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 20#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
+                Else
+                    atax_inv = 5.5
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7228,8 +7265,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 30#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
+                Else
+                    atax_inv = 8.65
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7237,8 +7276,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 'david 08/07/2007  #564691
                 If tax_date < #9/1/2007# Then
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
+                Else
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7249,9 +7290,12 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 If tax_date < #9/1/2007# Then
                     incr_amt = 20#
                     atax_inv = 40#
-                Else
+                ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
+                Else
+                    incr_amt = 5.5
+                    atax_inv = 11#
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -7308,7 +7352,7 @@ Stop_Monkey_Around:
     MsgBox "An Error Occurred In Calculating Loading Fees. Error Description: " & Err.Description
 End Sub
 
-Public Sub subSetProPetroFlag(m_local As Database, lMovement As Long)
+Public Sub subSetProPetroFlag(m_local As DataBase, lMovement As Long)
     Const SUB_NAME As String = "subSetProPetroFlag"
     
     Dim strSQL As String
