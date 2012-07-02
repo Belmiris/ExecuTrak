@@ -3177,7 +3177,7 @@ End Sub
 '#(3)This sub is intended to replace all the Temp A Tax fixes atarted from 1999
 '#   For now, we still keep the codes in place. When local table field cTaxBasis(
 '#   MTaxDetail) is in every user's PC, we can remove the "temp patch".
-Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
+Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long, ByVal bFrgtOnlyMovement As Boolean)
 
     Const SUB_NAME = "txMod_ReBuildATax_MTaxDetail"
     Dim strSQL As String
@@ -3233,7 +3233,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     If m_Disable_A_Taxes Then
         Exit Sub
     End If
-
+    
     '#Test if "cTaxBasis" is a column in local table
     '#MTaxDetail. If not, this routine will exist. In other
     '#words, the new routine needes this field. This is why
@@ -3315,6 +3315,14 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long)
     '''''''''''''''''''''''''''''''
 
     Screen.MousePointer = vbHourglass
+    
+    'david 06/17/2012  #5100
+    If bFrgtOnlyMovement Then
+        'I USE "GOTO" TO SKIP THE TEXAS LOADING FEE CALCULATION
+        GoTo lblDoPassThruTax
+    End If
+    ''''''''''''''''''''''''
+    
     '#Build Lading side A-Taxes array --> aryATax
     BOL_atx_ptr = -1
     'david 04/21/2008  #501475
@@ -7362,7 +7370,7 @@ Public Sub subSetProPetroFlag(m_local As DataBase, lMovement As Long)
     Dim sTemp As String
     Dim sFlag As String
     Dim sDate As String
-    
+
     PropetroFlag = ""
     
     'david 06/15/2010  #665238-2023
