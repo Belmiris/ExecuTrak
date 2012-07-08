@@ -2217,6 +2217,7 @@ Private Sub subShowFilterPopup()
     nClickCol = 2
     txtOp = ""
     txtValue = ""
+    txtValue.MaxLength = 0    'Vijaya on 07/08/2012 #5182  Some Reason Freight Code Max Lenght Set to 8 Work around
     txtDesc = ""
     cValidate.ResetFlags
     
