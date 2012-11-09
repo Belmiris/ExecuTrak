@@ -1430,7 +1430,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
     Dim freight_tmp As Double
     Dim hold_basis As String * 1
     Dim delta As Double
-    Dim sWhere As String
+    Dim sWHERE As String
     
     'Vijaya on 02/05/04 Magic#395302
     Dim stx_charge As String
@@ -1488,7 +1488,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         If Not pr_header_detail Is Nothing Then
             If pr_header_detail.RecordCount > 0 Then
                If Not IsNull(pr_header_detail!txh_where) Then
-                    sWhere = Trim(pr_header_detail!txh_where)
+                    sWHERE = Trim(pr_header_detail!txh_where)
                End If
                stx_charge = pr_header_detail!txd_charge
             End If
@@ -1498,7 +1498,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         If Not pr_table Is Nothing Then
             If pr_table.RecordCount > 0 Then
                If Not IsNull(pr_table!tt_where) Then
-                    sWhere = Trim(pr_table!tt_where)
+                    sWHERE = Trim(pr_table!tt_where)
                End If
                stx_charge = pr_table!tt_charge
             End If
@@ -1572,7 +1572,7 @@ Public Function compute_tax_amt(tunits As Double, rate As Single, order_group As
         '#This was wrong. Should use trn. WJ, 4/01/2003,Magic 404131
         
         '#If it is Florida State Taxes
-        If sWhere = "FL" Then
+        If sWHERE = "FL" Then
             'tax_amount = florida_bracket_tax(wrk_amount, rate)
             tax_amount = round_up_sls_tx(wrk_amount * rate)
         Else
@@ -2153,7 +2153,7 @@ End Sub
 '# This function calculates the tax amt where the limit applies to
 '# the total invoice and not just a line item.
 Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long)
-    Dim x As Integer
+    Dim X As Integer
     Dim not_found As Boolean
 
     If calc_tax = 0 Then
@@ -2161,21 +2161,21 @@ Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long
         Exit Function
     End If
     not_found = True
-    For x = 1 To sls_tax_cnt
-        If sls_tax_arry(x).trn = trn Then
+    For X = 1 To sls_tax_cnt
+        If sls_tax_arry(X).trn = trn Then
             not_found = False
             Exit For
         End If
     Next
     If not_found Then
         sls_tax_cnt = sls_tax_cnt + 1
-        x = sls_tax_cnt
-        sls_tax_arry(x).trn = trn
+        X = sls_tax_cnt
+        sls_tax_arry(X).trn = trn
     End If
-    sls_tax_arry(x).amount = sls_tax_arry(x).amount + calc_tax
-    If sls_tax_arry(x).amount > limit Then
-        calc_tax = calc_tax - sls_tax_arry(x).amount + limit
-        sls_tax_arry(x).amount = limit
+    sls_tax_arry(X).amount = sls_tax_arry(X).amount + calc_tax
+    If sls_tax_arry(X).amount > limit Then
+        calc_tax = calc_tax - sls_tax_arry(X).amount + limit
+        sls_tax_arry(X).amount = limit
     End If
     sales_tax_limit = calc_tax
 End Function
@@ -2222,7 +2222,7 @@ Private Function fnGetTT_LIMIT_TYPE(ByVal lTrn As Long) As String
         GoTo FieldNotExit
         Exit Function
     End If
-    If rsTemp!RecordCount < 1 Then
+    If rsTemp.RecordCount < 1 Then
         fnGetTT_LIMIT_TYPE = "I"
     Else
         'Vijaya on 02/06/04 Magic#395302
@@ -2248,7 +2248,7 @@ FieldNotExit:
     
     If pr_sys_parm Is Nothing Then
         nHoldSystemParm = "I"
-    ElseIf pr_sys_parm!RecordCount < 1 Then
+    ElseIf pr_sys_parm.RecordCount < 1 Then
         nHoldSystemParm = "I"
     Else
         If IsNull(pr_sys_parm!parm_field) Then
@@ -2481,7 +2481,7 @@ End Function
     Exit Function
     
 ftx_tableRedim:
-    If Err.number = 9 Then 'Subscript out of range
+    If Err.Number = 9 Then 'Subscript out of range
         ' this is the expected error on the FIRST call to this function; we
         ' must dimension the static array and retry the first reference to it.
         Err.Clear
@@ -2489,7 +2489,7 @@ ftx_tableRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.number
+        Err.Raise Err.Number
     End If
     
 End Function    ''ftx_table
