@@ -24,7 +24,7 @@ Private m_spaceWidth As Long
 Private m_title As String
 Private m_totalColumnWidth As Long
 
-Public Function PrintGridArray(GridArray() As Variant, headers() As String, title As String) As Boolean
+Public Function PrintGridArray(GridArray() As Variant, headers() As String, Title As String) As Boolean
     Dim message$
     
     On Error GoTo FINISHED
@@ -33,19 +33,22 @@ Public Function PrintGridArray(GridArray() As Variant, headers() As String, titl
     
     m_headers = headers
     m_gridArray = GridArray
-    m_title = title
-    
+    m_title = Title
+        
     m_rows = GetRowCount()
     m_columns = GetColumnCount()
-    
     If m_rows < 1 Or m_columns < 1 Then
         MsgBox "No Data To Print"
         Exit Function
     End If
     
     If UBound(m_headers) <> m_columns Then
-        MsgBox "Number of columns and headers do not match"
-        Exit Function
+        If (UBound(m_headers) < m_columns) Then
+            m_columns = UBound(m_headers)
+        Else
+            MsgBox "Number of columns and headers do not match"
+            Exit Function
+        End If
     End If
     
     SetColumnWidths
@@ -65,7 +68,7 @@ Public Function PrintGridArray(GridArray() As Variant, headers() As String, titl
         message = "Is the printer '" & Printer.DeviceName & "' ready to print " & CStr(m_pageCount) & " pages?"
     End If
     
-    If vbYes = MsgBox(message, vbYesNo, "Print " & title) Then
+    If vbYes = MsgBox(message, vbYesNo, "Print " & Title) Then
         SendToPrinter
         PrintGridArray = True
     End If
@@ -117,7 +120,7 @@ Private Function GetRowCount() As Long
     GetRowCount = -1
     
     On Error GoTo FINISHED
-    GetRowCount = UBound(m_gridArray, 1)
+    GetRowCount = UBound(m_gridArray, 2)
     
 FINISHED:
     Err.Clear
@@ -127,7 +130,7 @@ Private Function GetColumnCount() As Long
     GetColumnCount = -1
     
     On Error GoTo FINISHED
-    GetColumnCount = UBound(m_gridArray, 2)
+    GetColumnCount = UBound(m_gridArray, 1)
     
 FINISHED:
     Err.Clear
@@ -149,7 +152,7 @@ Private Sub SetColumnWidths()
     
     For row = 0 To m_rows - 1
         For col = 0 To m_columns
-            val = m_gridArray(row, col) & ""
+            val = m_gridArray(col, row) & ""
             w = Printer.TextWidth(val)
             
             If w > m_columnWidths(col) Then
@@ -248,7 +251,7 @@ End Sub
 
 Private Sub PrintHeader()
     Dim col As Long
-    Dim top, left As Long
+    Dim Top, Left As Long
     Dim drawWidth As Long
     
     drawWidth = Printer.drawWidth
@@ -271,16 +274,16 @@ Private Sub PrintHeader()
     Printer.CurrentX = m_header2Left
     Printer.Print m_header2
     
-    top = Printer.CurrentY + m_charHeight
-    left = m_marginLeft
+    Top = Printer.CurrentY + m_charHeight
+    Left = m_marginLeft
     
     For col = 0 To m_columns - 1
-        Printer.CurrentX = left
-        Printer.CurrentY = top
+        Printer.CurrentX = Left
+        Printer.CurrentY = Top
         Printer.Print m_headers(col)
-        Printer.Line (left, top + m_charHeight)-(left + m_columnWidths(col), top + m_charHeight)
+        Printer.Line (Left, Top + m_charHeight)-(Left + m_columnWidths(col), Top + m_charHeight)
         
-        left = left + m_columnWidths(col) + m_columnSpacing
+        Left = Left + m_columnWidths(col) + m_columnSpacing
     Next col
     
 End Sub
@@ -289,8 +292,8 @@ Private Function PrintPage(startRow As Long) As Long
     Dim col As Long
     Dim row As Long
     Dim max As Long
-    Dim left As Long
-    Dim top As Long
+    Dim Left As Long
+    Dim Top As Long
     Dim val As String
     
     PrintHeader
@@ -301,22 +304,22 @@ Private Function PrintPage(startRow As Long) As Long
     End If
     
     max = Printer.ScaleHeight - m_charHeight * 3
-    top = m_marginTop + m_charHeight * 4
+    Top = m_marginTop + m_charHeight * 4
     
     For row = startRow To m_rows - 1
-        left = m_marginLeft
+        Left = m_marginLeft
         
         For col = 0 To m_columns - 1
-            Printer.CurrentX = left
-            Printer.CurrentY = top
+            Printer.CurrentX = Left
+            Printer.CurrentY = Top
                     
-            val = m_gridArray(row, col) & ""
+            val = m_gridArray(col, row) & ""
             Printer.Print val
-            left = left + m_columnWidths(col) + m_columnSpacing
+            Left = Left + m_columnWidths(col) + m_columnSpacing
         Next col
         
-        top = top + m_charHeight
-        If top >= max Then
+        Top = Top + m_charHeight
+        If Top >= max Then
             Exit For
         End If
     Next row
@@ -327,14 +330,14 @@ Private Function PrintPage(startRow As Long) As Long
 End Function
 
 Private Sub PrintFooter()
-    Dim left As Long
+    Dim Left As Long
     Dim val As String
     
     val = "Page " + CStr(Printer.Page)
-    left = (Printer.ScaleWidth - Printer.TextWidth(val)) / 2
+    Left = (Printer.ScaleWidth - Printer.TextWidth(val)) / 2
     
     Printer.CurrentY = Printer.ScaleHeight - (m_marginBottom + m_charHeight)
-    Printer.CurrentX = left
+    Printer.CurrentX = Left
     Printer.Print val
     
 End Sub
