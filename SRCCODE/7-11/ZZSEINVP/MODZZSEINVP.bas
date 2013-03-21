@@ -509,7 +509,7 @@ Public Sub subSetProgress(sngPercent As Single)
         frmzzseinvp.PbProgressBar.Visible = False
     End If
     
-    frmzzseinvp.PbProgressBar.Value = sngPercent
+    frmzzseinvp.PbProgressBar.value = sngPercent
     frmzzseinvp.PbProgressBar.Refresh
     DoEvents
 End Sub
@@ -688,11 +688,14 @@ End Sub
 Private Sub subOpenAndClearLogFile()
     Dim sProcessLogFile As String
     Dim sErrorLogFile As String
+    Dim io As CommonIO
 
     On Error Resume Next
     
-    sProcessLogFile = App.Path & "\zzseplog.log"
-    sErrorLogFile = App.Path & "\zzseelog.log"
+    Set io = New CommonIO
+    
+    sProcessLogFile = io.ApplicationPath & "zzseplog.log"
+    sErrorLogFile = io.ApplicationPath & "zzseelog.log"
     
     If fnFileExist(sProcessLogFile) Then
        Kill sProcessLogFile
@@ -1237,8 +1240,11 @@ Public Sub subSentErrorLogToPrinter()
     Dim sErrorLogFile As String
     Dim sLine As String
     Dim bIsOpen As Boolean
+    Dim io As CommonIO
     
     On Error GoTo EXITHERE
+    
+    Set io = New CommonIO
     
     If Not fnInitPrinter() Then
         frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"
@@ -1250,7 +1256,7 @@ Public Sub subSentErrorLogToPrinter()
     
     subPrintRptHeader "Error"
     nFileNum = FreeFile()
-    sErrorLogFile = App.Path & "\zzseelog.log"
+    sErrorLogFile = io.ApplicationPath & "zzseelog.log"
     
     Open sErrorLogFile For Input As #nFileNum
     bIsOpen = True
@@ -1285,8 +1291,12 @@ Public Sub subSentProcLogToPrinter()
     Dim sProcLogFile As String
     Dim sLine As String
     Dim bIsOpen As Boolean
+    Dim io As CommonIO
     
     On Error GoTo EXITHERE
+    
+    Set io = New CommonIO
+    
     If Not fnInitPrinter() Then
         frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"
         Exit Sub
@@ -1297,7 +1307,7 @@ Public Sub subSentProcLogToPrinter()
     
     subPrintRptHeader "PROCESSING"
     nFileNum = FreeFile()
-    sProcLogFile = App.Path & "\zzseplog.log"
+    sProcLogFile = io.ApplicationPath & "zzseplog.log"
     
     Open sProcLogFile For Input As #nFileNum
     bIsOpen = True
