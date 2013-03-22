@@ -688,11 +688,8 @@ End Sub
 Private Sub subOpenAndClearLogFile()
     Dim sProcessLogFile As String
     Dim sErrorLogFile As String
-    Dim io As CommonIO
 
     On Error Resume Next
-    
-    Set io = New CommonIO
     
     sProcessLogFile = io.ApplicationPath & "zzseplog.log"
     sErrorLogFile = io.ApplicationPath & "zzseelog.log"
@@ -1240,11 +1237,8 @@ Public Sub subSentErrorLogToPrinter()
     Dim sErrorLogFile As String
     Dim sLine As String
     Dim bIsOpen As Boolean
-    Dim io As CommonIO
     
     On Error GoTo EXITHERE
-    
-    Set io = New CommonIO
     
     If Not fnInitPrinter() Then
         frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"
@@ -1291,11 +1285,8 @@ Public Sub subSentProcLogToPrinter()
     Dim sProcLogFile As String
     Dim sLine As String
     Dim bIsOpen As Boolean
-    Dim io As CommonIO
     
     On Error GoTo EXITHERE
-    
-    Set io = New CommonIO
     
     If Not fnInitPrinter() Then
         frmzzseinvp.tfnSetStatusBarMessage "Printer not Ready"

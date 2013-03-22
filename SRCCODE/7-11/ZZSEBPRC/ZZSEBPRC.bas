@@ -110,17 +110,24 @@ Public Sub Main()
     #End If
     
     sCommand = Trim(Command)
-    sLogFilePath = fnAddBkSlash(App.Path) & "ZZSEBPRC.LOG"
+    'sLogFilePath = fnAddBkSlash(App.Path) & "ZZSEBPRC.LOG"
     
-    subDeleteErrLog 'Delete the old log file if any...
+    'If sCommand = t_szHandShake Then
+    '    frmZZSEBPRC.Show
+    'Else
+    '    If Len(sCommand) = 0 Then
+    '        frmSplash.Show
+    '    End If
+    'End If
     
-    If sCommand = t_szHandShake Then
+    If Len(sCommand) = 0 Then
+        frmSplash.Show 1
+    ElseIf tfnOpenDatabase Then
         frmZZSEBPRC.Show
-    Else
-        If Len(sCommand) = 0 Then
-            frmSplash.Show
-        End If
     End If
+    
+    sLogFilePath = io.ApplicationPath & "ZZSEBPRC.LOG"
+    subDeleteErrLog 'Delete the old log file if any...
     
 End Sub
 
@@ -495,7 +502,7 @@ Public Function fnCreateReport(Index As Integer) As Boolean
     End If
     
     #If WRT_RPT_TO_FILE Then
-        If Not fnSendToFile(sArrReport(), sReportTitle, App.Path + "\" + sReportID + ".TXT") Then
+        If Not fnSendToFile(sArrReport(), sReportTitle, App.path + "\" + sReportID + ".TXT") Then
             frmZZSEBPRC.tfnSetStatusBarError "Failed to write report to file"
             Exit Function
         End If
@@ -688,7 +695,7 @@ Public Function fnInsertHoldBonus() As String
                 'the check link is greater than zero
                 'and if the 'Process Hourly Employee only' checkbox is checked
                 'insert a new record...
-                If frmZZSEBPRC.chkHourly.Value = vbChecked Then
+                If frmZZSEBPRC.chkHourly.value = vbChecked Then
                     strSQL1 = lEmpNo & ", "
                     strSQL1 = strSQL1 & nPrftCtr & ", "
                     strSQL1 = strSQL1 & tfnSQLString(sPayCode) & ", "
@@ -3482,7 +3489,7 @@ Public Sub subMoveLogFile()
     End If
     
     'get the \factor
-    sLogPath = UCase(App.Path)
+    sLogPath = UCase(App.path)
     
     nPosi = InStrRev(sLogPath, "\EXECTRAK")
     
