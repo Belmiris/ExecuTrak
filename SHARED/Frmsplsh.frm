@@ -905,6 +905,9 @@ Private Sub btnOK_Click()
     t_szConnect = fnConnectString(m_sDSN)
     
     Me.Hide
+        
+    dsnName = m_sDSN
+    Set io = New CommonIO
     
     subShowMainForm
     
@@ -1126,7 +1129,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
@@ -1243,3 +1246,6 @@ Public Function DBConnect(sDSN As String, sUID As String, sPWD As String, Option
     DBConnect = fnConnectString(sDSN)
 End Function
 
+Public Property Get DSN() As String
+    DSN = m_sDSN
+End Property

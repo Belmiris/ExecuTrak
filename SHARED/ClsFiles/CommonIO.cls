@@ -70,12 +70,6 @@ Private Type WIN32_FIND_DATA
     cAlternate As String * 14
 End Type
 
-' CONSTRUCTOR *******************************************************
-
-Private Sub Class_Initialize()
-    m_User = Environ("USERNAME")
-End Sub
-
 ' PROPERTIES ********************************************************
 
 Public Property Get ApplicationPath() As String
@@ -227,7 +221,8 @@ End Property
 Private Sub GetApplicationPath()
     
     If Len(m_ApplicationPath) < 1 Then
-        m_ApplicationPath = AppendUser(App.path)
+        m_ApplicationPath = AppendDSN(App.path)
+        CreateFolder m_ApplicationPath
     End If
     
 End Sub
@@ -256,7 +251,7 @@ Private Sub GetStandardLogPath()
         folder = GetExecTrakPath()
     
         folder = RemoveEndSlash(folder) + "\LOG"
-        m_StandardLogPath = AppendUser(folder)
+        m_StandardLogPath = AppendDSN(folder)
         
         If Not CreateFolder(m_StandardLogPath) Then
             m_StandardLogPath = Me.LocalLogPath
@@ -300,7 +295,7 @@ Private Sub GetLocalLogPath()
     
     If Len(m_LocalLogPath) < 1 Then
         folder = RemoveEndSlash(LOCAL_FACTOR_PATH) & "\EXECTRAK\LOG"
-        folder = AppendUser(folder)
+        folder = AppendDSN(folder)
         m_LocalLogPath = folder
         CreateFolder folder
     End If
@@ -321,7 +316,7 @@ Private Sub GetLocalTempPath()
     
     If Len(m_LocalTempPath) < 1 Then
         folder = AppendSlash(LOCAL_FACTOR_PATH) & "TEMP\"
-        m_LocalTempPath = AppendUser(folder)
+        m_LocalTempPath = AppendDSN(folder)
     End If
     
 End Sub
@@ -331,7 +326,7 @@ Private Sub GetFuelMovementUploadPath()
     
     If Len(m_FuelMovementUploadPath) < 1 Then
         folder = AppendSlash(LOCAL_FACTOR_PATH) & "FUEL-MVMNT-UPLD\"
-        m_FuelMovementUploadPath = AppendUser(folder)
+        m_FuelMovementUploadPath = AppendDSN(folder)
     End If
 
 End Sub
@@ -341,7 +336,7 @@ Private Sub GetXMLDataPath()
     
     If Len(m_XMLDataPath) < 1 Then
         folder = AppendSlash(LOCAL_FACTOR_PATH) & "XML_DATA\"
-        m_XMLDataPath = AppendUser(folder)
+        m_XMLDataPath = AppendDSN(folder)
     End If
     
 End Sub
@@ -352,7 +347,7 @@ Private Sub GetStandardEmailPath()
     If Len(m_StandardEmailPath) < 1 Then
         folder = GetExecTrakPath()
         folder = RemoveEndSlash(folder) & "\EMAIL\"
-        folder = AppendUser(folder)
+        folder = AppendDSN(folder)
         If Not CreateFolder(folder) Then folder = Me.LocalEmailPath
         m_StandardEmailPath = folder
     End If
@@ -364,7 +359,7 @@ Private Sub GetLocalEmailPath()
     
     If Len(m_LocalEmailPath) < 1 Then
         folder = AppendSlash(LOCAL_FACTOR_PATH) & "EMAIL\"
-        m_LocalEmailPath = AppendUser(folder)
+        m_LocalEmailPath = AppendDSN(folder)
     End If
     
 End Sub
@@ -384,7 +379,7 @@ Private Sub GetFactorEDIDirectory()
     
     If Len(m_FactorEDIDirectory) < 1 Then
         folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", App.path)
-        m_FactorEDIDirectory = AppendUser(folder)
+        m_FactorEDIDirectory = AppendDSN(folder)
     End If
     
 End Sub
@@ -394,7 +389,7 @@ Private Sub GetDTNLogFilePath()
     
     If Len(m_DTNLogFilePath) < 1 Then
         folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", AppendSlash(LOCAL_FACTOR_PATH) & "LOG")
-        m_DTNLogFilePath = AppendUser(folder)
+        m_DTNLogFilePath = AppendDSN(folder)
     End If
     
 End Sub
@@ -404,7 +399,7 @@ Private Sub GetDTNInputPath()
     
     If Len(m_DTNInputPath) < 1 Then
         folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", "C:\FACTOR\DTN")
-        m_DTNInputPath = AppendUser(folder)
+        m_DTNInputPath = AppendDSN(folder)
     End If
     
 End Sub
@@ -423,10 +418,10 @@ End Sub
 '*                     ***  UTILITIES ***                           *
 '********************************************************************
 
-Private Function AppendUser(ByVal path$) As String
+Private Function AppendDSN(ByVal path$) As String
     
-    path = AppendSlash(path) + m_User
-    AppendUser = AppendSlash(path)
+    path = AppendSlash(path) + dsnName
+    AppendDSN = AppendSlash(path)
     
 End Function
 

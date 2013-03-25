@@ -256,7 +256,7 @@ Private Sub Class_Initialize()
   
     Dim xTemp As pdfFontStyle
     Dim i As Integer
-    
+        
     mvarFileNumber = 0
     mvarEncodeASCII85 = False
     Title = ""
@@ -358,7 +358,8 @@ Public Sub InitPDFFile(Optional strFileName As String)
 
   If mvarFileNumber <> 0 Then Close #mvarFileNumber
   
-  If strFileName = "" Then strFileName = App.Path & "\~" & Hex(Val(Format(Now(), "dhhmmss") & Trim(Str(Int(Rnd() * 10))))) & ".pdf"
+  'If strFileName = "" Then strFileName = App.Path & "\~" & Hex(Val(Format(Now(), "dhhmmss") & Trim(Str(Int(Rnd() * 10))))) & ".pdf"
+  If strFileName = "" Then strFileName = io.ApplicationPath & "~" & Hex(Val(Format(Now(), "dhhmmss") & Trim(Str(Int(Rnd() * 10))))) & ".pdf"
   
   mvarFileNumber = FreeFile
   mvarFileName = strFileName
@@ -760,7 +761,7 @@ End Sub
 
 '
 Public Function LoadImgFromBMPFile(Name As String, _
-                                   FileName As String, _
+                                   Filename As String, _
                                    Optional ColorSpace As pdfColorSpace = pdfRGB) As Boolean
   Dim ImgBuf() As Byte
   Dim ImgColor() As Byte
@@ -769,7 +770,7 @@ Public Function LoadImgFromBMPFile(Name As String, _
   Dim ImgHeight As Long
   Dim ImgBPP As Byte
   
-  blnFlag = LeggeBMP(FileName, ImgBuf(), ImgColor(), ImgWidth, ImgHeight, ImgBPP, ColorSpace)
+  blnFlag = LeggeBMP(Filename, ImgBuf(), ImgColor(), ImgWidth, ImgHeight, ImgBPP, ColorSpace)
   If blnFlag Then LoadImgFromBuffer Name, ImgBuf(), ImgColor(), ImgWidth, ImgHeight, ImgBPP, ColorSpace
   LoadImgFromBMPFile = blnFlag
 End Function
@@ -1141,7 +1142,7 @@ Private Function ToASCII85(ByRef InBuf() As Byte) As String
 End Function
 
 '
-Public Function LeggeBMP(FileName As String, _
+Public Function LeggeBMP(Filename As String, _
                          ByRef ImgBuf() As Byte, _
                          ByRef ImgColor() As Byte, _
                          ByRef ImgWidth As Long, _
@@ -1181,7 +1182,7 @@ Public Function LeggeBMP(FileName As String, _
   Dim lngGray As Long
   
   fb = FreeFile
-  Open FileName For Binary As #fb
+  Open Filename For Binary As #fb
   
   ' BITMAPFILEHEADER
   Get #fb, , bfType

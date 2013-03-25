@@ -41,7 +41,8 @@ Private m_dbLocal As Database
 Private m_nLogTo As Integer
 Private m_bCirCular As Boolean
 Private m_nMaxErrors As Integer
-'
+'Private io As CommonIO             ' 5875 Defined in Template.bas. SHARED\CLSFILES\CommonIO
+'Private dsnName As String          ' 5875 Defined in Template.bas.
 
 Private Sub Class_Initialize()
     Set m_engFactor = Nothing
@@ -274,8 +275,10 @@ Public Property Set FormParent(frmForm As Object)
     Dim sRevision As String
     
     Set m_frmParent = frmForm
-    m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
-    m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
+    'm_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
+    'm_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
+    m_sLogFilePath = io.StandardLogPath & "errorlog.txt"
+    m_sErrScrnPath = io.StandardLogPath & "errscrn.bmp"
     
     If Val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")
@@ -304,9 +307,11 @@ Public Sub ProgramInfo()
     Dim sMajor As String
     Dim sMinor As String
     Dim sRevision As String
-    
-    m_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
-    m_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
+
+    'm_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
+    'm_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
+    m_sLogFilePath = io.LocalTempPath & "errorlog.txt"
+    m_sErrScrnPath = io.LocalTempPath & "errscrn.bmp"
     
     If Val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")

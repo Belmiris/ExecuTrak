@@ -549,7 +549,7 @@ Private Function fnIsPath(sPath As String) As Boolean
 
     On Error Resume Next
     ChDir sPath
-    If Err.number > 0 Then
+    If Err.Number > 0 Then
         fnIsPath = False
     Else
         fnIsPath = True
@@ -575,7 +575,7 @@ Private Function fnIsFile(ByVal szFilename As String) As Boolean
     Exit Function
 errNotFile:
     #If DEVELOP Then
-        MsgBox "Error # " & Err.number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
+        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
     #End If
 End Function
 
@@ -605,7 +605,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
         If Not fnIsPath(sPath) Then
             Err.Clear
             MkDir sPath
-            If Err.number <> 0 Then
+            If Err.Number <> 0 Then
                 Exit Function
             End If
         End If
@@ -680,7 +680,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As Textbox) As Boolean
+Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -689,7 +689,7 @@ Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As Textbox)
+Private Sub subSelectText(txtBox As TextBox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -877,7 +877,7 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub btnHelp_Click()
-    WinHelp Me.hWnd, szHelpFileName, HELP_CONTENTS, CLng(0)
+    WinHelp Me.hwnd, szHelpFileName, HELP_CONTENTS, CLng(0)
 End Sub
 
 Private Sub btnOK_Click()
@@ -920,7 +920,7 @@ Private Sub btnOK_Click()
 errTrap:
     Screen.MousePointer = vbDefault
     
-    If Err.number = 5 Then
+    If Err.Number = 5 Then
         m_sConnectionError = "Data Source Name is not valid."
         
         If Not m_bAutoConnect Then
@@ -929,7 +929,7 @@ errTrap:
         End If
     Else
         m_sConnectionError = "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
-            Err.number & vbCrLf & "Error Desc: " + Err.Description + "."
+            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "."
         
         If Not m_bAutoConnect Then
             subCriticalMsg m_sConnectionError + vbCrLf + vbCrLf + _
@@ -1179,7 +1179,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
@@ -1425,3 +1425,7 @@ Private Sub txtUserName_LostFocus()
         txtPassword.Text = sPWD
     End If
 End Sub
+
+Public Property Get DSN() As String
+    DSN = m_sDSN
+End Property
