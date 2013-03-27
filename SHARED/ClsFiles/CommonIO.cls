@@ -20,6 +20,7 @@ Private m_LocalLogPath$
 Private m_LocalLogFile$
 Private m_LocalTempPath$
 Private m_WindowsTempPath$
+Private m_ExecuTrakEdiDataPath$
 Private m_FuelMovementUploadPath$
 Private m_XMLDataPath$
 Private m_StandardEmailPath$
@@ -135,6 +136,15 @@ Public Property Let WindowsTempPath(ByVal value As String)
     m_WindowsTempPath = value
 End Property
 
+Public Property Get ExecuTrakEdiDataPath() As String
+    GetExecuTrakEdiDataPath
+    ExecuTrakEdiDataPath = m_ExecuTrakEdiDataPath
+End Property
+
+Public Property Set ExecuTrakEdiDataPath(ByVal value As String)
+    m_ExecuTrakEdiDataPath = value
+End Property
+
 Public Property Get FuelMovementUploadPath() As String
     GetFuelMovementUploadPath
     FuelMovementUploadPath = m_FuelMovementUploadPath
@@ -223,6 +233,20 @@ Private Sub GetApplicationPath()
     If Len(m_ApplicationPath) < 1 Then
         m_ApplicationPath = AppendDSN(App.path)
         CreateFolder m_ApplicationPath
+    End If
+    
+End Sub
+
+Private Sub GetExecuTrakEdiDataPath()
+    Dim folder$
+    
+    If Len(m_ExecuTrakEdiDataPath) < 1 Then
+        folder = GetExecTrakPath()
+    
+        folder = RemoveEndSlash(folder) + "\EDI_DATA"
+        m_ExecuTrakEdiDataPath = AppendDSN(folder)
+        
+        Call CreateFolder(m_ExecuTrakEdiDataPath)
     End If
     
 End Sub
