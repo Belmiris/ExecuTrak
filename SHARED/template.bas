@@ -1891,7 +1891,6 @@ End Sub
 'Returns         : true for yes, false for no
 '
 Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
-
     Dim nFileNumber As Integer
     
     On Error Resume Next
@@ -1901,8 +1900,16 @@ Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
     End If
     
     nFileNumber = FreeFile
-    
-    Open szFilename For Append As #nFileNumber
+        
+    If Not io Is Nothing Then
+        If io.FileExists(szFilename) Then
+            Open szFilename For Append As #nFileNumber
+        Else
+            Open szFilename For Output As #nFileNumber
+        End If
+    Else
+        Open szFilename For Append As #nFileNumber
+    End If
     
     Print #nFileNumber, szLogEntry
 
