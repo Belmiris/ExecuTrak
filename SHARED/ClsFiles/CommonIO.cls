@@ -418,7 +418,7 @@ End Sub
 '*                     ***  UTILITIES ***                           *
 '********************************************************************
 
-Private Function AppendDSN(ByVal path$) As String
+Public Function AppendDSN(ByVal path$) As String
     
     path = AppendSlash(path) + dsnName
     AppendDSN = AppendSlash(path)
