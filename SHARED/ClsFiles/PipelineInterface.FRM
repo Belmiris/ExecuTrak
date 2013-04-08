@@ -329,10 +329,14 @@ Public Sub BackFromServer()
     End If
 End Sub
 
+Public Sub CleanUp()
+    Unload Me
+End Sub
+
 Private Sub Form_Initialize()
     m_sPipelineName = "Pipeline Object"
 End Sub
 
-Private Sub Form_Unload(CANCEL As Integer)
+Private Sub Form_Unload(Cancel As Integer)
     Reset
 End Sub
