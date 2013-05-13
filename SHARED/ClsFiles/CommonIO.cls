@@ -13,14 +13,17 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
+Private m_HostedFolder$
 Private m_ApplicationPath$
 Private m_StandardLogPath$
 Private m_StandardLogFile$
+Private m_LocalAppPath$
 Private m_LocalLogPath$
 Private m_LocalLogFile$
 Private m_LocalTempPath$
 Private m_WindowsTempPath$
 Private m_ExecuTrakEdiDataPath$
+Private m_ExecuTrakPath$
 Private m_FuelMovementUploadPath$
 Private m_XMLDataPath$
 Private m_StandardEmailPath$
@@ -73,6 +76,16 @@ End Type
 
 ' PROPERTIES ********************************************************
 
+Public Property Get HostedFolder() As String
+    HostedFolder = m_HostedFolder
+End Property
+
+Public Property Let HostedFolder(ByVal value As String)
+    If DirectoryExists(value) Then
+        m_HostedFolder = AppendSlash(value)
+    End If
+End Property
+
 Public Property Get ApplicationPath() As String
     GetApplicationPath
     ApplicationPath = m_ApplicationPath
@@ -98,6 +111,15 @@ End Property
 
 Public Property Let StandardLogFile(ByVal value As String)
     m_StandardLogFile = value
+End Property
+
+Public Property Get LocalAppPath() As String
+    GetLocalAppPath
+    LocalAppPath = m_LocalAppPath
+End Property
+
+Public Property Let LocalAppPath(value As String)
+    m_LocalAppPath = value
 End Property
 
 Public Property Get LocalLogPath() As String
@@ -141,7 +163,7 @@ Public Property Get ExecuTrakEdiDataPath() As String
     ExecuTrakEdiDataPath = m_ExecuTrakEdiDataPath
 End Property
 
-Public Property Set ExecuTrakEdiDataPath(ByVal value As String)
+Public Property Let ExecuTrakEdiDataPath(ByVal value As String)
     m_ExecuTrakEdiDataPath = value
 End Property
 
@@ -226,13 +248,40 @@ Public Property Let TLCInboundDirectory(ByVal value As String)
     m_TLCInboundDirectory = value
 End Property
 
+Public Property Get ExecuTrakPath() As String
+    GetExecuTrakPath
+    ExecuTrakPath = m_ExecuTrakPath
+End Property
+
+Public Property Let ExecuTrakPath(value As String)
+    m_ExecuTrakPath = value
+End Property
+
 ' FUNCTIONS / SUBROUTINES *******************************************
 
 Private Sub GetApplicationPath()
     
     If Len(m_ApplicationPath) < 1 Then
-        m_ApplicationPath = AppendDSN(App.path)
+        If Len(m_HostedFolder) > 0 Then
+            m_ApplicationPath = AppendDSN(m_HostedFolder)
+        Else
+            m_ApplicationPath = AppendDSN(App.path)
+            'm_ApplicationPath = AppendDSN("C:\FACTOR\EXECTRAK\BIN")
+        End If
         CreateFolder m_ApplicationPath
+    End If
+    
+End Sub
+
+Private Sub GetExecuTrakPath()
+    Dim folder$
+    
+    If Len(m_ExecuTrakPath) < 1 Then
+        folder = GetExecTrakPath()
+    
+        m_ExecuTrakPath = AppendDSN(folder)
+        
+        Call CreateFolder(m_ExecuTrakPath)
     End If
     
 End Sub
@@ -256,13 +305,17 @@ Private Sub GetWindowsTempPath()
     Dim ret As Long
         
     If Len(m_WindowsTempPath) < 1 Then
-        folder = String(MAX_PATH, 0)
-        ret = GetTempPath(MAX_PATH, folder)
-        
-        If ret <> 0 Then
-            m_WindowsTempPath = AppendSlash(Left(folder, InStr(folder, Chr(0)) - 1))
+        If Len(m_HostedFolder) > 0 Then
+            m_WindowsTempPath = m_HostedFolder & "TEMP"
+            CreateFolder m_WindowsTempPath
         Else
-            m_WindowsTempPath = Me.LocalTempPath
+            folder = String(MAX_PATH, 0)
+            ret = GetTempPath(MAX_PATH, folder)
+            If ret <> 0 Then
+                m_WindowsTempPath = AppendSlash(Left(folder, InStr(folder, Chr(0)) - 1))
+            Else
+                m_WindowsTempPath = Me.LocalTempPath
+            End If
         End If
     End If
     
@@ -278,7 +331,9 @@ Private Sub GetStandardLogPath()
         m_StandardLogPath = AppendDSN(folder)
         
         If Not CreateFolder(m_StandardLogPath) Then
-            m_StandardLogPath = Me.LocalLogPath
+            If Len(m_HostedFolder) < 1 Then
+                m_StandardLogPath = Me.LocalLogPath
+            End If
         End If
     End If
     
@@ -314,12 +369,32 @@ FINISHED:
     End If
 End Sub
 
+Private Sub GetLocalAppPath()
+    Dim path$
+    
+    If Len(m_LocalAppPath) < 1 Then
+        If Len(m_HostedFolder) > 0 Then
+            path = Me.ApplicationPath
+            CreateFolder path
+        Else
+            path = AppendDSN("C:\FACTOR\" & App.Title)
+            CreateFolder path
+        End If
+        m_LocalAppPath = path
+    End If
+    
+End Sub
+
 Private Sub GetLocalLogPath()
     Dim folder$
     
     If Len(m_LocalLogPath) < 1 Then
-        folder = RemoveEndSlash(LOCAL_FACTOR_PATH) & "\EXECTRAK\LOG"
-        folder = AppendDSN(folder)
+        If Len(m_HostedFolder) > 0 Then
+            folder = Me.StandardLogPath
+        Else
+            folder = RemoveEndSlash(LOCAL_FACTOR_PATH) & "\EXECTRAK\LOG"
+            folder = AppendDSN(folder)
+        End If
         m_LocalLogPath = folder
         CreateFolder folder
     End If
@@ -327,10 +402,16 @@ Private Sub GetLocalLogPath()
 End Sub
 
 Private Sub GetLocalLogFile()
+    Dim hfile%
     
     If Len(m_LocalLogFile) < 1 Then
         GetLocalLogPath
         m_LocalLogFile = AppendSlash(LocalLogPath) & App.Title & ".LOG"
+        If Not FileExists(m_LocalLogFile) Then
+            hfile = FreeFile()
+            Open m_LocalLogFile For Output As #hfile
+            Close hfile
+        End If
     End If
     
 End Sub
@@ -339,8 +420,13 @@ Private Sub GetLocalTempPath()
     Dim folder$
     
     If Len(m_LocalTempPath) < 1 Then
-        folder = AppendSlash(LOCAL_FACTOR_PATH) & "TEMP\"
+        If Len(m_HostedFolder) > 0 Then
+            folder = m_HostedFolder & "TEMP"
+        Else
+            folder = AppendSlash(LOCAL_FACTOR_PATH) & "TEMP\"
+        End If
         m_LocalTempPath = AppendDSN(folder)
+        CreateFolder m_LocalTempPath
     End If
     
 End Sub
@@ -349,7 +435,11 @@ Private Sub GetFuelMovementUploadPath()
     Dim folder$
     
     If Len(m_FuelMovementUploadPath) < 1 Then
-        folder = AppendSlash(LOCAL_FACTOR_PATH) & "FUEL-MVMNT-UPLD\"
+        If Len(m_HostedFolder) > 0 Then
+            folder = m_HostedFolder & "FUEL-MVMNT-UPLD"
+        Else
+            folder = AppendSlash(LOCAL_FACTOR_PATH) & "FUEL-MVMNT-UPLD"
+        End If
         m_FuelMovementUploadPath = AppendDSN(folder)
     End If
 
@@ -359,7 +449,8 @@ Private Sub GetXMLDataPath()
     Dim folder$
     
     If Len(m_XMLDataPath) < 1 Then
-        folder = AppendSlash(LOCAL_FACTOR_PATH) & "XML_DATA\"
+        folder = GetExecTrakPath()
+        folder = folder & "XML_DATA"
         m_XMLDataPath = AppendDSN(folder)
     End If
     
@@ -382,8 +473,14 @@ Private Sub GetLocalEmailPath()
     Dim folder$
     
     If Len(m_LocalEmailPath) < 1 Then
-        folder = AppendSlash(LOCAL_FACTOR_PATH) & "EMAIL\"
+        If Len(m_HostedFolder) > 0 Then
+            folder = m_HostedFolder & "EMAIL"
+        Else
+            folder = AppendSlash(LOCAL_FACTOR_PATH) & "EMAIL"
+        End If
         m_LocalEmailPath = AppendDSN(folder)
+        
+        CreateFolder m_LocalEmailPath
     End If
     
 End Sub
@@ -392,7 +489,11 @@ Private Sub GetFactorConfigurationFile()
     Dim file$
     
     If Len(m_FactorConfigurationFile) < 1 Then
-        file = AppendSlash(LOCAL_FACTOR_PATH) & "FACTOR.INI"
+        If Len(m_HostedFolder) > 0 Then
+            file = AppendDSN(m_HostedFolder & "INI") & "FACTOR.INI"
+        Else
+            file = AppendSlash(LOCAL_FACTOR_PATH) & "FACTOR.INI"
+        End If
         m_FactorConfigurationFile = file
     End If
     
@@ -402,7 +503,12 @@ Private Sub GetFactorEDIDirectory()
     Dim folder$
     
     If Len(m_FactorEDIDirectory) < 1 Then
-        folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", App.path)
+        If Len(m_HostedFolder) > 0 Then
+            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", m_HostedFolder & "EDI")
+        Else
+            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", App.path)
+            'folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", "C:\FACTOR\EXECTRAK\BIN")
+        End If
         m_FactorEDIDirectory = AppendDSN(folder)
     End If
     
@@ -412,8 +518,12 @@ Private Sub GetDTNLogFilePath()
     Dim folder$
     
     If Len(m_DTNLogFilePath) < 1 Then
-        folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", AppendSlash(LOCAL_FACTOR_PATH) & "LOG")
-        m_DTNLogFilePath = AppendDSN(folder)
+        If Len(m_HostedFolder) > 0 Then
+            folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", m_HostedFolder & "DTN\LOG")
+        Else
+            folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", AppendSlash(LOCAL_FACTOR_PATH) & "LOG")
+        End If
+        m_DTNLogFilePath = folder
     End If
     
 End Sub
@@ -422,8 +532,12 @@ Private Sub GetDTNInputPath()
     Dim folder$
     
     If Len(m_DTNInputPath) < 1 Then
-        folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", "C:\FACTOR\DTN")
-        m_DTNInputPath = AppendDSN(folder)
+        If Len(m_HostedFolder) > 0 Then
+            folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", m_HostedFolder & "DTN")
+        Else
+            folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", "C:\FACTOR\DTN")
+        End If
+        m_DTNInputPath = folder
     End If
     
 End Sub
@@ -444,7 +558,7 @@ End Sub
 
 Public Function AppendDSN(ByVal path$) As String
     
-    path = AppendSlash(path) + dsnName
+    path = AppendSlash(path) + UCase$(dsnName)
     AppendDSN = AppendSlash(path)
     
 End Function
@@ -543,18 +657,15 @@ Public Function FileExists(ByVal file$) As Boolean
 End Function
 
 Public Function DirectoryExists(ByVal folder$) As Boolean
-    Dim hSearch As Long
-    Dim wfd As WIN32_FIND_DATA
-    
-    folder = RemoveEndSlash(folder)
+    Dim attr As Long
     
     If Len(folder) > 0 Then
-        hSearch = FindFirstFile(folder, wfd)
-        If hSearch <> INVALID_HANDLE_VALUE Then
-            If wfd.dwFileAttributes And FILE_ATTRIBUTE_DIRECTORY Then
+        folder = RemoveEndSlash(folder)
+        attr = GetFileAttributes(folder)
+        If (attr <> INVALID_HANDLE_VALUE) Then
+            If (attr And FILE_ATTRIBUTE_DIRECTORY) = FILE_ATTRIBUTE_DIRECTORY Then
                 DirectoryExists = True
             End If
-            FindClose hSearch
         End If
     End If
     
@@ -590,7 +701,7 @@ Private Function AppendSlash(ByVal path$) As String
     
 End Function
 
-Private Function RemoveEndSlash(ByVal path$) As String
+Public Function RemoveEndSlash(ByVal path$) As String
 
     RemoveEndSlash = IIf(Right$(path, 1) = "\", Mid(path, 1, Len(path) - 1), path)
 
@@ -613,34 +724,76 @@ Private Function GetExecTrakPath() As String
     Dim folder$
     Dim x%
     
-    path = App.path
-    x = InStr(1, path, "\EXECTRAK\", vbTextCompare)
-    If x > 0 Then
-        folder = Mid(path, 1, x - 1)
+    If Len(m_HostedFolder) > 0 Then
+        folder = m_HostedFolder
     Else
-        folder = path
+        path = App.path
+        'path = "C:\FACTOR\EXECTRAK\BIN"
+        
+        x = InStr(1, path, "\EXECTRAK\", vbTextCompare)
+        If x > 0 Then
+            folder = Mid(path, 1, x - 1)
+        Else
+            folder = path
+        End If
     End If
-
+        
     GetExecTrakPath = AppendSlash(folder) + "EXECTRAK\"
+    CreateFolder GetExecTrakPath
 
+End Function
+
+Public Function NewIniPath(iniFile$)
+    Dim arr$()
+    Dim name$
+    Dim x%
+    
+    NewIniPath = iniFile
+    
+    If Len(m_HostedFolder) > 0 Then
+        If Len(iniFile) > 0 Then
+            arr = Split(iniFile, "\")
+            x = UBound(arr)
+            name = UCase(arr(x))
+            Select Case name
+                Case "FACTOR.INI", "IQFACT.INI"
+                    NewIniPath = m_HostedFolder & dsnName & "\" & name
+                Case Else
+                    NewIniPath = m_HostedFolder & name
+            End Select
+        End If
+    End If
+    
 End Function
 
 Public Function GetFactorINIValue(section$, key$, Optional defaultValue$ = "")
     
-    GetFactorINIValue = ReadPrivateProfileString(Me.FactorConfigurationFile, section, key, defaultValue)
+    GetFactorINIValue = ReadINIString(Me.FactorConfigurationFile, section, key, defaultValue)
     
 End Function
 
-Public Function ReadPrivateProfileString(configFile$, section$, key$, Optional defaultValue$ = "")
+Public Function ReadINIString(configFile$, section$, key$, Optional defaultValue$ = "")
     Dim ret As Long
     Dim value$
+    Dim file$
+    
+    file = NewIniPath(configFile)
     
     value = Space$(256)
-    ret = GetPrivateProfileString(section, key, defaultValue, value, Len(value), configFile)
+    ret = GetPrivateProfileString(section, key, defaultValue, value, Len(value), file)
     If ret > 0 Then
-        ReadPrivateProfileString = Left$(value, ret)
+        ReadINIString = Left$(value, ret)
     Else
-        ReadPrivateProfileString = defaultValue
+        ReadINIString = defaultValue
     End If
+    
+End Function
+
+Public Function WriteINIString(configFile$, section$, key$, value$) As Long
+    Dim file$
+    
+    file = NewIniPath(configFile)
+    
+    WriteINIString = WritePrivateProfileString(section, key, value, file)
     
 End Function

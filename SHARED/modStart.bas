@@ -3,7 +3,8 @@ Option Explicit
 
 Public Sub main()
 
-    If Command = t_szHandShake Then
+    'If Command = t_szHandShake Then
+    If tfnAuthorizeExecute(Command, False) Then
         Load frmMain
     Else
         frmSplash.Caption = "Select Data Sources"

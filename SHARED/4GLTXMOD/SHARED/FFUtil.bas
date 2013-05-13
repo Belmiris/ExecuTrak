@@ -1,5 +1,6 @@
 Attribute VB_Name = "FlatFileUtil"
 Option Explicit
+'87y798y7
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'On 05/09/2002, we did the following two things:
 '(1)Add output file information to the INI file
@@ -451,7 +452,7 @@ Private Sub subAutoRun()
             LogForm.subEnableCancel True
         Else
             'Multiple files
-            LogForm.lstFile.Path = udtInputInfo.m_sPath
+            LogForm.lstFile.path = udtInputInfo.m_sPath
             If InStr(udtInputInfo.m_sType, ".") > 0 Then
                 If InStr(udtInputInfo.m_sType, "*") > 0 Then
                     sTemp = udtInputInfo.m_sType
@@ -875,14 +876,15 @@ Private Sub subInitialize(sCommand As String)
     
     udtLogInfo.m_sType = LOG_NAME_EXTN
     udtBackupInfo.m_sType = DATA_BACKUP_EXTN
-    subReadINIParms
-    subSetFileMode FILE_MODE_READ
-    
-    If fnAllowStandalone Then
-        If Not fnCheckRunMethod(sCommand) Then
-            End
-        End If
-    End If
+
+'    subReadINIParms
+'    subSetFileMode FILE_MODE_READ
+'
+'    If fnAllowStandalone Then
+'        If Not fnCheckRunMethod(sCommand) Then
+'            End
+'        End If
+'    End If
     
     If Not tfnAuthorizeExecute(sCommand) Then 'Check for handshake if not in the development mode
         End
@@ -904,6 +906,15 @@ Private Sub subInitialize(sCommand As String)
     Else
         Unload LogForm
         End
+    End If
+    
+    subReadINIParms
+    subSetFileMode FILE_MODE_READ
+    
+    If fnAllowStandalone Then
+        If Not fnCheckRunMethod(sCommand) Then
+            End
+        End If
     End If
     
     subSetStatusbarMessage sStatusbarMsg
@@ -1025,9 +1036,10 @@ Private Sub subReadINIParms()
         subSetParmValue j, sValue
     Next j
     If m_sWorkPath = "" Then
-        m_sWorkPath = App.Path
+        'm_sWorkPath = App.path
+        m_sWorkPath = io.ApplicationPath
     End If
-    subAddSlash m_sWorkPath
+'    subAddSlash m_sWorkPath
 '    subProcessPath udtBackupInfo.m_sPath
 '    subProcessPath udtInputInfo.m_sPath
 

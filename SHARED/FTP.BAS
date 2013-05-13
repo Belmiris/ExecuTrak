@@ -190,11 +190,11 @@ Private Const HTTP_QUERY_FLAG_REQUEST_HEADERS = &H80000000
 Private Const HTTP_QUERY_FLAG_NUMBER = &H20000000
 ' Reads data from a handle opened by the HttpOpenRequest function.
 Private Declare Function InternetReadFile Lib "wininet.dll" _
-(ByVal hFile As Long, ByVal sBuffer As String, ByVal lNumBytesToRead As Long, _
+(ByVal hfile As Long, ByVal sBuffer As String, ByVal lNumBytesToRead As Long, _
 lNumberOfBytesRead As Long) As Integer
 
 Private Declare Function InternetWriteFile Lib "wininet.dll" _
-        (ByVal hFile As Long, ByVal sBuffer As String, _
+        (ByVal hfile As Long, ByVal sBuffer As String, _
         ByVal lNumberOfBytesToRead As Long, _
         lNumberOfBytesRead As Long) As Integer
 
@@ -307,7 +307,8 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     If sDestPath = "" Then
         Dim szDir As String
         If bFromUnixToLocal Then
-            szDir = App.Path
+            'szDir = App.path
+            szDir = io.ApplicationPath
         Else
             'Get the destination directory path from unix server...
             szDir = String(1024, Chr$(0))
@@ -501,7 +502,7 @@ CloseHandle:
     InternetCloseHandle hOpen
     Exit Function
 errTrap:
-    sRetErrMsg = Err.number & ": " & Err.Description
+    sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
 End Function
@@ -702,7 +703,7 @@ Private Function fnBuildFileArray(sPath As String, sFileName As String, _
     Exit Function
 
 errBuildList:
-    If Err.number = 76 Then
+    If Err.Number = 76 Then
         MsgBox " Path (" & fnConCat(sPath, sFileName) & ") not found in Function '" & SUB_NAME & "'"
     End If
     fnBuildFileArray = -1
@@ -756,7 +757,7 @@ Private Function fnGenerateNewFile10() As String
     
     sTemp = ""
     For i = 1 To 10
-        sChar = Chr((Int(rnd() * 25)) + 97)
+        sChar = Chr((Int(Rnd() * 25)) + 97)
         sTemp = sTemp + sChar
     Next i
     

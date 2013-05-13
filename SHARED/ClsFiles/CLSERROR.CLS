@@ -277,8 +277,8 @@ Public Property Set FormParent(frmForm As Object)
     Set m_frmParent = frmForm
     'm_sLogFilePath = tfnGetWindowsDir() & "\temp\errorlog.txt"
     'm_sErrScrnPath = tfnGetWindowsDir() & "\temp\errscrn.bmp"
-    m_sLogFilePath = io.StandardLogPath & "errorlog.txt"
-    m_sErrScrnPath = io.StandardLogPath & "errscrn.bmp"
+    m_sLogFilePath = io.LocalTempPath & "errorlog.txt"
+    m_sErrScrnPath = io.LocalTempPath & "errscrn.bmp"
     
     If Val(App.Minor) >= 20 Then
         sMajor = Format(App.Major, "#0")

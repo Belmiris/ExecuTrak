@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -603,8 +603,8 @@ Public t_tax_date As String     'pass the value into this variable if You have d
 Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 Private nDefaultQueryTimeout As Integer  'david 05/27/2008
 '
-Public dsnName As String        '5878
-Public io As CommonIO           '5878 SHARED\CLSFILES\CommonIO.cls
+Public dsnName As String        '5875
+Public io As CommonIO           '5875 SHARED\CLSFILES\CommonIO.cls
 
 '---------------------------------------------------------------------------------------
 ' Procedure : DBVersionToLong
@@ -621,35 +621,45 @@ Public io As CommonIO           '5878 SHARED\CLSFILES\CommonIO.cls
 '---------------------------------------------------------------------------------------
 '
 Public Function DBVersionToLong(ByVal version As String, Optional ByVal StripProgVer As Boolean = True) As Long
-    Dim VerInfo() As String
-    Dim i         As Integer
-    Dim VerLong   As Long
-    Dim v         As Long
+    Dim arr() As String
+    Dim major As Long
+    Dim minor As Long
+    Dim build As Long
     
-    VerInfo = Split(version, ".")
-    Do While (i <= 2) And (i <= UBound(VerInfo))
-        VerInfo(i) = Trim$(VerInfo(i))
-'        If i = 2 Then
-'            If Len(VerInfo(2)) < 4 Then
-'                VerInfo(2) = VerInfo(2) & String(4 - Len(VerInfo(2)), 48)
-'            End If
-'        End If
-        v = CLng(VerInfo(i))
-        If i = 2 Then
-            v = v \ 100
-        End If
-        
-        VerLong = VerLong + (v * 2 ^ ((3 - i) * 8))
-        i = i + 1
-    Loop
-    
-    If UBound(VerInfo) >= 2 Then
-        If Not StripProgVer Then
-            VerLong = VerLong + (CLng(VerInfo(2)) Mod 100)
-        End If
+    ' 6322
+    arr = Split(version, ".")
+    If UBound(arr) >= 2 Then
+        major = CLng(arr(0))
+        minor = CLng(arr(1))
+        If minor > 100 Then MsgBox "Warning: The minor version of this program exceeds 99!"
+        build = CLng(arr(2))
+        DBVersionToLong = major * 100 + minor
     End If
     
-    DBVersionToLong = VerLong
+'    Dim VerInfo() As String
+'    Dim i         As Integer
+'    Dim VerLong   As Long
+'    Dim v         As Long
+'
+'    VerInfo = Split(version, ".")
+'    Do While (i <= 2) And (i <= UBound(VerInfo))
+'        VerInfo(i) = Trim$(VerInfo(i))
+'        v = CLng(VerInfo(i))
+'        If i = 2 Then
+'            v = v \ 100
+'        End If
+'
+'        VerLong = VerLong + (v * 2 ^ ((3 - i) * 8))
+'        i = i + 1
+'    Loop
+'
+'    If UBound(VerInfo) >= 2 Then
+'        If Not StripProgVer Then
+'            VerLong = VerLong + (CLng(VerInfo(2)) Mod 100)
+'        End If
+'    End If
+'
+'    DBVersionToLong = VerLong
 End Function
 
 ''''''''''''''''''''''''''''''''
@@ -745,7 +755,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 .Close
             End With
             With App
-                sAppVer = .Major & "." & .Minor & "." & Format$(.Revision, "0000")
+                sAppVer = .major & "." & .minor & "." & Format$(.Revision, "0000")
                 lAppVer = DBVersionToLong(sAppVer, True)
             End With
             
@@ -1431,17 +1441,24 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
             Set io = New CommonIO                             ' 5875
         End If
     #End If
-
+    
+    If io Is Nothing And Trim(t_szConnect) <> "" Then         ' 5875
+        dsnName = tfnGetNamedString(t_szConnect, "DSN")       ' 5875
+        Set io = New CommonIO                                 ' 5875
+    End If                                                    ' 5875
+        
     On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
 
     Set t_engFactor = New DBEngine 'create a new dDBEngine
-    
     
     Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
     t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
     
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
-        
+            
+    io.HostedFolder = GetServiceTrakHostedFolder()
+    io.DatabaseName = UCase(tfnGetDbName())
+    
     'david 05/27/2008
     nDefaultQueryTimeout = t_dbMainDatabase.QueryTimeout
     If nQueryTimeout >= 0 Then
@@ -1582,7 +1599,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1900,7 +1917,7 @@ Public Sub tfnLog(szLogEntry As String, Optional szFilename As String = "")
     End If
     
     nFileNumber = FreeFile
-        
+    
     If Not io Is Nothing Then
         If io.FileExists(szFilename) Then
             Open szFilename For Append As #nFileNumber
@@ -2776,7 +2793,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -3491,7 +3508,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3708,7 +3725,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3920,7 +3937,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFileName As String, _
+Public Function tfn_Read_SYS_INI(sFilename As String, _
                                  sUserID As String, _
                                  sSECTION As String, _
                                  sField As String, _
@@ -3938,8 +3955,8 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     
     'ini_file_Name,ini_user_id may be null
     
-    If sFileName <> "" Then
-        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
+    If sFilename <> "" Then
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFilename))
     Else
         strSQL = strSQL & " ini_file_Name is Null"
     End If
@@ -3984,7 +4001,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFileName As String, _
+Public Function tfn_Write_SYS_INI(sFilename As String, _
                               ByVal sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -4003,7 +4020,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField, , bRecordFound)
+        sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField, , bRecordFound)
     End If
         
     On Error GoTo errTrap
@@ -4014,14 +4031,14 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     
     If sRetrunValue <> "" Or bRecordFound Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
@@ -5219,5 +5236,28 @@ End Function
 'david 05/13/2011  #3338
 ''''''''''''''''''''''''
 
+Public Function GetServiceTrakHostedFolder() As String
+    Dim SQL$
+    Dim parm15$
+    
+    SQL = "select parm_field from sys_parm where parm_nbr = 15"
+    With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+        If Not .EOF Then
+            parm15 = UCase$(Trim$(.Fields(0).value & ""))
+        End If
+        .Close
+    End With
+    
+    SQL = "select ini_value from sys_ini where ini_section = 'WorkingDirectory' AND ini_file_name = 'HOSTED'"
+    If parm15 = "Y" Then
+        With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+            If Not .EOF Then
+                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).value & ""))
+            End If
+            .Close
+        End With
+    End If
+    
+End Function
 
 

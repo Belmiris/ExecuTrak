@@ -51,7 +51,7 @@ Public hPrevFont As Integer
 Public hCurrFont As Integer
 Public Type myColumn
     columnID As Integer
-    columnName As String
+    ColumnName As String
     ColumnType As String
     columnLength As Integer
 End Type
@@ -219,7 +219,7 @@ Public Function GetFieldData(rs As Recordset, Optional szField As Variant) As St
 End Function
 
 ' this function also returns record count
-Public Function GetRecordSet(rsTemp As Recordset, szSql As String, _
+Public Function GetRecordSet(rsTemp As Recordset, szSQL As String, _
                    Optional nDB As Variant, Optional szCalledFrom As Variant, _
                    Optional bShowErrow As Variant) As Long
     On Error GoTo SQLError
@@ -231,12 +231,12 @@ Public Function GetRecordSet(rsTemp As Recordset, szSql As String, _
     Select Case nDB
        Case nDB_LOCAL
        
-         Set rsTemp = dbLocal.OpenRecordset(szSql, dbOpenSnapshot)
+         Set rsTemp = dbLocal.OpenRecordset(szSQL, dbOpenSnapshot)
          
         
        Case nDB_REMOTE
        
-         Set rsTemp = t_dbMainDatabase.OpenRecordset(szSql, dbOpenSnapshot, dbSQLPassThrough)
+         Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
          
     End Select
     If rsTemp.RecordCount > 0 Then
@@ -253,12 +253,12 @@ SQLError:
        bShowErrow = True
     End If
     GetRecordSet = -1
-    tfnErrHandler "GetRecordSet," & szCalledFrom, szSql, bShowErrow
+    tfnErrHandler "GetRecordSet," & szCalledFrom, szSQL, bShowErrow
     On Error GoTo 0
 End Function
 
 ' this function also returns record count
-Public Function GetRecordCount(szSql As String, _
+Public Function GetRecordCount(szSQL As String, _
                    Optional nDB As Variant, Optional szCalledFrom As Variant, _
                    Optional bShowErrow As Variant) As Long
     
@@ -273,7 +273,7 @@ Public Function GetRecordCount(szSql As String, _
     Select Case nDB
        Case nDB_LOCAL
        
-         Set rsTemp = dbLocal.OpenRecordset(szSql, dbOpenSnapshot)
+         Set rsTemp = dbLocal.OpenRecordset(szSQL, dbOpenSnapshot)
          
          If rsTemp.RecordCount > 0 Then
             rsTemp.MoveLast
@@ -281,7 +281,7 @@ Public Function GetRecordCount(szSql As String, _
          End If
        Case nDB_REMOTE
        
-         Set rsTemp = t_dbMainDatabase.OpenRecordset(szSql, dbOpenSnapshot, dbSQLPassThrough)
+         Set rsTemp = t_dbMainDatabase.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
          If rsTemp.RecordCount > 0 Then
             rsTemp.MoveLast
             rsTemp.MoveFirst
@@ -297,7 +297,7 @@ SQLError:
        bShowErrow = True
     End If
     GetRecordCount = -1
-    tfnErrHandler "GetRecordCount," & szCalledFrom, szSql, bShowErrow
+    tfnErrHandler "GetRecordCount," & szCalledFrom, szSQL, bShowErrow
     On Error GoTo 0
 End Function
 '=================================================
@@ -469,26 +469,26 @@ End Function
 Public Function fnCreateTemp_Small(szTableName As String, _
             ByVal szFieldName, ParamArray ArrayValues() As Variant) As Boolean
    
-   Dim szSql As String
+   Dim szSQL As String
    Dim k As Integer
    
    fnCreateTemp_Small = False
    
    On Error GoTo errCreateTable
    
-   szSql = "SELECT tabname FROM systables WHERE tabname = " & szTableName
-   If GetRecordCount(szSql) > 0 Then
-      szSql = "DROP TABLE " & szTableName
-      t_dbMainDatabase.ExecuteSQL szSql
+   szSQL = "SELECT tabname FROM systables WHERE tabname = " & szTableName
+   If GetRecordCount(szSQL) > 0 Then
+      szSQL = "DROP TABLE " & szTableName
+      t_dbMainDatabase.ExecuteSQL szSQL
    End If
    
-   szSql = "CREATE TEMP TABLE " & szTableName & "(" & szFieldName & " CHAR(1))"
-   t_dbMainDatabase.ExecuteSQL szSql
+   szSQL = "CREATE TEMP TABLE " & szTableName & "(" & szFieldName & " CHAR(1))"
+   t_dbMainDatabase.ExecuteSQL szSQL
 
    For k = 0 To UBound(ArrayValues)
-      szSql = "INSERT INTO " & szTableName & "(" & szFieldName & ") VALUES (" _
+      szSQL = "INSERT INTO " & szTableName & "(" & szFieldName & ") VALUES (" _
            & MyStr(ArrayValues(k)) & ")"
-      t_dbMainDatabase.ExecuteSQL szSql
+      t_dbMainDatabase.ExecuteSQL szSQL
    Next
    fnCreateTemp_Small = True
    
@@ -496,7 +496,7 @@ Public Function fnCreateTemp_Small(szTableName As String, _
 errCreateTable:
     MsgBox "Can not create temporary table for searching.", vbOKOnly + vbCritical, App.Title
     err.Clear
-    tfnErrHandler "fnCreateTemp_Small", szSql
+    tfnErrHandler "fnCreateTemp_Small", szSQL
    
 End Function
 '=====================================================
@@ -742,19 +742,21 @@ End Function
 '
 Public Function fnGetAppDir(Optional vAddSlash As Variant) As String
     
-    Dim szTemp As String 'temp to hold the path
-    Dim gszSLASH As String
-    gszSLASH = "/"
-        
-    szTemp = App.Path 'use the App object to retrieve the path
-        
-    If Not IsMissing(vAddSlash) Then
-        If Right(szTemp, 1) <> gszSLASH And vAddSlash = True Then 'add a slash if it needs one
-            szTemp = szTemp + gszSLASH
-        End If
-    End If
+    MsgBox "myBASIC.fnGetAppDir() is a deprecated function. Please notify support."
     
-    fnGetAppDir = szTemp 'return the path
+'    Dim szTemp As String 'temp to hold the path
+'    Dim gszSLASH As String
+'    gszSLASH = "/"
+'
+'    szTemp = App.path 'use the App object to retrieve the path
+'
+'    If Not IsMissing(vAddSlash) Then
+'        If Right(szTemp, 1) <> gszSLASH And vAddSlash = True Then 'add a slash if it needs one
+'            szTemp = szTemp + gszSLASH
+'        End If
+'    End If
+'
+'    fnGetAppDir = szTemp 'return the path
 
 End Function
 '=====================================================
@@ -880,7 +882,7 @@ Public Sub fnDisableFormSystemClose(ByRef frmForm As Form)
     
     Dim nCode As Integer
     
-    nCode = GetSystemMenu(myForm.hwnd, False)
+    nCode = GetSystemMenu(myForm.hWnd, False)
     Call ModifyMenu(nCode, SC_CLOSE, 1, 0, "&Close")
     Call ModifyMenu(nCode, SC_SIZE, 1, 0, "&Size")
 
@@ -1001,7 +1003,7 @@ End Function
 '============================================================
 
 'Weigong's
-Public Function fnExeSQL(szSql As String, Optional nDB As Variant, _
+Public Function fnExeSQL(szSQL As String, Optional nDB As Variant, _
                 Optional szCalledFrom As Variant, Optional bShowError As Variant) As Boolean
                 
     Dim szMsg As String
@@ -1014,9 +1016,9 @@ Public Function fnExeSQL(szSql As String, Optional nDB As Variant, _
     
     Select Case nDB
         Case DB_LOCAL
-            dbLocal.Execute szSql
+            dbLocal.Execute szSQL
         Case DB_REMOTE
-            t_dbMainDatabase.ExecuteSQL szSql
+            t_dbMainDatabase.ExecuteSQL szSQL
     End Select
     
     fnExeSQL = True
@@ -1030,7 +1032,7 @@ SQLError:
       If IsMissing(bShowError) Then
          bShowError = True
       End If
-      tfnErrHandler "fnExeSQL, " & szCalledFrom, szSql, bShowError
+      tfnErrHandler "fnExeSQL, " & szCalledFrom, szSQL, bShowError
       On Error GoTo 0
 End Function
 '=====================
@@ -1390,33 +1392,35 @@ End Sub
 'open local database, need to reset sInifilename
 Public Function fnOpenLocalDatabase() As DataBase
     
-    Dim sDataBasePath As String
-    Dim sIniFileName As String
-    
-    sIniFileName = App.Path & "\duty.ini"
-    sDataBasePath = fnReadINI("DATABASE", "path", sIniFileName)
-        
-    On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
+    MsgBox "myBASIC.fnOpenLocalDatabase() is a deprecated function. Please notify support."
 
-    If t_engFactor Is Nothing Then
-        Set t_engFactor = New DBEngine 'create a new dDBEngine
-        t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
-    End If
-    
-    If t_wsWorkSpace Is Nothing Then
-        Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
-    End If
-
-    Set fnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(sDataBasePath) '(t_engFactor.IniPath & "\factor.mdb")
-    On Error GoTo 0
-    Exit Function
-
-ERROR_CONNECTING:
-    MsgBox err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
-
-    Set fnOpenLocalDatabase = Nothing
-
-    On Error GoTo 0
+'    Dim sDataBasePath As String
+'    Dim sIniFileName As String
+'
+'    sIniFileName = App.Path & "\duty.ini"
+'    sDataBasePath = fnReadINI("DATABASE", "path", sIniFileName)
+'
+'    On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
+'
+'    If t_engFactor Is Nothing Then
+'        Set t_engFactor = New DBEngine 'create a new dDBEngine
+'        t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
+'    End If
+'
+'    If t_wsWorkSpace Is Nothing Then
+'        Set t_wsWorkSpace = t_engFactor.Workspaces(0) 'set the default workspace handle
+'    End If
+'
+'    Set fnOpenLocalDatabase = t_wsWorkSpace.OpenDatabase(sDataBasePath) '(t_engFactor.IniPath & "\factor.mdb")
+'    On Error GoTo 0
+'    Exit Function
+'
+'ERROR_CONNECTING:
+'    MsgBox err.Description, vbOKOnly + vbCritical, "Local Access " & szCONNECTION_ERROR
+'
+'    Set fnOpenLocalDatabase = Nothing
+'
+'    On Error GoTo 0
 End Function
 '==========================
 
@@ -1858,7 +1862,7 @@ Public Function tfnGetUserPassward() As String
     
 End Function
 
-Public Function GetRecordSet2nd(rsTemp As Recordset, szSql As String, _
+Public Function GetRecordSet2nd(rsTemp As Recordset, szSQL As String, _
                    Optional nDB As Variant, Optional szCalledFrom As Variant, _
                    Optional bShowErrow As Variant) As Long
     On Error GoTo SQLError
@@ -1878,7 +1882,7 @@ Public Function GetRecordSet2nd(rsTemp As Recordset, szSql As String, _
        '  End If
        Case nDB_REMOTE
        
-         Set rsTemp = t_dbMainDatabase2nd.OpenRecordset(szSql, dbOpenSnapshot, dbSQLPassThrough)
+         Set rsTemp = t_dbMainDatabase2nd.OpenRecordset(szSQL, dbOpenSnapshot, dbSQLPassThrough)
          
     End Select
     GetRecordSet2nd = rsTemp.RecordCount
@@ -1891,7 +1895,7 @@ SQLError:
        bShowErrow = True
     End If
     GetRecordSet2nd = -1
-    tfnErrHandler "GetRecordSet2nd," & szCalledFrom, szSql, bShowErrow
+    tfnErrHandler "GetRecordSet2nd," & szCalledFrom, szSQL, bShowErrow
     On Error GoTo 0
 End Function
 

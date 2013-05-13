@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "shdocvw.dll"
+Object = "{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}#1.1#0"; "ieframe.dll"
 Begin VB.Form clsHtmlReport 
    Caption         =   "Report Browser"
    ClientHeight    =   8355
@@ -117,7 +117,8 @@ Public Sub BuildLineReport(frmMain As Form, _
     End If
     
     If sRptFilePath = "" Then
-        sRptFilePath = App.Path
+        'sRptFilePath = App.path
+        sRptFilePath = io.ApplicationPath
     End If
     If sRptFileName = "" Then
         sRptFileName = m_sReportID
@@ -280,7 +281,8 @@ Public Sub BuildInternetReport(frmMain As Form, _
     End If
     
     If sRptFilePath = "" Then
-        sRptFilePath = App.Path
+        'sRptFilePath = App.path
+        sRptFilePath = io.ApplicationPath
     End If
     If sRptFileName = "" Then
         sRptFileName = m_sReportID
@@ -553,7 +555,7 @@ Private Function fnOpenRecord(strSQL As String, Optional vDB As Variant) As Reco
     Const SUB_NAME = "fnOpenRecord"
     
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
