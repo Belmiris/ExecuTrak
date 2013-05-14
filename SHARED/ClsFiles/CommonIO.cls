@@ -34,6 +34,7 @@ Private m_DTNLogFilePath$
 Private m_DTNInputPath$
 Private m_TLCInboundDirectory$
 Private m_User$
+Private m_DatabaseName$
 
 Private Declare Function GetTempPath Lib "kernel32" Alias "GetTempPathA" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
 Private Declare Function FindFirstFile Lib "kernel32" Alias "FindFirstFileA" (ByVal lpFileName As String, lpFindFileData As WIN32_FIND_DATA) As Long
@@ -255,6 +256,14 @@ End Property
 
 Public Property Let ExecuTrakPath(value As String)
     m_ExecuTrakPath = value
+End Property
+
+Public Property Get DatabaseName() As String
+    DatabaseName = m_DatabaseName
+End Property
+
+Public Property Let DatabaseName(ByVal value As String)
+    m_DatabaseName = value
 End Property
 
 ' FUNCTIONS / SUBROUTINES *******************************************
@@ -486,15 +495,9 @@ Private Sub GetLocalEmailPath()
 End Sub
 
 Private Sub GetFactorConfigurationFile()
-    Dim file$
     
     If Len(m_FactorConfigurationFile) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            file = AppendDSN(m_HostedFolder & "INI") & "FACTOR.INI"
-        Else
-            file = AppendSlash(LOCAL_FACTOR_PATH) & "FACTOR.INI"
-        End If
-        m_FactorConfigurationFile = file
+        m_FactorConfigurationFile = NewIniPath("C:\FACTOR\FACTOR.INI")
     End If
     
 End Sub
@@ -758,6 +761,10 @@ Public Function NewIniPath(iniFile$)
             Select Case name
                 Case "FACTOR.INI", "IQFACT.INI"
                     NewIniPath = m_HostedFolder & dsnName & "\" & name
+                Case "ETETFSETUP.INI"
+                    If Len(DatabaseName) > 0 Then
+                        NewIniPath = m_HostedFolder & DatabaseName & "\" & name
+                    End If
                 Case Else
                     NewIniPath = m_HostedFolder & name
             End Select
