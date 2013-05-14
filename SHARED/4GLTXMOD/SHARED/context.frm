@@ -113,7 +113,7 @@ Private Type POINTAPI
 End Type
 
 Private Declare Function GetMenu Lib "user32" ( _
-    ByVal hwnd As Long) As Long
+    ByVal hWnd As Long) As Long
 
 Private Declare Function GetCursorPos Lib "user32" ( _
     lpPoint As POINTAPI) As Long
@@ -128,7 +128,7 @@ Private Declare Function TrackPopupMenu Lib "user32" ( _
     ByVal x As Long, _
     ByVal y As Long, _
     ByVal nReserved As Long, _
-    ByVal hwnd As Long, _
+    ByVal hWnd As Long, _
     lprc As RECT) As Long
 
 Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
@@ -212,13 +212,13 @@ Private Sub fnShowPopup()
     nWhereY = pntPosition.y + 5
     
     'Get the top level menu
-    hMenu = GetMenu(frmContext.hwnd)
+    hMenu = GetMenu(frmContext.hWnd)
     
     'Get the submenu that they want
     hSubMenu = GetSubMenu(hMenu, nSubMenu)
     
     'Popup the menu
-    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hwnd, rctMainWindow)
+    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hWnd, rctMainWindow)
 
 End Sub
 
@@ -227,6 +227,7 @@ Public Function AddButton(sCaption As String, _
                           ByVal nUpKey As Integer, _
                           Optional vAddToMenu As Variant, _
                           Optional vCallBack As Variant) As Boolean
+    On Error Resume Next
     If Not objToolbar Is Nothing Then
         AddButton = objToolbar.AddButton(sCaption, nUpKey, vAddToMenu, vCallBack)
         subCheckError
@@ -289,7 +290,7 @@ Public Sub BeginSetupTBMainMenu(frmTemp As Object, _
     
     Exit Sub
 errSetup:
-    If Err.number Then
+    If Err.Number Then
         If bInitSet Then
             If frmMainForm.RegisterDll(TbkitDllPath, False) Then
                 bInitSet = False
@@ -352,7 +353,7 @@ Public Sub BeginSetupToolbar(frmTemp As Form, _
     subCheckError
     Exit Sub
 errSetup1:
-    If Err.number = 429 Then
+    If Err.Number = 429 Then
         MsgBox "Toolbar OLE is not registered properly. Please contact Factor."
     End If
 End Sub
@@ -360,10 +361,10 @@ End Sub
 
 Public Sub ButtonClick(Button As MSComctlLib.Button)
     If Not objToolbar Is Nothing Then
-        subShowBusyState True, Button.Key
-        objToolbar.ButtonClick Button.Key
+        subShowBusyState True, Button.key
+        objToolbar.ButtonClick Button.key
         tfnWaitSeconds DELAY_FOR_START
-        subShowBusyState False, Button.Key
+        subShowBusyState False, Button.key
         subCheckError
     End If
 End Sub
@@ -461,6 +462,7 @@ Public Sub FormResize(Optional bResize As Boolean = True)
 End Sub
 
 Public Function LoadPicture(ByVal nID As Integer) As Object
+    On Error Resume Next
     If Not objToolbar Is Nothing Then
         Set LoadPicture = objToolbar.LoadPicture(nID)
     End If
