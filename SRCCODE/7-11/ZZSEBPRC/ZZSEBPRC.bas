@@ -3489,15 +3489,16 @@ Public Sub subMoveLogFile()
     End If
     
     'get the \factor
-    sLogPath = UCase(App.path)
+'    sLogPath = UCase(App.path)
     
-    nPosi = InStrRev(sLogPath, "\EXECTRAK")
+'    nPosi = InStrRev(sLogPath, "\EXECTRAK")
     
-    If nPosi > 0 Then
-        sLogPath = Left(sLogPath, nPosi) + "LOG\"
-    Else
-        sLogPath = "C:\FACTOR\LOG\"
-    End If
+'    If nPosi > 0 Then
+'        sLogPath = Left(sLogPath, nPosi) + "LOG\"
+'    Else
+'        sLogPath = "C:\FACTOR\LOG\"
+'    End If
+    sLogPath = io.StandardLogPath
     
     sErrMsg = fnCheckAndCreateDirectory(sLogPath, False)
     
