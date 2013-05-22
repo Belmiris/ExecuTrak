@@ -1606,12 +1606,16 @@ Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
 '# (Must read factor.mdb from c:\factor\<datasourceName>\factor.mdb
 '#####################################################################
     Dim sWinSysDir As String
-
-    #If DEVELOP Then
-        sWinSysDir = LOCAL_FACTOR_PATH
-    #Else
-        sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
-    #End If
+    
+    If Len(io.HostedFolder) > 0 Then
+        sWinSysDir = io.ApplicationPath
+    Else
+        #If DEVELOP Then
+            sWinSysDir = LOCAL_FACTOR_PATH
+        #Else
+            sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+        #End If
+    End If
     
     #If FACTOR_MENU <> 1 Then
         On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
@@ -1873,7 +1877,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1881,7 +1885,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2428,7 +2432,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2699,14 +2703,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -2729,7 +2733,12 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
     Dim lWinSysRev As Long
     
     sFactorDir = LOCAL_FACTOR_PATH
-    sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+    
+    If Len(io.HostedFolder) > 0 Then
+        sWinSysDir = io.ApplicationPath
+    Else
+        sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+    End If
     
     On Error Resume Next
     
@@ -3942,7 +3951,7 @@ End Function
 '             Will set the tfn_Read_SYS_INI upon return
 '*****************************************************************************************
 
-Public Function tfn_Read_SYS_INI(sFilename As String, _
+Public Function tfn_Read_SYS_INI(sFileName As String, _
                                  sUserID As String, _
                                  sSECTION As String, _
                                  sField As String, _
@@ -3960,8 +3969,8 @@ Public Function tfn_Read_SYS_INI(sFilename As String, _
     
     'ini_file_Name,ini_user_id may be null
     
-    If sFilename <> "" Then
-        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFilename))
+    If sFileName <> "" Then
+        strSQL = strSQL & " ini_file_Name = " + tfnSQLString(UCase(sFileName))
     Else
         strSQL = strSQL & " ini_file_Name is Null"
     End If
@@ -4006,7 +4015,7 @@ End Function
 '             if it exits it will update other wise insert into table
 '*****************************************************************************************
 
-Public Function tfn_Write_SYS_INI(sFilename As String, _
+Public Function tfn_Write_SYS_INI(sFileName As String, _
                               ByVal sUserID As String, _
                               sSECTION As String, _
                               sField As String, _
@@ -4025,7 +4034,7 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFilename, sUserID, sSECTION, sField, , bRecordFound)
+        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField, , bRecordFound)
     End If
         
     On Error GoTo errTrap
@@ -4036,14 +4045,14 @@ Public Function tfn_Write_SYS_INI(sFilename As String, _
     
     If sRetrunValue <> "" Or bRecordFound Then
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
-        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFilename))
+        strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
         strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
-        strSQL = strSQL + tfnSQLString(UCase(sFilename)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
         strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
