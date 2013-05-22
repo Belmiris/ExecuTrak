@@ -109,7 +109,7 @@ Public Function LaunchSENDMAIL(Optional nWait As Integer = 20) As String
     m_ErrorMessage = ""
     
     'check current directory
-    m_ProgramPath = App.Path
+    m_ProgramPath = App.path
     sExeFile = fnAddBkSlash(m_ProgramPath) + sSENDMAIL_EXE
     On Error Resume Next
     sFile = ""
@@ -248,7 +248,7 @@ Private Function fnBuildParm(sErrMsg As String) As String
     Dim sParm As String
     Dim sTemp As String
     
-    '"SHOW|HIDE","User Name","Password","USE_PROFILE"[,LogID=xxxxxxxxxxxx]
+    '"SHOW|HIDE","User Name","Password","USE_PROFILE"[,LogID=xxxxxxxxxxxx][,iniFile=x:\xxx]
     
     sTemp = ""
     
@@ -290,7 +290,12 @@ Private Function fnBuildParm(sErrMsg As String) As String
     
     sParm = """HIDE""," + """" + m_UserName + """," + """" + m_Password + ""","
     sParm = sParm + """" + sUseProfile + """"
-
+    
+    If (Len(io.HostedFolder) > 0) Then
+        sTemp = io.NewIniPath("C:\FACTOR\FACTOR.INI")
+        sParm = sParm + "," + """" + "iniFile=" + sTemp + """"
+    End If
+    
     m_LogID = fnCreateLogID()
     
     subWriteSendMailInfo
