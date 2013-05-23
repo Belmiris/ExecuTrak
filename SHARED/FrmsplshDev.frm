@@ -680,7 +680,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As TextBox) As Boolean
+Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -689,7 +689,7 @@ Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As TextBox)
+Private Sub subSelectText(txtBox As Textbox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -912,6 +912,8 @@ Private Sub btnOK_Click()
     Me.Hide
     
     #If DEV_SHOW_MAIN_FORM Then
+        dsnName = m_sDSN
+        Set io = New CommonIO
         subShowMainForm
     #End If
     
@@ -1343,14 +1345,14 @@ Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As S
     Dim nLength As Long 'length of the value returned for api call
     
     Dim szINI As String    'string to hold the value retrieved
-    Dim inifile$
+    Dim iniFile$
     
-    inifile = io.NewIniPath(szINIFile)
+    iniFile = io.NewIniPath(szINIFile)
     
     szINI = Space(MAX_STRING_LENGTH) 'clear and make the string fixed length
     
     'get the [value] for the [section], [key], and ini file sent
-    nLength = GetPrivateProfileString(szSection, szKey, szEMPTY, szINI, MAX_STRING_LENGTH, inifile)
+    nLength = GetPrivateProfileString(szSection, szKey, szEMPTY, szINI, MAX_STRING_LENGTH, iniFile)
     
     If nLength <> 0 Then 'if length positive [value] has been found
         szINI = Left(szINI, nLength) 'make it a basic string
@@ -1363,12 +1365,12 @@ End Function
 
 Private Function tfnWriteINI(szSection As String, szKey As String, szValue As String, szINIFile As String) As Boolean
     Dim bStatus As Boolean 'status returned from api call
-    Dim inifile$
+    Dim iniFile$
     
-    inifile = io.NewIniPath(szINIFile)
+    iniFile = io.NewIniPath(szINIFile)
     
     'write the [value] for the [section], [key], and ini file sent
-    bStatus = WritePrivateProfileString(szSection, szKey, szValue, inifile)
+    bStatus = WritePrivateProfileString(szSection, szKey, szValue, iniFile)
     
     tfnWriteINI = bStatus
 End Function
