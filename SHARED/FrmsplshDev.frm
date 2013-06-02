@@ -680,7 +680,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As Textbox) As Boolean
+Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -689,7 +689,7 @@ Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As Textbox)
+Private Sub subSelectText(txtBox As TextBox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -1018,6 +1018,8 @@ End Sub
 Private Sub Form_Load()
     tfnDisableFormSystemClose Me
     tfnCenterForm Me
+    dsnName = "startup"
+    Set io = New CommonIO
     If fnGetDataSources(cmbDataSet) = 0 Then
         MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
         End
@@ -1181,7 +1183,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
