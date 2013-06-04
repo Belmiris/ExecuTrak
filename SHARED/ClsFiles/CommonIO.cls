@@ -35,6 +35,8 @@ Private m_DTNInputPath$
 Private m_TLCInboundDirectory$
 Private m_User$
 Private m_DatabaseName$
+Private m_UnixDataDirectory$
+Private m_DatabasePath$
 
 Private Declare Function GetTempPath Lib "kernel32" Alias "GetTempPathA" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
 Private Declare Function FindFirstFile Lib "kernel32" Alias "FindFirstFileA" (ByVal lpFileName As String, lpFindFileData As WIN32_FIND_DATA) As Long
@@ -266,6 +268,23 @@ Public Property Let DatabaseName(ByVal value As String)
     m_DatabaseName = value
 End Property
 
+Public Property Get UnixDataDirectory() As String
+    GetUnixDataDirectory
+    UnixDataDirectory = m_UnixDataDirectory
+End Property
+
+Public Property Let UnixDataDirectory(ByVal value As String)
+    m_UnixDataDirectory = value
+End Property
+
+Public Property Get DatabasePath() As String
+    DatabasePath = m_DatabasePath
+End Property
+
+Public Property Let DatabasePath(ByVal value As String)
+    m_DatabasePath = value
+End Property
+
 ' FUNCTIONS / SUBROUTINES *******************************************
 
 Private Sub GetApplicationPath()
@@ -372,7 +391,7 @@ Private Sub GetStandardLogFile()
     
     Err.Clear
 FINISHED:
-    If Err.Number <> 0 Then
+    If Err.number <> 0 Then
         m_StandardLogFile = Me.LocalLogFile
         Err.Clear
     End If
@@ -551,6 +570,25 @@ Private Sub GetTLCInboundDirectory()
     If Len(m_TLCInboundDirectory) < 1 Then
         folder = Me.GetFactorINIValue("EDI", "TLC Inbound Directory")
         'TODO
+    End If
+    
+End Sub
+
+Private Sub GetUnixDataDirectory()
+    Dim arr$()
+    Dim x%
+    
+    If Len(m_UnixDataDirectory) < 1 Then
+        
+        m_UnixDataDirectory = "/factor/"
+        
+        If Len(m_DatabasePath) > 0 Then
+            arr = Split(m_DatabasePath, "/")
+            x = UBound(arr)
+            If x > 0 Then m_UnixDataDirectory = "/" & arr(1) & "/"
+            If x > 1 Then m_UnixDataDirectory = m_UnixDataDirectory & arr(2) & "/"
+        End If
+        
     End If
     
 End Sub
