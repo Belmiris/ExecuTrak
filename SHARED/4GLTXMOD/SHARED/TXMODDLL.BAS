@@ -3545,7 +3545,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long, 
     Do While Not rsDelD.EOF
         Screen.MousePointer = vbHourglass
         
-        If Not fnDeliveryHasInStateLading(m_local, rsDelD!lDelivery) Then
+        If Not fnDeliveryHasMixLading(m_local, rsDelD!lDelivery) Then
             'sum_bunits = 0
             sum_atax = 0
             rsMvBal.MoveFirst
@@ -7438,34 +7438,68 @@ End Sub
 '''''''''''''''''''''''''''''''
 'david 06/02/2013  #6186-776091
 '''''''''''''''''''''''''''''''
-Private Function fnDeliveryHasInStateLading(m_local As DataBase, lDelivery As Long) As Boolean
-    Const SUB_NAME As String = "fnDeliveryHasInStateLading"
+Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) As Boolean
+    Const SUB_NAME As String = "fnDeliveryHasMixLading"
     
     Dim strSQL As String
     Dim rsTemp As Recordset
+    Dim nExternal As Integer
+    Dim nInternalTO As Integer
     
-    strSQL = "SELECT MLading.lTerminal"
+    strSQL = "SELECT MLading.bExternal, MLading.lTerminal"
     strSQL = strSQL & " FROM MBalance, MLading"
     strSQL = strSQL & " where MBalance.lMovement = MLading.lMovement"
     strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
     strSQL = strSQL & " and MBalance.lDelivery = " & lDelivery
-    strSQL = strSQL & " and MLading.bExternal = False"
-    strSQL = strSQL & " GROUP BY MLading.lTerminal"
+    strSQL = strSQL & " GROUP BY MLading.bExternal, MLading.lTerminal"
+    strSQL = strSQL & " ORDER BY MLading.bExternal, MLading.lTerminal"
     Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
     If rsTemp Is Nothing Then
         Exit Function
     End If
 
     Do While Not rsTemp.EOF
-        If fnIsTO(rsTemp!lTerminal) Then
-            fnDeliveryHasInStateLading = True
-            Exit Function
+        If rsTemp!bExternal Then
+            nExternal = nExternal + 1
+        Else
+            If fnIsTO(rsTemp!lTerminal) Then
+                nInternalTO = nInternalTO + 1
+            End If
         End If
         
         rsTemp.MoveNext
     Loop
     
-    fnDeliveryHasInStateLading = False
+    If nInternalTO > 0 And nExternal = 0 Then
+        strSQL = "SELECT MLading.bExternal, MLading.lTerminal"
+        strSQL = strSQL & " FROM MBalance, MLading"
+        strSQL = strSQL & " where MBalance.lMovement = MLading.lMovement"
+        strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
+        strSQL = strSQL & " and MBalance.lDelivery <> " & lDelivery
+        strSQL = strSQL & " GROUP BY MLading.bExternal, MLading.lTerminal"
+        strSQL = strSQL & " ORDER BY MLading.bExternal, MLading.lTerminal"
+        Set rsTemp = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
+        If rsTemp Is Nothing Then
+            Exit Function
+        End If
+        
+        Do While Not rsTemp.EOF
+            If rsTemp!bExternal Then
+                fnDeliveryHasMixLading = True
+                Exit Function
+            Else
+                If Not fnIsTO(rsTemp!lTerminal) Then
+                    fnDeliveryHasMixLading = True
+                    Exit Function
+                End If
+            End If
+            
+            rsTemp.MoveNext
+        Loop
+        fnDeliveryHasMixLading = False
+    Else
+        fnDeliveryHasMixLading = nInternalTO > 0 And nExternal > 0
+    End If
 End Function
 'david 06/02/2013  #6186-776091
 '''''''''''''''''''''''''''''''
