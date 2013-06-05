@@ -7498,7 +7498,7 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
         Loop
         fnDeliveryHasMixLading = False
     Else
-        fnDeliveryHasMixLading = nInternalTO > 0 And nExternal > 0
+        fnDeliveryHasMixLading = (nInternalTO > 0 And nExternal > 0) Or (nInternalTO = 0 And nExternal = 0)
     End If
 End Function
 'david 06/02/2013  #6186-776091
