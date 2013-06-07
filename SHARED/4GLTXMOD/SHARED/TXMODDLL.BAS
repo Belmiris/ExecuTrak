@@ -3545,7 +3545,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long, 
     Do While Not rsDelD.EOF
         Screen.MousePointer = vbHourglass
         
-        If Not fnDeliveryHasMixLading(m_local, rsDelD!lDelivery) Then
+        If PropetroFlag = "PROPETRO" Or (Not fnDeliveryHasMixLading(m_local, rsDelD!lDelivery)) Then
             'sum_bunits = 0
             sum_atax = 0
             rsMvBal.MoveFirst
@@ -7449,6 +7449,7 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
     strSQL = "SELECT MLading.bExternal, MLading.lTerminal"
     strSQL = strSQL & " FROM MBalance, MLading"
     strSQL = strSQL & " where MBalance.lMovement = MLading.lMovement"
+    strSQL = strSQL & " and MBalance.lMovement = " & lMovement
     strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
     strSQL = strSQL & " and MBalance.lDelivery = " & lDelivery
     strSQL = strSQL & " GROUP BY MLading.bExternal, MLading.lTerminal"
@@ -7474,6 +7475,7 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
         strSQL = "SELECT MLading.bExternal, MLading.lTerminal"
         strSQL = strSQL & " FROM MBalance, MLading"
         strSQL = strSQL & " where MBalance.lMovement = MLading.lMovement"
+        strSQL = strSQL & " and MBalance.lMovement = " & lMovement
         strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
         strSQL = strSQL & " and MBalance.lDelivery <> " & lDelivery
         strSQL = strSQL & " GROUP BY MLading.bExternal, MLading.lTerminal"
@@ -7498,8 +7500,64 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
         Loop
         fnDeliveryHasMixLading = False
     Else
-        fnDeliveryHasMixLading = (nInternalTO > 0 And nExternal > 0) Or (nInternalTO = 0 And nExternal = 0)
+        'fnDeliveryHasMixLading = (nInternalTO > 0 And nExternal > 0) Or (nInternalTO = 0 And nExternal = 0)
+        If nInternalTO > 0 And nExternal > 0 Then
+            fnDeliveryHasMixLading = True
+        ElseIf fnHasImportTug(m_local, lDelivery) Then
+            fnDeliveryHasMixLading = False
+        Else
+            fnDeliveryHasMixLading = nInternalTO = 0 And nExternal = 0
+        End If
     End If
+End Function
+
+Private Function fnHasImportTug(m_local As DataBase, lDelivery As Long) As Boolean
+    Const SUB_NAME As String = "fnHasImportTug"
+    
+    Dim strSQL As String
+    Dim rsLadD As Recordset
+    Dim rsTemp As Recordset
+    Dim sProdtcl As String
+    Dim Taxes() As CApplicableTaxes
+    Dim lCount As Long
+    Dim j As Long
+    
+    strSQL = "SELECT MLading.lLading, MLading.lTerminal, MLadingDetail.lLineNumber, MLadingDetail.szProductCode, MLadingDetail.szTaxUseGroup"
+    strSQL = strSQL & " FROM MBalance, MLading, MLadingDetail"
+    strSQL = strSQL & " where MBalance.lMovement = MLading.lMovement"
+    strSQL = strSQL & " and MBalance.lLading = MLading.lLading"
+    strSQL = strSQL & " and MLading.lMovement = MLadingDetail.lMovement"
+    strSQL = strSQL & " and MLading.lLading = MLadingDetail.lLading"
+    strSQL = strSQL & " and MBalance.lMovement = " & lMovement
+    strSQL = strSQL & " and MLading.bExternal = False"
+    strSQL = strSQL & " and MBalance.lDelivery = " & lDelivery
+    Set rsLadD = txMod_OpenRecord(strSQL, SUB_NAME, "", m_local)
+    If rsLadD Is Nothing Then
+        Exit Function
+    End If
+
+    With rsLadD
+        .MoveFirst
+        Do While Not .EOF
+            If fnIsImportToTexas(lMovement, !lLading, False, _
+               tfnRound(!lTerminal), tfnRound(!lLineNumber), m_local) Then
+                If fnTaxInformation(fnCStr(!szProductCode), "SSSS  TX", _
+                   1000, 0, 1000, 1000, "N", Taxes(), lCount) Then
+                    For j = 0 To lCount - 1
+                        If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
+                            If Taxes(j).m_cBasis = vbKeyA And Taxes(j).m_cCharge <> vbKeyD Then
+                                fnHasImportTug = True
+                                Exit Function
+                            End If
+                        End If
+                    Next j
+                End If
+            End If
+            .MoveNext
+        Loop
+    End With
+    
+    fnHasImportTug = False
 End Function
 'david 06/02/2013  #6186-776091
 '''''''''''''''''''''''''''''''
