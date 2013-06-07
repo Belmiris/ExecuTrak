@@ -7537,24 +7537,26 @@ Private Function fnHasImportTug(m_local As DataBase, lDelivery As Long) As Boole
     End If
 
     With rsLadD
-        .MoveFirst
-        Do While Not .EOF
-            If fnIsImportToTexas(lMovement, !lLading, False, _
-               tfnRound(!lTerminal), tfnRound(!lLineNumber), m_local) Then
-                If fnTaxInformation(fnCStr(!szProductCode), "SSSS  TX", _
-                   1000, 0, 1000, 1000, "N", Taxes(), lCount) Then
-                    For j = 0 To lCount - 1
-                        If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
-                            If Taxes(j).m_cBasis = vbKeyA And Taxes(j).m_cCharge <> vbKeyD Then
-                                fnHasImportTug = True
-                                Exit Function
+        If .RecordCount > 0 Then
+            .MoveFirst
+            Do While Not .EOF
+                If fnIsImportToTexas(lMovement, !lLading, False, _
+                   tfnRound(!lTerminal), tfnRound(!lLineNumber), m_local) Then
+                    If fnTaxInformation(fnCStr(!szProductCode), "SSSS  TX", _
+                       1000, 0, 1000, 1000, "N", Taxes(), lCount) Then
+                        For j = 0 To lCount - 1
+                            If tfnRound(Taxes(j).m_dAmount, 2) <> 0 Then
+                                If Taxes(j).m_cBasis = vbKeyA And Taxes(j).m_cCharge <> vbKeyD Then
+                                    fnHasImportTug = True
+                                    Exit Function
+                                End If
                             End If
-                        End If
-                    Next j
+                        Next j
+                    End If
                 End If
-            End If
-            .MoveNext
-        Loop
+                .MoveNext
+            Loop
+        End If
     End With
     
     fnHasImportTug = False
