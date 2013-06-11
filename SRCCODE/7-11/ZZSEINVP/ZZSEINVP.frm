@@ -1,18 +1,18 @@
 VERSION 5.00
-Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FACTFRM.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
-Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "SQAOTE32.OCX"
+Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "factfrm.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{478E45E0-5745-11CF-8918-00A02416C765}#1.0#0"; "sqaote32.ocx"
 Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form frmzzseinvp 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Pre-Process Retail Sales Purchase Invoices"
    ClientHeight    =   6060
-   ClientLeft      =   1056
-   ClientTop       =   1956
+   ClientLeft      =   1050
+   ClientTop       =   1950
    ClientWidth     =   8880
    BeginProperty Font 
       Name            =   "Arial"
-      Size            = 9.75 
+      Size            = 9.75  
       Charset         =   0
       Weight          =   400
       Underline       =   0   'False
@@ -33,8 +33,8 @@ Begin VB.Form frmzzseinvp
       TabIndex        =   8
       Top             =   5748
       Width           =   1896
-      _ExtentX        =   3344
-      _ExtentY        =   466
+      _ExtentX        =   3334
+      _ExtentY        =   476
       _Version        =   393216
       Appearance      =   1
    End
@@ -51,7 +51,7 @@ Begin VB.Form frmzzseinvp
       _StockProps     =   77
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -63,7 +63,7 @@ Begin VB.Form frmzzseinvp
       Style           =   5
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Arial"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -96,7 +96,7 @@ Begin VB.Form frmzzseinvp
       PicturePos      =   0
       BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
-         Size            = 9.75 
+         Size            = 9.75  
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -116,7 +116,7 @@ Begin VB.Form frmzzseinvp
          _StockProps     =   77
          BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "Arial"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -127,7 +127,7 @@ Begin VB.Form frmzzseinvp
          Caption         =   " "
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -137,15 +137,15 @@ Begin VB.Form frmzzseinvp
          Begin MSComDlg.CommonDialog dlgFileNames 
             Left            =   2820
             Top             =   -12
-            _ExtentX        =   677
-            _ExtentY        =   677
+            _ExtentX        =   688
+            _ExtentY        =   688
             _Version        =   393216
          End
          Begin VB.ListBox lstStatus 
             Appearance      =   0  'Flat
             BackColor       =   &H00FFFFFF&
             ForeColor       =   &H00000000&
-            Height          =   4128
+            Height          =   4110
             HelpContextID   =   802
             ItemData        =   "ZZSEINVP.frx":0000
             Left            =   48
@@ -192,7 +192,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -228,7 +228,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -263,7 +263,7 @@ Begin VB.Form frmzzseinvp
          BorderWidth     =   4
          BeginProperty PanelFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
             Name            =   "MS Sans Serif"
-            Size            = 9.75 
+            Size            = 9.75  
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -317,8 +317,8 @@ Begin VB.Form frmzzseinvp
          TabIndex        =   2
          Top             =   84
          Width           =   6876
-         _ExtentX        =   12129
-         _ExtentY        =   656
+         _ExtentX        =   12118
+         _ExtentY        =   661
          ButtonWidth     =   614
          ButtonHeight    =   572
          _Version        =   393216
@@ -342,14 +342,14 @@ Begin VB.Form frmzzseinvp
       Width           =   1920
    End
    Begin SQAOTestObjectsCtl.SQAOTest SQAOTest1 
-      Height          =   456
-      Left            =   10896
+      Height          =   570
+      Left            =   10890
       TabIndex        =   4
       TabStop         =   0   'False
-      Top             =   96
-      Width           =   456
-      _ExtentX        =   804
-      _ExtentY        =   804
+      Top             =   90
+      Width           =   570
+      _ExtentX        =   1005
+      _ExtentY        =   1005
    End
    Begin VB.Menu mnuFile 
       Caption         =   "&File"
@@ -473,13 +473,13 @@ Private Sub cmdPrintReport_Click()
     Screen.MousePointer = vbDefault
     
     If g_bProcessOk Then
-        frmReports.chkPrintErr.Value = vbUnchecked
+        frmReports.chkPrintErr.value = vbUnchecked
         frmReports.chkPrintErr.Enabled = False
-        frmReports.chkPrintProcLog.Value = vbChecked
+        frmReports.chkPrintProcLog.value = vbChecked
     Else
-        frmReports.chkPrintErr.Value = vbChecked
+        frmReports.chkPrintErr.value = vbChecked
         frmReports.chkPrintErr.Enabled = True
-        frmReports.chkPrintProcLog.Value = vbUnchecked
+        frmReports.chkPrintProcLog.value = vbUnchecked
     End If
     
     subEnablePrintBtn False
@@ -963,7 +963,7 @@ Private Function fnFileName(sFileName As String) As Boolean
         sHldDir = .InitDir
         .InitDir = sInitDirPath
         .DialogTitle = "Invoice File Location"
-        .FileName = "RSP*.*"
+        .Filename = "RSP*.*"
         .flags = cdlOFNHideReadOnly Or cdlOFNFileMustExist
         .Filter = "Invoice File|RSP*.*|All Files(*.*)|*.*"
         .CancelError = True
@@ -975,7 +975,7 @@ Private Function fnFileName(sFileName As String) As Boolean
             sFileName = ""
             sDirPath = sInitDirPath
         Else
-            sFileName = .FileName
+            sFileName = .Filename
             nDirPos = InStrRev(sFileName, "\")
             
             If nDirPos > 0 Then
@@ -988,7 +988,7 @@ Private Function fnFileName(sFileName As String) As Boolean
         End If
         
         'change it back it empty
-        .InitDir = App.Path
+        .InitDir = App.path
     End With
     
     If sDirPath <> "" Then
@@ -1025,30 +1025,18 @@ errNotFile:
 End Function
 
 Private Function fnGetInitDirPath() As String
-    Dim szINI As String
-    Dim sDir As String
-    Dim sINIFile As String
-    Dim lTotal As Long
-    
-    szINI = Space(INI_BUFFRER_SIZE)
-    sINIFile = App.Path & "\zzseinvp.ini"
-    
-    lTotal = GetPrivateProfileString(INISECTION, INISUBSECTION, szEMPTY, szINI, INI_BUFFRER_SIZE, sINIFile)
-    
-    If lTotal <> 0 Then
-        szINI = Left$(szINI, lTotal)
-    Else
-        szINI = App.Path
-    End If
-    
-    fnGetInitDirPath = szINI
+    Dim sINIFile$
+
+    sINIFile = App.path & "\zzseinvp.ini"
+    fnGetInitDirPath = tfnReadINI(INISECTION, INISUBSECTION, sINIFile)
     
 End Function
 
 Private Sub subWriteInitDirPath(sDirPath As String)
     Dim sINIFile As String
     
-    sINIFile = App.Path & "\zzseinvp.ini"
-    WritePrivateProfileString INISECTION, INISUBSECTION, sDirPath, sINIFile
+    sINIFile = App.path & "\zzseinvp.ini"
+    tfnWriteINI INISECTION, INISUBSECTION, sDirPath, sINIFile
+
 End Sub
 
