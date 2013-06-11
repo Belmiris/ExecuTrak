@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form objEDIPROC 
    Caption         =   "objEDIPROC"
    ClientHeight    =   1380
@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.Path))
+    m_AppPath = fnAddBkSlash(UCase(App.path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -188,7 +188,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.Path
+        m_ProgramPath = App.path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -220,12 +220,12 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
         cdlgOpen.Filter = "EDI Translator Program (" + sEDIPROC_EXE + ")|" + sEDIPROC_EXE
         On Error Resume Next
         cdlgOpen.InitDir = m_ProgramPath
-        cdlgOpen.FileName = ""
+        cdlgOpen.Filename = ""
         On Error GoTo 0
         
         Do
             If fnOpenFile() Then
-                sExeFile = UCase(cdlgOpen.FileName)
+                sExeFile = UCase(cdlgOpen.Filename)
                 On Error Resume Next
                 sFile = ""
                 sFile = Dir(sExeFile)
@@ -253,11 +253,12 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     'Database
     On Error Resume Next
     sFile = ""
-    sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
+    'sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
+    sFile = io.EDIXLATEFile
     On Error GoTo 0
     
     If sFile = "" Then
-        m_ErrorMessage = "EDI Translation Processor database not found."
+        m_ErrorMessage = "EDI Translation Processor database not found [" + sFile + "]."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
         Exit Function
@@ -266,11 +267,11 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     'INI
     On Error Resume Next
     sFile = ""
-    sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI)
+    sFile = io.NewIniPath(Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI))
     On Error GoTo 0
     
     If sFile = "" Then
-        m_ErrorMessage = "EDI Translation Processor INI file not found."
+        m_ErrorMessage = "EDI Translation Processor INI file not found [" + sFile + "]."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
         Exit Function
@@ -506,7 +507,7 @@ End Sub
 Private Function fnBuildParm() As String
     Dim sParm As String
     
-    sParm = ""
+    sParm = "DSN=" + dsnName + ","
     
     If m_MessageType <> "" Then
         sParm = sParm + "MessageType=" + m_MessageType + ","
@@ -759,7 +760,7 @@ Public Sub CheckXlatorProgramPath()
     Dim sFile As String, sFileCurr As String
 
     'check current directory
-    m_ProgramPath = App.Path
+    m_ProgramPath = App.path
     sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
     On Error Resume Next
     sFileCurr = Dir(sExeFile)
@@ -777,7 +778,7 @@ Public Sub CheckXlatorProgramPath()
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.Path
+        m_ProgramPath = App.path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -805,7 +806,7 @@ Public Sub CheckXlatorProgramPath()
         End If
     End If
     
-    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.Path)) Then
+    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.path)) Then
         MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
             + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
             + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _

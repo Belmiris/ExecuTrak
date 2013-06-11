@@ -106,6 +106,7 @@ Private m_sDriver As String
 
 Private m_sDSN As String
 Private m_connect As String
+Private io As CommonIO
 
 Option Explicit
 
@@ -117,13 +118,48 @@ Public Property Let DSN(ByVal value As String)
     m_sDSN = value
 End Property
 
-Public Property Get ConnectionString() As String
-    ConnectionString = GetConnectionString()
+Public Property Get connectionString() As String
+    connectionString = GetConnectionString()
 End Property
 
-Public Property Let ConnectionString(ByVal value As String)
+Public Property Let connectionString(ByVal value As String)
     m_connect = value
 End Property
+
+Public Property Get CommonIO() As CommonIO
+    GetCommonIO
+    Set CommonIO = io
+End Property
+
+Private Function GetCommonIO() As CommonIO
+    Dim connect$
+    Dim engine As DBEngine
+    Dim ws As Workspace
+    Dim db As Database
+    
+    Set io = Nothing
+    
+    connect = GetConnectionString()
+    
+    Set engine = New DBEngine
+    Set ws = engine.Workspaces(0)
+    Set db = ws.OpenDatabase("", False, False, connect)
+    
+    dsnName = m_sDSN
+    Set io = New CommonIO
+    
+    io.HostedFolder = GetServiceTrakHostedFolder(db)
+    io.DatabaseName = GetDatabaseName(connect)
+    io.DatabasePath = GetDatabasePath(connect)
+    
+    Set GetCommonIO = io
+    
+    db.Close
+    Set db = Nothing
+    Set ws = Nothing
+    Set engine = Nothing
+    
+End Function
 
 Private Function GetConnectionString() As String
     Dim sTemp As String
@@ -216,14 +252,15 @@ Private Function SetODBCINIPath(sDSN As String) As Boolean
     Else
         SetODBCINIPath = True
     End If
+
 End Function
 
 Private Function QueryValue(ByVal lKey As Long, _
                            sKeyName As String, _
                            sValueName As String) As String
     Dim lRetVal As Long         'result of the API functions
-    Dim hKey As Long         'handle of opened key
-    Dim vValue As Variant      'setting of queried value
+    Dim hKey As Long            'handle of opened key
+    Dim vValue As Variant       'setting of queried value
 
     QueryValue = ""
     lRetVal = RegOpenKeyEx(lKey, sKeyName, 0, KEY_READ, hKey)
@@ -234,6 +271,7 @@ Private Function QueryValue(ByVal lKey As Long, _
         End If
         RegCloseKey (hKey)
     End If
+
 End Function
 
 Private Function QueryValueEx(ByVal lhKey As Long, _
@@ -276,10 +314,10 @@ QueryValueExExit:
     Exit Function
 QueryValueExError:
     Resume QueryValueExExit
+
 End Function
 
 Private Function RemoveNull(szStr As String) As String
-
     Dim nPos As Integer
     
     nPos = InStr(szStr, Chr(0))
@@ -288,4 +326,95 @@ Private Function RemoveNull(szStr As String) As String
     Else
         RemoveNull = szStr
     End If
+
 End Function
+
+Public Function GetServiceTrakHostedFolder(db As Database) As String
+    Dim SQL$
+    Dim parm15$
+    
+    SQL = "select parm_field from sys_parm where parm_nbr = 15"
+    With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+        If Not .EOF Then
+            parm15 = UCase$(Trim$(.Fields(0).value & ""))
+        End If
+        .Close
+    End With
+    
+    SQL = "select ini_value from sys_ini where ini_section = 'WorkingDirectory' AND ini_file_name = 'HOSTED'"
+    If parm15 = "Y" Then
+        With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+            If Not .EOF Then
+                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).value & ""))
+            End If
+            .Close
+        End With
+    End If
+    
+End Function
+
+Public Function GetNamedString(sSource As String, sName As String) As String
+    GetNamedString = ""
+    If sSource = "" Or sName = "" Then
+        Exit Function
+    End If
+    
+    Dim nPos1 As Integer
+    Dim nPos2 As Integer
+    Dim sUcaseSource As String
+    Dim sUcaseName As String
+    
+    sUcaseSource = UCase(sSource)
+    sUcaseName = UCase(sName)
+    nPos1 = InStr(sUcaseSource, sUcaseName)
+
+    If nPos1 > 0 Then
+        nPos1 = InStr(nPos1, sUcaseSource, "=")
+        If nPos1 > 0 Then
+            nPos2 = InStr(nPos1, sUcaseSource, ";")
+            If nPos2 = 0 Then
+                nPos2 = Len(sUcaseSource) + 1
+            End If
+            nPos1 = nPos1 + 1
+            If nPos2 > nPos1 Then
+                GetNamedString = Trim(Mid(sSource, nPos1, nPos2 - nPos1))
+            End If
+        End If
+    End If
+End Function
+
+Public Function GetDatabaseName(connectionString As String) As String
+    Dim sDBPath As String
+    Dim sDBName As String
+    Dim i As Integer
+    
+    sDBPath = GetNamedString(connectionString, ";DB")
+    If Trim(sDBPath) = "" Then
+        sDBPath = GetNamedString(connectionString, "DATABASE")
+    End If
+    
+    i = InStrRev(sDBPath, "/")
+    
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
+    
+        i = InStrRev(sDBPath, "/")
+    
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
+        End If
+    End If
+
+    GetDatabaseName = sDBName
+
+End Function
+
+Public Function GetDatabasePath(connectionString As String) As String
+    
+    GetDatabasePath = GetNamedString(connectionString, ";DB")
+    If Trim(GetDatabasePath) = "" Then
+        GetDatabasePath = GetNamedString(connectionString, "DATABASE")
+    End If
+
+End Function
+

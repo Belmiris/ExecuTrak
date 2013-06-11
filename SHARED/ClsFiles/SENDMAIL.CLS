@@ -377,15 +377,16 @@ Private Sub subWriteSendMailInfo()
 End Sub
 
 Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As String) As String
-        
-    Dim nLength As Long 'length of the value returned for api call
+    Dim nLength As Long     'length of the value returned for api call
+    Dim szINI As String     'string to hold the value retrieved
+    Dim iniFile$
     
-    Dim szINI As String    'string to hold the value retrieved
-
+    iniFile = io.NewIniPath(szINIFile)
+    
     szINI = Space(MAX_STRING_LENGTH) 'clear and make the string fixed length
     
     'get the [value] for the [section], [key], and ini file sent
-    nLength = GetPrivateProfileString(szSection, szKey, szEMPTY, szINI, MAX_STRING_LENGTH, szINIFile)
+    nLength = GetPrivateProfileString(szSection, szKey, szEMPTY, szINI, MAX_STRING_LENGTH, iniFile)
     
     If nLength <> 0 Then 'if length positive [value] has been found
         szINI = Left(szINI, nLength) 'make it a basic string
@@ -398,11 +399,13 @@ Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As S
 End Function
 
 Private Function tfnWriteINI(szSection As String, szKey As String, szValue As String, szINIFile As String) As Boolean
-
     Dim bStatus As Boolean 'status returned from api call
+    Dim iniFile$
+    
+    iniFile = io.NewIniPath(szINIFile)
     
     'write the [value] for the [section], [key], and ini file sent
-    bStatus = WritePrivateProfileString(szSection, szKey, szValue, szINIFile)
+    bStatus = WritePrivateProfileString(szSection, szKey, szValue, iniFile)
     
     tfnWriteINI = bStatus
 
