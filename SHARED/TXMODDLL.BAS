@@ -3545,7 +3545,7 @@ Public Sub txMod_ReBuildATax_MTaxDetail(m_local As DataBase, lMovement As Long, 
     Do While Not rsDelD.EOF
         Screen.MousePointer = vbHourglass
         
-        If PropetroFlag = "PROPETRO" Or (Not fnDeliveryHasMixLading(m_local, rsDelD!lDelivery)) Then
+        If PropetroFlag = "PROPETRO" Or (Not fnDeliveryHasMixLading(m_local, rsDelD!lMovement, rsDelD!lDelivery)) Then
             'sum_bunits = 0
             sum_atax = 0
             rsMvBal.MoveFirst
@@ -7438,7 +7438,7 @@ End Sub
 '''''''''''''''''''''''''''''''
 'david 06/02/2013  #6186-776091
 '''''''''''''''''''''''''''''''
-Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) As Boolean
+Private Function fnDeliveryHasMixLading(m_local As DataBase, lMovement As Long, lDelivery As Long) As Boolean
     Const SUB_NAME As String = "fnDeliveryHasMixLading"
     
     Dim strSQL As String
@@ -7503,7 +7503,7 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
         'fnDeliveryHasMixLading = (nInternalTO > 0 And nExternal > 0) Or (nInternalTO = 0 And nExternal = 0)
         If nInternalTO > 0 And nExternal > 0 Then
             fnDeliveryHasMixLading = True
-        ElseIf fnHasImportTug(m_local, lDelivery) Then
+        ElseIf fnHasImportTug(m_local, lMovement, lDelivery) Then
             fnDeliveryHasMixLading = False
         Else
             fnDeliveryHasMixLading = nInternalTO = 0 And nExternal = 0
@@ -7511,7 +7511,7 @@ Private Function fnDeliveryHasMixLading(m_local As DataBase, lDelivery As Long) 
     End If
 End Function
 
-Private Function fnHasImportTug(m_local As DataBase, lDelivery As Long) As Boolean
+Private Function fnHasImportTug(m_local As DataBase, lMovement As Long, lDelivery As Long) As Boolean
     Const SUB_NAME As String = "fnHasImportTug"
     
     Dim strSQL As String
