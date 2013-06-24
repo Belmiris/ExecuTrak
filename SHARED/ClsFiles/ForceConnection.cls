@@ -341,7 +341,7 @@ Public Function GetServiceTrakHostedFolder(db As Database) As String
         .Close
     End With
     
-    SQL = "select ini_value from sys_ini where ini_section = 'WorkingDirectory' AND ini_file_name = 'HOSTED'"
+    SQL = "select ini_value from sys_ini where ini_section = 'WorkingDirectory' AND ini_file_name = 'WORKPATH'"
     If parm15 = "Y" Then
         With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
