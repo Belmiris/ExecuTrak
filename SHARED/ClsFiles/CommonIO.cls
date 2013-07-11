@@ -880,26 +880,28 @@ End Function
 
 Public Function NewIniPath(iniFile$)
     Dim arr$()
-    Dim name$
+    Dim Name$
     Dim x%
     
     NewIniPath = iniFile
     
     If Len(m_HostedFolder) > 0 Then
         If Len(iniFile) > 0 Then
-            arr = Split(iniFile, "\")
-            x = UBound(arr)
-            name = UCase(arr(x))
-            Select Case name
-                Case "FACTOR.INI", "IQFACT.INI"
-                    NewIniPath = m_HostedFolder & UCase(dsnName) & "\" & name
-                Case "ETETFSETUP.INI"
-                    If Len(DatabaseName) > 0 Then
-                        NewIniPath = EDIXLATEPath & name
-                    End If
-                Case Else
-                    NewIniPath = m_HostedFolder & name
-            End Select
+            If UCase(Right$(iniFile, 4)) = ".INI" Then
+                arr = Split(iniFile, "\")
+                x = UBound(arr)
+                Name = UCase(arr(x))
+                Select Case Name
+                    Case "FACTOR.INI", "IQFACT.INI"
+                        NewIniPath = m_HostedFolder & UCase(dsnName) & "\" & Name
+                    Case "ETETFSETUP.INI"
+                        If Len(DatabaseName) > 0 Then
+                            NewIniPath = EDIXLATEPath & Name
+                        End If
+                    Case Else
+                        NewIniPath = m_HostedFolder & Name
+                End Select
+            End If
         End If
     End If
     

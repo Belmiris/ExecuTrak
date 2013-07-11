@@ -30,6 +30,38 @@ Private recordExists As Boolean
 Private userLocked As String
 Private bCloseDb As Boolean
 
+Public Property Get ProcessActive() As Boolean
+    
+    LoadInfo
+    ProcessActive = ProcessIsActive(processId)
+    
+End Property
+
+Public Property Get Exists() As Boolean
+    
+    LoadInfo
+    Exists = recordExists
+    
+End Property
+
+Public Property Get LockedUser() As String
+    
+    LockedUser = userLocked
+
+End Property
+
+Public Property Get CurrentProcessId() As Long
+    
+    CurrentProcessId = GetCurrentProcessId()
+
+End Property
+
+Public Property Get LockedProcessId() As Long
+    
+    LockedProcessId = processId
+    
+End Property
+
 Public Function Load(appName As String, Optional db As Database = Nothing, Optional connectionString = "") As Boolean
     Dim en As New DBEngine
     Dim ws As Workspace
@@ -57,43 +89,38 @@ Public Sub Unload()
 End Sub
 
 Public Sub CreateLock(userName As String)
-    Dim sql$
-    Dim pid As Long
+    Dim SQL$
+    Dim PID As Long
+        
+    If dBase Is Nothing Then Err.Raise -1, , "AppLock must be Loaded before a lock can be created"
+    If Len(applicationName) < 1 Then Err.Raise -1, , "AppLock: Load must be Loaded with an application name"
     
     DeleteLock
     
-    pid = GetCurrentProcessId()
-    sql = "insert into sys_data_lock (sdl_data, sdl_prog, sdl_user) values ('" & pid & "', '" & applicationName & "', '" & userName & "')"
-    dBase.ExecuteSQL sql
+    PID = GetCurrentProcessId()
+    SQL = "insert into sys_data_lock (sdl_data, sdl_prog, sdl_user) values ('" & PID & "', '" & applicationName & "', '" & userName & "')"
+    dBase.ExecuteSQL SQL
     LoadInfo
+    If processId <> PID Then Err.Raise -1, , "Failed to lock " & applicationName + ". Another process has it locked (" & userLocked & ")"
     
 End Sub
 
 Public Function DeleteLock() As Boolean
-    Dim sql$
+    Dim SQL$
     
-    sql = "delete from sys_data_lock where sdl_prog = '" + applicationName + "'"
-    dBase.ExecuteSQL sql
+    If dBase Is Nothing Then Err.Raise -1, , "AppLock must be Loaded before a lock can be deleted"
+    If Len(applicationName) < 1 Then Err.Raise -1, , "AppLock: Load must be Loaded with an application name"
+    
+    If Not dBase Is Nothing Then
+        SQL = "delete from sys_data_lock where sdl_prog = '" + applicationName + "'"
+        dBase.ExecuteSQL SQL
+    End If
     
 End Function
 
-Public Property Get ProcessActive() As Boolean
-    
-    LoadInfo
-    ProcessActive = ProcessIsActive(processId)
-    
-End Property
-
-Public Property Get Exists() As Boolean
-    
-    LoadInfo
-    Exists = recordExists
-    
-End Property
-
 Private Sub LoadInfo()
-    Dim sql As String
-    Dim pid As String
+    Dim SQL As String
+    Dim PID As String
         
     If dBase Is Nothing Then Err.Raise -1, , "AppLock: Load must be called with a valid database!"
     If Len(applicationName) < 1 Then Err.Raise -1, , "AppLock: Load must be called with an application name!"
@@ -102,18 +129,18 @@ Private Sub LoadInfo()
     userLocked = ""
     processId = 0
     
-    sql = "select sdl_user, sdl_data from sys_data_lock where sdl_prog = '" + applicationName + "'"
-    With dBase.OpenRecordset(sql, dbOpenSnapshot, dbSQLPassThrough)
+    SQL = "select sdl_user, sdl_data from sys_data_lock where sdl_prog = '" + applicationName + "'"
+    With dBase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
         If Not .EOF Then
             recordExists = True
             userLocked = Trim$(.Fields(0).value & "")
-            pid = Trim$(.Fields(1).value & "")
+            PID = Trim$(.Fields(1).value & "")
         End If
         .Close
     End With
     
-    If Len(pid) > 0 Then
-        processId = CLng(pid)
+    If Len(PID) > 0 Then
+        processId = CLng(PID)
     End If
     
 End Sub

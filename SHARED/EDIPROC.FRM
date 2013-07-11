@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.path))
+    m_AppPath = fnAddBkSlash(UCase(App.Path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -163,11 +163,30 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     Const sLocalBin As String = "C:\FACTOR\EXECTRAK\BIN"
     Const sRemoteBin As String = "J:\FACTOR\EXECTRAK\BIN"
     
-    
     Dim dfTimer As Single, sExeFile As String, sMsg As String
     Dim dfBeginRun As Single, sParm As String
-    Dim sFile As String, bDone As Boolean
+    Dim sFile As String, bDone As Boolean, sIniFile$
+    Dim processId As Long
+    Dim xlock As AppLock
+    Dim Locked As Boolean
 
+    Set xlock = New AppLock
+    Locked = xlock.Load("EDIPROC", t_dbMainDatabase)
+    If Locked Then
+        If xlock.ProcessActive Then
+            If xlock.LockedProcessId <> xlock.CurrentProcessId Then
+                m_ErrorMessage = xlock.LockedUser & ": Application has EDIPROC locked. Please wait until this application closes and try again."
+                MsgBox m_ErrorMessage
+                Set xlock = Nothing
+                tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+                LaunchEDIPROC = m_ErrorMessage
+                Exit Function
+            End If
+        End If
+    End If
+    
+    xlock.CreateLock App.Title
+    
     'david 06/19/2008  #596302
     CheckXlatorProgramPath
     ''''''''''''''''''''''''''
@@ -188,7 +207,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.path
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -251,14 +270,14 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     'validate EDIPROC files
     'Database
-    On Error Resume Next
+    'On Error Resume Next
     sFile = ""
     'sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
-    sFile = io.EDIXLATEFile
-    On Error GoTo 0
+    sFile = Dir(io.EDIXLATEFile)
+    'On Error GoTo 0
     
     If sFile = "" Then
-        m_ErrorMessage = "EDI Translation Processor database not found [" + sFile + "]."
+        m_ErrorMessage = "EDI Translation Processor database not found [" + io.EDIXLATEFile + "]."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
         Exit Function
@@ -266,12 +285,13 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     'INI
     On Error Resume Next
+    sIniFile = io.NewIniPath(Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI))
     sFile = ""
-    sFile = io.NewIniPath(Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI))
+    sFile = Dir(sIniFile)
     On Error GoTo 0
     
     If sFile = "" Then
-        m_ErrorMessage = "EDI Translation Processor INI file not found [" + sFile + "]."
+        m_ErrorMessage = "EDI Translation Processor INI file not found [" + sIniFile + "]."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
         Exit Function
@@ -288,7 +308,9 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     'Launch EDI Translation Processor
     dfBeginRun = Timer
-    If Not fnRunExe(sExeFile + " " + sParm, , , False) Then
+    'If Not fnRunExe(sExeFile + " " + sParm, , , False) Then
+    MsgBox sExeFile + " " + sParm
+    If Not fnRunExe(sExeFile + " " + sParm, , True, False, , , , , processId) Then
         m_ErrorMessage = "Failed to run EDI Translation Processor."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchEDIPROC = m_ErrorMessage
@@ -316,7 +338,11 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
         Screen.MousePointer = vbHourglass
         
         Wait nWait
-    Loop While fnExeIsRunning(sExeFile)
+    'Loop While fnExeIsRunning(sExeFile)
+    Loop While xlock.ProcessIsActive(processId)
+    
+    xlock.DeleteLock
+    Set xlock = Nothing
     
     Screen.MousePointer = vbDefault
     
@@ -337,10 +363,8 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     Exit Function
 
 errEdiProcError:
-    
     m_ErrorMessage = "Error(s) has occurred during EDI Translation." _
         + vbCrLf + vbCrLf + sMsg
-
     LaunchEDIPROC = m_ErrorMessage
 End Function
 
@@ -370,7 +394,8 @@ Private Function fnCheckEdiProcError() As String
     
     fnCheckEdiProcError = ""
     
-    sFileName = fnAddBkSlash(m_ProgramPath) + "EDIXLATE.MDB"
+    'sFileName = fnAddBkSlash(m_ProgramPath) + "EDIXLATE.MDB"
+    sFileName = io.EDIXLATEFile
     
     Set dbEDI = tfnOpenEdiXlateDatabase(sFileName)
     
@@ -760,7 +785,7 @@ Public Sub CheckXlatorProgramPath()
     Dim sFile As String, sFileCurr As String
 
     'check current directory
-    m_ProgramPath = App.path
+    m_ProgramPath = App.Path
     sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
     On Error Resume Next
     sFileCurr = Dir(sExeFile)
@@ -778,7 +803,7 @@ Public Sub CheckXlatorProgramPath()
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.path
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -806,7 +831,7 @@ Public Sub CheckXlatorProgramPath()
         End If
     End If
     
-    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.path)) Then
+    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.Path)) Then
         MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
             + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
             + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _
