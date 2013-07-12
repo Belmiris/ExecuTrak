@@ -103,9 +103,6 @@ End Sub
 Private Sub cmdOK_Click()
     Dim sProcessLogFile As String
     Dim sErrorLogFile As String
-    Dim io As CommonIO
-    
-    Set io = New CommonIO
     
     sProcessLogFile = io.ApplicationPath & "zzseplog.log"
     sErrorLogFile = io.ApplicationPath & "zzseelog.log"
