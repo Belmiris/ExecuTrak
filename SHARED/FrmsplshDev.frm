@@ -909,11 +909,12 @@ Private Sub btnOK_Click()
     
     t_szConnect = fnConnectString(m_sDSN)
     
+    Set io = New CommonIO
+    Call io.LoadViaDSN(m_sDSN)
+    
     Me.Hide
     
     #If DEV_SHOW_MAIN_FORM Then
-        dsnName = m_sDSN
-        Set io = New CommonIO
         subShowMainForm
     #End If
     
@@ -1018,8 +1019,6 @@ End Sub
 Private Sub Form_Load()
     tfnDisableFormSystemClose Me
     tfnCenterForm Me
-    dsnName = "startup"
-    Set io = New CommonIO
     If fnGetDataSources(cmbDataSet) = 0 Then
         MsgBox "At least one Data Source Name needs to be created to run the program.", vbExclamation
         End
@@ -1183,7 +1182,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
@@ -1436,6 +1435,6 @@ Private Sub txtUserName_LostFocus()
     End If
 End Sub
 
-Public Property Get DSN() As String
-    DSN = m_sDSN
+Public Property Get dsn() As String
+    dsn = m_sDSN
 End Property

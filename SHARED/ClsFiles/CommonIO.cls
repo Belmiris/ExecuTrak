@@ -13,7 +13,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private m_HostedFolder$
+Private m_WorkingFolder$
 Private m_ApplicationPath$
 Private m_StandardLogPath$
 Private m_StandardLogFile$
@@ -40,6 +40,19 @@ Private m_DatabasePath$
 Private m_EDIXLATERoot$
 Private m_EDIXLATEPath$
 Private m_EDIXLATEFile$
+Private m_MultiDatabase As Boolean
+
+Private m_sODBC_INI_Path As String
+Private m_lODBC_INI_Key As Long
+Private m_sServer As String              'Server name which may be different than host
+Private m_sUID As String
+Private m_sPWD As String
+Private m_sHost As String
+Private m_sDriver As String
+Private m_sDSN As String
+Private m_connect As String
+
+Private m_loaded As Boolean
 
 Private Declare Function GetTempPath Lib "kernel32" Alias "GetTempPathA" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
 Private Declare Function FindFirstFile Lib "kernel32" Alias "FindFirstFileA" (ByVal lpFileName As String, lpFindFileData As WIN32_FIND_DATA) As Long
@@ -53,7 +66,17 @@ Private Declare Function CreateFile Lib "kernel32.dll" Alias "CreateFileA" (ByVa
 Private Declare Function FileTimeToLocalFileTime Lib "kernel32.dll" (lpFileTime As FILETIME, lpLocalFileTime As FILETIME) As Long
 Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hObject As Long) As Long
 
+Private Declare Function RegCloseKey Lib "advapi32.dll" (ByVal hKey As Long) As Long
+Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" (ByVal hKey As Long, ByVal lpSubKey As String, ByVal ulOptions As Long, ByVal samDesired As Long, phkResult As Long) As Long
+Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
+Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
+Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, lpData As Long, lpcbData As Long) As Long
+
 Private Const LOCAL_FACTOR_PATH = "C:\FACTOR\"
+Private Const szODBC_REG_KEY1 = ".Default\Software\ODBC\ODBC.INI\"
+Private Const szODBC_REG_KEY2 = "Software\ODBC\ODBC.INI\"
+Private Const szODBC_REG_KEY3 = "SOFTWARE\Informix\SqlHosts\"
+Private Const ERROR_NOTLOADED = "CommonIO was used before being initialized! Please contact Factor support."
 
 Private Const MAX_PATH = 260
 Private Const MAXDWORD = &HFFFF
@@ -76,6 +99,49 @@ Private Const CREATE_NEW = 1
 Private Const OPEN_ALWAYS = 4
 Private Const OPEN_EXISTING = 3
 Private Const TRUNCATE_EXISTING = 5
+
+Private Const HKEY_CLASSES_ROOT = &H80000000
+Private Const HKEY_CURRENT_USER = &H80000001
+Private Const HKEY_LOCAL_MACHINE = &H80000002
+Private Const HKEY_USERS = &H80000003
+
+Private Const REG_OPTION_NON_VOLATILE = 0
+Private Const REG_SZ As Long = 1
+Private Const REG_DWORD As Long = 4
+Private Const REG_OPTION_VOLATILE = 1           ' Key is not preserved when system is rebooted
+
+Private Const KEY_QUERY_VALUE = &H1
+Private Const KEY_ENUMERATE_SUB_KEYS = &H8
+Private Const KEY_NOTIFY = &H10
+Private Const READ_CONTROL = &H20000
+Private Const STANDARD_RIGHTS_READ = (READ_CONTROL)
+Private Const SYNCHRONIZE = &H100000
+Private Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
+
+Private Const ERROR_NONE = 0
+Private Const ERROR_BADDB = 1
+Private Const ERROR_BADKEY = 2
+Private Const ERROR_CANTOPEN = 3
+Private Const ERROR_CANTREAD = 4
+Private Const ERROR_CANTWRITE = 5
+Private Const ERROR_OUTOFMEMORY = 6
+Private Const ERROR_INVALID_PARAMETER = 7
+Private Const ERROR_ACCESS_DENIED = 8
+Private Const ERROR_INVALID_PARAMETERS = 87
+Private Const ERROR_NO_MORE_ITEMS = 259
+
+Private Const szODBC_DATABASE = "Database"
+Private Const szODBC_CLIENT_LOCALE = "CLIENT_LOCALE"
+Private Const szODBC_DB_LOCALE = "DB_LOCALE"
+Private Const szODBC_HOST = "HostName"
+Private Const szODBC_HOST2 = "Host"
+Private Const szODBC_SERVERNAME = "ServerName"
+Private Const szODBC_SERVERNAME2 = "Server"
+Private Const szODBC_SERVICE = "Service"
+Private Const szODBC_YIELDPROC = "YieldProc"
+Private Const szODBC_CB = "CursorBehavior"
+Private Const szODBC_PROTOCOL = "Protocol"
+Private Const szODBC_DRIVER = "Driver"
 
 Private Const TICKS_PER_SECOND = 10000000   'FILETIME units are 100s of nanoseconds.
 
@@ -103,16 +169,62 @@ Private Type WIN32_FIND_DATA
     cAlternate As String * 14
 End Type
 
-' PROPERTIES ********************************************************
+' *******************************************************************
+' INITIALIZATION METHODS - SINCE WE DON'T HAVE CONSTRUCTORS         *
+' *******************************************************************
 
-Public Property Get HostedFolder() As String
-    HostedFolder = m_HostedFolder
+Public Sub LoadViaDSN(DSN As String)
+    Dim connect$
+    Dim engine As DBEngine
+    Dim ws As Workspace
+    Dim db As Database
+    
+    m_sDSN = DSN
+    connect = GetConnectionString()
+    
+    Set engine = New DBEngine
+    Set ws = engine.Workspaces(0)
+    Set db = ws.OpenDatabase("", False, False, connect)
+    
+    Call Me.LoadViaDatabase(DSN, db)
+    
+    db.Close
+    Set db = Nothing
+    Set ws = Nothing
+    Set engine = Nothing
+
+End Sub
+
+Public Sub LoadViaDatabase(DSN As String, db As Database)
+    
+    m_sDSN = Trim(DSN)
+    If Len(m_sDSN) < 1 Then Call Err.Raise(-1, , "CommonIO.LoadViaDatabase(): dsn parameter cannot be empty!")
+    
+    m_WorkingFolder = GetWorkingFolder(db)
+    Me.DatabaseName = GetDatabaseName(db.connect)
+    Me.DatabasePath = Me.GetDatabasePath(db.connect)
+    
+    m_loaded = True
+    
+End Sub
+
+' *******************************************************************
+' PROPERTIES                                                        *
+' *******************************************************************
+
+Public Property Get MultiDatabase() As Boolean
+    'If Not m_loaded Then Err.Raise -2, , "MultiDatabase property(): " & ERROR_NOTLOADED
+    MultiDatabase = m_MultiDatabase
 End Property
 
-Public Property Let HostedFolder(ByVal value As String)
-    If DirectoryExists(value) Then
-        m_HostedFolder = AppendSlash(value)
-    End If
+Public Property Get WorkingFolder() As String
+    'If Not m_loaded Then Err.Raise -2, , "WorkingFolder property(): " & ERROR_NOTLOADED
+    WorkingFolder = m_WorkingFolder
+End Property
+
+Public Property Get DsnName() As String
+    'If Not m_loaded Then Err.Raise -2, , "DsnName property(): " & ERROR_NOTLOADED
+    DsnName = m_sDSN
 End Property
 
 Public Property Get ApplicationPath() As String
@@ -341,12 +453,14 @@ End Property
 ' FUNCTIONS / SUBROUTINES *******************************************
 
 Private Sub GetApplicationPath()
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetApplicationPath(): " & ERROR_NOTLOADED
     
     If Len(m_ApplicationPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            m_ApplicationPath = UCase(AppendDSN(m_HostedFolder))
+        If Len(m_WorkingFolder) > 0 Then
+            m_ApplicationPath = UCase(AppendDSN(m_WorkingFolder))
         Else
-            m_ApplicationPath = UCase(AppendDSN(App.path))
+            m_ApplicationPath = UCase(AppendDSN(App.Path))
         End If
         CreateFolder m_ApplicationPath
     End If
@@ -355,6 +469,8 @@ End Sub
 
 Private Sub GetExecuTrakPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetExecuTrakPath(): " & ERROR_NOTLOADED
     
     If Len(m_ExecuTrakPath) < 1 Then
         folder = GetExecTrakPath()
@@ -368,6 +484,8 @@ End Sub
 
 Private Sub GetExecuTrakEdiDataPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetExecuTrakEdiDataPath(): " & ERROR_NOTLOADED
     
     If Len(m_ExecuTrakEdiDataPath) < 1 Then
         folder = GetExecTrakPath()
@@ -384,9 +502,11 @@ Private Sub GetWindowsTempPath()
     Dim folder$
     Dim ret As Long
         
+    'If Not m_loaded Then Err.Raise -2, , "GetWindowsTempPath(): " & ERROR_NOTLOADED
+        
     If Len(m_WindowsTempPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            m_WindowsTempPath = m_HostedFolder & "TEMP"
+        If Len(m_WorkingFolder) > 0 Then
+            m_WindowsTempPath = m_WorkingFolder & "TEMP"
             CreateFolder m_WindowsTempPath
         Else
             folder = String(MAX_PATH, 0)
@@ -403,6 +523,8 @@ End Sub
 
 Private Sub GetStandardLogPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetStandardLogPath(): " & ERROR_NOTLOADED
     
     If Len(m_StandardLogPath) < 1 Then
         folder = GetExecTrakPath()
@@ -411,7 +533,7 @@ Private Sub GetStandardLogPath()
         m_StandardLogPath = AppendDSN(folder)
         
         If Not CreateFolder(m_StandardLogPath) Then
-            If Len(m_HostedFolder) < 1 Then
+            If Len(m_WorkingFolder) < 1 Then
                 m_StandardLogPath = Me.LocalLogPath
             End If
         End If
@@ -422,6 +544,8 @@ End Sub
 Private Sub GetStandardLogFile()
     Dim file$
     Dim hFile%
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetStandardLogFile(): " & ERROR_NOTLOADED
     
     If Len(m_StandardLogFile) < 1 Then
         GetStandardLogPath
@@ -450,26 +574,30 @@ FINISHED:
 End Sub
 
 Private Sub GetLocalAppPath()
-    Dim path$
+    Dim Path$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetLocalAppPath(): " & ERROR_NOTLOADED
     
     If Len(m_LocalAppPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            path = Me.ApplicationPath
-            CreateFolder path
+        If Len(m_WorkingFolder) > 0 Then
+            Path = Me.ApplicationPath
+            CreateFolder Path
         Else
-            path = AppendDSN("C:\FACTOR\" & App.Title)
-            CreateFolder path
+            Path = AppendDSN("C:\FACTOR\" & App.Title)
+            CreateFolder Path
         End If
-        m_LocalAppPath = path
+        m_LocalAppPath = Path
     End If
     
 End Sub
 
 Private Sub GetLocalLogPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetLocalLogPath(): " & ERROR_NOTLOADED
     
     If Len(m_LocalLogPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
+        If Len(m_WorkingFolder) > 0 Then
             folder = Me.StandardLogPath
         Else
             folder = RemoveEndSlash(LOCAL_FACTOR_PATH) & "\EXECTRAK\LOG"
@@ -483,6 +611,8 @@ End Sub
 
 Private Sub GetLocalLogFile()
     Dim hFile%
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetLocalLogFile(): " & ERROR_NOTLOADED
     
     If Len(m_LocalLogFile) < 1 Then
         GetLocalLogPath
@@ -498,10 +628,12 @@ End Sub
 
 Private Sub GetLocalTempPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetLocalTempPath(): " & ERROR_NOTLOADED
     
     If Len(m_LocalTempPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = m_HostedFolder & "TEMP"
+        If Len(m_WorkingFolder) > 0 Then
+            folder = m_WorkingFolder & "TEMP"
         Else
             folder = AppendSlash(LOCAL_FACTOR_PATH) & "TEMP\"
         End If
@@ -513,10 +645,12 @@ End Sub
 
 Private Sub GetFuelMovementUploadPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetFuelMovementUploadPath(): " & ERROR_NOTLOADED
     
     If Len(m_FuelMovementUploadPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = m_HostedFolder & "FUEL-MVMNT-UPLD"
+        If Len(m_WorkingFolder) > 0 Then
+            folder = m_WorkingFolder & "FUEL-MVMNT-UPLD"
         Else
             folder = AppendSlash(LOCAL_FACTOR_PATH) & "FUEL-MVMNT-UPLD"
         End If
@@ -527,6 +661,8 @@ End Sub
 
 Private Sub GetXMLDataPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetXMLDataPath(): " & ERROR_NOTLOADED
     
     If Len(m_XMLDataPath) < 1 Then
         folder = GetExecTrakPath()
@@ -538,6 +674,8 @@ End Sub
 
 Private Sub GetStandardEmailPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetStandardEmailPath(): " & ERROR_NOTLOADED
     
     If Len(m_StandardEmailPath) < 1 Then
         folder = GetExecTrakPath()
@@ -551,10 +689,12 @@ End Sub
 
 Private Sub GetLocalEmailPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetLocalEmailPath(): " & ERROR_NOTLOADED
     
     If Len(m_LocalEmailPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = m_HostedFolder & "EMAIL"
+        If Len(m_WorkingFolder) > 0 Then
+            folder = m_WorkingFolder & "EMAIL"
         Else
             folder = AppendSlash(LOCAL_FACTOR_PATH) & "EMAIL"
         End If
@@ -566,6 +706,8 @@ Private Sub GetLocalEmailPath()
 End Sub
 
 Private Sub GetFactorConfigurationFile()
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetFactorConfigurationFile(): " & ERROR_NOTLOADED
     
     If Len(m_FactorConfigurationFile) < 1 Then
         m_FactorConfigurationFile = NewIniPath("C:\FACTOR\FACTOR.INI")
@@ -575,12 +717,14 @@ End Sub
 
 Private Sub GetFactorEDIDirectory()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetFactorEDIDirectory(): " & ERROR_NOTLOADED
     
     If Len(m_FactorEDIDirectory) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", m_HostedFolder & "EDI")
+        If Len(m_WorkingFolder) > 0 Then
+            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", m_WorkingFolder & "EDI")
         Else
-            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", App.path)
+            folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", App.Path)
             'folder = Me.GetFactorINIValue("EDI", "Factor EDI Directory", "C:\FACTOR\EXECTRAK\BIN")
         End If
         m_FactorEDIDirectory = AppendDSN(folder)
@@ -590,10 +734,12 @@ End Sub
 
 Private Sub GetDTNLogFilePath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetDTNLogFilePath(): " & ERROR_NOTLOADED
     
     If Len(m_DTNLogFilePath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", m_HostedFolder & "DTN\LOG")
+        If Len(m_WorkingFolder) > 0 Then
+            folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", m_WorkingFolder & "DTN\LOG")
         Else
             folder = Me.GetFactorINIValue("DTN_MSG", "Log File Path", AppendSlash(LOCAL_FACTOR_PATH) & "LOG")
         End If
@@ -604,10 +750,12 @@ End Sub
 
 Private Sub GetDTNInputPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetDTNInputPath(): " & ERROR_NOTLOADED
     
     If Len(m_DTNInputPath) < 1 Then
-        If Len(m_HostedFolder) > 0 Then
-            folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", m_HostedFolder & "DTN")
+        If Len(m_WorkingFolder) > 0 Then
+            folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", m_WorkingFolder & "DTN")
         Else
             folder = Me.GetFactorINIValue("DTN_MSG", "Input Path", "C:\FACTOR\DTN")
         End If
@@ -618,6 +766,8 @@ End Sub
 
 Private Sub GetTLCInboundDirectory()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetTLCInboundDirectory(): " & ERROR_NOTLOADED
     
     If Len(m_TLCInboundDirectory) < 1 Then
         folder = Me.GetFactorINIValue("EDI", "TLC Inbound Directory")
@@ -629,12 +779,14 @@ End Sub
 Private Sub GetUnixDataDirectory()
     Dim arr$()
     Dim x%
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetUnixDataDirectory(): " & ERROR_NOTLOADED
     
     If Len(m_UnixDataDirectory) < 1 Then
         
         m_UnixDataDirectory = "/factor/"
         
-        If Len(m_DatabasePath) > 0 Then
+        If Len(m_DatabasePath) > 0 And Len(WorkingFolder) > 0 Then
             arr = Split(m_DatabasePath, "/")
             x = UBound(arr)
             If x > 0 Then m_UnixDataDirectory = "/" & arr(1) & "/"
@@ -647,12 +799,14 @@ End Sub
 
 Private Sub GetEDIXLATERoot()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetEDIXLATERoot(): " & ERROR_NOTLOADED
     
     If Len(m_EDIXLATERoot) < 1 Then
-        If Len(HostedFolder) < 1 Then
-            folder = UCase(AppendSlash(App.path) & "EDIXLATE")
+        If Len(WorkingFolder) < 1 Then
+            folder = UCase(AppendSlash(App.Path) & "EDIXLATE")
         Else
-            folder = UCase(HostedFolder & "EDIXLATE")
+            folder = UCase(WorkingFolder & "EDIXLATE")
         End If
         Call CreateFolder(folder)
         m_EDIXLATERoot = AppendSlash(folder)
@@ -662,13 +816,17 @@ End Sub
 
 Private Sub GetEDIXLATEPath()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetEDIXLATEPath(): " & ERROR_NOTLOADED
     
     If Len(m_EDIXLATEPath) < 1 Then
         folder = EDIXLATERoot
-        If Len(DatabaseName) > 0 Then
-            folder = UCase(folder & DatabaseName)
-        Else
-            folder = UCase(folder & "UNKNOWNDB")
+        If Len(WorkingFolder) > 0 Then
+            If Len(DatabaseName) > 0 Then
+                folder = UCase(folder & DatabaseName)
+            Else
+                folder = UCase(folder & "UNKNOWNDB")
+            End If
         End If
         Call CreateFolder(folder)
         m_EDIXLATEPath = AppendSlash(folder)
@@ -678,6 +836,8 @@ End Sub
 
 Private Sub GetEDIXLATEFile()
     Dim folder$
+        
+    'If Not m_loaded Then Err.Raise -2, , "GetEDIXLATEFile(): " & ERROR_NOTLOADED
     
     If Len(m_EDIXLATEFile) < 1 Then
         folder = UCase(AppendSlash(EDIXLATEPath))
@@ -691,14 +851,24 @@ End Sub
 '*                     ***  UTILITIES ***                           *
 '********************************************************************
 
-Public Function AppendDSN(ByVal path$) As String
+Private Function AppendDSN(ByVal Path$) As String
     
-    path = AppendSlash(path) + UCase$(dsnName)
-    AppendDSN = AppendSlash(path)
+    If Len(WorkingFolder) > 0 Then
+        AppendDSN = AppendDSNToPath(Path)
+    Else
+        AppendDSN = Path
+    End If
     
 End Function
 
-Public Function CreateFolder(ByVal path$) As Boolean
+Public Function AppendDSNToPath(ByVal Path$) As String
+    
+    Path = AppendSlash(Path) + UCase$(m_sDSN)
+    AppendDSNToPath = AppendSlash(Path)
+    
+End Function
+
+Public Function CreateFolder(ByVal Path$) As Boolean
     Dim wfd As WIN32_FIND_DATA
     Dim hSearch As Long
     Dim arr() As String
@@ -707,18 +877,18 @@ Public Function CreateFolder(ByVal path$) As Boolean
     
     On Error GoTo FINISHED
         
-    If Len(path) < 1 Then GoTo FINISHED
+    If Len(Path) < 1 Then GoTo FINISHED
     
-    If Not DirectoryExists(path) Then
+    If Not DirectoryExists(Path) Then
         ' Network shares are a pain
-        If Left$(path, 2) = "\\" Then
-            CreateFolder = CreateNetworkFolder(path)
+        If Left$(Path, 2) = "\\" Then
+            CreateFolder = CreateNetworkFolder(Path)
             Exit Function
         End If
         
         ' Nice normal letter drive
-        path = RemoveEndSlash(path)
-        arr = Split(path, "\")
+        Path = RemoveEndSlash(Path)
+        arr = Split(Path, "\")
         For i = 0 To UBound(arr)
             folder = IIf(i > 0, folder & "\" & arr(i), arr(i))
             If Len(arr(i)) > 0 Then
@@ -737,7 +907,7 @@ FINISHED:
     
 End Function
 
-Private Function CreateNetworkFolder(ByVal path$) As Boolean
+Private Function CreateNetworkFolder(ByVal Path$) As Boolean
     Dim share$
     Dim folder$
     Dim arr() As String
@@ -745,20 +915,20 @@ Private Function CreateNetworkFolder(ByVal path$) As Boolean
     
     On Error GoTo FINISHED
     
-    path = RemoveEndSlash(path)
+    Path = RemoveEndSlash(Path)
     
-    share = FindNetworkShare(path)
+    share = FindNetworkShare(Path)
     If Len(share) > 0 Then
-        If share = path Then
+        If share = Path Then
             CreateNetworkFolder = True
             Exit Function
         End If
         
         folder = share
-        path = Mid(path, Len(share) + 1)
-        If Left(path, 1) = "\" Then path = Mid(path, 2)
+        Path = Mid(Path, Len(share) + 1)
+        If Left(Path, 1) = "\" Then Path = Mid(Path, 2)
         
-        arr = Split(path, "\")
+        arr = Split(Path, "\")
         For i = 0 To UBound(arr)
             folder = folder & "\" & arr(i)
             If Len(arr(i)) > 0 Then
@@ -806,16 +976,16 @@ Public Function DirectoryExists(ByVal folder$) As Boolean
     
 End Function
 
-Private Function FindNetworkShare(ByVal path$) As String
+Private Function FindNetworkShare(ByVal Path$) As String
     Dim arr() As String
     Dim folder$
     Dim i%
     Dim hSearch As Long
     Dim wfd As WIN32_FIND_DATA
     
-    If Left$(path, 2) = "\\" Then
-        path = Mid(path, 3)
-        arr = Split(path, "\")
+    If Left$(Path, 2) = "\\" Then
+        Path = Mid(Path, 3)
+        arr = Split(Path, "\")
         folder = "\"
         For i = 0 To UBound(arr)
             folder = folder + "\" + arr(i)
@@ -830,15 +1000,15 @@ Private Function FindNetworkShare(ByVal path$) As String
     
 End Function
 
-Private Function AppendSlash(ByVal path$) As String
+Private Function AppendSlash(ByVal Path$) As String
         
-    AppendSlash = IIf(Right$(path, 1) <> "\", path + "\", path)
+    AppendSlash = IIf(Right$(Path, 1) <> "\", Path + "\", Path)
     
 End Function
 
-Public Function RemoveEndSlash(ByVal path$) As String
+Public Function RemoveEndSlash(ByVal Path$) As String
 
-    RemoveEndSlash = IIf(Right$(path, 1) = "\", Mid(path, 1, Len(path) - 1), path)
+    RemoveEndSlash = IIf(Right$(Path, 1) = "\", Mid(Path, 1, Len(Path) - 1), Path)
 
 End Function
 
@@ -855,21 +1025,21 @@ Private Function TrimNull(ByVal value As String) As String
 End Function
 
 Private Function GetExecTrakPath() As String
-    Dim path$
+    Dim Path$
     Dim folder$
     Dim x%
     
-    If Len(m_HostedFolder) > 0 Then
-        folder = m_HostedFolder
+    If Len(m_WorkingFolder) > 0 Then
+        folder = m_WorkingFolder
     Else
-        path = App.path
+        Path = App.Path
         'path = "C:\FACTOR\EXECTRAK\BIN"
         
-        x = InStr(1, path, "\EXECTRAK\", vbTextCompare)
+        x = InStr(1, Path, "\EXECTRAK\", vbTextCompare)
         If x > 0 Then
-            folder = Mid(path, 1, x - 1)
+            folder = Mid(Path, 1, x - 1)
         Else
-            folder = path
+            folder = Path
         End If
     End If
         
@@ -880,26 +1050,26 @@ End Function
 
 Public Function NewIniPath(iniFile$)
     Dim arr$()
-    Dim Name$
+    Dim name$
     Dim x%
     
     NewIniPath = iniFile
     
-    If Len(m_HostedFolder) > 0 Then
+    If Len(m_WorkingFolder) > 0 Then
         If Len(iniFile) > 0 Then
             If UCase(Right$(iniFile, 4)) = ".INI" Then
                 arr = Split(iniFile, "\")
                 x = UBound(arr)
-                Name = UCase(arr(x))
-                Select Case Name
+                name = UCase(arr(x))
+                Select Case name
                     Case "FACTOR.INI", "IQFACT.INI"
-                        NewIniPath = m_HostedFolder & UCase(dsnName) & "\" & Name
+                        NewIniPath = m_WorkingFolder & UCase(m_sDSN) & "\" & name
                     Case "ETETFSETUP.INI"
                         If Len(DatabaseName) > 0 Then
-                            NewIniPath = EDIXLATEPath & Name
+                            NewIniPath = EDIXLATEPath & name
                         End If
                     Case Else
-                        NewIniPath = m_HostedFolder & Name
+                        NewIniPath = m_WorkingFolder & name
                 End Select
             End If
         End If
@@ -915,19 +1085,19 @@ End Function
 
 Public Function GetDirectory(filePath As String) As String
     Dim parts$()
-    Dim path$
+    Dim Path$
     Dim x&
     Dim i&
     Dim network As Boolean
     
-    path = filePath
-    If Len(path) > 0 Then
-        If Left(path, 2) = "\\" Then
+    Path = filePath
+    If Len(Path) > 0 Then
+        If Left(Path, 2) = "\\" Then
             network = True
-            path = Mid(path, 3)
+            Path = Mid(Path, 3)
         End If
         
-        parts = Split(path, "\")
+        parts = Split(Path, "\")
         x = UBound(parts)
         If x > 0 Then
             GetDirectory = parts(0)
@@ -935,7 +1105,7 @@ Public Function GetDirectory(filePath As String) As String
                 GetDirectory = GetDirectory + "\" + parts(i)
             Next
         Else
-            GetDirectory = path
+            GetDirectory = Path
         End If
         
         If network Then GetDirectory = "\\" + GetDirectory
@@ -1047,4 +1217,299 @@ Private Function FileTimeToDate(ft As FILETIME) As Date
     FileTimeToDate = the_date
 
 End Function
+
+'********************************************************************
+' Connecting to database
+'********************************************************************
+
+Private Function GetConnectionString() As String
+    Dim sTemp As String
+    Dim sODBCKey As String
+    Dim sDatabase As String
+    Dim sDSN As String
+    
+    If Len(m_connect) > 0 Then
+        GetConnectionString = m_connect
+        Exit Function
+    End If
+    
+    If Len(m_sDSN) < 1 Then Err.Raise -1, "GetConnectionString", "DSN not set"
+    sDSN = m_sDSN
+    
+    Call SetODBCINIPath(m_sDSN)
+    
+    m_sUID = "ssfactor"
+    m_sPWD = "menus"
+    
+    sODBCKey = m_sODBC_INI_Path & sDSN
+    m_sServer = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
+    m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
+    End If
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, szODBC_REG_KEY3 & m_sServer, szODBC_HOST2)
+    End If
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(HKEY_LOCAL_MACHINE, szODBC_REG_KEY3 & m_sServer, szODBC_HOST2)
+    End If
+    If Trim(m_sHost) = "" Then
+        m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
+    End If
+    GetConnectionString = "ODBC;DSN=" & sDSN & ";UID=" & m_sUID _
+            & ";PWD=" & m_sPWD
+    sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
+    GetConnectionString = GetConnectionString & ";DB=" & sDatabase & ";HOST=" & m_sHost
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVICE)
+    If Trim(sTemp) = "" Then
+        sTemp = QueryValue(m_lODBC_INI_Key, szODBC_REG_KEY3 & m_sServer, szODBC_SERVICE)
+    End If
+    If Trim(sTemp) = "" Then
+        sTemp = QueryValue(HKEY_LOCAL_MACHINE, szODBC_REG_KEY3 & m_sServer, szODBC_SERVICE)
+    End If
+    GetConnectionString = GetConnectionString & ";SERV=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_YIELDPROC)
+    GetConnectionString = GetConnectionString & ";YLD=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_CB)
+    GetConnectionString = GetConnectionString & ";CB=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_PROTOCOL)
+    If Trim(sTemp) = "" Then
+        sTemp = QueryValue(m_lODBC_INI_Key, szODBC_REG_KEY3 & m_sServer, szODBC_PROTOCOL)
+    End If
+    If Trim(sTemp) = "" Then
+        sTemp = QueryValue(HKEY_LOCAL_MACHINE, szODBC_REG_KEY3 & m_sServer, szODBC_PROTOCOL)
+    End If
+    GetConnectionString = GetConnectionString & ";PRO=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DB_LOCALE)
+    GetConnectionString = GetConnectionString & ";DB_LOCALE=" & sTemp
+    sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_CLIENT_LOCALE)
+    GetConnectionString = GetConnectionString & ";CLIENT_LOCALE=" & sTemp
+    If Trim(m_sServer) <> "" Then
+        GetConnectionString = GetConnectionString & ";SERVER=" & m_sServer
+    End If
+    
+    m_connect = GetConnectionString
+    
+End Function
+
+Private Function SetODBCINIPath(sDSN As String) As Boolean
+    Dim sTemp As String
+    
+    m_sODBC_INI_Path = szODBC_REG_KEY2
+    m_lODBC_INI_Key = HKEY_CURRENT_USER
+    sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    If sTemp = "" Then
+        m_sODBC_INI_Path = szODBC_REG_KEY2
+        m_lODBC_INI_Key = HKEY_LOCAL_MACHINE
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    End If
+    If sTemp = "" Then
+        m_sODBC_INI_Path = szODBC_REG_KEY1
+        m_lODBC_INI_Key = HKEY_USERS
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
+    End If
+    If sTemp = "" Then
+        SetODBCINIPath = False
+    Else
+        SetODBCINIPath = True
+    End If
+
+End Function
+
+Private Function QueryValue(ByVal lKey As Long, _
+                           sKeyName As String, _
+                           sValueName As String) As String
+    Dim lRetVal As Long         'result of the API functions
+    Dim hKey As Long            'handle of opened key
+    Dim vValue As Variant       'setting of queried value
+
+    QueryValue = ""
+    lRetVal = RegOpenKeyEx(lKey, sKeyName, 0, KEY_READ, hKey)
+    If lRetVal = 0 Then
+        lRetVal = QueryValueEx(hKey, sValueName, vValue)
+        If lRetVal = 0 Then
+            QueryValue = vValue
+        End If
+        RegCloseKey (hKey)
+    End If
+
+End Function
+
+Private Function QueryValueEx(ByVal lhKey As Long, _
+                      ByVal szValueName As String, _
+                      vValue As Variant) As Long
+    Dim cch As Long
+    Dim lrc As Long
+    Dim lType As Long
+    Dim lValue As Long
+    Dim sValue As String
+
+    On Error GoTo QueryValueExError
+
+    ' Determine the size and type of data to be read
+    lrc = RegQueryValueExNULL(lhKey, szValueName, 0&, lType, 0&, cch)
+    If lrc = ERROR_NONE Then
+        Select Case lType
+            ' For strings
+            Case REG_SZ:
+                sValue = String(cch, 0)
+                lrc = RegQueryValueExString(lhKey, szValueName, 0&, lType, sValue, cch)
+                If lrc = ERROR_NONE Then
+                    vValue = RemoveNull(sValue)
+                Else
+                    vValue = Empty
+                End If
+            ' For DWORDS
+            Case REG_DWORD:
+                lrc = RegQueryValueExLong(lhKey, szValueName, 0&, lType, lValue, cch)
+                If lrc = ERROR_NONE Then
+                    vValue = lValue
+                End If
+            Case Else
+                'all other data types not supported
+                lrc = -1
+        End Select
+    End If
+QueryValueExExit:
+    QueryValueEx = lrc
+    Exit Function
+QueryValueExError:
+    Resume QueryValueExExit
+
+End Function
+
+Private Function RemoveNull(szStr As String) As String
+    Dim nPos As Integer
+    
+    nPos = InStr(szStr, Chr(0))
+    If nPos > 0 Then
+        RemoveNull = Left(szStr, nPos - 1)
+    Else
+        RemoveNull = szStr
+    End If
+
+End Function
+
+Private Function GetWorkingFolder(db As Database) As String
+    Dim SQL$
+    Dim parm15$
+    Dim folder$
+    
+    SQL = "select parm_field from sys_parm where parm_nbr = 15"
+    With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+        If Not .EOF Then
+            parm15 = UCase$(Trim$(.Fields(0).value & ""))
+        End If
+        .Close
+    End With
+    
+    m_MultiDatabase = IIf(parm15 = "Y", True, False)
+    
+    SQL = "select ini_value from sys_ini where ini_section = 'WorkingDirectory' AND ini_file_name = 'WORKPATH'"
+    If m_MultiDatabase Then
+        With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+            If Not .EOF Then
+                folder = UCase$(Trim$(.Fields(0).value & ""))
+            End If
+            .Close
+        End With
+                
+        If Len(folder) > 0 Then
+            If DirectoryExists(folder) Then
+                m_WorkingFolder = AppendSlash(folder)
+            End If
+        End If
+    End If
+    
+    GetWorkingFolder = m_WorkingFolder
+    
+End Function
+
+Public Function GetNamedString(sSource As String, sName As String) As String
+    GetNamedString = ""
+    If sSource = "" Or sName = "" Then
+        Exit Function
+    End If
+    
+    Dim nPos1 As Integer
+    Dim nPos2 As Integer
+    Dim sUcaseSource As String
+    Dim sUcaseName As String
+    
+    sUcaseSource = UCase(sSource)
+    sUcaseName = UCase(sName)
+    nPos1 = InStr(sUcaseSource, sUcaseName)
+
+    If nPos1 > 0 Then
+        nPos1 = InStr(nPos1, sUcaseSource, "=")
+        If nPos1 > 0 Then
+            nPos2 = InStr(nPos1, sUcaseSource, ";")
+            If nPos2 = 0 Then
+                nPos2 = Len(sUcaseSource) + 1
+            End If
+            nPos1 = nPos1 + 1
+            If nPos2 > nPos1 Then
+                GetNamedString = Trim(Mid(sSource, nPos1, nPos2 - nPos1))
+            End If
+        End If
+    End If
+End Function
+
+Public Function GetDatabaseName(connectionString As String) As String
+    Dim sDBPath As String
+    Dim sDBName As String
+    Dim i As Integer
+    
+    sDBPath = GetNamedString(connectionString, ";DB")
+    If Trim(sDBPath) = "" Then
+        sDBPath = GetNamedString(connectionString, "DATABASE")
+    End If
+    
+    i = InStrRev(sDBPath, "/")
+    
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
+    
+        i = InStrRev(sDBPath, "/")
+    
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
+        End If
+    End If
+
+    GetDatabaseName = sDBName
+
+End Function
+
+Private Function StripDatabaseName(sDBPath As String) As String
+    Dim sDBName As String
+    Dim i As Integer
+    
+    i = InStrRev(sDBPath, "/")
+    
+    If i > 1 Then
+        sDBPath = Left(sDBPath, i - 1)
+    
+        i = InStrRev(sDBPath, "/")
+    
+        If i > 1 Then
+            sDBName = Mid(sDBPath, i + 1)
+        End If
+    Else
+        sDBName = sDBPath
+    End If
+
+    StripDatabaseName = sDBName
+
+End Function
+
+Public Function GetDatabasePath(connectionString As String) As String
+    
+    GetDatabasePath = GetNamedString(connectionString, ";DB")
+    If Trim(GetDatabasePath) = "" Then
+        GetDatabasePath = GetNamedString(connectionString, "DATABASE")
+    End If
+
+End Function
+
 

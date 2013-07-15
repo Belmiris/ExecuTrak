@@ -24,8 +24,8 @@ Public dbVersionSeverity As dbVersionSeverityLevels
 Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
-Global t_wsWorkSpace As workspace    'pointer to the default workspace
-Global t_dbMainDatabase As database  'main database handle
+Global t_wsWorkSpace As Workspace    'pointer to the default workspace
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -603,7 +603,6 @@ Public t_tax_date As String     'pass the value into this variable if You have d
 Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 Private nDefaultQueryTimeout As Integer  'david 05/27/2008
 '
-Public dsnName As String        '5875
 Public io As CommonIO           '5875 SHARED\CLSFILES\CommonIO.cls
 
 '---------------------------------------------------------------------------------------
@@ -781,7 +780,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
+Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal section As String, _
                           Optional ByVal field As String = vbNullString, _
@@ -793,13 +792,13 @@ Public Function tfn_Delete_SYS_INI(ByVal FileName As String, _
     
     On Error GoTo ErrorHandler
     
-    FileName = Trim$(UCase$(FileName))
+    Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     section = Trim$(UCase$(section))
     field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & FileName & "')" _
+        & " WHERE (INI_File_Name='" & Filename & "')" _
         & "   AND (INI_Section='" & section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -980,11 +979,11 @@ Public Function tfnGetUserName() As String
         tfnGetUserName = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+        tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+                tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             End If
         Else
             tfnGetUserName = t_oleObject.UserName
@@ -1411,6 +1410,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
                                 Optional nQueryTimeout As Integer = -1, _
                                 Optional bCheckDBVersion As Boolean = True) As Boolean
     Dim i As Integer
+    Dim DSN$
     
     #If FACTOR_MENU = 1 Then
         tfnOpenDatabase = True
@@ -1423,7 +1423,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
             'Add codes to show the Splash screen for capturing databa source name, user id, password
             'NOTE: Need to include/add V:\SHARED\frmSplshDev.frm into the project
             frmSplashDev.Show vbModal
-            dsnName = frmSplashDev.DSN                          ' 5875
+            DSN = frmSplashDev.DSN                              ' 5875
             Set io = New CommonIO                               ' 5875
             
             If t_szConnect = "" Then
@@ -1437,15 +1437,15 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
             t_oleObject.EXEName = App.EXEName
             t_szConnect = t_oleObject.MainConnectString       'get the FACTOR Main Menu connect string
             
-            dsnName = t_oleObject.DataSourceName              ' 5875
-            Set io = New CommonIO                             ' 5875
+            DSN = t_oleObject.DataSourceName                    ' 5875
+            Set io = New CommonIO                               ' 5875
         End If
     #End If
     
-    If io Is Nothing And Trim(t_szConnect) <> "" Then         ' 5875
-        dsnName = tfnGetNamedString(t_szConnect, "DSN")       ' 5875
-        Set io = New CommonIO                                 ' 5875
-    End If                                                    ' 5875
+    If io Is Nothing And Trim(t_szConnect) <> "" Then           ' 5875
+        DSN = tfnGetNamedString(t_szConnect, "DSN")             ' 5875
+        Set io = New CommonIO                                   ' 5875
+    End If                                                      ' 5875
         
     On Error GoTo ERROR_CONNECTING 'set the runtime error handler for database connection
 
@@ -1455,10 +1455,12 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
     
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
-            
-    io.HostedFolder = GetServiceTrakHostedFolder()
-    io.DatabaseName = tfnGetDbName()
-    io.DatabasePath = GetDatabasePath()
+    
+    If Len(DSN) < 1 Then
+        DSN = tfnGetNamedString(t_szConnect, "DSN")             ' 5875
+    End If
+    
+    Call io.LoadViaDatabase(DSN, t_dbMainDatabase)              ' 5875
     
     'david 05/27/2008
     nDefaultQueryTimeout = t_dbMainDatabase.QueryTimeout
@@ -1600,7 +1602,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1608,7 +1610,7 @@ Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
 '#####################################################################
     Dim sWinSysDir As String
     
-    If Len(io.HostedFolder) > 0 Then
+    If io.MultiDatabase Then
         sWinSysDir = io.ApplicationPath
     Else
         #If DEVELOP Then
@@ -2089,7 +2091,7 @@ Public Function tfnGetAppDir(Optional vAddSlash As Variant) As String
     
     Dim szTemp As String 'temp to hold the path
         
-    szTemp = App.path 'use the App object to retrieve the path
+    szTemp = App.Path 'use the App object to retrieve the path
         
     If Not IsMissing(vAddSlash) Then
         If Right(szTemp, 1) <> szSLASH And vAddSlash = True Then 'add a slash if it needs one
@@ -2606,19 +2608,19 @@ Public Function tfnGetHostName() As String
         tfnGetHostName = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
+        tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "HOST")
         
         If Trim(tfnGetHostName) = "" Then
-            tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "SRVR")
+            tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "SRVR")
         End If
         
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
+                tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "HOST")
                 
                 If Trim(tfnGetHostName) = "" Then
-                    tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "SRVR")
+                    tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "SRVR")
                 End If
             End If
 '        Else
@@ -2634,12 +2636,12 @@ Public Function tfnGetPassword() As String
         tfnGetPassword = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
+        tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.connect, "PWD")
         
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
+                tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.connect, "PWD")
             End If
             If Trim(tfnGetPassword) = "" Then
                 tfnGetPassword = tfnGetNamedString(t_szConnect, "PWD")
@@ -2660,14 +2662,14 @@ Public Function tfnGetDataSourceName() As String
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
+        tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.connect, "DSN")
     #Else
             If Not t_oleObject Is Nothing Then
                 tfnGetDataSourceName = t_oleObject.factorPath
             Else
                 'david 11/15/2001
                 If Not t_dbMainDatabase Is Nothing Then
-                    tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
+                    tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.connect, "DSN")
                 Else
                     tfnGetDataSourceName = ""
                 End If
@@ -2735,7 +2737,7 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
     
     sFactorDir = LOCAL_FACTOR_PATH
     
-    If Len(io.HostedFolder) > 0 Then
+    If io.MultiDatabase > 0 Then
         sWinSysDir = io.ApplicationPath
     Else
         sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
@@ -2808,8 +2810,8 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As database
-    Dim wsLocal As workspace
+    Dim dbLocal As DataBase
+    Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
     
@@ -3290,10 +3292,10 @@ Public Function tfnLockRow(sProgramID As String, _
         strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         rsTemp.Close
-        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+        sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
         Else
             sUserID = t_oleObject.UserName
         End If
@@ -3523,7 +3525,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3553,14 +3555,14 @@ Public Function tfnLockRow_EX(sProgramID As String, _
     #If FACTOR_MENU Then
         If sUserID = "" Then
             If t_oleObject Is Nothing Then
-                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+                sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             Else
                 sUserID = t_oleObject.UserName
             End If
         End If
     #Else
         If sUserID = "" Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
         End If
     #End If
 
@@ -3740,7 +3742,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3757,14 +3759,14 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
     #If FACTOR_MENU Then
         If sUserID = "" Then
             If t_oleObject Is Nothing Then
-                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+                sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             Else
                 sUserID = t_oleObject.UserName
             End If
         End If
     #Else
         If sUserID = "" Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
         End If
     #End If
     
@@ -3918,9 +3920,9 @@ Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As St
     Dim sDBName As String
     Dim i As Integer
     
-    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    sDBPath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
-        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+        sDBPath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH2)
     End If
     
     If bKeepSlashFactor Then
@@ -3946,9 +3948,9 @@ Public Function GetDatabasePath() As String
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
-    GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
+    GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH1)
     If Trim(GetDatabasePath) = "" Then
-        GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
+        GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH2)
     End If
 
 End Function

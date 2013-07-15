@@ -532,7 +532,7 @@ End Sub
 Private Function fnBuildParm() As String
     Dim sParm As String
     
-    sParm = "DSN=" + dsnName + ","
+    sParm = "DSN=" + io.DsnName + ","
     
     If m_MessageType <> "" Then
         sParm = sParm + "MessageType=" + m_MessageType + ","

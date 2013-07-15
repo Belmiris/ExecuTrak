@@ -145,12 +145,8 @@ Private Function GetCommonIO() As CommonIO
     Set ws = engine.Workspaces(0)
     Set db = ws.OpenDatabase("", False, False, connect)
     
-    dsnName = m_sDSN
     Set io = New CommonIO
-    
-    io.HostedFolder = GetServiceTrakHostedFolder(db)
-    io.DatabaseName = GetDatabaseName(connect)
-    io.DatabasePath = GetDatabasePath(connect)
+    Call io.LoadViaDatabase(m_sDSN, db)
     
     Set GetCommonIO = io
     

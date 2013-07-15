@@ -906,8 +906,8 @@ Private Sub btnOK_Click()
     
     Me.Hide
         
-    dsnName = m_sDSN
     Set io = New CommonIO
+    Call io.LoadViaDSN(m_sDSN)
     
     subShowMainForm
     
@@ -1064,7 +1064,7 @@ Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     picFrame.Line (X1, Y2 - 2 * Screen.TwipsPerPixelY)-(X1, Y1), LINE_COLOR2
 End Sub
 
-Public Function Connect(sDSN As String, _
+Public Function connect(sDSN As String, _
                         sUID As String, _
                         sPWD As String, _
                         Optional sErrMsg As String = "") As Boolean
@@ -1081,9 +1081,9 @@ Public Function Connect(sDSN As String, _
     
     If m_sConnectionError <> "" Then
         sErrMsg = m_sConnectionError
-        Connect = False
+        connect = False
     Else
-        Connect = True
+        connect = True
     End If
 End Function
 

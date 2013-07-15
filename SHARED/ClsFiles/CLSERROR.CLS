@@ -37,12 +37,10 @@ Private m_bAlwaysShowMessage As Boolean
 
 Private m_sErrScrnPath As String
 Private m_sLogFilePath As String
-Private m_dbLocal As Database
+Private m_dbLocal As DataBase
 Private m_nLogTo As Integer
 Private m_bCirCular As Boolean
 Private m_nMaxErrors As Integer
-'Private io As CommonIO             ' 5875 Defined in Template.bas. SHARED\CLSFILES\CommonIO
-'Private dsnName As String          ' 5875 Defined in Template.bas.
 
 Private Sub Class_Initialize()
     Set m_engFactor = Nothing
@@ -280,13 +278,13 @@ Public Property Set FormParent(frmForm As Object)
     m_sLogFilePath = io.LocalTempPath & "errorlog.txt"
     m_sErrScrnPath = io.LocalTempPath & "errscrn.bmp"
     
-    If Val(App.Minor) >= 20 Then
-        sMajor = Format(App.Major, "#0")
-        sMinor = Format(App.Minor, "00")
+    If Val(App.minor) >= 20 Then
+        sMajor = Format(App.major, "#0")
+        sMinor = Format(App.minor, "00")
         sRevision = Format(App.Revision, "0000")
     Else
-        sMajor = CStr(App.Major)
-        sMinor = CStr(App.Minor)
+        sMajor = CStr(App.major)
+        sMinor = CStr(App.minor)
         sRevision = CStr(App.Revision)
     End If
     
@@ -313,13 +311,13 @@ Public Sub ProgramInfo()
     m_sLogFilePath = io.LocalTempPath & "errorlog.txt"
     m_sErrScrnPath = io.LocalTempPath & "errscrn.bmp"
     
-    If Val(App.Minor) >= 20 Then
-        sMajor = Format(App.Major, "#0")
-        sMinor = Format(App.Minor, "00")
+    If Val(App.minor) >= 20 Then
+        sMajor = Format(App.major, "#0")
+        sMinor = Format(App.minor, "00")
         sRevision = Format(App.Revision, "0000")
     Else
-        sMajor = CStr(App.Major)
-        sMinor = CStr(App.Minor)
+        sMajor = CStr(App.major)
+        sMinor = CStr(App.minor)
         sRevision = CStr(App.Revision)
     End If
     
@@ -338,7 +336,7 @@ Public Property Set DatabaseEngine(dbEngTmp As DBEngine)
     Set m_engFactor = dbEngTmp
 End Property
 
-Public Property Set LocalDatabase(dbLocal As Database)
+Public Property Set LocalDatabase(dbLocal As DataBase)
     Set m_dbLocal = dbLocal
 End Property
 
