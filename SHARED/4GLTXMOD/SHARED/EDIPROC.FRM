@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.Path))
+    m_AppPath = fnAddBkSlash(UCase(App.path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -207,7 +207,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.Path
+        m_ProgramPath = App.path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -272,8 +272,11 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     'Database
     'On Error Resume Next
     sFile = ""
-    'sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
-    sFile = Dir(io.EDIXLATEFile)
+    If Len(io.WorkingFolder) < 1 Then
+        sFile = Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_MDB)
+    Else
+        sFile = Dir(io.EDIXLATEFile)
+    End If
     'On Error GoTo 0
     
     If sFile = "" Then
@@ -285,7 +288,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     'INI
     On Error Resume Next
-    sIniFile = io.NewIniPath(Dir(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI))
+    sIniFile = io.NewIniPath(fnAddBkSlash(m_ProgramPath) + sEDIPROC_INI)
     sFile = ""
     sFile = Dir(sIniFile)
     On Error GoTo 0
@@ -369,7 +372,7 @@ errEdiProcError:
 End Function
 
 Private Function fnOpenFile() As Boolean
-    On Error GoTo errHandler
+    On Error GoTo ErrHandler
     
     cdlgOpen.Action = 1
     
@@ -377,7 +380,7 @@ Private Function fnOpenFile() As Boolean
     
     Exit Function
 
-errHandler:
+ErrHandler:
     'do nothing
 End Function
 
@@ -749,7 +752,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo errTrap
+            On Error GoTo ErrTrap
             MkDir sParentDir
         End If
         
@@ -763,7 +766,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-errTrap:
+ErrTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
@@ -785,7 +788,7 @@ Public Sub CheckXlatorProgramPath()
     Dim sFile As String, sFileCurr As String
 
     'check current directory
-    m_ProgramPath = App.Path
+    m_ProgramPath = App.path
     sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
     On Error Resume Next
     sFileCurr = Dir(sExeFile)
@@ -803,7 +806,7 @@ Public Sub CheckXlatorProgramPath()
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.Path
+        m_ProgramPath = App.path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -831,7 +834,7 @@ Public Sub CheckXlatorProgramPath()
         End If
     End If
     
-    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.Path)) Then
+    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.path)) Then
         MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
             + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
             + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _
