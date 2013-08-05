@@ -1182,7 +1182,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
@@ -1347,6 +1347,10 @@ Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As S
     
     Dim szINI As String    'string to hold the value retrieved
     Dim iniFile$
+    
+    If io Is Nothing Then
+        Set io = New CommonIO
+    End If
     
     iniFile = io.NewIniPath(szINIFile)
     
