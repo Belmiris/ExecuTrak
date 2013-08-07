@@ -73,7 +73,7 @@ Private m_bShowError As Boolean
 'interface properties
 Property Set ParentForm(frmForm As Form)
     Set m_frmParent = frmForm
-    m_AppPath = fnAddBkSlash(UCase(App.path))
+    m_AppPath = fnAddBkSlash(UCase(App.Path))
 End Property
 
 Property Set LogListBox(lstList As ListBox)
@@ -207,7 +207,7 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.path
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -312,7 +312,6 @@ Public Function LaunchEDIPROC(Optional nWait As Integer = 20) As String
     'Launch EDI Translation Processor
     dfBeginRun = Timer
     'If Not fnRunExe(sExeFile + " " + sParm, , , False) Then
-    MsgBox sExeFile + " " + sParm
     If Not fnRunExe(sExeFile + " " + sParm, , True, False, , , , , processId) Then
         m_ErrorMessage = "Failed to run EDI Translation Processor."
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
@@ -372,7 +371,7 @@ errEdiProcError:
 End Function
 
 Private Function fnOpenFile() As Boolean
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     
     cdlgOpen.Action = 1
     
@@ -380,7 +379,7 @@ Private Function fnOpenFile() As Boolean
     
     Exit Function
 
-ErrHandler:
+errHandler:
     'do nothing
 End Function
 
@@ -398,7 +397,13 @@ Private Function fnCheckEdiProcError() As String
     fnCheckEdiProcError = ""
     
     'sFileName = fnAddBkSlash(m_ProgramPath) + "EDIXLATE.MDB"
-    sFileName = io.EDIXLATEFile
+    'david 08/03/2013 #6514 NDR
+    'sFileName = io.EDIXLATEFile
+    If InIDE() Then
+        sFileName = fnAddBkSlash(m_ProgramPath) + "EDIXLATE.MDB"
+    Else
+        sFileName = io.EDIXLATEFile
+    End If
     
     Set dbEDI = tfnOpenEdiXlateDatabase(sFileName)
     
@@ -752,7 +757,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
         sTmpDir = Dir(sParentDir, vbDirectory)
         
         If sTmpDir = "" Then  'directory does not exist, create it
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -766,7 +771,7 @@ Public Function fnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreate
     
     Exit Function
 
-ErrTrap:
+errTrap:
     tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
     fnCheckAndCreateDirectory = "Failed to create Directory '" + sDir + "'"
 End Function
@@ -788,7 +793,7 @@ Public Sub CheckXlatorProgramPath()
     Dim sFile As String, sFileCurr As String
 
     'check current directory
-    m_ProgramPath = App.path
+    m_ProgramPath = App.Path
     sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
     On Error Resume Next
     sFileCurr = Dir(sExeFile)
@@ -806,7 +811,7 @@ Public Sub CheckXlatorProgramPath()
     
     If sFile = "" Then
         'check current directory
-        m_ProgramPath = App.path
+        m_ProgramPath = App.Path
         sExeFile = fnAddBkSlash(m_ProgramPath) + sEDIPROC_EXE
         On Error Resume Next
         sFile = ""
@@ -834,7 +839,7 @@ Public Sub CheckXlatorProgramPath()
         End If
     End If
     
-    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.path)) Then
+    If sFileCurr <> "" And fnAddBkSlash(UCase(m_ProgramPath)) <> fnAddBkSlash(UCase(App.Path)) Then
         MsgBox "WARNING:" + vbCrLf + vbCrLf + "Multiple copies of FACTOR EDI Translator found in the system," _
             + " and the FACTOR EDI Translator is launching from a directory different from the running program." _
             + " You may proceed, but you may not be using the latest EDI Maps." + vbCrLf + vbCrLf _
@@ -845,3 +850,14 @@ Public Sub CheckXlatorProgramPath()
 End Sub
 ''''''''''''''''''''''''''
 
+'david 08/03/2013 #6514 NDR
+Private Function InIDE() As Boolean
+    On Error GoTo errTrap
+    Debug.Print 1 / 0
+    InIDE = False
+    
+    Exit Function
+    
+errTrap:
+    InIDE = True
+End Function
