@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As DataBase  'main database handle
+Global t_dbMainDatabase As Database  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -740,7 +740,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
             End If
             .Close
         End With
@@ -749,7 +749,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).value)
+                sDBVer = Trim$(.Fields(0).Value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -783,7 +783,7 @@ End Function
 Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
                                    ByVal UserID As String, _
                                    ByVal section As String, _
-                          Optional ByVal field As String = vbNullString, _
+                          Optional ByVal Field As String = vbNullString, _
                           Optional ByVal ShowErr As Boolean = True) As Boolean
     Const ProcName = "tfn_Delete_SYS_INI"
     
@@ -795,7 +795,7 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     Filename = Trim$(UCase$(Filename))
     UserID = Trim$(UCase$(UserID))
     section = Trim$(UCase$(section))
-    field = Trim$(UCase$(field))
+    Field = Trim$(UCase$(Field))
     
     SQL = "DELETE FROM SYS_INI" _
         & " WHERE (INI_File_Name='" & Filename & "')" _
@@ -805,8 +805,8 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     Else
         SQL = SQL & "   AND ((INI_User_ID ='') OR (INI_User_ID IS NULL))"
     End If
-    If LenB(field) Then
-        SQL = SQL & " AND (INI_Field_Name='" & field & "')"
+    If LenB(Field) Then
+        SQL = SQL & " AND (INI_Field_Name='" & Field & "')"
     End If
     
     t_dbMainDatabase.ExecuteSQL SQL
@@ -838,7 +838,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -861,7 +861,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -909,7 +909,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -927,7 +927,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-errTrap:
+ErrTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -986,7 +986,7 @@ Public Function tfnGetUserName() As String
                 tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             End If
         Else
-            tfnGetUserName = t_oleObject.UserName
+            tfnGetUserName = t_oleObject.userName
         End If
     #End If
     
@@ -1602,7 +1602,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As DataBase
+                                 Optional sErrMsg As String = "") As Database
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -2220,12 +2220,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(value As Variant) As Boolean
+Public Function tfnIsNull(Value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = value
+    szTest = Value
         
     tfnIsNull = False
     Exit Function
@@ -2737,7 +2737,7 @@ Public Function fnCopyFactorMDB(Optional bShowError As Boolean = True, _
     
     sFactorDir = LOCAL_FACTOR_PATH
     
-    If io.MultiDatabase > 0 Then
+    If Len(io.WorkingFolder) > 0 Then
         sWinSysDir = io.ApplicationPath
     Else
         sWinSysDir = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
@@ -2810,7 +2810,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As DataBase
+    Dim dbLocal As Database
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2915,7 +2915,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2937,7 +2937,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-errTrap:
+ErrTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3297,7 +3297,7 @@ Public Function tfnLockRow(sProgramID As String, _
         If t_oleObject Is Nothing Then
             sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
         Else
-            sUserID = t_oleObject.UserName
+            sUserID = t_oleObject.userName
         End If
     #End If
 
@@ -3557,7 +3557,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
             If t_oleObject Is Nothing Then
                 sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             Else
-                sUserID = t_oleObject.UserName
+                sUserID = t_oleObject.userName
             End If
         End If
     #Else
@@ -3761,7 +3761,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
             If t_oleObject Is Nothing Then
                 sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
             Else
-                sUserID = t_oleObject.UserName
+                sUserID = t_oleObject.userName
             End If
         End If
     #Else
@@ -3878,7 +3878,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-errTrap:
+ErrTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3967,7 +3967,7 @@ End Function
 
 Public Function tfn_Read_SYS_INI(sFileName As String, _
                                  sUserID As String, _
-                                 sSECTION As String, _
+                                 sSection As String, _
                                  sField As String, _
                                  Optional bShowError As Boolean = True, _
                                  Optional ByRef bRecordFound As Boolean) As String
@@ -3995,10 +3995,10 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
         strSQL = strSQL & " AND (ini_user_id is Null OR ini_user_id = '')"
     End If
     
-    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSection))
     strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -4007,7 +4007,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -4031,7 +4031,7 @@ End Function
 
 Public Function tfn_Write_SYS_INI(sFileName As String, _
                               ByVal sUserID As String, _
-                              sSECTION As String, _
+                              sSection As String, _
                               sField As String, _
                               sValue As String, _
                               Optional bShowError As Boolean = True, _
@@ -4048,10 +4048,10 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField, , bRecordFound)
+        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSection, sField, , bRecordFound)
     End If
         
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
@@ -4061,14 +4061,14 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
         strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
-        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSection))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
         strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
-        strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sSection)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
         strSQL = strSQL + tfnSQLString(sValue) + ")"
     End If
@@ -4077,7 +4077,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     tfn_Write_SYS_INI = True
     Exit Function
         
-errTrap:
+ErrTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -4506,7 +4506,7 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     '537311 - Chris Albrecht - 11/7/2006
     Static sSysParm7900 As String
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     fnInvoiceOK = ""
     bError = False
@@ -4768,7 +4768,7 @@ TRY_AGAIN:
     
     Exit Function
     
-errTrap:
+ErrTrap:
     #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -4942,7 +4942,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
         
         On Error Resume Next
         If Not DirExists(sParentDir) Then ' replace DIR with UNC compatible function
-            On Error GoTo errTrap
+            On Error GoTo ErrTrap
             MkDir sParentDir
         End If
         
@@ -4955,7 +4955,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     Wend
     Exit Function
 
-errTrap:
+ErrTrap:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
             tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
@@ -5271,7 +5271,7 @@ Public Function GetServiceTrakHostedFolder() As String
     SQL = "select parm_field from sys_parm where parm_nbr = 15"
     With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
         If Not .EOF Then
-            parm15 = UCase$(Trim$(.Fields(0).value & ""))
+            parm15 = UCase$(Trim$(.Fields(0).Value & ""))
         End If
         .Close
     End With
@@ -5280,7 +5280,7 @@ Public Function GetServiceTrakHostedFolder() As String
     If parm15 = "Y" Then
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).value & ""))
+                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).Value & ""))
             End If
             .Close
         End With

@@ -65,12 +65,16 @@ Private Declare Function GetFileTime Lib "kernel32.dll" (ByVal hFile As Long, lp
 Private Declare Function CreateFile Lib "kernel32.dll" Alias "CreateFileA" (ByVal lpFileName As String, ByVal dwDesiredAccess As Long, ByVal dwShareMode As Long, lpSecurityAttributes As SECURITY_ATTRIBUTES, ByVal dwCreationDisposition As Long, ByVal dwFlagsAndAttributes As Long, ByVal hTemplateFile As Long) As Long
 Private Declare Function FileTimeToLocalFileTime Lib "kernel32.dll" (lpFileTime As FILETIME, lpLocalFileTime As FILETIME) As Long
 Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hObject As Long) As Long
+Private Declare Function GetCurrentProcess Lib "kernel32" () As Long
 
+Private Declare Function OpenProcessToken Lib "advapi32.dll" (ByVal ProcessHandle As Long, ByVal DesiredAccess As Long, ByRef TokenHandle As Long) As Long
 Private Declare Function RegCloseKey Lib "advapi32.dll" (ByVal hKey As Long) As Long
 Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" (ByVal hKey As Long, ByVal lpSubKey As String, ByVal ulOptions As Long, ByVal samDesired As Long, phkResult As Long) As Long
 Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
 Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
 Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, lpData As Long, lpcbData As Long) As Long
+
+Private Declare Function GetUserProfileDirectory Lib "userenv.dll" Alias "GetUserProfileDirectoryA" (ByVal hToken As Long, ByVal lpProfileDir As String, lpcchSize As Long) As Boolean
 
 Private Const LOCAL_FACTOR_PATH = "C:\FACTOR\"
 Private Const szODBC_REG_KEY1 = ".Default\Software\ODBC\ODBC.INI\"
@@ -130,6 +134,8 @@ Private Const ERROR_ACCESS_DENIED = 8
 Private Const ERROR_INVALID_PARAMETERS = 87
 Private Const ERROR_NO_MORE_ITEMS = 259
 
+Private Const TOKEN_QUERY = (&H8)
+
 Private Const szODBC_DATABASE = "Database"
 Private Const szODBC_CLIENT_LOCALE = "CLIENT_LOCALE"
 Private Const szODBC_DB_LOCALE = "DB_LOCALE"
@@ -142,6 +148,10 @@ Private Const szODBC_YIELDPROC = "YieldProc"
 Private Const szODBC_CB = "CursorBehavior"
 Private Const szODBC_PROTOCOL = "Protocol"
 Private Const szODBC_DRIVER = "Driver"
+Private Const szODBC_UID = "UID"
+Private Const szODBC_PWD = "PWD"
+
+Private Const ENCRYPT_KEY As String = "T0Rn4do!"
 
 Private Const TICKS_PER_SECOND = 10000000   'FILETIME units are 100s of nanoseconds.
 
@@ -173,18 +183,21 @@ End Type
 ' INITIALIZATION METHODS - SINCE WE DON'T HAVE CONSTRUCTORS         *
 ' *******************************************************************
 
-Public Sub LoadViaDSN(DSN As String)
-    Dim connect$
+Public Sub LoadViaDSN(DSN As String, Optional USER As String = "", Optional pwd = "")
+    Dim Connect$
     Dim engine As DBEngine
     Dim ws As Workspace
-    Dim db As DataBase
+    Dim db As Database
     
     m_sDSN = DSN
-    connect = GetConnectionString()
+    If Len(Trim(USER)) > 0 Then m_sUID = Trim(USER)
+    If Len(Trim(pwd)) > 0 Then m_sPWD = Trim(pwd)
+    
+    Connect = GetConnectionString()
     
     Set engine = New DBEngine
     Set ws = engine.Workspaces(0)
-    Set db = ws.OpenDatabase("", False, False, connect)
+    Set db = ws.OpenDatabase("", False, False, Connect)
     
     Call Me.LoadViaDatabase(DSN, db)
     
@@ -195,14 +208,14 @@ Public Sub LoadViaDSN(DSN As String)
 
 End Sub
 
-Public Sub LoadViaDatabase(DSN As String, db As DataBase)
+Public Sub LoadViaDatabase(DSN As String, db As Database)
     
     m_sDSN = Trim(DSN)
     If Len(m_sDSN) < 1 Then Call Err.Raise(-1, , "CommonIO.LoadViaDatabase(): dsn parameter cannot be empty!")
     
     m_WorkingFolder = GetWorkingFolder(db)
-    Me.DatabaseName = GetDatabaseName(db.connect)
-    Me.DatabasePath = Me.GetDatabasePath(db.connect)
+    Me.DatabaseName = GetDatabaseName(db.Connect)
+    Me.DatabasePath = Me.GetDatabasePath(db.Connect)
     
     m_loaded = True
     
@@ -222,9 +235,9 @@ Public Property Get WorkingFolder() As String
     WorkingFolder = m_WorkingFolder
 End Property
 
-Public Property Get DsnName() As String
+Public Property Get dsnName() As String
     'If Not m_loaded Then Err.Raise -2, , "DsnName property(): " & ERROR_NOTLOADED
-    DsnName = m_sDSN
+    dsnName = m_sDSN
 End Property
 
 Public Property Get ApplicationPath() As String
@@ -500,7 +513,7 @@ End Sub
 
 Private Sub GetWindowsTempPath()
     Dim folder$
-    Dim ret As Long
+    Dim Ret As Long
         
     'If Not m_loaded Then Err.Raise -2, , "GetWindowsTempPath(): " & ERROR_NOTLOADED
         
@@ -510,8 +523,8 @@ Private Sub GetWindowsTempPath()
             CreateFolder m_WindowsTempPath
         Else
             folder = String(MAX_PATH, 0)
-            ret = GetTempPath(MAX_PATH, folder)
-            If ret <> 0 Then
+            Ret = GetTempPath(MAX_PATH, folder)
+            If Ret <> 0 Then
                 m_WindowsTempPath = AppendSlash(Left(folder, InStr(folder, Chr(0)) - 1))
             Else
                 m_WindowsTempPath = Me.LocalTempPath
@@ -567,7 +580,7 @@ Private Sub GetStandardLogFile()
     
     Err.Clear
 FINISHED:
-    If Err.Number <> 0 Then
+    If Err.number <> 0 Then
         m_StandardLogFile = Me.LocalLogFile
         Err.Clear
     End If
@@ -1050,7 +1063,7 @@ End Function
 
 Public Function NewIniPath(iniFile$)
     Dim arr$()
-    Dim name$
+    Dim Name$
     Dim x%
     
     NewIniPath = iniFile
@@ -1060,16 +1073,16 @@ Public Function NewIniPath(iniFile$)
             If UCase(Right$(iniFile, 4)) = ".INI" Then
                 arr = Split(iniFile, "\")
                 x = UBound(arr)
-                name = UCase(arr(x))
-                Select Case name
+                Name = UCase(arr(x))
+                Select Case Name
                     Case "FACTOR.INI", "IQFACT.INI"
-                        NewIniPath = m_WorkingFolder & UCase(m_sDSN) & "\" & name
+                        NewIniPath = m_WorkingFolder & UCase(m_sDSN) & "\" & Name
                     Case "ETETFSETUP.INI"
                         If Len(DatabaseName) > 0 Then
-                            NewIniPath = EDIXLATEPath & name
+                            NewIniPath = EDIXLATEPath & Name
                         End If
                     Case Else
-                        NewIniPath = m_WorkingFolder & name
+                        NewIniPath = m_WorkingFolder & Name
                 End Select
             End If
         End If
@@ -1114,16 +1127,16 @@ Public Function GetDirectory(filePath As String) As String
 End Function
 
 Public Function ReadINIString(configFile$, section$, key$, Optional defaultValue$ = "")
-    Dim ret As Long
+    Dim Ret As Long
     Dim value$
     Dim file$
     
     file = NewIniPath(configFile)
     
     value = Space$(256)
-    ret = GetPrivateProfileString(section, key, defaultValue, value, Len(value), file)
-    If ret > 0 Then
-        ReadINIString = Left$(value, ret)
+    Ret = GetPrivateProfileString(section, key, defaultValue, value, Len(value), file)
+    If Ret > 0 Then
+        ReadINIString = Left$(value, Ret)
     Else
         ReadINIString = defaultValue
     End If
@@ -1222,7 +1235,7 @@ End Function
 ' Connecting to database
 '********************************************************************
 
-Private Function GetConnectionString() As String
+Public Function GetConnectionString() As String
     Dim sTemp As String
     Dim sODBCKey As String
     Dim sDatabase As String
@@ -1238,10 +1251,12 @@ Private Function GetConnectionString() As String
     
     Call SetODBCINIPath(m_sDSN)
     
-    m_sUID = "ssfactor"
-    m_sPWD = "menus"
-    
     sODBCKey = m_sODBC_INI_Path & sDSN
+    
+    If Len(m_sUID) < 1 Or Len(m_sPWD) < 1 Then
+        Call LoadDSNSettings(m_sDSN, m_sUID, m_sPWD)
+    End If
+    
     m_sServer = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
     m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
     If Trim(m_sHost) = "" Then
@@ -1390,7 +1405,7 @@ Private Function RemoveNull(szStr As String) As String
 
 End Function
 
-Private Function GetWorkingFolder(db As DataBase) As String
+Private Function GetWorkingFolder(db As Database) As String
     Dim SQL$
     Dim parm15$
     Dim folder$
@@ -1419,6 +1434,8 @@ Private Function GetWorkingFolder(db As DataBase) As String
                 m_WorkingFolder = AppendSlash(folder)
             End If
         End If
+        
+        If Len(m_WorkingFolder) < 1 Then m_MultiDatabase = False
     End If
     
     GetWorkingFolder = m_WorkingFolder
@@ -1512,4 +1529,96 @@ Public Function GetDatabasePath(connectionString As String) As String
 
 End Function
 
+Public Sub LoadDSNSettings(ByVal dsnName As String, ByRef userName As String, ByRef password As String)
+    Dim sBuffer As String
+    Dim Ret As Long
+    Dim hToken As Long
+    Dim file As String
+    Dim encrypted$
+    
+    userName = ""
+    password = ""
+    
+    sBuffer = String(MAX_PATH, 0)
+    OpenProcessToken GetCurrentProcess, TOKEN_QUERY, hToken
+    GetUserProfileDirectory hToken, sBuffer, MAX_PATH
+    file = TrimNull(sBuffer)
+    
+    If Len(file) > 0 Then
+        file = AppendSlash(file) & "factorsettings.ini"
+        Ret = GetPrivateProfileString(dsnName, "right", "", sBuffer, MAX_PATH, file)
+        If Ret > 0 Then
+            userName = TrimNull(sBuffer)
+        End If
+        Ret = GetPrivateProfileString(dsnName, "left", "", sBuffer, MAX_PATH, file)
+        password = DecryptText(TrimNull(sBuffer), ENCRYPT_KEY)
+    End If
+    
+    If Len(userName) < 1 Then userName = "nousername"
+    If Len(password) < 1 Then password = "password"
 
+End Sub
+
+Public Sub SaveDSNSettings(ByVal dsnName As String, ByVal userName As String, ByVal password As String)
+    Dim sBuffer As String
+    Dim Ret As Long
+    Dim hToken As Long
+    Dim file As String
+    Dim encrypted$
+    
+    sBuffer = String(MAX_PATH, 0)
+    OpenProcessToken GetCurrentProcess, TOKEN_QUERY, hToken
+    GetUserProfileDirectory hToken, sBuffer, MAX_PATH
+    file = TrimNull(sBuffer)
+    
+    If Len(file) > 0 Then
+        file = AppendSlash(file) & "factorsettings.ini"
+        encrypted = EncryptText(password, ENCRYPT_KEY)
+        WritePrivateProfileString dsnName, "right", userName, file
+        WritePrivateProfileString dsnName, "left", encrypted, file
+    End If
+    
+End Sub
+
+'********************************************************************
+' ENCRYPTION ROUTINES
+' http://www.developerfusion.com/code/157/encryptdecrypt/
+'********************************************************************
+
+Public Function EncryptText(strText As String, ByVal strPwd As String)
+    Dim i As Integer, c As Integer
+    Dim strBuff As String
+
+    'Encrypt string
+    If Len(strPwd) Then
+        For i = 1 To Len(strText)
+            c = Asc(Mid$(strText, i, 1))
+            c = c + Asc(Mid$(strPwd, (i Mod Len(strPwd)) + 1, 1))
+            strBuff = strBuff & Chr$(c And &HFF)
+        Next i
+    Else
+        strBuff = strText
+    End If
+    
+    EncryptText = strBuff
+
+End Function
+
+Public Function DecryptText(strText As String, ByVal strPwd As String)
+    Dim i As Integer, c As Integer
+    Dim strBuff As String
+
+    'Decrypt string
+    If Len(strPwd) Then
+        For i = 1 To Len(strText)
+            c = Asc(Mid$(strText, i, 1))
+            c = c - Asc(Mid$(strPwd, (i Mod Len(strPwd)) + 1, 1))
+            strBuff = strBuff & Chr$(c And &HFF)
+        Next i
+    Else
+        strBuff = strText
+    End If
+    
+    DecryptText = strBuff
+
+End Function
