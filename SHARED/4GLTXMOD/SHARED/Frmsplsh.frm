@@ -544,7 +544,7 @@ Private Function fnIsPath(sPath As String) As Boolean
 
     On Error Resume Next
     ChDir sPath
-    If Err.Number > 0 Then
+    If Err.number > 0 Then
         fnIsPath = False
     Else
         fnIsPath = True
@@ -570,7 +570,7 @@ Private Function fnIsFile(ByVal szFilename As String) As Boolean
     Exit Function
 errNotFile:
     #If DEVELOP Then
-        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
+        MsgBox "Error # " & Err.number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
     #End If
 End Function
 
@@ -600,7 +600,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
         If Not fnIsPath(sPath) Then
             Err.Clear
             MkDir sPath
-            If Err.Number <> 0 Then
+            If Err.number <> 0 Then
                 Exit Function
             End If
         End If
@@ -907,7 +907,7 @@ Private Sub btnOK_Click()
     Me.Hide
         
     Set io = New CommonIO
-    Call io.LoadViaDSN(m_sDSN)
+    Call io.LoadViaDSN(m_sDSN, m_sUID, m_sPWD)
     
     subShowMainForm
     
@@ -916,7 +916,7 @@ Private Sub btnOK_Click()
 errTrap:
     Screen.MousePointer = vbDefault
     
-    If Err.Number = 5 Then
+    If Err.number = 5 Then
         m_sConnectionError = "Data Source Name is not valid."
         
         If Not m_bAutoConnect Then
@@ -925,7 +925,7 @@ errTrap:
         End If
     Else
         m_sConnectionError = "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
-            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "."
+            Err.number & vbCrLf & "Error Desc: " + Err.Description + "."
         
         If Not m_bAutoConnect Then
             subCriticalMsg m_sConnectionError + vbCrLf + vbCrLf + _
@@ -1064,7 +1064,7 @@ Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     picFrame.Line (X1, Y2 - 2 * Screen.TwipsPerPixelY)-(X1, Y1), LINE_COLOR2
 End Sub
 
-Public Function connect(sDSN As String, _
+Public Function Connect(sDSN As String, _
                         sUID As String, _
                         sPWD As String, _
                         Optional sErrMsg As String = "") As Boolean
@@ -1081,9 +1081,9 @@ Public Function connect(sDSN As String, _
     
     If m_sConnectionError <> "" Then
         sErrMsg = m_sConnectionError
-        connect = False
+        Connect = False
     Else
-        connect = True
+        Connect = True
     End If
 End Function
 

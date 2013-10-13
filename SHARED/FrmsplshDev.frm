@@ -458,18 +458,18 @@ Private Function fnParentDir(sCurr As String) As String
     End If
 End Function
 
-Private Sub subGetDSN_INFO(sDsn As String, sDatabase As String, _
+Private Sub subGetDSN_INFO(sDSN As String, sDatabase As String, _
                            sHost As String, _
                            sUserID As String, _
                            sPassword As String)
     
     Dim sODBCKey As String
     
-    If Not fnSetODBCINIPath(sDsn) Then
+    If Not fnSetODBCINIPath(sDSN) Then
         Exit Sub
     End If
     
-    sODBCKey = m_sODBC_INI_Path & sDsn
+    sODBCKey = m_sODBC_INI_Path & sDSN
     
     sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
     
@@ -549,7 +549,7 @@ Private Function fnIsPath(sPath As String) As Boolean
 
     On Error Resume Next
     ChDir sPath
-    If Err.Number > 0 Then
+    If Err.number > 0 Then
         fnIsPath = False
     Else
         fnIsPath = True
@@ -575,7 +575,7 @@ Private Function fnIsFile(ByVal szFilename As String) As Boolean
     Exit Function
 errNotFile:
     #If DEVELOP Then
-        MsgBox "Error # " & Err.Number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
+        MsgBox "Error # " & Err.number & vbCrLf & "Error Message: " & Err.Description & " - " & szFilename
     #End If
 End Function
 
@@ -605,7 +605,7 @@ Private Function fnPreparePath(sOrigPath As String) As Boolean
         If Not fnIsPath(sPath) Then
             Err.Clear
             MkDir sPath
-            If Err.Number <> 0 Then
+            If Err.number <> 0 Then
                 Exit Function
             End If
         End If
@@ -680,7 +680,7 @@ Private Function fnExtractName(sFile As String, _
     End If
 End Function
 
-Private Function fnNeedFocus(txtBox As TextBox) As Boolean
+Private Function fnNeedFocus(txtBox As Textbox) As Boolean
     If Trim(txtBox.Text) = "" Then
         subSetFocus txtBox
         fnNeedFocus = True
@@ -689,7 +689,7 @@ Private Function fnNeedFocus(txtBox As TextBox) As Boolean
     End If
 End Function
 
-Private Sub subSelectText(txtBox As TextBox)
+Private Sub subSelectText(txtBox As Textbox)
 
     txtBox.SelStart = 0
     txtBox.SelLength = Len(txtBox.Text)
@@ -910,7 +910,7 @@ Private Sub btnOK_Click()
     t_szConnect = fnConnectString(m_sDSN)
     
     Set io = New CommonIO
-    Call io.LoadViaDSN(m_sDSN)
+    Call io.LoadViaDSN(m_sDSN, m_sUID, m_sPWD)
     
     Me.Hide
     
@@ -923,7 +923,7 @@ Private Sub btnOK_Click()
 errTrap:
     Screen.MousePointer = vbDefault
     
-    If Err.Number = 5 Then
+    If Err.number = 5 Then
         m_sConnectionError = "Data Source Name is not valid."
         
         If Not m_bAutoConnect Then
@@ -932,7 +932,7 @@ errTrap:
         End If
     Else
         m_sConnectionError = "An error has occurred." + vbCrLf + vbCrLf + "Error Code: " & _
-            Err.Number & vbCrLf & "Error Desc: " + Err.Description + "."
+            Err.number & vbCrLf & "Error Desc: " + Err.Description + "."
         
         If Not m_bAutoConnect Then
             subCriticalMsg m_sConnectionError + vbCrLf + vbCrLf + _
@@ -944,15 +944,15 @@ End Sub
 
 Private Sub cmbDataSet_Click()
 
-    Dim sDsn As String
+    Dim sDSN As String
     Dim sDatabase As String
     Dim sHost As String
     Dim sUserID As String
     Dim sPassword As String
     
-    sDsn = Trim(cmbDataSet.Text)
+    sDSN = Trim(cmbDataSet.Text)
     
-    subGetDSN_INFO sDsn, sDatabase, sHost, sUserID, sPassword
+    subGetDSN_INFO sDSN, sDatabase, sHost, sUserID, sPassword
     
     txtDatabase.Text = Trim(sDatabase)
     txtHost.Text = Trim(sHost)
@@ -975,7 +975,7 @@ Private Sub cmbDataSet_KeyPress(KeyAscii As Integer)
 End Sub
 
 Private Sub Form_Activate()
-    Dim sDsn As String
+    Dim sDSN As String
     Dim sUser As String
     Dim i As Long
     Dim ary() As String
@@ -984,12 +984,12 @@ Private Sub Form_Activate()
     Screen.MousePointer = vbHourglass
     
     ary = Split(fnGetDefaultExeDsnUser(), ",")
-    sDsn = Trim(ary(0))
+    sDSN = Trim(ary(0))
     sUser = Trim(ary(1))
     
-    If sDsn <> "" Then
+    If sDSN <> "" Then
         For i = 0 To cmbDataSet.ListCount - 1
-            If cmbDataSet.List(i) = sDsn Then
+            If cmbDataSet.List(i) = sDSN Then
                 cmbDataSet.ListIndex = i
                 
                 If sUser <> "" Then
@@ -1117,7 +1117,7 @@ Private Sub subMakeVSLookFrame(picFrame As PictureBox)
     picFrame.Line (X1, Y2 - 2 * Screen.TwipsPerPixelY)-(X1, Y1), LINE_COLOR2
 End Sub
 
-Public Function Connect(sDsn As String, _
+Public Function Connect(sDSN As String, _
                         sUID As String, _
                         sPWD As String, _
                         Optional sErrMsg As String = "") As Boolean
@@ -1125,7 +1125,7 @@ Public Function Connect(sDsn As String, _
     m_bAutoConnect = True
     m_sConnectionError = ""
     
-    cmbDataSet = sDsn
+    cmbDataSet = sDSN
     cmbDataSet_Click
     txtUserName = sUID
     txtPassword = sPWD
@@ -1182,7 +1182,7 @@ Private Function fnGetDataSources(plstObject As ComboBox) As Integer
             If InStr(1, szDriverDescription, szDRIVER_DESCRIPTION) > 0 Then 'check for application Driver
                 If Not szDataSourceName = szSECURITY Then 'don'y display security entry it its exists
                     plstObject.AddItem szDataSourceName   'add to DataSourceName ListBox if true
-                    colDrivers.Add Item:=szDriverDescription, Key:=szDataSourceName 'save driver using DataSourceName as Key
+                    colDrivers.Add Item:=szDriverDescription, key:=szDataSourceName 'save driver using DataSourceName as Key
                 End If
             End If
 
@@ -1215,7 +1215,7 @@ Private Sub subCriticalMsg(sMsg As String, _
 End Sub
 
 'david 10/30/00
-Private Function fnConnectString(sDsn As String) As String
+Private Function fnConnectString(sDSN As String) As String
 
     Dim sTemp As String
     Dim sODBCKey As String
@@ -1223,9 +1223,9 @@ Private Function fnConnectString(sDsn As String) As String
     
     '#429933 - DenBorg - 7/21/2005
     'm_sODBC_INI_Path and m_lODBC_INI_Key was not being initialized
-    fnSetODBCINIPath sDsn
+    fnSetODBCINIPath sDSN
     
-    sODBCKey = m_sODBC_INI_Path & sDsn
+    sODBCKey = m_sODBC_INI_Path & sDSN
     m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME)
     If Trim(m_sHost) = "" Then
         m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_HOST)
@@ -1234,7 +1234,7 @@ Private Function fnConnectString(sDsn As String) As String
         m_sHost = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVERNAME2)
     End If
     
-    fnConnectString = "ODBC;DSN=" & sDsn & ";UID=" & m_sUID & ";PWD=" & m_sPWD
+    fnConnectString = "ODBC;DSN=" & sDSN & ";UID=" & m_sUID & ";PWD=" & m_sPWD
     sDatabase = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_DATABASE)
     fnConnectString = fnConnectString & ";DB=" & sDatabase & ";HOST=" & m_sHost
     sTemp = QueryValue(m_lODBC_INI_Key, sODBCKey, szODBC_SERVICE)
@@ -1380,21 +1380,21 @@ Private Function tfnWriteINI(szSection As String, szKey As String, szValue As St
     tfnWriteINI = bStatus
 End Function
 
-Public Function fnSetODBCINIPath(sDsn As String) As Boolean
+Public Function fnSetODBCINIPath(sDSN As String) As Boolean
     Dim sTemp As String
     
     m_sODBC_INI_Path = szODBC_REG_KEY2
     m_lODBC_INI_Key = HKEY_CURRENT_USER
-    sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDsn, szODBC_DATABASE)
+    sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
     If sTemp = "" Then
         m_sODBC_INI_Path = szODBC_REG_KEY2
         m_lODBC_INI_Key = HKEY_LOCAL_MACHINE
-        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDsn, szODBC_DATABASE)
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
     End If
     If sTemp = "" Then
         m_sODBC_INI_Path = szODBC_REG_KEY1
         m_lODBC_INI_Key = HKEY_USERS
-        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDsn, szODBC_DATABASE)
+        sTemp = QueryValue(m_lODBC_INI_Key, m_sODBC_INI_Path & sDSN, szODBC_DATABASE)
     End If
     If sTemp = "" Then
         fnSetODBCINIPath = False
@@ -1405,30 +1405,30 @@ End Function
 
 Public Sub GetODBCINIPath(lODBCKey As Long, _
                            sODBCPath As String, _
-                           sDsn As String)
+                           sDSN As String)
     Dim sTemp As String
     
     sODBCPath = szODBC_REG_KEY2
     lODBCKey = HKEY_CURRENT_USER
-    sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+    sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
     If sTemp = "" Then
         sODBCPath = szODBC_REG_KEY1
         lODBCKey = HKEY_USERS
-        sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+        sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
         If sTemp = "" Then
             sODBCPath = szODBC_REG_KEY2
             lODBCKey = HKEY_LOCAL_MACHINE
-            sTemp = QueryValue(lODBCKey, sODBCPath & sDsn, PARM_DATABASE)
+            sTemp = QueryValue(lODBCKey, sODBCPath & sDSN, PARM_DATABASE)
         End If
     End If
 End Sub
 
-Public Function DBConnect(sDsn As String, sUID As String, sPWD As String, Optional sHost As String = "") As String
+Public Function DBConnect(sDSN As String, sUID As String, sPWD As String, Optional sHost As String = "") As String
     
     m_sUID = sUID
     m_sPWD = sPWD
     
-    DBConnect = fnConnectString(sDsn)
+    DBConnect = fnConnectString(sDSN)
 End Function
 
 Private Sub txtUserName_LostFocus()
@@ -1439,6 +1439,6 @@ Private Sub txtUserName_LostFocus()
     End If
 End Sub
 
-Public Property Get dsn() As String
-    dsn = m_sDSN
+Public Property Get DSN() As String
+    DSN = m_sDSN
 End Property
