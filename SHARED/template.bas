@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -676,8 +676,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -709,7 +709,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -740,7 +740,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
             & " WHERE (Parm_Nbr=5)"
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                Disable = (UCase$(Trim$(.Fields(0).Value & "")) = "Y")
+                Disable = (UCase$(Trim$(.Fields(0).value & "")) = "Y")
             End If
             .Close
         End With
@@ -749,7 +749,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
                 & "  FROM Sys_Parm" _
                 & " WHERE (Parm_Nbr=3)"
             With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-                sDBVer = Trim$(.Fields(0).Value)
+                sDBVer = Trim$(.Fields(0).value)
                 lDBVer = DBVersionToLong(sDBVer & "00", False)
                 .Close
             End With
@@ -780,7 +780,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
+Public Function tfn_Delete_SYS_INI(ByVal fileName As String, _
                                    ByVal UserID As String, _
                                    ByVal section As String, _
                           Optional ByVal Field As String = vbNullString, _
@@ -792,13 +792,13 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     
     On Error GoTo ErrorHandler
     
-    Filename = Trim$(UCase$(Filename))
+    fileName = Trim$(UCase$(fileName))
     UserID = Trim$(UCase$(UserID))
     section = Trim$(UCase$(section))
     Field = Trim$(UCase$(Field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & Filename & "')" _
+        & " WHERE (INI_File_Name='" & fileName & "')" _
         & "   AND (INI_Section='" & section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -838,7 +838,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -861,7 +861,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -909,7 +909,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -927,7 +927,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-ErrTrap:
+errTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -979,11 +979,11 @@ Public Function tfnGetUserName() As String
         tfnGetUserName = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+        tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+                tfnGetUserName = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
             End If
         Else
             tfnGetUserName = t_oleObject.userName
@@ -1036,7 +1036,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1587,12 +1587,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1602,7 +1602,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1735,7 +1735,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1880,7 +1880,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1888,7 +1888,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2220,12 +2220,12 @@ End Function
 'Variables: object to test
 'Return   : true if NULL, false if not
 '
-Public Function tfnIsNull(Value As Variant) As Boolean
+Public Function tfnIsNull(value As Variant) As Boolean
     
     Dim szTest As String
     
     On Error GoTo NULL_ERROR
-    szTest = Value
+    szTest = value
         
     tfnIsNull = False
     Exit Function
@@ -2435,7 +2435,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2608,19 +2608,19 @@ Public Function tfnGetHostName() As String
         tfnGetHostName = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "HOST")
+        tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
         
         If Trim(tfnGetHostName) = "" Then
-            tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "SRVR")
+            tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "SRVR")
         End If
         
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "HOST")
+                tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "HOST")
                 
                 If Trim(tfnGetHostName) = "" Then
-                    tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.connect, "SRVR")
+                    tfnGetHostName = tfnGetNamedString(t_dbMainDatabase.Connect, "SRVR")
                 End If
             End If
 '        Else
@@ -2636,12 +2636,12 @@ Public Function tfnGetPassword() As String
         tfnGetPassword = "ssfactor"
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.connect, "PWD")
+        tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
         
     #Else
 '        If t_oleObject Is Nothing Then
             If Not t_dbMainDatabase Is Nothing Then
-                tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.connect, "PWD")
+                tfnGetPassword = tfnGetNamedString(t_dbMainDatabase.Connect, "PWD")
             End If
             If Trim(tfnGetPassword) = "" Then
                 tfnGetPassword = tfnGetNamedString(t_szConnect, "PWD")
@@ -2662,14 +2662,14 @@ Public Function tfnGetDataSourceName() As String
     #If DEVELOP Or (FACTOR_MENU >= 0) Then
         If t_dbMainDatabase Is Nothing Then Exit Function
             
-        tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.connect, "DSN")
+        tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
     #Else
             If Not t_oleObject Is Nothing Then
                 tfnGetDataSourceName = t_oleObject.factorPath
             Else
                 'david 11/15/2001
                 If Not t_dbMainDatabase Is Nothing Then
-                    tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.connect, "DSN")
+                    tfnGetDataSourceName = tfnGetNamedString(t_dbMainDatabase.Connect, "DSN")
                 Else
                     tfnGetDataSourceName = ""
                 End If
@@ -2706,14 +2706,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2810,7 +2810,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2915,7 +2915,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2937,7 +2937,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3292,10 +3292,10 @@ Public Function tfnLockRow(sProgramID As String, _
         strSQL = "SELECT * FROM " & sTable & " WHERE ROWID = 1"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         rsTemp.Close
-        sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
     #Else
         If t_oleObject Is Nothing Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
         Else
             sUserID = t_oleObject.userName
         End If
@@ -3525,7 +3525,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3555,14 +3555,14 @@ Public Function tfnLockRow_EX(sProgramID As String, _
     #If FACTOR_MENU Then
         If sUserID = "" Then
             If t_oleObject Is Nothing Then
-                sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
             Else
                 sUserID = t_oleObject.userName
             End If
         End If
     #Else
         If sUserID = "" Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
         End If
     #End If
 
@@ -3742,7 +3742,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If ProtoType Then
+    #If PROTOTYPE Then
         Exit Sub
     #End If
     
@@ -3759,14 +3759,14 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
     #If FACTOR_MENU Then
         If sUserID = "" Then
             If t_oleObject Is Nothing Then
-                sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+                sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
             Else
                 sUserID = t_oleObject.userName
             End If
         End If
     #Else
         If sUserID = "" Then
-            sUserID = tfnGetNamedString(t_dbMainDatabase.connect, "UID")
+            sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, "UID")
         End If
     #End If
     
@@ -3878,7 +3878,7 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
@@ -3920,9 +3920,9 @@ Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As St
     Dim sDBName As String
     Dim i As Integer
     
-    sDBPath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH1)
+    sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(sDBPath) = "" Then
-        sDBPath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH2)
+        sDBPath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
     
     If bKeepSlashFactor Then
@@ -3948,9 +3948,9 @@ Public Function GetDatabasePath() As String
     Const CONNECT_DBPATH1 = ";DB"
     Const CONNECT_DBPATH2 = "DATABASE"
     
-    GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH1)
+    GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH1)
     If Trim(GetDatabasePath) = "" Then
-        GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.connect, CONNECT_DBPATH2)
+        GetDatabasePath = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_DBPATH2)
     End If
 
 End Function
@@ -3967,7 +3967,7 @@ End Function
 
 Public Function tfn_Read_SYS_INI(sFileName As String, _
                                  sUserID As String, _
-                                 sSection As String, _
+                                 sSECTION As String, _
                                  sField As String, _
                                  Optional bShowError As Boolean = True, _
                                  Optional ByRef bRecordFound As Boolean) As String
@@ -3995,10 +3995,10 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
         strSQL = strSQL & " AND (ini_user_id is Null OR ini_user_id = '')"
     End If
     
-    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSection))
+    strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSECTION))
     strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -4007,7 +4007,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -4031,7 +4031,7 @@ End Function
 
 Public Function tfn_Write_SYS_INI(sFileName As String, _
                               ByVal sUserID As String, _
-                              sSection As String, _
+                              sSECTION As String, _
                               sField As String, _
                               sValue As String, _
                               Optional bShowError As Boolean = True, _
@@ -4048,10 +4048,10 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     'null means we need to insert other wise update
     
     If Not bAlwaysInsert Then
-        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSection, sField, , bRecordFound)
+        sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSECTION, sField, , bRecordFound)
     End If
         
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
@@ -4061,14 +4061,14 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
         strSQL = "UPDATE sys_ini SET ini_value = " + tfnSQLString(sValue)
         strSQL = strSQL + " WHERE ini_file_Name = " + tfnSQLString(UCase(sFileName))
         strSQL = strSQL + " AND ini_user_id " + IIf(LenB(sUserID) > 0, "=" & sUserID, "IS NULL")
-        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSection))
+        strSQL = strSQL + " AND ini_section = " + tfnSQLString(UCase(sSECTION))
         strSQL = strSQL + " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     Else
         strSQL = "INSERT INTO sys_ini (ini_file_Name,ini_user_id,ini_section,"
         strSQL = strSQL + "ini_field_Name,ini_value) VALUES ("
         strSQL = strSQL + tfnSQLString(UCase(sFileName)) + ","
         strSQL = strSQL + IIf(LenB(sUserID) > 0, sUserID, "NULL") + ","
-        strSQL = strSQL + tfnSQLString(UCase(sSection)) + ","
+        strSQL = strSQL + tfnSQLString(UCase(sSECTION)) + ","
         strSQL = strSQL + tfnSQLString(UCase(sField)) + ","
         strSQL = strSQL + tfnSQLString(sValue) + ")"
     End If
@@ -4077,7 +4077,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     tfn_Write_SYS_INI = True
     Exit Function
         
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -4506,7 +4506,7 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     '537311 - Chris Albrecht - 11/7/2006
     Static sSysParm7900 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     fnInvoiceOK = ""
     bError = False
@@ -4768,7 +4768,7 @@ TRY_AGAIN:
     
     Exit Function
     
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -4942,7 +4942,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
         
         On Error Resume Next
         If Not DirExists(sParentDir) Then ' replace DIR with UNC compatible function
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -4955,7 +4955,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     Wend
     Exit Function
 
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
             tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
@@ -5141,10 +5141,10 @@ Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
         
         'form position record does not exist
         If UBound(coords) >= 3 Then
-            sngLeft = Val(coords(0))
-            sngTop = Val(coords(1))
-            sngWidth = Val(coords(2))
-            sngHeight = Val(coords(3))
+            sngLeft = val(coords(0))
+            sngTop = val(coords(1))
+            sngWidth = val(coords(2))
+            sngHeight = val(coords(3))
             
             coordinates = sngLeft & "," & _
                           sngTop & "," & _
@@ -5222,10 +5222,10 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
     coords = Split(coordinates, ",")
     
     If UBound(coords) >= 3 Then
-        sngLeft = Val(coords(0))
-        sngTop = Val(coords(1))
-        sngWidth = Val(coords(2))
-        sngHeight = Val(coords(3))
+        sngLeft = val(coords(0))
+        sngTop = val(coords(1))
+        sngWidth = val(coords(2))
+        sngHeight = val(coords(3))
         
         If sngLeft < 0 Then sngLeft = frm.Left
         If sngTop < 0 Then sngTop = frm.Top
@@ -5254,7 +5254,7 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         frm.Move sngLeft, sngTop, sngWidth, sngHeight
         
         If bSetWindowState And UBound(coords) > 3 Then
-            If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))
+            If val(coords(4)) >= 0 Then frm.WindowState = val(coords(4))
         End If
         
         tfnSetFormPositionSize = True
@@ -5271,7 +5271,7 @@ Public Function GetServiceTrakHostedFolder() As String
     SQL = "select parm_field from sys_parm where parm_nbr = 15"
     With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
         If Not .EOF Then
-            parm15 = UCase$(Trim$(.Fields(0).Value & ""))
+            parm15 = UCase$(Trim$(.Fields(0).value & ""))
         End If
         .Close
     End With
@@ -5280,7 +5280,7 @@ Public Function GetServiceTrakHostedFolder() As String
     If parm15 = "Y" Then
         With t_dbMainDatabase.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
             If Not .EOF Then
-                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).Value & ""))
+                GetServiceTrakHostedFolder = UCase$(Trim$(.Fields(0).value & ""))
             End If
             .Close
         End With
@@ -5288,4 +5288,52 @@ Public Function GetServiceTrakHostedFolder() As String
     
 End Function
 
+'*************************************************************************
+'Gemini #6694 Daryl Bishop 10/9/2013
+'Get customer printers from hostmstr (factor global) database to limit
+'printer select list to only those for customer.
+'!!!!Expects to be in hosted environment!!!!
+'*************************************************************************
+Public Function fnGetMasterPrinterRecords() As String()
+    Dim engine As New DBEngine
+    Dim ws As Workspace
+    Dim db As DataBase
+    Dim rs As Recordset
+    Dim Connect As String
+    Dim SQL As String
+    Dim printerList As String
+    Dim sPrinters() As String
+    
+    printerList = "|"
+        
+    
+    Set ws = engine.Workspaces(0)
+    
+    Connect = "ODBC;DSN=printermstr;UID=drwho;PWD=gL0b@!dB;DB=/master/hostmstr;HOST=ether;SERV=sqlexec;YLD=;"
+    Connect = Connect & "CB=0;PRO=sesoctcp;DB_LOCALE=en_US.819;CLIENT_LOCALE=en_US.CP1252;SERVER=ether"
+    
+    Set db = ws.OpenDatabase("", False, False, Connect)
+    
+    SQL = "select shp_printer_name from sys_host_printers where shp_company = '" & Replace(tfnGetDbName(), "'", "''") & "' "
+    SQL = SQL & "order by shp_printer_name"
+    Set rs = db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+    If rs.RecordCount > 0 Then
+        While Not rs.EOF
+            printerList = printerList & Trim(rs(0)) & "|"
+            rs.MoveNext
+        Wend
+        printerList = Mid$(printerList, 2, Len(printerList) - 2)
+    End If
+    printerList = Replace(printerList, "lp", "")
+    If printerList = "|" Or printerList = "||" Then
+        printerList = ""
+    End If
+    
+    If printerList <> "" Then
+        sPrinters = Split(printerList, "|")
+    End If
+    
+    fnGetMasterPrinterRecords = sPrinters()
+
+End Function
 
