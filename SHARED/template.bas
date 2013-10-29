@@ -5308,9 +5308,6 @@ Public Function fnGetMasterPrinterRecords() As String()
     Dim printerList As String
     Dim sPrinters() As String
     
-    printerList = "|"
-        
-    
 '    Set ws = engine.Workspaces(0)
 '
 '    Connect = "ODBC;DSN=printermstr;UID=drwho;PWD=gL0b@!dB;DB=/master/hostmstr;HOST=ether;SERV=sqlexec;YLD=;"
@@ -5329,13 +5326,15 @@ Public Function fnGetMasterPrinterRecords() As String()
 '        printerList = Mid$(printerList, 2, Len(printerList) - 2)
 '    End If
 '    printerList = Replace(printerList, "lp", "")
-printerList = CallForPrinterList
-    If printerList = "|" Or printerList = "||" Then
-        printerList = ""
-    End If
+    
+    ReDim sPrinters(0)
+    
+    printerList = CallForPrinterList()
     
     If printerList <> "" Then
         sPrinters = Split(printerList, "|")
+    Else
+        ReDim sPrinters(0)
     End If
     
     fnGetMasterPrinterRecords = sPrinters()
@@ -5400,7 +5399,15 @@ Public Function CallForPrinterList() As String
         DoEvents
     Wend
     
-    printerList = frmContext.txtPrinterList.Text
+    printerList = ""
+    
+    If frmContext.txtPrinterList.Text = "*NOPRINTERS*" Then
+        printerList = ""
+    ElseIf Left(frmContext.txtPrinterList.Text, 7) = "*ERROR*" Then
+        MsgBox Mid(frmContext.txtPrinterList.Text, 8)
+    Else
+        printerList = frmContext.txtPrinterList.Text
+    End If
     
     CallForPrinterList = printerList    'check for NODB
     
