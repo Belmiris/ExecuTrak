@@ -5311,24 +5311,25 @@ Public Function fnGetMasterPrinterRecords() As String()
     printerList = "|"
         
     
-    Set ws = engine.Workspaces(0)
-    
-    Connect = "ODBC;DSN=printermstr;UID=drwho;PWD=gL0b@!dB;DB=/master/hostmstr;HOST=ether;SERV=sqlexec;YLD=;"
-    Connect = Connect & "CB=0;PRO=sesoctcp;DB_LOCALE=en_US.819;CLIENT_LOCALE=en_US.CP1252;SERVER=ether"
-    
-    Set db = ws.OpenDatabase("", False, False, Connect)
-    
-    SQL = "select shp_printer_name from sys_host_printers where shp_company = '" & Replace(tfnGetDbName(), "'", "''") & "' "
-    SQL = SQL & "order by shp_printer_name"
-    Set rs = db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
-    If rs.RecordCount > 0 Then
-        While Not rs.EOF
-            printerList = printerList & Trim(rs(0)) & "|"
-            rs.MoveNext
-        Wend
-        printerList = Mid$(printerList, 2, Len(printerList) - 2)
-    End If
-    printerList = Replace(printerList, "lp", "")
+'    Set ws = engine.Workspaces(0)
+'
+'    Connect = "ODBC;DSN=printermstr;UID=drwho;PWD=gL0b@!dB;DB=/master/hostmstr;HOST=ether;SERV=sqlexec;YLD=;"
+'    Connect = Connect & "CB=0;PRO=sesoctcp;DB_LOCALE=en_US.819;CLIENT_LOCALE=en_US.CP1252;SERVER=ether"
+'
+'    Set db = ws.OpenDatabase("", False, False, Connect)
+'
+'    SQL = "select shp_printer_name from sys_host_printers where shp_company = '" & Replace(tfnGetDbName(), "'", "''") & "' "
+'    SQL = SQL & "order by shp_printer_name"
+'    Set rs = db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+'    If rs.RecordCount > 0 Then
+'        While Not rs.EOF
+'            printerList = printerList & Trim(rs(0)) & "|"
+'            rs.MoveNext
+'        Wend
+'        printerList = Mid$(printerList, 2, Len(printerList) - 2)
+'    End If
+'    printerList = Replace(printerList, "lp", "")
+printerList = CallForPrinterList
     If printerList = "|" Or printerList = "||" Then
         printerList = ""
     End If
@@ -5355,7 +5356,7 @@ Public Function fnIsMasterPrinterRecords(sPrinterName As String) As Boolean
     Dim sTemp As String
     sMstrPrinterList = fnGetMasterPrinterRecords()
     sTemp = Trim$(LCase$(sPrinterName))
-    sTemp = Replace(sTemp, "lp", "")
+    'sTemp = Replace(sTemp, "lp", "")
     sTemp = Replace(sTemp, ":", "")
     For i = 0 To UBound(sMstrPrinterList)
         If Trim$(LCase$(sMstrPrinterList(i))) = sTemp Then
