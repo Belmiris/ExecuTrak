@@ -546,6 +546,8 @@ Public Const GENERIC7_UP = 32707
 Public Const TEXT_HEIGHT As Integer = 390
 Public Const CURSOR_RESET As Integer = -1   'used to set cursor back to the default condition
 
+Public Const NOPRINTERS As String = "*NODB*"
+
 Public Type CursorMode
 
     nFrameCount As Integer
@@ -604,6 +606,8 @@ Public t_bUseActiveCustOnly As Boolean   'Sam Zheng on 07/29/2004 #427047
 Private nDefaultQueryTimeout As Integer  'david 05/27/2008
 '
 Public io As CommonIO           '5875 SHARED\CLSFILES\CommonIO.cls
+
+Public printerList As String    ' Hosted printer fix.
 
 '---------------------------------------------------------------------------------------
 ' Procedure : DBVersionToLong
@@ -676,8 +680,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -709,7 +713,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -780,7 +784,7 @@ Public Function ReqdDBaseVersionMet() As Boolean
     ReqdDBaseVersionMet = DB_OK
 End Function
 
-Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
+Public Function tfn_Delete_SYS_INI(ByVal fileName As String, _
                                    ByVal UserID As String, _
                                    ByVal section As String, _
                           Optional ByVal field As String = vbNullString, _
@@ -792,13 +796,13 @@ Public Function tfn_Delete_SYS_INI(ByVal Filename As String, _
     
     On Error GoTo ErrorHandler
     
-    Filename = Trim$(UCase$(Filename))
+    fileName = Trim$(UCase$(fileName))
     UserID = Trim$(UCase$(UserID))
     section = Trim$(UCase$(section))
     field = Trim$(UCase$(field))
     
     SQL = "DELETE FROM SYS_INI" _
-        & " WHERE (INI_File_Name='" & Filename & "')" _
+        & " WHERE (INI_File_Name='" & fileName & "')" _
         & "   AND (INI_Section='" & section & "')"
     If LenB(UserID) Then
         SQL = SQL & "   AND (INI_User_ID ='" & UserID & "')"
@@ -1036,7 +1040,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1084,7 +1088,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1531,11 +1535,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.number = 3146 Then
+    If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1587,12 +1591,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1735,7 +1739,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -1880,7 +1884,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1888,7 +1892,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2231,7 +2235,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.number = 94 Then
+    If Err.Number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2435,7 +2439,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2706,14 +2710,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2848,7 +2852,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.number = 3051 Then
+    If Err.Number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3882,8 +3886,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.number <> 0 Then
-        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -5141,10 +5145,10 @@ Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
         
         'form position record does not exist
         If UBound(coords) >= 3 Then
-            sngLeft = Val(coords(0))
-            sngTop = Val(coords(1))
-            sngWidth = Val(coords(2))
-            sngHeight = Val(coords(3))
+            sngLeft = val(coords(0))
+            sngTop = val(coords(1))
+            sngWidth = val(coords(2))
+            sngHeight = val(coords(3))
             
             coordinates = sngLeft & "," & _
                           sngTop & "," & _
@@ -5222,10 +5226,10 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
     coords = Split(coordinates, ",")
     
     If UBound(coords) >= 3 Then
-        sngLeft = Val(coords(0))
-        sngTop = Val(coords(1))
-        sngWidth = Val(coords(2))
-        sngHeight = Val(coords(3))
+        sngLeft = val(coords(0))
+        sngTop = val(coords(1))
+        sngWidth = val(coords(2))
+        sngHeight = val(coords(3))
         
         If sngLeft < 0 Then sngLeft = frm.Left
         If sngTop < 0 Then sngTop = frm.Top
@@ -5254,7 +5258,7 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         frm.Move sngLeft, sngTop, sngWidth, sngHeight
         
         If bSetWindowState And UBound(coords) > 3 Then
-            If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))
+            If val(coords(4)) >= 0 Then frm.WindowState = val(coords(4))
         End If
         
         tfnSetFormPositionSize = True
@@ -5362,4 +5366,43 @@ Public Function fnIsMasterPrinterRecords(sPrinterName As String) As Boolean
 
 SQLError:
     fnIsMasterPrinterRecords = False
+End Function
+
+Public Function CallForPrinterList() As String
+    Dim frm As Form
+    Dim Cmd$
+    Dim unloadFrm As Boolean
+    Dim times As Integer
+    
+    ' See if frmContext is loaded
+    unloadFrm = True
+    For Each frm In Forms
+        If frm.Name = "frmContext" Then
+            unloadFrm = False
+            Exit For
+        End If
+    Next
+    
+    frmContext.txtPrinterList = ""
+    
+    Cmd = App.Path
+    Cmd = IIf(Right(Cmd, 1) = "\", Cmd & "PrintMaster.exe", Cmd & "\PrintMaster.exe")
+    Cmd = Cmd & " " & CStr(frmContext.txtPrinterList.hWnd) & " " & Chr(34) & t_szConnect & Chr(34)
+    
+    Shell Cmd, vbHide
+    DoEvents
+    
+    While frmContext.txtPrinterList.Text = ""
+        tfnWaitSeconds 1
+        times = times + 1
+        If times > 5 Then Exit Function
+        DoEvents
+    Wend
+    
+    printerList = frmContext.txtPrinterList.Text
+    
+    CallForPrinterList = printerList    'check for NODB
+    
+    If unloadFrm Then Unload frmContext
+    
 End Function

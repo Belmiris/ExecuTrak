@@ -1,16 +1,23 @@
 VERSION 5.00
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.1#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmContext 
    Caption         =   "Toolbar Kit"
-   ClientHeight    =   1485
+   ClientHeight    =   2070
    ClientLeft      =   690
    ClientTop       =   5385
    ClientWidth     =   2160
    LinkTopic       =   "Form2"
    PaletteMode     =   1  'UseZOrder
-   ScaleHeight     =   1485
+   ScaleHeight     =   2070
    ScaleWidth      =   2160
    Visible         =   0   'False
+   Begin VB.TextBox txtPrinterList 
+      Height          =   315
+      Left            =   240
+      TabIndex        =   2
+      Top             =   1380
+      Width           =   1215
+   End
    Begin VB.PictureBox pctStatusbar 
       Appearance      =   0  'Flat
       BackColor       =   &H00C0C0C0&
@@ -509,7 +516,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
                 Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
             mnuContextItems(i + 1).Tag = sTag
@@ -607,7 +614,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If Val(App.Minor) < 20 Then
+    If val(App.minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
@@ -641,7 +648,7 @@ Private Function fnGetFactorPath() As String
     Dim sTemp As String
     Dim nPosi As Integer
     
-    sTemp = UCase(App.path)
+    sTemp = UCase(App.Path)
     
     nPosi = InStrRev(sTemp, "\")
     
@@ -811,3 +818,11 @@ Public Function GetProductVersion(ByVal FullFileName As String, Optional bShowMs
     '**** Determine File Version number ****
     GetProductVersion = Format$(udtVerBuffer.dwFileVersionMSh) & "." & Format$(udtVerBuffer.dwFileVersionMSl) & "." & Format$(udtVerBuffer.dwFileVersionLSh) & "." & Format$(udtVerBuffer.dwFileVersionLSl)
 End Function
+
+Private Sub txtPrinterList_Change()
+    
+    If Len(txtPrinterList.Text) > 0 Then
+        printerList = Trim(txtPrinterList.Text)
+    End If
+    
+End Sub
