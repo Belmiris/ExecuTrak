@@ -187,7 +187,7 @@ Public Sub LoadViaDSN(DSN As String, Optional USER As String = "", Optional pwd 
     Dim Connect$
     Dim engine As DBEngine
     Dim ws As Workspace
-    Dim db As Database
+    Dim db As DataBase
     
     m_sDSN = DSN
     If Len(Trim(USER)) > 0 Then m_sUID = Trim(USER)
@@ -208,7 +208,7 @@ Public Sub LoadViaDSN(DSN As String, Optional USER As String = "", Optional pwd 
 
 End Sub
 
-Public Sub LoadViaDatabase(DSN As String, db As Database)
+Public Sub LoadViaDatabase(DSN As String, db As DataBase)
     
     m_sDSN = Trim(DSN)
     If Len(m_sDSN) < 1 Then Call Err.Raise(-1, , "CommonIO.LoadViaDatabase(): dsn parameter cannot be empty!")
@@ -869,7 +869,7 @@ Private Function AppendDSN(ByVal Path$) As String
     If Len(WorkingFolder) > 0 Then
         AppendDSN = AppendDSNToPath(Path)
     Else
-        AppendDSN = Path
+        AppendDSN = AppendSlash(Path)
     End If
     
 End Function
@@ -1405,7 +1405,7 @@ Private Function RemoveNull(szStr As String) As String
 
 End Function
 
-Private Function GetWorkingFolder(db As Database) As String
+Private Function GetWorkingFolder(db As DataBase) As String
     Dim SQL$
     Dim parm15$
     Dim folder$
