@@ -52,6 +52,11 @@ Private sOrderByString As String
 'david 01/28/2002
 Private bSortAscending As Boolean
 '''''''''''''''''
+
+'david 11/16/2013  #6035-772641
+'0:not set, use global, -1:Yes, show dropdown on key Enter, 1:No, goto next column on key Enter
+Private nSearchOnReturn As Integer
+'''''''''''''''''''''''''''''''
 '
 
 Property Get Caption() As String
@@ -255,4 +260,14 @@ End Property
 
 Property Let PrevOrderIsAscending(bFields As Boolean)
     bSortAscending = bFields
+End Property
+
+'0:not set, use global, -1:Yes, show dropdown on key Enter, 1:No, goto next column on key Enter
+Property Let SearchOnReturn(nValue As Integer)
+    nSearchOnReturn = nValue
+End Property
+
+Property Get SearchOnReturn() As Integer
+    '0:not set, use global, -1:Yes, show dropdown on key Enter, 1:No, goto next column on key Enter
+    SearchOnReturn = nSearchOnReturn
 End Property
