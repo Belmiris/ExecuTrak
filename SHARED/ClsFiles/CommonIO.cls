@@ -186,8 +186,8 @@ End Type
 Public Sub LoadViaDSN(DSN As String, Optional USER As String = "", Optional pwd = "")
     Dim Connect$
     Dim engine As DBEngine
-    Dim ws As Workspace
-    Dim db As DataBase
+    Dim ws As workspace
+    Dim db As database
     
     m_sDSN = DSN
     If Len(Trim(USER)) > 0 Then m_sUID = Trim(USER)
@@ -208,7 +208,7 @@ Public Sub LoadViaDSN(DSN As String, Optional USER As String = "", Optional pwd 
 
 End Sub
 
-Public Sub LoadViaDatabase(DSN As String, db As DataBase)
+Public Sub LoadViaDatabase(DSN As String, db As database)
     
     m_sDSN = Trim(DSN)
     If Len(m_sDSN) < 1 Then Call Err.Raise(-1, , "CommonIO.LoadViaDatabase(): dsn parameter cannot be empty!")
@@ -580,7 +580,7 @@ Private Sub GetStandardLogFile()
     
     Err.Clear
 FINISHED:
-    If Err.number <> 0 Then
+    If Err.Number <> 0 Then
         m_StandardLogFile = Me.LocalLogFile
         Err.Clear
     End If
@@ -1090,9 +1090,9 @@ Public Function NewIniPath(iniFile$)
     
 End Function
 
-Public Function GetFactorINIValue(section$, key$, Optional defaultValue$ = "")
+Public Function GetFactorINIValue(section$, Key$, Optional defaultValue$ = "")
     
-    GetFactorINIValue = ReadINIString(Me.FactorConfigurationFile, section, key, defaultValue)
+    GetFactorINIValue = ReadINIString(Me.FactorConfigurationFile, section, Key, defaultValue)
     
 End Function
 
@@ -1126,7 +1126,7 @@ Public Function GetDirectory(filePath As String) As String
     
 End Function
 
-Public Function ReadINIString(configFile$, section$, key$, Optional defaultValue$ = "")
+Public Function ReadINIString(configFile$, section$, Key$, Optional defaultValue$ = "")
     Dim Ret As Long
     Dim value$
     Dim file$
@@ -1134,7 +1134,7 @@ Public Function ReadINIString(configFile$, section$, key$, Optional defaultValue
     file = NewIniPath(configFile)
     
     value = Space$(256)
-    Ret = GetPrivateProfileString(section, key, defaultValue, value, Len(value), file)
+    Ret = GetPrivateProfileString(section, Key, defaultValue, value, Len(value), file)
     If Ret > 0 Then
         ReadINIString = Left$(value, Ret)
     Else
@@ -1143,12 +1143,12 @@ Public Function ReadINIString(configFile$, section$, key$, Optional defaultValue
     
 End Function
 
-Public Function WriteINIString(configFile$, section$, key$, value$) As Long
+Public Function WriteINIString(configFile$, section$, Key$, value$) As Long
     Dim file$
     
     file = NewIniPath(configFile)
     
-    WriteINIString = WritePrivateProfileString(section, key, value, file)
+    WriteINIString = WritePrivateProfileString(section, Key, value, file)
     
 End Function
 
@@ -1405,7 +1405,7 @@ Private Function RemoveNull(szStr As String) As String
 
 End Function
 
-Private Function GetWorkingFolder(db As DataBase) As String
+Private Function GetWorkingFolder(db As database) As String
     Dim SQL$
     Dim parm15$
     Dim folder$
@@ -1622,3 +1622,53 @@ Public Function DecryptText(strText As String, ByVal strPwd As String)
     DecryptText = strBuff
 
 End Function
+
+Public Function DeleteFile(filePath As String, Optional showError As Boolean = True) As Boolean
+    On Error GoTo FINISHED
+    
+    If Me.FileExists(filePath) Then
+        Kill filePath
+    End If
+    
+    DeleteFile = True
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        If showError Then
+            MsgBox "Failed to delete file '" & filePath & "': " & Err.Description
+        End If
+    End If
+End Function
+
+Public Function CopyFile(sourceFile As String, targetFile As String, Optional overWrite As Boolean = True, Optional showError As Boolean = True) As Boolean
+    On Error GoTo FINISHED
+    
+    If Not io.FileExists(sourceFile) Then
+        If showError Then MsgBox "Failed to copy file '" & sourceFile & "'. File not found."
+        Exit Function
+    End If
+    
+    If Me.FileExists(targetFile) Then
+        If overWrite Then
+            If Not Me.DeleteFile(targetFile, showError) Then
+                Exit Function
+            End If
+        Else
+            If showError Then MsgBox "Cannot copy file '" & sourceFile & "' to '" & targetFile & "'. Target file already exists."
+            Exit Function
+        End If
+    End If
+    
+    FileCopy sourceFile, targetFile
+    CopyFile = True
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        If showError Then
+            MsgBox "Failed to copy file '" & sourceFile & "' to '" & targetFile & "': " & Err.Description
+        End If
+    End If
+End Function
+

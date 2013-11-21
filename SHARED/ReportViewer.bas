@@ -40,6 +40,8 @@ Private Function ShellReportViewer(xtraPostData As String, settings As String) A
     Dim i As Integer
     Dim lTempInstance As Long
     Dim lTempHWND As Long
+    Dim hosted As Boolean
+    Dim printers As String
     
     Set engine = New DBEngine
     Set workspace = engine.Workspaces(0)
@@ -56,7 +58,7 @@ Private Function ShellReportViewer(xtraPostData As String, settings As String) A
     strTempDatabaseName = tfnGetNamedString(database.Connect, "DATABASE")
     
     If strTempDatabaseName = "ssfactor" Then
-        strTempDatabaseName = database.name
+        strTempDatabaseName = database.Name
     End If
     
     If strTempDatabaseName = "" Then
@@ -76,7 +78,18 @@ Private Function ShellReportViewer(xtraPostData As String, settings As String) A
     End If
             
     ' DATABSE NAME
-    strDBName = database.name
+    strDBName = database.Name
+    
+    ' PRINTERS? Gemini 6707
+    hosted = DatabaseIsHosted(database)
+    If hosted Then
+        fnGetMasterPrinterRecords
+        If Len(printerList) > 0 And printerList <> NOPRINTERSFOUND Then
+            printers = printerList
+        Else
+            printers = "*NOPRINTERS*"
+        End If
+    End If
     
     ' CLOSE DATABASE
     database.Close
@@ -87,12 +100,14 @@ Private Function ShellReportViewer(xtraPostData As String, settings As String) A
     
     ' BUILD COMMAND LINE
     strReportServerURL = "http://" & strTempHostName & "/cgi-bin/reportsrv.cgi"
+    
     strPostData = "USERNAME=" & strUser & "&PASSWORD=" & strPass
     strPostData = strPostData & "&DATABASE=" & strTempDatabaseName
     strPostData = strPostData & "&PROGPATH=" & strProgPath
+    If Len(printers) Then strPostData = strPostData & "&PRINTERS=" & printers
     If Len(xtraPostData) Then strPostData = strPostData & xtraPostData
     
-    strCmd = App.path & "\" & "ReportViewer.exe"
+    strCmd = App.Path & "\" & "ReportViewer.exe"
     If Dir$(strCmd) = "" Then
         MsgBox "Unable to find file '" + strCmd + "'"
         ShellReportViewer = False
@@ -126,7 +141,7 @@ FINISHED:
     End If
 End Function
 
-Private Function fnDefaultParm(sSECTION As String, _
+Private Function fnDefaultParm(sSection As String, _
                                sKey As String, _
                                sDefault As String) As String
     Dim sIniFileName As String
@@ -138,12 +153,12 @@ Private Function fnDefaultParm(sSECTION As String, _
     
     sBuffer = Space(MAX_STRING_LENGTH)
     
-    nLength = GetPrivateProfileString(sSECTION, sKey, "", sBuffer, MAX_STRING_LENGTH, sIniFileName)
+    nLength = GetPrivateProfileString(sSection, sKey, "", sBuffer, MAX_STRING_LENGTH, sIniFileName)
     
     If nLength <> 0 Then
         fnDefaultParm = Left(sBuffer, nLength)
     Else
-        WritePrivateProfileString sSECTION, sKey, sDefault, sIniFileName
+        WritePrivateProfileString sSection, sKey, sDefault, sIniFileName
         fnDefaultParm = sDefault
     End If
 
@@ -167,6 +182,24 @@ Private Function DetermineReportHost(host As String, strProgPath As String)
     
     If StrComp(strSvcHostName, "factor", vbTextCompare) <> 0 Then
         DetermineReportHost = strSvcHostName
+    End If
+    
+End Function
+
+Public Function DatabaseIsHosted(db As database) As Boolean
+    Dim SQL$
+    Dim parm16$
+    
+    SQL = "select parm_field from sys_parm where parm_nbr = 16"
+    With db.OpenRecordset(SQL, dbOpenSnapshot, dbSQLPassThrough)
+        If Not .EOF Then
+            parm16 = UCase$(Trim$(.Fields(0).value & ""))
+        End If
+        .Close
+    End With
+    
+    If parm16 = "Y" Then
+        DatabaseIsHosted = True
     End If
     
 End Function
