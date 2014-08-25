@@ -6982,7 +6982,7 @@ Public Sub txMod_ProcessPassThruTax(m_local As DataBase, lMovement As Long)
         While Not .EOF
             fTaxAmt = fnGetLadingPassThruTax(rsTemp, m_local, lMovement)
             
-            If fTaxAmt <> -99999.99999 Then
+            If fTaxAmt <> -99999.99999 And fTaxAmt <> 0 Then    '7393
                 strSQL = "update MTaxDetail"
                 strSQL = strSQL + " set fTaxAmount = " & tfnRound(fTaxAmt, 2)
                 strSQL = strSQL + " where lMovement = " & lMovement
