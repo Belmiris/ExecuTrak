@@ -246,7 +246,7 @@ Public Property Get ApplicationPath() As String
 End Property
 
 Public Property Let ApplicationPath(ByVal value As String)
-    ApplicationPath = value
+    m_ApplicationPath = value
 End Property
 
 Public Property Get StandardLogPath() As String
