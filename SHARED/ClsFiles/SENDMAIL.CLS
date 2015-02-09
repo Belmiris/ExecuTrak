@@ -18,13 +18,27 @@ Option Explicit
 '   shared\clsfiles directory into your project.
 '2. Include TASK.BAS (modTASK) in shared directory into your project.
 
+Private Declare Function OpenProcess Lib "kernel32" _
+    (ByVal dwDesiredAccess As Long, _
+    ByVal bInheritHandle As Long, _
+    ByVal dwProcessId As Long) As Long
+    
+Private Declare Function WaitForSingleObject Lib "kernel32" _
+    (ByVal hHandle As Long, _
+    ByVal dwMilliseconds As Long) As Long
+    
+Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
+
+Const SYNCHRONIZE = &H100000
+Const INFINITE = &HFFFFFFFF
+
 'used with fixed length strings - normally with windows api calls
 Const MAX_STRING_LENGTH As Integer = 255
 Const szEMPTY As String = ""
 'david 11/14/2001 commented out, use the template definition
 'Const szFACTOR_INI As String = "FACTOR.INI" 'application INI filename
 
-Const sSECTION As String = "SendMail_Info"
+Const sSection As String = "SendMail_Info"
 Const sSECTION_OLD As String = "Old_SendMail"
 Const sKEY_emailaddress As String = "emailaddress"
 Const sKEY_subject As String = "subject"
@@ -50,6 +64,7 @@ Private m_RenameAftSent As String
 Private m_RenameTo As String
 Private m_LogID As String
 Private m_ErrorMessage As String
+Private m_lastCommandLine As String
 '
 
 'interface properties
@@ -57,10 +72,10 @@ Property Set LogListBox(lstList As ListBox)
     Set m_lstLog = lstList
 End Property
 
-Property Let UserName(sParm As String)
+Property Let userName(sParm As String)
     m_UserName = sParm
 End Property
-Property Let Password(sParm As String)
+Property Let password(sParm As String)
     m_Password = sParm
 End Property
 Property Let SendTo(sParm As String)
@@ -89,6 +104,10 @@ Property Get ErrorMessage() As String
     ErrorMessage = m_ErrorMessage
 End Property
 
+Public Property Get LastCommandLine() As String
+    LastCommandLine = m_lastCommandLine
+End Property
+
 'return an error message if failed
 Public Function LaunchSENDMAIL(Optional nWait As Integer = 20) As String
     Const SUB_NAME As String = "LaunchSENDMAIL"
@@ -107,6 +126,7 @@ Public Function LaunchSENDMAIL(Optional nWait As Integer = 20) As String
     
     m_ProgramPath = ""
     m_ErrorMessage = ""
+    m_lastCommandLine = ""
     
     'check current directory
     m_ProgramPath = App.Path
@@ -149,40 +169,57 @@ Public Function LaunchSENDMAIL(Optional nWait As Integer = 20) As String
         GoTo errSendMailError
     End If
     
+    m_lastCommandLine = sParm
+    m_lastCommandLine = Replace(m_lastCommandLine, m_Password, "*password*")
+    m_lastCommandLine = sExeFile & " " & m_lastCommandLine
+    
+    Screen.MousePointer = vbHourglass
+    
     'Launch SENDMAIL program
     dfBeginRun = Timer
-    If Not fnRunExe(sExeFile + " " + sParm, , , False) Then
-        m_ErrorMessage = "Failed to run SENDMAIL program."
+    If Not RunSendmailAndWait(sExeFile + " " + sParm, vbHide) Then
+        m_ErrorMessage = "Failed to run SENDMAIL program: " & m_ErrorMessage
         tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
         LaunchSENDMAIL = m_ErrorMessage
         Exit Function
     End If
-        
-    sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
-    subAddLog sMsg
     
-    Screen.MousePointer = vbHourglass
+    If Not bMoursePointerIsSet Then Screen.MousePointer = vbDefault
     
-    'busy waiting for EDI Translation Processor to finish
-    dfTimer = Timer
-    Do
-        Screen.MousePointer = vbHourglass
-        DoEvents
-        If Timer - dfTimer > 2100 Then
-            m_ErrorMessage = "SENDMAIL program time out."
-            tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
-            LaunchSENDMAIL = m_ErrorMessage
-            Exit Function
-        End If
-        
-        Screen.MousePointer = vbHourglass
-        
-        Wait nWait
-    Loop While fnExeIsRunning(sExeFile)
-    
-    If Not bMoursePointerIsSet Then
-        Screen.MousePointer = vbDefault
-    End If
+'    'Launch SENDMAIL program
+'    dfBeginRun = Timer
+'    If Not fnRunExe(sExeFile + " " + sParm, , , False) Then
+'        m_ErrorMessage = "Failed to run SENDMAIL program."
+'        tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+'        LaunchSENDMAIL = m_ErrorMessage
+'        Exit Function
+'    End If
+'
+'    sMsg = "Start Launching Program: " + sExeFile + "  " + sParm
+'    subAddLog sMsg
+'
+'    Screen.MousePointer = vbHourglass
+'
+'    'busy waiting for EDI Translation Processor to finish
+'    dfTimer = Timer
+'    Do
+'        Screen.MousePointer = vbHourglass
+'        DoEvents
+'        If Timer - dfTimer > 2100 Then
+'            m_ErrorMessage = "SENDMAIL program time out."
+'            tfnErrHandler SUB_NAME, -1, m_ErrorMessage, False
+'            LaunchSENDMAIL = m_ErrorMessage
+'            Exit Function
+'        End If
+'
+'        Screen.MousePointer = vbHourglass
+'
+'        Wait nWait
+'    Loop While fnExeIsRunning(sExeFile)
+'
+'    If Not bMoursePointerIsSet Then
+'        Screen.MousePointer = vbDefault
+'    End If
     
     sMsg = "Program Finished. Running Time: " & Timer - dfBeginRun & " seconds."
     subAddLog sMsg
@@ -360,20 +397,20 @@ End Function
 
 Private Sub subWriteSendMailInfo()
     'store the key values in [SendMail_Info]
-    tfnWriteINI sSECTION, sKEY_emailaddress, m_SendTo, tfnGetWindowsDir() + szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_subject, m_Subject, tfnGetWindowsDir() + szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_message, m_Message, tfnGetWindowsDir() + szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_attachment, m_Attachment, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_emailaddress, m_SendTo, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_subject, m_Subject, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_message, m_Message, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_attachment, m_Attachment, tfnGetWindowsDir() + szFACTOR_INI
     If m_DeleteAftSent = "" Then
         m_DeleteAftSent = "false"
     End If
-    tfnWriteINI sSECTION, sKEY_delete_after_sent, m_DeleteAftSent, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_delete_after_sent, m_DeleteAftSent, tfnGetWindowsDir() + szFACTOR_INI
     If m_RenameAftSent = "" Then
         m_RenameAftSent = "false"
     End If
-    tfnWriteINI sSECTION, sKEY_rename_after_sent, m_RenameAftSent, tfnGetWindowsDir() + szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_rename_to, m_RenameTo, tfnGetWindowsDir() + szFACTOR_INI
-    tfnWriteINI sSECTION, sKEY_logid, m_LogID, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_rename_after_sent, m_RenameAftSent, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_rename_to, m_RenameTo, tfnGetWindowsDir() + szFACTOR_INI
+    tfnWriteINI sSection, sKEY_logid, m_LogID, tfnGetWindowsDir() + szFACTOR_INI
 End Sub
 
 Private Function tfnReadINI(szSection As String, szKey As String, szINIFile As String) As String
@@ -458,3 +495,41 @@ Public Sub ResetVariables()
     m_LogID = ""
     m_ErrorMessage = ""
 End Sub
+
+Private Function RunSendmailAndWait(ByVal pathname As String, windowstyle As VbAppWinStyle) As Boolean
+    Dim ProcessID As Long
+    Dim ProcessHandle As Long
+    Dim wfsoReply As Long
+    Dim nWaitStart As Long
+    
+    ' In VB4, an error occurs if Shell
+    ' fails to start the program
+    On Error GoTo FINISHED
+    
+    ' Shell the program, get its handle,
+    ' and wait for it to terminate
+    nWaitStart = Timer
+    ProcessID = Shell(pathname, windowstyle)
+    ProcessHandle = OpenProcess(SYNCHRONIZE, True, ProcessID)
+    wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Do While wfsoReply = 258
+        DoEvents
+        If (Timer - nWaitStart) > 2100 Then
+            RunSendmailAndWait = False
+            m_ErrorMessage = "Timed out waiting for SendMail.exe to finish"
+            GoTo FINISHED
+        End If
+        wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Loop
+    
+    RunSendmailAndWait = True
+    CloseHandle ProcessHandle
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        m_ErrorMessage = Err.Description
+        RunSendmailAndWait = False
+    End If
+End Function
+
