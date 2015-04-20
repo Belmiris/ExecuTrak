@@ -1,6 +1,10 @@
 Attribute VB_Name = "modAPChk"
 Option Explicit
 
+'#7464 - ACM - 03/23/15
+Public Const MIN_EFT_TRANSACTION_NO As Long = 1000000000
+Public Const MIN_ACH_TRANSACTION_NO As Long = 1500000000
+
 '###################################################################
 '#Ticket #: 417974. WJ 10/27/2003
 '#In what follows, we implement a routine to lock/unlock p_checks.
@@ -36,7 +40,9 @@ End Function
 Public Function fnLockP_Checks(ByVal sPGrp As String, _
                                 ByVal sUser As String, _
                                 ByRef lStart As Long, _
-                                Optional bSingleCheck As Boolean = False) As String
+                                Optional bSingleCheck As Boolean = False, _
+                                Optional bEFTRequest As Boolean = False) As String '#7464 - ACM 03/23/15
+                                
     Const QUERY_FAILED = "SQL query failed. Contact Factor"
     Const TableName = "p_checks"
     Dim strSQL As String
@@ -103,7 +109,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
      End If
       
      
-     '#Unlock any checks done preciously
+     '#Unlock any checks done previously
      subUnlockP_checks
     
      '#If we need to generate check, then do it
@@ -113,13 +119,30 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
         bGenerateStartChk = False
      End If
      If bGenerateStartChk Then
-        strSQL = "SELECT max(pv_check_nbr) max_check_nbr from p_checks WHERE pv_account = " & tfnSQLString(sChkAcct)
+        strSQL = "SELECT MAX(pv_check_nbr) max_check_nbr FROM p_checks WHERE pv_account = " & tfnSQLString(sChkAcct)
+        '#7464 - ACM - 03/23/15
+        If Not bEFTRequest Then
+            strSQL = strSQL & " AND pv_check_nbr < " & CStr(MIN_EFT_TRANSACTION_NO)
+        Else
+            strSQL = strSQL & " AND pv_check_nbr >= " & CStr(MIN_EFT_TRANSACTION_NO) & _
+                              " AND pv_check_nbr < " & CStr(MIN_ACH_TRANSACTION_NO)
+        End If
         lRecCount = apc_GetRecordSet(rsTemp, strSQL)
         If lRecCount < 0 Then
-             fnLockP_Checks = QUERY_FAILED
-             Exit Function
+            fnLockP_Checks = QUERY_FAILED
+            Exit Function
         End If
-        lStart = tfnRound(rsTemp!max_check_nbr) + 1
+        
+        '#7464 - ACM - 03/23/15
+        If IsNull(rsTemp!max_check_nbr) Then
+            If Not bEFTRequest Then
+                lStart = 1
+            Else
+                lStart = MIN_EFT_TRANSACTION_NO
+            End If
+        Else
+            lStart = tfnRound(rsTemp!max_check_nbr) + 1
+        End If
         
         '#Check if any chk # are reserved
         strSQL = "SELECT srl_criteria FROM sys_row_lock" _
