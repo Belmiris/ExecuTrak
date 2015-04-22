@@ -60,6 +60,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
     'Dim sLockData As String * 20
     Dim sLockData As String
     Dim lReservedNbr As Long
+    Dim blnCheckInUse As Boolean '#7464 - ACM - 03/23/15
     
     On Error GoTo errTrap
     
@@ -144,18 +145,34 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
             lStart = tfnRound(rsTemp!max_check_nbr) + 1
         End If
         
-        '#Check if any chk # are reserved
-        strSQL = "SELECT srl_criteria FROM sys_row_lock" _
-                & " WHERE srl_table = '" & TableName & "'" _
-                & " AND srl_criteria[1,17] = '" & Format(sChkAcct, String(17, "0")) & "'"
-        strSQL = strSQL & " ORDER BY srl_criteria DESC"
-        If apc_GetRecordSet(rsTemp, strSQL) > 0 Then
-            sLockData = rsTemp!srl_criteria & ""
-            lReservedNbr = Val(Mid(sLockData, 18, 10))
-            If lStart <= lReservedNbr Then
-                lStart = lReservedNbr + 1
+        '#7464 - ACM - 03/23/15
+       
+'        '#Check if any chk # are reserved
+'        strSQL = "SELECT srl_criteria FROM sys_row_lock" _
+'                & " WHERE srl_table = '" & TableName & "'" _
+'                & " AND srl_criteria[1,17] = '" & Format(sChkAcct, String(17, "0")) & "'"
+'        strSQL = strSQL & " ORDER BY srl_criteria DESC"
+'        If apc_GetRecordSet(rsTemp, strSQL) > 0 Then
+'            sLockData = rsTemp!srl_criteria & ""
+'            lReservedNbr = Val(Mid(sLockData, 18, 10))
+'            If lStart <= lReservedNbr Then
+'                lStart = lReservedNbr + 1
+'            End If
+'        End If
+'        lEnd = lStart + lNumberChecks - 1
+        
+        blnCheckInUse = True
+        Do While blnCheckInUse
+            strSQL = "SELECT srl_criteria FROM sys_row_lock " & _
+                      "WHERE srl_table = '" & TableName & "' " & _
+                        "AND srl_criteria = '" & fnFormatPCheck(sChkAcct, lStart) & "'"
+            lRecCount = apc_GetRecordSet(rsTemp, strSQL)
+            If 0 < lRecCount Then
+                lStart = lStart + 1
+            Else
+                blnCheckInUse = False
             End If
-        End If
+        Loop
         lEnd = lStart + lNumberChecks - 1
      Else
         '#Validate check #s against p_checks!
@@ -172,7 +189,7 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
             fnLockP_Checks = "Check # " & tfnRound(rsTemp!pv_check_nbr) & " is used; it falls between start and end numbers"
             Exit Function
         End If
-    
+        
         '#Check the if any of the check is locked
         strSQL = "SELECT srl_criteria FROM sys_row_lock" _
                 & " WHERE srl_table = '" & TableName & "'" _
@@ -189,7 +206,10 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
     j = 0
     For i = lStart To lEnd
         j = j + 1
-        strSQL = strSQL & "INSERT INTO sys_row_lock VALUES('" & TableName & "'," & tfnSQLString(LCase(App.EXEName)) & ",'" & tfnGetUserName & "','" & fnFormatPCheck(sChkAcct, i) & "',0);"
+        strSQL = strSQL & "INSERT INTO sys_row_lock " & _
+                               "VALUES('" & TableName & "'," & _
+                                       tfnSQLString(LCase(App.EXEName)) & _
+                                       ",'" & tfnGetUserName & "','" & fnFormatPCheck(sChkAcct, i) & "',0);"
         If i = lEnd Or j = 300 Then
             If Not apc_ExecuteSQL(strSQL) Then
                 m_FirstLockedCheck = fnFormatPCheck(sChkAcct, lStart)
