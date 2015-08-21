@@ -4561,8 +4561,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 10#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 2.75
+                Else                               'G-7964
+                    atax_inv = 1.7                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4572,8 +4574,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 20#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 5.5
+                Else                               'G-7964
+                    atax_inv = 3.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4583,8 +4587,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 30#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 8.65
+                Else                               'G-7964
+                    atax_inv = 5.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4594,8 +4600,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 40#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 11#
+                Else                               'G-7964
+                    atax_inv = 6.95                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4609,9 +4617,12 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     incr_amt = 5.5
                     atax_inv = 11#
+                Else                               'G-7964
+                    incr_amt = 3.45                'G-7964
+                    atax_inv = 6.9                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -4689,8 +4700,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 10#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 2.75
+                Else                               'G-7964
+                    atax_inv = 1.7                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4700,8 +4713,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 20#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 5.5
+                Else                               'G-7964
+                    atax_inv = 3.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4711,8 +4726,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 30#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 8.65
+                Else                               'G-7964
+                    atax_inv = 5.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4722,8 +4739,10 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                     atax_inv = 40#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 11#
+                Else                               'G-7964
+                    atax_inv = 6.95                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -4737,9 +4756,12 @@ Private Sub monkey_the_numbers(ByVal dsl_fuel_group As String, _
                 ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     incr_amt = 5.5
                     atax_inv = 11#
+                Else                               'G-7964
+                    incr_amt = 3.45                'G-7964
+                    atax_inv = 6.9                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -7201,8 +7223,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 10#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 2.75
+                Else                               'G-7964
+                    atax_inv = 1.7                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7212,8 +7236,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 20#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 5.5
+                Else                               'G-7964
+                    atax_inv = 3.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7223,8 +7249,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 30#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 8.65
+                Else                               'G-7964
+                    atax_inv = 5.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7234,8 +7262,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 40#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 11#
+                Else                               'G-7964
+                    atax_inv = 6.95                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7249,9 +7279,12 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     incr_amt = 5.5
                     atax_inv = 11#
+                Else                               'G-7964
+                    incr_amt = 3.45                'G-7964
+                    atax_inv = 6.9                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
@@ -7320,8 +7353,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 10#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 3.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 2.75
+                Else                               'G-7964
+                    atax_inv = 1.7                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7331,8 +7366,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 20#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 7.5
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 5.5
+                Else                               'G-7964
+                    atax_inv = 3.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7342,8 +7379,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 30#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 11.75
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 8.65
+                Else                               'G-7964
+                    atax_inv = 5.45                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7353,8 +7392,10 @@ Private Sub Monkey_Lading_ATax_Gallons()
                     atax_inv = 40#
                 ElseIf tax_date < #7/1/2012# Then
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     atax_inv = 11#
+                Else                               'G-7964
+                    atax_inv = 6.95                'G-7964
                 End If
                 ''''''''''''''''''''''''''
             End If
@@ -7368,9 +7409,12 @@ Private Sub Monkey_Lading_ATax_Gallons()
                 ElseIf tax_date < #7/1/2012# Then
                     incr_amt = 7.5
                     atax_inv = 15#
-                Else
+                ElseIf tax_date < #9/1/2015# Then  'G-7964
                     incr_amt = 5.5
                     atax_inv = 11#
+                Else                               'G-7964
+                    incr_amt = 3.45                'G-7964
+                    atax_inv = 6.9                 'G-7964
                 End If
                 ''''''''''''''''''''''''''
                 Do While True
