@@ -120,11 +120,14 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
         bGenerateStartChk = False
      End If
      If bGenerateStartChk Then
-        strSQL = "SELECT MAX(pv_check_nbr) max_check_nbr FROM p_checks WHERE pv_account = " & tfnSQLString(sChkAcct)
+        'strSQL = "SELECT MAX(pv_check_nbr) max_check_nbr FROM p_checks WHERE pv_account = " & tfnSQLString(sChkAcct)
         '#7464 - ACM - 03/23/15
+        '#8014
         If Not bEFTRequest Then
+            strSQL = "SELECT MAX(pv_check_nbr) max_check_nbr FROM p_checks WHERE pv_account = " & tfnSQLString(sChkAcct)
             strSQL = strSQL & " AND pv_check_nbr < " & CStr(MIN_EFT_TRANSACTION_NO)
         Else
+            strSQL = "SELECT MAX(pv_check_nbr) max_check_nbr FROM p_checks WHERE 0 = 0 "
             strSQL = strSQL & " AND pv_check_nbr >= " & CStr(MIN_EFT_TRANSACTION_NO) & _
                               " AND pv_check_nbr < " & CStr(MIN_ACH_TRANSACTION_NO)
         End If
@@ -143,6 +146,17 @@ Public Function fnLockP_Checks(ByVal sPGrp As String, _
             End If
         Else
             lStart = tfnRound(rsTemp!max_check_nbr) + 1
+        End If
+        
+        '#8014
+        If Not bEFTRequest Then
+            If lStart >= MIN_EFT_TRANSACTION_NO Then
+                fnLockP_Checks = "You have run out of non EFT check numbers. Please contact support."
+                Exit Function
+            End If
+        ElseIf lStart >= MIN_ACH_TRANSACTION_NO Then
+            fnLockP_Checks = "You have run out of EFT check numbers. Please contact support."
+            Exit Function
         End If
         
         '#7464 - ACM - 03/23/15
