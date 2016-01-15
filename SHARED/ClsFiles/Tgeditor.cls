@@ -448,10 +448,10 @@ Public Sub AfterColEdit(ByVal ColIndex As Integer)
     Dim nCol As Integer
     Dim lRow As Long
 
-    If IsNull(tgTable.row) Then
+    If IsNull(tgTable.Row) Then
         Exit Sub
     Else
-        If val(tgTable.row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Exit Sub
         End If
     End If
@@ -538,7 +538,7 @@ Public Sub Append(vData() As Variant)
         Exit Sub
     End If
     
-    If tgTable.FirstRow + tgTable.row >= nRowCount - 1 Then
+    If tgTable.FirstRow + tgTable.Row >= nRowCount - 1 Then
         tgTable.Rebind
     End If
 End Sub
@@ -558,11 +558,11 @@ Public Sub BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii As Integer, C
         Cancel = True
         Exit Sub
     End If
-    If IsNull(tgTable.row) Then
+    If IsNull(tgTable.Row) Then
         Cancel = True
         Exit Sub
     Else
-        If val(tgTable.row) < 0 Then
+        If val(tgTable.Row) < 0 Then
             Cancel = True
             Exit Sub
         End If
@@ -828,7 +828,7 @@ Private Function fnCellValue(ByVal nCol As Integer, _
         lCurrRow = lRow - val(tgTable.FirstRow)
     End If
     With tgTable.Columns(nCol)
-        If lCurrRow = tgTable.row Then
+        If lCurrRow = tgTable.Row Then
             sVal = .value
         Else
             sVal = GridArray(nCol, lRow)
@@ -991,7 +991,7 @@ Private Sub fnCheckForValueItem(nKey As Integer)
     With tgTable.Columns(tgTable.col).ValueItems
         If .Count > 0 Then
             For i = 0 To .Count - 1
-                If sKey = UCase(left(.Item(i).DisplayValue, 1)) Then
+                If sKey = UCase(Left(.Item(i).DisplayValue, 1)) Then
                     nInputKey = i
                     Exit For
                 End If
@@ -1016,7 +1016,7 @@ Private Function fnCheckRowValid(ByVal nCol As Integer, _
                 'david 12/06/00
                 'if red error message then Beep
                 If lblStatusbar.ForeColor = &HFF Then
-                    Beep
+                    'Beep
                 End If
             End If
             nAddRowCount = nAddRowCount + 1
@@ -1839,7 +1839,7 @@ Private Sub fnInitialParams()
     nRowCount = 0
     nChangedCount = 0
     nLastColumn = tgTable.col
-    nLastTableRow = tgTable.row
+    nLastTableRow = tgTable.Row
     bCellEditing = False
     lBookMarkCount = 0
     lEditingRow = -1
@@ -2158,17 +2158,17 @@ Public Function IsNewRow() As Boolean
 End Function
 
 Public Sub Rebind()
-    If tgTable.row > 0 Then
+    If tgTable.Row > 0 Then
         On Error Resume Next
         bClearData = True
-        tgTable.row = tgTable.row - 1
+        tgTable.Row = tgTable.Row - 1
         tgTable.Rebind
         If bAllowAddNew Then
             If GetCurrentRowNumber < RowCount - 1 Then
-                tgTable.row = tgTable.row + 1
+                tgTable.Row = tgTable.Row + 1
             End If
         Else
-            tgTable.row = tgTable.row + 1
+            tgTable.Row = tgTable.Row + 1
         End If
         bClearData = False
         On Error GoTo 0
@@ -2291,7 +2291,7 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
             Dim lCurrRow As Long
             Dim bTempLocked As Boolean
             
-            lCurrRow = tgTable.row
+            lCurrRow = tgTable.Row
             
             If lCurrRow < 0 Then
                 Exit Property
@@ -2306,11 +2306,11 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
             
             If lRow >= tgTable.FirstRow And lRow < tgTable.FirstRow + tgTable.VisibleRows Then
                 If lRow = tgTable.FirstRow + tgTable.VisibleRows - 1 And fnIsLastEditableCol() Then
-                    tgTable.row = lRow - tgTable.FirstRow
+                    tgTable.Row = lRow - tgTable.FirstRow
                 ElseIf lRow < tgTable.FirstRow + tgTable.VisibleRows - 1 Then
-                    tgTable.row = lRow - tgTable.FirstRow
+                    tgTable.Row = lRow - tgTable.FirstRow
                 ElseIf lRow <= tgTable.VisibleRows Then
-                    tgTable.row = lRow
+                    tgTable.Row = lRow
                 End If
                 
                 If sDisplayFormat(nCol) = "" Then
@@ -2321,7 +2321,7 @@ Property Let CellValue(ByVal nCol As Integer, ByVal lRow As Long, vValue As Vari
                     tgTable.Columns(nCol).Text = Format$(vValue, sDisplayFormat(nCol))
                 End If
                 
-                tgTable.row = lCurrRow
+                tgTable.Row = lCurrRow
             End If
             
             bLocked = bTempLocked
@@ -2933,7 +2933,7 @@ Private Sub fnFieldNameValue(sName As String, sValue As String, sSrc As String)
     If nPos = 0 Then
         sName = sSrc
     Else
-        sName = Trim$(left$(sSrc, nPos - 1))
+        sName = Trim$(Left$(sSrc, nPos - 1))
         nPos = Len(sSrc) - nPos
         If nPos > 0 Then
             sValue = Trim$(Right(sSrc, nPos))
@@ -3204,7 +3204,7 @@ Private Sub subShowODBCError(Optional vMsg As Variant, _
         #End If
     End If
     If sMsg <> "" Then
-        MsgBox sMsg, vbOKOnly + vbCritical, App.title
+        MsgBox sMsg, vbOKOnly + vbCritical, App.Title
     End If
     Err.Clear
 
@@ -3231,10 +3231,10 @@ Public Function GetCurrentRowNumber() As Long
     Else
         lRow = val(tgTable.FirstRow)
     End If
-    If IsNull(tgTable.row) Then
+    If IsNull(tgTable.Row) Then
         GetCurrentRowNumber = lRow
     Else
-        GetCurrentRowNumber = lRow + val(tgTable.row)
+        GetCurrentRowNumber = lRow + val(tgTable.Row)
     End If
 
 End Function
@@ -3381,7 +3381,7 @@ Public Function Change() As Boolean
         tgTable.SelStart = nCode - 1
         tgTable.SelLength = Len(szText) - tgTable.SelStart
         If tgTable.SelLength > 0 Then
-            Beep
+            'Beep
         End If
     End If
     
@@ -3527,7 +3527,7 @@ Public Sub FillWithArray(arryData() As Variant, _
     bClearData = True
     bErrorFlag = False
     bValidating = True
-    tgTable.row = 0
+    tgTable.Row = 0
     If bClear Then
         If FirstEditableCol < tgTable.Columns.Count Then
             tgTable.col = FirstEditableCol
@@ -3690,7 +3690,7 @@ Public Sub FillWithRecordset(rsTemp As Recordset, _
     
     bClearData = True
     bValidating = True
-    tgTable.row = 0
+    tgTable.Row = 0
     
     If IsMissing(bRefresh) Then
         tgTable.Rebind
@@ -3809,7 +3809,7 @@ Private Function fnGetPatternCode(sRegExp As String)
         If nSize <= 0 Then
             fnGetPatternCode = ""
         Else
-            fnGetPatternCode = left$(szBuffer, nSize)
+            fnGetPatternCode = Left$(szBuffer, nSize)
         End If
     #Else
         fnGetPatternCode = ""
@@ -3869,10 +3869,10 @@ Private Function fnGotoNextRow(Optional bAction As Variant) As Boolean
     End If
 
     If IsMissing(bAction) Then
-        tgTable.row = tgTable.row + 1
+        tgTable.Row = tgTable.Row + 1
     Else
         If bAction Then
-            tgTable.row = tgTable.row + 1
+            tgTable.Row = tgTable.Row + 1
         End If
     End If
     
@@ -3884,7 +3884,7 @@ retTrue:
     Exit Function
 retFalse:
     If Err.Number = 13 Then
-        lRow = tgTable.row
+        lRow = tgTable.Row
         Resume Next
     ElseIf Err.Number = 6148 Then
         SendKeys "{DOWN}", True
@@ -3901,8 +3901,8 @@ Private Function fnGotoPreviousRow() As Boolean
     If nMaxRow = 0 Then
         Exit Function
     End If
-    If tgTable.row > 0 Then
-        tgTable.row = tgTable.row - 1
+    If tgTable.Row > 0 Then
+        tgTable.Row = tgTable.Row - 1
     Else
         If tgTable.FirstRow > 0 Then
             tgTable.FirstRow = tgTable.FirstRow - 1
@@ -3991,7 +3991,7 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
                             On Error Resume Next
                             If tgTable.SelLength = 0 Then
                                 If tgTable.SelStart >= Len(sTemp) Then
-                                    szText = left(sTemp, tgTable.SelStart - 1)
+                                    szText = Left(sTemp, tgTable.SelStart - 1)
                                 Else
                                     szText = Mid(sTemp, 1, tgTable.SelStart - 1) + Mid(sTemp, tgTable.SelStart + 1)
                                 End If
@@ -4129,7 +4129,7 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
                     End If
                     If tgTable.col = FirstEditableCol Then
                         On Error Resume Next
-                        tgTable.row = tgTable.row + 1
+                        tgTable.Row = tgTable.Row + 1
                     End If
                     KeyCode = 0
                     nKeyProcessing = KEY_P_FINISHED
@@ -4166,7 +4166,7 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
                     End If
                     If tgTable.col = FirstEditableCol Then
                         On Error Resume Next
-                        tgTable.row = tgTable.row + 1
+                        tgTable.Row = tgTable.Row + 1
                     End If
                 End If
                 KeyCode = 0
@@ -4233,7 +4233,7 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
                     If lRow > RowCount Then
                         lRow = RowCount
                     End If
-                    tgTable.row = lRow - 1
+                    tgTable.Row = lRow - 1
                     If lRow <= (tgTable.Height \ tgTable.RowHeight) - tgTable.HeadLines Then
                         KeyCode = 0
                     End If
@@ -4241,9 +4241,9 @@ Public Function KeyDown(KeyCode As Integer, Shift As Integer, Optional bRegExpCh
             End If
             
             'Special treatment is need for the following case. Don't know why
-            If tgTable.row = 0 And tgTable.FirstRow = 1 Then
+            If tgTable.Row = 0 And tgTable.FirstRow = 1 Then
                 tgTable.FirstRow = 0
-                tgTable.row = 0
+                tgTable.Row = 0
             End If
         End If
     
@@ -4346,7 +4346,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
                 Else
                     SendKeys "{Right}", True
                 End If
-                Beep
+                'Beep
             Else
                 If KeyAscii = vbKeyReturn Then
                     SendKeys "{Right}", True
@@ -4394,7 +4394,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
     ' get the data up to the cursor position and tack on the key pressed
     sTemp = fnCellValue(tgTable.col, lEditingRow)
     If tgTable.EditActive Then
-        szText = left(sTemp, tgTable.SelStart) & Chr(KeyAscii)
+        szText = Left(sTemp, tgTable.SelStart) & Chr(KeyAscii)
         nLen = Len(sTemp)
         If tgTable.SelStart < nLen Then
             nLen = nLen - (tgTable.SelStart + tgTable.SelLength)
@@ -4411,7 +4411,7 @@ Public Function Keypress(KeyAscii As Integer) As Boolean
     
     If nCode < 0 Or (nCode <> 0 And nCode <> tgTable.SelStart + 2) Then
         Keypress = False
-        Beep
+        'Beep
     Else
         Keypress = True
         If bForcedEditing Then
@@ -4548,9 +4548,9 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
             'david 08/22/2006  #529111 NDR
             'add - 1 so that the correct value of LastRow() will be returned
             If bCheckLastRow And GetCurrentRowNumber() >= RowCount() - 1 Then
-                nLastTableRow = tgTable.row - 1
+                nLastTableRow = tgTable.Row - 1
             Else
-                nLastTableRow = tgTable.row
+                nLastTableRow = tgTable.Row
             End If
             ''''''''''''''''''''''''''''''
             fnShowStatus GetCurrentRowNumber, tgTable.col
@@ -4558,8 +4558,8 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         End If
     End If
     
-    If tgTable.row < 0 Then
-        tgTable.row = nLastTableRow
+    If tgTable.Row < 0 Then
+        tgTable.Row = nLastTableRow
         Exit Function
     End If
     
@@ -4576,7 +4576,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         fnChangeToEditingCol nLastColumn
         fnShowStatus nCurrRow, tgTable.col
         nLastColumn = tgTable.col
-        nLastTableRow = tgTable.row
+        nLastTableRow = tgTable.Row
         RowColChange = True
         Exit Function
     End If
@@ -4593,11 +4593,11 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
     
     If bRowChanging Or nLastTableRow < 0 Or LastRow > nRowCount Then
         nLastColumn = tgTable.col
-        nLastTableRow = tgTable.row
+        nLastTableRow = tgTable.Row
         RowColChange = True
         Exit Function
     End If
-    If LastRow < tgTable.row Then
+    If LastRow < tgTable.Row Then
         'Row changed
         'david 04/06/2004
         'add optional argument to do the last row validation check
@@ -4608,7 +4608,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
             Dim i As Integer
             For i = nColumnCount - 1 To 0 Step -1
                 If Not fnCheckRowValid(i, LastRow) Then
-                    tgTable.row = nLastTableRow
+                    tgTable.Row = nLastTableRow
                     Exit Function
                 End If
             Next
@@ -4628,12 +4628,12 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
     If fnEscapable(nLastColumn, tgTable.col) Or IsNull(GridArray(nLastColumn, LastRow)) And LastRow = nRowCount - 1 Then
         bRowChanging = False
         nLastColumn = tgTable.col     'tgTable.col
-        nLastTableRow = tgTable.row        'tgTable.Row
+        nLastTableRow = tgTable.Row        'tgTable.Row
         RowColChange = True
         Exit Function
     End If
     If nReturnKeyAction = RETURN_KEY_DOWN Then
-        If ((nLastTableRow <> tgTable.row) Or nColumnCount = 1) Then
+        If ((nLastTableRow <> tgTable.Row) Or nColumnCount = 1) Then
             fnCheckForError LastRow
         End If
     Else
@@ -4649,7 +4649,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         End If
         On Error Resume Next
         tgTable.col = nLastColumn
-        tgTable.row = nLastTableRow
+        tgTable.Row = nLastTableRow
 
         If bHighlightInvalidCell Then
             bForcedEditing = True
@@ -4671,7 +4671,7 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         'david 12/06/00
         'if red error message then Beep
         If lblStatusbar.ForeColor = &HFF Then
-            Beep
+            'Beep
         End If
         bRowChanging = False
         RowColChange = False
@@ -4686,9 +4686,9 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
         'david 08/22/2006  #529111 NDR
         'add - 1 so that the correct value of LastRow() will be returned
         If bCheckLastRow And GetCurrentRowNumber() >= RowCount() - 1 Then
-            nLastTableRow = tgTable.row - 1
+            nLastTableRow = tgTable.Row - 1
         Else
-            nLastTableRow = tgTable.row
+            nLastTableRow = tgTable.Row
         End If
         ''''''''''''''''''''''''''''''
     End If
@@ -4696,12 +4696,12 @@ Public Function RowColChange(vLastRow As Variant, ByVal LastCol As Integer, _
     nCol = fnColumnNumber(nLastColumn)
     If nCol >= 0 And nCol < nColumnCount Then
         If tgTable.FirstRow = "" Then
-            nCurrRow = tgTable.row
+            nCurrRow = tgTable.Row
             If nCurrRow <= nRowCount Then
                 fnFetchDefault nCol, nCurrRow
             End If
         Else
-            nCurrRow = tgTable.FirstRow + tgTable.row
+            nCurrRow = tgTable.FirstRow + tgTable.Row
             fnFetchDefault nCol, nCurrRow
         End If
     End If
@@ -6021,7 +6021,7 @@ End Function
         
         bClearData = True
         bValidating = True
-        tgTable.row = 0
+        tgTable.Row = 0
         
         If IsMissing(bRefresh) Then
             tgTable.Rebind

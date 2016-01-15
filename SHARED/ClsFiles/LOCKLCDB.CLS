@@ -95,7 +95,7 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
     End If
     
     lHWnd = m_frmFormMain.hwnd
-    sUser = UserName()
+    sUser = userName()
     sCriteria = m_sFormID + "-" + ComputerName + "[" + tfnGetDataSourceName + "]"
     sDateTime = Format(Now, "yyyymmdd-hhmmss")
     
@@ -109,9 +109,9 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
     
     If rsTemp.RecordCount > 1 Then
         'ERROR!!! local table has already been locked by more than one user
-        Beep
-        Beep
-        Beep
+        'Beep
+        'Beep
+        'Beep
         
         While Not rsTemp.EOF
             sUserList = sUserList + fnCStr(rsTemp!srl_user_id) + "[" + fnCStr(rsTemp!srl_table) + "]" + vbCrLf
@@ -124,9 +124,9 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
         Exit Function
     ElseIf rsTemp.RecordCount > 0 Then
         'local table has already been locked
-        Beep
-        Beep
-        Beep
+        'Beep
+        'Beep
+        'Beep
         
         m_lLockedSerial = tfnRound(rsTemp!srl_nbr)
         sExtraData = GetLockData(fnCStr(rsTemp!srl_criteria))
@@ -138,9 +138,9 @@ Public Function LockLocalTable(ByRef bStealTheLock As Boolean, ByRef sExtraData 
                 " program now.  Choose 'Yes' to overwrite the lock from " + fnCStr(rsTemp!srl_user_id) + "[" + _
                 fnCStr(rsTemp!srl_table) + "]." + vbCrLf + vbCrLf + "Do you want to continue?", _
                 vbExclamation + vbYesNo + vbDefaultButton2) = vbYes Then
-                    Beep
-                    Beep
-                    Beep
+                    'Beep
+                    'Beep
+                    'Beep
                     
                     If MsgBox("WARNING:" + vbCrLf + vbCrLf + "IF PROCEED, ANOTHER INSTANCE OF THE PROGRAM WILL BE TERMINATED! " + _
                        "ANY CHANGES MADE IN THAT PROGRAM WILL BE LOST." + vbCrLf + vbCrLf + "Are you sure you want to continue?", _
@@ -620,7 +620,7 @@ Private Function ComputerName() As String
     ComputerName = Left$(strHostname, InStr(strHostname, Chr$(0)) - 1)
 End Function
 
-Private Function UserName() As String
+Private Function userName() As String
     Dim nSize As Long
     Dim sName As String
     
@@ -630,7 +630,7 @@ Private Function UserName() As String
     
     sName = UCase(fnGetField(Left(sName, nSize - 1)))
     
-    UserName = Trim(sName)
+    userName = Trim(sName)
 End Function
 
 Private Function fnCStr(sIn) As String

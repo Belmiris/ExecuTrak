@@ -476,7 +476,7 @@ Public Sub ShowErrorMessage(txtBox As Object)
             nErr = .m_nStatusFlag
             If .m_nStatusFlag <> STATUS_ERROR_FREE Then
                 .m_nStatusFlag = STATUS_ERROR_WARNING
-                Beep
+                'Beep
             End If
             fnShowStatus nNum
             .m_nInputFlag = nFlg
@@ -916,7 +916,7 @@ Public Function LostFocus2(txtBox As Object, Optional colControls As Collection)
                         Exit Function
                     End If
                     If .m_txtEdit.Enabled Then
-                        Beep
+                        'Beep
                         On Error Resume Next
                         .m_txtEdit.SetFocus
                         .m_txtEdit.SelStart = 0
