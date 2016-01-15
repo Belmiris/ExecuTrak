@@ -204,7 +204,7 @@ Public Function start_of_program(un As String)
     If un <> "logn" Then
         If tstit <> un Then
             If Not bDontShowError Then
-                Beep
+                'Beep
                 MsgBox "You just FAILED your security check", vbCritical, "start_of_program"
                 End 'Exit Program(2734)
             End If
