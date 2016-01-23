@@ -345,14 +345,14 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             #Else
                 'Keep 4-digit-year only if the centuries are different
                 nPos1 = Year(Date) \ 100     'This century
-                nPos2 = Val(sYear) \ 100     'Input century
+                nPos2 = val(sYear) \ 100     'Input century
                 If nPos1 <> nPos2 Then
                     sFmt = FMT_DATE_LONG
                 End If
             #End If
         ElseIf nYearLen <> 2 Then
             tfnFormatDate = sText
-            Beep
+            'Beep
             Exit Function
         End If
         'dTemp = Format(sMonth & DIVIDER & sDay & DIVIDER & sYear, sFmt)
@@ -365,7 +365,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             'Keep the century if it is against 50 years rule, otherwise, drop it
             'Check whether it is against 50 years rule.
             nPos1 = Year(Date)      'This year
-            nPos2 = Val(sYear)     'Input year
+            nPos2 = val(sYear)     'Input year
             If Abs(nPos1 - nPos2) >= 50 Then
                 sFmt = FMT_DATE_LONG
             Else
@@ -462,7 +462,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = Val(sYear)
+        tfnYear = val(sYear)
     End If
 End Function
 
@@ -571,7 +571,7 @@ Public Function tfnRegExpControlKeyPress(ByRef cntl As Control, ByRef KeyAscii A
         Else
             KeyAscii = 0
             tfnRegExpControlKeyPress = False
-            Beep
+            'Beep
         End If
     Else
         tfnRegExpControlKeyPress = True
@@ -619,7 +619,7 @@ Public Function tfnRegExpControlChange(ByRef cntl As Control, ByRef szPattern As
             cntl.SelStart = nCode - 1
             cntl.SelLength = Len(cntl.Text) - cntl.SelStart
             If cntl.SelLength > 0 Then
-                Beep
+                'Beep
             End If
         End If
     
@@ -678,7 +678,7 @@ Public Function tfnRegExpControlDateKeyPress(ByRef cntl As Control, ByRef KeyAsc
         If nCode < 0 Or (nCode <> 0 And nCode <> cntl.SelStart + 2) Then
             KeyAscii = 0
             tfnRegExpControlDateKeyPress = nCode
-            Beep
+            'Beep
         Else
             tfnRegExpControlDateKeyPress = nCode
         End If
@@ -805,7 +805,7 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
+    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
         Exit Function
     Else
         fnFormatTime = sHH + ":" & sMM
@@ -891,7 +891,7 @@ Public Function tfnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
+    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
         Exit Function
     Else
         tfnFormatTime = sHH + ":" & sMM

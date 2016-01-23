@@ -18,14 +18,17 @@ Private Type PROCESSENTRY32
     szExeFile As String * 512
 End Type
 
-Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
-Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hwnd As Long, ByVal wCmd As Long) As Long
-Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
-Private Declare Function IsWindow Lib "user32" (ByVal hwnd As Long) As Long
+Private Const SYNCHRONIZE = &H100000
+Private Const INFINITE = &HFFFFFFFF
+
+Private Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hWnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Private Declare Function fnGetWindow Lib "user32" Alias "GetWindow" (ByVal hWnd As Long, ByVal wCmd As Long) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function IsWindow Lib "user32" (ByVal hWnd As Long) As Long
 Private Declare Function GetDesktopWindow Lib "user32" () As Long
-Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hwnd As Long, lpdwProcessId As Long) As Long
-Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
-Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+Private Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hWnd As Long, lpdwProcessId As Long) As Long
+Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hWnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Private Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
     
 Private Declare Function CreateToolhelp32Snapshot Lib "kernel32.dll" _
             (ByVal dwFlags As Long, _
@@ -43,19 +46,21 @@ Private Declare Function Process32Next Lib "kernel32.dll" _
              lppe As PROCESSENTRY32) As Long
 
 Private Declare Function fnSetFocusAPI Lib "user32" Alias "SetFocus" _
-    (ByVal hwnd As Long) As Long
+    (ByVal hWnd As Long) As Long
 
 Global Const SHELL_OK As Integer = 32
 
 Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Long) As Long
+Private Declare Function OpenProcess2 Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
 Private Declare Function GetExitCodeProcess Lib "kernel32.dll" (ByVal hProcess As Long, ByRef lpExitCode As Long) As Boolean
 Private Declare Function TerminateProcess Lib "kernel32.dll" (ByVal hProcess As Long, ByVal uExitCode As Long) As Boolean
+Private Declare Function WaitForSingleObject Lib "kernel32" (ByVal hHandle As Long, ByVal dwMilliseconds As Long) As Long
 '
 
-Private Function GetWindow(ByVal hwnd As Integer, _
+Private Function GetWindow(ByVal hWnd As Integer, _
                     ByVal wCmd As Integer) As Integer
                     
-    GetWindow = fnUINT2INT(CLng(fnGetWindow(hwnd, wCmd)))
+    GetWindow = fnUINT2INT(CLng(fnGetWindow(hWnd, wCmd)))
     
 End Function
 '
@@ -71,7 +76,7 @@ Public Function EndTask(ByVal hTargetWnd As Long, _
     On Error Resume Next 'turn off error trapping for this function
 
     If Not IsMissing(frmCurrent) Then
-        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hwnd Then
+        If GetWindow(hTargetWnd, GW_OWNER) = frmCurrent.hWnd Then
             EndTask = False
             Exit Function
         End If
@@ -475,30 +480,73 @@ Public Function fnKillProgram(hProgram As Long) As Integer
 End Function
 
 Public Sub subBringWindowToFront(sWindowTitle As String)
-    Dim hwnd As Long
+    Dim hWnd As Long
     
-    hwnd = IsWndRunning(sWindowTitle)
+    hWnd = IsWndRunning(sWindowTitle)
     
-    If hwnd = 0 Then
+    If hWnd = 0 Then
         Exit Sub
     End If
     
-    SetFocusAPI hwnd      'set the focus to the application
+    SetFocusAPI hWnd      'set the focus to the application
 End Sub
 '
 'Function        : fnSetWindowPosition
 'Passed Variables: form window handle, position constant
 'Returns         : none
 '
-Public Sub fnSetWindowPosition(hwnd As Long, nFlag As Long)
+Public Sub fnSetWindowPosition(hWnd As Long, nFlag As Long)
   'On Error Resume Next
-  SetWindowPos hwnd, nFlag, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+  SetWindowPos hWnd, nFlag, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
 End Sub
 
-Function SetFocusAPI(ByVal hwnd As Long) As Long
-    ShowWindow hwnd, SW_SHOWNORMAL
+Function SetFocusAPI(ByVal hWnd As Long) As Long
+    ShowWindow hWnd, SW_SHOWNORMAL
     
-    fnSetWindowPosition hwnd, HWND_TOP
-    SetFocusAPI = fnSetFocusAPI(hwnd)
+    fnSetWindowPosition hWnd, HWND_TOP
+    SetFocusAPI = fnSetFocusAPI(hWnd)
+End Function
+
+'****************************
+' Include the command line in strExePathCmd
+' Example:
+' sExeFile + " " + sParm
+'****************************
+Public Function ShellProgramAndWait(ByVal strExePathCmd As String, windowstyle As VbAppWinStyle, sMsg As String, Optional timeoutSeconds As Long = 2100) As Boolean
+    Dim ProcessID As Long
+    Dim ProcessHandle As Long
+    Dim wfsoReply As Long
+    Dim nWaitStart As Long
+    
+    ' In VB4, an error occurs if Shell
+    ' fails to start the program
+    On Error GoTo FINISHED
+    sMsg = ""
+    
+    ' Shell the program, get its handle,
+    ' and wait for it to terminate
+    nWaitStart = Timer
+    ProcessID = Shell(strExePathCmd, windowstyle)
+    ProcessHandle = OpenProcess(SYNCHRONIZE, True, ProcessID)
+    wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Do While wfsoReply = 258
+        DoEvents
+        If (Timer - nWaitStart) > 2100 Then
+            ShellProgramAndWait = False
+            sMsg = "Timed out waiting for " & vbCrLf & "'" & strExePathCmd & "' to finish"
+            GoTo FINISHED
+        End If
+        wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Loop
+    
+    ShellProgramAndWait = True
+    CloseHandle ProcessHandle
+    
+    Err.Clear
+FINISHED:
+    If Err.number <> 0 Then
+        sMsg = Err.Description
+        ShellProgramAndWait = False
+    End If
 End Function
 
