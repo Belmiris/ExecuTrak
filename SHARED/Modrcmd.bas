@@ -155,7 +155,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
     
     If Trim(sPassWD) = "" Then
         If Not t_oleObject Is Nothing Then
-            sPassWD = t_oleObject.Password
+            sPassWD = t_oleObject.password
         End If
     End If
     
@@ -372,7 +372,7 @@ Public Function tfnRunRCmd(sHost As String, _
     Const SUB_NAME = "tfnRunRCmd"
     
     'maximum time to execute a unix command
-    Const MAX_CALL_TIME As Long = 1800  '3 hours
+    Const MAX_CALL_TIME As Long = 10800  '3 hours
     
     Dim sErrMsg As String
     Dim nCode As Integer
@@ -559,7 +559,7 @@ Private Function fnVariables_UseCommands(sHost As String, sDBPath As String) As 
     
     fnVariables_UseCommands = sTemp
 End Function
-Private Function fnDefaultParm(sSECTION As String, _
+Private Function fnDefaultParm(sSection As String, _
                               sKey As String, _
                               sDefault As String) As String
     Dim sIniFileName As String
@@ -573,13 +573,13 @@ Private Function fnDefaultParm(sSECTION As String, _
     sBuffer = Space(MAX_STRING_LENGTH) 'clear and make the string fixed length
     
     'get the [value] for the [section], [key], and ini file sent
-    nLength = GetPrivateProfileString(sSECTION, sKey, szEMPTY, sBuffer, MAX_STRING_LENGTH, sIniFileName)
+    nLength = GetPrivateProfileString(sSection, sKey, szEMPTY, sBuffer, MAX_STRING_LENGTH, sIniFileName)
     
     If nLength <> 0 Then 'if length positive [value] has been found
         fnDefaultParm = Left(sBuffer, nLength) 'make it a basic string
     Else
         'write the [value] for the [section], [key], and ini file sent
-        WritePrivateProfileString sSECTION, sKey, sDefault, sIniFileName
+        WritePrivateProfileString sSection, sKey, sDefault, sIniFileName
         fnDefaultParm = sDefault
     End If
 
@@ -725,7 +725,7 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
     
     If Trim(sPassWD) = "" Then
         If Not t_oleObject Is Nothing Then
-            sPassWD = t_oleObject.Password
+            sPassWD = t_oleObject.password
         End If
     End If
     
