@@ -27,17 +27,23 @@ Private m_workspace As Workspace
 '
 
 Private Sub Class_Initialize()
-    Set m_engine = New DBEngine
-    Set m_workspace = m_engine.Workspaces(0)
     m_databaseType = ddtNone
+    
+End Sub
+
+Private Sub Class_Terminate()
+    CloseDatabase
+    
 End Sub
 
 Public Property Get Connection() As String
     Connection = m_connection
+
 End Property
 
 Public Property Get DatabaseType() As DetachedDatabaseType
     DatabaseType = m_databaseType
+
 End Property
 
 Public Function AssignConnection(ByVal strConnection As String, ByVal dbType As DetachedDatabaseType)
@@ -47,6 +53,90 @@ Public Function AssignConnection(ByVal strConnection As String, ByVal dbType As 
         
     m_databaseType = dbType
     m_connection = strConnection
+    
+End Function
+
+Public Sub CloseDatabase()
+    On Error Resume Next
+
+    Set m_engine = Nothing
+    Set m_workspace = Nothing
+
+    If Not m_database Is Nothing Then
+        m_database.Close
+        Set m_database = Nothing
+    End If
+
+    Err.Clear
+End Sub
+
+Public Function CopyRecordset(rsTemp As Recordset, Optional bMoveFirst As Boolean = True) As DetachedRecordset
+    Dim rsDetached As DetachedRecordset
+    
+    If rsTemp Is Nothing Then _
+        Err.Raise -2000, "DetachedDatabase.CopyRecordset", "DetachedDatabase.CopyRecordset Empty rsTemp passed"
+    
+    Set rsDetached = New DetachedRecordset
+    
+    If rsTemp.RecordCount > 0 Then
+        If bMoveFirst Then rsTemp.MoveFirst
+        
+        While Not rsTemp.EOF
+            rsDetached.CopyCurrentRecord rsTemp
+            rsTemp.MoveNext
+        Wend
+    End If
+    
+    Set CopyRecordset = rsDetached
+    
+End Function
+
+Public Function ExecuteSQL(strSQL As String) As Long
+    
+    ExecuteSQL = Execute(strSQL)
+
+End Function
+
+Public Function Execute(strSQL As String) As Long
+    
+    OpenDatabase
+    
+    Select Case m_databaseType
+        Case ddtAccess
+            m_database.Execute strSQL
+            Execute = m_database.RecordsAffected
+        
+        Case ddtInformix
+            Execute = m_database.ExecuteSQL(strSQL)
+        
+        Case Else
+            Err.Raise -5368, "DetachedDatabase.Execute", "Database Type unhandled or not set (" & m_databaseType & "')"
+    End Select
+    
+    CloseDatabase
+    
+End Function
+
+Public Function AssignFactorMdb() As Boolean
+    Dim dsnPath As String
+    
+    CloseDatabase
+    
+    dsnPath = LOCAL_FACTOR_PATH & UCase(Trim(tfnGetDataSourceName)) + "\"
+    
+    If Not io Is Nothing Then
+        If io.MultiDatabase Then
+            dsnPath = io.ApplicationPath
+        End If
+    End If
+    
+    m_connection = IIf(Right(dsnPath, 1) = "\", dsnPath & "FACTOR.MDB", dsnPath & "\FACTOR.MDB")
+    
+    m_databaseType = ddtAccess
+    
+    If io.FileExists(m_connection) Then
+        AssignFactorMdb = True
+    End If
     
 End Function
 
@@ -86,18 +176,12 @@ Public Function OpenRecordset(strSQL As String, rsType As RecordsetTypeEnum) As 
     
 End Function
 
-Private Sub CloseDatabase()
-    On Error Resume Next
-    If Not m_database Is Nothing Then
-        m_database.Close
-        Set m_database = Nothing
-    End If
-    Err.Clear
-End Sub
-
 Private Sub OpenDatabase()
 
     CloseDatabase
+    
+    Set m_engine = New DBEngine
+    Set m_workspace = m_engine.Workspaces(0)
     
     Select Case m_databaseType
         Case ddtAccess
