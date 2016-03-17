@@ -408,8 +408,7 @@ Private Function GetFontNameParameter() As String
         Case "TIMES-BOLD-ITALIC"
             fCode = "103"
             
-        Case "COURIER"
-        Case "COURIER NEW"
+        Case "COURIER", "COURIER NEW"
             fCode = "200"
             
         Case "COURIER-BOLD"
