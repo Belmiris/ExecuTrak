@@ -23,6 +23,9 @@ Option Explicit
 ' 83 max horizontal for Portrait        ' Courier Font max size = 10 - Use 9 though
 ' 66 max vertical for Portrait
 
+Private Declare Function GetTempPath Lib "kernel32" Alias "GetTempPathA" (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
+Private Declare Function GetTempFileName Lib "kernel32" Alias "GetTempFileNameA" (ByVal lpszPath As String, ByVal lpPrefixString As String, ByVal wUnique As Long, ByVal lpTempFileName As String) As Long
+
 Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Long) As Long
 Private Declare Function WaitForSingleObject Lib "kernel32" (ByVal hHandle As Long, ByVal dwMilliseconds As Long) As Long
 Private Declare Function CloseHandle Lib "kernel32.dll" (ByVal hSnapShot As Long) As Boolean
@@ -208,7 +211,7 @@ End Property
 '
 '************************************************
 Public Property Get RecordsPerPage() As Long
-    RecordsPerPage = IIf(m_numLinesPerPage > 0, m_numLinesPerPage, 66)
+    RecordsPerPage = m_numLinesPerPage
 End Property
 
 Public Property Let RecordsPerPage(ByVal vNewValue As Long)
@@ -276,6 +279,8 @@ Public Function CreatePDFFile(Optional bRaiseError As Boolean = False) As String
         If CreatePDFFile <> "" Then Exit Function
     End If
     
+'    If enforcePageBreak Then ForcePageBreaks   ' Seems to work but not fully functional
+                                                ' Decided to put page break characters in original instead
     parameters = GetParameters()
     
     strExeAndCmd = Chr$(34) & strConvertApp & Chr$(34)
@@ -288,7 +293,7 @@ Public Function CreatePDFFile(Optional bRaiseError As Boolean = False) As String
 '    strExeAndCmd = strExeAndCmd & " " & Chr$(34) & m_strSourceFile & Chr$(34)
 '    strExeAndCmd = strExeAndCmd & " " & Chr$(34) & m_strTargetFile & Chr$(34)
 '    strExeAndCmd = strExeAndCmd & " -pfs9 -pfn200 -lpp66"
-    
+'
 '    Debug.Print strExeAndCmd
     
     If Not ShellProgramAndWait(strExeAndCmd, vbMinimizedNoFocus, sMsg) Then
@@ -485,10 +490,10 @@ Private Function GetLinesPerPageParameter() As String
         End If
     End If
     
-    If linesPerPage > 0 Then
+    If linesPerPage > -1 Then
         GetLinesPerPageParameter = "-lpp" & CStr(linesPerPage)
     Else
-        GetLinesPerPageParameter = "-lpp66"
+        GetLinesPerPageParameter = "-lpp0"
     End If
     
 End Function
@@ -501,6 +506,8 @@ Private Function GetOrientationParameter() As String
     
 End Function
 
+' This is a horrible function I copied from the old class
+' just so things would work the same.
 Private Function fnCheckSetOrientation() As String
     Dim objFile As FileServer
     Dim strRow As String
@@ -583,10 +590,115 @@ errTrap:
         & Err.Number & ", Err Desc: " & Err.Description
 End Function
 
+' I copied this from the old class just so things would work the same.
 Private Function isFileExist() As Boolean
    isFileExist = IIf(Len(Dir(m_strSourceFile)) > 0, 1, 0)
 End Function
 
+Private Sub ForcePageBreaks()
+    On Error GoTo FINISHED
+    Dim breakText As String
+    Dim FileText As String
+    Dim hFile As Integer
+    Dim idxLine As Long
+    Dim linesPerPage As Long
+    Dim line As String
+    Dim lines() As String
+    Dim page As Long
+    Dim tempFile As String
+    Dim linesSinceBreak As Long
+    Dim strNewText As String
+    
+    MsgBox "WARNING! clsPDFCreator.ForcePageBreaks() has not yet been implemented!"
+    
+    linesPerPage = Me.RecordsPerPage
+    
+    If Me.Orientation <> pdfPortrait Then
+        If Me.RecordsPerPageLandscape > 0 Then
+            linesPerPage = Me.RecordsPerPageLandscape
+        End If
+    Else
+        If Me.RecordsPerPagePortrait > 0 Then
+            linesPerPage = Me.RecordsPerPagePortrait
+        End If
+    End If
+    
+    If linesPerPage < 1 Then Exit Sub
+    breakText = Trim(Me.PageBreakBefore)
+    If Len(breakText) < 1 Then Exit Sub
+    If Len(Me.sourceFile) < 1 Then Exit Sub
+    If Dir(Me.sourceFile) = "" Then Exit Sub
+    
+    hFile = FreeFile()
+    Open Me.sourceFile For Input As #hFile
+    FileText = Input$(LOF(hFile), hFile)
+    Close #hFile
+    hFile = 0
+    
+    FileText = Replace(FileText, vbCr, "")
+    lines = Split(FileText, vbLf)
+    
+    tempFile = CreateTempFile("pdf")
+    If Len(tempFile) < 1 Then Exit Sub
+    
+    ' Skip past blank lines
+    For idxLine = 0 To (UBound(lines) - 1)
+        line = Trim(lines(idxLine))
+        If Len(line) > 0 Then Exit For
+    Next idxLine
+    
+    ' Make sure there are an even, whole number multiple of
+    ' linesPerPage between page break text.
+    Do While idxLine < UBound(lines)
+        line = lines(idxLine)
+        If InStr(1, line, Me.PageBreakBefore) > 0 Then
+            If page > 0 Then
+                page = page + 1
+                Do Until ((linesSinceBreak Mod linesPerPage) = 0)
+                    strNewText = strNewText & vbCrLf
+                    linesSinceBreak = linesSinceBreak + 1
+                Loop
+                strNewText = strNewText & line & vbCrLf
+            Else
+                page = 1
+                strNewText = strNewText & line & vbCrLf
+            End If
+            linesSinceBreak = 1
+        Else
+            strNewText = strNewText & line & vbCrLf
+            linesSinceBreak = linesSinceBreak + 1
+        End If
+        idxLine = idxLine + 1
+    Loop
+    
+    hFile = FreeFile()
+    Open tempFile For Output As #hFile
+    Write #hFile, strNewText
+    Close #hFile
+    hFile = 0
+        
+    ' TODO:
+    ' Copy original file to backup (where?).
+    ' Copy tempFile over original.
+    
+FINISHED:
+    On Error Resume Next
+    If hFile <> 0 Then Close #hFile
+    If Len(tempFile) > 0 And Dir(tempFile) <> "" Then Kill tempFile
+    Err.Clear
+End Sub
 
-
+Private Function CreateTempFile(sPrefix As String) As String
+    Dim sTmpPath As String * 512
+    Dim sTmpName As String * 576
+    Dim nRet As Long
+    
+    nRet = GetTempPath(512, sTmpPath)
+    If (nRet > 0 And nRet < 512) Then
+        nRet = GetTempFileName(sTmpPath, sPrefix, 0, sTmpName)
+        If nRet <> 0 Then
+            CreateTempFile = Left$(sTmpName, InStr(sTmpName, vbNullChar) - 1)
+        End If
+    End If
+End Function
 
