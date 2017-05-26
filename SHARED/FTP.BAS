@@ -8,6 +8,7 @@ Option Explicit
 'Usage      : fnTransferFile("Server", "UserID", "PassWord", True, True, _                 *
 '           :                "RemoteFilePath&Name", "LocalFilePath", "ErrorMessage", True) *
 '*******************************************************************************************
+'G8696 - Tthompson
 
 Declare Function GetProcessHeap Lib "kernel32" () As Long
 Declare Function HeapAlloc Lib "kernel32" (ByVal hHeap As Long, ByVal dwFlags As Long, ByVal dwBytes As Long) As Long
@@ -96,7 +97,7 @@ Private Declare Function InternetOpen Lib "wininet.dll" Alias "InternetOpenA" _
 ByVal sProxyBypass As String, ByVal lFlags As Long) As Long
 
 ' User agent constant.
-Private Const scUserAgent = "vb wininet"
+Private Const SCUSERAGENT = "vb wininet"
 
 ' Use registry access settings.
 Private Const INTERNET_OPEN_TYPE_PRECONFIG = 0
@@ -190,11 +191,11 @@ Private Const HTTP_QUERY_FLAG_REQUEST_HEADERS = &H80000000
 Private Const HTTP_QUERY_FLAG_NUMBER = &H20000000
 ' Reads data from a handle opened by the HttpOpenRequest function.
 Private Declare Function InternetReadFile Lib "wininet.dll" _
-(ByVal hfile As Long, ByVal sBuffer As String, ByVal lNumBytesToRead As Long, _
+(ByVal hFile As Long, ByVal sBuffer As String, ByVal lNumBytesToRead As Long, _
 lNumberOfBytesRead As Long) As Integer
 
 Private Declare Function InternetWriteFile Lib "wininet.dll" _
-        (ByVal hfile As Long, ByVal sBuffer As String, _
+        (ByVal hFile As Long, ByVal sBuffer As String, _
         ByVal lNumberOfBytesToRead As Long, _
         lNumberOfBytesRead As Long) As Integer
 
@@ -257,7 +258,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
                                 sSourcePathAndFile As String, _
                                 Optional bFromUnixToLocal As Boolean = True, _
                                 Optional sDestPath As String, _
-                                Optional sDestFileName As String, _
+                                Optional sDestFilename As String, _
                                 Optional sRetErrMsg As String, _
                                 Optional bShowError As Boolean = True, _
                                 Optional bDeleteSourceFile As Boolean = False, _
@@ -272,20 +273,26 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
     Dim lLastDLLError As Long
     Dim sArrFile() As String
     Dim sArrOldname() As String
+    Dim sHostKey As String          '8696
+    Dim sPLinkResult As String      '8696
+    Dim sPLinkError As String       '8696
     
     fnTransferFile = False
     sDestPath = Trim(sDestPath)
     sSourcePathAndFile = Trim(sSourcePathAndFile)
     
-    If sDestFileName <> "" Then
-        If InStr(1, sDestFileName, "*") > 0 Or InStr(1, sDestFileName, "?") > 0 Then
+    If sDestFilename <> "" Then
+        If InStr(1, sDestFilename, "*") > 0 Or InStr(1, sDestFilename, "?") > 0 Then
             sRetErrMsg = "Invalid destination path specified, cannot continue!"
             subShowError bShowError, sRetErrMsg, vbExclamation
             GoTo CloseHandle
         End If
     End If
-    
-    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, INTERNET_FLAG_NO_CACHE_WRITE)
+        
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_SFTP
+        
+    hOpen = InternetOpen(SCUSERAGENT, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, INTERNET_FLAG_NO_CACHE_WRITE)
     If hOpen = 0 Then
         fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
         GoTo CloseHandle
@@ -396,17 +403,17 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
             'otherwise, some error occur, the program will generate some strange files.
             'sArrFile(i) = fnGenerateNewFile10()
             
-            If sDestFileName <> "" Then
-                nNum = InStr(1, sDestFileName, ".")
+            If sDestFilename <> "" Then
+                nNum = InStr(1, sDestFilename, ".")
                 If i = 0 Then
                     sNum = ""
                 Else
                     sNum = CStr(i)
                 End If
                 If nNum > 0 Then
-                    sDest = sDestPath & Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
+                    sDest = sDestPath & Mid(sDestFilename, 1, nNum - 1) & sNum & "." & Mid(sDestFilename, nNum + 1)
                 Else
-                    sDest = sDestPath & sDestFileName & sNum
+                    sDest = sDestPath & sDestFilename & sNum
                 End If
             Else
                 sDest = sDestPath & sArrFile(i)
@@ -463,17 +470,17 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         nNumFiles = fnBuildFileArray(sSourcePath, sSourceFile, sArrFile)
         If nNumFiles >= 0 Then
             For i = 0 To nNumFiles
-                If sDestFileName <> "" Then
-                    nNum = InStr(1, sDestFileName, ".")
+                If sDestFilename <> "" Then
+                    nNum = InStr(1, sDestFilename, ".")
                     If i = 0 Then
                         sNum = ""
                     Else
                         sNum = CStr(i)
                     End If
                     If nNum > 0 Then
-                        sDest = Mid(sDestFileName, 1, nNum - 1) & sNum & "." & Mid(sDestFileName, nNum + 1)
+                        sDest = Mid(sDestFilename, 1, nNum - 1) & sNum & "." & Mid(sDestFilename, nNum + 1)
                     Else
-                        sDest = sDestFileName & sNum
+                        sDest = sDestFilename & sNum
                     End If
                 Else
                     sDest = sArrFile(i)
@@ -501,8 +508,22 @@ CloseHandle:
     InternetCloseHandle hConnection
     InternetCloseHandle hOpen
     Exit Function
+           
+RUN_SFTP: 'G8696
+    fnTransferFile = fnSTransferFile(sHostKey, sHost, sUser, sPWD, _
+                                sSourcePathAndFile, _
+                                 bFromUnixToLocal, _
+                                 sDestPath, _
+                                 sDestFilename, _
+                                 sRetErrMsg, _
+                                 bShowError, _
+                                 bDeleteSourceFile, _
+                                 bPassive, _
+                                 bBinary)
+    Exit Function
+    
 errTrap:
-    sRetErrMsg = Err.Number & ": " & Err.Description
+    sRetErrMsg = Err.number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
 End Function
@@ -623,7 +644,7 @@ End Sub
 Public Function fnValidUnixPath(sHost As String, sUser As String, sPWD As String, _
                                 sPath As String, sRetErrMsg As String, _
                                 Optional bShowError As Boolean = False) As Boolean
-    
+    Dim sHostKey As String
     Dim hOpen As Long, hConnection As Long, hFind As Long
     Dim bFlag As Boolean
     
@@ -631,7 +652,10 @@ Public Function fnValidUnixPath(sHost As String, sUser As String, sPWD As String
     
     If Trim(sPath) = "" Then Exit Function
     
-    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_fnSValidUnixPath
+    
+    hOpen = InternetOpen(SCUSERAGENT, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
     If hOpen = 0 Then
         fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
         GoTo CloseHandle
@@ -658,6 +682,12 @@ CloseHandle:
     InternetCloseHandle hConnection
     InternetCloseHandle hOpen
     Exit Function
+    
+RUN_fnSValidUnixPath:
+    fnValidUnixPath = fnSValidUnixPath(sHostKey, _
+                                sHost, sUser, sPWD, _
+                                sPath, sRetErrMsg, _
+                                bShowError)
 End Function
 
 Private Function fnBuildFileArray(sPath As String, sFileName As String, _
@@ -703,7 +733,7 @@ Private Function fnBuildFileArray(sPath As String, sFileName As String, _
     Exit Function
 
 errBuildList:
-    If Err.Number = 76 Then
+    If Err.number = 76 Then
         MsgBox " Path (" & fnConCat(sPath, sFileName) & ") not found in Function '" & SUB_NAME & "'"
     End If
     fnBuildFileArray = -1
@@ -768,15 +798,18 @@ End Function
 Public Function fnCreateUnixDirectory(sHost As String, sUser As String, sPWD As String, _
                                 sPath As String, sRetErrMsg As String, _
                                 Optional bShowError As Boolean = False) As Boolean
-    
+    Dim sHostKey As String
     Dim hOpen As Long, hConnection As Long, hFind As Long
     Dim bFlag As Boolean
     
     fnCreateUnixDirectory = False
     
     If Trim(sPath) = "" Then Exit Function
+        
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_fnSCreateUnixDirectory
     
-    hOpen = InternetOpen(scUserAgent, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
+    hOpen = InternetOpen(SCUSERAGENT, INTERNET_OPEN_TYPE_DIRECT, vbNullString, vbNullString, 0)
     If hOpen = 0 Then
         fnErrorOut Err.LastDllError, "InternetOpen", bShowError, sRetErrMsg
         GoTo CloseHandle
@@ -803,6 +836,11 @@ CloseHandle:
     InternetCloseHandle hConnection
     InternetCloseHandle hOpen
     Exit Function
+    
+RUN_fnSCreateUnixDirectory:
+    fnCreateUnixDirectory = fnSCreateUnixDirectory(sHostKey, sHost, sUser, sPWD, _
+                                sPath, sRetErrMsg, _
+                                bShowError)
 End Function
 
 
@@ -820,5 +858,320 @@ Public Function fnRemoveInvalidUnixCharacters(MyName As String) As String
     For i = 1 To Len(strip)
         fnRemoveInvalidUnixCharacters = Replace(fnRemoveInvalidUnixCharacters, Mid$(strip, i, 1), "")
     Next i
+
+End Function
+
+'**********************************************************
+'* USE PSCP - 8696
+
+Public Function fnSCreateUnixDirectory(ByVal sHostKey As String, _
+                                sHost As String, sUser As String, sPWD As String, _
+                                sPath As String, sRetErrMsg As String, _
+                                Optional bShowError As Boolean = False) As Boolean
+    'G8696 - Tthompson
+    ' use plink via tfnRunRemoteCmd to "mkdir /home/ssfactor/asdf"
+        ' STDOUT success results: mkdir /home/ssfactor/asdf: OK
+    ' use plink via tfnRunRemoteCmd to "mkdir /home/ssfactor/asdf"
+        ' STDOUT fail results: mkdir /home/ssfactor/asdf: failure
+    ' use plink via tfnRunRemoteCmd to "mkdir /asdf/asdf"
+        ' STDOUT fail results: mkdir /asdf/asdf: no such file or directory
+            
+    'sPath is passed through Q_Str() for commandline processing
+    
+    Dim sCmd As String, sResult As String
+    
+    sCmd = "mkdir " & Q_Str(sPath)
+    fnSCreateUnixDirectory = tfnRunRemoteCmd(sHostKey, _
+                       rapPlink, _
+                       sCmd, _
+                       sResult, _
+                       sRetErrMsg, _
+                       sHost, _
+                        sUser, _
+                        sPWD, _
+                        , _
+                       True)
+                                                
+End Function
+
+Public Function fnSValidUnixPath(ByVal sHostKey As String, _
+                                sHost As String, sUser As String, sPWD As String, _
+                                sPath As String, sRetErrMsg As String, _
+                                Optional bShowError As Boolean = False) As Boolean
+    'G8696 - Tthompson
+    ' use psftp via tfnRunRemoteCmd to "cd /home/ssfactor"
+        ' STDOUT success results: Remote directory is now /home/ssfactor
+    ' use psftp via tfnRunRemoteCmd to "cd /home/asdf"
+        ' STDOUT fail results: Directory /asdf: no such file or directory
+            
+    'sPath is passed through Q_Str() for commandline processing
+    
+    Dim sCmd As String, sResult As String
+    
+    sCmd = "cd " & Q_Str(sPath)
+    fnSValidUnixPath = tfnRunRemoteCmd(sHostKey, _
+                       rapPlink, _
+                       sCmd, _
+                       sResult, _
+                       sRetErrMsg, _
+                       sHost, _
+                        sUser, _
+                        sPWD, _
+                        , _
+                       True)
+    
+End Function
+
+
+Public Function fnSTransferFile(ByVal sHostKey As String, _
+                                sHost As String, sUser As String, sPWD As String, _
+                                sSourcePathAndFile As String, _
+                                Optional bFromUnixToLocal As Boolean = True, _
+                                Optional sDestPath As String, _
+                                Optional sDestFilename As String, _
+                                Optional sRetErrMsg As String, _
+                                Optional bShowError As Boolean = True, _
+                                Optional bDeleteSourceFile As Boolean = False, _
+                                Optional bPassive As Boolean = True, _
+                                Optional bBinary As Boolean = True) As Boolean
+    'G8696 - Tthompson
+        'Latest released version of PuTTY. Currently this is 0.69, released on 2017-04-29.
+        '    https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+        '
+        'bPassive not in use - not an option in SSL
+        '    http://www.perlmonks.org/?node_id=456458
+        '    "SFTP uses the SSH protocols, and "passive mode" wouldn't make sense, since there's ever only one major connection between client and server. (Data streams are handled as sub-connections, not parallel connections.)" - Randal L. Schwartz
+        '
+        'bBinary not in use - not an option in SFTP protocols
+        '    https://www.chiark.greenend.org.uk/~sgtatham/putty/faq.html#faq-pscp-ascii
+        '    "PSCP or PSFTP cannot transfer files in ASCII mode.  Until recently, this was a limitation of the file transfer protocols: the SCP and SFTP protocols had no notion of transferring a file in anything other than binary mode."
+        '
+        
+    'old method in fnTransferFile
+    ' step 1) get localpath
+    ' step 2) define arguments and command
+    ' step 3) call ShellProgramAndWait
+    ' step 4) read STD results
+    ' step 5) kill batch and STD files
+    ' step 6) set return message
+    ' step 7) return True if no error occurred
+
+    ' PSCP will set the ERRORLEVEL while PSFTP will NOT
+        ' sCmd must contain user@host:fullfilename and local\fullfilename in the preferred order for get/put
+        ' -q hides progress
+        ' -batch means to avoid interactive prompts.  if something goes wrong at connection time, the batch job will fail rather than hang.
+        ' -r means recursive when passing wildcards
+
+
+    'CANNOT use PSFTP because ERRORLEVEL is not being set in commandline mode!!!
+    ' this approach is to write FTP commands to a file to be processed by psftp.exe in modRCMD.bas tfnRunRemoteCmd()
+    ' cmd.exe /c "psftp.exe -b -be -batch [commandsfilename] [connection] [command]" 1> STDOUT.txt 2> STDERR.txt'
+    ' command template to be used:
+        '#transfer command template
+        '# psftp must include the following args:
+        '#    -b filename -be -batch
+        '# VB code must change to the correct local and server folders before transfer
+        '# If put then server folder = dest and local folder = source
+        '# If get then server folder = source and local folder = dest
+        '# we don't have to search for the existing file first, just assume it is there
+        '
+        '!cd \localfolder
+        'cd \serverfolder
+        '
+        '# VB code will write get or put as required
+        '[get or put] filename
+        '
+        '# VB code will write this line if required
+        'del Filename
+        '
+        '# VB code will repeat for additional files
+        '
+        'quit
+        '
+
+    'The PSFTP uses an SFTP protocol version 3.
+    '
+    'In the SFTP protocol version 3 there are no transfer modes. Or in other words, there's only a binary transfer mode.
+    '
+    'If you need "ascii download", you need to convert the downloaded file to Windows format after you download it with PSFTP.
+
+   'source and destination paths are passed through Q_Str() for commandline processing
+
+    Dim bFlag, bRenameFlag As Boolean, i As Integer
+    Dim sSourcePath As String, sSourceFile As String, sItemName As String
+    Dim sCmd As String, sResult As String
+    Dim sArrFile() As String
+    Dim sDest As String
+    Dim nNum As Integer, sNum As String
+    
+    fnSTransferFile = False
+    sDestPath = Trim(sDestPath)
+    sDestFilename = Trim(sDestFilename)
+    sSourcePathAndFile = Trim(sSourcePathAndFile)
+    
+    If sDestFilename <> "" Then
+        If InStr(1, sDestFilename, "*") > 0 Or InStr(1, sDestFilename, "?") > 0 Then
+            sRetErrMsg = "Invalid destination path specified, cannot continue!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+    End If
+    
+    If sSourcePathAndFile = "" Then
+        sRetErrMsg = "Source file path is not specified, cannot continue!"
+        subShowError bShowError, sRetErrMsg, vbExclamation
+        GoTo CloseHandle
+    End If
+    
+    If sDestPath = "" Then 'after checking all programs, sDestPath is never empty
+        Dim szDir As String
+        If bFromUnixToLocal Then
+            'szDir = App.path
+            szDir = io.ApplicationPath
+        Else
+            'Get the destination directory path from unix server...
+            If tfnRunRemoteCmd(sHostKey, rapPlink, "pwd", szDir, sRetErrMsg, sHost, sUser, sPWD, , True) = False Then
+                fnErrorOut Err.number, "SFtpGetCurrentDirectory", bShowError, sRetErrMsg
+                GoTo CloseHandle
+            End If
+        End If
+        sDestPath = Trim(szDir)
+        If InStr(1, Trim(szDir), Chr(0)) > 0 Then
+            sDestPath = Mid(Trim(szDir), 1, InStr(1, Trim(szDir), Chr(0)) - 1)
+        End If
+    End If
+    
+    On Error GoTo errTrap
+    If bFromUnixToLocal Then 'Transfer from unix server(source) to local(dest)...
+        ' example     get> pscp fred@example.com:/etc/hosts         c:\temp\example-hosts.txt
+        ' wildcard ex get> pscp fred@example.com:/etc/hosts/*.txt   c:\temp
+        
+        'Separate the file path and file name...
+        'subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
+                
+        
+        'potential for sDestFilename to contain a full path
+        ' check if sDestFilename contains a path or drive separator
+        ' if a path is given then dont use sDestPath
+        If InStr(1, sDestFilename, "\") + InStr(1, sDestFilename, ":") > 0 Then
+            sDest = sDestFilename
+        Else
+            subAddSlash sDestPath, "\"
+            sDest = sDestPath & sDestFilename
+        End If
+        If Right(sDest, 1) = "\" Then sDest = Left(sDest, Len(sDest) - 1)
+        
+        sCmd = sUser & "@" & sHost & ":" & Q_Str(sSourcePathAndFile) & " " & Q_Str(sDest)
+        
+        fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
+                           rapPscp, _
+                           sCmd, _
+                           sResult, _
+                           sRetErrMsg, _
+                           sHost, _
+                            sUser, _
+                            sPWD, _
+                            , _
+                           True)
+                
+        If bDeleteSourceFile And fnSTransferFile Then
+            tfnRunRemoteCmd sHostKey, _
+                       rapPsftp, _
+                       "rm " & Q_Str(sSourcePathAndFile), _
+                       sResult, _
+                       sRetErrMsg, _
+                       sHost, _
+                        sUser, _
+                        sPWD, _
+                        , _
+                       True
+        End If
+    Else 'Transfer from local(source) to unix server(dest)...
+        ' example     put> pscp c:\documents\foo.txt    fred@example.com:/tmp/foo
+        ' wildcard ex put> pscp c:\documents\*.txt      fred@example.com:/tmp/foo
+        
+        'Separate the file path and file name...
+        'subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath, False
+        
+        'potential for sDestFilename to contain a full path
+        ' check if sDestFilename contains a path or drive separator
+        ' if a path is given then dont use sDestPath
+        If InStr(1, sDestFilename, "/") + InStr(1, sDestFilename, ":") > 0 Then
+            sDest = sDestFilename
+        Else
+            subAddSlash sDestPath, "/"
+            sDest = sDestPath & sDestFilename
+        End If
+        If Right(sDest, 1) = "/" Then sDest = Left(sDest, Len(sDest) - 1)
+        
+        sCmd = Q_Str(sSourcePathAndFile) & " " & sUser & "@" & sHost & ":" & Q_Str(sDest)
+        
+        fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
+                           rapPscp, _
+                           sCmd, _
+                           sResult, _
+                           sRetErrMsg, _
+                           sHost, _
+                            sUser, _
+                            sPWD, _
+                            , _
+                           True)
+                           
+        If fnSTransferFile Then
+            fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
+                   rapPlink, _
+                   "chmod 777 " & Q_Str(sDest), _
+                   sResult, _
+                   sRetErrMsg, _
+                   sHost, _
+                    sUser, _
+                    sPWD, _
+                    , _
+                   True)
+        End If
+        
+        If bDeleteSourceFile And fnSTransferFile Then
+            Kill (sSourcePathAndFile)
+        End If
+    
+    End If
+    
+CloseHandle:
+    On Error Resume Next
+    
+    Exit Function
+    
+errTrap:
+    sRetErrMsg = Err.number & ": " & Err.Description
+    subShowError bShowError, sRetErrMsg, vbCritical
+    GoTo CloseHandle
+End Function
+
+Private Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
+    Q_Str = Quote & Str & Quote
+End Function
+
+'Does not require the file to exist
+Private Function fnFileNameFromPath(ByVal strFullPath As String, Optional ByVal sDriveSeparator As String = ":", Optional ByVal sFolderSeparator As String = "\") As String
+    Dim sPathNoDrive As String
+    
+    'strFullPath has the potential to not contain a folder separator
+    ' eg: "C:tmp.txt" refers to a file named "tmp.txt" in the current directory on drive C.
+    ' see Microsoft's explanation "Fully Qualified vs. Relative Paths"
+    '  https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+    
+    'Remove the disk designator
+    If sDriveSeparator <> "" Then
+        sPathNoDrive = Right(strFullPath, Len(strFullPath) - InStrRev(strFullPath, sDriveSeparator))
+    Else
+        sPathNoDrive = strFullPath
+    End If
+    
+    'Return the filename
+    If sFolderSeparator <> "" Then
+        fnFileNameFromPath = Right(sPathNoDrive, Len(sPathNoDrive) - InStrRev(sPathNoDrive, sFolderSeparator))
+    Else
+        fnFileNameFromPath = sPathNoDrive
+    End If
 
 End Function
