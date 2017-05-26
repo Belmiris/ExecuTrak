@@ -59,7 +59,44 @@ Public nWhatToUse As Integer
 Private Const SEC_SETUP_4GE = "SETUP OF 4GL PROGRAMS"
 Private Const KEY_PROGPATH_4GE = "PROG PATH"
 Private Const DEFAULT_PROGPATH_4GE = "/usr/factor"
+
+'**********************************************************
+'* USED TO CALL PLINK - 8696
+Private Type GUID
+    Data1 As Long
+    Data2 As Integer
+    Data3 As Integer
+    Data4(7) As Byte
+End Type
+
+Const SYNCHRONIZE = &H100000
+Const INFINITE = &HFFFFFFFF
+
+Private Declare Function OpenProcess Lib "kernel32" _
+    (ByVal dwDesiredAccess As Long, _
+    ByVal bInheritHandle As Long, _
+    ByVal dwProcessId As Long) As Long
     
+Private Declare Function WaitForSingleObject Lib "kernel32" _
+    (ByVal hHandle As Long, _
+    ByVal dwMilliseconds As Long) As Long
+    
+Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
+
+Private Declare Function CoCreateGuid Lib "OLE32.DLL" (pGuid As GUID) As Long
+
+Public Enum RemoteApps
+    rapPlink = 0
+    rapPscp = 1
+    rapPsftp = 2
+End Enum
+
+Private m_sSSH_KEY As String
+Private m_bSSH_KEY As Boolean
+Private m_DontDeleteRemoteFiles As Boolean
+'**********************************************************
+
+'
 Private Function fnCStr(vTemp As Variant) As String
     Dim nPos As Integer
     
@@ -105,9 +142,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
                              Optional vEnviron As Variant, _
                              Optional bShowMsgBox As Boolean = True, _
                              Optional sErrMsg As String = "") As Boolean
-    
     Const SUB_NAME = "fnExecute4GE"
-    
     Dim sHost As String
     Dim sUserID As String
     Dim sPassWD As String
@@ -118,27 +153,14 @@ Public Function fnExecute4GE(sCmdLine As String, _
     Dim sEnviron As String
     
     If t_dbMainDatabase Is Nothing Then
-        #If DEVELOP Then
-            sHost = "ether5"
-            sUserID = "ssfactor"
-            sPassWD = "menus"
-            sDBPath = "/factor/retail"
-        #Else
-            fnExecute4GE = False
-            Exit Function
-        #End If
-    Else
-'MsgBox "t_dbMainDatabase.Connect=" + tfnSQLString(t_dbMainDatabase.Connect)
-        'sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
-        sHost = tfnGetHostName()
-        sDBPath = fnDBPath()
-        
-        'david 11/16/00
-        'sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
-        'sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
-        sUserID = tfnGetUserName()
-        sPassWD = tfnGetPassword()
+        fnExecute4GE = False
+        Exit Function
     End If
+    
+    sHost = tfnGetHostName()
+    sDBPath = fnDBPath()
+    sUserID = tfnGetUserName()
+    sPassWD = tfnGetPassword()
     
     'david 10/23/00
     If Trim(sHost) = "" Then
@@ -169,7 +191,6 @@ Public Function fnExecute4GE(sCmdLine As String, _
             End If
         End If
         
-        
         sCmd = fnVariables(sHost, sDBPath, sUserID, sPassWD) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
         
         sTemp = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd)
@@ -190,7 +211,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
             sErrMsg = ERR_MSG_RUN4GE & " - " & sTemp
             '''''''''''''''''''
         End If
-    Else
+   Else
         sCmd = "DBPATH=" & sDBPath & ":$PROGPATH; export DBPATH;cd " & sDBPath & ";" _
              & "$PROGPATH/" & sCmdLine
         
@@ -222,7 +243,9 @@ Public Function fnExecute4GE(sCmdLine As String, _
             End If
         End If
     End If
+
     Exit Function
+    
 errExecuteProcedure:
     'david 01/18/2002
     If bShowMsgBox Then
@@ -285,17 +308,10 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
     Dim nCode As Integer
     Dim sCmd As String
     
-    #If DEVELOP Then
-        sHost = "ether5"
-        sUserID = "ssfactor"
-        sPassWD = "menus"
-        sDBPath = "/factor/retail"
-    #Else
-        sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
-        sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
-        sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
-        sDBPath = fnDBPath
-    #End If
+    sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
+    sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
+    sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
+    sDBPath = fnDBPath
     
     'david 08/30/2002  #369533
     'Added for input pay period or other message which will show on the 4th line of pay stub
@@ -326,7 +342,7 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
                         If MsgBox("Single quote ('), double quote ("") or 'Line Feed' are not allowed in the message," _
                            + " and will be replaced with SPACE. Are you sure you want to continue?" + vbCrLf + vbCrLf _
                            + "Choose No to re-enter the message.", vbQuestion + vbYesNo + vbDefaultButton2) = vbNo Then
-                            'go back to enter message again
+                           'go back to enter message again
                             bDone = False
                         End If
                     
@@ -342,7 +358,7 @@ Public Function fnPRPrintCheck(sCDFlag As String, _
         sTmp = Chr(10)  'vbLf
         sMsg = Replace(sMsg, sTmp, " ")
         sTmp = Chr(34)  'double quote
-        sMsg = Replace(sMsg, sTmp, " ")
+       sMsg = Replace(sMsg, sTmp, " ")
         sTmp = Chr(39)  'single quote
         sMsg = Replace(sMsg, sTmp, " ")
     End If
@@ -379,6 +395,9 @@ Public Function tfnRunRCmd(sHost As String, _
     Dim nMsgLen As Integer
     Dim nOutput As Integer
     Dim sConnect_Used As String
+    Dim sHostKey As String          '8696
+    Dim sPLinkResult As String      '8696
+    Dim sPLinkError As String       '8696
     
     On Error GoTo errRunShell
     
@@ -390,12 +409,8 @@ Public Function tfnRunRCmd(sHost As String, _
     nCode = ERR_LOGIN
     sErrMsg = Space(MAX_MSG_LEN + 1)
     
-'MsgBox "Before calling WinsockRCmd()" + vbCrLf _
-    + "sHost=" & tfnSQLString(sHost) + vbCrLf _
-    + "WINSOCK_PORT=" & tfnSQLString(WINSOCK_PORT) + vbCrLf _
-    + "sLocalUID=" & tfnSQLString(sLocalUID) + vbCrLf _
-    + "sRemoteUID=" & tfnSQLString(sRemoteUID) + vbCrLf _
-    + "sCmd=" & tfnSQLString(sCmd)
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_PLINK
     
     nCode = WinsockRCmd(sHost, WINSOCK_PORT, sLocalUID, sRemoteUID, sCmd, sErrMsg, MAX_MSG_LEN)
     
@@ -428,7 +443,7 @@ Public Function tfnRunRCmd(sHost As String, _
                 If MsgBox("RCMD time out. Do you want to continue to wait (30 minutes)" _
                    + " for the program to finished?", vbQuestion + vbYesNo) = vbYes Then
                     sngTimer = Timer
-                Else
+               Else
                     tfnRunRCmd = "RCMD time out"
                     Exit Function
                 End If
@@ -446,6 +461,29 @@ Public Function tfnRunRCmd(sHost As String, _
         End If
     End If
     
+    Exit Function
+    
+RUN_PLINK:
+    If tfnRunRemoteCmd(sHostKey, _
+                       rapPlink, _
+                       sCmd, _
+                       sPLinkResult, _
+                       sPLinkError, _
+                       sHost, _
+                       sLocalUID, _
+                       sRemoteUID, _
+                       MAX_CALL_TIME, _
+                       True) Then
+        tfnRunRCmd = sPLinkResult
+    Else
+        If Not rtn_ori_str Then
+            sErrMsg = "A message has been returned from the server:" & vbCrLf & sPLinkError & vbCrLf & vbCrLf & "Command sent to server '" & sHost & "' by user '" & sLocalUID & "':" & vbCrLf & sCmd
+        Else
+            sErrMsg = sPLinkError
+        End If
+        tfnRunRCmd = sErrMsg
+    End If
+   
     Exit Function
     
 errRunShell:
@@ -474,7 +512,7 @@ Public Function fnPRTestPrint(sPrinter As String, _
     #Else
         sHost = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_HOST)
         sUserID = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_USERID)
-        sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
+       sPassWD = tfnGetNamedString(t_dbMainDatabase.Connect, CONNECT_PSWD)
         sDBPath = fnDBPath
     #End If
     
@@ -520,7 +558,6 @@ Private Function fnVariables_UseScript(sHost As String, sDBPath As String) As St
     
     fnVariables_UseScript = sTemp
 End Function
-
 
 Private Function fnVariables_UseCommands(sHost As String, sDBPath As String) As String
     Dim sTemp As String
@@ -588,6 +625,7 @@ End Function
 Private Function fnGetProgPath() As String
     fnGetProgPath = Trim(fnDefaultParm(SEC_SETUP_4GE, KEY_PROGPATH_4GE, DEFAULT_PROGPATH_4GE))
 End Function
+
 Public Function fnSetParmForUnixCmd(vFlag As Variant, _
                                     Optional vDefault As Variant) As Boolean
 
@@ -640,6 +678,9 @@ Public Function ExecUnixCmd(sHost As String, _
     Dim nCode As Integer
     Dim nMsgLen As Integer
     Dim nOutput As Integer
+    Dim sHostKey As String          '8696
+    Dim sPLinkResult As String      '8696
+    Dim sPLinkError As String       '8696
     
     On Error GoTo errRunShell
     
@@ -647,13 +688,16 @@ Public Function ExecUnixCmd(sHost As String, _
     nCode = ERR_LOGIN
     sErrMsg = Space(MAX_MSG_LEN + 1)
     
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_PLINK
+    
     nCode = WinsockRCmd(sHost, WINSOCK_PORT, sLocalUID, sRemoteUID, sCmd, sErrMsg, MAX_MSG_LEN)
     
     If nCode < 0 Then
         nMsgLen = InStr(sErrMsg, Chr(0))
         If nMsgLen > 0 Then
             ExecUnixCmd = Left(sErrMsg, nMsgLen)
-'            MsgBox "Failed here: " & fnRunRCmd
+            'MsgBox "Failed here: " & fnRunRCmd
         Else
             ExecUnixCmd = "Cannot logon to the server to execute server program"
         End If
@@ -672,6 +716,16 @@ Public Function ExecUnixCmd(sHost As String, _
     
     Exit Function
     
+RUN_PLINK:
+    '8696 - chmod 777 /factor/fuel_mvmt_upld/ht090821105135.sav
+    If tfnRunRemoteCmd(sHostKey, rapPlink, sCmd, sPLinkResult, sPLinkError, sHost, sLocalUID) Then
+        ExecUnixCmd = sPLinkResult
+    Else
+        ExecUnixCmd = sPLinkError & " " & sPLinkResult
+    End If
+    
+    Exit Function
+    
 errRunShell:
     If Err.Number = 48 Then
         tfnErrHandler SUB_NAME, ERR_RCMD_MISSING, "Cannot find file 'RCMD32.DLL'"
@@ -679,11 +733,10 @@ errRunShell:
         tfnErrHandler SUB_NAME, RUN_TIME_RCMD, Err.Description
     End If
     
-    
 End Function
 
 Public Function fnRun4GLPricing(sCmdLine As String, _
-                                    Optional bAlwaysLunch As Boolean = False) As String
+                                Optional bAlwaysLunch As Boolean = False) As String
     
     Dim sHost As String
     Dim sUserID As String
@@ -693,11 +746,13 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
     Dim sCmd As String
     Dim sTemp As String
     Dim sEnviron As String
+    Dim sHostKey As String
+    Dim sPLinkResult As String
+    Dim sPLinkError As String
     Static staCmd As String
     Static staRtn As String
     
     'Vijaya on 07/09/03 needs always lunch the 4ge by default it will check
-    
     If staCmd = sCmdLine And Not bAlwaysLunch Then
         fnRun4GLPricing = staRtn
         Exit Function
@@ -729,12 +784,33 @@ Public Function fnRun4GLPricing(sCmdLine As String, _
         End If
     End If
     
+    sHostKey = Trim(fnGetServerHostKey())
+    
     sCmd = fnVariables(sHost, sDBPath, sUserID, sPassWD) & sEnviron & "cd /home/" & sUserID & ";" & "$PROGPATH/" & sCmdLine
+    If sHostKey <> "" Then GoTo RUN_PLINK
     staRtn = tfnRunRCmd(sHost, sUserID, sPassWD, sCmd, True)
+    
     fnRun4GLPricing = staRtn
+    
+    Exit Function
+    
+RUN_PLINK:
+    If tfnRunRemoteCmd(sHostKey, rapPlink, sCmd, staRtn, sPLinkError, sHost, sUserID, sPassWD) Then
+        fnRun4GLPricing = staRtn
+    Else
+        fnRun4GLPricing = sPLinkError
+        If Len(staRtn) > 0 Then fnRun4GLPricing = Trim(fnRun4GLPricing & " " & staRtn)
+    End If
 End Function
 
 Public Function tfnRemoteFileExists(sFileName As String, ByRef sErrMsg As String) As Boolean
+    Dim sHostKey As String
+    Dim sPLinkResult As String
+    Dim sCmdLine As String
+    
+    sHostKey = Trim(fnGetServerHostKey())
+    If sHostKey <> "" Then GoTo RUN_PLINK
+    
     sErrMsg = tfnRunRCmd(tfnGetHostName(), tfnGetUserName(), tfnGetPassword(), "ls " + sFileName & " > /dev/null")
     If sErrMsg = "" Then
         'file found
@@ -749,4 +825,371 @@ Public Function tfnRemoteFileExists(sFileName As String, ByRef sErrMsg As String
         'replace the password with *'s
         sErrMsg = Replace(sErrMsg, "PWD=" & tfnGetNamedString(sErrMsg, "PWD"), "PWD=" & String(Len(tfnGetNamedString(sErrMsg, "PWD")), "*"))
     End If
+        
+    Exit Function
+    
+RUN_PLINK:    ' 8696
+    If tfnRunRemoteCmd(sHostKey, _
+                       rapPlink, _
+                       "ls " & sFileName, _
+                       sPLinkResult, _
+                       sErrMsg, _
+                       tfnGetHostName(), _
+                       tfnGetUserName(), _
+                       tfnGetPassword()) Then
+        If InStr(sPLinkResult, "ls:") > 0 Then
+            tfnRemoteFileExists = False
+        Else
+            tfnRemoteFileExists = True
+        End If
+    Else
+        tfnRemoteFileExists = False
+    End If
+    
 End Function
+
+'**********************************************************
+'* USE PLINK - 8696
+
+Public Function fnGetServerHostKey() As String
+    Dim rsTemp As Recordset
+    Dim strSQL As String
+    Dim sHost As String
+    Dim sAppPath As String
+    Dim sName As String
+    Dim sValue As String
+    
+    If m_bSSH_KEY Then
+        fnGetServerHostKey = m_sSSH_KEY
+        Exit Function
+    End If
+    
+    m_sSSH_KEY = ""
+    m_bSSH_KEY = True
+    fnGetServerHostKey = ""
+    m_DontDeleteRemoteFiles = False
+    
+    sAppPath = App.Path
+    If Right$(sAppPath, 1) <> "\" Then sAppPath = sAppPath & "\"
+    If Not io.FileExists(sAppPath & "plink.exe") Then Exit Function
+    If Not io.FileExists(sAppPath & "pscp.exe") Then Exit Function
+    If Not io.FileExists(sAppPath & "psftp.exe") Then Exit Function
+
+    sHost = tfnGetHostName()
+
+    strSQL = "select ini_field_name, ini_value " _
+             & "from sys_ini " _
+            & "where ini_file_name = 'HOST_KEY' " _
+              & "and ini_section = '" & sHost & "' " _
+              & "and ini_field_name in ('SSH_KEY', 'DONT_DELETE')"
+
+    With t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        While .EOF = False
+            sName = UCase(Trim$(.Fields(0).value & ""))
+            sValue = UCase(Trim$(.Fields(1).value & ""))
+            Select Case sName
+                Case "SSH_KEY"
+                    m_sSSH_KEY = sValue
+                Case "DONT_DELETE"
+                    m_DontDeleteRemoteFiles = (sValue = "Y")
+            End Select
+            .MoveNext
+        Wend
+        .Close
+    End With
+    
+    fnGetServerHostKey = m_sSSH_KEY
+    
+End Function
+
+Public Function tfnRunRemoteCmd(ByVal sHostKey As String, _
+                                ByVal eRemoteApp As RemoteApps, _
+                                ByVal sCmd As String, _
+                                ByRef sResult As String, _
+                                ByRef sErrMsg As String, _
+                                Optional ByVal sHost As String = "", _
+                                Optional ByVal sUser As String = "", _
+                                Optional ByVal sPWD As String = "", _
+                                Optional ByVal lTimeoutSecs As Long = 2100, _
+                                Optional ByVal bPromptContinueWait As Boolean = False) As Boolean
+    On Error GoTo FINISHED
+    Dim sGuid As String
+    Dim sArgs As String
+    Dim sAppName As String
+    Dim sAppPath As String
+    Dim sCommand As String
+    Dim sBatFile As String
+    Dim sOutFile As String
+    Dim sErrFile As String
+    Dim hFile As Integer
+    Dim lTemp As Long
+    
+    sErrMsg = ""
+    If Trim(sCmd) = "" Then Err.Raise -1, "tfnRunRemoteCmd", "Empty command passed to function."
+    If Trim(sHostKey) = "" Then Err.Raise -2, "tfnRunRemoteCmd", "Empty sHostKey passed to function."
+    
+    sGuid = Trim(GetGUID())
+    sHost = Trim(sHost)
+    sUser = Trim(sUser)
+    sPWD = Trim(sPWD)
+    
+    If sHost = "" Or sUser = "" Or sPWD = "" Then
+        If t_dbMainDatabase Is Nothing Then
+            Err.Raise -2, "tfnRunRemoteCmd", "No FactMenu connection found."
+        End If
+    End If
+    
+    If sHost = "" Then sHost = tfnGetHostName()
+    If sUser = "" Then sUser = tfnGetUserName()
+    If sPWD = "" Then sPWD = tfnGetPassword()
+    If sGuid = "" Then sGuid = Format$(Now, "yyyy-mm-dd") & "-" & Replace(Format$(Now, "hh:mm:ss"), ":", "-")
+    
+    ' TEST SPACES IN PATHS
+    'sBatFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".bat"
+    'sOutFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".txt"
+    'sErrFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".err"
+    'sAppPath = "C:\temp\PUT PLINK HERE\"
+    
+    sBatFile = io.LocalAppPath & "rap" & sGuid & ".bat"
+    sOutFile = io.LocalAppPath & "rap" & sGuid & ".txt"
+    sErrFile = io.LocalAppPath & "rap" & sGuid & ".err"
+    
+    sAppPath = App.Path
+    If Right$(sAppPath, 1) <> "\" Then sAppPath = sAppPath & "\"
+    
+    If eRemoteApp = rapPlink Then
+        If io.FileExists(sBatFile) Then Kill sBatFile
+        hFile = FreeFile()
+        Open sBatFile For Output As #hFile
+        Print #hFile, ". /etc/profile > /dev/null 2> /dev/null;"
+        Print #hFile, ". $(pwd)/.profile > /dev/null 2> /dev/null;"
+        Print #hFile, sCmd
+        Close #hFile
+        hFile = 0
+
+        sAppName = "plink.exe"
+        sAppPath = sAppPath & sAppName
+        sArgs = " -ssh -pw " & sPWD & " -hostkey " & sHostKey & " " & sUser & "@" & sHost & " -m " & Chr$(34) & sBatFile & Chr$(34)
+    ElseIf eRemoteApp = rapPscp Then
+        ' pscp will set the errorlevel while psftp will not
+        ' sCmd must contain user@host:fullfilename and local\fullfilename in the preferred order for get/put
+        ' -q hides progress
+        ' -batch means to avoid interactive prompts.  if something goes wrong at connection time, the batch job will fail rather than hang.
+        ' -r means recursive when passing wildcards
+        '
+        ' example     get> pscp fred@example.com:/etc/hosts         c:\temp\example-hosts.txt
+        ' wildcard ex get> pscp fred@example.com:/etc/hosts/*.txt   c:\temp
+        '
+        ' example     put> pscp c:\documents\foo.txt                fred@example.com:/tmp/foo
+        ' wildcard ex put> pscp c:\documents\*.txt                  fred@example.com:/tmp/foo
+        sAppName = "pscp.exe"
+        sAppPath = sAppPath & sAppName
+        sArgs = " -q -batch -pw " & sPWD & " -hostkey " & sHostKey & " " & sCmd
+    ElseIf eRemoteApp = rapPsftp Then
+        ' psftp works best for sending delete file commands
+        If io.FileExists(sBatFile) Then Kill sBatFile
+        hFile = FreeFile()
+        Open sBatFile For Output As #hFile
+        Print #hFile, sCmd
+        Close #hFile
+        hFile = 0
+        
+        sAppName = "psftp.exe"
+        sAppPath = sAppPath & sAppName
+        sArgs = " -be -batch -pw " & sPWD & " -hostkey " & sHostKey & " " & sUser & "@" & sHost & " -b " & Chr$(34) & sBatFile & Chr$(34)
+    Else
+        Err.Raise -3, "", "Invalid remote app passed to tfnRunRemoteCmd - " & eRemoteApp
+    End If
+    
+    If Not io.FileExists(sAppPath) Then
+        Err.Raise -1, "tfnRunRemoteCmd", sAppName & " program not found. " & vbCrLf & sAppPath
+    End If
+        
+    sCommand = "cmd.exe /c " & Chr(34) & Chr(34) & sAppPath & Chr(34) & sArgs & " 1>" & Chr(34) & sOutFile & Chr(34) & " 2>" & Chr(34) & sErrFile & Chr(34) & Chr(34)
+    If Not ShellRemoteAppAndWait(eRemoteApp, sCommand, vbHide, sErrMsg) Then
+        tfnRunRemoteCmd = False
+        GoTo FINISHED
+    End If
+    
+    If io.FileExists(sOutFile) Then
+        lTemp = tfnReadWholeFile(sOutFile, sResult)
+    End If
+    
+    If io.FileExists(sErrFile) Then
+        lTemp = tfnReadWholeFile(sErrFile, sErrMsg)
+    End If
+    
+    tfnRunRemoteCmd = Len(Trim(sErrMsg)) < 1
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        tfnRunRemoteCmd = False
+        sErrMsg = Err.Description
+        Err.Clear
+    End If
+    On Error Resume Next
+    If hFile <> 0 Then Close #hFile
+    If m_DontDeleteRemoteFiles = False Then
+        If io.FileExists(sBatFile) Then Kill sBatFile
+        If io.FileExists(sOutFile) Then Kill sOutFile
+        If io.FileExists(sErrFile) Then Kill sErrFile
+    End If
+    Err.Clear
+End Function
+
+Private Function ShellRemoteAppAndWait( _
+        ByVal eRemoteApp As RemoteApps, _
+        ByVal sCmd As String, _
+        ByVal windowstyle As VbAppWinStyle, _
+        ByRef sError As String, _
+        Optional lTimeoutSecs As Long = 2100, _
+        Optional bPromptContinueWait As Boolean = False) As Boolean
+        
+    Dim ProcessID As Long
+    Dim ProcessHandle As Long
+    Dim wfsoReply As Long
+    Dim nWaitStart As Long
+    Dim sAppName As String
+    
+    On Error GoTo FINISHED
+        
+    sAppName = fnGetRemoteAppName(eRemoteApp)
+    
+    ' Shell the program, get its handle,
+    ' and wait for it to terminate
+    nWaitStart = Timer
+    ProcessID = Shell(sCmd, windowstyle)
+    ProcessHandle = OpenProcess(SYNCHRONIZE, True, ProcessID)
+    wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Do While wfsoReply = 258
+        DoEvents
+        If (Timer - nWaitStart) > lTimeoutSecs Then
+            If bPromptContinueWait Then
+                If MsgBox(sAppName & " time out. Do you want to continue to wait (30 minutes) " _
+                        & "for the program to finished?", vbQuestion + vbYesNo) = vbYes Then
+                    nWaitStart = Timer
+                Else
+                    sError = sAppName & " timed out"
+                    ShellRemoteAppAndWait = False
+                    GoTo FINISHED
+                End If
+            Else
+                ShellRemoteAppAndWait = False
+                sError = "Timed out waiting for " & sAppName & " to finish."
+                GoTo FINISHED
+            End If
+        End If
+        wfsoReply = WaitForSingleObject(ProcessHandle, 500)
+    Loop
+    
+    ShellRemoteAppAndWait = True
+    CloseHandle ProcessHandle
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        sError = Err.Description
+        ShellRemoteAppAndWait = False
+        Err.Clear
+    End If
+End Function
+
+Private Function ShellRemoteAppAndWait_WSH_RUN( _
+        ByVal eRemoteApp As RemoteApps, _
+        ByVal sCmd As String, _
+        ByVal windowstyle As VbAppWinStyle, _
+        ByRef sError As String, _
+        Optional lTimeoutSecs As Long = 2100, _
+        Optional bPromptContinueWait As Boolean = False) As Boolean
+        
+    Dim ProcessID As Long
+    Dim ProcessHandle As Long
+    Dim wfsoReply As Long
+    Dim nWaitStart As Long
+    Dim sAppName As String
+    Dim Wscript, objShell, objExecObject, strLine As String, strip As Long
+    On Error GoTo FINISHED
+        
+    sAppName = fnGetRemoteAppName(eRemoteApp)
+    
+    ' Shell the program, get its handle,
+    ' and wait for it to terminate
+    nWaitStart = Timer
+    
+    Set objShell = CreateObject("WScript.Shell")
+    Set objExecObject = objShell.Exec("%comspec% /c " & sCmd)
+    
+    Do Until objExecObject.StdOut.AtEndOfStream
+        strLine = objExecObject.StdOut.ReadLine()
+        strip = InStr(strLine, "Address")
+        If strip <> 0 Then
+            Wscript.Echo strLine
+        End If
+    Loop
+    
+    Do Until objExecObject.StdErr.AtEndOfStream
+        strLine = objExecObject.StdErr.ReadLine()
+        strip = InStr(strLine, "Address")
+        If strip <> 0 Then
+            sError = sError & vbCrLf & strLine
+        End If
+    Loop
+        
+    ShellRemoteAppAndWait_WSH_RUN = True
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        sError = Err.Description
+        ShellRemoteAppAndWait_WSH_RUN = False
+        Err.Clear
+    End If
+End Function
+
+Public Function tfnReadWholeFile(ByVal sFile As String, ByRef sBuffer As String) As Long
+    Dim hFile As Integer
+    
+    sBuffer = ""
+    
+    If io.FileExists(sFile) Then
+        hFile = FreeFile()
+        Open sFile For Input As #hFile
+        sBuffer = Input$(LOF(hFile), hFile)
+        Close #hFile
+    End If
+    
+    tfnReadWholeFile = Len(sBuffer)
+    
+End Function
+
+Public Function GetGUID() As String
+    '(c) 2000 Gus Molina
+    Dim udtGUID As GUID
+     
+    If (CoCreateGuid(udtGUID) = 0) Then
+        GetGUID = _
+            String(8 - Len(Hex$(udtGUID.Data1)), "0") & Hex$(udtGUID.Data1) & _
+            String(4 - Len(Hex$(udtGUID.Data2)), "0") & Hex$(udtGUID.Data2) & _
+            String(4 - Len(Hex$(udtGUID.Data3)), "0") & Hex$(udtGUID.Data3) & _
+            IIf((udtGUID.Data4(0) < &H10), "0", "") & Hex$(udtGUID.Data4(0)) & _
+            IIf((udtGUID.Data4(1) < &H10), "0", "") & Hex$(udtGUID.Data4(1)) & _
+            IIf((udtGUID.Data4(2) < &H10), "0", "") & Hex$(udtGUID.Data4(2)) & _
+            IIf((udtGUID.Data4(3) < &H10), "0", "") & Hex$(udtGUID.Data4(3)) & _
+            IIf((udtGUID.Data4(4) < &H10), "0", "") & Hex$(udtGUID.Data4(4)) & _
+            IIf((udtGUID.Data4(5) < &H10), "0", "") & Hex$(udtGUID.Data4(5)) & _
+            IIf((udtGUID.Data4(6) < &H10), "0", "") & Hex$(udtGUID.Data4(6)) & _
+            IIf((udtGUID.Data4(7) < &H10), "0", "") & Hex$(udtGUID.Data4(7))
+    End If
+
+End Function
+
+Private Function fnGetRemoteAppName(eRemoteApp As RemoteApps)
+    fnGetRemoteAppName = "remote application"
+    If eRemoteApp = rapPlink Then
+        fnGetRemoteAppName = "plink.exe"
+    ElseIf eRemoteApp = rapPscp Then
+        fnGetRemoteAppName = "pscp.exe"
+    End If
+End Function
+
