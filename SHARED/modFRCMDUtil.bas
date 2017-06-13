@@ -29,6 +29,11 @@ End Sub
 '#######################################################################
 Public Function fnGetServerDateAndTime(ctlFRCMD As FRCMD) As Date
     Dim sDate As String
+    Dim shKey As String
+    
+    shKey = Trim(fnGetServerHostKey())
+    If shKey <> "" Then GoTo RUN_PLINK
+    
     ctlFRCMD.Is4GECommand = False
     On Error GoTo ErrOut
     'Vijaya on 02/13/07 #543523 Changed from "Date +%D" to "date +'%D %H:%M:%S'"
@@ -40,6 +45,17 @@ Public Function fnGetServerDateAndTime(ctlFRCMD As FRCMD) As Date
     End If
     fnGetServerDateAndTime = sDate
     Exit Function
+    
+RUN_PLINK:
+    sDate = ExecUnixCmd("", "", "", "date +'%D %H:%M:%S'")
+    If IsDate(sDate) Then
+        fnGetServerDateAndTime = sDate
+    Else
+        GoTo ErrOut
+    End If
+    fnGetServerDateAndTime = sDate
+    Exit Function
+    
 ErrOut:
     MsgBox "Unable to retrieve time from database server.  Using local system time", vbOKOnly, "AWCRTINT"
     fnGetServerDateAndTime = Now
