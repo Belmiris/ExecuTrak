@@ -25,7 +25,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -843,7 +843,7 @@ End Function
 Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If Not (SYS_PARM_14000 = "Y" Or SYS_PARM_14000 = "N") Then
         SYS_PARM_14000 = "N"
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 14000"
@@ -866,7 +866,7 @@ Public Function tfnIS_RM(Optional sRetSysParm14000 As String = "") As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnIS_RM = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIS_RM", strSQL
@@ -914,7 +914,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     Dim rsTemp As Recordset
     Static staSysParm901 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     If staSysParm901 <> "Y" And staSysParm901 <> "N" Then
         strSQL = "SELECT parm_field FROM sys_parm WHERE parm_nbr = 901"
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, SQL_PASSTHROUGH)
@@ -932,7 +932,7 @@ Public Function tfnIsARBudgetConverted() As Boolean
     End If
     
     Exit Function
-ErrTrap:
+errTrap:
     tfnIsARBudgetConverted = False
     #If Not NO_ERROR_HANDLER Then
     tfnErrHandler "tfnIsARBudgetConverted", strSQL
@@ -1089,7 +1089,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1536,11 +1536,11 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.number = 3146 Then
+    If Err.Number = 3146 Then
         With t_engFactor.Errors
             If .Count > 0 Then
                 For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
             If .Count <= 2 Then
@@ -1607,7 +1607,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1885,7 +1885,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1893,7 +1893,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hwnd, 0        'lock the window
+        EnableWindow frmCurrent.hWnd, 0        'lock the window
     End If
 
 End Sub
@@ -2236,7 +2236,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.number = 94 Then
+    If Err.Number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2440,7 +2440,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hwnd, False)
+    nCode = GetSystemMenu(frmForm.hWnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2711,14 +2711,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hwnd
+            DrawMenuBar frmMain.hWnd
         End If
     End If
 End Sub
@@ -2815,7 +2815,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2853,7 +2853,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.number = 3051 Then
+    If Err.Number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -2920,7 +2920,7 @@ End Function
 Public Function tfnNeed_inv_xref() As Boolean
     Dim strSQL As String
     Dim rsTemp As Recordset
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     If Not (SYS_PARM_6005 = "Y" Or SYS_PARM_6005 = "N") Then
         SYS_PARM_6005 = "N"
@@ -2942,7 +2942,7 @@ Public Function tfnNeed_inv_xref() As Boolean
     
     Exit Function
     
-ErrTrap:
+errTrap:
     tfnNeed_inv_xref = False
 
 End Function
@@ -3530,7 +3530,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3747,7 +3747,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3883,12 +3883,12 @@ Public Function lock_row(ByVal in_table As String, _
     
     Exit Function
     
-ErrTrap:
+errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.number <> 0 Then
-        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -3943,6 +3943,8 @@ Public Function tfnGetDbName(Optional bKeepSlashFactor As Boolean = False) As St
             If i > 1 Then
                 sDBName = Mid(sDBPath, i + 1)
             End If
+        Else
+            sDBName = sDBPath
         End If
     
         tfnGetDbName = sDBName
@@ -4003,7 +4005,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     strSQL = strSQL & " AND ini_section = " + tfnSQLString(UCase(sSection))
     strSQL = strSQL & " AND ini_field_Name = " + tfnSQLString(UCase(sField))
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
     
     If rsTemp.RecordCount > 0 Then
@@ -4012,7 +4014,7 @@ Public Function tfn_Read_SYS_INI(sFileName As String, _
     End If
     Exit Function
     
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful! some module don't use Error Handler
     #If NO_ERROR_HANDLER Then
@@ -4056,7 +4058,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
         sRetrunValue = tfn_Read_SYS_INI(sFileName, sUserID, sSection, sField, , bRecordFound)
     End If
         
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     sUserID = Trim$(UCase$(sUserID))
     If LenB(sUserID) > 0 Then
         sUserID = tfnSQLString(sUserID)
@@ -4082,7 +4084,7 @@ Public Function tfn_Write_SYS_INI(sFileName As String, _
     tfn_Write_SYS_INI = True
     Exit Function
         
-ErrTrap:
+errTrap:
     'Added by Junsong 08/19/2003
     'Be careful some module don't use Error Handler
 
@@ -4511,7 +4513,7 @@ Public Function fnInvoiceOK(ByVal sRequest As String, ByRef lInvNo As Long) As S
     '537311 - Chris Albrecht - 11/7/2006
     Static sSysParm7900 As String
     
-    On Error GoTo ErrTrap
+    On Error GoTo errTrap
     
     fnInvoiceOK = ""
     bError = False
@@ -4773,7 +4775,7 @@ TRY_AGAIN:
     
     Exit Function
     
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
         If Not objErrHandler Is Nothing Then
             tfnErrHandler SUB_NAME, strSQL
@@ -4947,7 +4949,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
         
         On Error Resume Next
         If Not DirExists(sParentDir) Then ' replace DIR with UNC compatible function
-            On Error GoTo ErrTrap
+            On Error GoTo errTrap
             MkDir sParentDir
         End If
         
@@ -4960,7 +4962,7 @@ Public Function tfnCheckAndCreateDirectory(ByVal sDir As String, bPromptForCreat
     Wend
     Exit Function
 
-ErrTrap:
+errTrap:
     #If Not NO_ERROR_HANDLER Then
         If Not objErrHandler Is Nothing Then
             tfnErrHandler "fnCheckAndCreateDirectory", bPromptForCreate
@@ -5367,7 +5369,7 @@ Public Function CallForPrinterList() As String
     
     Cmd = App.Path
     Cmd = IIf(Right(Cmd, 1) = "\", Cmd & "PrintMaster.exe", Cmd & "\PrintMaster.exe")
-    Cmd = Cmd & " " & CStr(frmContext.txtPrinterList.hwnd) & " " & Chr(34) & t_szConnect & Chr(34)
+    Cmd = Cmd & " " & CStr(frmContext.txtPrinterList.hWnd) & " " & Chr(34) & t_szConnect & Chr(34)
     'Cmd = Cmd & " show"        'DEBUG!!!!
     
     Shell Cmd, vbHide
