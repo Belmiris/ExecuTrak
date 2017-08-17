@@ -580,7 +580,7 @@ Private Function fnVariables_UseCommands(sHost As String, sDBPath As String) As 
         sTemp = ""
         'sTemp = sTemp + "DBPRINT=/usr/factor/isqlflt; export DBPRINT;"
         'sTemp = sTemp + "DBTEMP=/usr/tmp; export DBTEMP;"
-        sTemp = sTemp + "INFORMIXDIR=/usr/ids; export INFORMIXDIR;"
+        sTemp = sTemp + "INFORMIXDIR=/usr/informix; export INFORMIXDIR;"
         sTemp = sTemp + "ONCONFIG=onconfig; export ONCONFIG;"
         sTemp = sTemp + "PATH=/bin:/usr/bin:$INFORMIXDIR/bin:/usr/cmds:/usr/factor; export PATH;"
         sTemp = sTemp + "INFORMIXSERVER=" + sHost + "; export INFORMIXSERVER;"
