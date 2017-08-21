@@ -1,4 +1,6 @@
 Attribute VB_Name = "modRCmd"
+' 8829 - tthompson
+
 Option Explicit
 
 Private Const ERR_LOGIN = -1
@@ -895,7 +897,7 @@ Public Function fnGetServerHostKey() As String
             End Select
             .MoveNext
         Wend
-        .Close
+       .Close
     End With
     
     fnGetServerHostKey = m_sSSH_KEY
@@ -946,7 +948,7 @@ Public Function tfnRunRemoteCmd(ByVal sHostKey As String, _
     
     ' TEST SPACES IN PATHS
     'sBatFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".bat"
-    'sOutFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".txt"
+   'sOutFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".txt"
     'sErrFile = "C:\temp\PUT FILES HERE\" & "rap" & sGuid & ".err"
     'sAppPath = "C:\temp\PUT PLINK HERE\"
     
@@ -982,9 +984,14 @@ Public Function tfnRunRemoteCmd(ByVal sHostKey As String, _
         '
         ' example     put> pscp c:\documents\foo.txt                fred@example.com:/tmp/foo
         ' wildcard ex put> pscp c:\documents\*.txt                  fred@example.com:/tmp/foo
+        '
+        ' -sftp is the newest protocol which attempts to use SSH-2 (if use -scp then warning message occurs, see documentaion)
+        '  we added this to allow for case insensitive GET
+        '  insens.ex  get> pscp fred@example.com:/etc/hosts/[Tt][Ee][Ss][Tt].txt c:\temp
+        '
         sAppName = "pscp.exe"
         sAppPath = sAppPath & sAppName
-        sArgs = " -q -batch -pw " & sPWD & " -hostkey " & sHostKey & " " & sCmd
+        sArgs = " -q -batch -sftp -pw " & sPWD & " -hostkey " & sHostKey & " " & sCmd
     ElseIf eRemoteApp = rapPsftp Then
         ' psftp works best for sending delete file commands
         If io.FileExists(sBatFile) Then Kill sBatFile
@@ -1192,4 +1199,5 @@ Private Function fnGetRemoteAppName(eRemoteApp As RemoteApps)
         fnGetRemoteAppName = "pscp.exe"
     End If
 End Function
+
 

@@ -9,10 +9,13 @@ Option Explicit
 '           :                "RemoteFilePath&Name", "LocalFilePath", "ErrorMessage", True) *
 '*******************************************************************************************
 'G8696 - Tthompson
+'G8829 - tthompson
 
 Declare Function GetProcessHeap Lib "kernel32" () As Long
 Declare Function HeapAlloc Lib "kernel32" (ByVal hHeap As Long, ByVal dwFlags As Long, ByVal dwBytes As Long) As Long
 Declare Function HeapFree Lib "kernel32" (ByVal hHeap As Long, ByVal dwFlags As Long, lpMem As Any) As Long
+Declare Function IsCharAlphaW Lib "user32" (ByVal cChar As Integer) As Long
+
 Private Const HEAP_ZERO_MEMORY = &H8
 Private Const HEAP_GENERATE_EXCEPTIONS = &H4
 
@@ -398,7 +401,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
         Dim sDest As String
         Dim nNum As Integer, sNum As String
         For i = 0 To UBound(sArrFile)
-            'Commented out by Junsong 08/21/2006 ticket 529160
+           'Commented out by Junsong 08/21/2006 ticket 529160
             'I changed the parameter for FTPOPE, so there is no cache will be written, so we don't need to rename the file
             'otherwise, some error occur, the program will generate some strange files.
             'sArrFile(i) = fnGenerateNewFile10()
@@ -426,7 +429,7 @@ Public Function fnTransferFile(sHost As String, sUser As String, sPWD As String,
 '            End If
 '
             bFlag = FtpGetFile(hConnection, sArrFile(i), sDest, False, INTERNET_FLAG_RELOAD, lBinAscii, 0)
-            If bFlag = False Then
+           If bFlag = False Then
                 'bRenameFlag = FtpRenameFile(hConnection, sArrFile(i), sArrOldname(i))
                 fnErrorOut Err.LastDllError, "FtpGetFile", bShowError, sRetErrMsg
                 GoTo CloseHandle
@@ -523,7 +526,7 @@ RUN_SFTP: 'G8696
     Exit Function
     
 errTrap:
-    sRetErrMsg = Err.number & ": " & Err.Description
+    sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
 End Function
@@ -733,7 +736,7 @@ Private Function fnBuildFileArray(sPath As String, sFileName As String, _
     Exit Function
 
 errBuildList:
-    If Err.number = 76 Then
+    If Err.Number = 76 Then
         MsgBox " Path (" & fnConCat(sPath, sFileName) & ") not found in Function '" & SUB_NAME & "'"
     End If
     fnBuildFileArray = -1
@@ -869,7 +872,7 @@ Public Function fnSCreateUnixDirectory(ByVal sHostKey As String, _
                                 sPath As String, sRetErrMsg As String, _
                                 Optional bShowError As Boolean = False) As Boolean
     'G8696 - Tthompson
-    ' use plink via tfnRunRemoteCmd to "mkdir /home/ssfactor/asdf"
+  ' use plink via tfnRunRemoteCmd to "mkdir /home/ssfactor/asdf"
         ' STDOUT success results: mkdir /home/ssfactor/asdf: OK
     ' use plink via tfnRunRemoteCmd to "mkdir /home/ssfactor/asdf"
         ' STDOUT fail results: mkdir /home/ssfactor/asdf: failure
@@ -1031,7 +1034,7 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
         Else
             'Get the destination directory path from unix server...
             If tfnRunRemoteCmd(sHostKey, rapPlink, "pwd", szDir, sRetErrMsg, sHost, sUser, sPWD, , True) = False Then
-                fnErrorOut Err.number, "SFtpGetCurrentDirectory", bShowError, sRetErrMsg
+                fnErrorOut Err.Number, "SFtpGetCurrentDirectory", bShowError, sRetErrMsg
                 GoTo CloseHandle
             End If
         End If
@@ -1047,8 +1050,8 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
         ' wildcard ex get> pscp fred@example.com:/etc/hosts/*.txt   c:\temp
         
         'Separate the file path and file name...
-        'subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
-                
+        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
+        subAddSlash sSourcePath, "/"
         
         'potential for sDestFilename to contain a full path
         ' check if sDestFilename contains a path or drive separator
@@ -1059,9 +1062,9 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
             subAddSlash sDestPath, "\"
             sDest = sDestPath & sDestFilename
         End If
-        If Right(sDest, 1) = "\" Then sDest = Left(sDest, Len(sDest) - 1)
+       If Right(sDest, 1) = "\" Then sDest = Left(sDest, Len(sDest) - 1)
         
-        sCmd = sUser & "@" & sHost & ":" & Q_Str(sSourcePathAndFile) & " " & Q_Str(sDest)
+        sCmd = sUser & "@" & sHost & ":" & Q_Str(sSourcePath & fnInsenseString(sSourceFile)) & " " & Q_Str(sDest)
         
         fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
                            rapPscp, _
@@ -1100,7 +1103,7 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
             sDest = sDestFilename
         Else
             subAddSlash sDestPath, "/"
-            sDest = sDestPath & sDestFilename
+           sDest = sDestPath & sDestFilename
         End If
         If Right(sDest, 1) = "/" Then sDest = Left(sDest, Len(sDest) - 1)
         
@@ -1142,7 +1145,7 @@ CloseHandle:
     Exit Function
     
 errTrap:
-    sRetErrMsg = Err.number & ": " & Err.Description
+    sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
 End Function
@@ -1175,3 +1178,34 @@ Private Function fnFileNameFromPath(ByVal strFullPath As String, Optional ByVal 
     End If
 
 End Function
+
+
+Private Function fnInsenseString(ByVal vTemp As Variant) As String
+    Dim nIdx As Integer
+    Dim szParameter As String
+    Dim sTemp As String
+    
+    sTemp = CStr(vTemp)
+    
+    For nIdx = 1 To Len(sTemp)
+        szParameter = szParameter & fnInsenseChar(Mid(sTemp, nIdx, 1))
+    Next
+    
+    fnInsenseString = szParameter
+End Function
+
+Private Function fnInsenseChar(ByVal character As String) As String
+    If IsLetter(character) Then
+        fnInsenseChar = "[" & UCase(character) & LCase(character) & "]"
+    Else
+        fnInsenseChar = character
+    End If
+End Function
+
+Private Function IsLetter(character As String) As Boolean
+    IsLetter = IsCharAlphaW(AscW(character))
+End Function
+
+
+
+
