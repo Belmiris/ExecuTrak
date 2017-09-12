@@ -797,7 +797,6 @@ Private Function fnGenerateNewFile10() As String
     fnGenerateNewFile10 = sTemp & ".eml"
 End Function
 
-
 Public Function fnCreateUnixDirectory(sHost As String, sUser As String, sPWD As String, _
                                 sPath As String, sRetErrMsg As String, _
                                 Optional bShowError As Boolean = False) As Boolean
@@ -845,7 +844,6 @@ RUN_fnSCreateUnixDirectory:
                                 sPath, sRetErrMsg, _
                                 bShowError)
 End Function
-
 
 Public Function fnConCatUnixPath(MyPath As String, MyName As String) As String
     fnConCatUnixPath = IIf(Right(MyPath, 1) = "/", MyPath, MyPath + "/") + MyName
@@ -925,7 +923,6 @@ Public Function fnSValidUnixPath(ByVal sHostKey As String, _
     
 End Function
 
-
 Public Function fnSTransferFile(ByVal sHostKey As String, _
                                 sHost As String, sUser As String, sPWD As String, _
                                 sSourcePathAndFile As String, _
@@ -937,80 +934,37 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
                                 Optional bDeleteSourceFile As Boolean = False, _
                                 Optional bPassive As Boolean = True, _
                                 Optional bBinary As Boolean = True) As Boolean
-    'G8696 - Tthompson
-        'Latest released version of PuTTY. Currently this is 0.69, released on 2017-04-29.
-        '    https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
-        '
-        'bPassive not in use - not an option in SSL
-        '    http://www.perlmonks.org/?node_id=456458
-        '    "SFTP uses the SSH protocols, and "passive mode" wouldn't make sense, since there's ever only one major connection between client and server. (Data streams are handled as sub-connections, not parallel connections.)" - Randal L. Schwartz
-        '
-        'bBinary not in use - not an option in SFTP protocols
-        '    https://www.chiark.greenend.org.uk/~sgtatham/putty/faq.html#faq-pscp-ascii
-        '    "PSCP or PSFTP cannot transfer files in ASCII mode.  Until recently, this was a limitation of the file transfer protocols: the SCP and SFTP protocols had no notion of transferring a file in anything other than binary mode."
-        '
-        
-    'old method in fnTransferFile
-    ' step 1) get localpath
-    ' step 2) define arguments and command
-    ' step 3) call ShellProgramAndWait
-    ' step 4) read STD results
-    ' step 5) kill batch and STD files
-    ' step 6) set return message
-    ' step 7) return True if no error occurred
-
-    ' PSCP will set the ERRORLEVEL while PSFTP will NOT
-        ' sCmd must contain user@host:fullfilename and local\fullfilename in the preferred order for get/put
-        ' -q hides progress
-        ' -batch means to avoid interactive prompts.  if something goes wrong at connection time, the batch job will fail rather than hang.
-        ' -r means recursive when passing wildcards
-
-
-    'CANNOT use PSFTP because ERRORLEVEL is not being set in commandline mode!!!
-    ' this approach is to write FTP commands to a file to be processed by psftp.exe in modRCMD.bas tfnRunRemoteCmd()
-    ' cmd.exe /c "psftp.exe -b -be -batch [commandsfilename] [connection] [command]" 1> STDOUT.txt 2> STDERR.txt'
-    ' command template to be used:
-        '#transfer command template
-        '# psftp must include the following args:
-        '#    -b filename -be -batch
-        '# VB code must change to the correct local and server folders before transfer
-        '# If put then server folder = dest and local folder = source
-        '# If get then server folder = source and local folder = dest
-        '# we don't have to search for the existing file first, just assume it is there
-        '
-        '!cd \localfolder
-        'cd \serverfolder
-        '
-        '# VB code will write get or put as required
-        '[get or put] filename
-        '
-        '# VB code will write this line if required
-        'del Filename
-        '
-        '# VB code will repeat for additional files
-        '
-        'quit
-        '
-
-    'The PSFTP uses an SFTP protocol version 3.
-    '
-    'In the SFTP protocol version 3 there are no transfer modes. Or in other words, there's only a binary transfer mode.
-    '
-    'If you need "ascii download", you need to convert the downloaded file to Windows format after you download it with PSFTP.
-
-   'source and destination paths are passed through Q_Str() for commandline processing
-
-    Dim bFlag, bRenameFlag As Boolean, i As Integer
+    Dim bFlag, bRenameFlag As Boolean, i As Long
     Dim sSourcePath As String, sSourceFile As String, sItemName As String
     Dim sCmd As String, sResult As String
     Dim sArrFile() As String
     Dim sDest As String
     Dim nNum As Integer, sNum As String
+    Dim sWorkDir As String
+    Dim sFileList As String
+    Dim sInsSrcSpec As String
+    Dim aryFiles() As String
+    Dim aryCmds() As String
+    Dim colFiles As New Collection
+    Dim fCnt As Long
+    Dim cCnt As Long
+    Dim sFile As String
+    Dim sRemoteFile As String
+    Dim sWorkFile As String
+    Dim sDestFile As String
+    Dim sFindName As String
+    Dim sFindPath As String
+    Dim sHold As String
+    Dim lTime As Long
+    Dim sModule As String
+    Dim sTmpPath As String
+    Dim sTmpFile As String
     
     fnSTransferFile = False
     sDestPath = Trim(sDestPath)
     sDestFilename = Trim(sDestFilename)
     sSourcePathAndFile = Trim(sSourcePathAndFile)
+    sModule = fnGetProgramName()
     
     If sDestFilename <> "" Then
         If InStr(1, sDestFilename, "*") > 0 Or InStr(1, sDestFilename, "?") > 0 Then
@@ -1026,15 +980,16 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
         GoTo CloseHandle
     End If
     
-    If sDestPath = "" Then 'after checking all programs, sDestPath is never empty
+    If sDestPath = "" Then
         Dim szDir As String
         If bFromUnixToLocal Then
-            'szDir = App.path
             szDir = io.ApplicationPath
         Else
             'Get the destination directory path from unix server...
             If tfnRunRemoteCmd(sHostKey, rapPlink, "pwd", szDir, sRetErrMsg, sHost, sUser, sPWD, , True) = False Then
-                fnErrorOut Err.Number, "SFtpGetCurrentDirectory", bShowError, sRetErrMsg
+                sRetErrMsg = "Error Getting destination directory from unix path: " & vbCrLf _
+                           & sRetErrMsg
+                subShowError bShowError, sRetErrMsg, vbExclamation
                 GoTo CloseHandle
             End If
         End If
@@ -1044,15 +999,23 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
         End If
     End If
     
+    ' Create ftpwork folder
+    sWorkDir = fnCombinePath(io.ApplicationPath, "ftpwork\" & sModule)
+    
+    If Not io.CreateFolder(sWorkDir) Then
+        sRetErrMsg = "Failed to create ftp work folder '" & sWorkDir & "'"
+        subShowError bShowError, sRetErrMsg, vbExclamation
+        Exit Function
+    End If
+    
+    If Not fnClearDirectory(sWorkDir, sRetErrMsg) Then
+        subShowError bShowError, sRetErrMsg, vbExclamation
+        Exit Function
+    End If
+    
     On Error GoTo errTrap
-    If bFromUnixToLocal Then 'Transfer from unix server(source) to local(dest)...
-        ' example     get> pscp fred@example.com:/etc/hosts         c:\temp\example-hosts.txt
-        ' wildcard ex get> pscp fred@example.com:/etc/hosts/*.txt   c:\temp
-        
-        'Separate the file path and file name...
-        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
-        subAddSlash sSourcePath, "/"
-        
+    If bFromUnixToLocal Then
+    
         'potential for sDestFilename to contain a full path
         ' check if sDestFilename contains a path or drive separator
         ' if a path is given then dont use sDestPath
@@ -1062,34 +1025,168 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
             subAddSlash sDestPath, "\"
             sDest = sDestPath & sDestFilename
         End If
-       If Right(sDest, 1) = "\" Then sDest = Left(sDest, Len(sDest) - 1)
+        If Right(sDest, 1) = "\" Then sDest = Left(sDest, Len(sDest) - 1)
         
-        sCmd = sUser & "@" & sHost & ":" & Q_Str(sSourcePath & fnInsenseString(sSourceFile)) & " " & Q_Str(sDest)
+        'Separate the file path and file name...
+        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath
+        subAddSlash sSourcePath, "/"
         
-        fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
-                           rapPscp, _
-                           sCmd, _
-                           sResult, _
-                           sRetErrMsg, _
-                           sHost, _
-                            sUser, _
-                            sPWD, _
-                            , _
-                           True)
-                
-        If bDeleteSourceFile And fnSTransferFile Then
-            tfnRunRemoteCmd sHostKey, _
-                       rapPsftp, _
-                       "rm " & Q_Str(sSourcePathAndFile), _
-                       sResult, _
-                       sRetErrMsg, _
-                       sHost, _
-                        sUser, _
-                        sPWD, _
-                        , _
-                       True
+        ' Test unix folder
+        If Not fnSValidUnixPath(sHostKey, sHost, sUser, sPWD, sSourcePath, sRetErrMsg, bShowError) Then
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
         End If
-    Else 'Transfer from local(source) to unix server(dest)...
+        
+        ' Get remote files
+        ' This will get us a snap-shot of files on the server.
+        ' We must anticipate that more files may be added and some files
+        ' may be removed before the file transfer is complete.
+        sInsSrcSpec = fnInsenseString(sSourceFile)
+        sFindName = Replace(sInsSrcSpec, " ", "' '")
+        sFindName = Replace(sFindName, "(", "'('")
+        sFindName = Replace(sFindName, ")", "')'")
+        
+        sFindPath = Replace(sSourcePath, " ", "' '")
+        
+        fCnt = fnGetRemoteFileList(sHostKey, sFindPath, sFindName, aryFiles, sRetErrMsg, _
+                                   sHost, sUser, sPWD)
+        If fCnt < 1 Then
+            sRetErrMsg = "No file(s) found to transfer!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        ElseIf sRetErrMsg <> "" Then
+            If InStr(sRetErrMsg, "ls:") > 0 Then
+                sRetErrMsg = "No file(s) found to transfer!"
+                subShowError bShowError, sRetErrMsg, vbExclamation
+                GoTo CloseHandle
+            Else
+                sRetErrMsg = "Error getting files from UNIX: " & vbCrLf _
+                           & sRetErrMsg
+                subShowError bShowError, sRetErrMsg, vbExclamation
+                GoTo CloseHandle
+            End If
+        End If
+        
+        sInsSrcSpec = fnCombinePath(sSourcePath, sInsSrcSpec, True)
+        
+        lTime = Timer
+        
+        sCmd = sUser & "@" & sHost & ":" & Q_Str(sInsSrcSpec) & " " & Q_Str(sWorkDir)
+        fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
+                                          rapPscp, _
+                                          sCmd, _
+                                          sResult, _
+                                          sRetErrMsg, _
+                                          sHost, _
+                                          sUser, _
+                                          sPWD, _
+                                          , _
+                                          True)
+        If Not fnSTransferFile Then
+            sRetErrMsg = "Error transfering files: " & vbCrLf _
+                       & sCmd & vbCrLf _
+                       & sRetErrMsg
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+        
+        lTime = Timer - lTime
+        Debug.Print "Download time = " & lTime
+        
+        If sDestFilename <> "" Then
+            sTmpFile = fnGetFileName(sDestFilename)
+        End If
+        
+        For i = 0 To (fCnt - 1)
+            sDestFile = ""
+            
+            sFile = fnGetFileName(aryFiles(i))
+            If sTmpFile <> "" Then
+                sDestFile = fnNewDestFilename(sTmpFile, i)
+            End If
+            sDestFile = IIf(sDestFile <> "", fnCombinePath(sDestPath, sDestFile), fnCombinePath(sDestPath, sFile))
+            sWorkFile = fnCombinePath(sWorkDir, sFile)
+            
+            ' Don't trip over any files that may have been removed from the server
+            ' after we got our 'snap-shot' and were not downloaded.
+            If io.FileExists(sWorkFile) Then
+                
+                ' We do NOT want to delete files from the server that were
+                ' not downloaded to the PC. This collection will be used to
+                ' build the delete commands.
+                fnAddKeyToCollection colFiles, sFile, ""
+            
+                If Not bBinary Then
+                    fnSTransferFile = fnConvertToWindowsEOL(sWorkFile, sRetErrMsg, True, sDestFile)
+                    If Not fnSTransferFile Then
+                        sRetErrMsg = "Failed to copy or convert ftp work file: '" & sWorkFile & "' " & vbCrLf _
+                                   & "To: '" & sDestFile & "'" & vbCrLf _
+                                   & sRetErrMsg
+                    End If
+                Else
+                    fnSTransferFile = io.CopyFile(sWorkFile, sDestFile)
+                    If Not fnSTransferFile Then
+                        sRetErrMsg = "Failed to copy ftp work file: '" & sWorkFile & "' " & vbCrLf _
+                                   & "To: '" & sDestFile & "'"
+                    End If
+                End If
+    
+                If fnSTransferFile Then
+                    fnSTransferFile = io.DeleteFile(sWorkFile)
+                    If Not fnSTransferFile Then
+                        sRetErrMsg = "Failed to delete ftp work file: '" & sWorkFile & "'"
+                    End If
+                End If
+            
+                If Not fnSTransferFile Then
+                    If sRetErrMsg = "" Then sRetErrMsg = "Failed to copy file from ftp work folder"
+                    subShowError bShowError, sRetErrMsg, vbExclamation
+                    GoTo CloseHandle
+                End If
+                
+            End If
+            
+        Next
+        
+        If bDeleteSourceFile And fnSTransferFile Then
+            
+            cCnt = fnBuildRemoveFileCmdArray(aryFiles, colFiles, aryCmds, sRetErrMsg)
+            If sRetErrMsg <> "" Then
+                fnErrorOut Err.Number, "SFtpGetCurrentDirectory", bShowError, sRetErrMsg
+                GoTo CloseHandle
+            End If
+            
+            For i = 0 To (cCnt - 1)
+                fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
+                                                  rapPlink, _
+                                                  aryCmds(i), _
+                                                  sResult, _
+                                                  sRetErrMsg, _
+                                                  sHost, _
+                                                  sUser, _
+                                                  sPWD, _
+                                                  , _
+                                                  True)
+                If Not fnSTransferFile Then
+                    sHold = "Failed to delete some or all of the server files below: " & vbCrLf _
+                          & Replace(aryCmds(i), ";", vbCrLf) _
+                          & vbCrLf _
+                          & sRetErrMsg
+                    sRetErrMsg = sHold
+                    subShowError bShowError, sRetErrMsg, vbExclamation
+                    GoTo CloseHandle
+                End If
+            Next
+            
+        End If
+        
+        If Not fnSTransferFile Then
+            ' set error msg to ?
+            Exit Function
+        End If
+        
+    Else
+        'Transfer from local(source) to unix server(dest)...
         ' example     put> pscp c:\documents\foo.txt    fred@example.com:/tmp/foo
         ' wildcard ex put> pscp c:\documents\*.txt      fred@example.com:/tmp/foo
         
@@ -1103,11 +1200,84 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
             sDest = sDestFilename
         Else
             subAddSlash sDestPath, "/"
-           sDest = sDestPath & sDestFilename
+            sDest = sDestPath & sDestFilename
         End If
         If Right(sDest, 1) = "/" Then sDest = Left(sDest, Len(sDest) - 1)
         
-        sCmd = Q_Str(sSourcePathAndFile) & " " & sUser & "@" & sHost & ":" & Q_Str(sDest)
+        'Separate the file path and file name...
+        subSeparateFileAndPath sSourcePathAndFile, sSourceFile, sSourcePath, False
+        subAddSlash sSourcePath, "\"
+        
+        ' if sDestFilename contains a path, it overrides
+        ' Get list of local files
+        fCnt = fnGetLocalFileList(sSourceFile, sSourcePath, aryFiles, sRetErrMsg)
+        If fCnt = 0 Then
+            sRetErrMsg = "No file(s) found to transfer!"
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+        
+        cCnt = 0
+        ReDim aryCmds(fCnt)
+        
+        If sDestFilename <> "" Then
+            sTmpFile = fnGetFileName(sDestFilename)
+        End If
+        
+        ' Copy files to ftpwork folder. Convert EOL if not binary.
+        For i = 0 To (fCnt - 1)
+            If io.FileExists(aryFiles(i)) Then
+                sDestFile = ""
+                sFile = fnGetFileName(aryFiles(i))
+                If sTmpFile <> "" Then
+                    sDestFile = fnNewDestFilename(sTmpFile, i)
+                End If
+                
+                sDestFile = IIf(sDestFile <> "", _
+                            fnCombinePath(sWorkDir, sDestFile), _
+                            fnCombinePath(sWorkDir, sFile))
+                                
+                ' So we know what files to delete from ftpwork folder
+                aryCmds(cCnt) = sDestFile
+                cCnt = cCnt + 1
+                
+                If bBinary Then
+                    If Not io.CopyFile(aryFiles(i), sDestFile, True, bShowError) Then
+                        sRetErrMsg = "Failed to copy file: " & vbCrLf & _
+                                     "From '" & aryFiles(i) & "' " & vbCrLf & _
+                                     "To: '" & sDestFile & "'"
+                        subShowError bShowError, sRetErrMsg, vbExclamation
+                        GoTo CloseHandle
+                    End If
+                Else
+                    If Not fnConvertToUnixEOL(aryFiles(i), sRetErrMsg, bShowError, sDestFile) Then
+                        sRetErrMsg = "Failed to convert EOL format for file: " & vbCrLf & _
+                                     "From '" & aryFiles(i) & "' " & vbCrLf & _
+                                     "To: '" & sDestFile & "'" & vbCrLf & _
+                                     sRetErrMsg
+                        subShowError bShowError, sRetErrMsg, vbExclamation
+                        GoTo CloseHandle
+                    End If
+                End If
+            End If
+        Next
+        
+        ' Test unix folder
+        If Not fnSValidUnixPath(sHostKey, sHost, sUser, sPWD, sDestPath, sRetErrMsg, bShowError) Then
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
+        End If
+        
+        ' We want to FTP from the ftpwork folder now so we know what is going
+        ' across.
+        If sTmpFile = "" Then
+            sHold = fnCombinePath(sWorkDir, sSourceFile)
+            sCmd = Q_Str(sHold) & " " & sUser & "@" & sHost & ":" & Q_Str(sDestPath)
+        Else
+            sHold = fnNewDestFileWildcard(sTmpFile)
+            sHold = fnCombinePath(sWorkDir, sHold)
+            sCmd = Q_Str(sHold) & " " & sUser & "@" & sHost & ":" & Q_Str(sDestPath)
+        End If
         
         fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
                            rapPscp, _
@@ -1115,39 +1285,229 @@ Public Function fnSTransferFile(ByVal sHostKey As String, _
                            sResult, _
                            sRetErrMsg, _
                            sHost, _
-                            sUser, _
-                            sPWD, _
-                            , _
+                           sUser, _
+                           sPWD, _
+                           , _
                            True)
                            
-        If fnSTransferFile Then
-            fnSTransferFile = tfnRunRemoteCmd(sHostKey, _
-                   rapPlink, _
-                   "chmod 777 " & Q_Str(sDest), _
-                   sResult, _
-                   sRetErrMsg, _
-                   sHost, _
-                    sUser, _
-                    sPWD, _
-                    , _
-                   True)
+        If Not fnSTransferFile Then
+            sRetErrMsg = "Error transfering files: " & vbCrLf _
+                       & sCmd & vbCrLf _
+                       & sRetErrMsg
+            subShowError bShowError, sRetErrMsg, vbExclamation
+            GoTo CloseHandle
         End If
         
+        sHold = fnCombinePath(sDestPath, "*", True)
+        
+        If fnSTransferFile Then
+            tfnRunRemoteCmd sHostKey, _
+                   rapPlink, _
+                   "chmod 777 " & sHold, _
+                   sResult, _
+                   "", _
+                   sHost, _
+                   sUser, _
+                   sPWD, _
+                   , _
+                   True
+        End If
+        
+        fnDeleteFtpWorkFiles aryCmds
+        
         If bDeleteSourceFile And fnSTransferFile Then
-            Kill (sSourcePathAndFile)
+            
+            For i = 0 To (fCnt - 1)
+                If io.FileExists(aryFiles(i)) Then
+                    If Not io.DeleteFile(aryFiles(i), bShowError) Then
+                        sRetErrMsg = "Failed to delete file: " & vbCrLf & _
+                                     "'" & aryFiles(i) & "' "
+                        subShowError bShowError, sRetErrMsg, vbExclamation
+                        'GoTo CloseHandle ' keep going?
+                    End If
+                End If
+            Next
         End If
     
     End If
     
 CloseHandle:
-    On Error Resume Next
-    
     Exit Function
     
 errTrap:
     sRetErrMsg = Err.Number & ": " & Err.Description
     subShowError bShowError, sRetErrMsg, vbCritical
     GoTo CloseHandle
+End Function
+
+' Intended for UNIX OS.
+' Assumes '\' path seperator.
+' Assumes case sensitivity -> [Zz][Zz].sql lists zz.sql, Zz.sql, ZZ.sql, etc..
+Public Function fnGetRemoteFileList(ByVal sHostKey As String, _
+                                    ByVal sRemotePath As String, _
+                                    ByVal sFileNameOrSpec As String, _
+                                    ByRef aryFiles() As String, _
+                                    ByRef sErrMsg As String, _
+                                    Optional ByVal sHost As String = "", _
+                                    Optional ByVal sUser As String = "", _
+                                    Optional ByVal sPWD As String = "") As Long
+    On Error GoTo FINISHED
+    Dim count As Long
+    Dim files() As String
+    Dim sCmd As String
+    Dim sResult As String
+    Dim i As Long
+    Dim j As Long
+    
+    ReDim aryFiles(0)
+    
+    If sRemotePath = "" Then
+        sErrMsg = "Empty Remote Path passed to fnGetRemoteFileList"
+        GoTo FINISHED
+    End If
+    
+    If sFileNameOrSpec = "" Then
+        sErrMsg = "Empty File Name Or Spec passed to fnGetRemoteFileList"
+        GoTo FINISHED
+    End If
+    
+    'sCmd = "cd " & sRemotePath & "; "
+    If Right(sRemotePath, 1) = "/" Then
+        sCmd = "ls -1 -d -p " & sRemotePath & sFileNameOrSpec & " | grep -v '.*\/$'"
+    Else
+        sCmd = "ls -1 -d -p " & sRemotePath & "/" & sFileNameOrSpec & " | grep -v '.*\/$'"
+    End If
+    
+    If tfnRunRemoteCmd(sHostKey, rapPlink, sCmd, sResult, sErrMsg, sHost, sUser, sPWD) Then
+        If Trim(sResult) = "" Then GoTo FINISHED
+        If InStr(sErrMsg, "ls:") > 0 Then GoTo FINISHED
+        files = Split(sResult, vbLf)
+        count = UBound(files)
+        ReDim aryFiles(count)
+        For i = 0 To count
+            If Trim(files(i)) <> "" Then
+                aryFiles(j) = files(i)
+                j = j + 1
+            End If
+        Next
+        fnGetRemoteFileList = j
+    Else
+        fnGetRemoteFileList = -1
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        sErrMsg = Err.Number & ": " & Err.Description
+        Err.Clear
+    End If
+End Function
+
+Public Function fnConvertToWindowsEOL(ByVal sFile As String, _
+                                      sErrMsg As String, _
+                                      ByVal bShowError As Boolean, _
+                                      Optional ByVal sTargetPath As String = "") As Boolean
+    On Error GoTo FINISHED
+    Dim hFile As Integer
+    Dim sBuffer As String
+    Dim nError As Long
+    
+    If sTargetPath = "" Then
+        sTargetPath = sFile
+    End If
+    
+    If io.FileExists(sFile) Then
+        hFile = FreeFile()
+        Open sFile For Input As #hFile
+        sBuffer = Input(LOF(hFile), hFile)
+        Close #hFile
+        hFile = 0
+                
+        If io.DeleteFile(sTargetPath) Then
+            sBuffer = Replace(sBuffer, vbCrLf, vbLf)
+            sBuffer = Replace(sBuffer, vbLf, vbCrLf)
+            
+            hFile = FreeFile()
+            Open sTargetPath For Output As #hFile
+            Print #hFile, sBuffer
+            Close #hFile
+            hFile = 0
+        End If
+        
+        fnConvertToWindowsEOL = True
+    Else
+        Err.Raise -99, "fnConvertToWindowsEOL", "File not found."
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 And Err.Number <> 62 Then
+        sErrMsg = Err.Number & ": " & Err.Description
+        If bShowError Then MsgBox "An error occurred converting end of line characters to CRLF for file: " & vbCrLf & vbCrLf _
+                                 & sFile & vbCrLf & vbCrLf _
+                                 & Err.Number & ": " & Err.Description
+    End If
+    nError = Err.Number
+    On Error Resume Next
+    If hFile <> 0 Then Close #hFile
+    If nError = 62 Then
+        If sFile <> sTargetPath Then io.CopyFile sFile, sTargetPath
+        fnConvertToWindowsEOL = True
+    End If
+    Err.Clear
+End Function
+
+Public Function fnConvertToUnixEOL(ByVal sFile As String, _
+                                   sErrMsg As String, _
+                                   ByVal bShowError As Boolean, _
+                                   Optional ByVal sTargetPath As String = "") As Boolean
+    On Error GoTo FINISHED
+    Dim hFile As Integer
+    Dim sBuffer As String
+    Dim nError As Long
+    
+    If sTargetPath = "" Then
+        sTargetPath = sFile
+    End If
+    
+    If io.FileExists(sFile) Then
+        hFile = FreeFile()
+        Open sFile For Input As #hFile
+        sBuffer = Input(LOF(hFile), hFile)
+        Close #hFile
+        hFile = 0
+                
+        If io.DeleteFile(sTargetPath) Then
+            sBuffer = Replace(sBuffer, vbCrLf, vbLf)
+            
+            hFile = FreeFile()
+            Open sTargetPath For Output As #hFile
+            Print #hFile, sBuffer
+            Close #hFile
+            hFile = 0
+        End If
+        
+        fnConvertToUnixEOL = True
+    Else
+        Err.Raise -99, "fnConvertToUnixEOL", "File not found."
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 And Err.Number <> 62 Then
+        sErrMsg = Err.Number & ": " & Err.Description
+        If bShowError Then MsgBox "An error occurred converting end of line characters to LF for file: " & vbCrLf & vbCrLf _
+                                 & sFile & vbCrLf & vbCrLf _
+                                 & Err.Number & ": " & Err.Description
+    End If
+    nError = Err.Number
+    On Error Resume Next
+    If Err.Number = 62 Then
+        If sFile <> sTargetPath Then io.CopyFile sFile, sTargetPath
+        fnConvertToUnixEOL = True
+    End If
+    If hFile <> 0 Then Close #hFile
+    Err.Clear
 End Function
 
 Private Function Q_Str(ByVal Str As String, Optional ByVal Quote As String = """") As String
@@ -1179,7 +1539,6 @@ Private Function fnFileNameFromPath(ByVal strFullPath As String, Optional ByVal 
 
 End Function
 
-
 Private Function fnInsenseString(ByVal vTemp As Variant) As String
     Dim nIdx As Integer
     Dim szParameter As String
@@ -1206,6 +1565,341 @@ Private Function IsLetter(character As String) As Boolean
     IsLetter = IsCharAlphaW(AscW(character))
 End Function
 
+Private Function fnCombinePath(ByVal sDir As String, _
+                               ByVal sFile As String, _
+                               Optional ByVal bUnixOS As Boolean = False) As String
+    If sDir <> "" And sFile <> "" Then
+        If Not bUnixOS Then
+            If Left(sFile, 1) = "\" Then sFile = Mid(sFile, 2)
+            If Right$(sDir, 1) <> "\" Then
+                fnCombinePath = sDir & "\" & sFile
+            Else
+                fnCombinePath = sDir & sFile
+            End If
+        Else
+            If Left(sFile, 1) = "/" Then sFile = Mid(sFile, 2)
+            If Right$(sDir, 1) <> "/" Then
+                fnCombinePath = sDir & "/" & sFile
+            Else
+                fnCombinePath = sDir & sFile
+            End If
+        End If
+    Else
+        fnCombinePath = sDir & sFile
+    End If
+    
+End Function
 
+Private Function fnGetFileName(ByVal sFilePath As String) As String
+    Dim arr() As String
+    
+    sFilePath = Trim(sFilePath)
+    If sFilePath = "" Then
+        Exit Function
+    End If
+    
+    If InStr(1, sFilePath, "\") > 0 Then
+        arr = Split(sFilePath, "\")
+    Else
+        arr = Split(sFilePath, "/")
+    End If
+    
+    If UBound(arr) > -1 Then
+        fnGetFileName = arr(UBound(arr))
+    End If
+    
+End Function
 
+Private Function fnNewDestFilename(ByVal sDestFilename As String, ByVal fCnt As Long) As String
+    Dim idx As Long
+    Dim sExtn As String
+        
+    fnNewDestFilename = sDestFilename
+    If sDestFilename = "" Or fCnt = 0 Then Exit Function
+    
+    idx = InStrRev(sDestFilename, ".")
+    If idx > 0 Then
+        sExtn = Mid(sDestFilename, idx)
+        sDestFilename = Mid(sDestFilename, 1, idx - 1)
+    End If
+        
+    fnNewDestFilename = sDestFilename & fCnt & sExtn
+    
+End Function
 
+Private Function fnNewDestFileWildcard(ByVal sDestFilename As String) As String
+    Dim idx As Long
+    Dim sExtn As String
+    
+    fnNewDestFileWildcard = sDestFilename
+    If sDestFilename = "" Then Exit Function
+    
+    idx = InStrRev(sDestFilename, ".")
+    If idx > 0 Then
+        sExtn = Mid(sDestFilename, idx)
+        sDestFilename = Mid(sDestFilename, 1, idx - 1)
+    End If
+        
+    fnNewDestFileWildcard = sDestFilename & "*" & sExtn
+    
+End Function
+
+Private Function fnBuildRemoveFileCmdArray(aryFiles() As String, _
+                                           colFiles As Collection, _
+                                           aryCmds() As String, _
+                                           sErrMsg As String) As Long
+    On Error GoTo FINISHED
+    Dim cnt As Long
+    Dim i As Long
+    Dim j As Long
+    Dim k As Long
+    Dim sCmd As String
+    Dim sFile As String
+    
+    cnt = UBound(aryFiles)
+    ReDim aryCmds(cnt)
+    
+    For i = 0 To cnt
+        sFile = fnGetFileName(aryFiles(i))
+        If sFile <> "" Then
+            If fnIsKeyInCollection(colFiles, sFile) Then
+                sCmd = sCmd & "rm " & Q_Str(aryFiles(i)) & "; "
+                k = k + 1
+                If k > 19 Then
+                    aryCmds(j) = sCmd
+                    j = j + 1
+                    sCmd = ""
+                    k = 0
+                End If
+            End If
+        End If
+    Next
+        
+    If sCmd <> "" Then
+        aryCmds(j) = sCmd
+        j = j + 1
+        sCmd = ""
+        k = 0
+    End If
+    
+    fnBuildRemoveFileCmdArray = j
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        sErrMsg = "An error occurred building the server file removal list: " & _
+                  Err.Number & ": " & Err.Description
+        fnBuildRemoveFileCmdArray = 0
+    End If
+End Function
+
+Private Function fnAddKeyToCollection(col As Collection, ByVal sKey As String, ByVal sValue As String) As Boolean
+    
+    If col Is Nothing Then Set col = New Collection
+    
+    sKey = "k" & sKey
+    
+    On Error Resume Next
+    Err.Clear
+    col.Add sValue, sKey
+    fnAddKeyToCollection = Err.Number = 0
+    Err.Clear
+    
+End Function
+
+Private Function fnIsKeyInCollection(col As Collection, ByVal sKey As String) As Boolean
+    Dim sValue As String
+    
+    If col Is Nothing Then Set col = New Collection
+    
+    sKey = "k" & sKey
+    
+    On Error Resume Next
+    Err.Clear
+    sValue = col(sKey)
+    fnIsKeyInCollection = Err.Number = 0
+    Err.Clear
+    
+End Function
+
+'Private Sub CleanupFtpWorkFolder(ByVal sFolder As String)
+'    On Error GoTo FINISHED
+'    Dim sFile As String
+'    Dim dtMin As Date
+'    Dim dtFile As Date
+'    Dim lDiff As Long
+'
+'    If Not io.DirectoryExists(sFolder) Then GoTo FINISHED
+'
+'    dtMin = Now
+'    dtMin = DateAdd("h", -1, dtMin)
+'
+'    If Right(sFolder, 1) = "\" Then
+'        sFile = Dir(sFolder & "*.*")
+'    Else
+'        sFile = Dir(sFolder & "\*.*")
+'    End If
+'
+'    On Error Resume Next
+'    While sFile <> ""
+'        sFile = fnCombinePath(sFolder, sFile)
+'        dtFile = FileDateTime(sFile)
+'        lDiff = Abs(DateDiff("h", dtFile, dtMin))
+'        If lDiff > 1 Then
+'            io.DeleteFile sFile, False
+'        End If
+'        sFile = Dir()
+'    Wend
+'
+'FINISHED:
+'    Err.Clear
+'
+'End Sub
+
+' *********************************************************
+' Using Dir so don't call this if you are using Dir as well.
+'
+Public Function fnGetLocalFileList(ByVal sFileNameOrSpec As String, _
+                                   ByVal sLocalPath As String, _
+                                   ByRef aryFiles() As String, _
+                                   ByRef sErrMsg As String) As Long
+    On Error GoTo FINISHED
+    Dim count As Long
+    Dim files() As String
+    Dim sCmd As String
+    Dim sFile As String
+    Dim sBuffer As String
+    Dim cnt As Long
+    Dim i As Long
+    Dim j As Long
+    
+    ReDim aryFiles(0)
+    
+    If sLocalPath = "" Then
+        sErrMsg = "Empty Local Path passed to fnGetLocalFileList"
+        GoTo FINISHED
+    End If
+    
+    If sFileNameOrSpec = "" Then
+        sErrMsg = "Empty File Name Or Spec passed to fnGetLocalFileList"
+        GoTo FINISHED
+    End If
+    
+    If Right(sLocalPath, 1) <> "\" Then sLocalPath = sLocalPath & "\"
+    'sCmd = Q_Str(sLocalPath & sFileNameOrSpec)
+    sCmd = sLocalPath & sFileNameOrSpec
+    
+    sFile = Dir(sCmd)
+    While sFile <> ""
+        If sBuffer <> "" Then
+            sBuffer = sBuffer & "|" & sFile
+        Else
+            sBuffer = sFile
+        End If
+        sFile = Dir()
+    Wend
+    
+    If sBuffer = "" Then Exit Function
+    files = Split(sBuffer, "|")
+        
+    cnt = UBound(files)
+    If cnt < 0 Then Exit Function
+        
+    ReDim aryFiles(cnt)
+    
+    For i = 0 To cnt
+        sFile = files(i)
+        If sFile <> "" Then
+            aryFiles(j) = sLocalPath & sFile
+            j = j + 1
+        End If
+    Next
+    
+    fnGetLocalFileList = j
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        sErrMsg = Err.Number & ": " & Err.Description
+        Err.Clear
+    End If
+End Function
+
+Private Sub fnDeleteFtpWorkFiles(aryCmds() As String)
+    On Error Resume Next
+    Dim cnt As Long
+    Dim i As Long
+    
+    cnt = UBound(aryCmds)
+    For i = 0 To cnt
+        io.DeleteFile aryCmds(i), False
+    Next
+    
+    Err.Clear
+End Sub
+
+Private Function fnGetProgramName() As String
+    Dim sAppName As String
+        
+    On Error GoTo FINISHED
+    fnGetProgramName = UCase(App.EXEName)
+    
+FINISHED:
+    Err.Clear
+    On Error Resume Next
+    If fnGetProgramName = "" Then fnGetProgramName = "UNKNOWN"
+    Err.Clear
+End Function
+
+'Private Function fnRemoveDirectory(ByVal sFolder As String, sErrMsg As String) As Boolean
+'    On Error GoTo FINISHED
+'
+'    If Right(sFolder, 1) = "\" Then sFolder = Left(sFolder, Len(sFolder) - 1)
+'
+'    If io.DirectoryExists(sFolder) Then
+'        If fnClearDirectory(sFolder, sErrMsg) Then
+'            RmDir sFolder
+'        Else
+'            GoTo FINISHED
+'        End If
+'    End If
+'
+'    fnRemoveDirectory = True
+'
+'    Err.Clear
+'FINISHED:
+'    If Err.Number <> 0 Then
+'        sErrMsg = "Error removing directory '" & sFolder & "': " & vbCrLf & _
+'                  Err.Number & ": " & Err.Description
+'        Err.Clear
+'    End If
+'End Function
+
+' WARNING! Uses Dir(). This will mess up any other open Dir() searches.
+Private Function fnClearDirectory(ByVal sFolder As String, sErrMsg As String) As Boolean
+    On Error GoTo FINISHED
+    Dim sFile As String
+    
+    If Trim(sFolder) <> "" Then
+        If Right(sFolder, 1) = "\" Then sFolder = Left(sFolder, Len(sFolder) - 1)
+        If io.DirectoryExists(sFolder) Then
+            sFile = Dir(sFolder & "\*")
+            If sFile <> "" Then
+                Kill sFolder & "\*"
+            End If
+        End If
+    End If
+    
+    fnClearDirectory = True
+    
+    Err.Clear
+FINISHED:
+    If Err.Number = 53 Then
+        Err.Clear
+        fnClearDirectory = True
+    ElseIf Err.Number <> 0 Then
+        sErrMsg = "Error clearing directory '" & sFolder & "': " & vbCrLf & _
+                  Err.Number & ": " & Err.Description
+        Err.Clear
+    End If
+End Function
