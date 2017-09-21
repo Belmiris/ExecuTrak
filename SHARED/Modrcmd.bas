@@ -227,7 +227,7 @@ Public Function fnExecute4GE(sCmdLine As String, _
             If tfnRound(rsTemp.Fields(0)) = 0 Then
                 sTemp = fnCStr(rsTemp.Fields(1))
                 
-                If rsTemp.Fields.Count > 2 Then
+                If rsTemp.Fields.count > 2 Then
                     sTemp = sTemp & vbCrLf & "System command: " & fnCStr(rsTemp.Fields(2))
                 End If
                 
@@ -1026,6 +1026,13 @@ Public Function tfnRunRemoteCmd(ByVal sHostKey As String, _
         lTemp = tfnReadWholeFile(sErrFile, sErrMsg)
     End If
     
+    ' Get rid of trash errors we don't care about.
+    If sErrMsg <> "" Then
+        If eRemoteApp = rapPscp Then
+            sErrMsg = fnCullPscpErrors(sErrMsg)
+        End If
+    End If
+    
     tfnRunRemoteCmd = Len(Trim(sErrMsg)) < 1
     
     Err.Clear
@@ -1200,4 +1207,44 @@ Private Function fnGetRemoteAppName(eRemoteApp As RemoteApps)
     End If
 End Function
 
+Private Function fnCullPscpErrors(ByVal sErrMsg As String) As String
+    Dim sTemp As String
+    Dim ary() As String
+    Dim i As Long
+    Dim x As Long
+    Dim bChanged As Boolean
+    Dim cnt As Long
+    
+    On Error GoTo FINISHED
+    
+    fnCullPscpErrors = sErrMsg
+    If InStr(LCase(sErrMsg), " is a directory") < 1 Then
+        Exit Function
+    End If
+    
+    sErrMsg = Trim(sErrMsg) & vbLf
+    sErrMsg = Replace(sErrMsg, vbCrLf, vbLf)
+    
+    ary = Split(sErrMsg, vbLf)
+    cnt = UBound(ary)
+    For i = 0 To cnt
+        If Trim(ary(i)) <> "" Then
+            If InStr(LCase(ary(i)), " is a directory") < 1 Then
+                If sTemp <> "" Then
+                    sTemp = sTemp & vbLf & ary(i)
+                Else
+                    sTemp = ary(i)
+                End If
+            End If
+        End If
+    Next
+    
+    sTemp = Trim(sTemp)
+    fnCullPscpErrors = sTemp
 
+FINISHED:
+    If Err.Number <> 0 Then
+        Debug.Print Err.Description
+        Err.Clear
+    End If
+End Function
