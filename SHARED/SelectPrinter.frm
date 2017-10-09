@@ -153,6 +153,8 @@ Sub DisplayPrinters()
     
     sDefault = fnGetDefaultPrinterName()
     
+    Me.lblDefault.Caption = "Default Print is: " & sDefault
+    
     Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
     Set colInstalledPrinters = objWMIService.ExecQuery("Select * from Win32_Printer")
     
