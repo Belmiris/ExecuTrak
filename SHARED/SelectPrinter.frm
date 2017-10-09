@@ -9,6 +9,14 @@ Begin VB.Form SelectPrinter
    ScaleHeight     =   5145
    ScaleWidth      =   6315
    StartUpPosition =   1  'CenterOwner
+   Begin VB.CommandButton cmdMakeDefault 
+      Caption         =   "Make Default"
+      Height          =   495
+      Left            =   120
+      TabIndex        =   4
+      Top             =   4560
+      Width           =   1215
+   End
    Begin VB.CommandButton cmdCancel 
       Cancel          =   -1  'True
       Caption         =   "Cancel"
@@ -70,6 +78,7 @@ Public Property Get Canceled() As Boolean
     Canceled = m_bCanceled
 End Property
 
+'Exit
 Private Sub cmdCancel_Click()
     On Error GoTo FINISHED
     
@@ -84,6 +93,7 @@ FINISHED:
     End If
 End Sub
 
+'Set the VB Printer by Selection in List then Exit
 Private Sub cmdOk_Click()
     On Error GoTo FINISHED
     Dim selName As String
@@ -109,11 +119,40 @@ Private Sub cmdOk_Click()
     Err.Clear
 FINISHED:
     If Err.Number <> 0 Then
-        MsgBox "Error selecting default printer: " + Err.Description
+        MsgBox "Error selecting printer: " + Err.Description
         Err.Clear
     End If
 End Sub
 
+'Set the Selected Printer to be the WMI Default Printer
+Private Sub cmdMakeDefault_Click()
+    On Error GoTo FINISHED
+    Dim selName As String
+    Dim pr As Printer
+    
+    If lstPrinters.ListIndex > -1 Then
+        selName = lstPrinters.List(lstPrinters.ListIndex)
+        
+        If selName <> "" Then
+            If fnSetDefaultPrinter(selName) Then
+                Me.lblDefault.Caption = "Default Print is: " & selName
+            Else
+                Err.Raise Number:=-1, Description:="Could Not Set the Default Printer."
+            End If
+        End If
+    Else
+        MsgBox "Please select a printer from the list"
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error setting default printer: " + Err.Description
+        Err.Clear
+    End If
+End Sub
+
+'Retrieve the WMI Default Printer and Return its Name
 Public Function fnGetDefaultPrinterName()
     On Error GoTo FINISHED
     Dim objWMIService, colInstalledPrinters, objPrinter
@@ -143,6 +182,33 @@ FINISHED:
     End If
 End Function
 
+'Set the WMI Default Printer by Name
+Public Function fnSetDefaultPrinter(ByRef strPrinterName As String) As Boolean
+    On Error GoTo FINISHED
+    Dim objWMIService, colInstalledPrinters, objPrinter
+        
+    fnSetDefaultPrinter = False
+    
+    Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
+    Set colInstalledPrinters = objWMIService.ExecQuery("Select * from Win32_Printer Where Name = '" & strPrinterName & "'")
+ 
+    For Each objPrinter In colInstalledPrinters
+        objPrinter.SetDefaultPrinter
+    Next
+        
+    fnSetDefaultPrinter = True
+    
+    Set objWMIService = Nothing
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        fnSetDefaultPrinter = False
+        Err.Clear
+    End If
+End Function
+
+'Retrieve a list of WMI Printers and add them to a Listbox
 Sub DisplayPrinters()
     On Error GoTo FINISHED
     Dim objWMIService, colInstalledPrinters, objPrinter, oOption
@@ -178,6 +244,7 @@ FINISHED:
     End If
 End Sub
 
+' Sets the VB Printer to the Default Windows Printer
 Public Sub subAssignDefaultPrinter()
     Dim sName As String
     Dim pr As Printer
