@@ -10,6 +10,7 @@ Begin VB.Form SelectPrinter
    ScaleWidth      =   6315
    StartUpPosition =   1  'CenterOwner
    Begin VB.CommandButton cmdCancel 
+      Cancel          =   -1  'True
       Caption         =   "Cancel"
       Height          =   495
       Left            =   4920
@@ -19,6 +20,7 @@ Begin VB.Form SelectPrinter
    End
    Begin VB.CommandButton cmdOk 
       Caption         =   "Ok"
+      Default         =   -1  'True
       Height          =   495
       Left            =   3600
       TabIndex        =   1
