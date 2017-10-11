@@ -58,7 +58,54 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Private Declare Function RegCloseKey Lib "advapi32.dll" (ByVal hKey As Long) As Long
+Private Declare Function RegCreateKeyEx Lib "advapi32.dll" Alias "RegCreateKeyExA" (ByVal hKey As Long, ByVal lpSubKey As String, ByVal Reserved As Long, ByVal lpClass As String, ByVal dwOptions As Long, ByVal samDesired As Long, lpSecurityAttributes As SECURITY_ATTRIBUTES, phkResult As Long, lpdwDisposition As Long) As Long
+Private Declare Function RegOpenKeyEx Lib "advapi32.dll" Alias "RegOpenKeyExA" (ByVal hKey As Long, ByVal lpSubKey As String, ByVal ulOptions As Long, ByVal samDesired As Long, phkResult As Long) As Long
+Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, lpData As Long, lpcbData As Long) As Long
+Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
+Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
+Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, ByVal lpData As String, ByVal cbData As Long) As Long        ' Note that if you declare the lpData parameter as String, you must pass it By Value.
+
+Private Const ERROR_NONE = 0
+Private Const ERROR_BADDB = 1
+Private Const ERROR_BADKEY = 2
+Private Const ERROR_CANTOPEN = 3
+Private Const ERROR_CANTREAD = 4
+Private Const ERROR_CANTWRITE = 5
+Private Const ERROR_OUTOFMEMORY = 6
+Private Const ERROR_INVALID_PARAMETER = 7
+Private Const ERROR_ACCESS_DENIED = 8
+Private Const ERROR_INVALID_PARAMETERS = 87
+Private Const ERROR_NO_MORE_ITEMS = 259
+
+Private Const HKEY_CLASSES_ROOT = &H80000000
+Private Const HKEY_CURRENT_USER = &H80000001
+Private Const HKEY_LOCAL_MACHINE = &H80000002
+Private Const HKEY_USERS = &H80000003
+
+Private Const KEY_ALL_ACCESS = &H3F
+Private Const KEY_QUERY_VALUE = &H1
+Private Const KEY_ENUMERATE_SUB_KEYS = &H8
+Private Const KEY_NOTIFY = &H10
+Private Const READ_CONTROL = &H20000
+Private Const STANDARD_RIGHTS_READ = (READ_CONTROL)
+Private Const SYNCHRONIZE = &H100000
+Private Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
+
+Private Const REG_OPTION_NON_VOLATILE = 0
+Private Const REG_SZ As Long = 1
+Private Const REG_DWORD As Long = 4
+Private Const REG_OPTION_VOLATILE = 1           ' Key is not preserved when system is rebooted
+
+Private Type SECURITY_ATTRIBUTES
+        nLength As Long
+        lpSecurityDescriptor As Long
+        bInheritHandle As Long
+End Type
+
 Private m_bCanceled As Boolean
+Private m_bForceDefault As Boolean
+'
 
 Private Sub Form_Load()
     On Error GoTo FINISHED
@@ -76,6 +123,14 @@ End Sub
 
 Public Property Get Canceled() As Boolean
     Canceled = m_bCanceled
+End Property
+
+Public Property Get ForceDefault() As Boolean
+    ForceDefault = m_bForceDefault
+End Property
+
+Public Property Let ForceDefault(ByVal vNewValue As Boolean)
+    m_bForceDefault = vNewValue
 End Property
 
 'Exit
@@ -106,6 +161,11 @@ Private Sub cmdOk_Click()
             For Each pr In Printers
                 If pr.DeviceName = selName Then
                     Set Printer = pr
+                    
+                    If Me.ForceDefault Then
+                        fnForceDefaultPrinter selName
+                    End If
+                    
                     m_bCanceled = False
                     Unload Me
                     Exit Sub
@@ -165,7 +225,7 @@ Public Function fnGetDefaultPrinterName()
     If Not colInstalledPrinters Is Nothing Then
         For Each objPrinter In colInstalledPrinters
             If Not objPrinter Is Nothing Then
-                fnGetDefaultPrinterName = Trim(objPrinter.Name)
+                fnGetDefaultPrinterName = Trim(objPrinter.name)
                 'MsgBox "Default Printer = " & sName
                 Exit For
             End If
@@ -226,7 +286,7 @@ Sub DisplayPrinters()
     
     For Each objPrinter In colInstalledPrinters
         If Not objPrinter Is Nothing Then
-            sName = Trim(objPrinter.Name)
+            sName = Trim(objPrinter.name)
             lstPrinters.AddItem Trim(sName)
             If sName = sDefault Then
                 lstPrinters.ListIndex = lstPrinters.ListCount - 1
@@ -260,4 +320,147 @@ Public Sub subAssignDefaultPrinter()
     Next pr
     
 End Sub
+
+Private Function fnForceDefaultPrinter(sName As String) As Boolean
+    Const METH_NAME = "fnForceDefaultPrinter"
+    On Error GoTo FINSISHED
+    Dim sData As String
+    Dim sValue As String
+    
+    sData = Trim(QueryValue(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\Devices", sName))
+    
+    If sData = "" Then
+        MsgBox "No data found in registry devices for printer '" & sName & "'"
+        Exit Function
+    End If
+        
+    sValue = sName & "," & sData
+    
+    If Not RegSetValue(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "Device", 1, sValue) Then
+        MsgBox "Failed to set the printer '" & sName & "' as the default printer in the registry"
+        Exit Function
+    End If
+    
+    fnForceDefaultPrinter = True
+    
+    Err.Clear
+FINSISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error in " & METH_NAME & ": " & Err.Description
+        Err.Clear
+    End If
+End Function
+
+Private Function QueryValue(ByVal lKey As Long, _
+                           sKeyName As String, _
+                           sValueName As String) As String
+    Dim lRetVal As Long         'result of the API functions
+    Dim hKey As Long            'handle of opened key
+    Dim vValue As Variant       'setting of queried value
+
+    QueryValue = ""
+    lRetVal = RegOpenKeyEx(lKey, sKeyName, 0, KEY_READ, hKey)
+    If lRetVal = 0 Then
+        lRetVal = QueryValueEx(hKey, sValueName, vValue)
+        If lRetVal = 0 Then
+            QueryValue = vValue
+        End If
+        RegCloseKey (hKey)
+    End If
+
+End Function
+
+Private Function QueryValueEx(ByVal lhKey As Long, _
+                      ByVal szValueName As String, _
+                      vValue As Variant) As Long
+    Dim cch As Long
+    Dim lrc As Long
+    Dim lType As Long
+    Dim lValue As Long
+    Dim sValue As String
+
+    On Error GoTo QueryValueExError
+
+    ' Determine the size and type of data to be read
+    lrc = RegQueryValueExNULL(lhKey, szValueName, 0&, lType, 0&, cch)
+    If lrc = ERROR_NONE Then
+        Select Case lType
+            ' For strings
+            Case REG_SZ:
+                sValue = String(cch, 0)
+                lrc = RegQueryValueExString(lhKey, szValueName, 0&, lType, sValue, cch)
+                If lrc = ERROR_NONE Then
+                    vValue = RemoveNull(sValue)
+                Else
+                    vValue = Empty
+                End If
+            ' For DWORDS
+            Case REG_DWORD:
+                lrc = RegQueryValueExLong(lhKey, szValueName, 0&, lType, lValue, cch)
+                If lrc = ERROR_NONE Then
+                    vValue = lValue
+                End If
+            Case Else
+                'all other data types not supported
+                lrc = -1
+        End Select
+    End If
+QueryValueExExit:
+    QueryValueEx = lrc
+    Exit Function
+QueryValueExError:
+    Resume QueryValueExExit
+
+End Function
+
+Public Function RegSetValue(ByVal lKey As Long, _
+                            sKeyName As String, _
+                            sValueName As String, _
+                            ByVal lType As Long, _
+                            ByVal sValue As String) As Boolean
+
+    Dim lRetVal As Long         'result of the API functions
+    Dim hKey As Long         'handle of opened key
+    Dim vValue As String      'setting of queried value
+    Dim cbData As Long
+    
+    Dim Sec_Att As SECURITY_ATTRIBUTES
+    Sec_Att.nLength = 12&
+    Sec_Att.lpSecurityDescriptor = 0&
+    Sec_Att.bInheritHandle = False
+    
+    RegSetValue = False
+
+    'lRetVal = RegCreateKeyEx(lKey, sKeyName, 0, 0, REG_OPTION_VOLATILE, KEY_ALL_ACCESS, 0, hKey, cbData)
+    lRetVal = RegCreateKeyEx(lKey, sKeyName, 0&, "", REG_OPTION_VOLATILE, KEY_ALL_ACCESS, Sec_Att, hKey, cbData)
+    If lRetVal = 0 Then
+        If lType >= 0 Then
+            If lType = REG_DWORD Then
+                vValue = Chr(sValue)
+                cbData = 4
+            Else
+                vValue = sValue & Chr(0)
+                cbData = Len(vValue)
+            End If
+            lRetVal = RegSetValueEx(hKey, sValueName, 0, lType, vValue, cbData)
+            If lRetVal = 0 Then
+                RegSetValue = True
+            End If
+        End If
+        RegCloseKey (hKey)
+    End If
+
+End Function
+
+Private Function RemoveNull(szStr As String) As String
+    Dim nPos As Integer
+    
+    nPos = InStr(szStr, Chr(0))
+    If nPos > 0 Then
+        RemoveNull = Left(szStr, nPos - 1)
+    Else
+        RemoveNull = szStr
+    End If
+
+End Function
 
