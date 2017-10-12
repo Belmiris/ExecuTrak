@@ -452,7 +452,7 @@ Private Sub subAutoRun()
             LogForm.subEnableCancel True
         Else
             'Multiple files
-            LogForm.lstFile.path = udtInputInfo.m_sPath
+            LogForm.lstFile.Path = udtInputInfo.m_sPath
             If InStr(udtInputInfo.m_sType, ".") > 0 Then
                 If InStr(udtInputInfo.m_sType, "*") > 0 Then
                     sTemp = udtInputInfo.m_sType
@@ -755,6 +755,13 @@ Public Sub subPrint(lstOutput As ListBox)
     Dim nTop As Integer
     Dim nBottom As Integer
     
+    ' 8889 - Printer dialog
+    SelectPrinter.ShowDialog
+    If SelectPrinter.Canceled Then
+        MsgBox "Print job canceled"
+        Exit Sub
+    End If
+
     nLeft = PRINT_MARGIN_LEFT * Printer.TwipsPerPixelX
     nTop = PRINT_MARGIN_TOP * Printer.TwipsPerPixelY
     nBottom = Printer.Height - (nTop + PRINT_MARGIN_BOTTOM * Printer.TwipsPerPixelY)
@@ -811,7 +818,7 @@ Private Sub subInitialize(sCommand As String)
     Dim i As Integer
     Dim nUbound As Integer
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         LogForm.mnuPrint1.Visible = False
         LogForm.mnuPrint.Visible = True
         Exit Sub
