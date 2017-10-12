@@ -263,10 +263,10 @@ Public Function fnSendToPrinter(AryIn() As String, _
     On Error Resume Next
     
     ' 8889 - Printer dialog
-    SelectPrinter.ShowDialog ForceDefaultPrinter:=True, ParentForm:=Me
+    SelectPrinter.ShowDialog
     If SelectPrinter.Canceled Then
         MsgBox "Print job canceled"
-        Exit Sub
+        Exit Function
     End If
 
     nPageNumber = 1
