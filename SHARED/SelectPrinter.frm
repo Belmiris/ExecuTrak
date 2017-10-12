@@ -13,13 +13,13 @@ Begin VB.Form SelectPrinter
       Caption         =   "Make Default"
       Height          =   495
       Left            =   120
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   4560
       Width           =   1215
    End
    Begin VB.CommandButton cmdCancel 
       Cancel          =   -1  'True
-      Caption         =   "Cancel"
+      Caption         =   "&Cancel"
       Height          =   495
       Left            =   4920
       TabIndex        =   2
@@ -27,7 +27,7 @@ Begin VB.Form SelectPrinter
       Width           =   1215
    End
    Begin VB.CommandButton cmdOk 
-      Caption         =   "Ok"
+      Caption         =   "&Ok"
       Default         =   -1  'True
       Height          =   495
       Left            =   3600
@@ -46,7 +46,7 @@ Begin VB.Form SelectPrinter
    Begin VB.Label lblDefault 
       Height          =   375
       Left            =   120
-      TabIndex        =   3
+      TabIndex        =   4
       Top             =   120
       Width           =   6015
    End
@@ -56,6 +56,57 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'SelectPrinter.frm
+'  This is a dialog to display before printing to allow the user to choose a printer and/or set it as default
+'    Uses WMI to display the list of available printers (including redirected)
+'    Displays the current default printer
+'    Allows the user to choose a printer to set as the default printer
+'    Allows the user to choose a printer to print to
+'
+' 10/09/2017
+' Author: Rick Cimbalo
+' Modified by: Tom Thompson
+'
+' Public Properties:
+'  Canceled
+'    use this to determine if the dialog was cancelled by the user
+'
+' Public Methods:
+'  ShowDialog([Optional Force Default Printer],[Optional Parent Form])
+'    use this to display the dialog to the user instead of SelectPrinter.Show()
+'
+' Example code to call this form from a module that is not using crpe32.dll:
+'
+'    SelectPrinter.ShowDialog
+'    If SelectPrinter.Canceled Then
+'        MsgBox "Print job canceled"
+'        Exit Sub
+'    End If
+'
+' Example code to call this form from a module that is using crpe32.dll:
+'
+'    SelectPrinter.ShowDialog ForceDefaultPrinter:=True
+'    If SelectPrinter.Canceled Then
+'        MsgBox "Print job canceled"
+'        Exit Sub
+'    End If
+'
+' Example code to call this form from a form that is not using crpe32.dll:
+'
+'    SelectPrinter.ShowDialog ParentForm:=Me
+'    If SelectPrinter.Canceled Then
+'        MsgBox "Print job canceled"
+'        Exit Sub
+'    End If
+'
+' Example code to call this form from a form that is using crpe32.dll:
+'
+'    SelectPrinter.ShowDialog ForceDefaultPrinter:=True, ParentForm:=Me
+'    If SelectPrinter.Canceled Then
+'        MsgBox "Print job canceled"
+'        Exit Sub
+'    End If
+
 Option Explicit
 
 Private Declare Function RegCloseKey Lib "advapi32.dll" (ByVal hKey As Long) As Long
@@ -65,6 +116,8 @@ Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryV
 Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
 Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
 Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, ByVal lpData As String, ByVal cbData As Long) As Long        ' Note that if you declare the lpData parameter as String, you must pass it By Value.
+
+Private Declare Function ReleaseCapture Lib "user32" () As Long
 
 Private Const ERROR_NONE = 0
 Private Const ERROR_BADDB = 1
@@ -105,33 +158,77 @@ End Type
 
 Private m_bCanceled As Boolean
 Private m_bForceDefault As Boolean
-'
-
-Private Sub Form_Load()
-    On Error GoTo FINISHED
-    
-    m_bCanceled = True
-    
-    DisplayPrinters
-    
-FINISHED:
-    If Err.Number <> 0 Then
-        MsgBox "Error loading select printer form: " + Err.Description
-        Err.Clear
-    End If
-End Sub
 
 Public Property Get Canceled() As Boolean
     Canceled = m_bCanceled
 End Property
 
-Public Property Get ForceDefault() As Boolean
-    ForceDefault = m_bForceDefault
-End Property
+'ShowDialog() should be used instead of SelectPrinter.Show()
+' Arguments:
+'  ForceDefaultPrinter will force set the Users default printer (for programs using crpe32.dll)
+'  ParentForm will pass the parent form to Me.Show (for programs where the calling method is on a form rather than a module)
+Public Sub ShowDialog(Optional ByVal ForceDefaultPrinter As Boolean = False, Optional ByVal ParentForm As Form = Nothing)
+    On Error GoTo FINISHED
+    
+    m_bCanceled = True
+    m_bForceDefault = ForceDefaultPrinter
+    Unload SelectPrinter ' just in case we are still having an issue with multiple calls being made
+    Screen.MousePointer = vbDefault ' some programs were forcing the cursor to a wait icon in an obscure point
+    ReleaseCapture ' some calling programs were capturing the mouse and mot releasing it, which caused the a "click-through" event appearing as though the modal form was not modal
 
-Public Property Let ForceDefault(ByVal vNewValue As Boolean)
-    m_bForceDefault = vNewValue
-End Property
+    DisplayPrinters
+    
+    If ParentForm Is Nothing Then
+        Me.Show vbModal
+    Else
+        Me.Show vbModal, ParentForm
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        m_bCanceled = True
+        MsgBox "Error loading Dialog: " & Err.Description, vbCritical, Me.Caption
+        Err.Clear
+    End If
+End Sub
+
+'Retrieve a list of WMI Printers and add them to a Listbox
+Private Sub DisplayPrinters()
+    On Error GoTo FINISHED
+    Dim objWMIService, colInstalledPrinters, objPrinter, oOption
+    Dim sName As String
+    Dim sDefault As String
+        
+    lstPrinters.Clear
+    
+    sDefault = fnGetDefaultPrinterName()
+    
+    Me.lblDefault.Caption = "Default Printer is: " & sDefault
+    
+    Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
+    Set colInstalledPrinters = objWMIService.ExecQuery("Select * from Win32_Printer")
+    
+    For Each objPrinter In colInstalledPrinters
+        If Not objPrinter Is Nothing Then
+            sName = Trim(objPrinter.Name)
+            lstPrinters.AddItem Trim(sName)
+            If sName = sDefault Then
+                lstPrinters.ListIndex = lstPrinters.ListCount - 1
+            End If
+        End If
+    Next
+
+    Set objWMIService = Nothing
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error loading printers: " & Err.Description
+        Err.Clear
+    End If
+
+End Sub
 
 'Exit
 Private Sub cmdCancel_Click()
@@ -149,7 +246,7 @@ FINISHED:
 End Sub
 
 'Set the VB Printer by Selection in List then Exit
-Private Sub cmdOk_Click()
+Private Sub cmdOK_Click()
     On Error GoTo FINISHED
     Dim selName As String
     Dim pr As Printer
@@ -162,7 +259,8 @@ Private Sub cmdOk_Click()
                 If pr.DeviceName = selName Then
                     Set Printer = pr
                     
-                    If Me.ForceDefault Then
+                    ' specifically added for CRPE32.DLL to find the default printer
+                    If m_bForceDefault Then
                         fnForceDefaultPrinter selName
                     End If
                     
@@ -213,7 +311,7 @@ FINISHED:
 End Sub
 
 'Retrieve the WMI Default Printer and Return its Name
-Public Function fnGetDefaultPrinterName()
+Private Function fnGetDefaultPrinterName()
     On Error GoTo FINISHED
     Dim objWMIService, colInstalledPrinters, objPrinter
         
@@ -225,7 +323,7 @@ Public Function fnGetDefaultPrinterName()
     If Not colInstalledPrinters Is Nothing Then
         For Each objPrinter In colInstalledPrinters
             If Not objPrinter Is Nothing Then
-                fnGetDefaultPrinterName = Trim(objPrinter.name)
+                fnGetDefaultPrinterName = Trim(objPrinter.Name)
                 'MsgBox "Default Printer = " & sName
                 Exit For
             End If
@@ -242,8 +340,8 @@ FINISHED:
     End If
 End Function
 
-'Set the WMI Default Printer by Name
-Public Function fnSetDefaultPrinter(ByRef strPrinterName As String) As Boolean
+'Set the WMI Default Printer by Name (for 2016 RDPs, this sets the SessionID default printer)
+Private Function fnSetDefaultPrinter(ByRef strPrinterName As String) As Boolean
     On Error GoTo FINISHED
     Dim objWMIService, colInstalledPrinters, objPrinter
         
@@ -268,44 +366,8 @@ FINISHED:
     End If
 End Function
 
-'Retrieve a list of WMI Printers and add them to a Listbox
-Sub DisplayPrinters()
-    On Error GoTo FINISHED
-    Dim objWMIService, colInstalledPrinters, objPrinter, oOption
-    Dim sName As String
-    Dim sDefault As String
-        
-    lstPrinters.Clear
-    
-    sDefault = fnGetDefaultPrinterName()
-    
-    Me.lblDefault.Caption = "Default Print is: " & sDefault
-    
-    Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
-    Set colInstalledPrinters = objWMIService.ExecQuery("Select * from Win32_Printer")
-    
-    For Each objPrinter In colInstalledPrinters
-        If Not objPrinter Is Nothing Then
-            sName = Trim(objPrinter.name)
-            lstPrinters.AddItem Trim(sName)
-            If sName = sDefault Then
-                lstPrinters.ListIndex = lstPrinters.ListCount - 1
-            End If
-        End If
-    Next
-
-    Set objWMIService = Nothing
-    
-    Err.Clear
-FINISHED:
-    If Err.Number <> 0 Then
-        MsgBox "Error loading printers: " & Err.Description
-        Err.Clear
-    End If
-End Sub
-
-' Sets the VB Printer to the Default Windows Printer
-Public Sub subAssignDefaultPrinter()
+' Sets the VB Printer to the WMI Default Windows Printer
+Private Sub subAssignDefaultPrinter()
     Dim sName As String
     Dim pr As Printer
     
@@ -321,6 +383,12 @@ Public Sub subAssignDefaultPrinter()
     
 End Sub
 
+'Registry setting used to set the default printer for the user because setting the WMI default for 2016 RDP sessions sets by SessionID rather than by User
+' User example:
+'    HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\Devices(REG_SZ)="HP Universal Printing PCL 6 (v6.0.0),winspool,Ne01:"
+' SessionID example:
+'    HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\SessionDefaultDevices\S-1-5-5-0-6960522\Devices(REG_SZ)="HP LaserJet 4200/4300 PCL6 (redirected 38),winspool,TS003"
+'the programs using the Crystal Reports dll do not know about the SessionID default printer
 Private Function fnForceDefaultPrinter(sName As String) As Boolean
     Const METH_NAME = "fnForceDefaultPrinter"
     On Error GoTo FINSISHED
@@ -413,7 +481,7 @@ QueryValueExError:
 
 End Function
 
-Public Function RegSetValue(ByVal lKey As Long, _
+Private Function RegSetValue(ByVal lKey As Long, _
                             sKeyName As String, _
                             sValueName As String, _
                             ByVal lType As Long, _
@@ -463,4 +531,3 @@ Private Function RemoveNull(szStr As String) As String
     End If
 
 End Function
-
