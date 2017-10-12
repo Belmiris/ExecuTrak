@@ -5,6 +5,9 @@ Option Explicit
 '
 'Print Rotines for CC Processor
 'Programmer: Weigong Jiang
+'
+' 8889 - tthompson
+'
 
     Private HEADER_PT As String
     
@@ -172,7 +175,7 @@ Public Function fnOpenRecord(strSQL As String, _
                               Optional vDB As Variant) As Recordset
     Const SUB_NAME = "fnOpenRecord"
     ' Get records from the given SQL statement
-    Dim objDB As DataBase
+    Dim objDB As Database
     Dim rsTemp As Recordset
 
     If IsMissing(vDB) Then
@@ -211,7 +214,7 @@ Public Function fnExecuteSQL(strSQL As String, _
                              Optional vMsg As Variant, _
                              Optional vDB As Variant) As Boolean
     Const SUB_NAME = "fnExecuteSQL"
-    Dim objDB As DataBase
+    Dim objDB As Database
     
     If IsMissing(vDB) Then
         Set objDB = t_dbMainDatabase
@@ -247,7 +250,7 @@ Private Function fnGetUbound(AryIn() As String) As Long
     Exit Function
 ErrorTrap:
     fnGetUbound = -1
-    err.Clear
+    Err.Clear
     On Error GoTo 0
 End Function
 Public Function fnSendToPrinter(AryIn() As String, _
@@ -259,6 +262,13 @@ Public Function fnSendToPrinter(AryIn() As String, _
     '----BODY------------------------
     On Error Resume Next
     
+    ' 8889 - Printer dialog
+    SelectPrinter.ShowDialog ForceDefaultPrinter:=True, ParentForm:=Me
+    If SelectPrinter.Canceled Then
+        MsgBox "Print job canceled"
+        Exit Sub
+    End If
+
     nPageNumber = 1
     
     lUBound = fnGetUbound(AryIn)
@@ -399,7 +409,7 @@ errSetup:
 
      sErrMsg = "Due to the following error, the system Cannot print the report." & vbCrLf
 '     sErrMsg = sErrMsg & "However the report will be write to the log file '" & sLogFile & "':" & vbCrLf
-     sErrMsg = sErrMsg & vbCrLf & "Error Number = " & err.Number & vbCrLf & "Error Message = " & err.Description
+     sErrMsg = sErrMsg & vbCrLf & "Error Number = " & Err.Number & vbCrLf & "Error Message = " & Err.Description
      MsgBox sErrMsg, vbExclamation
  
 End Function
@@ -438,7 +448,7 @@ Public Function fnSendToFile(AryIn() As String, _
     Printer.KillDoc
     Printer.EndDoc
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     nPageNumber = 1
     nLineCount = 0
@@ -503,9 +513,9 @@ Public Function fnSendToFile(AryIn() As String, _
     
     Exit Function
 
-errTrap:
+ErrTrap:
     MsgBox "An error has occurred in function " + SUB_NAME + "()." + vbCrLf + vbCrLf _
-        + "Error Code: " & err.Number & vbCrLf & "Error Desc: " & err.Description _
+        + "Error Code: " & Err.Number & vbCrLf & "Error Desc: " & Err.Description _
         + vbCrLf + vbCrLf + "Please report this to support."
 End Function
 
@@ -534,7 +544,7 @@ Private Function fnWriteTitleToFile(nptrFile As Integer, sReportType As String, 
     Dim n1 As Integer
     Dim n2 As Integer
     
-    On Error GoTo errTrap
+    On Error GoTo ErrTrap
     
     If Not IsMissing(nPageNo) Then
         sPage = fnFormatPage(nPageNo)
@@ -604,9 +614,9 @@ Private Function fnWriteTitleToFile(nptrFile As Integer, sReportType As String, 
     
     Exit Function
 
-errTrap:
+ErrTrap:
     MsgBox "An error has occurred in function " + SUB_NAME + "()." + vbCrLf + vbCrLf _
-        + "Error Code: " & err.Number & vbCrLf & "Error Desc: " & err.Description _
+        + "Error Code: " & Err.Number & vbCrLf & "Error Desc: " & Err.Description _
         + vbCrLf + vbCrLf + "Please report this to support."
 End Function
 
