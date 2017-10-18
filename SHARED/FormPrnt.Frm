@@ -1,24 +1,21 @@
-VERSION 4.00
+VERSION 5.00
 Begin VB.Form FormCapturer 
    AutoRedraw      =   -1  'True
    Caption         =   "Form1"
-   ClientHeight    =   2196
-   ClientLeft      =   3384
-   ClientTop       =   2688
+   ClientHeight    =   2205
+   ClientLeft      =   3390
+   ClientTop       =   2685
    ClientWidth     =   3960
-   Height          =   2580
-   Left            =   3336
    LinkTopic       =   "Form1"
-   ScaleHeight     =   2196
+   PaletteMode     =   1  'UseZOrder
+   ScaleHeight     =   2205
    ScaleWidth      =   3960
-   Top             =   2352
-   Width           =   4056
    Begin VB.PictureBox pctHold 
       BorderStyle     =   0  'None
       Height          =   1224
       Left            =   408
-      ScaleHeight     =   1224
-      ScaleWidth      =   3132
+      ScaleHeight     =   1230
+      ScaleWidth      =   3135
       TabIndex        =   0
       Top             =   492
       Visible         =   0   'False
@@ -26,7 +23,9 @@ Begin VB.Form FormCapturer
    End
 End
 Attribute VB_Name = "FormCapturer"
+Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 'Useage of this module:
 
@@ -60,8 +59,8 @@ Option Explicit
         ByVal nWidth As Long, _
         ByVal nHeight As Long, _
         ByVal hSrcDC As Long, _
-        ByVal xSrc As Long, _
-        ByVal ySrc As Long, _
+        ByVal XSrc As Long, _
+        ByVal YSrc As Long, _
         ByVal dwRop As Long) As Long
     
     Private Declare Function CreateCompatibleBitmap Lib "GDI32" ( _
@@ -165,6 +164,12 @@ Public Sub PrintScreen(frmSrc As Form)
     Dim fFactor As Single
     Dim LEFT_MARGIN As Long
     Dim TOP_MARGIN As Long
+        
+    SelectPrinter.ShowDialog False, frmSrc
+    If SelectPrinter.Canceled Then
+        MsgBox "Print operation canceled"
+        Exit Sub
+    End If
     
     Screen.MousePointer = vbHourglass
     'Get the size of input form
