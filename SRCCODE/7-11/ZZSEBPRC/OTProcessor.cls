@@ -11,6 +11,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+'
+'8889 - tthompson
+'
 Option Explicit
 
 Private m_Form As Form
@@ -87,7 +90,7 @@ Private Type BONUS_DATA
     EmpNO As Long
     PrftCtr As Integer
     payCode As String
-    Hours As Single
+    hours As Single
     bonusDate As Date
     DoType As MaintenanceType
 End Type
@@ -432,7 +435,14 @@ Public Sub cmdOTPrint_Click()
     Dim sArrReport() As String
     Dim nHeader As Integer
     Dim i As Long
-    
+
+    ' 8889 - Printer dialog
+    SelectPrinter.ShowDialog
+    If SelectPrinter.Canceled Then
+        tfnSetStatusBarCorrect "Print job canceled"
+        Exit Sub
+    End If
+
     tfnSetStatusBarCorrect "Printing Report, Please wait..."
     Screen.MousePointer = vbHourglass
     
@@ -941,7 +951,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
                 .EmpNO = tfnRound(rsTemp!bh_empno)
                 .nWeek = 1
                 .PrftCtr = tfnRound(rsTemp!bh_prft_ctr)
-                .OrigHours = tfnRound(rsTemp!Hours, 2)
+                .OrigHours = tfnRound(rsTemp!hours, 2)
                 
                 .Parsed = False
                 dTotalEmpHours = fnGetTotalHoursForEmployee(.EmpNO, .nWeek)
@@ -1025,7 +1035,7 @@ Private Function fnBuildEmployeeHoursArray() As Boolean
                     .nWeek = 2
                     .Parsed = False
                     .PrftCtr = tfnRound(rsTemp!bh_prft_ctr)
-                    .OrigHours = tfnRound(rsTemp!Hours, 2)
+                    .OrigHours = tfnRound(rsTemp!hours, 2)
                     dTotalEmpHours = fnGetTotalHoursForEmployee(.EmpNO, .nWeek)
                 
                     If dTotalEmpHours = 0# Then
@@ -1085,7 +1095,7 @@ Private Function fnGetTotalHoursForEmployee(lEmpNo As Long, nWeek As Integer) As
     End If
     
     If GetRecordSet(rsTemp, strSQL, nDB_REMOTE, "fnGetTotalHoursForEmployee") >= 0 Then
-        fnGetTotalHoursForEmployee = tfnRound(rsTemp!Hours, 2)
+        fnGetTotalHoursForEmployee = tfnRound(rsTemp!hours, 2)
     End If
     
 End Function
@@ -1268,7 +1278,7 @@ Private Sub subWriteToBonusArray(dDate As Date, lEmpNo As Long, nPrftCtr As Inte
          .EmpNO = lEmpNo
          .PrftCtr = nPrftCtr
          .DoType = nType
-         .Hours = tfnRound(dHours, 2)
+         .hours = tfnRound(dHours, 2)
          .payCode = sPayCode
          'Debug.Print CStr(.bonusDate) & vbTab & CStr(.EmpNO) & vbTab & CStr(.PrftCtr) & vbTab & CStr(.payCode) & vbTab & CStr(.DoType) & vbTab & CStr(.Hours)
     End With
@@ -1686,13 +1696,13 @@ Private Function fnInsertUpdate() As Boolean
                             strSQL = strSQL & "bh_override, bh_chk_link, bh_pay_code, bh_hours) VALUES ("
                             strSQL = strSQL & tfnRound(.EmpNO) & "," & tfnRound(.PrftCtr) & ","
                             strSQL = strSQL & tfnDateString(.bonusDate, True) & ",0, 'Y', 0,"
-                            strSQL = strSQL & tfnSQLString(.payCode) & "," & tfnRound(.Hours, 2) & ")"
+                            strSQL = strSQL & tfnSQLString(.payCode) & "," & tfnRound(.hours, 2) & ")"
                         Else
                             
                             If MsgBox("There is a record with pay code " & .payCode & " for employee " & .EmpNO _
                                     & " in profit Center " & .PrftCtr & " in " & CStr(.bonusDate) _
                                     & ",do you want to override this data?", vbQuestion + vbYesNo + vbDefaultButton1) = vbYes Then
-                                strSQL = "UPDATE bonus_hold SET bh_hours = " & tfnRound(.Hours, 2)
+                                strSQL = "UPDATE bonus_hold SET bh_hours = " & tfnRound(.hours, 2)
                                 strSQL = strSQL & " WHERE bh_empno = " & tfnRound(.EmpNO)
                                 strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(.PrftCtr)
                                 strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(.payCode)
@@ -1705,7 +1715,7 @@ Private Function fnInsertUpdate() As Boolean
                         
                     Case TypeUpdate
                     
-                        strSQL = "UPDATE bonus_hold SET bh_hours = " & tfnRound(.Hours, 2)
+                        strSQL = "UPDATE bonus_hold SET bh_hours = " & tfnRound(.hours, 2)
                         strSQL = strSQL & " WHERE bh_empno = " & tfnRound(.EmpNO)
                         strSQL = strSQL & " AND bh_prft_ctr = " & tfnRound(.PrftCtr)
                         strSQL = strSQL & " AND bh_pay_code = " & tfnSQLString(.payCode)

@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{C75015E0-2232-11D3-B440-0060971E99AF}#1.0#0"; "FactFrm.ocx"
 Object = "{3D388220-1F4E-11D3-B440-0060971E99AF}#1.0#0"; "FACTTAB.OCX"
 Object = "{01028C21-0000-0000-0000-000000000046}#4.0#0"; "TG32OV.OCX"
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "mscomctl.ocx"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmZZSEBPRC 
    BackColor       =   &H00C0C0C0&
    Caption         =   "Process Commission Checks"
@@ -3629,7 +3629,10 @@ Attribute VB_Exposed = False
 'Doc Location   : "G:\PROGRAM\DOC\PROJECTS\421627-421630-7-Eleven,     *
 'Inc.-Capture Manager Hours\Software Elements\Detailed Specs\          *
 'Detailed Spec Process Commission Checks ZZSEBPRC 421627.doc"          *                                         *
-'New Table      : zzse_manager_hour                                    *
+'New Table      : zzse_manager_hour
+'
+'8889 - tthompson
+'
 '***********************************************************************
 
 Option Explicit
@@ -3709,7 +3712,7 @@ Private Sub cmdApprove_Click()
         tblApprove_GotFocus
     End If
     
-    cmdOK.Enabled = True
+    cmdOk.Enabled = True
     cmdCancel(TabApprove).Enabled = True
     
     tgmApprove.Rebind
@@ -3752,7 +3755,7 @@ Private Sub cmdEHPayCodeDesc_Click()
     objHours.cmdEHPayCodeDesc_Click
 End Sub
 
-Private Sub cmdOK_Click()
+Private Sub cmdOk_Click()
     #If PROTOTYPE Then
         Exit Sub
     #End If
@@ -3761,7 +3764,7 @@ Private Sub cmdOK_Click()
         Exit Sub
     End If
     
-    cmdOK.Enabled = False
+    cmdOk.Enabled = False
     Me.Enabled = False
     
     Dim sErrMsg As String
@@ -3770,8 +3773,8 @@ Private Sub cmdOK_Click()
     
     If sErrMsg <> "" Then
         Me.Enabled = True
-        cmdOK.Enabled = True
-        subSetFocus cmdOK
+        cmdOk.Enabled = True
+        subSetFocus cmdOk
         DoEvents
         tfnSetStatusBarError sErrMsg
         Exit Sub
@@ -3906,10 +3909,10 @@ Private Sub eTabMain_Click()
             subSetFocus efraBaseIIView
                 
             If fnHasApprove() Then
-                cmdOK.Enabled = True
+                cmdOk.Enabled = True
                 cmdCancel(TabApprove).Enabled = True
             Else
-                cmdOK.Enabled = False
+                cmdOk.Enabled = False
                 cmdCancel(TabApprove).Enabled = False
             End If
             
@@ -4435,7 +4438,7 @@ Private Sub tfnResetScreen(Index As Integer)
             
             bLoadingBonusDetail = False
             chkHourly.Enabled = False
-            chkHourly.Value = vbUnchecked
+            chkHourly.value = vbUnchecked
             bShowDetail = mnuDetailLog.CHECKED
 
             cValidate.ResetFlags
@@ -4484,10 +4487,10 @@ Private Sub tfnResetScreen(Index As Integer)
                         End If
                         
                         If fnHasApprove() Then
-                            cmdOK.Enabled = True
+                            cmdOk.Enabled = True
                             cmdCancel(Index).Enabled = True
                         Else
-                            cmdOK.Enabled = False
+                            cmdOk.Enabled = False
                             cmdCancel(Index).Enabled = False
                         End If
                         
@@ -4549,10 +4552,10 @@ Private Sub tblApprove_BeforeColEdit(ByVal ColIndex As Integer, ByVal KeyAscii A
     If ColIndex = colAApprove Then
         
         If fnHasApprove() Then
-            cmdOK.Enabled = True
+            cmdOk.Enabled = True
             cmdCancel(TabApprove).Enabled = True
         Else
-            cmdOK.Enabled = False
+            cmdOk.Enabled = False
             cmdCancel(TabApprove).Enabled = False
         End If
         
@@ -4802,13 +4805,13 @@ Private Sub subSetProgress(sngPercent As Single)
         End If
     Else
         'pbBarMain.Visible = False
-        pbBarMain.Value = 0
+        pbBarMain.value = 0
         If pbBarMain.ToolTipText = "" Then
             pbBarMain.ToolTipText = "Process Checks progress bar"
         End If
     End If
     
-    pbBarMain.Value = sngPercent
+    pbBarMain.value = sngPercent
     pbBarMain.Refresh
 End Sub
 
@@ -4883,7 +4886,7 @@ Private Sub cmdProcess_Click()
     'david 12/27/2002  #393054
     'SHOW WARNING MESSAGE
     'ONLY WHEN the 'Process Hourly Employee only' checkbox is NOT checked
-    If frmZZSEBPRC.chkHourly.Value = vbUnchecked Then
+    If frmZZSEBPRC.chkHourly.value = vbUnchecked Then
         i = fnCheckBonusHold()
     
         If i = vbCancel Then
@@ -4906,7 +4909,7 @@ Private Sub cmdProcess_Click()
     
     'david 03/19/2003  #404567
     'get the minimum "mgr gas comm" for bonus paycode = '7MGS'
-    If chkHourly.Value = vbChecked Then
+    If chkHourly.value = vbChecked Then
         dMinManagerGasComm = fnGetMinManagerGasComm("7MGS")
     End If
     ''''''''''''''''''''''''''
@@ -4929,7 +4932,7 @@ Private Sub cmdProcess_Click()
     strSQL = strSQL & " AND bm_eligible_pc = prft_ctr"
     
     'added  by junsong 10/16/2002 call #379824-3
-    If chkHourly.Value = vbChecked Then
+    If chkHourly.value = vbChecked Then
         'david 03/19/2003  #404567
         'bonus paycode = '7MGS'
         'for the subsequence pay period, need to pay the minimum "mgr gas comm" ($10) to those
@@ -5035,7 +5038,7 @@ Debug.Print "Time="; Timer - sngTimer; ": fnGetBonusAmount(" & vArrBonus(colAEmp
                 'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
                 'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
                 'in last/first full pay period, he will NOT be paid this commission anymore
-                If chkHourly.Value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
+                If chkHourly.value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
                    And tfnRound(dMinManagerGasComm, 2) > 0 Then
                     If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
                         dTotalBonus = 0#
@@ -5125,7 +5128,7 @@ Debug.Print "Time="; Timer - sngTimer; ": fnGetBonusAmount(" & vArrBonus(colAEmp
                 'who ONLY got the minimum "mgr gas comm" in the last/first full pay period
                 'but if the manager's "mgr gas comm" is greater than the minimum "mgr gas comm"
                 'in last/first full pay period, he will NOT be paid this commission anymore
-                If chkHourly.Value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
+                If chkHourly.value = vbChecked And fnCstr(vArrBonus(colAPayCode, nSize)) = "7MGS" _
                    And tfnRound(dMinManagerGasComm, 2) > 0 Then
                     If tfnRound(dTotalBonus, 2) <> tfnRound(dMinManagerGasComm, 2) Then
                         dTotalBonus = 0#
@@ -5287,8 +5290,8 @@ Private Sub subSetGridWidth(tbl As TDBGrid)
         Case "tblApprove"
             tbl.Columns(colAApprove).ValueItems.MaxComboItems = 2
             Set vitems = tbl.Columns(colAApprove).ValueItems
-            VItem.Value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
-            VItem.Value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
+            VItem.value = sColAppYes: VItem.DisplayValue = "Y": vitems.Add VItem
+            VItem.value = sColAppNo: VItem.DisplayValue = "N": vitems.Add VItem
             vitems.Presentation = 1
             vitems.CycleOnClick = True
             vitems.Translate = True
@@ -5640,7 +5643,7 @@ Private Function fnValidFrequency(txtBox As Textbox) As Boolean
     If UCase(Trim(txtBox.Text)) = "M" Then
         chkHourly.Enabled = True
     Else
-        chkHourly.Value = vbUnchecked
+        chkHourly.value = vbUnchecked
         chkHourly.Enabled = False
     End If
     
@@ -6235,7 +6238,7 @@ Private Sub txtFrequency_Change()
     tgcDropdown.Change txtFrequency
     cmdProcess.Enabled = False
     chkHourly.Enabled = False
-    chkHourly.Value = vbUnchecked
+    chkHourly.value = vbUnchecked
 End Sub
 
 Private Sub txtFrequency_GotFocus()
@@ -6608,6 +6611,15 @@ Private Sub subEnablePrint(Index As Integer, bYesNo As Boolean, _
 End Sub
 
 Private Sub subPrint(Index As Integer)
+
+
+    ' 8889 - Printer dialog
+    SelectPrinter.ShowDialog ParentForm:=Me
+    If SelectPrinter.Canceled Then
+        tfnSetStatusBarMessage "Print job canceled"
+        Exit Sub
+    End If
+
     If Index = TabProcess Then
         Screen.MousePointer = vbHourglass
         tfnSetStatusBarMessage "Printing report..."
