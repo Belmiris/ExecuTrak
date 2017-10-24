@@ -116,6 +116,7 @@ Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryV
 Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
 Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
 Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, ByVal lpData As String, ByVal cbData As Long) As Long        ' Note that if you declare the lpData parameter as String, you must pass it By Value.
+Private Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 
 Private Declare Function ReleaseCapture Lib "user32" () As Long
 
@@ -136,6 +137,11 @@ Private Const HKEY_CURRENT_USER = &H80000001
 Private Const HKEY_LOCAL_MACHINE = &H80000002
 Private Const HKEY_USERS = &H80000003
 
+Private Const HWND_TOP = 0
+Private Const HWND_BOTTOM = 1
+Private Const HWND_TOPMOST = -1
+Private Const HWND_NOTOPMOST = -2
+
 Private Const KEY_ALL_ACCESS = &H3F
 Private Const KEY_QUERY_VALUE = &H1
 Private Const KEY_ENUMERATE_SUB_KEYS = &H8
@@ -150,6 +156,17 @@ Private Const REG_SZ As Long = 1
 Private Const REG_DWORD As Long = 4
 Private Const REG_OPTION_VOLATILE = 1           ' Key is not preserved when system is rebooted
 
+Private Const SWP_DRAWFRAME = &H20
+Private Const SWP_HIDEWINDOW = &H80
+Private Const SWP_NOACTIVATE = &H10
+Private Const SWP_NOCOPYBITS = &H100
+Private Const SWP_NOMOVE = &H2
+Private Const SWP_NOREDRAW = &H8
+Private Const SWP_NOREPOSITION = &H200
+Private Const SWP_NOSIZE = &H1
+Private Const SWP_NOZORDER = &H4
+Private Const SWP_SHOWWINDOW = &H40
+
 Private Type SECURITY_ATTRIBUTES
         nLength As Long
         lpSecurityDescriptor As Long
@@ -158,20 +175,32 @@ End Type
 
 Private m_bCanceled As Boolean
 Private m_bForceDefault As Boolean
+Private m_bTopMost As Boolean
+'
 
 Public Property Get Canceled() As Boolean
     Canceled = m_bCanceled
 End Property
 
+Private Sub Form_Load()
+    If m_bTopMost Then
+        SetWindowPos Me.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+    End If
+End Sub
+
 'ShowDialog() should be used instead of SelectPrinter.Show()
 ' Arguments:
 '  ForceDefaultPrinter will force set the Users default printer (for programs using crpe32.dll)
 '  ParentForm will pass the parent form to Me.Show (for programs where the calling method is on a form rather than a module)
-Public Sub ShowDialog(Optional ByVal ForceDefaultPrinter As Boolean = False, Optional ByVal ParentForm As Form = Nothing)
+Public Sub ShowDialog(Optional ByVal ForceDefaultPrinter As Boolean = False, _
+                      Optional ByVal ParentForm As Form = Nothing, _
+                      Optional ByVal bTopMost As Boolean = False)
     On Error GoTo FINISHED
     
     m_bCanceled = True
     m_bForceDefault = ForceDefaultPrinter
+    m_bTopMost = bTopMost
+    
     Unload SelectPrinter ' just in case we are still having an issue with multiple calls being made
     Screen.MousePointer = vbDefault ' some programs were forcing the cursor to a wait icon in an obscure point
     ReleaseCapture ' some calling programs were capturing the mouse and mot releasing it, which caused the a "click-through" event appearing as though the modal form was not modal
