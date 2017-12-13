@@ -116,7 +116,7 @@ Private Declare Function RegQueryValueExLong Lib "advapi32.dll" Alias "RegQueryV
 Private Declare Function RegQueryValueExNULL Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As Long, lpcbData As Long) As Long
 Private Declare Function RegQueryValueExString Lib "advapi32.dll" Alias "RegQueryValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal lpReserved As Long, lpType As Long, ByVal lpData As String, lpcbData As Long) As Long
 Private Declare Function RegSetValueEx Lib "advapi32.dll" Alias "RegSetValueExA" (ByVal hKey As Long, ByVal lpValueName As String, ByVal Reserved As Long, ByVal dwType As Long, ByVal lpData As String, ByVal cbData As Long) As Long        ' Note that if you declare the lpData parameter as String, you must pass it By Value.
-Private Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 
 Private Declare Function ReleaseCapture Lib "user32" () As Long
 
@@ -176,6 +176,7 @@ End Type
 Private m_bCanceled As Boolean
 Private m_bForceDefault As Boolean
 Private m_bTopMost As Boolean
+Private m_bPrinterSelected As Boolean
 '
 
 Public Property Get Canceled() As Boolean
@@ -184,7 +185,7 @@ End Property
 
 Private Sub Form_Load()
     If m_bTopMost Then
-        SetWindowPos Me.hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+        SetWindowPos Me.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
     End If
 End Sub
 
@@ -294,6 +295,7 @@ Private Sub cmdOK_Click()
                     End If
                     
                     m_bCanceled = False
+                    m_bPrinterSelected = True
                     Unload Me
                     Exit Sub
                 End If
@@ -560,3 +562,7 @@ Private Function RemoveNull(szStr As String) As String
     End If
 
 End Function
+
+Public Property Get PrinterSelected() As Boolean
+    PrinterSelected = m_bPrinterSelected
+End Property
