@@ -96,6 +96,7 @@ End Enum
 Private m_sSSH_KEY As String
 Private m_bSSH_KEY As Boolean
 Private m_DontDeleteRemoteFiles As Boolean
+Private m_sLastHost As String
 '**********************************************************
 
 '
@@ -411,7 +412,7 @@ Public Function tfnRunRCmd(sHost As String, _
     nCode = ERR_LOGIN
     sErrMsg = Space(MAX_MSG_LEN + 1)
     
-    sHostKey = Trim(fnGetServerHostKey())
+    sHostKey = Trim(fnGetServerHostKey(sHost))
     If sHostKey <> "" Then GoTo RUN_PLINK
     
     nCode = WinsockRCmd(sHost, WINSOCK_PORT, sLocalUID, sRemoteUID, sCmd, sErrMsg, MAX_MSG_LEN)
@@ -853,17 +854,23 @@ End Function
 '**********************************************************
 '* USE PLINK - 8696
 
-Public Function fnGetServerHostKey() As String
+Public Function fnGetServerHostKey(Optional sHost As String = "") As String
     Dim rsTemp As Recordset
     Dim strSQL As String
-    Dim sHost As String
+    'Dim sHost As String
     Dim sAppPath As String
     Dim sName As String
     Dim sValue As String
     
+    If Trim(sHost) = "" Then
+        sHost = tfnGetHostName()
+    End If
+    
     If m_bSSH_KEY Then
-        fnGetServerHostKey = m_sSSH_KEY
-        Exit Function
+        If sHost = m_sLastHost Then
+            fnGetServerHostKey = m_sSSH_KEY
+            Exit Function
+        End If
     End If
     
     m_sSSH_KEY = ""
@@ -876,9 +883,7 @@ Public Function fnGetServerHostKey() As String
     If Not io.FileExists(sAppPath & "plink.exe") Then Exit Function
     If Not io.FileExists(sAppPath & "pscp.exe") Then Exit Function
     If Not io.FileExists(sAppPath & "psftp.exe") Then Exit Function
-
-    sHost = tfnGetHostName()
-
+    
     strSQL = "select ini_field_name, ini_value " _
              & "from sys_ini " _
             & "where ini_file_name = 'HOST_KEY' " _
@@ -900,6 +905,7 @@ Public Function fnGetServerHostKey() As String
        .Close
     End With
     
+    m_sLastHost = sHost
     fnGetServerHostKey = m_sSSH_KEY
     
 End Function
