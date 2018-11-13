@@ -1112,6 +1112,8 @@ Public Sub load_trn_arry(bParam1 As Integer, nParam2 As Integer)
             If fnCheck_txh_origin_st Then
                 If fnCStr(pr_use_link.txh_origin_st) <> "" Then
                     If fnCStr(pr_use_link.txh_origin_st) <> origin_state Then
+                        'G9242 - logging ... silently track this: because Howard says Origin State should only occur for Florida?
+                        tfnErrHandler "load_trn_arry", "--", "EXCEPTION: Tax Code '" & pr_use_link.txh_code & "' skipped due to origin state mismatch: " & pr_use_link.txh_origin_st & " vs " & origin_state, False
                         buseTax = False
                     End If
                 End If
@@ -2153,7 +2155,7 @@ End Sub
 '# This function calculates the tax amt where the limit applies to
 '# the total invoice and not just a line item.
 Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long)
-    Dim X As Integer
+    Dim x As Integer
     Dim not_found As Boolean
 
     If calc_tax = 0 Then
@@ -2161,21 +2163,21 @@ Public Function sales_tax_limit(calc_tax As Single, limit As Single, trn As Long
         Exit Function
     End If
     not_found = True
-    For X = 1 To sls_tax_cnt
-        If sls_tax_arry(X).trn = trn Then
+    For x = 1 To sls_tax_cnt
+        If sls_tax_arry(x).trn = trn Then
             not_found = False
             Exit For
         End If
     Next
     If not_found Then
         sls_tax_cnt = sls_tax_cnt + 1
-        X = sls_tax_cnt
-        sls_tax_arry(X).trn = trn
+        x = sls_tax_cnt
+        sls_tax_arry(x).trn = trn
     End If
-    sls_tax_arry(X).amount = sls_tax_arry(X).amount + calc_tax
-    If sls_tax_arry(X).amount > limit Then
-        calc_tax = calc_tax - sls_tax_arry(X).amount + limit
-        sls_tax_arry(X).amount = limit
+    sls_tax_arry(x).amount = sls_tax_arry(x).amount + calc_tax
+    If sls_tax_arry(x).amount > limit Then
+        calc_tax = calc_tax - sls_tax_arry(x).amount + limit
+        sls_tax_arry(x).amount = limit
     End If
     sales_tax_limit = calc_tax
 End Function
@@ -2426,7 +2428,7 @@ End Function
                                 ) As Recordset
  Public Function ftx_table( _
                                 sParm1 As Long, _
-                                db As DataBase _
+                                db As Database _
                                 )
     Const SUB_NAME = "ftx_table"
     'returning pr_tx_table As Recordset
@@ -2481,7 +2483,7 @@ End Function
     Exit Function
     
 ftx_tableRedim:
-    If Err.Number = 9 Then 'Subscript out of range
+    If Err.number = 9 Then 'Subscript out of range
         ' this is the expected error on the FIRST call to this function; we
         ' must dimension the static array and retry the first reference to it.
         Err.Clear
@@ -2489,7 +2491,7 @@ ftx_tableRedim:
         On Error GoTo 0
         Resume
     Else
-        Err.Raise Err.Number
+        Err.Raise Err.number
     End If
     
 End Function    ''ftx_table
