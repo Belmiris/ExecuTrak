@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCTL.OCX"
+Object = "{831FDD16-0C5C-11D2-A9FC-0000F8754DA1}#2.2#0"; "MSCOMCTL.OCX"
 Begin VB.Form frmContext 
    Caption         =   "Toolbar Kit"
    ClientHeight    =   2070
@@ -88,6 +88,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'
+' G9145 - tthompson - corrected a long standing toolbar "work around" that had to be implemented in every program rather than just implementing it in this form
+'
+
 Option Explicit
 
 Private Const t_szOLETBKit As String = "TBKIT.clsToolbar"
@@ -120,7 +124,7 @@ Private Type POINTAPI
 End Type
 
 Private Declare Function GetMenu Lib "user32" ( _
-    ByVal hWnd As Long) As Long
+    ByVal hwnd As Long) As Long
 
 Private Declare Function GetCursorPos Lib "user32" ( _
     lpPoint As POINTAPI) As Long
@@ -135,7 +139,7 @@ Private Declare Function TrackPopupMenu Lib "user32" ( _
     ByVal x As Long, _
     ByVal y As Long, _
     ByVal nReserved As Long, _
-    ByVal hWnd As Long, _
+    ByVal hwnd As Long, _
     lprc As RECT) As Long
 
 Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
@@ -168,7 +172,7 @@ End Type
 Private Declare Function GetFileVersionInfo Lib "Version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwhandle As Long, ByVal dwlen As Long, lpData As Any) As Long
 Private Declare Function GetFileVersionInfoSize Lib "Version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
 Private Declare Function VerQueryValue Lib "Version.dll" Alias "VerQueryValueA" (pBlock As Any, ByVal lpSubBlock As String, lplpBuffer As Any, puLen As Long) As Long
-Private Declare Sub MoveMemory Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, ByVal Source As Long, ByVal length As Long)
+Private Declare Sub MoveMemory Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, ByVal source As Long, ByVal length As Long)
 '
 
 '
@@ -219,13 +223,13 @@ Private Sub fnShowPopup()
     nWhereY = pntPosition.y + 5
     
     'Get the top level menu
-    hMenu = GetMenu(frmContext.hWnd)
+    hMenu = GetMenu(frmContext.hwnd)
     
     'Get the submenu that they want
     hSubMenu = GetSubMenu(hMenu, nSubMenu)
     
     'Popup the menu
-    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hWnd, rctMainWindow)
+    nTemp = TrackPopupMenu(hSubMenu, 2, nWhereX, nWhereY, 0, frmContext.hwnd, rctMainWindow)
 
 End Sub
 
@@ -368,10 +372,10 @@ End Sub
 
 Public Sub ButtonClick(Button As MSComctlLib.Button)
     If Not objToolbar Is Nothing Then
-        subShowBusyState True, Button.key
-        objToolbar.ButtonClick Button.key
+        subShowBusyState True, Button.Key
+        objToolbar.ButtonClick Button.Key
         tfnWaitSeconds DELAY_FOR_START
-        subShowBusyState False, Button.key
+        subShowBusyState False, Button.Key
         subCheckError
     End If
 End Sub
@@ -418,6 +422,9 @@ Public Sub EndSetupToolbar()
 '        pctStatusbar.Move 0, 0, frmMainForm.sbStatusBar.Panels(1).Width, frmMainForm.sbStatusBar.Height
 '        nTHeight = pctStatusbar.TextHeight("A")
 '        ffraStatusbar.Move Screen.TwipsPerPixelX * 2, (pctStatusbar.Height - nTHeight) / 2, pctStatusbar.Width, nTHeight
+        'G9145
+        objToolbar.tbToolbar.Visible = True
+        Me.FormResize
         subCheckError
     End If
     m_nMenuItems = 1
@@ -516,7 +523,7 @@ Public Sub MouseDown(ByVal Button As Integer, _
                 Load mnuContextItems(i + 1)
                 m_nMenuItems = m_nMenuItems + 1
             End If
-            objToolbar.GetMenuInfo sCap, sTag, bEnabled, val(vExKeys(i))
+            objToolbar.GetMenuInfo sCap, sTag, bEnabled, Val(vExKeys(i))
             mnuContextItems(i + 1).Caption = sCap
             mnuContextItems(i + 1).Visible = True
             mnuContextItems(i + 1).Tag = sTag
@@ -614,7 +621,7 @@ Private Sub subShowBusyState(bFlag As Boolean, _
 End Sub
 
 Public Function TbkitDllPath() As String
-    If val(App.minor) < 20 Then
+    If Val(App.minor) < 20 Then
         TbkitDllPath = TBKIT_DLL_PATH
     Else
         TbkitDllPath = fnGetFactorPath + "\" + TBKIT_DLL_PATH
