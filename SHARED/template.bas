@@ -9,6 +9,10 @@ Attribute VB_Name = "modTemplate"
 '
 ' Functions:
 '
+
+'
+'G9305 - tthompson
+'
 Option Explicit
 
 '=======================
@@ -1881,7 +1885,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     On Error Resume Next 'turn off the default runtime error handler
 
     If Not frmSaved Is Nothing Then          'if a previous form locked
-        EnableWindow frmSaved.hWnd, -1       'disable the lock on window/form
+        EnableWindow frmSaved.hwnd, -1       'disable the lock on window/form
         Set frmSaved = Nothing               'clear the pointer to the static form
         Screen.MousePointer = DEFAULT_CURSOR 'set the cursor back to the
     End If
@@ -1889,7 +1893,7 @@ Public Sub tfnLockWin(Optional frmCurrent As Variant)
     If Not IsMissing(frmCurrent) Then          'if a pointer to a form is valid
         Set frmSaved = frmCurrent              'save the pointer in the local static variable
         Screen.MousePointer = HOURGLASS_CURSOR 'set the mouse to the hourglass
-        EnableWindow frmCurrent.hWnd, 0        'lock the window
+        EnableWindow frmCurrent.hwnd, 0        'lock the window
     End If
 
 End Sub
@@ -2436,7 +2440,7 @@ Public Sub tfnDisableFormSystemClose(ByRef frmForm As Form, Optional vCloseSize 
         bCloseSize = vCloseSize
     End If
     
-    nCode = GetSystemMenu(frmForm.hWnd, False)
+    nCode = GetSystemMenu(frmForm.hwnd, False)
     
     'david 10/27/00
     'the following does not work in windows2000
@@ -2707,14 +2711,14 @@ Public Sub subDisableSystemClose(frmMain As Form)
     Dim hSysMenu As Long
     Dim nCnt As Long
     
-    hSysMenu = GetSystemMenu(frmMain.hWnd, False)
+    hSysMenu = GetSystemMenu(frmMain.hwnd, False)
     
     If hSysMenu Then
         nCnt = GetMenuItemCount(hSysMenu)
         If nCnt Then
             RemoveMenu hSysMenu, nCnt - 1, MF_BYPOSITION Or MF_REMOVE
             RemoveMenu hSysMenu, nCnt - 2, MF_BYPOSITION Or MF_REMOVE
-            DrawMenuBar frmMain.hWnd
+            DrawMenuBar frmMain.hwnd
         End If
     End If
 End Sub
@@ -5366,7 +5370,7 @@ Public Function CallForPrinterList() As String
     
     Cmd = App.Path
     Cmd = IIf(Right(Cmd, 1) = "\", Cmd & "PrintMaster.exe", Cmd & "\PrintMaster.exe")
-    Cmd = Cmd & " " & CStr(frmContext.txtPrinterList.hWnd) & " " & Chr(34) & t_szConnect & Chr(34)
+    Cmd = Cmd & " " & CStr(frmContext.txtPrinterList.hwnd) & " " & Chr(34) & t_szConnect & Chr(34)
     'Cmd = Cmd & " show"        'DEBUG!!!!
     
     Shell Cmd, vbHide
@@ -5374,7 +5378,7 @@ Public Function CallForPrinterList() As String
     
     DoEvents
     
-    While frmContext.txtPrinterList.Text = ""
+    While frmContext.txtPrinterList.text = ""
         tfnWaitSeconds 1
         times = times + 1
         If times > 5 Then Exit Function
@@ -5383,12 +5387,12 @@ Public Function CallForPrinterList() As String
     
     printerList = ""
     
-    If frmContext.txtPrinterList.Text = "*NOPRINTERS*" Then
+    If frmContext.txtPrinterList.text = "*NOPRINTERS*" Then
         printerList = NOPRINTERSFOUND
-    ElseIf Left(frmContext.txtPrinterList.Text, 7) = "*ERROR*" Then
-        MsgBox Mid(frmContext.txtPrinterList.Text, 8)
+    ElseIf Left(frmContext.txtPrinterList.text, 7) = "*ERROR*" Then
+        MsgBox Mid(frmContext.txtPrinterList.text, 8)
     Else
-        printerList = frmContext.txtPrinterList.Text
+        printerList = frmContext.txtPrinterList.text
     End If
     
     CallForPrinterList = printerList    'check for NODB
@@ -5396,3 +5400,27 @@ Public Function CallForPrinterList() As String
     If unloadFrm Then Unload frmContext
     
 End Function
+
+'G9305 - test to determine if we are in the VB6 IDE or the compiled program
+Private Function InDebugMode() As Boolean
+    On Error Resume Next
+    Err.Clear
+    Debug.Print 100 / 0
+    If Err.Number <> 0 Then
+        InDebugMode = True
+        Err.Clear
+    End If
+End Function
+
+'G9305 - all developers are on Win10 now.  The built-in SendKeys() will error in the IDE but not in the compiled program.
+Static Sub SendKeys(text As Variant, Optional wait As Boolean = False) 'make this static to 'override' the built-in SendKeys()
+    Dim WshShell As Object
+    
+    If InDebugMode Then
+        Set WshShell = CreateObject("wscript.shell")
+        WshShell.SendKeys CStr(text), wait
+        Set WshShell = Nothing
+    Else
+        SendKeys text, wait
+    End If
+End Sub
