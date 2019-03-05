@@ -732,5 +732,24 @@ End Function
 
 '''<<<<============= 399465 wj  02/24/2004 Windows time sensitive fuel cost
 
+' case 00582440
+Public Sub subSetDeliveryLoadDate(ByVal lmovement, ByVal dtDate As Date)
+    On Error GoTo FINISHED
+    Dim i As Long
+    
+    For i = 0 To m_LoadTimeCnt - 1
+        With m_aryLoadTime(i)
+            If .mv_nbr = lmovement And .L_D = "D" Then
+                .dt = Format(dtDate, "mm/dd/yyyy")
+            End If
+        End With
+    Next
 
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error in subSetDeliveryLoadDate() [" & Err.Number & "]: " & Err.Description
+        Err.Clear
+    End If
+End Sub
 
