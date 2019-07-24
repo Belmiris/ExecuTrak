@@ -345,7 +345,7 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
             #Else
                 'Keep 4-digit-year only if the centuries are different
                 nPos1 = Year(Date) \ 100     'This century
-                nPos2 = val(sYear) \ 100     'Input century
+                nPos2 = Val(sYear) \ 100     'Input century
                 If nPos1 <> nPos2 Then
                     sFmt = FMT_DATE_LONG
                 End If
@@ -364,13 +364,15 @@ Public Function tfnFormatDate(ByVal vSource As Variant, _
         If bKeepCentury Or nYearLen = 4 Then
             'Keep the century if it is against 50 years rule, otherwise, drop it
             'Check whether it is against 50 years rule.
-            nPos1 = Year(Date)      'This year
-            nPos2 = val(sYear)     'Input year
-            If Abs(nPos1 - nPos2) >= 50 Then
-                sFmt = FMT_DATE_LONG
-            Else
-                sFmt = FMT_DATE_SHORT
-            End If
+            ' CR21689 - Stop screwing with the date
+            sFmt = FMT_DATE_LONG
+            'nPos1 = Year(Date)      'This year
+            'nPos2 = Val(sYear)     'Input year
+            'If Abs(nPos1 - nPos2) >= 50 Then
+            '    sFmt = FMT_DATE_LONG
+            'Else
+            '    sFmt = FMT_DATE_SHORT
+            'End If
         End If
         tfnFormatDate = Trim(Format(sMonth & DIVIDER & sDay & DIVIDER & sYear, sFmt))
     End If
@@ -462,7 +464,7 @@ Private Function tfnYear(sText As String) As Integer
         i = i - 1
     Loop Until i <= 1
     If Len(sYear) <= 4 Then
-        tfnYear = val(sYear)
+        tfnYear = Val(sYear)
     End If
 End Function
 
@@ -805,7 +807,7 @@ Private Function fnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
+    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
         Exit Function
     Else
         fnFormatTime = sHH + ":" & sMM
@@ -891,7 +893,7 @@ Public Function tfnFormatTime(ByVal sTime As String, sToMinuteOrSecond As String
         End Select
     End If
 
-    If val(sHH) > 23 Or val(sMM) > 59 Or val(sSS) > 59 Then
+    If Val(sHH) > 23 Or Val(sMM) > 59 Or Val(sSS) > 59 Then
         Exit Function
     Else
         tfnFormatTime = sHH + ":" & sMM
@@ -990,7 +992,7 @@ Public Function fnParseDateTime(ByVal sDateTime As String, _
         Exit Function
     End If
 
-    On Error GoTo ErrHandler
+    On Error GoTo errHandler
     
     nPosi = InStr(sDateTime, " ")
     
@@ -1027,7 +1029,7 @@ Public Function fnParseDateTime(ByVal sDateTime As String, _
     
     Exit Function
     
-ErrHandler:
+errHandler:
     
 End Function
 
