@@ -222,11 +222,11 @@ Public Property Let FTPFolder(ByVal vNewValue As String)
     Me.txtFolder = Trim(vNewValue)
 End Property
 
-Public Property Get FTPUser() As String
-    FTPUser = Me.txtUser
+Public Property Get ftpUser() As String
+    ftpUser = Me.txtUser
 End Property
 
-Public Property Let FTPUser(ByVal vNewValue As String)
+Public Property Let ftpUser(ByVal vNewValue As String)
     Me.txtUser = Trim(vNewValue)
 End Property
 
@@ -290,7 +290,7 @@ Public Function ExecuteFTP() As String
     
     If FTPHost = "" Then Err.Raise -2222, "ExecuteFTL", "FTP Host was not set!"
     'If m_folder = "" Then m_folder = ""
-    If FTPUser = "" Then Err.Raise -2222, "ExecuteFTL", "FTP User was not set!"
+    If ftpUser = "" Then Err.Raise -2222, "ExecuteFTL", "FTP User was not set!"
     If FTPPassword = "" Then Err.Raise -2222, "ExecuteFTL", "FTP Password was not set!"
     'If FTPType = "" Then FTPType = "FTP"
     If FTPFile = "" Then Err.Raise -2222, "", "The file to FTP was not set!"
@@ -316,14 +316,14 @@ FINISHED:
 End Function
 
 Private Sub subPutRequest(sId As String)
-    Dim sSQL As String
+    Dim sSql As String
     Dim sValues As String
     Dim cnt As Long
     
     sValues = "ID=" & sId & "|" & _
               "HOST = " & Replace(Me.FTPHost, " '", "''") & "|" & _
               "FOLDER=" & Replace(Me.FTPFolder, "'", "''") & "|" & _
-              "USER=" & Replace(Me.FTPUser, "'", "''") & "|" & _
+              "USER=" & Replace(Me.ftpUser, "'", "''") & "|" & _
               "PWD=" & Replace(Me.FTPPassword, "'", "''") & "|" & _
               "TYPE=" & Replace(Me.FTPType, "'", "''") & "|" & _
               "FILE=" & Replace(Me.FTPFile, "'", "''")
@@ -332,26 +332,27 @@ Private Sub subPutRequest(sId As String)
         Err.Raise -3333, "subPutRequest", "The values string is too long for the database table! " & vbCrLf & "Try putting the file to FTP in a folder with a shorter path."
     End If
     
-    sSQL = Replace(INSERT_INI, "{USER}", tfnGetUserName())
-    sSQL = Replace(sSQL, "{SECTION}", "FTP SETTINGS")
-    sSQL = Replace(sSQL, "{FTP-ID}", sId)
-    sSQL = Replace(sSQL, "{VALUES}", sValues)
-    cnt = fnExecuteSQL(sSQL)
+    sSql = Replace(INSERT_INI, "{USER}", tfnGetUserName())
+    sSql = Replace(sSql, "{SECTION}", "FTP SETTINGS")
+    sSql = Replace(sSql, "{FTP-ID}", sId)
+    sSql = Replace(sSql, "{VALUES}", sValues)
+    tfnLog fnHidePassword(sSql)
+    cnt = fnExecuteSQL(sSql)
     
 End Sub
 
 Private Sub subClear()
     Dim sId As String
     Dim dt As Date
-    Dim sSQL As String
+    Dim sSql As String
     Dim cnt As Long
     
     dt = DateAdd("d", -1, Now)
     sId = Format(dt, "yyyyMMdd000000")
    'sId = Format(dt, "yyyyMMddHHmmss")
     
-    sSQL = Replace(CLEAR_INI, "{FTP-ID}", sId)
-    cnt = fnExecuteSQL(sSQL)
+    sSql = Replace(CLEAR_INI, "{FTP-ID}", sId)
+    cnt = fnExecuteSQL(sSql)
     
 End Sub
 
@@ -371,7 +372,9 @@ Private Sub subLaunchExe(sId As String)
              Chr(34) & "ID=" & sId & Chr(34) & " " & _
              Chr(34) & "MODE=SILENT" & Chr(34) & " " & _
              Chr(34) & "HWND=" & Me.FTPWindow & Chr(34)
-             
+    
+    tfnLog sShell
+    
     nWaitStart = Timer
     ProcessID = Shell(sShell, VbAppWinStyle.vbHide)
     ProcessHandle = OpenProcess(SYNCHRONIZE, True, ProcessID)
@@ -393,13 +396,13 @@ FINISHED:
 End Sub
 
 Private Sub subGetResult(sId As String)
-    Dim sSQL As String
+    Dim sSql As String
     Dim rsTemp As Recordset
     Dim sResult As String
     
-    sSQL = Replace(GET_RESULT, "{USER}", tfnGetUserName())
-    sSQL = Replace(sSQL, "{FTP-ID}", sId)
-    If fnExecuteQuery(sSQL, rsTemp) < 1 Then
+    sSql = Replace(GET_RESULT, "{USER}", tfnGetUserName())
+    sSql = Replace(sSql, "{FTP-ID}", sId)
+    If fnExecuteQuery(sSql, rsTemp) < 1 Then
         Err.Raise -7777, "subGetResult", "No result for the FTP process was found in the database. Please check the log file and or Event Viewer."
     End If
         
@@ -416,16 +419,16 @@ End Sub
 
 Private Sub subCleanup(sId As String)
     On Error GoTo FINISHED
-    Dim sSQL As String
+    Dim sSql As String
     
-    sSQL = Replace(CLEANUP_ID, "{USER}", tfnGetUserName())
-    sSQL = Replace(sSQL, "{FTP-ID}", sId)
-    fnExecuteSQL sSQL
+    sSql = Replace(CLEANUP_ID, "{USER}", tfnGetUserName())
+    sSql = Replace(sSql, "{FTP-ID}", sId)
+    fnExecuteSQL sSql
     
     Err.Clear
 FINISHED:
     If Err.number <> 0 Then
-        MsgBox "Error Cleaning up the FTP database info: " & Err.Description & vbCrLf & sSQL
+        MsgBox "Error Cleaning up the FTP database info: " & Err.Description & vbCrLf & sSql
         Err.Clear
     End If
 End Sub
@@ -461,4 +464,55 @@ FINISHED:
     End If
 End Function
 
+Private Function fnHidePassword(ByVal sString, Optional sDelim = ";") As String
+    On Error GoTo FINISHED
+    Dim aryParts() As String
+    Dim sName As String
+    Dim i As Long
+    Dim eq As Long
+    Dim bFoundString As Boolean
+    Dim bFoundPart As Boolean
+    Dim sNewString As String
+    
+    fnHidePassword = sString
+    
+    aryParts = Split(sString, sDelim)
+    For i = 0 To UBound(aryParts)
+        bFoundPart = False
+        eq = InStr(1, aryParts(i), "=")
+        If eq > 1 Then
+            sName = Left(aryParts(i), eq - 1)
+            If UCase(Trim(sName)) = "PWD" Or sName = "PASSWORD" Then
+                bFoundString = True
+                bFoundPart = True
+            End If
+            If Not bFoundPart Then
+                If sNewString = "" Then
+                    sNewString = aryParts(i)
+                Else
+                    sNewString = sNewString & sDelim & aryParts(i)
+                End If
+            Else
+                If sNewString = "" Then
+                    sNewString = sName & "=XXXX"
+                Else
+                    sNewString = sNewString & sDelim & sName & "=XXXX"
+                End If
+            End If
+        Else
+            If sNewString = "" Then
+                sNewString = aryParts(i)
+            Else
+                sNewString = sNewString & sDelim & aryParts(i)
+            End If
+        End If
+    Next
+    
+    If bFoundString Then
+        fnHidePassword = sNewString
+    End If
+    
+FINISHED:
+    Err.Clear
+End Function
 
