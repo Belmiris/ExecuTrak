@@ -685,8 +685,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -718,7 +718,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -771,12 +771,12 @@ Public Function ReqdDBaseVersionMet() As Boolean
             
             If Not DB_OK Then
                 If dbVersionSeverity = dbvsl_Warning Then
-                    SQL = UCase$(App.EXEName) & " Version " & sAppVer & " may not function properly on a " & sDBVer & " database." & vbCrLf & "Please contact Factor Support." & vbCrLf & vbCrLf & "Do you want to continue?"
+                    SQL = UCase$(App.exeName) & " Version " & sAppVer & " may not function properly on a " & sDBVer & " database." & vbCrLf & "Please contact Factor Support." & vbCrLf & vbCrLf & "Do you want to continue?"
                     If MsgBox(SQL, vbYesNo + vbDefaultButton2 + vbExclamation) = vbYes Then
                         DB_OK = True
                     End If
                 Else
-                    MsgBox UCase$(App.EXEName) & " Version " & sAppVer & " cannot run on a " & sDBVer & " database." & vbCrLf & vbCrLf & "Please contact Factor Support.", vbCritical
+                    MsgBox UCase$(App.exeName) & " Version " & sAppVer & " cannot run on a " & sDBVer & " database." & vbCrLf & vbCrLf & "Please contact Factor Support.", vbCritical
                 End If
             End If
         Else
@@ -1045,7 +1045,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1093,7 +1093,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1443,7 +1443,7 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
         If Trim(t_szConnect) = "" Then
             On Error Resume Next
             Set t_oleObject = CreateObject(t_szOLEObjectName) 'get the handle to the oleObject internal to the FACTOR Main Menu
-            t_oleObject.EXEName = App.EXEName
+            t_oleObject.exeName = App.exeName
             t_szConnect = t_oleObject.MainConnectString       'get the FACTOR Main Menu connect string
             
             DSN = t_oleObject.DataSourceName                    ' 5875
@@ -1464,6 +1464,11 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     t_engFactor.IniPath = tfnGetSystemDir 'put the path in engine ini variable
     
     Set t_dbMainDatabase = t_wsWorkSpace.OpenDatabase("", False, False, t_szConnect)
+        
+    ' CR21107 - PDI Integration
+    If Not PDIProcess() Then
+        End
+    End If
     
     If Len(DSN) < 1 Then
         DSN = tfnGetNamedString(t_szConnect, "DSN")             ' 5875
@@ -1540,14 +1545,14 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.Number = 3146 Then
+    If Err.number = 3146 Then
         With t_engFactor.Errors
-            If .Count > 0 Then
-                For i = 0 To .Count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
+            If .count > 0 Then
+                For i = 0 To .count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .Count <= 2 Then
+            If .count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -1596,12 +1601,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = val(Format(sTemp, sFmt))
+                        tfnRound = Val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = val(Format(sTemp, "#"))
+                    tfnRound = Val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1740,7 +1745,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2236,7 +2241,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.Number = 94 Then
+    If Err.number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2274,7 +2279,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     On Error Resume Next
     
-    For nIndex = 0 To frmWindow.Controls.Count
+    For nIndex = 0 To frmWindow.Controls.count
         
         If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
@@ -2848,7 +2853,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.Number = 3051 Then
+    If Err.number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3882,8 +3887,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.Number <> 0 Then
-        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
+    If Err.number <> 0 Then
+        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -4108,7 +4113,7 @@ Private Function fnGet_Log_Lvl() As Boolean
     On Error GoTo ErrorTrap
         App_LogLvl = 0
         'First grabs it from global app ini message
-        strLogLvl = tfn_Read_SYS_INI(App.EXEName, "", "LOGGING", "DETAIL_LEVEL", False)
+        strLogLvl = tfn_Read_SYS_INI(App.exeName, "", "LOGGING", "DETAIL_LEVEL", False)
         If strLogLvl <> "" Then
             App_LogLvl = strLogLvl
         End If
@@ -4121,7 +4126,7 @@ Private Function fnGet_Log_Lvl() As Boolean
             End If
         End If
         'Finally, from both.  Highest wins.
-        strLogLvl = tfn_Read_SYS_INI(App.EXEName, strUser, "LOGGING", "DETAIL_LEVEL", False)
+        strLogLvl = tfn_Read_SYS_INI(App.exeName, strUser, "LOGGING", "DETAIL_LEVEL", False)
         If strLogLvl <> "" Then
             If strLogLvl > App_LogLvl Then
                 App_LogLvl = strLogLvl
@@ -4238,13 +4243,13 @@ Public Function tfnLog_Event(nEventLvl As Integer, strEventText As String) As Bo
         '#Insert main line here
         strSQL = "INSERT INTO SYS_LOG (syl_id, syl_login, syl_db_login, syl_host, syl_pid_Hwnd, syl_program, syl_timestamp, syl_event_lvl) " & _
                  "VALUES (0, " & tfnSQLString(strOSUser) & "," & tfnSQLString(strDBUser) & "," & _
-                 tfnSQLString(strHost) & ", " & PID & "," & tfnSQLString(App.EXEName) & "," & _
+                 tfnSQLString(strHost) & ", " & PID & "," & tfnSQLString(App.exeName) & "," & _
                  tfnSQLString(strTimestamp) & ", " & nEventLvl & ")"
         t_dbMainDatabase.ExecuteSQL strSQL
         '# Now to get the ID we just generated...
         strSQL = "SELECT MAX (syl_id) FROM SYS_LOG WHERE syl_login = " & tfnSQLString(strOSUser) & _
                  " AND syl_db_login = " & tfnSQLString(strDBUser) & " AND syl_host = " & tfnSQLString(strHost) & _
-                 " AND syl_pid_hwnd= " & PID & " AND syl_program = " & tfnSQLString(App.EXEName) & _
+                 " AND syl_pid_hwnd= " & PID & " AND syl_program = " & tfnSQLString(App.exeName) & _
                  " AND syl_timestamp = " & tfnSQLString(strTimestamp) & " AND syl_event_lvl = " & nEventLvl
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
         If rsTemp.RecordCount > 0 Then
@@ -5149,10 +5154,10 @@ Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
         
         'form position record does not exist
         If UBound(coords) >= 3 Then
-            sngLeft = val(coords(0))
-            sngTop = val(coords(1))
-            sngWidth = val(coords(2))
-            sngHeight = val(coords(3))
+            sngLeft = Val(coords(0))
+            sngTop = Val(coords(1))
+            sngWidth = Val(coords(2))
+            sngHeight = Val(coords(3))
             
             coordinates = sngLeft & "," & _
                           sngTop & "," & _
@@ -5230,10 +5235,10 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
     coords = Split(coordinates, ",")
     
     If UBound(coords) >= 3 Then
-        sngLeft = val(coords(0))
-        sngTop = val(coords(1))
-        sngWidth = val(coords(2))
-        sngHeight = val(coords(3))
+        sngLeft = Val(coords(0))
+        sngTop = Val(coords(1))
+        sngWidth = Val(coords(2))
+        sngHeight = Val(coords(3))
         
         If sngLeft < 0 Then sngLeft = frm.Left
         If sngTop < 0 Then sngTop = frm.Top
@@ -5262,7 +5267,7 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         frm.Move sngLeft, sngTop, sngWidth, sngHeight
         
         If bSetWindowState And UBound(coords) > 3 Then
-            If val(coords(4)) >= 0 Then frm.WindowState = val(coords(4))
+            If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))
         End If
         
         tfnSetFormPositionSize = True
@@ -5378,7 +5383,7 @@ Public Function CallForPrinterList() As String
     
     DoEvents
     
-    While frmContext.txtPrinterList.text = ""
+    While frmContext.txtPrinterList.Text = ""
         tfnWaitSeconds 1
         times = times + 1
         If times > 5 Then Exit Function
@@ -5387,12 +5392,12 @@ Public Function CallForPrinterList() As String
     
     printerList = ""
     
-    If frmContext.txtPrinterList.text = "*NOPRINTERS*" Then
+    If frmContext.txtPrinterList.Text = "*NOPRINTERS*" Then
         printerList = NOPRINTERSFOUND
-    ElseIf Left(frmContext.txtPrinterList.text, 7) = "*ERROR*" Then
-        MsgBox Mid(frmContext.txtPrinterList.text, 8)
+    ElseIf Left(frmContext.txtPrinterList.Text, 7) = "*ERROR*" Then
+        MsgBox Mid(frmContext.txtPrinterList.Text, 8)
     Else
-        printerList = frmContext.txtPrinterList.text
+        printerList = frmContext.txtPrinterList.Text
     End If
     
     CallForPrinterList = printerList    'check for NODB
@@ -5406,22 +5411,152 @@ Private Function InDebugMode() As Boolean
     On Error Resume Next
     Err.Clear
     Debug.Print 100 / 0
-    If Err.Number <> 0 Then
+    If Err.number <> 0 Then
         InDebugMode = True
         Err.Clear
     End If
 End Function
 
 'G9305 - all developers are on Win10 now.  The built-in SendKeys() will error in the IDE but not in the compiled program.
-Static Sub SendKeys(text As Variant, Optional wait As Boolean = False) 'make this static to 'override' the built-in SendKeys()
+Static Sub SendKeys(Text As Variant, Optional wait As Boolean = False) 'make this static to 'override' the built-in SendKeys()
     Dim WshShell As Object
     
     If InDebugMode Then
         Set WshShell = CreateObject("wscript.shell")
-        WshShell.SendKeys CStr(text), wait
+        WshShell.SendKeys CStr(Text), wait
         Set WshShell = Nothing
     Else
         'Make sure to explicitly call VBA.Sendkeys() otherwise you will get a stack error in the compiled version
-        VBA.SendKeys text, wait
+        VBA.SendKeys Text, wait
     End If
 End Sub
+
+'CR21107 - PDI Integration
+Public Function PDIProcess() As Boolean
+    On Error GoTo FINISHED
+    Dim ini_section As String   ' 'PHASE-1', 'PHASE-2', etc...
+    Dim ini_user_id As String   ' 'PROMPT', 'SHUTDOWN', ...
+    Dim ini_value As String     ' Message for user
+    Dim appName As String
+    Dim exeName As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    Dim sPhaseStatus As String
+    
+    PDIProcess = True
+    
+    appName = UCase(App.exeName)
+    If Len(appName) > 3 Then
+        exeName = tfnSQLString(IIf(Right(appName, 4) = ".EXE", Left(appName, Len(appName) - 4), appName & ".EXE"))
+    Else
+        exeName = tfnSQLString(appName & ".EXE")
+    End If
+    appName = tfnSQLString(appName)
+    
+    strSQL = "select ini_section, " & vbCrLf & _
+             "       ini_user_id, " & vbCrLf & _
+             "       ini_value " & vbCrLf & _
+             "  from sys_ini " & vbCrLf & _
+             " where ini_file_name = 'PDI-CHECKLIST' " & vbCrLf & _
+             "   and ini_field_name in (" & appName & "," & exeName & ") " & vbCrLf
+    With t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+        If Not .EOF Then
+            ini_section = UCase(Trim((!ini_section & "")))
+            ini_user_id = UCase(Trim((!ini_user_id & "")))
+            ini_value = Trim(!ini_value & "")
+        Else
+            Err.Clear
+            GoTo FINISHED
+        End If
+    End With
+    
+    If ini_section = "" Or ini_user_id = "" Then
+        Err.Clear
+        GoTo FINISHED
+    End If
+    
+    sPhaseStatus = Trim(PDIPhaseStatus(ini_section))
+    If sPhaseStatus = "" Then
+        Err.Clear
+        GoTo FINISHED
+    End If
+    
+    Select Case ini_user_id
+        Case "PROMPT"
+            If ini_value = "" Then
+                ini_value = "Because " & ini_section & " of the PDI Integration has been completed, " & vbCrLf & _
+                            "Please be aware that any changes made here should also be made in th PDI Software as well."
+            End If
+            MsgBox Replace(ini_value, "|", vbCrLf), vbExclamation + vbOKOnly, "PDI Integration Warning"
+        
+        Case "SHUTDOWN"
+            PDIProcess = False
+            If ini_value = "" Then
+                ini_value = "Because " & ini_section & " of the PDI Integration has been completed, " & vbCrLf & _
+                            "This program can no longer be run. Please make your change in the PDI Software."
+            End If
+            MsgBox Replace(ini_value, "|", vbCrLf), vbCritical + vbOKOnly, "Shutdown Due to PDI Integration"
+    End Select
+    
+    Err.Clear
+FINISHED:
+    If Err.number <> 0 Then
+        MsgBox "Error in PDIProcess(): " & Err.Description
+        Err.Clear
+    End If
+End Function
+
+'CR21107 - PDI Integration
+Public Function PDIPhaseStatus(sPhase As String) As String
+    On Error GoTo FINISHED
+    Dim sParam As String
+    Dim strSQL As String
+    Dim rsTemp As Recordset
+    
+    Select Case sPhase
+        Case "PHASE-0"
+            sParam = "800"
+        Case "PHASE-1"
+            sParam = "811"
+        Case "PHASE-2"
+            sParam = "812"
+        Case "PHASE-3"
+            sParam = "813"
+        Case "PHASE-4"
+            sParam = "814"
+        Case "PHASE-5"
+            sParam = "815"
+        Case "PHASE-6"
+            sParam = "816"
+        Case "PHASE-7"
+            sParam = "817"
+        Case "PHASE-8"
+            sParam = "818"
+        Case "PHASE-9"
+            sParam = "819"
+    End Select
+        
+    If sParam <> "" Then
+        strSQL = "select parm_field " & vbCrLf & _
+                 "  from sys_parm " & vbCrLf & _
+                 " where parm_nbr = " & sParam & " " & vbCrLf
+        
+        With t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
+            If Not .EOF Then
+                PDIPhaseStatus = Trim(!parm_field & "")
+            Else
+                Err.Clear
+                GoTo FINISHED
+            End If
+        End With
+        
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.number <> 0 Then
+        MsgBox "Error in PDIPhaseStatus(): " & Err.Description
+        Err.Clear
+    End If
+End Function
+
