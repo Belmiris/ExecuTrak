@@ -60,7 +60,7 @@ Public Const SQL_DELETE_LOCK As String = _
     "    AND sdl_prog = '@program'              "
 
 #If Not dbLocalDef Then
-Public dbLocal As DAO.Database 'Local MS Access Database
+Public dbLocal As DAO.DataBase 'Local MS Access Database
 #End If
 
 Public Const VK_LBUTTON = &H1
@@ -148,8 +148,8 @@ Public Function BackupFileName(ByVal Filename As String, ByVal BackupPath As Str
     Do While LenB(CurFile)
         FileNameParts CurFile, , , FileExt
         If FileExt Like "###" Then
-            If val(FileExt) > FileNum Then
-                FileNum = val(FileExt)
+            If Val(FileExt) > FileNum Then
+                FileNum = Val(FileExt)
             End If
         End If
         
@@ -436,10 +436,12 @@ End Function
 '             of an array.
 '---------------------------------------------------------------------------------------
 '
-Public Function RecordArray(SQL As String) As Variant
+' Changed To deal with Windows Update 2019-08 Cumulative Update KB4512501
+Public Function RecordArray(SQL As String, ByRef RecCount As Long) As Variant
     Dim Data     As Variant
     Dim rs       As DAO.Recordset
-    Dim RecCount As Long
+    Dim arr()    As String
+    'Dim RecCount As Long
     
     RecCount = fnRecordset(rs, SQL)
     If RecCount >= 0 Then
@@ -447,7 +449,10 @@ Public Function RecordArray(SQL As String) As Variant
             If RecCount > 0 Then
                 Data = .GetRows(RecCount)
             Else
-                Data = Array() 'No records ... return empty array
+                ReDim arr(0, 0)
+                arr(0, 0) = "@EMPTY@"
+                Data = arr
+                'Data = Array() 'No records ... return empty array
             End If
             .Close
         End With
@@ -456,6 +461,7 @@ Public Function RecordArray(SQL As String) As Variant
     
     RecordArray = Data
 End Function
+
 Public Sub SelectAllText()
     On Error GoTo errHandler
     With Screen.ActiveControl
