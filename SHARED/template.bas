@@ -29,7 +29,7 @@ Global t_oleObject As Object         'pointer to the FACTOR Main Menu oleObject
 Global t_szConnect As String         'This holds the ODBC connect string passed from oleObject
 Global t_engFactor As DBEngine       'pointer to database engine
 Global t_wsWorkSpace As Workspace    'pointer to the default workspace
-Global t_dbMainDatabase As Database  'main database handle
+Global t_dbMainDatabase As DataBase  'main database handle
 Global CRLF As String                'carriage return linefeed string
 Global App_LogLvl As Integer         'Log file level, set by tfnGetLogLvl
 
@@ -685,8 +685,8 @@ Private Function fnMemoryString(ByRef objMemLog As LOG_MEMORY_STATUS) As String
 'dwTotalVirtual: Indicates the total number of bytes that can be described in the user mode portion of the virtual address space of the calling process.
 'dwAvailVirtual: Indicates the number of bytes of unreserved and uncommitted memory in the user mode portion of the virtual address space of the calling process.
     Dim sMsg As String
-    sMsg = "Free RAM: " & Right(Round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
-    sMsg = sMsg & vbCr & "Free Paging File: " & Right(Round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
+    sMsg = "Free RAM: " & Right(round(objMemLog.dwAvailPhys / objMemLog.dwTotalPhys, 2), 2) & "%"
+    sMsg = sMsg & vbCr & "Free Paging File: " & Right(round(objMemLog.dwAvailPageFile / objMemLog.dwTotalPageFile, 2), 2) & "%"
     sMsg = sMsg & vbCr & "Memory Load: " & objMemLog.dwMemoryLoad & "%"
     fnMemoryString = sMsg
 End Function
@@ -718,7 +718,7 @@ Public Sub checkMemory()
     If Timer >= iMemTime + iInterval Then
         iMemTime = Timer
         GlobalMemoryStatus psLogMemoryStatus 'lookup memory information
-        If Round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And Round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
+        If round(psLogMemoryStatus.dwAvailPhys / psLogMemoryStatus.dwTotalPhys, 2) < 0.02 And round(psLogMemoryStatus.dwAvailPageFile / psLogMemoryStatus.dwTotalPageFile, 2) < 0.02 Or psLogMemoryStatus.dwMemoryLoad > 98 Then 'free page file and free ram both less than 2%
             sMsg = fnMemoryString(psLogMemoryStatus) 'takes the memory structure and parses it into a string
             #If Not NO_ERROR_HANDLER Then 'checking to make sure any code using this module also has error handler
                 If Not objErrHandler Is Nothing Then
@@ -1045,7 +1045,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
             sUser = vUser
         End If
                
-        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & Val(sCust)
+        strSQL = "SELECT an_access_zone FROM ar_altname WHERE an_customer = " & val(sCust)
         
         Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
    
@@ -1093,7 +1093,7 @@ Public Function tfnGet_AR_Access_Flag(ByVal sCust As String, Optional vUser As V
     Exit Function
 
 ErrorTrap:
-    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
+    MsgBox "There is an error in checking customer access privilege." & vbCrLf & "Error Code: " & Err.Number & vbCrLf & " Error Desc: " & Err.Description, vbCrLf
     Err.Clear
     tfnGet_AR_Access_Flag = szEMPTY
     
@@ -1476,6 +1476,9 @@ Public Function tfnOpenDatabase(Optional bShowMsgBox As Boolean = True, _
     
     Call io.LoadViaDatabase(DSN, t_dbMainDatabase)              ' 5875
     
+    ' CR30842 - Papco - LOCK MODE TO WAIT
+    subSetLockModeToWait
+    
     'david 05/27/2008
     nDefaultQueryTimeout = t_dbMainDatabase.QueryTimeout
     If nQueryTimeout >= 0 Then
@@ -1545,14 +1548,14 @@ Private Function fnShowODBCError() As String
     Dim sNumbers As String
     Dim sODBCErrors As String
     
-    If Err.number = 3146 Then
+    If Err.Number = 3146 Then
         With t_engFactor.Errors
-            If .count > 0 Then
-                For i = 0 To .count - 2
-                    sMsgs = sMsgs & "Number: " & .Item(i).number & Space(5) & .Item(i).Description & vbCrLf
+            If .Count > 0 Then
+                For i = 0 To .Count - 2
+                    sMsgs = sMsgs & "Number: " & .Item(i).Number & Space(5) & .Item(i).Description & vbCrLf
                 Next
             End If
-            If .count <= 2 Then
+            If .Count <= 2 Then
                 sNumbers = ""
             Else
                 sNumbers = "s"
@@ -1601,12 +1604,12 @@ Public Function tfnRound(vTemp As Variant, _
 '                        tfnRound = val(Format(vTemp + fOffset, sFmt))
 '                    Else
                         sTemp = CStr(vTemp)
-                        tfnRound = Val(Format(sTemp, sFmt))
+                        tfnRound = val(Format(sTemp, sFmt))
 '                    End If
 ''''''''''''''''''''''''''
                 Else
                     sTemp = CStr(vTemp)
-                    tfnRound = Val(Format(sTemp, "#"))
+                    tfnRound = val(Format(sTemp, "#"))
                 End If
             Else
                 tfnRound = 0
@@ -1616,7 +1619,7 @@ Public Function tfnRound(vTemp As Variant, _
 End Function
 
 Public Function tfnOpenLocalDatabase(Optional bShowMsgBox As Boolean = True, _
-                                 Optional sErrMsg As String = "") As Database
+                                 Optional sErrMsg As String = "") As DataBase
 
 '#####################################################################
 '# Modified 10-30-01 Robert Atwood to implement Multi-Company factmenu
@@ -1745,7 +1748,7 @@ Public Function tfnConfirm(szMessage As String, Optional vDefaultButton As Varia
   If IsMissing(vDefaultButton) Then
     nStyle = vbYesNo + vbQuestion ' put focus on Yes
   Else
-    nStyle = vbYesNo + vbQuestion + Val(vDefaultButton) 'Put Focus to Yes or No
+    nStyle = vbYesNo + vbQuestion + val(vDefaultButton) 'Put Focus to Yes or No
   End If
   If MsgBox(szMessage, nStyle, App.Title) = vbYes Then
     tfnConfirm = True
@@ -2241,7 +2244,7 @@ Public Function tfnIsNull(value As Variant) As Boolean
     Exit Function
 
 NULL_ERROR:
-    If Err.number = 94 Then
+    If Err.Number = 94 Then
         tfnIsNull = True
     Else
         tfnIsNull = False
@@ -2279,7 +2282,7 @@ Public Sub tfnSetFormLookups(frmWindow As Form)
     
     On Error Resume Next
     
-    For nIndex = 0 To frmWindow.Controls.count
+    For nIndex = 0 To frmWindow.Controls.Count
         
         If Left(CStr(frmWindow.Controls(nIndex).Tag), 6) = "LOOKUP" Then
             Call tfnSetButtonPic(frmWindow.Controls(nIndex), SEARCH_DOWN)
@@ -2815,7 +2818,7 @@ Private Sub subGetLocalDBVersion(lMajor As Long, _
                                  sDBPath As String)
 
     Dim engLocal As New DBEngine
-    Dim dbLocal As Database
+    Dim dbLocal As DataBase
     Dim wsLocal As Workspace
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -2853,7 +2856,7 @@ errExitHere:
     Exit Sub
 
 errOpenDB:
-    If Err.number = 3051 Then
+    If Err.Number = 3051 Then
         On Error GoTo errSetAttr
         SetAttr sDBPath, vbNormal
         Resume
@@ -3530,7 +3533,7 @@ Public Function tfnLockRow_EX(sProgramID As String, _
         Exit Function
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         tfnLockRow_EX = True
         Exit Function
     #End If
@@ -3747,7 +3750,7 @@ Public Sub tfnUnlockRow_EX(sProgramID As String, _
         Exit Sub
     #End If
     
-    #If PROTOTYPE Then
+    #If ProtoType Then
         Exit Sub
     #End If
     
@@ -3887,8 +3890,8 @@ errTrap:
     lock_nbr = 0
     output_id = 0
     
-    If Err.number <> 0 Then
-        status_message = "Exception Error: " & Err.number & ", " & Trim(Err.Description)
+    If Err.Number <> 0 Then
+        status_message = "Exception Error: " & Err.Number & ", " & Trim(Err.Description)
     End If
     Exit Function
     
@@ -5040,7 +5043,7 @@ End Function
 'ALL-check master and its alternate customers
 Public Function tfnExistsTieredPricing(sFlag As String, ByVal sCust As String, _
                                        Optional ByVal lSite As Long = 0, _
-                                       Optional ByVal lProdlnk As Long = 0) As Boolean
+                                       Optional ByVal lProdLnk As Long = 0) As Boolean
     Const SUB_NAME As String = "tfnExistsTieredPricing"
     Dim strSQL As String
     Dim rsTemp As Recordset
@@ -5111,8 +5114,8 @@ Public Function tfnExistsTieredPricing(sFlag As String, ByVal sCust As String, _
     
     strSQL = strSQL & " and fosi_tiered_price = 'Y'"
     
-    If lProdlnk > 0 Then
-        strSQL = strSQL & " and fosi_prodlnk = " & lProdlnk
+    If lProdLnk > 0 Then
+        strSQL = strSQL & " and fosi_prodlnk = " & lProdLnk
     End If
     
     Set rsTemp = t_dbMainDatabase.OpenRecordset(strSQL, dbOpenSnapshot, dbSQLPassThrough)
@@ -5154,10 +5157,10 @@ Public Sub tfnSaveFormPositionSize(frm As Form, sAppName As String, _
         
         'form position record does not exist
         If UBound(coords) >= 3 Then
-            sngLeft = Val(coords(0))
-            sngTop = Val(coords(1))
-            sngWidth = Val(coords(2))
-            sngHeight = Val(coords(3))
+            sngLeft = val(coords(0))
+            sngTop = val(coords(1))
+            sngWidth = val(coords(2))
+            sngHeight = val(coords(3))
             
             coordinates = sngLeft & "," & _
                           sngTop & "," & _
@@ -5235,10 +5238,10 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
     coords = Split(coordinates, ",")
     
     If UBound(coords) >= 3 Then
-        sngLeft = Val(coords(0))
-        sngTop = Val(coords(1))
-        sngWidth = Val(coords(2))
-        sngHeight = Val(coords(3))
+        sngLeft = val(coords(0))
+        sngTop = val(coords(1))
+        sngWidth = val(coords(2))
+        sngHeight = val(coords(3))
         
         If sngLeft < 0 Then sngLeft = frm.Left
         If sngTop < 0 Then sngTop = frm.Top
@@ -5267,7 +5270,7 @@ Public Function tfnSetFormPositionSize(frm As Form, sAppName As String, _
         frm.Move sngLeft, sngTop, sngWidth, sngHeight
         
         If bSetWindowState And UBound(coords) > 3 Then
-            If Val(coords(4)) >= 0 Then frm.WindowState = Val(coords(4))
+            If val(coords(4)) >= 0 Then frm.WindowState = val(coords(4))
         End If
         
         tfnSetFormPositionSize = True
@@ -5411,7 +5414,7 @@ Private Function InDebugMode() As Boolean
     On Error Resume Next
     Err.Clear
     Debug.Print 100 / 0
-    If Err.number <> 0 Then
+    If Err.Number <> 0 Then
         InDebugMode = True
         Err.Clear
     End If
@@ -5500,7 +5503,7 @@ Public Function PDIProcess() As Boolean
     
     Err.Clear
 FINISHED:
-    If Err.number <> 0 Then
+    If Err.Number <> 0 Then
         MsgBox "Error in PDIProcess(): " & Err.Description
         Err.Clear
     End If
@@ -5554,8 +5557,56 @@ Public Function PDIPhaseStatus(sPhase As String) As String
     
     Err.Clear
 FINISHED:
-    If Err.number <> 0 Then
+    If Err.Number <> 0 Then
         MsgBox "Error in PDIPhaseStatus(): " & Err.Description
+        Err.Clear
+    End If
+End Function
+
+' CR30842 - Papco - LOCK MODE TO WAIT
+Private Sub subSetLockModeToWait()
+    On Error GoTo FINISHED
+    Dim strSQL As String
+    
+    If tfnConnectionIsIDS() Then
+        strSQL = "SET LOCK MODE TO WAIT 45"
+        t_dbMainDatabase.ExecuteSQL strSQL
+        If Not io Is Nothing Then
+            On Error Resume Next
+            tfnLog strSQL, io.StandardLogFile
+            On Error GoTo FINISHED
+        End If
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error in subSetLockModeToWait(): " & _
+                Err.Number & vbCrLf & Err.Description
+        Err.Clear
+    End If
+End Sub
+
+' CR30842 - Papco - LOCK MODE TO WAIT
+Public Function tfnConnectionIsIDS() As Boolean
+    On Error GoTo FINISHED
+    Dim sDBPath As String
+    
+    If t_dbMainDatabase Is Nothing Then Exit Function
+    If Trim(t_dbMainDatabase.Connect) = "" Then Exit Function
+    
+    sDBPath = tfnGetDbName(True)
+    If Trim(sDBPath) = "" Then Exit Function
+    
+    If InStr(1, sDBPath, "/") < 1 Then
+        tfnConnectionIsIDS = True
+    End If
+    
+    Err.Clear
+FINISHED:
+    If Err.Number <> 0 Then
+        MsgBox "Error in tfnConnectionIsIDS(): " & _
+               Err.Number & vbCrLf & Err.Description
         Err.Clear
     End If
 End Function
