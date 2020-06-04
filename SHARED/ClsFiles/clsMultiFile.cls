@@ -74,7 +74,7 @@ Public Function AddLine(sFile As String, sLine As String, Optional bWithCRLF As 
     m_nSeq = m_nSeq + 1
     nLen = Len(sLine)
     If nLen > m_lineLength Then
-        subHandleError "AddLine", 0, 0, "The line " & vbCrLf & sLine & vbCrLf & " in file " & vbCrLf & sFile & vbCrLf & "is too long for tmf_contents and will be truncated"
+        subHandleError "AddLine", 0, 0, "The line sent to file '" & sFile & "' is too long for tmf_contents and will be truncated" & vbCrLf & sLine
         nLen = m_lineLength
     End If
     
