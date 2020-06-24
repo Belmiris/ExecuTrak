@@ -67,7 +67,7 @@ End Function
 'Function        : EndTask - terminate a running windows application.
 'Passed Variables: the applications main window handle, form that called the function
 'Returns         : true if application terminated successfully, false if it failed
-'
+'XXX
 Public Function EndTask(ByVal hTargetWnd As Long, _
                         Optional frmCurrent As Variant) As Boolean
 
@@ -421,11 +421,17 @@ errLaunching:
     lProcID = 0
 End Function
 
-Private Function fnExtractFileName(ByVal sPath As String) As String
+Private Function fnExtractFileName(ByVal sPath As String, Optional sDefault As String = "") As String
 
     Dim i As Integer
     Dim sTemp As String
     Dim sChar As String * 1
+    
+    ' CR36907 - 6/24/2020
+    If sPath = "" Then
+        fnExtractFileName = sDefault
+        Exit Function
+    End If
     
     'david 01/03/2001
     sPath = UCase(sPath)
@@ -544,7 +550,7 @@ Public Function ShellProgramAndWait(ByVal strExePathCmd As String, windowstyle A
     
     Err.Clear
 FINISHED:
-    If Err.number <> 0 Then
+    If Err.Number <> 0 Then
         sMsg = Err.Description
         ShellProgramAndWait = False
     End If
